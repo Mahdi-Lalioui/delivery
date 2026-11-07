@@ -12,6 +12,10 @@
       "types": "./src/database.ts",
       "default": "./dist/database.js"
     },
+    "./geography": {
+      "types": "./src/geography.ts",
+      "default": "./dist/geography.js"
+    },
     "./migrate": {
       "types": "./src/migrate.ts",
       "default": "./dist/migrate.js"

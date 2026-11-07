@@ -111,3 +111,9 @@ Use the AUTH-09 fallback with the existing PostgreSQL and Node cryptography stac
 A single transaction protects challenge consumption and session issuance. The web contract keeps the session credential in the secure cookie. The native contract explicitly requests a Bearer credential. Administrative sessions require a separate TOTP step and expire after twelve hours. Tenant authorization binds the actor's role to the target merchant in SQL.
 
 OTP delivery derives the code from the challenge ID with a keyed, separate HMAC domain. The database stores the verifier HMAC and delivery outcome. A retry of an interrupted send uses the same code and challenge ID, and concurrent retries serialize on the delivery row. The SMS adapter receives the challenge ID as its delivery key so a provider with idempotency support can deduplicate an ambiguous delivery response. Verification receipts retain keyed request fingerprints and outcomes. A consumed successful verification does not reissue a session credential on replay.
+
+### D-006 — Official geography catalog and attributed boundaries (2026-11-07)
+
+Seed national codes, wilaya assignments and bilingual labels from the MIT-licensed GeoAlgeria 2.4.1 catalog. Use the official gazette labels for Algiers. Derive all commune centroids and the 57 Algiers polygons from a dated OpenStreetMap extract under ODbL. Keep the source hashes, relation crosswalk, reproducible tools and attribution together. PostGIS checks submitted pins with the stored Algiers polygon. [Source and licensing record](../packages/db/fixtures/geography/README.md)
+
+The local `db:seed` command migrates, then upserts the catalog in one transaction. Existing commune IDs survive repeat and concurrent seeds. Keep the repository's database-name guard for local commands.

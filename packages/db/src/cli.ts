@@ -1,6 +1,7 @@
 import process from "node:process";
 import { z } from "zod";
 import { openDatabase } from "./database.ts";
+import { seedGeography } from "./geography.ts";
 import { assertLocalDatabaseUrl, assertPostgres18Database } from "./local-database.ts";
 import { migrateDatabase } from "./migrate.ts";
 
@@ -11,11 +12,12 @@ const command = z.union([
   z.tuple([z.literal("reset"), z.literal("--confirm")]),
 ]);
 
-async function migrateDevelopmentDatabase(url: URL): Promise<void> {
+async function prepareDevelopmentDatabase(url: URL, action: "migrate" | "seed"): Promise<void> {
   const connection = openDatabase(url.href);
   try {
     await assertPostgres18Database(connection.sql, developmentDatabase);
     await migrateDatabase(connection);
+    if (action === "seed") await seedGeography(connection);
   } finally {
     await connection.close();
   }
@@ -47,7 +49,7 @@ async function resetDevelopmentDatabase(url: URL): Promise<void> {
       const name = sql.identifier(developmentDatabase);
       await sql`drop database if exists ${name}`;
       await sql`create database ${name} template template0`;
-      await migrateDevelopmentDatabase(url);
+      await prepareDevelopmentDatabase(url, "migrate");
     } finally {
       await sql`select pg_advisory_unlock(890542, 1)`;
     }
@@ -72,9 +74,9 @@ async function main(): Promise<void> {
     return;
   }
 
-  await migrateDevelopmentDatabase(url);
+  await prepareDevelopmentDatabase(url, args.data[0]);
   if (args.data[0] === "seed") {
-    process.stdout.write("Development database baseline ready. Product fixtures begin in M2.\n");
+    process.stdout.write("Seeded wilayas, communes, and Algiers boundaries.\n");
   }
 }
 

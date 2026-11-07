@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 17:23 GMT — M2-3 geography seed
+
+- **Changed** — Added the nationwide bilingual reference catalog and seeded Algiers boundaries with pinned provenance. The guarded local seed upserts the fixtures atomically without replacing commune IDs.
+- **Evidence** — Docker Engine 29.9.2 and Compose v5.6.1 reported PostGIS, Martin and OSRM healthy. Staged `pnpm verify` passed 51 tooling, 562 unit and 59 real PostGIS integration tests. The fixture generator reproduced all three checked-in files and the runtime tests proved repeatability and rollback. [Geography evidence](evidence/m2/geography.md)
+- **Reviewer** — No P0/P1. Verified the source license and attribution, source hashes, byte-for-byte replay, and lack of positive-area overlap between Algiers polygons.
+- **Next** — Use the official communes in the localized restaurant application and admin review browser journey.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 17:21 GMT — M2-3 merchant HTTP
 
 - **Changed** — Published the commune, merchant application, own membership, admin queue and admin review routes. Each declares an explicit policy and uses the authenticated account for scoped queries. Optional application photos are deferred to M2-6.
@@ -188,5 +196,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress)
 - The current M2 implementation snapshot ran `pnpm gate m2` and exited 1 at acceptance trace. It covered 28 of 37 IDs. Pending IDs are ADM-04, MER-01, MER-10, MER-11, MER-12, MER-14, MER-15, MER-16 and MER-23.
-- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 559 unit and 57 PostGIS integration tests
+- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 562 unit and 59 PostGIS integration tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
