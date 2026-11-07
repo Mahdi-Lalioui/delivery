@@ -69,18 +69,18 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
 
 **Goal:** a restaurant can sign up, get approved and build a beautiful menu in minutes.
 
-- [ ] M2-1 Auth: OTP + sessions + roles (AUTH-01…09, CUS-10).
-- [ ] M2-2 Schema: merchants, members, categories, items, option groups, media, price history, settings, flags, audit log.
-- [ ] M2-3 Signup (MER-01) and a minimal admin approval page (ADM-03, first slice).
-- [ ] M2-4 Onboarding checklist (MER-02).
-- [ ] M2-5 Menu builder (MER-09, MER-10), including keyboard reordering.
-- [ ] M2-6 Media pipeline (MER-14, §16).
-- [ ] M2-7 Bulk price change with undo (MER-11).
-- [ ] M2-8 CSV/XLSX import (MER-12).
-- [ ] M2-9 Hours and Ramadan rules UI (MER-15, MER-16).
-- [ ] M2-10 Prohibited-goods moderation (§17.3, ADM-04).
-- [ ] M2-11 Staff roles (MER-23).
-- [ ] M2-12 Seed: 12 **fictional** demo restaurants in Algiers communes with realistic menus in ar/fr and realistic Algiers prices, marked `is_demo`.
+- [ ] M2-1 Auth (AUTH-01…09, CUS-10). Commit strict OTP, TOTP and session schemas in `packages/contracts` first. Add forward auth migration and repositories in `packages/db`, then Fastify policies, cookie/Bearer sessions and fake SMS in `apps/api`. Prove rolling caps, single consumption under concurrency, idle and absolute expiry, device revocation, cookie CSRF, TOTP replay rejection, and localized OTP/resend UX.
+- [ ] M2-2 Merchant schema. Commit the merchant, admin and menu contracts before migrating memberships, categories, items, option groups, media, price history, settings, flags and audit. Prove tenant-scoped foreign keys and SQL membership checks with the same account holding different roles at two merchants.
+- [ ] M2-3 Signup and approval (MER-01, ADM-03 first slice). Verify the commune, pin and phone, create the pending merchant and owner membership atomically, enqueue the admin notice, and prove authorized approval and rejection in the admin queue.
+- [ ] M2-4 Checklist (MER-02 first slice). Show profile, hours and five-item menu progress after approval. Prove that incomplete zone and test-order steps keep Go live unavailable until their later milestone flows can provide real evidence.
+- [ ] M2-5 Menu builder (MER-09 first slice, MER-10). Create, duplicate, archive, reorder by pointer and keyboard, edit bilingual items and DZD prices, and reuse option groups. Prove focus restoration, integer prices, ordering and cross-tenant rejection.
+- [ ] M2-6 Media pipeline (MER-14, §16). Commit upload/variant contracts, decode real HEVC HEIC in CI, validate declared and actual image type and the 8 MB limit, crop to the required ratios, and publish metadata-free WebP/AVIF variants with thumbhash after worker processing.
+- [ ] M2-7 Bulk prices (MER-11). Bind preview to merchant and item revisions, apply rounded changes and history atomically, and prove ten-minute undo rejects expired or subsequently changed prices.
+- [ ] M2-8 CSV/XLSX import (MER-12). Publish the template, bound parsing, report row and field errors, and use a merchant-scoped external key for atomic idempotent application after preview.
+- [ ] M2-9 Hours and Ramadan (MER-15, MER-16). Persist weekly ranges, dated exceptions, Ramadan offsets and location. Render seven-day previews through the M1 rules and exercise overnight and Ramadan edits in Arabic and French.
+- [ ] M2-10 Moderation (§17.3, ADM-04). Check prohibited goods on every menu write path and public preview. Prove flagged items stay hidden until the audited review outcome permits listing.
+- [ ] M2-11 Staff roles (MER-23). Implement owner-managed, single-use invitations tied to a verified phone. Prove every role against both its own and another merchant's resources.
+- [ ] M2-12 Seed twelve fictional bilingual Algiers restaurants with synthetic imagery and `is_demo`, then run production-built onboarding, the complete route matrix, and the design critic's theme/locale/viewport checks. Record local and PR evidence.
 
 **Gate m2:**
 - e2e `@merchant-onboarding`: signup → admin approve → build a 10-item menu with options and photos → bulk price change → import CSV → shown correctly in the preview;

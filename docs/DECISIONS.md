@@ -103,3 +103,9 @@ The default Algeria prayer calculation uses the Adhan Muslim World League profil
 Display delivery ETA endpoints rounded independently to the nearest five minutes, with halves rounded up. Tracking can compute its first ETA immediately and refresh at the next 30-second boundary. M5 supplies the live route and authoritative PostGIS coverage check.
 
 Opening hours use the fixed UTC+01:00 Algiers calendar from 1982 onward. Special dates replace the local day's weekly openings and any prior-day spill. Scheduled slots begin after the current instant, include the three-day boundary, and reserve prep time before the end of a continuous opening. [IANA timezone data](https://data.iana.org/time-zones/tzdb/africa)
+
+### D-005 — Postgres-backed authentication (2026-11-07)
+
+Use the AUTH-09 fallback with the existing PostgreSQL and Node cryptography stack. The exact Better Auth and Expo releases checked were `1.7.18`. The phone plugin stores the code directly and compares strings. The session adapter stores the raw token. The built-in TOTP hook covers credential sign-in, while phone verification can issue a session directly. These paths fail the AUTH-01, AUTH-03 and AUTH-05 requirements. [Phone verification](https://github.com/better-auth/better-auth/blob/v1.7.18/packages/better-auth/src/plugins/phone-number/routes.ts#L932-L967) · [Session adapter](https://github.com/better-auth/better-auth/blob/v1.7.18/packages/better-auth/src/db/internal-adapter.ts#L725-L736) · [TOTP hook](https://github.com/better-auth/better-auth/blob/v1.7.18/packages/better-auth/src/plugins/two-factor/index.ts#L55-L59)
+
+A single transaction protects challenge consumption and session issuance. The web contract keeps the session credential in the secure cookie. The native contract explicitly requests a Bearer credential. Administrative sessions require a separate TOTP step and expire after twelve hours. Tenant authorization binds the actor's role to the target merchant in SQL.

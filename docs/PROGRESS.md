@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 16:03 GMT — M2-1 authentication contracts and gate requirements
+
+- **Changed** — Refined M2 into implementation slices and recorded the AUTH-09 choice in D-005. Added strict phone OTP, TOTP, logout and session schemas. The M2 gate rejects omitting onboarding, authorization or design checks.
+- **Evidence** — The auth and gate regressions failed before implementation. The final `pnpm verify` passed 51 tooling, 396 unit and 12 real PostGIS integration tests, with 20/20 acceptance IDs traced through M1. The focused suites passed all 16 auth and 15 gate tests.
+- **Reviewer** — Confirmed the replay response preserves the original expiry and resend deadlines and Bearer tokens use canonical Base64url. No remaining P0/P1 in the contract slice.
+- **Next** — Write real Postgres tests for OTP and session transactions, then implement the auth persistence and HTTP wiring.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 15:53 GMT — M1 gate passed
 
 - **Evidence** — `pnpm gate m1` exited 0 on clean `1d43c1cf279e30e2771a4fd216df23ab884473e6`. `pnpm exec node scripts/check-pr.ts` confirmed all required checks passed for the same commit. GitHub Actions reproduced the 92.65% mutation score and all 20 required acceptance IDs. [Gate and job evidence](evidence/m1/gate.md) · [M1 PR](https://github.com/Mahdi-Lalioui/delivery/pull/2)
@@ -130,6 +138,6 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ## Current status
 
-- Milestone: M1 (gate passed, M2 next)
+- Milestone: M1 (last passing gate, M2 in progress)
 - Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 380 unit tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
