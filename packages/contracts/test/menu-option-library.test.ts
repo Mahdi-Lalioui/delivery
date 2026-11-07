@@ -88,3 +88,13 @@ test("[MER-10:contract] library pages carry names and stable IDs while details c
     false,
   );
 });
+
+test("[MER-10:contract] the option-group page carries optional validated restaurant context", () => {
+  const page = { sessionId, revision: 4, optionGroups: [], nextCursor: null };
+  expect(menuOptionGroupPageOutput.parse(page)).toEqual(page);
+  const contextual = { ...page, context: { restaurantName: "مطعم الاختبار" } };
+  expect(menuOptionGroupPageOutput.parse(contextual)).toEqual(contextual);
+  expect(
+    menuOptionGroupPageOutput.safeParse({ ...page, context: { restaurantName: " " } }).success,
+  ).toBe(false);
+});

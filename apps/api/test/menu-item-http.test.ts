@@ -82,6 +82,7 @@ test("[MER-09:http] reads a private category-scoped item page and decodes the re
   repository.list.mockResolvedValue({
     kind: "listed",
     revision: 4,
+    context: { restaurantName: "مطعم تجريبي", categoryNames: { fr: "Plats" } },
     items: [itemView],
     nextCursor: null,
   });
@@ -93,6 +94,7 @@ test("[MER-09:http] reads a private category-scoped item page and decodes the re
   expect(menuItemPageOutput.parse(result.json())).toEqual({
     sessionId,
     revision: 4,
+    context: { restaurantName: "مطعم تجريبي", categoryNames: { fr: "Plats" } },
     items: [itemView],
     nextCursor: null,
   });

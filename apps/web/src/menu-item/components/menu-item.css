@@ -58,6 +58,10 @@
   color: var(--color-text-2);
 }
 
+.menu-item-context {
+  overflow-wrap: anywhere;
+}
+
 .menu-item-hint,
 .menu-item-error,
 .menu-item-status,
@@ -251,4 +255,22 @@
 .menu-item-secondary:disabled,
 .menu-item-danger:disabled {
   color: var(--color-text-3);
+}
+
+.menu-item-attachments,
+.menu-item-attachment-row {
+  display: grid;
+  min-inline-size: 0;
+  gap: var(--space-8);
+}
+
+.menu-item-attachments {
+  padding-inline-start: var(--space-24);
+  list-style: decimal;
+}
+
+.menu-item-attachment-row {
+  padding: var(--space-8);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
 }

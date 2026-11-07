@@ -240,6 +240,7 @@ test("[MER-09:db] [MER-10:db] item edits preserve integer DZD and only attach lo
   });
   expect(await repo.list(page(editing))).toEqual({
     kind: "listed",
+    context: { restaurantName: "Restaurant fictif de test", categoryNames: { fr: "Plats" } },
     revision: 1,
     items: [created.item],
     nextCursor: null,
@@ -334,6 +335,7 @@ test("[MER-09:db] a duplicate starts available and unreviewed and an archive rem
   });
   expect(await repo.list(page(lifecycle))).toEqual({
     kind: "listed",
+    context: { restaurantName: "Restaurant fictif de test", categoryNames: { fr: "Plats" } },
     revision: 2,
     items: [duplicated.item],
     nextCursor: null,
@@ -495,6 +497,7 @@ test("[MER-09:db] item keyset cursors stay within their category and tenant and 
   const query = { ...page(paged), limit: 1 };
   expect(await repo.list(query)).toMatchObject({
     kind: "listed",
+    context: { restaurantName: "Restaurant fictif de test", categoryNames: { fr: "Plats" } },
     revision: 0,
     items: [{ itemId: paged.firstItem }],
     nextCursor: `0~${paged.firstItem}`,
@@ -502,6 +505,7 @@ test("[MER-09:db] item keyset cursors stay within their category and tenant and 
   const cursor = { revision: 0, itemId: paged.firstItem };
   expect(await repo.list({ ...query, cursor })).toMatchObject({
     kind: "listed",
+    context: { restaurantName: "Restaurant fictif de test", categoryNames: { fr: "Plats" } },
     revision: 0,
     items: [{ itemId: paged.secondItem }],
     nextCursor: null,
@@ -522,6 +526,7 @@ test("[MER-09:db] item keyset cursors stay within their category and tenant and 
   expect(await repo.list({ ...query, cursor })).toEqual({ kind: "revision_conflict" });
   expect(await repo.list(query)).toMatchObject({
     kind: "listed",
+    context: { restaurantName: "Restaurant fictif de test", categoryNames: { fr: "Plats" } },
     revision: 1,
     items: [{ itemId: paged.secondItem }],
     nextCursor: null,

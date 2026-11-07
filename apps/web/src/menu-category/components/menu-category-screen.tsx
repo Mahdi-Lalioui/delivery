@@ -168,10 +168,25 @@ export function MenuCategoryScreen({ merchantId, locale }: { merchantId: string;
   return (
     <section className="menu-category-panel" aria-labelledby="menu-category-title" ref={panel}>
       <header className="menu-category-heading">
-        <a className="menu-category-secondary" href={`/${locale}/merchant`}>
-          {translate("backToRestaurants")}
-        </a>
+        <div className="menu-category-actions">
+          <a className="menu-category-secondary" href={`/${locale}/merchant`}>
+            {translate("backToRestaurants")}
+          </a>
+          {view.kind === "ready" && (
+            <a
+              className="menu-category-secondary"
+              href={`/${locale}/merchant/${merchantId}/menu/options`}
+            >
+              {translate("optionLibrary")}
+            </a>
+          )}
+        </div>
         <h1 id="menu-category-title">{translate("title")}</h1>
+        {view.kind === "ready" && view.data.context && (
+          <p className="menu-category-context">
+            <bdi>{view.data.context.restaurantName}</bdi>
+          </p>
+        )}
         <p>{translate("description")}</p>
       </header>
       {view.kind === "ready" ? (

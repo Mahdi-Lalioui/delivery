@@ -1,6 +1,6 @@
 import type { TransactionSql } from "postgres";
 import type { DatabaseConnection } from "./database.js";
-import { readMenuRevision, type MenuScope } from "./menu-access.js";
+import { readMenuContext, type MenuScope } from "./menu-access.js";
 import {
   runMenuCommand as runCategoryCommand,
   type CommandChange,
@@ -55,6 +55,7 @@ type CategoryListResult =
   | {
       readonly kind: "listed";
       readonly revision: number;
+      readonly context: { readonly restaurantName: string };
       readonly categories: Category[];
       readonly nextCursor: string | null;
     }
@@ -64,8 +65,9 @@ async function listCategories(
   sql: TransactionSql,
   request: CategoryPage,
 ): Promise<CategoryListResult> {
-  const revision = await readMenuRevision(sql, request);
-  if (revision === undefined) return { kind: "not_found" };
+  const menu = await readMenuContext(sql, request);
+  if (!menu) return { kind: "not_found" };
+  const { revision, restaurantName } = menu;
   const { merchantId, limit, cursor } = request;
   if (cursor && cursor.revision !== revision) return { kind: "revision_conflict" };
 
@@ -83,7 +85,7 @@ async function listCategories(
     rows.length > limit && last
       ? [revision.toString(), last.position.toString(), last.categoryId].join("~")
       : null;
-  return { kind: "listed", revision, categories, nextCursor };
+  return { kind: "listed", revision, categories, nextCursor, context: { restaurantName } };
 }
 
 async function insertCategory(

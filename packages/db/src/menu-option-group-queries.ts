@@ -1,5 +1,5 @@
 import type { TransactionSql } from "postgres";
-import { readMenuRevision, type MenuScope } from "./menu-access.js";
+import { readMenuContext, type MenuScope } from "./menu-access.js";
 
 interface Translations {
   readonly ar?: string | undefined;
@@ -73,10 +73,12 @@ export async function getOptionGroupDetail(
   sql: TransactionSql,
   scope: OptionGroupDetailScope,
 ): Promise<GroupDetailResult> {
-  const revision = await readMenuRevision(sql, scope);
-  if (revision === undefined) return { kind: "not_found" };
+  const menu = await readMenuContext(sql, scope);
+  if (!menu) return { kind: "not_found" };
   const optionGroup = await readOptionGroup(sql, scope);
-  return optionGroup ? { kind: "found", revision, optionGroup } : { kind: "not_found" };
+  return optionGroup
+    ? { kind: "found", revision: menu.revision, optionGroup }
+    : { kind: "not_found" };
 }
 
 async function hasCursorAnchor(
@@ -95,6 +97,7 @@ type GroupListResult =
       readonly revision: number;
       readonly optionGroups: OptionGroupSummary[];
       readonly nextCursor: string | null;
+      readonly context: { readonly restaurantName: string };
     }
   | { readonly kind: "not_found" | "revision_conflict" | "invalid_cursor" };
 
@@ -102,8 +105,9 @@ export async function listOptionGroups(
   sql: TransactionSql,
   request: OptionGroupPage,
 ): Promise<GroupListResult> {
-  const revision = await readMenuRevision(sql, request);
-  if (revision === undefined) return { kind: "not_found" };
+  const menu = await readMenuContext(sql, request);
+  if (!menu) return { kind: "not_found" };
+  const { revision, restaurantName } = menu;
   const { merchantId, limit, cursor } = request;
   if (cursor && cursor.revision !== revision) return { kind: "revision_conflict" };
   if (cursor && !(await hasCursorAnchor(sql, { merchantId, optionGroupId: cursor.optionGroupId })))
@@ -119,5 +123,5 @@ export async function listOptionGroups(
   const last = optionGroups.at(-1);
   const nextCursor =
     rows.length > limit && last ? revision.toString() + "~" + last.optionGroupId : null;
-  return { kind: "listed", revision, optionGroups, nextCursor };
+  return { kind: "listed", revision, optionGroups, nextCursor, context: { restaurantName } };
 }

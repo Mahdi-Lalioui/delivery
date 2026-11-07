@@ -19,6 +19,7 @@ function localizedText(maximum: number) {
 }
 
 const name = localizedText(120);
+const menuContext = z.strictObject({ restaurantName: displayText(120) });
 const uuid = z.uuid();
 const wholeDzd = z.int().min(0).max(2_147_483_647);
 const tag = z.enum(["spicy", "vegetarian", "new", "popular"]);
@@ -85,6 +86,7 @@ export const menuCategoryPageOutput = z
     revision: menuRevision,
     categories: z.array(categoryOutput).max(100),
     nextCursor: categoryCursor.nullable(),
+    context: menuContext.optional(),
   })
   .refine(
     ({ revision, nextCursor }) =>
@@ -179,6 +181,7 @@ export const menuItemPageOutput = z
     revision: menuRevision,
     items: z.array(itemOutput).max(100),
     nextCursor: revisionEntityCursor.nullable(),
+    context: menuContext.extend({ categoryNames: name }).optional(),
   })
   .refine(
     ({ revision, nextCursor }) =>
@@ -279,6 +282,7 @@ export const menuOptionGroupPageOutput = z
     revision: menuRevision,
     optionGroups: z.array(optionGroupSummary).max(100),
     nextCursor: revisionEntityCursor.nullable(),
+    context: menuContext.optional(),
   })
   .refine(
     ({ revision, nextCursor }) =>

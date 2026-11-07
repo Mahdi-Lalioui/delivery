@@ -1,5 +1,5 @@
 import type { TransactionSql } from "postgres";
-import { readMenuRevision, type MenuScope } from "./menu-access.js";
+import { readMenuContext, type MenuScope } from "./menu-access.js";
 import { timestampParsers } from "./timestamp-parsers.js";
 
 type ItemTag = "spicy" | "vegetarian" | "new" | "popular";
@@ -87,14 +87,14 @@ export async function readChangedItem(
   return presentItem(row);
 }
 
-async function isCategoryInMenu(
+async function readCategoryNames(
   sql: TransactionSql,
   { merchantId, categoryId }: Pick<ItemPage, "merchantId" | "categoryId">,
-): Promise<boolean> {
-  const [category] = await sql`
-    SELECT FROM public.categories WHERE merchant_id = ${merchantId} AND id = ${categoryId}
+): Promise<Translations | undefined> {
+  const [category] = await sql<{ names: Translations }[]>`
+    SELECT names FROM public.categories WHERE merchant_id = ${merchantId} AND id = ${categoryId}
   `;
-  return category !== undefined;
+  return category?.names;
 }
 
 async function isCursorInCategory(
@@ -114,15 +114,18 @@ type ItemListResult =
   | {
       readonly kind: "listed";
       readonly revision: number;
+      readonly context: { readonly restaurantName: string; readonly categoryNames: Translations };
       readonly items: MenuItem[];
       readonly nextCursor: string | null;
     }
   | { readonly kind: "not_found" | "revision_conflict" | "invalid_cursor" };
 
 export async function listItems(sql: TransactionSql, request: ItemPage): Promise<ItemListResult> {
-  const revision = await readMenuRevision(sql, request);
-  if (revision === undefined || !(await isCategoryInMenu(sql, request)))
-    return { kind: "not_found" };
+  const menu = await readMenuContext(sql, request);
+  if (!menu) return { kind: "not_found" };
+  const categoryNames = await readCategoryNames(sql, request);
+  if (!categoryNames) return { kind: "not_found" };
+  const { revision, restaurantName } = menu;
   const { merchantId, categoryId, limit, cursor, now } = request;
   if (cursor && cursor.revision !== revision) return { kind: "revision_conflict" };
   if (cursor && !(await isCursorInCategory(sql, request, cursor)))
@@ -138,5 +141,11 @@ export async function listItems(sql: TransactionSql, request: ItemPage): Promise
   const items = rows.slice(0, limit).map(presentItem);
   const last = items.at(-1);
   const nextCursor = rows.length > limit && last ? revision.toString() + "~" + last.itemId : null;
-  return { kind: "listed", revision, items, nextCursor };
+  return {
+    kind: "listed",
+    revision,
+    items,
+    nextCursor,
+    context: { restaurantName, categoryNames },
+  };
 }

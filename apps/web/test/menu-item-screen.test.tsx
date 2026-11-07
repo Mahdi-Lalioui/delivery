@@ -28,11 +28,25 @@ const item = {
   soldOutUntil: "2026-11-07T22:59:59.000Z",
 } satisfies MenuItem;
 const { menuItem } = getMessages("ar");
-const ready = { kind: "ready" as const, data: { items: [item], sessionId, revision: 4 } };
+const ready = {
+  kind: "ready" as const,
+  data: {
+    items: [item],
+    sessionId,
+    revision: 4,
+    context: {
+      restaurantName: "Restaurant fictif",
+      categoryNames: { ar: "قسم تجريبي", fr: "Catégorie fictive" },
+    },
+  },
+};
 const editor = vi.mocked(useMenuItemEditor);
 const defaults = {
   view: ready,
   editor: null,
+  attachments: { kind: "loading" } as const,
+  retryAttachments: vi.fn(),
+  updateAttachments: vi.fn(),
   archiveTarget: null,
   pending: false,
   error: null,
@@ -64,6 +78,8 @@ beforeEach(() => editor.mockReset());
 test("[MER-09:items] shows localized item content, whole dinars, and stock status as Algiers time", () => {
   const html = render();
   expect(html).toContain("طبق مشوي");
+  expect(html).toContain("<bdi>Restaurant fictif</bdi>");
+  expect(html).toContain("<bdi>قسم تجريبي</bdi>");
   expect(html).toContain("Cuisine algérienne");
   expect(html).toContain("1\u202f200 دج");
   expect(html).toContain("23:59");
@@ -116,6 +132,8 @@ test.each([
   const html = render({ view: { kind } });
   expect(html).toContain(menuItem[message]);
   expect(html).not.toContain("طبق مشوي");
+  expect(html).not.toContain("Restaurant fictif");
+  expect(html).not.toContain("قسم تجريبي");
   expect(html).not.toContain(menuItem.confirmArchive);
   if (kind === "sign-in") expect(html).toContain('href="/ar/sign-in?continue=merchant-status"');
   if (kind === "session-changed" || kind === "revision-conflict")
@@ -152,4 +170,55 @@ test("[MER-09:items] exposes a new-item action when the category has no items", 
   expect(html).toContain(menuItem.newItem);
   expect(html).toContain(`role="status">${menuItem.archived}`);
   expect(html).not.toContain("<li");
+});
+
+const firstGroupId = "019d6abc-1234-7234-8234-123456789021";
+const secondGroupId = "019d6abc-1234-7234-8234-123456789022";
+const thirdGroupId = "019d6abc-1234-7234-8234-123456789023";
+const unknownGroupId = "019d6abc-1234-7234-8234-123456789024";
+const editWithAttachments = {
+  kind: "edit" as const,
+  itemId,
+  draft: {
+    ...makeMenuItemDraft(item),
+    optionGroupIds: [secondGroupId, unknownGroupId, firstGroupId],
+  },
+  invalid: null,
+};
+const groups = [
+  { optionGroupId: firstGroupId, names: { ar: "صلصات" }, minimum: 0, maximum: 2 },
+  { optionGroupId: secondGroupId, names: { fr: "Pain" }, minimum: 1, maximum: 1 },
+  { optionGroupId: thirdGroupId, names: { fr: "Desserts" }, minimum: 0, maximum: 2 },
+];
+
+test("[MER-10:attachments] renders saved order and allows keyboard attachment and movement", () => {
+  const html = render({
+    editor: editWithAttachments,
+    attachments: { kind: "ready", optionGroups: groups },
+  });
+
+  const attached = html.match(/<ol[^>]*>[\s\S]+?<\/ol>/)?.[0] ?? "";
+  expect(attached).toMatch(new RegExp(`Pain.*${menuItem.optionGroupUnknown}.*صلصات`));
+  expect(html).toContain(menuItem.optionGroupsAvailable);
+  expect(html).toMatch(new RegExp(`value="${thirdGroupId}"[^>]*>Desserts<`));
+  expect(html).not.toMatch(new RegExp(`value="${secondGroupId}"[^>]*>Pain<`));
+  expect(html).toContain(menuItem.optionGroupsAdd);
+  expect(html).toContain(menuItem.optionGroupsRemove.replace("{name}", "Pain"));
+  expect(html).toContain(menuItem.optionGroupsEarlier.replace("{name}", "صلصات"));
+  expect(html).toContain(menuItem.optionGroupsLater.replace("{name}", "Pain"));
+});
+
+test("[MER-10:attachments] blocks stale and pending saves and preserves unrelated edits on failure", () => {
+  const stale = render({ editor: editWithAttachments, attachments: { kind: "revision-conflict" } });
+  const pending = render({ editor: editWithAttachments, attachments: { kind: "loading" } });
+  const error = render({ editor: editWithAttachments, attachments: { kind: "error" } });
+
+  for (const html of [stale, pending]) {
+    expect(html).toMatch(/<button(?=[^>]*id="menu-item-save")(?=[^>]*disabled="")/);
+  }
+  expect(stale).toContain(menuItem.revisionConflict);
+  expect(stale).toContain(menuItem.reload);
+  expect(error).toContain(menuItem.optionGroupsLoadError);
+  expect(error).toContain(menuItem.optionGroupsRetry);
+  expect(error).not.toMatch(/<button(?=[^>]*id="menu-item-save")(?=[^>]*disabled="")/);
 });

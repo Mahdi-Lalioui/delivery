@@ -100,8 +100,8 @@ function registerList(api: FastifyInstance, services: MenuItemServices | undefin
         ...(parsedCursor === undefined ? {} : { cursor: parsedCursor }),
       });
       if (result.kind !== "listed") return itemProblem(reply, result.kind);
-      const { revision, items, nextCursor } = result;
-      return reply.send({ sessionId: actor.sessionId, revision, items, nextCursor });
+      const { revision, items, nextCursor, context } = result;
+      return reply.send({ sessionId: actor.sessionId, revision, items, nextCursor, context });
     },
   );
 }

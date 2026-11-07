@@ -11,7 +11,7 @@ import {
 import { expect, test } from "vitest";
 import { registerMerchantApiFixture } from "./merchant-api-fixture.ts";
 
-const { openApi, seedActor, seedMenuMerchants } = registerMerchantApiFixture(
+const { database, openApi, seedActor, seedMenuMerchants } = registerMerchantApiFixture(
   "2026-11-07T12:00:00.000Z",
 );
 
@@ -56,6 +56,9 @@ test("[MER-10:http] [MER-23:http] reuses and edits one option group across two i
   const outsider = await seedActor("+213500000055", "standard");
   const { owned, staffed } = await seedMenuMerchants(owner.userId);
   const { owned: otherOwned } = await seedMenuMerchants(owner.userId, "1603");
+  const { sql } = database.get();
+  const otherRestaurantName = "Autre restaurant fictif";
+  await sql`UPDATE merchants SET restaurant_name = ${otherRestaurantName} WHERE id = ${otherOwned}`;
   const client = menuClient(api, owner, owned);
   const otherClient = menuClient(api, owner, otherOwned);
   const library = "/option-groups";
@@ -96,6 +99,7 @@ test("[MER-10:http] [MER-23:http] reuses and edits one option group across two i
   expect(menuOptionGroupPageOutput.parse(summaryResponse.json())).toEqual({
     sessionId: owner.sessionId,
     revision: 1,
+    context: { restaurantName: "Restaurant fictif" },
     optionGroups: [{ ...group, optionGroupId }],
     nextCursor: null,
   });
@@ -179,7 +183,10 @@ test("[MER-10:http] [MER-23:http] reuses and edits one option group across two i
   expect((await unaffiliated.get(groupPath)).statusCode).toBe(404);
   const otherList = await otherClient.get(library);
   expect(otherList.statusCode).toBe(200);
-  expect(menuOptionGroupPageOutput.parse(otherList.json()).optionGroups).toEqual([]);
+  expect(menuOptionGroupPageOutput.parse(otherList.json())).toMatchObject({
+    context: { restaurantName: otherRestaurantName },
+    optionGroups: [],
+  });
   const foreignUpdate = await otherClient.write({
     ...update,
     payload: { ...update.payload, expectedRevision: 0 },

@@ -87,6 +87,17 @@ test("[MER-09:contract] exposes current availability and a revision-bound page w
 
   const page = { sessionId: merchantSessionId, revision: 3, items: [itemView], nextCursor };
   expect(menuItemPageOutput.parse(page)).toEqual(page);
+  const withContext = {
+    ...page,
+    context: { restaurantName: "Cuisine fictive", categoryNames: { ar: "أطباق", fr: "Plats" } },
+  };
+  expect(menuItemPageOutput.parse(withContext)).toEqual(withContext);
+  expect(
+    menuItemPageOutput.safeParse({
+      ...page,
+      context: { restaurantName: "Cuisine fictive", categoryNames: { en: "Only English" } },
+    }).success,
+  ).toBe(false);
   expect(menuItemPageOutput.safeParse({ ...page, nextCursor: "2~" + itemId }).success).toBe(false);
   expect(
     menuItemPageOutput.safeParse({ ...page, items: [{ ...itemView, archivedAt: now }] }).success,

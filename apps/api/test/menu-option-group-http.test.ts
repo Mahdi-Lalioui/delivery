@@ -56,7 +56,9 @@ function setup(actor?: Actor) {
 
 test("[MER-10:http] paginates reusable group summaries and returns details with stable option IDs", async () => {
   const { api, repository } = setup(editor);
+  const context = { restaurantName: "Restaurant fictif" };
   repository.list.mockResolvedValue({
+    context,
     kind: "listed",
     revision: 2,
     optionGroups: [summary],
@@ -72,6 +74,7 @@ test("[MER-10:http] paginates reusable group summaries and returns details with 
   expect(menuOptionGroupPageOutput.parse(list.json())).toEqual({
     sessionId,
     revision: 2,
+    context,
     optionGroups: [summary],
     nextCursor: null,
   });

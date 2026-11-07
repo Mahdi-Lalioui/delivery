@@ -87,8 +87,14 @@ function registerGroupReads(api: FastifyInstance, services: MenuOptionGroupServi
         ...(parsedCursor === undefined ? {} : { cursor: parsedCursor }),
       });
       if (result.kind !== "listed") return groupProblem(reply, result.kind);
-      const { revision, optionGroups, nextCursor } = result;
-      return reply.send({ sessionId: actor.sessionId, revision, optionGroups, nextCursor });
+      const { revision, optionGroups, nextCursor, context } = result;
+      return reply.send({
+        sessionId: actor.sessionId,
+        revision,
+        optionGroups,
+        nextCursor,
+        context,
+      });
     },
   );
   routes.get(

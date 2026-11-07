@@ -1,6 +1,9 @@
+import type { Locale } from "@zaafran/i18n/locales";
 import { useTranslations } from "next-intl";
+import { isAttachmentSaveBlocked } from "../item-attachments";
 import type { ItemField } from "../item-editor";
 import type { useMenuItemEditor } from "../use-menu-item-editor";
+import { ItemAttachmentFields } from "./item-attachment-fields";
 
 type Controls = ReturnType<typeof useMenuItemEditor>;
 type Editor = NonNullable<Controls["editor"]>;
@@ -100,12 +103,28 @@ function TranslationFields({
 
 export function MenuItemForm({
   editor,
+  locale,
+  attachments,
+  updateAttachments,
+  retryAttachments,
+  retry,
   pending,
   changeDraft,
   submitDraft,
   closeEditor,
-}: Pick<Controls, "pending" | "changeDraft" | "submitDraft" | "closeEditor"> & {
+}: Pick<
+  Controls,
+  | "pending"
+  | "changeDraft"
+  | "submitDraft"
+  | "closeEditor"
+  | "attachments"
+  | "updateAttachments"
+  | "retryAttachments"
+  | "retry"
+> & {
   editor: Editor;
+  locale: Locale;
 }) {
   const translate = useTranslations("menuItem");
 
@@ -124,7 +143,10 @@ export function MenuItemForm({
           submitDraft();
         }}
       >
-        <fieldset className="menu-item-form" disabled={pending}>
+        <fieldset
+          className="menu-item-form"
+          disabled={pending || attachments.kind === "revision-conflict"}
+        >
           <TranslationFields field="names" editor={editor} changeDraft={changeDraft} />
           <TranslationFields field="descriptions" editor={editor} changeDraft={changeDraft} />
           <div className="menu-item-numbers">
@@ -188,15 +210,34 @@ export function MenuItemForm({
               ))}
             </div>
           </fieldset>
-          <div className="menu-item-actions">
-            <button className="menu-item-primary" type="submit" id="menu-item-save">
-              {translate(pending ? "saving" : "save")}
-            </button>
-            <button className="menu-item-secondary" type="button" onClick={closeEditor}>
-              {translate("cancel")}
-            </button>
-          </div>
         </fieldset>
+        <ItemAttachmentFields
+          attachments={attachments}
+          ids={editor.draft.optionGroupIds}
+          locale={locale}
+          pending={pending}
+          update={updateAttachments}
+          retryAttachments={retryAttachments}
+          reload={retry}
+        />
+        <div className="menu-item-actions">
+          <button
+            className="menu-item-primary"
+            type="submit"
+            id="menu-item-save"
+            disabled={pending || isAttachmentSaveBlocked(attachments)}
+          >
+            {translate(pending ? "saving" : "save")}
+          </button>
+          <button
+            className="menu-item-secondary"
+            type="button"
+            onClick={closeEditor}
+            disabled={pending}
+          >
+            {translate("cancel")}
+          </button>
+        </div>
       </form>
     </section>
   );

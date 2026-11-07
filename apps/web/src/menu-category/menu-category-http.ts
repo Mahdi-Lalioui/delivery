@@ -128,7 +128,12 @@ function completeCategorySnapshot(
   if (signal.aborted || distinctIds.size !== categories.length) return { kind: "error" };
   return {
     kind: "ready",
-    data: { sessionId: firstPage.sessionId, revision: firstPage.revision, categories },
+    data: {
+      sessionId: firstPage.sessionId,
+      revision: firstPage.revision,
+      context: firstPage.context,
+      categories,
+    },
   };
 }
 

@@ -6,6 +6,7 @@ import { registerTestDatabase } from "./database.ts";
 
 const database = registerTestDatabase();
 const now = new Date("2026-11-07T12:00:00.000Z");
+const restaurantName = "Restaurant fictif de test";
 
 function fixtureId(serial: number) {
   return `01932f18-3150-7c33-8a7a-${String(serial).padStart(12, "0")}`;
@@ -52,7 +53,7 @@ beforeAll(async () => {
     await sql`
       insert into merchants
         (id, slug, restaurant_name, owner_name, phone_e164, commune_id, location, cuisines, status, created_at)
-      values (${merchantId}, ${`fixture-${merchantId}`}, 'Restaurant fictif de test', 'Propriétaire de test',
+      values (${merchantId}, ${`fixture-${merchantId}`}, ${restaurantName}, 'Propriétaire de test',
         '+213500000002', ${communeId}, st_setsrid(st_makepoint(3.05, 36.765), 4326)::geography,
         array['algerian'], 'approved', ${now.toISOString()}::timestamptz)
     `;
@@ -117,6 +118,7 @@ test("[MER-10:db] [MER-23:db] only owners and managers can use the target restau
   const input = groupInput(0);
   expect(await repo.list({ accountId, merchantId: ownedMerchant, limit: 10 })).toEqual({
     kind: "listed",
+    context: { restaurantName },
     revision: 0,
     optionGroups: [],
     nextCursor: null,
@@ -335,12 +337,14 @@ test("[MER-10:db] pagination and commands are revision-bound while exact retries
   const cursor = { revision: 2, optionGroupId: earlier.optionGroupId };
   expect(await repo.list(query)).toEqual({
     kind: "listed",
+    context: { restaurantName },
     revision: 2,
     optionGroups: [earlier],
     nextCursor: `2~${earlier.optionGroupId}`,
   });
   expect(await repo.list({ ...query, cursor })).toEqual({
     kind: "listed",
+    context: { restaurantName },
     revision: 2,
     optionGroups: [later],
     nextCursor: null,

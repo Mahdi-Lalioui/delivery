@@ -94,12 +94,14 @@ test("[MER-09:db] [MER-23:db] listing uses the role held at the target merchant"
   const repo = repository();
   expect(await repo.list({ accountId, merchantId: ownedMerchant, limit: 10 })).toMatchObject({
     kind: "listed",
+    context: { restaurantName: "Restaurant fictif de test" },
     revision: 0,
     categories: [{ categoryId: firstCategory, position: 0 }],
     nextCursor: null,
   });
   expect(await repo.list({ accountId, merchantId: managedMerchant, limit: 10 })).toMatchObject({
     kind: "listed",
+    context: { restaurantName: "Restaurant fictif de test" },
   });
   expect(await repo.list({ accountId, merchantId: staffedMerchant, limit: 10 })).toEqual({
     kind: "not_found",
@@ -229,6 +231,7 @@ test("[MER-09:db] a retry returns the original category and revision after a lat
   });
   expect(await repo.list({ accountId, merchantId: managedMerchant, limit: 10 })).toEqual({
     kind: "listed",
+    context: { restaurantName: "Restaurant fictif de test" },
     revision: 2,
     categories: [{ categoryId, names: rename.input.names, availability: null, position: 0 }],
     nextCursor: null,
@@ -264,6 +267,7 @@ test("[MER-09:db] concurrent writers with the same revision apply exactly one co
     expect(winner.category.position).toBe(0);
     expect(await repo.list({ accountId, merchantId: concurrentMerchant, limit: 10 })).toEqual({
       kind: "listed",
+      context: { restaurantName: "Restaurant fictif de test" },
       revision: 1,
       categories: [winner.category],
       nextCursor: null,
@@ -279,6 +283,7 @@ test("[MER-09:db] keyset pages follow category order and expire when it changes"
   const pageFirstCategory = fixtureId(24);
   expect(await repo.list(page)).toMatchObject({
     kind: "listed",
+    context: { restaurantName: "Restaurant fictif de test" },
     revision: 0,
     categories: [
       { categoryId: pageFirstCategory, position: 0 },
@@ -289,6 +294,7 @@ test("[MER-09:db] keyset pages follow category order and expire when it changes"
   const cursor = { revision: 0, position: 1, categoryId: secondCategory };
   expect(await repo.list({ ...page, cursor })).toMatchObject({
     kind: "listed",
+    context: { restaurantName: "Restaurant fictif de test" },
     revision: 0,
     categories: [{ categoryId: thirdCategory, position: 2 }],
     nextCursor: null,
@@ -316,6 +322,7 @@ test("[MER-09:db] keyset pages follow category order and expire when it changes"
   expect(await repo.list({ ...page, cursor })).toEqual({ kind: "revision_conflict" });
   expect(await repo.list(page)).toMatchObject({
     kind: "listed",
+    context: { restaurantName: "Restaurant fictif de test" },
     revision: 1,
     categories: [
       { categoryId: thirdCategory, position: 0 },
@@ -325,6 +332,7 @@ test("[MER-09:db] keyset pages follow category order and expire when it changes"
   });
   expect(await repo.list({ ...page, cursor: { ...cursor, revision: 1 } })).toMatchObject({
     kind: "listed",
+    context: { restaurantName: "Restaurant fictif de test" },
     revision: 1,
     categories: [{ categoryId: pageFirstCategory, position: 2 }],
     nextCursor: null,

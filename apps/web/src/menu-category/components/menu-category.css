@@ -56,6 +56,10 @@
   color: var(--color-text-2);
 }
 
+.menu-category-context {
+  overflow-wrap: anywhere;
+}
+
 .menu-category-hint,
 .menu-category-row-summary p,
 .menu-category-error {

@@ -5649,6 +5649,20 @@
                       "nullable": true,
                       "type": "string",
                       "maxLength": 64
+                    },
+                    "context": {
+                      "type": "object",
+                      "properties": {
+                        "restaurantName": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 120
+                        }
+                      },
+                      "required": [
+                        "restaurantName"
+                      ],
+                      "additionalProperties": false
                     }
                   },
                   "required": [
@@ -7784,6 +7798,42 @@
                       "nullable": true,
                       "type": "string",
                       "maxLength": 53
+                    },
+                    "context": {
+                      "type": "object",
+                      "properties": {
+                        "restaurantName": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 120
+                        },
+                        "categoryNames": {
+                          "type": "object",
+                          "properties": {
+                            "ar": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 120
+                            },
+                            "fr": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 120
+                            },
+                            "en": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 120
+                            }
+                          },
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "restaurantName",
+                        "categoryNames"
+                      ],
+                      "additionalProperties": false
                     }
                   },
                   "required": [
@@ -10850,6 +10900,20 @@
                       "nullable": true,
                       "type": "string",
                       "maxLength": 53
+                    },
+                    "context": {
+                      "type": "object",
+                      "properties": {
+                        "restaurantName": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 120
+                        }
+                      },
+                      "required": [
+                        "restaurantName"
+                      ],
+                      "additionalProperties": false
                     }
                   },
                   "required": [

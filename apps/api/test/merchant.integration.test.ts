@@ -227,6 +227,7 @@ test("[MER-09:http] [MER-23:http] manages ordered categories through the live me
   expect(menuCategoryPageOutput.parse((await read()).json())).toEqual({
     sessionId: actor.sessionId,
     categories: [],
+    context: { restaurantName: "Restaurant fictif" },
     revision: 0,
     nextCursor: null,
   });

@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  applyItemAttachmentAction,
+  isAttachmentSaveBlocked,
+  loadItemAttachments,
+  type ItemAttachmentAction,
+  type ItemAttachments,
+} from "./item-attachments";
 import {
   makeMenuItemDraft,
   parseMenuItemDraft,
@@ -51,6 +58,8 @@ export function useMenuItemEditor({
 }) {
   const [view, setView] = useState<View>({ kind: "loading" });
   const [editor, setEditor] = useState<Editor | null>(null);
+  const [attachments, setAttachments] = useState<ItemAttachments>({ kind: "loading" });
+  const [attachmentVersion, setAttachmentVersion] = useState(0);
   const [archiveTarget, setArchiveTarget] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<"saveError" | "rateLimited" | null>(null);
@@ -72,13 +81,14 @@ export function useMenuItemEditor({
     };
   }, [merchantId, categoryId, loadVersion]);
 
-  function resetPrivateState() {
+  const resetPrivateState = useCallback(() => {
     setEditor(null);
+    setAttachments({ kind: "loading" });
     setArchiveTarget(null);
     setError(null);
     setNotice(null);
     attempt.current = undefined;
-  }
+  }, []);
 
   function retry() {
     resetPrivateState();
@@ -90,6 +100,7 @@ export function useMenuItemEditor({
   function openEditor(item?: MenuItem) {
     setError(null);
     setArchiveTarget(null);
+    setAttachments({ kind: "loading" });
     const fields = { draft: makeMenuItemDraft(item), invalid: null };
     setEditor(
       item ? { ...fields, kind: "edit", itemId: item.itemId } : { ...fields, kind: "create" },
@@ -101,6 +112,7 @@ export function useMenuItemEditor({
     if (editor?.kind === "edit") setFocus({ kind: "row", itemId: editor.itemId });
     else setFocus({ kind: "list" });
     setEditor(null);
+    setAttachments({ kind: "loading" });
     setError(null);
   }
 
@@ -111,7 +123,14 @@ export function useMenuItemEditor({
   }
 
   function submitDraft() {
-    if (view.kind !== "ready" || !editor || inFlight.current) return;
+    if (
+      view.kind !== "ready" ||
+      !editor ||
+      inFlight.current ||
+      isAttachmentSaveBlocked(attachments)
+    ) {
+      return;
+    }
     const result = parseMenuItemDraft({
       draft: editor.draft,
       categoryId,
@@ -171,10 +190,65 @@ export function useMenuItemEditor({
     }
   }
 
-  function showUnavailable(result: Exclude<ItemRead, { kind: "ready" }>) {
-    resetPrivateState();
-    setView(result);
-    setFocus({ kind: "heading" });
+  const showUnavailable = useCallback(
+    (result: Exclude<ItemRead, { kind: "ready" }>) => {
+      resetPrivateState();
+      setView(result);
+      setFocus({ kind: "heading" });
+    },
+    [resetPrivateState],
+  );
+
+  const isEditing = editor !== null;
+  const revision = view.kind === "ready" ? view.data.revision : undefined;
+  const sessionId = view.kind === "ready" ? view.data.sessionId : undefined;
+
+  useEffect(() => {
+    if (!isEditing || sessionId === undefined || revision === undefined) return;
+    const controller = new AbortController();
+    void loadItemAttachments({ merchantId, sessionId, revision, signal: controller.signal }).then(
+      (result) => {
+        if (controller.signal.aborted) return;
+        if (
+          result.kind === "sign-in" ||
+          result.kind === "forbidden" ||
+          result.kind === "session-changed"
+        ) {
+          showUnavailable({ kind: result.kind });
+        } else {
+          setAttachments(result.kind === "ready" ? result : { kind: result.kind });
+        }
+      },
+    );
+    return () => {
+      controller.abort();
+    };
+  }, [isEditing, merchantId, sessionId, revision, attachmentVersion, showUnavailable]);
+
+  function retryAttachments() {
+    setAttachments({ kind: "loading" });
+    setAttachmentVersion((previous) => previous + 1);
+  }
+
+  function updateAttachments(action: ItemAttachmentAction) {
+    if (attachments.kind !== "ready" || !editor || inFlight.current) return;
+    if (
+      action.kind === "attach" &&
+      !attachments.optionGroups.some((group) => group.optionGroupId === action.groupId)
+    ) {
+      return;
+    }
+    setEditor((previous) =>
+      previous
+        ? {
+            ...previous,
+            draft: {
+              ...previous.draft,
+              optionGroupIds: applyItemAttachmentAction(previous.draft.optionGroupIds, action),
+            },
+          }
+        : null,
+    );
   }
 
   async function finishWrite({
@@ -205,7 +279,10 @@ export function useMenuItemEditor({
 
     attempt.current = undefined;
     setView(refreshed);
-    if (command.kind === "edit" || command.kind === "create") setEditor(null);
+    if (command.kind === "edit" || command.kind === "create") {
+      setEditor(null);
+      setAttachments({ kind: "loading" });
+    }
     if (command.kind === "archive") setArchiveTarget(null);
     setNotice(successNotice);
     const itemId = result.kind === "saved" ? result.data.item.itemId : result.data.itemId;
@@ -262,6 +339,9 @@ export function useMenuItemEditor({
   return {
     view,
     editor,
+    attachments,
+    retryAttachments,
+    updateAttachments,
     archiveTarget,
     pending,
     error,

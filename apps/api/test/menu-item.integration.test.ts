@@ -118,6 +118,7 @@ test("[MER-09:http] edits, duplicates and archives items with the stored menu re
   expect(firstPage).toMatchObject({
     sessionId: actor.sessionId,
     revision: 4,
+    context: { restaurantName: "Restaurant fictif", categoryNames: { ar: "أطباق", fr: "Plats" } },
     items: [updated.item],
   });
   if (!firstPage.nextCursor) throw new Error("Expected a second item page.");
@@ -125,6 +126,7 @@ test("[MER-09:http] edits, duplicates and archives items with the stored menu re
   expect(menuItemPageOutput.parse((await client.listItems(categoryId, nextPage)).json())).toEqual({
     sessionId: actor.sessionId,
     revision: 4,
+    context: { restaurantName: "Restaurant fictif", categoryNames: { ar: "أطباق", fr: "Plats" } },
     items: [copied.item],
     nextCursor: null,
   });
@@ -155,6 +157,7 @@ test("[MER-09:http] edits, duplicates and archives items with the stored menu re
   expect(menuItemPageOutput.parse((await client.listItems(categoryId)).json())).toEqual({
     sessionId: actor.sessionId,
     revision: 5,
+    context: { restaurantName: "Restaurant fictif", categoryNames: { ar: "أطباق", fr: "Plats" } },
     items: [copied.item],
     nextCursor: null,
   });

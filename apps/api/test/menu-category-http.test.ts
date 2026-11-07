@@ -55,6 +55,7 @@ test("[MER-09:http] reads a bounded category page from the authenticated merchan
   repository.list.mockResolvedValue({
     kind: "listed",
     revision: 7,
+    context: { restaurantName: "مطعم تجريبي" },
     categories: [category],
     nextCursor: null,
   });
@@ -65,6 +66,7 @@ test("[MER-09:http] reads a bounded category page from the authenticated merchan
   expect(menuCategoryPageOutput.parse(response.json())).toEqual({
     sessionId,
     revision: 7,
+    context: { restaurantName: "مطعم تجريبي" },
     categories: [category],
     nextCursor: null,
   });

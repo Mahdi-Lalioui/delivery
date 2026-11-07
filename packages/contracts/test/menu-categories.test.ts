@@ -43,6 +43,11 @@ test("[MER-09:contract] requires the prior menu revision on category writes", ()
 test("[MER-09:contract] binds category pages to an authorized session and revision", () => {
   const response = { sessionId, revision: 7, categories: [category], nextCursor: cursor };
   expect(menuCategoryPageOutput.parse(response)).toEqual(response);
+  const withContext = { ...response, context: { restaurantName: "مطعم تجريبي" } };
+  expect(menuCategoryPageOutput.parse(withContext)).toEqual(withContext);
+  expect(
+    menuCategoryPageOutput.safeParse({ ...response, context: { restaurantName: "" } }).success,
+  ).toBe(false);
   expect(menuCategoryPageOutput.safeParse({ ...response, sessionId: undefined }).success).toBe(
     false,
   );

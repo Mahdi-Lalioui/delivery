@@ -1,5 +1,6 @@
 "use client";
 
+import { getLocalizedContent } from "@zaafran/i18n/content";
 import type { Locale } from "@zaafran/i18n/locales";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef } from "react";
@@ -81,7 +82,7 @@ function ItemContent({ locale, controls }: { locale: Locale; controls: Controls 
       )}
       <div className="menu-item-workspace" data-editing={editor !== null} aria-busy={pending}>
         <MenuItemList items={view.data.items} locale={locale} controls={controls} />
-        {editor && <MenuItemForm {...controls} editor={editor} />}
+        {editor && <MenuItemForm {...controls} editor={editor} locale={locale} />}
       </div>
     </>
   );
@@ -99,7 +100,8 @@ export function MenuItemScreen({
   const translate = useTranslations("menuItem");
   const controls = useMenuItemEditor({ merchantId, categoryId });
   const panel = useRef<HTMLElement>(null);
-  const { focus, notice } = controls;
+  const { focus, notice, view } = controls;
+  const context = view.kind === "ready" ? view.data.context : undefined;
 
   useEffect(() => {
     if (focus) panel.current?.querySelector<HTMLElement>(`#${focusId(focus)}`)?.focus();
@@ -114,6 +116,13 @@ export function MenuItemScreen({
         <h1 id="menu-item-title" tabIndex={-1}>
           {translate("title")}
         </h1>
+        {context && (
+          <p className="menu-item-context">
+            <bdi>{context.restaurantName}</bdi>
+            <span aria-hidden="true">{translate("contextSeparator")}</span>
+            <bdi>{getLocalizedContent(context.categoryNames, locale)}</bdi>
+          </p>
+        )}
         <p>{translate("description")}</p>
       </header>
       <p className="menu-item-notice" role="status">

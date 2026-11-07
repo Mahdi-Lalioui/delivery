@@ -75,8 +75,8 @@ function registerCategoryList(api: FastifyInstance, services: MenuCategoryServic
         ...(parsedCursor === undefined ? {} : { cursor: parsedCursor }),
       });
       if (result.kind !== "listed") return categoryProblem(reply, result.kind);
-      const { revision, categories, nextCursor } = result;
-      return reply.send({ sessionId: actor.sessionId, revision, categories, nextCursor });
+      const { revision, categories, nextCursor, context } = result;
+      return reply.send({ sessionId: actor.sessionId, revision, categories, nextCursor, context });
     },
   );
 }

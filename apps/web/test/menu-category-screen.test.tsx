@@ -27,7 +27,15 @@ const second = {
   position: 1,
 };
 const controls: MenuCategoryEditor = {
-  view: { kind: "ready", data: { sessionId, revision: 3, categories: [first, second] } },
+  view: {
+    kind: "ready",
+    data: {
+      sessionId,
+      revision: 3,
+      categories: [first, second],
+      context: { restaurantName: "Restaurant fictif" },
+    },
+  },
   draft: { ar: "", fr: "Draft private text", en: "", from: "", to: "" },
   selectedId: undefined,
   fieldError: undefined,
@@ -60,6 +68,7 @@ test("[MER-09:categories] exposes accessible category editing, reorder controls 
   const html = render();
   const { menuCategory } = getMessages("ar");
   expect(html).toContain(menuCategory.title);
+  expect(html).toContain("<bdi>Restaurant fictif</bdi>");
   expect(html).toContain(menuCategory.nameAr);
   expect(html).toContain(menuCategory.nameFr);
   expect(html).toContain(menuCategory.nameEn);
@@ -69,6 +78,8 @@ test("[MER-09:categories] exposes accessible category editing, reorder controls 
   expect(html).toContain(menuCategory.moveDown);
   expect(html).toContain(`href="/ar/merchant/${merchantId}/menu/${first.categoryId}/items"`);
   expect(html).toContain(menuCategory.manageItems);
+  expect(html).toContain(`href="/ar/merchant/${merchantId}/menu/options"`);
+  expect(html).toContain(menuCategory.optionLibrary);
   expect(html).toContain("21:00");
   expect(html).toContain("03:00");
   expect(html).toMatch(/<li\b(?=[^>]*data-category-id=)(?=[^>]*tabindex="-1")/i);
@@ -81,6 +92,7 @@ test("[MER-09:categories] a changed session removes private rows and drafts and 
   expect(html).toContain(menuCategory.reload);
   expect(html).not.toContain(first.names.ar);
   expect(html).not.toContain(controls.draft.fr);
+  expect(html).not.toContain("/menu/options");
   expect(html).not.toContain("<form");
 });
 

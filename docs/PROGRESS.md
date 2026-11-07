@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 19:13 GMT — M2-5 localized option library and shared attachments
+
+- **Changed** — Added the Arabic, French and English option library, ordered item attachments, and restaurant and category context from the authorized menu response. Writes preserve option IDs, reject stale sessions and revisions, and retain the retry key after an uncertain response.
+- **Evidence** — Staged `pnpm verify` passed 51 tooling, 793 unit and 86 real PostGIS integration tests. All 102 authorization tests and 11 production HTTPS Chromium journeys passed. The shared group and attachment order survived edits and reload on two items. The design critic approved all 32 views and 12 keyboard focus checks. [Browser and design evidence](evidence/m2/option-library.md)
+- **Reviewer** — No P0/P1. Fixed the 20 px attachment picker and wrapped currency suffix, then verified the 44 px picker and one-line suffix at all audited sizes.
+- **Next** — Add inline price editing and commit the media upload contracts. Customer preview remains part of the moderated onboarding journey.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 19:03 GMT — M0 external P1 API log privacy
 
 - **Changed** — Redact `phone`, `code`, `token`, `address`, and `location` at every depth after Pino serialization. Emit only the sanitized JSON, including when a later field shadows a sensitive child binding. The non-personal listener URL is logged as `listenAddress`.

@@ -85,7 +85,10 @@ function completeList(page: ItemPage, items: MenuItem[], categoryId: string): It
   if (distinctIds.size !== items.length || items.some((item) => item.categoryId !== categoryId)) {
     return { kind: "error" };
   }
-  return { kind: "ready", data: { sessionId: page.sessionId, revision: page.revision, items } };
+  return {
+    kind: "ready",
+    data: { sessionId: page.sessionId, revision: page.revision, context: page.context, items },
+  };
 }
 
 export async function listMenuItems({
@@ -120,7 +123,7 @@ export async function listMenuItems({
     items.push(...page.items);
 
     const cursor = page.nextCursor;
-    if (cursor === null) return completeList(page, items, categoryId);
+    if (cursor === null) return completeList(firstPage, items, categoryId);
     if (seenCursors.has(cursor)) return { kind: "error" };
     seenCursors.add(cursor);
     query.set("cursor", cursor);

@@ -9,12 +9,17 @@ interface MenuRevision {
   readonly revision: number;
 }
 
-export async function readMenuRevision(
+interface MenuContext extends MenuRevision {
+  readonly restaurantName: string;
+}
+
+export async function readMenuContext(
   sql: TransactionSql,
   { accountId, merchantId }: MenuScope,
-): Promise<number | undefined> {
-  const [menu] = await sql<MenuRevision[]>`
-    SELECT merchant.menu_revision::double precision AS revision
+): Promise<MenuContext | undefined> {
+  const [menu] = await sql<MenuContext[]>`
+    SELECT merchant.menu_revision::double precision AS revision,
+      merchant.restaurant_name AS "restaurantName"
     FROM public.merchants AS merchant
     JOIN public.merchant_members AS member ON member.merchant_id = merchant.id
     JOIN public.users AS account ON account.id = member.user_id
@@ -23,7 +28,7 @@ export async function readMenuRevision(
       AND member.role IN ('owner', 'manager')
       AND account.blocked_at IS NULL AND account.deleted_at IS NULL
   `;
-  return menu?.revision;
+  return menu;
 }
 
 export async function lockEditableMenu(
