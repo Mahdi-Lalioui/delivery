@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 19:20 GMT — M2-6 photo upload and variant contracts
+
+- **Changed** — Defined strict upload reservations, session-scoped preparation and crop states, and complete ready manifests. Application uploads have no restaurant ID. Menu and profile uploads require one. Added standard Base64 ThumbHash and documented the bounded Linux HEVC decoder in D-007.
+- **Evidence** — All five focused media contract tests passed. Staged `pnpm verify` passed 51 tooling, 798 unit and 86 real PostGIS integration tests. The Linux arm64 Docker probe decoded a synthetic HEVC fixture, rejected three invalid inputs, and generated 30 metadata-free WebP/AVIF variants across the three ratios.
+- **Reviewer** — No P0/P1. Verified exact byte bounds, complete variant pairs, and private state shapes. Added the Expo-compatible ThumbHash regression and made quarantine cleanup and ready application privacy explicit.
+- **Next** — Add tenant-scoped reservation persistence and the transactional preparation job. Wire the real HEVC fixture into amd64 CI before closing media.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 19:13 GMT — M2-5 localized option library and shared attachments
 
 - **Changed** — Added the Arabic, French and English option library, ordered item attachments, and restaurant and category context from the authorized menu response. Writes preserve option IDs, reject stale sessions and revisions, and retain the retry key after an uncertain response.

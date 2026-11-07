@@ -77,7 +77,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
   - [x] Complete bilingual categories and item forms, reusable ordered option attachments, and authorized restaurant/category context. Verify the option library and attached-item screens in the design matrix.
   - [ ] Add inline DZD price editing with keyboard save/cancel, focus restoration and preservation of the saved item fields. Keep the customer preview with the moderated M2-10/M2-12 flow.
 - [ ] M2-6 Media pipeline (MER-14, §16). Commit upload/variant contracts, decode real HEVC HEIC in CI, validate declared and actual image type and the 8 MB limit, crop to the required ratios, and publish metadata-free WebP/AVIF variants with thumbhash after worker processing.
-  - [ ] Define the reservation, private preview, crop, and ready response contracts. Test exact upload bounds and all five output widths in both formats.
+  - [x] Define the reservation, private preview, crop, and ready response contracts. Test exact upload bounds and all five output widths in both formats.
   - [ ] Persist owner and restaurant scope, upload receipts and job state. Accept binary uploads into quarantine and enqueue work in the same transaction as each state change. Prove safe retries, cross-tenant denial and private application photos.
   - [ ] Decode JPEG, PNG, WebP and real HEVC HEIC in the worker. Normalize orientation, bound decoded pixels, remove metadata, derive the requested crop and thumbhash, and publish only after all variants exist. Prove retries recover after a worker interruption.
   - [ ] Connect optional application photos and item photos to the localized cropper. Verify valid and rejected uploads, keyboard crop, private previews, saved item readback and the design matrix.

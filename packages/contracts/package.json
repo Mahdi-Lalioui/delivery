@@ -16,6 +16,10 @@
       "types": "./src/health.ts",
       "default": "./dist/health.js"
     },
+    "./media": {
+      "types": "./src/media.ts",
+      "default": "./dist/media.js"
+    },
     "./menu": {
       "types": "./src/menu.ts",
       "default": "./dist/menu.js"
