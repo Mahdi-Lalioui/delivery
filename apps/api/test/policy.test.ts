@@ -202,6 +202,12 @@ const matrix: readonly MatrixRoute[] = [
     expected: mediaRoles,
   },
   {
+    method: "PUT",
+    url: "/v1/media/uploads/:mediaId/content",
+    requestUrl: "/v1/media/uploads/" + challengeId + "/content",
+    expected: mediaRoles,
+  },
+  {
     method: "GET",
     url: "/v1/media/:mediaId",
     requestUrl: "/v1/media/" + challengeId,

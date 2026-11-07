@@ -10,7 +10,11 @@ test("[M0-6] validates the database URL, listener and port at startup", () => {
     AUTH_OTP_KEY: "01".repeat(32),
     AUTH_TOTP_KEY: "02".repeat(32),
   };
-  expect(readApiEnvironment(input)).toEqual({ ...input, API_PORT: 8081 });
+  expect(readApiEnvironment(input)).toEqual({
+    ...input,
+    API_PORT: 8081,
+    MEDIA_STORAGE_ROOT: readApiEnvironment(input).MEDIA_STORAGE_ROOT,
+  });
   for (const bad of [
     { ...input, DATABASE_URL: "https://example.test/" },
     { ...input, DATABASE_URL: "" },
@@ -49,4 +53,18 @@ test("[AUTH-04:startup] validates the exact public origin and requires independe
     { ...input, API_TRUSTED_PROXY: "true" },
   ])
     expect(() => readApiEnvironment(bad)).toThrow();
+});
+
+test("[MER-14:env] defaults the media storage root and rejects a relative path", () => {
+  const input = {
+    DATABASE_URL: "postgresql://zaafran:fixture@127.0.0.1:5432/zaafran_test",
+    AUTH_PUBLIC_ORIGIN: "https://zaafran.test",
+    AUTH_OTP_KEY: "01".repeat(32),
+    AUTH_TOTP_KEY: "02".repeat(32),
+  };
+  expect(readApiEnvironment(input).MEDIA_STORAGE_ROOT.startsWith("/")).toBe(true);
+  expect(
+    readApiEnvironment({ ...input, MEDIA_STORAGE_ROOT: "/var/zaafran/media" }).MEDIA_STORAGE_ROOT,
+  ).toBe("/var/zaafran/media");
+  expect(() => readApiEnvironment({ ...input, MEDIA_STORAGE_ROOT: "relative/media" })).toThrow();
 });

@@ -1,4 +1,6 @@
 import { isIP } from "node:net";
+import { tmpdir } from "node:os";
+import { isAbsolute, join } from "node:path";
 import { z } from "zod";
 
 const loopback = new Set(["127.0.0.1", "localhost", "[::1]"]);
@@ -38,6 +40,10 @@ const apiEnvironment = z
     AUTH_PUBLIC_ORIGIN: z.string().refine(isOrigin),
     AUTH_OTP_KEY: key,
     AUTH_TOTP_KEY: key,
+    MEDIA_STORAGE_ROOT: z
+      .string()
+      .refine(isAbsolute, "Media storage root must be an absolute path")
+      .default(() => join(tmpdir(), "zaafran-media")),
   })
   .refine(({ AUTH_OTP_KEY, AUTH_TOTP_KEY }) => AUTH_OTP_KEY !== AUTH_TOTP_KEY, {
     path: ["AUTH_TOTP_KEY"],

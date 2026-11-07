@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { mediaOutput } from "@zaafran/contracts/media";
 import type { createMediaRepository } from "@zaafran/db/media";
+import type { MediaStore } from "@zaafran/media";
 import { expect, onTestFinished, test, vi } from "vitest";
 import { createApi } from "../src/app.ts";
 import type { Actor } from "../src/policy.ts";
@@ -27,10 +28,15 @@ function setup(authenticated?: Actor) {
     findUpload: vi.fn<Repository["findUpload"]>(),
     acceptUpload: vi.fn<Repository["acceptUpload"]>(),
   } satisfies Repository;
+  const store = {
+    put: vi.fn<MediaStore["put"]>(),
+    get: vi.fn<MediaStore["get"]>(),
+    delete: vi.fn<MediaStore["delete"]>(),
+  } satisfies MediaStore;
   const options = {
     checkReadiness: () => Promise.resolve(),
     resolveActor: () => Promise.resolve(authenticated),
-    media: { repository, now: () => now },
+    media: { repository, store, now: () => now },
   };
   const api = createApi(options);
   onTestFinished(() => api.close());

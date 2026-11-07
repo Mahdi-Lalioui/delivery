@@ -5,6 +5,7 @@ import { createMenuCategoryRepository } from "@zaafran/db/menu-category";
 import { createMenuItemRepository } from "@zaafran/db/menu-item";
 import { createMenuOptionGroupRepository } from "@zaafran/db/menu-option-group";
 import { createMerchantRepository } from "@zaafran/db/merchant";
+import { createLocalMediaStore } from "@zaafran/media";
 import type { FastifyInstance, FastifyListenOptions } from "fastify";
 import { createApi } from "./app.js";
 import { createAuthService } from "./auth-service.js";
@@ -35,7 +36,11 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     trustedProxy: environment.API_TRUSTED_PROXY,
     auth: { service, publicOrigin: environment.AUTH_PUBLIC_ORIGIN },
     merchant: { repository: createMerchantRepository(database), now },
-    media: { repository: createMediaRepository(database), now },
+    media: {
+      repository: createMediaRepository(database),
+      store: createLocalMediaStore({ root: environment.MEDIA_STORAGE_ROOT }),
+      now,
+    },
     menuCategory: { repository: createMenuCategoryRepository(database), now },
     menuItem: { repository: createMenuItemRepository(database), now },
     menuOptionGroup: { repository: createMenuOptionGroupRepository(database), now },
