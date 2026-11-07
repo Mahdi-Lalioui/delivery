@@ -36,6 +36,7 @@ async function openApi() {
 async function seedActor(phone: string, kind: "standard" | "admin") {
   const { sql } = database.get();
   const userId = randomUUIDv7();
+  const sessionId = randomUUIDv7();
   const { token, tokenHash } = createSessionToken();
   await sql`INSERT INTO users (id, phone_e164, created_at) VALUES (${userId}, ${phone}, ${now})`;
   if (kind === "admin") {
@@ -44,11 +45,12 @@ async function seedActor(phone: string, kind: "standard" | "admin") {
   await sql`
     INSERT INTO sessions
       (id, user_id, token_hash, transport, kind, request_ip, created_at, last_seen_at, expires_at)
-    VALUES (${randomUUIDv7()}, ${userId}, ${tokenHash}, 'web', ${kind}, '192.0.2.1',
+    VALUES (${sessionId}, ${userId}, ${tokenHash}, 'web', ${kind}, '192.0.2.1',
       ${now}, ${now}, ${now}::timestamptz + interval '1 day')
   `;
   return {
     userId,
+    sessionId,
     headers: {
       cookie: "__Host-session=" + token,
       origin: publicOrigin,
@@ -63,6 +65,7 @@ test("[MER-01:http] [ADM-03:http] submits, scopes and reviews a merchant on the 
   const applicant = await seedActor(applicantPhone, "standard");
   const other = await seedActor("+213500000031", "standard");
   const admin = await seedActor("+213500000032", "admin");
+  const otherAdmin = await seedActor("+213500000033", "admin");
   const communeId = randomUUIDv7();
   const { sql } = database.get();
   await sql`INSERT INTO wilayas (code, name_ar, name_fr) VALUES (16, 'الجزائر', 'Alger')`;
@@ -101,7 +104,11 @@ test("[MER-01:http] [ADM-03:http] submits, scopes and reviews a merchant on the 
     api.inject({
       method: "POST",
       url: applicationsPath,
-      headers: { ...applicant.headers, "idempotency-key": key },
+      headers: {
+        ...applicant.headers,
+        "idempotency-key": key,
+        "x-expected-session-id": applicant.sessionId,
+      },
       payload,
     });
 
@@ -112,6 +119,20 @@ test("[MER-01:http] [ADM-03:http] submits, scopes and reviews a merchant on the 
   expect(problemResponseSchema.parse(outside.json())).toMatchObject({
     status: 422,
     code: "outside_commune",
+  });
+  const staleApplication = await api.inject({
+    method: "POST",
+    url: applicationsPath,
+    headers: {
+      ...other.headers,
+      "idempotency-key": signupKey,
+      "x-expected-session-id": applicant.sessionId,
+    },
+    payload: application,
+  });
+  expect(problemResponseSchema.parse(staleApplication.json())).toMatchObject({
+    status: 409,
+    code: "session_changed",
   });
   const created = await submit();
   expect(created.statusCode).toBe(201);
@@ -124,6 +145,7 @@ test("[MER-01:http] [ADM-03:http] submits, scopes and reviews a merchant on the 
   });
 
   const current = await api.inject({ url: membershipsPath, headers: applicant.headers });
+  expect(merchantMembershipsOutput.parse(current.json()).sessionId).toBe(applicant.sessionId);
   expect(merchantMembershipsOutput.parse(current.json()).memberships).toEqual([
     { ...result, restaurantName: application.restaurantName, role: "owner" },
   ]);
@@ -134,6 +156,7 @@ test("[MER-01:http] [ADM-03:http] submits, scopes and reviews a merchant on the 
   const queued = await api.inject({ url: queuePath, headers: admin.headers });
   expect(queued.statusCode).toBe(200);
   expect(queued.headers["cache-control"]).toBe("no-store");
+  expect(adminReviewQueueOutput.parse(queued.json()).sessionId).toBe(admin.sessionId);
   expect(adminReviewQueueOutput.parse(queued.json()).applications).toEqual([
     {
       merchantId: result.merchantId,
@@ -153,10 +176,19 @@ test("[MER-01:http] [ADM-03:http] submits, scopes and reviews a merchant on the 
     api.inject({
       method: "POST",
       url: queuePath + "/" + result.merchantId + "/review",
-      headers: { ...headers, "idempotency-key": reviewKey },
+      headers: {
+        ...headers,
+        "idempotency-key": reviewKey,
+        "x-expected-session-id": admin.sessionId,
+      },
       payload: { decision: "approve", reason: "Verified synthetic application" },
     });
   expect((await review(other.headers)).statusCode).toBe(403);
+  const staleReview = await review(otherAdmin.headers);
+  expect(problemResponseSchema.parse(staleReview.json())).toMatchObject({
+    status: 409,
+    code: "session_changed",
+  });
   const approved = await review(admin.headers);
   expect(approved.statusCode).toBe(200);
   expect(adminMerchantReviewOutput.parse(approved.json())).toEqual({

@@ -7,6 +7,7 @@ type Role =
 export interface Actor {
   readonly role: Role;
   readonly accountId: string;
+  readonly sessionId: string;
 }
 
 type Policy =

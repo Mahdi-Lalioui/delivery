@@ -6,7 +6,7 @@ import {
   adminReviewQueueQuery,
   readAdminReviewCursor,
 } from "@zaafran/contracts/admin";
-import { idempotencyKeySchema } from "@zaafran/contracts/auth";
+import { sessionBoundCommandHeaders } from "@zaafran/contracts/auth";
 import { problemResponseSchema } from "@zaafran/contracts/health";
 import {
   communeListOutput,
@@ -36,7 +36,6 @@ const merchantConfig = {
 } as const;
 const adminConfig = { policy: { kind: "roles", roles: ["admin"] } } as const;
 
-const commandHeaders = z.object({ "idempotency-key": idempotencyKeySchema });
 const merchantIdParams = z.strictObject({ merchantId: z.uuid() });
 const errors = {
   400: problemResponseSchema,
@@ -76,7 +75,7 @@ function registerApplication(api: FastifyInstance, services: MerchantServices | 
     {
       config: merchantConfig,
       schema: {
-        headers: commandHeaders,
+        headers: sessionBoundCommandHeaders,
         body: merchantApplicationInput,
         response: { 201: merchantApplicationOutput, ...errors },
       },
@@ -85,6 +84,8 @@ function registerApplication(api: FastifyInstance, services: MerchantServices | 
       const actor = getRequestActor(request);
       if (!actor) return sendProblem(reply, 401);
       if (!services) return sendProblem(reply, 503);
+      if (request.headers["x-expected-session-id"].toLowerCase() !== actor.sessionId)
+        return sendProblem(reply, 409, "session_changed");
       const { photoIds, ...body } = request.body;
       if (photoIds?.length) return sendProblem(reply, 409, "photos_unavailable");
       const input = { ...body, communeId: body.communeId.toLowerCase() };
@@ -125,7 +126,7 @@ function registerMerchantReads(api: FastifyInstance, services: MerchantServices 
       if (!services) return sendProblem(reply, 503);
       reply.header("cache-control", "no-store");
       const memberships = await services.repository.listMemberships({ accountId: actor.accountId });
-      return reply.send({ memberships });
+      return reply.send({ memberships, sessionId: actor.sessionId });
     },
   );
 }
@@ -151,7 +152,9 @@ function registerAdminQueue(api: FastifyInstance, services: MerchantServices | u
         limit,
         ...(cursor === undefined ? {} : { cursor: readAdminReviewCursor(cursor) }),
       });
-      return page ? reply.send(page) : merchantProblem(reply, "forbidden");
+      return page
+        ? reply.send({ ...page, sessionId: actor.sessionId })
+        : merchantProblem(reply, "forbidden");
     },
   );
 }
@@ -162,7 +165,7 @@ function registerAdminReview(api: FastifyInstance, services: MerchantServices | 
     {
       config: adminConfig,
       schema: {
-        headers: commandHeaders,
+        headers: sessionBoundCommandHeaders,
         params: merchantIdParams,
         body: adminMerchantReviewInput,
         response: { 200: adminMerchantReviewOutput, ...errors },
@@ -172,6 +175,8 @@ function registerAdminReview(api: FastifyInstance, services: MerchantServices | 
       const actor = getRequestActor(request);
       if (!actor) return sendProblem(reply, 401);
       if (!services) return sendProblem(reply, 503);
+      if (request.headers["x-expected-session-id"].toLowerCase() !== actor.sessionId)
+        return sendProblem(reply, 409, "session_changed");
       const body = { merchantId: request.params.merchantId.toLowerCase(), ...request.body };
       const result = await services.repository.reviewApplication({
         ...body,

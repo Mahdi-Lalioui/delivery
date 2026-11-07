@@ -56,6 +56,11 @@ export const verifyTotpOutput = z.discriminatedUnion("transport", [
   bearerAuthenticated,
 ]);
 
+export const sessionBoundCommandHeaders = z.object({
+  "idempotency-key": idempotencyKeySchema,
+  "x-expected-session-id": z.uuid(),
+});
+
 export const logoutInput = z.strictObject({
   scope: z.enum(["current", "all"]),
   expectedSessionId: z.uuid(),

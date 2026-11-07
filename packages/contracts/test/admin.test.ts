@@ -86,7 +86,10 @@ test("[ADM-03:contract] exposes pending applications without account secrets", (
     rcNumber: null,
     submittedAt: reviewedAt,
   };
-  const payload = { applications: [application], nextCursor: null };
+  const payload = { sessionId: merchantId, applications: [application], nextCursor: null };
+  expect(adminReviewQueueOutput.safeParse({ applications: [], nextCursor: null }).success).toBe(
+    false,
+  );
   expect(adminReviewQueueOutput.parse(payload)).toEqual(payload);
   expect(
     adminReviewQueueOutput.safeParse({

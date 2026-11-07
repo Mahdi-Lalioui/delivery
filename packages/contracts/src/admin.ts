@@ -53,6 +53,7 @@ const queuedApplication = z.strictObject({
 });
 
 export const adminReviewQueueOutput = z.strictObject({
+  sessionId: z.uuid(),
   applications: z.array(queuedApplication).max(100),
   nextCursor: z.string().max(96).nullable(),
 });

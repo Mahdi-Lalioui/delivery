@@ -2,6 +2,7 @@ import { getMessages } from "@zaafran/i18n/messages";
 import { NextIntlClientProvider } from "next-intl";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, expect, test, vi } from "vitest";
+import type { SignInDestination } from "../src/auth/sign-in-intent";
 import { usePhoneSignIn, type PhoneSignIn } from "../src/auth/use-phone-sign-in";
 import { SignInForm } from "../src/components/sign-in-form";
 
@@ -23,7 +24,11 @@ const initialFlow: PhoneSignIn = {
   restart: vi.fn(),
 };
 
-function render(flow: Partial<PhoneSignIn> = {}, purpose: "sign_in" | "admin_sign_in" = "sign_in") {
+function render(
+  flow: Partial<PhoneSignIn> = {},
+  purpose: "sign_in" | "admin_sign_in" = "sign_in",
+  destination?: SignInDestination,
+) {
   vi.mocked(usePhoneSignIn).mockReturnValue({ ...initialFlow, ...flow });
   return renderToStaticMarkup(
     <NextIntlClientProvider
@@ -31,7 +36,7 @@ function render(flow: Partial<PhoneSignIn> = {}, purpose: "sign_in" | "admin_sig
       timeZone="Africa/Algiers"
       messages={{ auth: getMessages("ar").auth }}
     >
-      <SignInForm locale="ar" purpose={purpose} />
+      <SignInForm locale="ar" purpose={purpose} destination={destination} />
     </NextIntlClientProvider>,
   );
 }
@@ -82,6 +87,17 @@ test("[AUTH-03] offers a localized home link after the server has authenticated 
   expect(html).toMatch(/<a[^>]*href="\/ar"/);
   expect(html).toMatch(/<a[^>]*href="\/ar\/account\/sessions"/);
   expect(html).toContain(getMessages("ar").auth.manageDevices);
+});
+
+test("[MER-01:web] shows the localized application link only after sign-in", () => {
+  const destination: SignInDestination = {
+    href: "/ar/merchant/apply",
+    label: "continueApplication",
+  };
+  expect(render({}, "sign_in", destination)).not.toContain(destination.href);
+  const complete = render({ step: { kind: "done" } }, "sign_in", destination);
+  expect(complete).toMatch(/<a[^>]*class="auth-primary"[^>]*href="\/ar\/merchant\/apply"/);
+  expect(complete).toContain(getMessages("ar").auth.continueApplication);
 });
 
 test("[AUTH-02] an available SMS retry exposes the retry action and localizes delivery failure", () => {

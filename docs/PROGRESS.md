@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 17:40 GMT — M2-3 localized signup and review
+
+- **Changed** — Added public restaurant signup, Arabic/French/English application status, allowlisted sign-in continuations and a French/English review queue. Bound application and admin decisions to the session that loaded the form. Retained the application key through throttling and formatted Algerian phone numbers in the review detail.
+- **Evidence** — Staged `pnpm verify` passed 51 tooling, 620 unit and 59 real PostGIS integration tests. All seven HTTPS journeys passed, including separate approval/rejection, stale account and lost-response regressions. The 48-screen design matrix, eight 200% text checks and 35 existing visual checks passed. `pnpm db:seed` seeded the local Docker development database with 69 wilayas, 1,541 communes and 57 boundaries. [Browser and design evidence](evidence/m2/merchant-application.md)
+- **Reviewer** — Closed stale applicant and admin session binding and the duplicate submission risk after a lost response and 429. Design review caught phone formatting and text scaling, both corrected and verified on the staged build.
+- **Next** — Finish the menu schema and implement owner/manager category, item and option editing. Optional signup photos follow M2-6.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 17:27 GMT — M2-2 menu write contracts
 
 - **Changed** — Added strict category, category reorder, item and reusable option group inputs. They require Arabic or French content, whole-dinar prices, unique ordered group attachments and valid option selection limits. A temporarily sold-out option can retain its default preference.
@@ -204,5 +212,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress)
 - The current M2 implementation snapshot ran `pnpm gate m2` and exited 1 at acceptance trace. It covered 28 of 37 IDs. Pending IDs are ADM-04, MER-01, MER-10, MER-11, MER-12, MER-14, MER-15, MER-16 and MER-23.
-- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 566 unit and 59 PostGIS integration tests
+- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 620 unit and 59 PostGIS integration tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

@@ -5,6 +5,7 @@ import { formatAlgerianPhone } from "@zaafran/i18n/phone";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import type { OtpPurpose } from "../auth/auth-http";
+import type { SignInDestination } from "../auth/sign-in-intent";
 import { usePhoneSignIn, type PhoneSignIn } from "../auth/use-phone-sign-in";
 
 const errorId = "sign-in-error";
@@ -176,7 +177,44 @@ function ChallengeActions({ flow, translate }: { flow: PhoneSignIn; translate: T
   );
 }
 
-export function SignInForm({ locale, purpose }: { locale: Locale; purpose: OtpPurpose }) {
+function SignInActions({
+  locale,
+  destination,
+  translate,
+}: {
+  locale: Locale;
+  destination: SignInDestination | undefined;
+  translate: Translate;
+}) {
+  return (
+    <div className="auth-actions">
+      {destination && (
+        <a className="auth-primary" href={destination.href}>
+          {translate(destination.label)}
+        </a>
+      )}
+      <a
+        className={destination ? "auth-secondary" : "auth-primary"}
+        href={`/${locale}/account/sessions`}
+      >
+        {translate("manageDevices")}
+      </a>
+      <a className="auth-secondary" href={`/${locale}`}>
+        {translate("home")}
+      </a>
+    </div>
+  );
+}
+
+export function SignInForm({
+  locale,
+  purpose,
+  destination,
+}: {
+  locale: Locale;
+  purpose: OtpPurpose;
+  destination?: SignInDestination | undefined;
+}) {
   const translate = useTranslations("auth");
   const flow = usePhoneSignIn(purpose);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -208,14 +246,7 @@ export function SignInForm({ locale, purpose }: { locale: Locale; purpose: OtpPu
         <StepHeading flow={flow} purpose={purpose} translate={translate} />
       </div>
       {isDone ? (
-        <div className="auth-actions">
-          <a className="auth-primary" href={`/${locale}/account/sessions`}>
-            {translate("manageDevices")}
-          </a>
-          <a className="auth-secondary" href={`/${locale}`}>
-            {translate("home")}
-          </a>
-        </div>
+        <SignInActions locale={locale} destination={destination} translate={translate} />
       ) : (
         <form
           method="post"

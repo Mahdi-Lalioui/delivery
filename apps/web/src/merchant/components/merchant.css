@@ -1,0 +1,193 @@
+.merchant-panel {
+  display: grid;
+  gap: var(--space-24);
+  inline-size: min(100%, calc(6 * var(--space-120)));
+  margin-inline: auto;
+}
+
+.merchant-heading,
+.merchant-card,
+.merchant-memberships,
+.merchant-field,
+.merchant-grid,
+.merchant-form-fields,
+.merchant-group {
+  display: grid;
+  gap: var(--space-12);
+  min-inline-size: 0;
+}
+
+.merchant-heading h1 {
+  font-family: var(--font-display);
+  font-size: var(--font-size-display);
+  font-weight: var(--font-weight-display);
+  line-height: var(--line-height-display);
+}
+
+.merchant-heading p,
+.merchant-hint {
+  color: var(--color-text-2);
+}
+
+.merchant-card {
+  padding: clamp(var(--space-16), 5vi, var(--space-32));
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-e1);
+}
+
+.merchant-card h2 {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-h2);
+  line-height: var(--line-height-h2);
+}
+
+.merchant-form,
+.merchant-form-fields {
+  gap: var(--space-20);
+}
+
+.merchant-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(2 * var(--space-120))), 1fr));
+}
+
+.merchant-field {
+  gap: var(--space-4);
+}
+
+.merchant-field label,
+.merchant-group legend {
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-label);
+  line-height: var(--line-height-label);
+}
+
+.merchant-group legend {
+  margin-block-end: var(--space-4);
+}
+
+.merchant-hint,
+.merchant-error {
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+}
+
+.merchant-error {
+  color: var(--color-danger);
+}
+
+.merchant-field input,
+.merchant-field select {
+  min-inline-size: 0;
+  min-block-size: var(--touch-target-min);
+  padding-inline: var(--space-12);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+}
+
+.merchant-field input[aria-invalid="true"],
+.merchant-field select[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+
+.merchant-field input[inputmode="decimal"] {
+  font-family: var(--font-numbers);
+  font-variant-numeric: var(--font-variant-numeric-numbers);
+}
+
+.merchant-cuisines,
+.merchant-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+}
+
+.merchant-cuisines label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  min-block-size: var(--touch-target-min);
+  padding-inline: var(--space-12);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+}
+
+.merchant-cuisines label:has(input:checked) {
+  background: var(--color-surface-2);
+}
+
+.merchant-cuisines label:has(input:disabled) {
+  color: var(--color-text-3);
+}
+
+.merchant-cuisines input {
+  accent-color: var(--color-info);
+}
+
+.merchant-cuisines label:has(:focus-visible) {
+  outline: var(--focus-ring-width) solid var(--color-focus);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.merchant-badges span {
+  padding: var(--space-4) var(--space-8);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-2);
+  color: var(--color-text-2);
+  font-size: var(--font-size-caption);
+}
+
+.merchant-badges .merchant-status {
+  background: var(--color-info-bg);
+  color: var(--color-info);
+}
+
+.merchant-primary,
+.merchant-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: start;
+  min-block-size: var(--touch-target-min);
+  min-inline-size: var(--touch-target-min);
+  padding-inline: var(--space-16);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-label);
+  line-height: var(--line-height-label);
+  text-decoration: none;
+}
+
+.merchant-primary {
+  min-block-size: var(--touch-target-operations-primary);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.merchant-primary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.merchant-primary:active:not(:disabled) {
+  background: var(--color-primary-pressed);
+}
+
+.merchant-secondary {
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text);
+}
+
+.merchant-secondary:hover:not(:disabled),
+.merchant-primary:disabled,
+.merchant-secondary:disabled {
+  background: var(--color-surface-2);
+}
+
+.merchant-primary:disabled,
+.merchant-secondary:disabled {
+  color: var(--color-text-3);
+}

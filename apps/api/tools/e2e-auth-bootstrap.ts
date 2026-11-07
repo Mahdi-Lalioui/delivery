@@ -1,11 +1,12 @@
 import { createHmac, randomBytes, randomUUIDv7 } from "node:crypto";
-import { openDatabase } from "@zaafran/db/database";
+import { openDatabase, type DatabaseConnection } from "@zaafran/db/database";
+import { seedGeography } from "@zaafran/db/geography";
 import { migrateDatabase } from "@zaafran/db/migrate";
 import { createTestClone } from "../../../packages/db/test/clone.ts";
 import { sealTotpSecret } from "../src/auth-totp.ts";
 import type { startApi } from "../src/start.ts";
 import { startAuthProxy } from "./e2e-auth-proxy.ts";
-import type { AuthHarness } from "./e2e-auth-types.ts";
+import type { AlgiersCommune, AuthHarness } from "./e2e-auth-types.ts";
 
 const defaultTestUrl = "postgresql://zaafran:zaafran_dev_only@127.0.0.1:5432/zaafran_test";
 
@@ -25,6 +26,21 @@ function currentTotp(secret: Buffer, time: number): string {
   const offset = digest.readUInt8(digest.length - 1) & 0x0f;
   const value = (digest.readUInt32BE(offset) & 0x7fffffff) % 1_000_000;
   return value.toString().padStart(6, "0");
+}
+
+async function seedAlgiersCommune(database: DatabaseConnection): Promise<AlgiersCommune> {
+  await seedGeography(database);
+  const [commune] = await database.sql<AlgiersCommune[]>`
+    WITH selected AS (
+      SELECT id, name_ar, name_fr, ST_PointOnSurface(boundary) AS interior
+      FROM public.communes WHERE code = '1601' AND wilaya_code = 16 AND boundary IS NOT NULL
+    )
+    SELECT id, name_ar AS "nameAr", name_fr AS "nameFr",
+      jsonb_build_object('latitude', ST_Y(interior), 'longitude', ST_X(interior)) AS pin
+    FROM selected
+  `;
+  if (!commune) throw new Error("The Algiers centre test commune has no boundary.");
+  return commune;
 }
 
 export async function startAuthHarness(webOrigin: string): Promise<AuthHarness> {
@@ -65,6 +81,7 @@ export async function startAuthHarness(webOrigin: string): Promise<AuthHarness> 
   return {
     origin: proxy.origin,
     close: () => cleanup.disposeAsync(),
+    seedAlgiersCommune: () => seedAlgiersCommune(database),
     advanceClock(milliseconds: number) {
       if (!Number.isSafeInteger(milliseconds) || milliseconds < 0) {
         throw new RangeError("The test clock can only advance by whole milliseconds.");

@@ -194,8 +194,15 @@ test("[MER-02:contract] lists each merchant's lifecycle status and its own membe
     role,
   }));
 
-  expect(merchantMembershipsOutput.parse({ memberships })).toEqual({ memberships });
-  expect(merchantMembershipsOutput.parse({ memberships: [] })).toEqual({ memberships: [] });
+  expect(merchantMembershipsOutput.parse({ sessionId: communeId, memberships })).toEqual({
+    sessionId: communeId,
+    memberships,
+  });
+  expect(merchantMembershipsOutput.parse({ sessionId: communeId, memberships: [] })).toEqual({
+    sessionId: communeId,
+    memberships: [],
+  });
+  expect(merchantMembershipsOutput.safeParse({ memberships: [] }).success).toBe(false);
 });
 
 test("[MER-02:contract] refuses invalid merchant states, global roles and membership internals", () => {
@@ -208,7 +215,10 @@ test("[MER-02:contract] refuses invalid merchant states, global roles and member
     { userId: fixtureId(3) },
   ]) {
     expect(
-      merchantMembershipsOutput.safeParse({ memberships: [{ ...membership, ...invalid }] }).success,
+      merchantMembershipsOutput.safeParse({
+        sessionId: communeId,
+        memberships: [{ ...membership, ...invalid }],
+      }).success,
     ).toBe(false);
   }
 });

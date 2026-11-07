@@ -60,6 +60,7 @@ export const communeListOutput = z.strictObject({
 });
 
 export const merchantMembershipsOutput = z.strictObject({
+  sessionId: uuid,
   memberships: z.array(
     z.strictObject({
       merchantId: uuid,

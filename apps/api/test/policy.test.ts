@@ -3,17 +3,23 @@ import { expect, test } from "vitest";
 import { createApi } from "../src/app.ts";
 import { listRoutes, type Actor } from "../src/policy.ts";
 
+const challengeId = "01932f18-3150-7c33-8a7a-53acfd343001";
+
 const actors: Readonly<Record<string, Actor | undefined>> = {
   anonymous: undefined,
-  customerA: { role: "customer", accountId: "customer-a" },
-  customerB: { role: "customer", accountId: "customer-b" },
-  merchantOwnerA: { role: "merchant_owner", accountId: "merchant-owner-a" },
-  merchantManagerA: { role: "merchant_manager", accountId: "merchant-manager-a" },
-  merchantStaffA: { role: "merchant_staff", accountId: "merchant-staff-a" },
-  merchantOwnerB: { role: "merchant_owner", accountId: "merchant-owner-b" },
-  courierA: { role: "courier", accountId: "courier-a" },
-  courierB: { role: "courier", accountId: "courier-b" },
-  admin: { role: "admin", accountId: "admin" },
+  customerA: { role: "customer", accountId: "customer-a", sessionId: challengeId },
+  customerB: { role: "customer", accountId: "customer-b", sessionId: challengeId },
+  merchantOwnerA: { role: "merchant_owner", accountId: "merchant-owner-a", sessionId: challengeId },
+  merchantManagerA: {
+    role: "merchant_manager",
+    accountId: "merchant-manager-a",
+    sessionId: challengeId,
+  },
+  merchantStaffA: { role: "merchant_staff", accountId: "merchant-staff-a", sessionId: challengeId },
+  merchantOwnerB: { role: "merchant_owner", accountId: "merchant-owner-b", sessionId: challengeId },
+  courierA: { role: "courier", accountId: "courier-a", sessionId: challengeId },
+  courierB: { role: "courier", accountId: "courier-b", sessionId: challengeId },
+  admin: { role: "admin", accountId: "admin", sessionId: challengeId },
 };
 
 function createPolicyTestApi(resolveActor: () => Actor | undefined = () => undefined) {
@@ -111,7 +117,6 @@ type MatrixRoute = {
   expected: number | Readonly<Partial<Record<Actor["role"], number>>>;
 };
 
-const challengeId = "01932f18-3150-7c33-8a7a-53acfd343001";
 const verification = { challengeId, code: "001234", transport: "web" };
 
 const merchantRoles = {
@@ -188,7 +193,7 @@ test("[AUTH-08] covers every registered route for every required actor", async (
           method,
           url: requestUrl ?? url,
           remoteAddress: `192.0.2.${String(index + 1)}`,
-          headers: { "idempotency-key": "fixture-policy" },
+          headers: { "idempotency-key": "fixture-policy", "x-expected-session-id": challengeId },
           ...(payload === undefined ? {} : { payload }),
         });
         const status =

@@ -6,11 +6,23 @@ import type { ReactNode } from "react";
 interface SiteShellProps {
   children: ReactNode;
   locale: Locale;
-  subpath?: "/dev/design" | "/sign-in" | "/sign-in?purpose=admin" | "/account/sessions";
+  subpath?:
+    | "/dev/design"
+    | "/sign-in"
+    | "/sign-in?purpose=admin"
+    | "/sign-in?continue=merchant-apply"
+    | "/sign-in?continue=admin-review"
+    | "/account/sessions"
+    | "/merchant"
+    | "/merchant/apply"
+    | "/admin/merchant-applications";
 }
 
 export async function SiteShell({ children, locale, subpath }: SiteShellProps) {
   const translate = await getTranslations({ locale, namespace: "shell" });
+  const isAdmin =
+    subpath === "/admin/merchant-applications" || subpath === "/sign-in?continue=admin-review";
+  const languages = isAdmin ? publicLocales.filter((language) => language !== "ar") : publicLocales;
 
   return (
     <>
@@ -24,7 +36,7 @@ export async function SiteShell({ children, locale, subpath }: SiteShellProps) {
             {locale === "ar" ? brand.arabicName : brand.name}
           </a>
           <nav className="languages" aria-label={translate("languages")}>
-            {publicLocales.map((language) => {
+            {languages.map((language) => {
               const { name, tag, direction } = localeDetails[language];
 
               return (

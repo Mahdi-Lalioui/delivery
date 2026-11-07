@@ -13,14 +13,16 @@ const merchantId = "01932f18-3150-7c33-8a7a-53acfd343002";
 const accountId = "01932f18-3150-7c33-8a7a-53acfd343003";
 const adminUserId = "01932f18-3150-7c33-8a7a-53acfd343004";
 const otherAccountId = "01932f18-3150-7c33-8a7a-53acfd343005";
-const customer = { role: "customer", accountId } as const;
-const admin = { role: "admin", accountId: adminUserId } as const;
+const sessionId = "01932f18-3150-7c33-8a7a-53acfd343007";
+const staleSessionId = "01932f18-3150-7c33-8a7a-53acfd343008";
+const customer = { role: "customer", accountId, sessionId } as const;
+const admin = { role: "admin", accountId: adminUserId, sessionId } as const;
 const applicationsPath = "/v1/merchant-applications";
 const queuePath = "/v1/admin/merchant-applications";
 const reviewPath = `${queuePath}/${merchantId}/review`;
 const membershipsPath = "/v1/me/merchants";
 const idempotencyKey = "fixture-merchant-command";
-const headers = { "idempotency-key": idempotencyKey };
+const headers = { "idempotency-key": idempotencyKey, "x-expected-session-id": sessionId };
 const keyHash = createHash("sha256").update(idempotencyKey).digest();
 const commune = {
   id: "01932f18-3150-7c33-8a7a-53acfd343001",
@@ -126,7 +128,7 @@ test("[MER-01:http] invalid commune pagination fails before the repository call"
 test.each(["customer", "merchant_owner", "merchant_manager", "merchant_staff"] as const)(
   "[MER-01:http] a %s can submit an application with their resolved account",
   async (role) => {
-    const { api, repository } = setup({ role, accountId });
+    const { api, repository } = setup({ role, accountId, sessionId });
     repository.submitApplication.mockResolvedValue({
       kind: "created",
       merchantId,
@@ -149,6 +151,29 @@ test.each(["customer", "merchant_owner", "merchant_manager", "merchant_staff"] a
     });
     expect(requestHash).toBeInstanceOf(Uint8Array);
     expect(requestHash).toHaveLength(32);
+  },
+);
+
+test.each([
+  { actor: customer, request: applicationRequest },
+  { actor: admin, request: reviewRequest },
+])(
+  "[AUTH-06:http] commands reject a stale or missing expected session before any write",
+  async ({ actor, request }) => {
+    const { api, repository } = setup(actor);
+    const stale = await api.inject({
+      ...request,
+      headers: { ...headers, "x-expected-session-id": staleSessionId },
+    });
+    expectProblem(stale, 409, "session_changed");
+    expect(stale.headers["set-cookie"]).toBeUndefined();
+    const missing = await api.inject({
+      ...request,
+      headers: { "idempotency-key": idempotencyKey },
+    });
+    expectProblem(missing, 400, "invalid_request");
+    expect(repository.submitApplication).not.toHaveBeenCalled();
+    expect(repository.reviewApplication).not.toHaveBeenCalled();
   },
 );
 
@@ -181,7 +206,7 @@ test("[MER-01:http] exact application replay retains 201 and its stable merchant
 test.each([
   [undefined, 401, "unauthenticated"],
   [admin, 403, "forbidden"],
-  [{ role: "courier", accountId }, 403, "forbidden"],
+  [{ role: "courier", accountId, sessionId }, 403, "forbidden"],
 ] as const)("[AUTH-06:http] application rejects actor %j with %i", async (actor, status, code) => {
   const { api, repository } = setup(actor);
   expectProblem(await api.inject(applicationRequest), status, code);
@@ -192,7 +217,10 @@ test("[MER-01:http] signup rejects missing keys, malformed bodies and injected a
   const { api, repository } = setup(customer);
   expectProblem(await api.inject({ ...applicationRequest, headers: {} }), 400, "invalid_request");
   expectProblem(
-    await api.inject({ ...applicationRequest, headers: { "idempotency-key": "invalid key" } }),
+    await api.inject({
+      ...applicationRequest,
+      headers: { ...headers, "idempotency-key": "invalid key" },
+    }),
     400,
     "invalid_request",
   );
@@ -242,7 +270,7 @@ test("[MER-02:http] membership listing is scoped to the resolved account", async
   });
 
   expect(response.statusCode).toBe(200);
-  expect(response.json()).toEqual({ memberships });
+  expect(response.json()).toEqual({ sessionId, memberships });
   expect(repository.listMemberships).toHaveBeenCalledExactlyOnceWith({ accountId });
 });
 
@@ -255,7 +283,7 @@ test("[MER-02:http] anonymous users cannot read memberships", async () => {
 test.each([
   [undefined, 401, "unauthenticated"],
   [customer, 403, "forbidden"],
-  [{ role: "merchant_owner", accountId }, 403, "forbidden"],
+  [{ role: "merchant_owner", accountId, sessionId }, 403, "forbidden"],
 ] as const)(
   "[ADM-03:http] queue and review reject non-admin actor %j with %i",
   async (actor, status, code) => {
@@ -295,7 +323,7 @@ test("[ADM-03:http] the admin queue decodes a compound keyset cursor and returns
   );
 
   expect(response.statusCode).toBe(200);
-  expect(response.json()).toEqual(page);
+  expect(response.json()).toEqual({ ...page, sessionId });
   expect(repository.listPendingApplications).toHaveBeenCalledExactlyOnceWith({
     adminUserId,
     cursor: { submittedAt, merchantId: previousId },
@@ -359,7 +387,7 @@ test("[ADM-03:http] review requires a UUID, a valid key and a strict decision bo
   for (const request of [
     { ...reviewRequest, url: `${queuePath}/bad/review` },
     { ...reviewRequest, headers: {} },
-    { ...reviewRequest, headers: { "idempotency-key": "invalid key" } },
+    { ...reviewRequest, headers: { ...headers, "idempotency-key": "invalid key" } },
     { ...reviewRequest, payload: { decision: "approve", reason: " " } },
     { ...reviewRequest, payload: { decision: "suspend", reason: "Fixture" } },
     { ...reviewRequest, payload: { ...reviewRequest.payload, adminUserId: otherAccountId } },

@@ -46,7 +46,11 @@ export function createAuthAccess(auth: Authentication | undefined) {
     sessions.set(request, session);
     if (credential.transport === "web")
       webSessions.set(request, { session, token: credential.token });
-    return { accountId: session.userId, role: session.kind === "admin" ? "admin" : "customer" };
+    return {
+      accountId: session.userId,
+      sessionId: session.id,
+      role: session.kind === "admin" ? "admin" : "customer",
+    };
   };
 
   return {
