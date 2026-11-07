@@ -14,12 +14,14 @@ import { registerAuthRoutes } from "./auth-routes.js";
 import { registerHealth } from "./health.js";
 import { registerMerchantRoutes, type MerchantServices } from "./merchant-routes.js";
 import { createLogger } from "./logger.js";
+import { registerMenuCategoryRoutes, type MenuCategoryServices } from "./menu-category-routes.js";
 import { enforceRoutePolicies, recordRoutePolicies, type ResolveActor } from "./policy.js";
 import { sendProblem } from "./problems.js";
 
 interface ApiOptions {
   readonly checkReadiness: () => Promise<void>;
   readonly merchant?: MerchantServices;
+  readonly menuCategory?: MenuCategoryServices;
   readonly trustedProxy?: string | undefined;
   readonly auth?: Parameters<typeof createAuthAccess>[0];
   readonly resolveActor?: ResolveActor;
@@ -77,6 +79,7 @@ export function createApi(options: ApiOptions): FastifyInstance {
     });
     registerAuthRoutes(api, access);
     registerMerchantRoutes(api, options.merchant);
+    registerMenuCategoryRoutes(api, options.menuCategory);
     registerHealth(api, options.checkReadiness);
   });
   return api;

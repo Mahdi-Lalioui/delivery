@@ -110,7 +110,7 @@ test("[AUTH-06] throttles protected requests before resolving an actor", async (
 });
 
 type MatrixRoute = {
-  method: "GET" | "POST" | "DELETE";
+  method: "GET" | "POST" | "PUT" | "DELETE";
   url: string;
   requestUrl?: string;
   payload?: Record<string, unknown>;
@@ -126,6 +126,10 @@ const merchantRoles = {
   merchant_staff: 503,
 } as const;
 const adminRole = { admin: 503 } as const;
+const menuRoles = { customer: 503, merchant_owner: 503, merchant_manager: 503 } as const;
+const menuCategoryPath = "/v1/merchants/:merchantId/menu/categories";
+const menuCategoryRequest = "/v1/merchants/" + challengeId + "/menu/categories";
+const categoryPayload = { names: { fr: "Plats fictifs" }, availability: null, expectedRevision: 0 };
 
 const matrix: readonly MatrixRoute[] = [
   { method: "GET", url: "/healthz", expected: 200 },
@@ -166,6 +170,28 @@ const matrix: readonly MatrixRoute[] = [
     expected: merchantRoles,
   },
   { method: "GET", url: "/v1/me/merchants", expected: merchantRoles },
+  { method: "GET", url: menuCategoryPath, requestUrl: menuCategoryRequest, expected: menuRoles },
+  {
+    method: "POST",
+    url: menuCategoryPath,
+    requestUrl: menuCategoryRequest,
+    payload: categoryPayload,
+    expected: menuRoles,
+  },
+  {
+    method: "PUT",
+    url: menuCategoryPath + "/:categoryId",
+    requestUrl: menuCategoryRequest + "/" + challengeId,
+    payload: categoryPayload,
+    expected: menuRoles,
+  },
+  {
+    method: "PUT",
+    url: menuCategoryPath + "/order",
+    requestUrl: menuCategoryRequest + "/order",
+    payload: { categoryIds: [challengeId], expectedRevision: 0 },
+    expected: menuRoles,
+  },
   { method: "GET", url: "/v1/admin/merchant-applications", expected: adminRole },
   {
     method: "POST",

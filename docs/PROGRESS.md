@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 17:56 GMT — M2-5 category repository and API
+
+- **Changed** — Added session-bound category list, create, rename and reorder endpoints for owners and managers of eligible restaurants. Reads use a consistent snapshot and revision-bound keyset pages. Writes verify the target membership, preserve immutable results for retries, and apply order and revision atomically.
+- **Evidence** — Staged `pnpm verify` passed 51 tooling, 634 unit and 70 real PostGIS integration tests. All 84 authorization tests and generated OpenAPI validation passed. Live API and repository tests cover replay, revision races, cursor invalidation and a single account with different roles across merchants.
+- **Reviewer** — No P0/P1. Verified simultaneous identical retries and rejection after role downgrade. Added a contract and HTTP regression for malformed Unicode, which now receives 400.
+- **Next** — Prove the localized category editor with keyboard and pointer on the optimized build. Continue menu items and reusable options.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 17:44 GMT — M2-2 menu schema and category API contracts
 
 - **Changed** — Added menu revision, categories, items, reusable option groups and ordered attachments. Composite foreign keys keep menu records in their merchant. A deferred constraint validates option counts and defaults at transaction commit. Category reads use revision-bound keyset pages and writes require an expected revision.
@@ -220,5 +228,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress)
 - The current M2 implementation snapshot ran `pnpm gate m2` and exited 1 at acceptance trace. It covered 28 of 37 IDs. Pending IDs are ADM-04, MER-01, MER-10, MER-11, MER-12, MER-14, MER-15, MER-16 and MER-23.
-- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 622 unit and 64 PostGIS integration tests
+- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 634 unit and 70 PostGIS integration tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

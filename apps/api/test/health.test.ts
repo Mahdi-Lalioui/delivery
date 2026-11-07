@@ -154,6 +154,9 @@ test("[M0-6] the generated OpenAPI document describes the readiness problem resp
       "/v1/me/sessions",
       "/v1/me/sessions/{sessionId}",
       "/v1/merchant-applications",
+      "/v1/merchants/{merchantId}/menu/categories",
+      "/v1/merchants/{merchantId}/menu/categories/order",
+      "/v1/merchants/{merchantId}/menu/categories/{categoryId}",
     ]);
     expect(schema.paths?.["/readyz"]?.get?.responses).toMatchObject({
       503: { content: { "application/problem+json": { schema: { type: "object" } } } },

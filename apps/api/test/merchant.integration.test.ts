@@ -2,6 +2,11 @@ import { randomUUIDv7 } from "node:crypto";
 import { adminMerchantReviewOutput, adminReviewQueueOutput } from "@zaafran/contracts/admin";
 import { problemResponseSchema } from "@zaafran/contracts/health";
 import {
+  menuCategoryOrderOutput,
+  menuCategoryPageOutput,
+  menuCategoryWriteOutput,
+} from "@zaafran/contracts/menu";
+import {
   communeListOutput,
   merchantApplicationOutput,
   merchantMembershipsOutput,
@@ -212,4 +217,131 @@ test("[MER-01:http] [ADM-03:http] submits, scopes and reviews a merchant on the 
   expect(merchantMembershipsOutput.parse(after.json()).memberships[0]?.status).toBe("approved");
   const completed = await api.inject({ url: queuePath, headers: admin.headers });
   expect(adminReviewQueueOutput.parse(completed.json()).applications).toEqual([]);
+});
+
+async function seedMenuMerchants(userId: string) {
+  const { sql } = database.get();
+  const communeId = randomUUIDv7();
+  await sql`INSERT INTO wilayas (code, name_ar, name_fr)
+    VALUES (16, 'الجزائر', 'Alger') ON CONFLICT (code) DO NOTHING`;
+  await sql`
+    INSERT INTO communes (id, code, wilaya_code, name_ar, name_fr, centroid)
+    VALUES (${communeId}, '1602', 16, 'بلدية الاختبار', 'Commune fictive',
+      ST_SetSRID(ST_MakePoint(3, 36.75), 4326)::geography)
+  `;
+
+  const owned = randomUUIDv7();
+  const staffed = randomUUIDv7();
+  for (const [merchantId, role] of [
+    [owned, "owner"],
+    [staffed, "staff"],
+  ] as const) {
+    await sql`
+      INSERT INTO merchants
+        (id, slug, restaurant_name, owner_name, phone_e164, commune_id, location, cuisines, status, created_at)
+      VALUES (${merchantId}, ${"restaurant-" + merchantId}, 'Restaurant fictif', 'Propriétaire fictif',
+        '+213500000040', ${communeId}, ST_SetSRID(ST_MakePoint(3, 36.75), 4326)::geography,
+        ARRAY['algerian'], 'approved', ${now})
+    `;
+    await sql`INSERT INTO merchant_members (merchant_id, user_id, role)
+      VALUES (${merchantId}, ${userId}, ${role})`;
+  }
+  return { owned, staffed };
+}
+
+test("[MER-09:http] [MER-23:http] manages ordered categories through the live merchant API", async () => {
+  const api = await openApi();
+  const actor = await seedActor("+213500000040", "standard");
+  const { owned, staffed } = await seedMenuMerchants(actor.userId);
+  const root = "/v1/merchants/";
+  const suffix = "/menu/categories";
+  const path = root + owned + suffix;
+  const read = (url = path) => api.inject({ url, headers: actor.headers });
+  const write = ({
+    method,
+    url = path,
+    payload,
+    key = randomUUIDv7(),
+  }: {
+    method: "POST" | "PUT";
+    url?: string;
+    payload: object;
+    key?: string;
+  }) =>
+    api.inject({
+      method,
+      url,
+      payload,
+      headers: {
+        ...actor.headers,
+        "idempotency-key": key,
+        "x-expected-session-id": actor.sessionId,
+      },
+    });
+
+  expect(menuCategoryPageOutput.parse((await read()).json())).toEqual({
+    sessionId: actor.sessionId,
+    categories: [],
+    revision: 0,
+    nextCursor: null,
+  });
+  const firstCommand = {
+    method: "POST",
+    key: randomUUIDv7(),
+    payload: { names: { fr: "Plats" }, availability: null, expectedRevision: 0 },
+  } as const;
+  expect((await write({ ...firstCommand, url: root + staffed + suffix })).statusCode).toBe(404);
+  const created = await write(firstCommand);
+  expect(created.statusCode).toBe(201);
+  const first = menuCategoryWriteOutput.parse(created.json()).category;
+  const secondResponse = await write({
+    method: "POST",
+    payload: {
+      names: { ar: "حلويات" },
+      availability: { from: "18:00", to: "02:00" },
+      expectedRevision: 1,
+    },
+  });
+  expect(secondResponse.statusCode).toBe(201);
+  const second = menuCategoryWriteOutput.parse(secondResponse.json()).category;
+  expect((await write(firstCommand)).json()).toEqual(created.json());
+
+  const cursor = menuCategoryPageOutput.parse((await read(path + "?limit=1")).json()).nextCursor;
+  if (!cursor) throw new Error("Expected another category page.");
+  const reordered = await write({
+    method: "PUT",
+    url: path + "/order",
+    payload: { categoryIds: [second.categoryId, first.categoryId], expectedRevision: 2 },
+  });
+  expect(menuCategoryOrderOutput.parse(reordered.json())).toEqual({
+    categoryIds: [second.categoryId, first.categoryId],
+    revision: 3,
+  });
+  const outdated = await read(path + "?cursor=" + encodeURIComponent(cursor));
+  expect(problemResponseSchema.parse(outdated.json())).toMatchObject({
+    status: 409,
+    code: "revision_conflict",
+  });
+
+  const renamed = await write({
+    method: "PUT",
+    url: path + "/" + first.categoryId,
+    payload: {
+      ...firstCommand.payload,
+      names: { ar: "الأطباق", fr: "Plats du jour" },
+      expectedRevision: 3,
+    },
+  });
+  expect(renamed.statusCode).toBe(200);
+  expect(menuCategoryWriteOutput.parse(renamed.json())).toMatchObject({
+    revision: 4,
+    category: { categoryId: first.categoryId, position: 1 },
+  });
+  expect(menuCategoryPageOutput.parse((await read()).json())).toMatchObject({
+    revision: 4,
+    categories: [
+      { ...second, position: 0 },
+      { categoryId: first.categoryId, names: { ar: "الأطباق", fr: "Plats du jour" }, position: 1 },
+    ],
+  });
 });

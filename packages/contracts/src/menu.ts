@@ -1,13 +1,15 @@
 import { z } from "zod";
 import { pageLimit } from "./pagination.js";
 
+// Unicode mode matches isolated surrogates while allowing valid supplementary characters.
+const isolatedSurrogate = /[\uD800-\uDFFF]/u;
 const displayText = (maximum: number) =>
   z
     .string()
     .trim()
     .min(1)
     .max(maximum)
-    .refine((value) => !value.includes("\0"));
+    .refine((value) => !value.includes("\0") && !isolatedSurrogate.test(value));
 
 function localizedText(maximum: number) {
   const text = displayText(maximum).optional();

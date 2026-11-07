@@ -30,10 +30,14 @@ test("[MER-09:contract] accepts localized category names and an overnight or unb
     names: { ar: "الأطباق" },
     availability: null,
   });
+  expect(
+    menuCategoryInput.parse({ names: { fr: "Pâtisserie 🍰" }, availability: null }).names.fr,
+  ).toBe("Pâtisserie 🍰");
   for (const input of [
     { ...category, merchantId: groupId },
     { ...category, names: { en: "Only English" } },
     { ...category, names: { ar: " " } },
+    { ...category, names: { fr: "\ud800" } },
     { ...category, availability: { from: "24:00", to: "02:00" } },
     { ...category, availability: { from: "18:00", to: "18:00" } },
   ]) {

@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import {
   adminMerchantReviewInput,
   adminMerchantReviewOutput,
@@ -19,6 +18,7 @@ import type { createMerchantRepository } from "@zaafran/db/merchant";
 import type { FastifyInstance, FastifyReply } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
+import { commandIdentity } from "./command-identity.js";
 import { getRequestActor } from "./policy.js";
 import { sendProblem } from "./problems.js";
 
@@ -60,13 +60,6 @@ const failureStatus = {
 
 function merchantProblem(reply: FastifyReply, kind: keyof typeof failureStatus): FastifyReply {
   return sendProblem(reply, failureStatus[kind], kind);
-}
-
-function commandIdentity(key: string, request: object) {
-  return {
-    idempotencyKeyHash: createHash("sha256").update(key).digest(),
-    requestHash: createHash("sha256").update(JSON.stringify(request)).digest(),
-  };
 }
 
 function registerApplication(api: FastifyInstance, services: MerchantServices | undefined): void {
