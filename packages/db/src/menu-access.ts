@@ -29,7 +29,9 @@ export async function readMenuRevision(
 export async function lockEditableMenu(
   sql: TransactionSql,
   { accountId, merchantId }: MenuScope,
+  access: "editor" | "availability",
 ): Promise<number | undefined> {
+  const allowStaff = access === "availability";
   const [account] = await sql`
     SELECT id FROM public.users
     WHERE id = ${accountId} AND blocked_at IS NULL AND deleted_at IS NULL FOR SHARE
@@ -43,7 +45,7 @@ export async function lockEditableMenu(
       AND EXISTS (
         SELECT FROM public.merchant_members
         WHERE merchant_id = ${merchantId} AND user_id = ${accountId}
-          AND role IN ('owner', 'manager')
+          AND (role IN ('owner', 'manager') OR (${allowStaff} AND role = 'staff'))
       )
     FOR NO KEY UPDATE
   `;
@@ -51,7 +53,8 @@ export async function lockEditableMenu(
 
   const [member] = await sql`
     SELECT role FROM public.merchant_members
-    WHERE merchant_id = ${merchantId} AND user_id = ${accountId} AND role IN ('owner', 'manager')
+    WHERE merchant_id = ${merchantId} AND user_id = ${accountId}
+      AND (role IN ('owner', 'manager') OR (${allowStaff} AND role = 'staff'))
     FOR SHARE
   `;
   return member ? menu.revision : undefined;

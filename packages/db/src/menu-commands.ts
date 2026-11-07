@@ -1,7 +1,15 @@
 import type { TransactionSql } from "postgres";
-import { lockEditableMenu, type MenuScope } from "./menu-category-access.js";
+import { lockEditableMenu, type MenuScope } from "./menu-access.js";
 
-type Operation = "category_create" | "category_rename" | "category_reorder";
+type Operation =
+  | "category_create"
+  | "category_rename"
+  | "category_reorder"
+  | "item_create"
+  | "item_update"
+  | "item_duplicate"
+  | "item_archive"
+  | "item_availability";
 
 export interface CommandRequest<
   Input extends { readonly expectedRevision: number },
@@ -12,16 +20,17 @@ export interface CommandRequest<
   readonly now: Date;
 }
 
-type WriteFailure = "not_found" | "category_limit" | "invalid_order";
-type CommandFailure = WriteFailure | "idempotency_conflict" | "revision_conflict";
+type CategoryWriteFailure = "not_found" | "category_limit" | "invalid_order";
+type WriteFailure = CategoryWriteFailure | "photos_unavailable";
+type CommandFailure = "not_found" | "idempotency_conflict" | "revision_conflict";
 
-export type CommandChange<Value> =
-  { readonly kind: "changed"; readonly value: Value } | { readonly kind: WriteFailure };
+export type CommandChange<Value, Failure extends WriteFailure = CategoryWriteFailure> =
+  { readonly kind: "changed"; readonly value: Value } | { readonly kind: Failure };
 
-type CommandResult<Value> =
+type CommandResult<Value, Failure extends WriteFailure> =
   | ({ readonly kind: "applied"; readonly revision: number } & Value)
   | ({ readonly kind: "replayed"; readonly revision: number } & Value)
-  | { readonly kind: CommandFailure };
+  | { readonly kind: CommandFailure | Failure };
 
 interface CommandReceipt<Value> {
   readonly matches: boolean;
@@ -29,9 +38,9 @@ interface CommandReceipt<Value> {
   readonly result: Value;
 }
 
-interface Command<Value> {
+interface Command<Value, Failure extends WriteFailure> {
   readonly operation: Operation;
-  readonly apply: () => Promise<CommandChange<Value>>;
+  readonly apply: () => Promise<CommandChange<Value, Failure>>;
 }
 
 async function readReceipt<Value>(
@@ -70,12 +79,13 @@ async function recordChange(
   return menu.revision;
 }
 
-export async function runCategoryCommand<Value extends object>(
+export async function runMenuCommand<Value extends object, Failure extends WriteFailure>(
   sql: TransactionSql,
   request: CommandRequest<{ readonly expectedRevision: number }>,
-  { operation, apply }: Command<Value>,
-): Promise<CommandResult<Value>> {
-  const revision = await lockEditableMenu(sql, request);
+  { operation, apply }: Command<Value, Failure>,
+): Promise<CommandResult<Value, Failure>> {
+  const access = operation === "item_availability" ? "availability" : "editor";
+  const revision = await lockEditableMenu(sql, request, access);
   if (revision === undefined) return { kind: "not_found" };
 
   const receipt = await readReceipt<Value>(sql, request, operation);
@@ -89,7 +99,7 @@ export async function runCategoryCommand<Value extends object>(
     return { kind: "revision_conflict" };
 
   const change = await apply();
-  if (change.kind !== "changed") return change;
+  if (!("value" in change)) return change;
   const nextRevision = await recordChange(sql, request, { operation, value: change.value });
   return { kind: "applied", revision: nextRevision, ...change.value };
 }

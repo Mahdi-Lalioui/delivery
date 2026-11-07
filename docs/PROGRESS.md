@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 18:29 GMT — M2-5 item repository and API
+
+- **Changed** — Added category-scoped item pages, session- and revision-bound editing, duplication, soft archive and narrow staff availability. PostGIS persists whole-dinar prices and ordered option attachments. Timed sell-out ends at the next Algiers midnight. Held moderation states survive text edits and duplication.
+- **Evidence** — Staged `pnpm verify` passed 51 tooling, 690 unit and 81 real PostGIS integration tests. All 95 authorization tests and generated OpenAPI passed. Live API tests verified exact price persistence, archival replay, stale pages, staff-only stock changes and timed expiry.
+- **Reviewer** — Closed the hold-reset issue with separate blocked and rejected PostGIS regressions. Both still contribute zero to checklist progress after editing and duplication. No remaining P0/P1.
+- **Next** — Verify the localized editor and implement the reusable option-group library. Photo references become usable in M2-6.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 18:17 GMT — M2-5 item editing contracts
 
 - **Changed** — Defined strict item page, create, edit, duplicate, archive and sold-out contracts. Menu reads carry the session and revision. The availability command exposes only item ID, availability, deadline and revision.
@@ -268,5 +276,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress)
 - The checklist snapshot reran `pnpm gate m2` on 2026-11-07 at 18:14 GMT and exited 1 at acceptance trace. It covered 28 of 37 IDs. Pending IDs are ADM-04, MER-01, MER-10, MER-11, MER-12, MER-14, MER-15, MER-16 and MER-23.
-- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 684 unit and 72 PostGIS integration tests
+- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 690 unit and 81 PostGIS integration tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

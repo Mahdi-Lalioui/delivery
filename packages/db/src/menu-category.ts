@@ -1,11 +1,11 @@
 import type { TransactionSql } from "postgres";
 import type { DatabaseConnection } from "./database.js";
-import { readMenuRevision, type MenuScope } from "./menu-category-access.js";
+import { readMenuRevision, type MenuScope } from "./menu-access.js";
 import {
-  runCategoryCommand,
+  runMenuCommand as runCategoryCommand,
   type CommandChange,
   type CommandRequest,
-} from "./menu-category-commands.js";
+} from "./menu-commands.js";
 
 const categoryLimit = 1_000;
 const maximumPosition = 2_147_483_647;

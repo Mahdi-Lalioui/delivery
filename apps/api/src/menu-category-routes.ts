@@ -10,10 +10,10 @@ import {
   readMenuCategoryCursor,
 } from "@zaafran/contracts/menu";
 import type { createMenuCategoryRepository } from "@zaafran/db/menu-category";
-import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import type { FastifyInstance, FastifyReply } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
-import { commandIdentity } from "./command-identity.js";
+import { commandIdentity, resolveMenuCommand } from "./command-identity.js";
 import { getRequestActor } from "./policy.js";
 import { sendProblem } from "./problems.js";
 
@@ -48,33 +48,6 @@ const failureStatus = {
 
 function categoryProblem(reply: FastifyReply, kind: keyof typeof failureStatus): FastifyReply {
   return sendProblem(reply, failureStatus[kind], kind);
-}
-
-function resolveCommand({
-  request,
-  reply,
-  services,
-  expectedSessionId,
-}: {
-  request: FastifyRequest;
-  reply: FastifyReply;
-  services: MenuCategoryServices | undefined;
-  expectedSessionId: string;
-}) {
-  const actor = getRequestActor(request);
-  if (!actor) {
-    sendProblem(reply, 401);
-    return undefined;
-  }
-  if (!services) {
-    sendProblem(reply, 503);
-    return undefined;
-  }
-  if (expectedSessionId.toLowerCase() !== actor.sessionId) {
-    sendProblem(reply, 409, "session_changed");
-    return undefined;
-  }
-  return { accountId: actor.accountId, now: services.now(), repository: services.repository };
 }
 
 function registerCategoryList(api: FastifyInstance, services: MenuCategoryServices | undefined) {
@@ -121,7 +94,7 @@ function registerCategoryCreate(api: FastifyInstance, services: MenuCategoryServ
       },
     },
     async (request, reply) => {
-      const context = resolveCommand({
+      const context = resolveMenuCommand({
         request,
         reply,
         services,
@@ -157,7 +130,7 @@ function registerCategoryRename(api: FastifyInstance, services: MenuCategoryServ
       },
     },
     async (request, reply) => {
-      const context = resolveCommand({
+      const context = resolveMenuCommand({
         request,
         reply,
         services,
@@ -195,7 +168,7 @@ function registerCategoryReorder(api: FastifyInstance, services: MenuCategorySer
       },
     },
     async (request, reply) => {
-      const context = resolveCommand({
+      const context = resolveMenuCommand({
         request,
         reply,
         services,

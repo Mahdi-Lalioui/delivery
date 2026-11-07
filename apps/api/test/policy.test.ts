@@ -130,6 +130,20 @@ const menuRoles = { customer: 503, merchant_owner: 503, merchant_manager: 503 } 
 const menuCategoryPath = "/v1/merchants/:merchantId/menu/categories";
 const menuCategoryRequest = "/v1/merchants/" + challengeId + "/menu/categories";
 const categoryPayload = { names: { fr: "Plats fictifs" }, availability: null, expectedRevision: 0 };
+const menuItemPath = "/v1/merchants/:merchantId/menu/items";
+const menuItemRequest = "/v1/merchants/" + challengeId + "/menu/items";
+const itemRevision = { expectedRevision: 0 };
+const itemPayload = {
+  ...itemRevision,
+  categoryId: challengeId,
+  names: { fr: "Plat fictif" },
+  descriptions: { fr: "Description fictive" },
+  priceDzd: 750,
+  photoId: null,
+  tags: [],
+  extraPrepMinutes: 5,
+  optionGroupIds: [],
+};
 
 const matrix: readonly MatrixRoute[] = [
   { method: "GET", url: "/healthz", expected: 200 },
@@ -197,6 +211,47 @@ const matrix: readonly MatrixRoute[] = [
     url: "/v1/merchants/:merchantId/onboarding",
     requestUrl: "/v1/merchants/" + challengeId + "/onboarding",
     expected: menuRoles,
+  },
+  {
+    method: "GET",
+    url: menuItemPath,
+    requestUrl: menuItemRequest + "?categoryId=" + challengeId,
+    expected: menuRoles,
+  },
+  {
+    method: "POST",
+    url: menuItemPath,
+    requestUrl: menuItemRequest,
+    payload: itemPayload,
+    expected: menuRoles,
+  },
+  {
+    method: "PUT",
+    url: menuItemPath + "/:itemId",
+    requestUrl: menuItemRequest + "/" + challengeId,
+    payload: itemPayload,
+    expected: menuRoles,
+  },
+  {
+    method: "POST",
+    url: menuItemPath + "/:itemId/duplicate",
+    requestUrl: menuItemRequest + "/" + challengeId + "/duplicate",
+    payload: itemRevision,
+    expected: menuRoles,
+  },
+  {
+    method: "POST",
+    url: menuItemPath + "/:itemId/archive",
+    requestUrl: menuItemRequest + "/" + challengeId + "/archive",
+    payload: itemRevision,
+    expected: menuRoles,
+  },
+  {
+    method: "PUT",
+    url: menuItemPath + "/:itemId/availability",
+    requestUrl: menuItemRequest + "/" + challengeId + "/availability",
+    payload: { ...itemRevision, availability: "indefinite" },
+    expected: { ...menuRoles, merchant_staff: 503 },
   },
   { method: "GET", url: "/v1/admin/merchant-applications", expected: adminRole },
   {

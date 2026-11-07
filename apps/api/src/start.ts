@@ -1,6 +1,7 @@
 import { createAuthRepository } from "@zaafran/db/auth";
 import { openDatabase } from "@zaafran/db/database";
 import { createMenuCategoryRepository } from "@zaafran/db/menu-category";
+import { createMenuItemRepository } from "@zaafran/db/menu-item";
 import { createMerchantRepository } from "@zaafran/db/merchant";
 import type { FastifyInstance, FastifyListenOptions } from "fastify";
 import { createApi } from "./app.js";
@@ -33,6 +34,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     auth: { service, publicOrigin: environment.AUTH_PUBLIC_ORIGIN },
     merchant: { repository: createMerchantRepository(database), now },
     menuCategory: { repository: createMenuCategoryRepository(database), now },
+    menuItem: { repository: createMenuItemRepository(database), now },
   });
   api.addHook("onClose", () => database.close());
   try {
