@@ -17,7 +17,7 @@
     "db:seed": "pnpm --dir packages/db db:seed",
     "db:reset": "pnpm --dir packages/db db:reset",
     "test": "pnpm test:tooling && turbo run build --filter='./packages/*' && vitest run --coverage",
-    "test:authz": "turbo run build --filter='./packages/*' && vitest run --coverage.enabled=false apps/api/test/policy.test.ts apps/api/test/auth-http.test.ts",
+    "test:authz": "turbo run build --filter='./packages/*' && vitest run --coverage.enabled=false apps/api/test/policy.test.ts apps/api/test/auth-http.test.ts apps/api/test/merchant-http.test.ts",
     "test:int": "vitest run --config vitest.integration.config.ts",
     "test:e2e": "turbo run build --filter=@zaafran/web && pnpm --filter @zaafran/web build:design && playwright test --config e2e/playwright.config.ts",
     "test:e2e:auth": "turbo run build --filter=@zaafran/web --filter=@zaafran/api && playwright test --config e2e/auth.config.ts",

@@ -1,5 +1,6 @@
 import { createAuthRepository } from "@zaafran/db/auth";
 import { openDatabase } from "@zaafran/db/database";
+import { createMerchantRepository } from "@zaafran/db/merchant";
 import type { FastifyInstance, FastifyListenOptions } from "fastify";
 import { createApi } from "./app.js";
 import { createAuthService } from "./auth-service.js";
@@ -17,17 +18,19 @@ export interface StartOptions {
 export async function startApi(options: StartOptions = {}): Promise<FastifyInstance> {
   const environment = readApiEnvironment(options.environment ?? process.env);
   const database = openDatabase(environment.DATABASE_URL);
+  const now = options.now ?? (() => new Date());
   const service = createAuthService({
     repository: createAuthRepository(database),
     otpKey: Buffer.from(environment.AUTH_OTP_KEY, "hex"),
     totpKey: Buffer.from(environment.AUTH_TOTP_KEY, "hex"),
-    now: options.now ?? (() => new Date()),
+    now,
     sendSms: options.sendSms ?? unavailableSms,
   });
   const api = createApi({
     checkReadiness: () => checkReadiness(database),
     trustedProxy: environment.API_TRUSTED_PROXY,
     auth: { service, publicOrigin: environment.AUTH_PUBLIC_ORIGIN },
+    merchant: { repository: createMerchantRepository(database), now },
   });
   api.addHook("onClose", () => database.close());
   try {

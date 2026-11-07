@@ -107,12 +107,20 @@ type MatrixRoute = {
   method: "GET" | "POST" | "DELETE";
   url: string;
   requestUrl?: string;
-  payload?: Record<string, string>;
-  expected: number;
+  payload?: Record<string, unknown>;
+  expected: number | Readonly<Partial<Record<Actor["role"], number>>>;
 };
 
 const challengeId = "01932f18-3150-7c33-8a7a-53acfd343001";
 const verification = { challengeId, code: "001234", transport: "web" };
+
+const merchantRoles = {
+  customer: 503,
+  merchant_owner: 503,
+  merchant_manager: 503,
+  merchant_staff: 503,
+} as const;
+const adminRole = { admin: 503 } as const;
 
 const matrix: readonly MatrixRoute[] = [
   { method: "GET", url: "/healthz", expected: 200 },
@@ -138,6 +146,29 @@ const matrix: readonly MatrixRoute[] = [
     requestUrl: `/v1/me/sessions/${challengeId}`,
     expected: 401,
   },
+  { method: "GET", url: "/v1/communes", expected: 503 },
+  {
+    method: "POST",
+    url: "/v1/merchant-applications",
+    payload: {
+      restaurantName: "Synthetic restaurant",
+      ownerName: "Synthetic owner",
+      communeId: challengeId,
+      pin: { latitude: 36.7631, longitude: 3.0562 },
+      cuisines: ["algerian"],
+      rcNumber: "22B1234567",
+    },
+    expected: merchantRoles,
+  },
+  { method: "GET", url: "/v1/me/merchants", expected: merchantRoles },
+  { method: "GET", url: "/v1/admin/merchant-applications", expected: adminRole },
+  {
+    method: "POST",
+    url: "/v1/admin/merchant-applications/:merchantId/review",
+    requestUrl: `/v1/admin/merchant-applications/${challengeId}/review`,
+    payload: { decision: "approve", reason: "Synthetic review" },
+    expected: adminRole,
+  },
 ];
 
 test("[AUTH-08] covers every registered route for every required actor", async () => {
@@ -150,16 +181,23 @@ test("[AUTH-08] covers every registered route for every required actor", async (
         .map(({ method, url }) => method + " " + url)
         .sort(),
     ).toEqual(matrix.map(({ method, url }) => method + " " + url).sort());
-    for (const [label, candidate] of Object.entries(actors)) {
+    for (const [index, [label, candidate]] of Object.entries(actors).entries()) {
       actor = candidate;
       for (const { method, url, requestUrl, payload, expected } of matrix) {
         const response = await api.inject({
           method,
           url: requestUrl ?? url,
+          remoteAddress: `192.0.2.${String(index + 1)}`,
           headers: { "idempotency-key": "fixture-policy" },
           ...(payload === undefined ? {} : { payload }),
         });
-        expect(response.statusCode, method + " " + url + " for " + label).toBe(expected);
+        const status =
+          typeof expected === "number"
+            ? expected
+            : candidate
+              ? (expected[candidate.role] ?? 403)
+              : 401;
+        expect(response.statusCode, method + " " + url + " for " + label).toBe(status);
       }
     }
   } finally {

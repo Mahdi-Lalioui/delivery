@@ -180,7 +180,7 @@ export function createMerchantRepository({ sql }: DatabaseConnection) {
       sql.begin((tx) => submitApplication(tx, request)),
     reviewApplication: (request: ReviewApplication) =>
       sql.begin((tx) => reviewApplication(tx, request)),
-    async listMemberships({ accountId }: { accountId: string }) {
+    async listMemberships({ accountId }: { accountId: string }): Promise<Membership[]> {
       return sql<Membership[]>`
         SELECT merchants.id AS "merchantId", restaurant_name AS "restaurantName", status, role
         FROM public.merchant_members JOIN public.merchants ON merchants.id = merchant_id

@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 17:21 GMT — M2-3 merchant HTTP
+
+- **Changed** — Published the commune, merchant application, own membership, admin queue and admin review routes. Each declares an explicit policy and uses the authenticated account for scoped queries. Optional application photos are deferred to M2-6.
+- **Evidence** — Staged `pnpm verify` passed 51 tooling, 559 unit and 57 real PostGIS integration tests on Docker Desktop. `pnpm test:authz` passed 70 tests and `pnpm --filter @zaafran/api openapi:check` passed. The live API test rejected an out-of-commune pin, replayed an application without duplicates, hid the applicant’s membership from another account, and recorded one audit row for a retried approval.
+- **Reviewer** — No P0/P1 findings in authorization, idempotency or cache behavior. Regenerated OpenAPI to close the stale contract finding and verified the exact staged artifact.
+- **Next** — Seed the official geography and complete the localized application and review journeys.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 17:16 GMT — M2-1 device management
 
 - **Changed** — Added localized device sessions for Arabic, French and English, with per-device revocation, current-device sign-out and sign-out everywhere. The screen keeps the route across locale changes and never exposes a session token.
@@ -180,5 +188,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress)
 - The current M2 implementation snapshot ran `pnpm gate m2` and exited 1 at acceptance trace. It covered 28 of 37 IDs. Pending IDs are ADM-04, MER-01, MER-10, MER-11, MER-12, MER-14, MER-15, MER-16 and MER-23.
-- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 528 unit and 56 PostGIS integration tests
+- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 559 unit and 57 PostGIS integration tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
