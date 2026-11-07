@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 18:45 GMT — M2-5 option library repository and API
+
+- **Changed** — Added private owner/manager option pages, details and revision-checked writes. An edit retains existing option IDs, generates IDs for new choices, preserves saved order and leaves item attachments intact.
+- **Evidence** — Staged `pnpm verify` passed 51 tooling, 732 unit and 86 real PostGIS integration tests. All 102 authorization tests and generated OpenAPI passed. A composed API test attached one group to two items, updated it, and verified both links and exact replay. The guarded local migration applied the item and group command revisions.
+- **Reviewer** — No P0/P1. Proved that a deferred cardinality failure rolls back the group, options, menu revision and receipt, and that concurrent identical commands produce one write and one replay.
+- **Next** — Verify the localized library and attachment UI with the shared group flowing through two items.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 18:41 GMT — M2-5 localized item editor
 
 - **Changed** — Added category-scoped Arabic, French and English item creation, editing, duplicate, archive and stock controls. The form preserves ordered option attachments and shows moderation separately. Category rows link directly to their items.
@@ -292,5 +300,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress)
 - The checklist snapshot reran `pnpm gate m2` on 2026-11-07 at 18:14 GMT and exited 1 at acceptance trace. It covered 28 of 37 IDs. Pending IDs are ADM-04, MER-01, MER-10, MER-11, MER-12, MER-14, MER-15, MER-16 and MER-23.
-- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 725 unit and 81 PostGIS integration tests
+- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 732 unit and 86 PostGIS integration tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

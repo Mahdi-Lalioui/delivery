@@ -145,6 +145,16 @@ const itemPayload = {
   optionGroupIds: [],
 };
 
+const menuGroupPath = "/v1/merchants/:merchantId/menu/option-groups";
+const menuGroupRequest = "/v1/merchants/" + challengeId + "/menu/option-groups";
+const groupPayload = {
+  expectedRevision: 0,
+  names: { fr: "Sauces" },
+  minimum: 0,
+  maximum: 1,
+  options: [{ names: { fr: "Épicée" }, priceDeltaDzd: 25, isDefault: true, isAvailable: false }],
+};
+
 const matrix: readonly MatrixRoute[] = [
   { method: "GET", url: "/healthz", expected: 200 },
   { method: "GET", url: "/readyz", expected: 200 },
@@ -252,6 +262,27 @@ const matrix: readonly MatrixRoute[] = [
     requestUrl: menuItemRequest + "/" + challengeId + "/availability",
     payload: { ...itemRevision, availability: "indefinite" },
     expected: { ...menuRoles, merchant_staff: 503 },
+  },
+  { method: "GET", url: menuGroupPath, requestUrl: menuGroupRequest, expected: menuRoles },
+  {
+    method: "GET",
+    url: menuGroupPath + "/:optionGroupId",
+    requestUrl: menuGroupRequest + "/" + challengeId,
+    expected: menuRoles,
+  },
+  {
+    method: "POST",
+    url: menuGroupPath,
+    requestUrl: menuGroupRequest,
+    payload: groupPayload,
+    expected: menuRoles,
+  },
+  {
+    method: "PUT",
+    url: menuGroupPath + "/:optionGroupId",
+    requestUrl: menuGroupRequest + "/" + challengeId,
+    payload: groupPayload,
+    expected: menuRoles,
   },
   { method: "GET", url: "/v1/admin/merchant-applications", expected: adminRole },
   {

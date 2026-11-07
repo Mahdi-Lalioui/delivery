@@ -16,6 +16,10 @@ import { registerMerchantRoutes, type MerchantServices } from "./merchant-routes
 import { createLogger } from "./logger.js";
 import { registerMenuCategoryRoutes, type MenuCategoryServices } from "./menu-category-routes.js";
 import { registerMenuItemRoutes, type MenuItemServices } from "./menu-item-routes.js";
+import {
+  registerMenuOptionGroupRoutes,
+  type MenuOptionGroupServices,
+} from "./menu-option-group-routes.js";
 import { enforceRoutePolicies, recordRoutePolicies, type ResolveActor } from "./policy.js";
 import { sendProblem } from "./problems.js";
 
@@ -24,6 +28,7 @@ interface ApiOptions {
   readonly merchant?: MerchantServices;
   readonly menuCategory?: MenuCategoryServices;
   readonly menuItem?: MenuItemServices;
+  readonly menuOptionGroup?: MenuOptionGroupServices;
   readonly trustedProxy?: string | undefined;
   readonly auth?: Parameters<typeof createAuthAccess>[0];
   readonly resolveActor?: ResolveActor;
@@ -83,6 +88,7 @@ export function createApi(options: ApiOptions): FastifyInstance {
     registerMerchantRoutes(api, options.merchant);
     registerMenuCategoryRoutes(api, options.menuCategory);
     registerMenuItemRoutes(api, options.menuItem);
+    registerMenuOptionGroupRoutes(api, options.menuOptionGroup);
     registerHealth(api, options.checkReadiness);
   });
   return api;

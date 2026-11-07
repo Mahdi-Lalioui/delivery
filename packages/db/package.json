@@ -24,6 +24,10 @@
       "types": "./src/menu-item.ts",
       "default": "./dist/menu-item.js"
     },
+    "./menu-option-group": {
+      "types": "./src/menu-option-group.ts",
+      "default": "./dist/menu-option-group.js"
+    },
     "./migrate": {
       "types": "./src/migrate.ts",
       "default": "./dist/migrate.js"

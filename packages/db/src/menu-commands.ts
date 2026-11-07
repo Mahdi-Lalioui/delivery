@@ -9,7 +9,9 @@ type Operation =
   | "item_update"
   | "item_duplicate"
   | "item_archive"
-  | "item_availability";
+  | "item_availability"
+  | "option_group_create"
+  | "option_group_update";
 
 export interface CommandRequest<
   Input extends { readonly expectedRevision: number },
