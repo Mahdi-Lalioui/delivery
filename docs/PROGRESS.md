@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 17:44 GMT — M2-2 menu schema and category API contracts
+
+- **Changed** — Added menu revision, categories, items, reusable option groups and ordered attachments. Composite foreign keys keep menu records in their merchant. A deferred constraint validates option counts and defaults at transaction commit. Category reads use revision-bound keyset pages and writes require an expected revision.
+- **Evidence** — Staged `pnpm verify` passed 51 tooling, 622 unit and 64 real PostGIS integration tests. The five focused schema tests cover cross-merchant references, deferrable reordering, rollback and a concurrent option-default conflict.
+- **Reviewer** — No P0/P1. Independently verified repeatable-read and read-committed writes, targeted cascades, migration reruns and cursor bounds.
+- **Next** — Implement owner/manager category queries, revision checks and idempotent commands against the committed contracts.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 17:40 GMT — M2-3 localized signup and review
 
 - **Changed** — Added public restaurant signup, Arabic/French/English application status, allowlisted sign-in continuations and a French/English review queue. Bound application and admin decisions to the session that loaded the form. Retained the application key through throttling and formatted Algerian phone numbers in the review detail.
@@ -212,5 +220,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress)
 - The current M2 implementation snapshot ran `pnpm gate m2` and exited 1 at acceptance trace. It covered 28 of 37 IDs. Pending IDs are ADM-04, MER-01, MER-10, MER-11, MER-12, MER-14, MER-15, MER-16 and MER-23.
-- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 620 unit and 59 PostGIS integration tests
+- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 622 unit and 64 PostGIS integration tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

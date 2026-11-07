@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { pageLimit } from "./pagination.js";
 
 const displayText = (maximum: number) =>
   z
@@ -19,6 +20,8 @@ const name = localizedText(120);
 const uuid = z.uuid();
 const wholeDzd = z.int().min(0).max(2_147_483_647);
 const tag = z.enum(["spicy", "vegetarian", "new", "popular"]);
+const menuRevision = z.int().nonnegative();
+const position = z.int().min(0).max(2_147_483_647);
 const localTime = z.string().regex(/^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/);
 const uniqueIds = (values: string[]) =>
   new Set(values.map((value) => value.toLowerCase())).size === values.length;
@@ -31,10 +34,60 @@ export const menuCategoryInput = z.strictObject({
   availability: availabilityWindow.nullable(),
 });
 
-export const menuCategoryOrderInput = z.strictObject({
-  categoryIds: z.array(uuid).min(1).max(1000).refine(uniqueIds, "List each category once."),
-  expectedRevision: z.int().nonnegative(),
+const categoryIds = z.array(uuid).min(1).max(1000).refine(uniqueIds, "List each category once.");
+const categoryOutput = menuCategoryInput.extend({ categoryId: uuid, position });
+
+export const menuCategoryCommandInput = menuCategoryInput.extend({
+  expectedRevision: menuRevision,
 });
+export const menuCategoryOrderInput = z.strictObject({
+  categoryIds,
+  expectedRevision: menuRevision,
+});
+export const menuCategoryOrderOutput = z.strictObject({ categoryIds, revision: menuRevision });
+export const menuCategoryWriteOutput = z.strictObject({
+  category: categoryOutput,
+  revision: menuRevision,
+});
+
+const cursorNumber = z
+  .string()
+  .regex(/^(?:0|[1-9][0-9]*)$/)
+  .transform(Number);
+const categoryCursorFields = z.strictObject({
+  revision: cursorNumber.pipe(menuRevision),
+  position: cursorNumber.pipe(position),
+  categoryId: uuid,
+});
+
+export function readMenuCategoryCursor(cursor: string) {
+  const [revision, position, categoryId, extra] = cursor.split("~");
+  if (extra !== undefined) return undefined;
+  const result = categoryCursorFields.safeParse({ revision, position, categoryId });
+  return result.success ? result.data : undefined;
+}
+
+const categoryCursor = z
+  .string()
+  .max(64)
+  .refine((cursor) => readMenuCategoryCursor(cursor) !== undefined);
+
+export const menuCategoryPageQuery = z.strictObject({
+  limit: pageLimit,
+  cursor: categoryCursor.optional(),
+});
+
+export const menuCategoryPageOutput = z
+  .strictObject({
+    sessionId: uuid,
+    revision: menuRevision,
+    categories: z.array(categoryOutput).max(100),
+    nextCursor: categoryCursor.nullable(),
+  })
+  .refine(
+    ({ revision, nextCursor }) =>
+      nextCursor === null || readMenuCategoryCursor(nextCursor)?.revision === revision,
+  );
 
 export const menuItemInput = z.strictObject({
   categoryId: uuid,
