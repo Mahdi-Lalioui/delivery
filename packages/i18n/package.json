@@ -4,14 +4,23 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./content": "./src/content.ts",
+    "./formats": "./src/formats.ts",
     "./locales": "./src/locales.ts",
-    "./messages": "./src/messages.ts"
+    "./messages": "./src/messages.ts",
+    "./phone": "./src/phone.ts",
+    "./search-synonyms": "./search-synonyms.json"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
+  "dependencies": {
+    "@formatjs/icu-messageformat-parser": "3.5.22",
+    "intl-messageformat": "11.2.15"
+  },
   "devDependencies": {
     "@zaafran/config": "workspace:*",
-    "typescript": "6.0.3"
+    "typescript": "6.0.3",
+    "vitest": "5.1.0"
   }
 }

@@ -1,0 +1,21 @@
+{
+  "pizza": ["pizza", "بيتزا", "pitza", "piza"],
+  "tacos": ["tacos", "طاكوس", "tacose"],
+  "shawarma": ["shawarma", "chawarma", "شاورما", "chawerma"],
+  "mhadjeb": ["mhadjeb", "m'hadjeb", "محاجب"],
+  "karantika": ["karantika", "garantita", "كرانتيكا"],
+  "couscous": ["couscous", "kesksou", "كسكس"],
+  "chorba": ["chorba", "شربة"],
+  "bourek": ["bourek", "بوراك"],
+  "zlabia": ["zlabia", "زلابية"],
+  "qalb el louz": ["qalb el louz", "قلب اللوز"],
+  "chicken": ["chicken", "poulet", "djaj", "دجاج"],
+  "grill": ["grill", "grillade", "مشوي"],
+  "burger": ["burger", "برغر"],
+  "panini": ["panini", "بانيني"],
+  "fries": ["fries", "frites", "فريت"],
+  "juice": ["juice", "jus", "عصير"],
+  "coffee": ["coffee", "café", "قهوة"],
+  "pastry": ["pastry", "pâtisserie", "حلويات"],
+  "fish": ["fish", "poisson", "حوت"]
+}

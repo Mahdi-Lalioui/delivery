@@ -1,0 +1,50 @@
+{
+  "name": "@zaafran/domain",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./eta": {
+      "types": "./src/eta.ts",
+      "default": "./dist/eta.js"
+    },
+    "./hours": {
+      "types": "./src/hours.ts",
+      "default": "./dist/hours.js"
+    },
+    "./money": {
+      "types": "./src/money.ts",
+      "default": "./dist/money.js"
+    },
+    "./order-transition": {
+      "types": "./src/order-transition.ts",
+      "default": "./dist/order-transition.js"
+    },
+    "./order-types": {
+      "types": "./src/order-types.ts",
+      "default": "./dist/order-types.js"
+    },
+    "./pricing": {
+      "types": "./src/pricing.ts",
+      "default": "./dist/pricing.js"
+    },
+    "./ramadan": {
+      "types": "./src/ramadan.ts",
+      "default": "./dist/ramadan.js"
+    },
+    "./search": {
+      "types": "./src/search.ts",
+      "default": "./dist/search.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@zaafran/config": "workspace:*",
+    "fast-check": "4.10.2",
+    "typescript": "6.0.3",
+    "vitest": "5.1.0"
+  }
+}

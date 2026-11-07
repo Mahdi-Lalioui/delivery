@@ -1,6 +1,7 @@
 import eslint from "@eslint/js";
 import prettier from "eslint-config-prettier/flat";
 import typescript from "typescript-eslint";
+import { noUiLiteral } from "./no-ui-literal.mjs";
 
 const typescriptFiles = ["**/*.{ts,tsx,mts,cts}"];
 
@@ -12,6 +13,7 @@ export function createEslintConfig(tsconfigRootDir) {
         "**/.next-dev/**",
         "**/.next-design/**",
         "**/.turbo/**",
+        "**/.stryker-tmp/**",
         "**/.expo/**",
         "**/build/**",
         "**/dist/**",
@@ -66,6 +68,12 @@ export function createEslintConfig(tsconfigRootDir) {
           },
         ],
       },
+    },
+    {
+      files: ["apps/*/src/**/*.{jsx,tsx}", "packages/ui/src/**/*.{jsx,tsx}"],
+      languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
+      plugins: { zaafran: { rules: { "no-ui-literal": noUiLiteral } } },
+      rules: { "zaafran/no-ui-literal": "error" },
     },
     prettier,
   ];

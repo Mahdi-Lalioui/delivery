@@ -1,0 +1,28 @@
+{
+  "name": "@zaafran/geo",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./maghrib": {
+      "types": "./src/maghrib.ts",
+      "default": "./dist/maghrib.js"
+    },
+    "./zone": {
+      "types": "./src/zone.ts",
+      "default": "./dist/zone.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "adhan": "4.4.6"
+  },
+  "devDependencies": {
+    "@zaafran/config": "workspace:*",
+    "typescript": "6.0.3",
+    "vitest": "5.1.0"
+  }
+}

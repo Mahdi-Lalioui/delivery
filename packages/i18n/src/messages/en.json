@@ -7,6 +7,9 @@
     "eyebrow": "Algiers, Algeria",
     "description": "Discover the tables and kitchens of Algiers."
   },
+  "menu": {
+    "itemCount": "{count, plural, one {# item} other {# items}}"
+  },
   "guide": {
     "eyebrow": "Casbah Saffron",
     "title": "Design guide",

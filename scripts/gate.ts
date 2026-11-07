@@ -10,6 +10,9 @@ const commands: ReadonlyMap<string, readonly string[]> = new Map([
   ["verify:full", ["verify:full"]],
   ["tokens:contrast", ["--dir", "packages/tokens", "test:contrast"]],
   ["ci:pr", ["exec", "node", "scripts/check-pr.ts"]],
+  ["coverage:domain", ["test:domain:coverage"]],
+  ["mutation:domain", ["test:mutation"]],
+  ["property:1000", ["test:properties"]],
 ]);
 
 const pnpmNames = new Set(["pnpm", "pnpm-native", "pnpm.cjs", "pnpm.exe"]);

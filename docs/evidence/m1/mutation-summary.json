@@ -1,0 +1,54 @@
+{
+  "files": {
+    "packages/domain/src/order-action.ts": {
+      "Killed": 265,
+      "NoCoverage": 1,
+      "Survived": 31
+    },
+    "packages/domain/src/order-transition.ts": {
+      "Killed": 244,
+      "NoCoverage": 3,
+      "Survived": 14
+    },
+    "packages/domain/src/search.ts": {
+      "Killed": 49,
+      "NoCoverage": 1,
+      "RuntimeError": 2,
+      "Survived": 3
+    },
+    "packages/domain/src/eta.ts": {
+      "Killed": 50,
+      "Survived": 2
+    },
+    "packages/domain/src/hours.ts": {
+      "Killed": 175,
+      "Survived": 15,
+      "Timeout": 4
+    },
+    "packages/domain/src/money.ts": {
+      "Killed": 11
+    },
+    "packages/domain/src/order-placement.ts": {
+      "Killed": 63,
+      "Survived": 7
+    },
+    "packages/domain/src/pricing.ts": {
+      "Killed": 143,
+      "Survived": 1
+    },
+    "packages/domain/src/ramadan.ts": {
+      "Killed": 64,
+      "Survived": 7
+    },
+    "packages/domain/src/result.ts": {
+      "Killed": 4
+    }
+  },
+  "total": {
+    "Killed": 1068,
+    "NoCoverage": 5,
+    "RuntimeError": 2,
+    "Survived": 80,
+    "Timeout": 4
+  }
+}
