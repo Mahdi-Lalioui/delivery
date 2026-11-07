@@ -13,6 +13,13 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 15:53 GMT — M1 gate passed
+
+- **Evidence** — `pnpm gate m1` exited 0 on clean `1d43c1cf279e30e2771a4fd216df23ab884473e6`. `pnpm exec node scripts/check-pr.ts` confirmed all required checks passed for the same commit. GitHub Actions reproduced the 92.65% mutation score and all 20 required acceptance IDs. [Gate and job evidence](evidence/m1/gate.md) · [M1 PR](https://github.com/Mahdi-Lalioui/delivery/pull/2)
+- **Reviewer** — No remaining P0/P1 after the lifecycle, schedule, copy lint and generated cache regressions passed.
+- **Next** — M2 auth contracts, tenant-scoped persistence and merchant onboarding.
+- **Needs Mahdi** — None for M1.
+
 ### 2026-11-07 15:48 GMT — M1-3 scheduling and local M1 gate
 
 - **Changed** — Added Algiers civil hours, overnight and special-date precedence, busy pauses, 15-minute slots and Ramadan offsets, countdown and Iftar arrival. Extended order guard tests from the mutation review.
@@ -123,6 +130,6 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ## Current status
 
-- Milestone: M1 (local gate passed, PR checks pending)
+- Milestone: M1 (gate passed, M2 next)
 - Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 380 unit tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
