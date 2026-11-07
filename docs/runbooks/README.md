@@ -7,6 +7,7 @@ Install the Node and pnpm versions in the workspace manifest, Docker with Compos
 ```sh
 pnpm install --frozen-lockfile
 cp .env.example .env
+# Set AUTH_OTP_KEY and AUTH_TOTP_KEY in .env using two independent openssl rand -hex 32 values.
 pnpm hooks:install
 pnpm exec playwright install chromium webkit
 docker compose up -d --wait
@@ -15,7 +16,7 @@ pnpm db:seed
 pnpm dev
 ```
 
-The web listener defaults to port 3000. The API listens on loopback port 3002. PostgreSQL, Martin, and OSRM expose ports 5432, 3001, and 5000 on loopback. The Compose tiles and routing fixtures are for development. Martin serves a synthetic archive, and OSRM routes over a clipped Algiers road network with attribution in `infra/fixtures/algiers-roads.LICENSE`.
+Visit the development web app at `http://127.0.0.1:3000` so the browser origin matches `AUTH_PUBLIC_ORIGIN`. The web listener defaults to port 3000. The API listens on loopback port 3002. PostgreSQL, Martin, and OSRM expose ports 5432, 3001, and 5000 on loopback. The Compose tiles and routing fixtures are for development. Martin serves a synthetic archive, and OSRM routes over a clipped Algiers road network with attribution in `infra/fixtures/algiers-roads.LICENSE`.
 
 `/healthz` indicates the API is accepting requests. `/readyz` also requires PostgreSQL and the Graphile migration ledger. The development API exposes fake SMS and push inboxes at `/__dev__/outbox` on loopback. Production uses the regular web and API builds. The optimized design profile and integration routes are local verification tools.
 

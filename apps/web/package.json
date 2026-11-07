@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@zaafran/config": "workspace:*",
+    "@zaafran/contracts": "workspace:*",
     "@zaafran/i18n": "workspace:*",
     "@zaafran/tokens": "workspace:*",
     "next": "16.4.5",

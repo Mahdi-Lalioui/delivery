@@ -103,10 +103,37 @@ test("[AUTH-06] throttles protected requests before resolving an actor", async (
   }
 });
 
-const matrix = [
+type MatrixRoute = {
+  method: "GET" | "POST" | "DELETE";
+  url: string;
+  requestUrl?: string;
+  payload?: Record<string, string>;
+  expected: number;
+};
+
+const challengeId = "01932f18-3150-7c33-8a7a-53acfd343001";
+const verification = { challengeId, code: "001234", transport: "web" };
+
+const matrix: readonly MatrixRoute[] = [
   { method: "GET", url: "/healthz", expected: 200 },
   { method: "GET", url: "/readyz", expected: 200 },
-] as const;
+  {
+    method: "POST",
+    url: "/v1/auth/otp/request",
+    payload: { phone: "+213500000000", purpose: "sign_in" },
+    expected: 503,
+  },
+  { method: "POST", url: "/v1/auth/otp/verify", payload: verification, expected: 503 },
+  { method: "POST", url: "/v1/auth/totp/verify", payload: verification, expected: 503 },
+  { method: "POST", url: "/v1/auth/logout", payload: { scope: "current" }, expected: 401 },
+  { method: "GET", url: "/v1/me/sessions", expected: 401 },
+  {
+    method: "DELETE",
+    url: "/v1/me/sessions/:sessionId",
+    requestUrl: `/v1/me/sessions/${challengeId}`,
+    expected: 401,
+  },
+];
 
 test("[AUTH-08] covers every registered route for every required actor", async () => {
   let actor: Actor | undefined;
@@ -120,8 +147,13 @@ test("[AUTH-08] covers every registered route for every required actor", async (
     ).toEqual(matrix.map(({ method, url }) => method + " " + url).sort());
     for (const [label, candidate] of Object.entries(actors)) {
       actor = candidate;
-      for (const { method, url, expected } of matrix) {
-        const response = await api.inject({ method, url });
+      for (const { method, url, requestUrl, payload, expected } of matrix) {
+        const response = await api.inject({
+          method,
+          url: requestUrl ?? url,
+          headers: { "idempotency-key": "fixture-policy" },
+          ...(payload === undefined ? {} : { payload }),
+        });
         expect(response.statusCode, method + " " + url + " for " + label).toBe(expected);
       }
     }

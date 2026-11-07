@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 16:37 GMT — M2-1 authentication and localized sign-in
+
+- **Changed** — Added forward PostgreSQL auth migrations, transactional phone OTP and TOTP, hashed sessions, same-origin cookie protection, scoped device revoke, OpenAPI endpoints, and Arabic/French/English sign-in. The generated contract and authorization matrix include the new routes.
+- **Evidence** — The final staged snapshot passed `pnpm verify` with 51 tooling, 490 unit and 41 real PostGIS integration tests. API line coverage reached 93.42% and web component line coverage reached 76.11%. `pnpm test:authz` passed all 38 cases. [Sign-in visual evidence](evidence/m2/sign-in.md)
+- **Reviewer** — Fixed lost SMS delivery acknowledgement, repeat verification consuming attempts, receipt allocation on unchanged challenges, short TOTP seeds and admin focus announcements. No remaining P0/P1 in the reviewed auth and sign-in scope.
+- **Next** — Finish and verify the production-built HTTPS browser harness, then commit merchant signup and approval contracts.
+- **Needs Mahdi** — None for this slice. Real SMS provisioning remains a launch item in HUMAN_TODO.
+
 ### 2026-11-07 16:03 GMT — M2-1 authentication contracts and gate requirements
 
 - **Changed** — Refined M2 into implementation slices and recorded the AUTH-09 choice in D-005. Added strict phone OTP, TOTP, logout and session schemas. The M2 gate rejects omitting onboarding, authorization or design checks.
@@ -139,5 +147,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 ## Current status
 
 - Milestone: M1 (last passing gate, M2 in progress)
-- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 380 unit tests
+- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 490 unit and 41 PostGIS integration tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

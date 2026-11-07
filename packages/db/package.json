@@ -4,6 +4,10 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./auth": {
+      "types": "./src/auth.ts",
+      "default": "./dist/auth.js"
+    },
     "./database": {
       "types": "./src/database.ts",
       "default": "./dist/database.js"

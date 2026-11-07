@@ -263,6 +263,9 @@ importers:
       '@zaafran/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@zaafran/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@zaafran/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n

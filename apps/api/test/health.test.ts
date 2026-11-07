@@ -140,7 +140,16 @@ test("[M0-6] the generated OpenAPI document describes the readiness problem resp
   try {
     await api.ready();
     const schema = api.swagger();
-    expect(Object.keys(schema.paths ?? {}).sort()).toEqual(["/healthz", "/readyz"]);
+    expect(Object.keys(schema.paths ?? {}).sort()).toEqual([
+      "/healthz",
+      "/readyz",
+      "/v1/auth/logout",
+      "/v1/auth/otp/request",
+      "/v1/auth/otp/verify",
+      "/v1/auth/totp/verify",
+      "/v1/me/sessions",
+      "/v1/me/sessions/{sessionId}",
+    ]);
     expect(schema.paths?.["/readyz"]?.get?.responses).toMatchObject({
       503: { content: { "application/problem+json": { schema: { type: "object" } } } },
     });

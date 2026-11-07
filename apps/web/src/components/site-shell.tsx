@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 interface SiteShellProps {
   children: ReactNode;
   locale: Locale;
-  subpath?: "/dev/design";
+  subpath?: "/dev/design" | "/sign-in" | "/sign-in?purpose=admin";
 }
 
 export async function SiteShell({ children, locale, subpath }: SiteShellProps) {

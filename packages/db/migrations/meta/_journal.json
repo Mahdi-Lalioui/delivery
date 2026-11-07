@@ -15,6 +15,13 @@
       "when": 1794058860000,
       "tag": "0001_job_effects",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794066960000,
+      "tag": "0002_auth",
+      "breakpoints": true
     }
   ]
 }

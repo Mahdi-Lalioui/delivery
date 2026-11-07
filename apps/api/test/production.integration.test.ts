@@ -24,6 +24,9 @@ test("[M0-6] the built production process excludes debug routes and reports unav
       DATABASE_URL: database.url(),
       API_HOST: "127.0.0.1",
       API_PORT: "0",
+      AUTH_PUBLIC_ORIGIN: "https://zaafran.test",
+      AUTH_OTP_KEY: "01".repeat(32),
+      AUTH_TOTP_KEY: "02".repeat(32),
     },
   });
   let output = "";
@@ -48,6 +51,15 @@ test("[M0-6] the built production process excludes debug routes and reports unav
     const readiness = await fetch(new URL("/readyz", origin));
     expect(readiness.status).toBe(503);
     expect(problemResponseSchema.parse(await readiness.json()).code).toBe("not_ready");
+    const authentication = await fetch(new URL("/v1/auth/otp/request", origin), {
+      method: "POST",
+      headers: { "content-type": "application/json", "idempotency-key": "compiled-api-fixture" },
+      body: JSON.stringify({ phone: "+213500000000", purpose: "sign_in" }),
+    });
+    expect(authentication.status).toBe(503);
+    expect(problemResponseSchema.parse(await authentication.json()).code).toBe(
+      "otp_delivery_unavailable",
+    );
     const privateRoutes = [
       ["POST", "/__test__/clock"],
       ["POST", "/__test__/reset"],

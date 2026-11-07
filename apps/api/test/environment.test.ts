@@ -6,6 +6,9 @@ test("[M0-6] validates the database URL, listener and port at startup", () => {
     DATABASE_URL: "postgresql://zaafran:fixture@127.0.0.1:5432/zaafran_test",
     API_HOST: "127.0.0.1",
     API_PORT: "8081",
+    AUTH_PUBLIC_ORIGIN: "https://zaafran.test",
+    AUTH_OTP_KEY: "01".repeat(32),
+    AUTH_TOTP_KEY: "02".repeat(32),
   };
   expect(readApiEnvironment(input)).toEqual({ ...input, API_PORT: 8081 });
   for (const bad of [
@@ -17,4 +20,33 @@ test("[M0-6] validates the database URL, listener and port at startup", () => {
   ]) {
     expect(() => readApiEnvironment(bad)).toThrow();
   }
+});
+
+test("[AUTH-04:startup] validates the exact public origin and requires independent auth keys", () => {
+  const input = {
+    DATABASE_URL: "postgresql://zaafran:fixture@127.0.0.1:5432/zaafran_test",
+    AUTH_PUBLIC_ORIGIN: "https://zaafran.test",
+    AUTH_OTP_KEY: "01".repeat(32),
+    AUTH_TOTP_KEY: "02".repeat(32),
+  };
+  expect(readApiEnvironment(input).AUTH_PUBLIC_ORIGIN).toBe(input.AUTH_PUBLIC_ORIGIN);
+  expect(
+    readApiEnvironment({ ...input, AUTH_PUBLIC_ORIGIN: "http://127.0.0.1:3000" })
+      .AUTH_PUBLIC_ORIGIN,
+  ).toBe("http://127.0.0.1:3000");
+  expect(
+    readApiEnvironment({ ...input, API_TRUSTED_PROXY: "192.0.2.12/32" }).API_TRUSTED_PROXY,
+  ).toBe("192.0.2.12/32");
+  for (const bad of [
+    { ...input, AUTH_PUBLIC_ORIGIN: "http://zaafran.test" },
+    { ...input, AUTH_PUBLIC_ORIGIN: "https://zaafran.test/login" },
+    { ...input, AUTH_PUBLIC_ORIGIN: "https://user@zaafran.test" },
+    { ...input, AUTH_OTP_KEY: "too-short" },
+    { ...input, AUTH_TOTP_KEY: input.AUTH_OTP_KEY },
+    { ...input, AUTH_TOTP_KEY: undefined },
+    { ...input, API_TRUSTED_PROXY: "0.0.0.0/0" },
+    { ...input, API_TRUSTED_PROXY: "192.0.2.1/33" },
+    { ...input, API_TRUSTED_PROXY: "true" },
+  ])
+    expect(() => readApiEnvironment(bad)).toThrow();
 });

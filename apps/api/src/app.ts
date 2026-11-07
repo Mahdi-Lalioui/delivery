@@ -9,6 +9,8 @@ import {
   serializerCompiler,
   validatorCompiler,
 } from "fastify-type-provider-zod";
+import { createAuthAccess } from "./auth-access.js";
+import { registerAuthRoutes } from "./auth-routes.js";
 import { registerHealth } from "./health.js";
 import { createLogger } from "./logger.js";
 import { enforceRoutePolicies, recordRoutePolicies, type ResolveActor } from "./policy.js";
@@ -16,6 +18,8 @@ import { sendProblem } from "./problems.js";
 
 interface ApiOptions {
   readonly checkReadiness: () => Promise<void>;
+  readonly trustedProxy?: string | undefined;
+  readonly auth?: Parameters<typeof createAuthAccess>[0];
   readonly resolveActor?: ResolveActor;
   readonly rateLimit?: { readonly max: number; readonly timeWindow: number };
   readonly logStream?: Writable;
@@ -23,6 +27,7 @@ interface ApiOptions {
 
 export function createApi(options: ApiOptions): FastifyInstance {
   const api = fastify({
+    trustProxy: options.trustedProxy ?? false,
     bodyLimit: 256 * 1024,
     exposeHeadRoutes: false,
     requestIdHeader: false,
@@ -61,7 +66,14 @@ export function createApi(options: ApiOptions): FastifyInstance {
   });
   void api.after(() => {
     api.addHook("onRequest", api.rateLimit());
-    enforceRoutePolicies(api, options.resolveActor);
+    const access = createAuthAccess(options.auth);
+    api.addHook("onRequest", access.guardCookieMutation);
+    enforceRoutePolicies(api, options.resolveActor ?? access.resolveActor);
+    api.addHook("onSend", (request, reply, payload) => {
+      access.refreshCookie(request, reply);
+      return Promise.resolve(payload);
+    });
+    registerAuthRoutes(api, access);
     registerHealth(api, options.checkReadiness);
   });
   return api;

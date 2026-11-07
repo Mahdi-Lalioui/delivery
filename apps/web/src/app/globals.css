@@ -152,3 +152,10 @@ a {
   font-size: var(--font-size-body-lg);
   line-height: var(--line-height-body-lg);
 }
+
+.home-sign-in {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  min-block-size: var(--touch-target-min);
+}

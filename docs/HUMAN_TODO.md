@@ -22,7 +22,7 @@ Codex appends items here (what, why, exact steps). Mahdi ticks them. Items marke
 - [ ] **[before launch]** Second backup location for encrypted backups.
 
 ## Providers
-- [ ] SMS provider that delivers reliably to Mobilis, Djezzy and Ooredoo numbers. Get a sender ID and put the API keys in `.env` (never in git).
+- [ ] **[before launch]** SMS gateway for login. In the provider console, register a transactional sender ID, enable its HTTPS send endpoint and request the delivery and idempotency documentation. Put the provider credential in the deployment secret store and share the credential reference and sender ID so the production adapter can be configured. Use approved test numbers on Mobilis, Djezzy and Ooredoo to confirm delivery before opening signup. Development and automated checks use the local fake inbox.
 - [ ] Telegram bot token (or an email address) for alerts.
 - [ ] Chargily Pay account, for restaurants paying their subscription online (optional at launch).
 - [ ] (Optional) LLM API key, for menu import from photos (feature flag `menu_photo_import`).

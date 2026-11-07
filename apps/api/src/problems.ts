@@ -11,7 +11,7 @@ const problemCodes: ReadonlyMap<number, string> = new Map([
   [503, "not_ready"],
 ]);
 
-export function sendProblem(reply: FastifyReply, status: number): FastifyReply {
+export function sendProblem(reply: FastifyReply, status: number, code?: string): FastifyReply {
   return reply
     .code(status)
     .type("application/problem+json")
@@ -19,7 +19,8 @@ export function sendProblem(reply: FastifyReply, status: number): FastifyReply {
       type: "about:blank",
       title: STATUS_CODES[status] ?? "Request failed",
       status,
-      code: problemCodes.get(status) ?? (status >= 500 ? "internal_error" : "request_failed"),
+      code:
+        code ?? problemCodes.get(status) ?? (status >= 500 ? "internal_error" : "request_failed"),
       requestId: reply.request.id,
     });
 }

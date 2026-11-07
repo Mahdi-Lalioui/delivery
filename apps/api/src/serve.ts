@@ -1,9 +1,8 @@
-import type { FastifyInstance } from "fastify";
-import { startApi } from "./start.js";
+import { startApi, type StartOptions } from "./start.js";
 
-export async function serveApi(configure?: (api: FastifyInstance) => void): Promise<void> {
+export async function serveApi(options?: StartOptions): Promise<void> {
   try {
-    const api = await startApi(configure ? { configure } : {});
+    const api = await startApi(options);
     const stop = () => {
       void api.close().catch(() => {
         api.log.error("API shutdown failed");
