@@ -97,7 +97,8 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
 - [ ] M2-9 Hours and Ramadan (MER-15, MER-16). Persist weekly ranges, dated exceptions, Ramadan offsets and location. Render seven-day previews through the M1 rules and exercise overnight and Ramadan edits in Arabic and French.
   - [x] Define the weekly ranges and special-dates input contract (overnight ranges, no same-day overlap, bounded sizes).
   - [ ] Persist weekly ranges and special dates with an owner-scoped, idempotent replace command and the closed-now override.
-  - [ ] Add the Ramadan offsets contract and persistence (Maghrib-relative opening, suhoor window, method and ± minutes).
+  - [x] Define the Ramadan input contract (Maghrib-relative or clock endpoints, suhoor window, method and ± minutes).
+  - [ ] Persist the Ramadan schedule with the same owner-scoped command as weekly hours.
   - [ ] Render the seven-day preview through the M1 rules and build the Arabic/French hours editor with the overnight and Ramadan journeys.
 - [ ] M2-10 Moderation (§17.3, ADM-04). Check prohibited goods on every menu write path and public preview. Prove flagged items stay hidden until the audited review outcome permits listing.
 - [ ] M2-11 Staff roles (MER-23). Implement owner-managed, single-use invitations tied to a verified phone. Prove every role against both its own and another merchant's resources.

@@ -34,16 +34,19 @@ const dayRanges = z
   .max(maxRangesPerDay)
   .refine(hasNoOverlap, "Ranges on one day cannot overlap.");
 
-const weeklyDay = z.strictObject({ weekday: z.int().min(0).max(6), ranges: dayRanges });
+function hasEachWeekdayOnce(days: readonly { weekday: number }[]): boolean {
+  return new Set(days.map((day) => day.weekday)).size === days.length;
+}
 
 /** Weekday 0 is Sunday, matching the M1 hours rules. */
-const weekly = z
-  .array(weeklyDay)
-  .length(7)
-  .refine(
-    (days) => new Set(days.map((day) => day.weekday)).size === days.length,
-    "List each weekday once.",
-  );
+function sevenWeekdays<Ranges extends z.ZodType>(ranges: Ranges) {
+  return z
+    .array(z.strictObject({ weekday: z.int().min(0).max(6), ranges }))
+    .length(7)
+    .refine(hasEachWeekdayOnce, "List each weekday once.");
+}
+
+const weekly = sevenWeekdays(dayRanges);
 
 /** An empty range list closes the whole Algiers civil date. */
 const specialDate = z.strictObject({ date: z.iso.date(), ranges: dayRanges });
@@ -57,3 +60,47 @@ const specialDates = z
   );
 
 export const merchantHoursInput = z.strictObject({ weekly, specialDates });
+
+const maxMaghribOffsetMinutes = 12 * 60;
+const maxPrayerAdjustmentMinutes = 30;
+
+// The calculation methods `calculateMaghrib` in @zaafran/geo accepts (adhan 4.4.6), minus "Other".
+const prayerMethods = [
+  "Algeria",
+  "MuslimWorldLeague",
+  "Egyptian",
+  "Karachi",
+  "UmmAlQura",
+  "Dubai",
+  "MoonsightingCommittee",
+  "NorthAmerica",
+  "Kuwait",
+  "Qatar",
+  "Singapore",
+  "Tehran",
+  "Turkey",
+] as const;
+
+/** Mirrors the M1 `resolveRamadanRange` endpoint: Maghrib ± minutes, or a fixed Algiers clock time. */
+const ramadanEndpoint = z.discriminatedUnion("kind", [
+  z.strictObject({
+    kind: z.literal("maghrib"),
+    minutes: z.int().min(-maxMaghribOffsetMinutes).max(maxMaghribOffsetMinutes),
+  }),
+  z.strictObject({
+    kind: z.literal("clock"),
+    minuteOfDay: z
+      .int()
+      .min(0)
+      .max(dayMinutes - 1),
+  }),
+]);
+
+const ramadanRange = z.strictObject({ opens: ramadanEndpoint, closes: ramadanEndpoint });
+
+export const merchantRamadanInput = z.strictObject({
+  weekly: sevenWeekdays(z.array(ramadanRange).max(maxRangesPerDay)),
+  suhoor: openingRange.nullable(),
+  method: z.enum(prayerMethods),
+  adjustmentMinutes: z.int().min(-maxPrayerAdjustmentMinutes).max(maxPrayerAdjustmentMinutes),
+});

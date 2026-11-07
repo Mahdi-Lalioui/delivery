@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { merchantHoursInput } from "../src/merchant-hours.ts";
+import { merchantHoursInput, merchantRamadanInput } from "../src/merchant-hours.ts";
 
 const lunch = { opensMinute: 690, closesMinute: 900 };
 const dinner = { opensMinute: 1080, closesMinute: 1410 };
@@ -65,3 +65,48 @@ test.each([
 function rangeAt(hour: number) {
   return { opensMinute: hour * 120, closesMinute: hour * 120 + 60 };
 }
+
+const iftarToLate = {
+  opens: { kind: "maghrib", minutes: -60 },
+  closes: { kind: "clock", minuteOfDay: 120 },
+} as const;
+
+function ramadanWeek(ranges: object[][] = []) {
+  return Array.from({ length: 7 }, (_, weekday) => ({ weekday, ranges: ranges[weekday] ?? [] }));
+}
+
+test("[MER-16:contract] accepts Maghrib-relative days, a suhoor window, a method and an offset", () => {
+  const input = {
+    weekly: ramadanWeek([[iftarToLate], [iftarToLate]]),
+    suhoor: { opensMinute: 0, closesMinute: 240 },
+    method: "Algeria",
+    adjustmentMinutes: -2,
+  };
+  expect(merchantRamadanInput.parse(input)).toEqual(input);
+  expect(merchantRamadanInput.parse({ ...input, suhoor: null, method: "UmmAlQura" })).toMatchObject(
+    { suhoor: null, method: "UmmAlQura" },
+  );
+});
+
+test.each([
+  ["an unknown method", { method: "Other" }],
+  ["an offset beyond thirty minutes", { adjustmentMinutes: 31 }],
+  ["a fractional offset", { adjustmentMinutes: 1.5 }],
+  [
+    "a Maghrib offset beyond twelve hours",
+    {
+      weekly: ramadanWeek([[{ ...iftarToLate, opens: { kind: "maghrib", minutes: -721 } }]]),
+    },
+  ],
+  [
+    "a clock minute off the day",
+    {
+      weekly: ramadanWeek([[{ ...iftarToLate, closes: { kind: "clock", minuteOfDay: 1440 } }]]),
+    },
+  ],
+  ["a missing weekday", { weekly: ramadanWeek().slice(0, 6) }],
+  ["an empty suhoor window", { suhoor: { opensMinute: 60, closesMinute: 60 } }],
+])("[MER-16:contract] rejects %s", (_reason, override) => {
+  const base = { weekly: ramadanWeek(), suhoor: null, method: "Algeria", adjustmentMinutes: 0 };
+  expect(merchantRamadanInput.safeParse({ ...base, ...override }).success).toBe(false);
+});

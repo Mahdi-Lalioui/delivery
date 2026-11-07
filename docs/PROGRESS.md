@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 23:33 GMT — M2-9 Ramadan schedule input contract (Claude, covering while Codex was out)
+
+- **Changed** — Added `merchantRamadanInput` to `@zaafran/contracts/merchant-hours`. It takes seven unique weekday entries, each with up to four ranges. Every endpoint is `{ kind: "maghrib", minutes: ±720 }` or `{ kind: "clock", minuteOfDay: 0–1439 }`, the same shape as M1 `resolveRamadanRange`. It also takes a nullable non-empty suhoor window, a calculation method from the names `calculateMaghrib` accepts (without `Other`), and a whole-minute adjustment within ±30. Extracted a shared `sevenWeekdays` schema builder used by both weekly hours and Ramadan. Extended D-010.
+- **Evidence** — Added 8 `[MER-16:contract]` cases to `packages/contracts/test/merchant-hours.test.ts` first (accepted: Maghrib − 60 to 02:00 with a 00:00–04:00 suhoor, plus a null suhoor with `UmmAlQura`; rejected: `Other`, +31 and 1.5 minute adjustments, Maghrib − 721, clock minute 1440, six weekdays, an empty suhoor). They failed on the missing export, then all 19 file cases passed. `pnpm verify` exited 0: 935 unit tests, 109 PostGIS integration tests, build, knip, depcruise, trace, and only the existing moderate `minimatch` advisory.
+- **Reviewer** — Self-reviewed against AGENTS.md §10. No P0/P1. P2: the method list is copied from adhan's `CalculationMethod` keys. When the persistence task wires it to `calculateMaghrib`, add a `@zaafran/geo` test proving every contract method returns a Maghrib time, so a library upgrade cannot drift silently.
+- **Next** — Unchanged from the 23:31 entry. Either finish M2-7's panel hook, placement, e2e and screenshots, or design M2-9 persistence. That needs a decision first: which merchant statuses may edit hours (onboarding needs hours before approval, while `lockEditableMenu` only allows approved, active and paused merchants), and whether hours writes share `menu_revision` and `menu_command_receipts` or get their own revision and receipts. Record it as D-011, then write the integration tests.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 23:31 GMT — M2-9 opening-hours input contract (Claude, covering while Codex was out)
 
 - **Changed** — Added `@zaafran/contracts/merchant-hours` with `merchantHoursInput`: seven unique weekday entries and up to 60 unique special dates. Each day has up to four whole-minute ranges. A closing minute at or before the opening minute is an overnight range, and same-day overlaps, including an overnight range overlapping a later one, are rejected. Dates use the ISO calendar check. Recorded D-010 and split M2-9 into four sub-tasks in PLAN.
@@ -412,5 +420,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress)
 - The checklist snapshot reran `pnpm gate m2` on 2026-11-07 at 18:14 GMT and exited 1 at acceptance trace. It covered 28 of 37 IDs. Pending IDs are ADM-04, MER-01, MER-10, MER-11, MER-12, MER-14, MER-15, MER-16 and MER-23. MER-11's apply/history and undo endpoints landed at 22:41 and 23:18 GMT; the merchant UI is still needed to close MER-11.
-- Last green `pnpm verify`: 2026-11-07 23:31 GMT on Docker Desktop with 927 unit and 109 PostGIS integration tests
+- Last green `pnpm verify`: 2026-11-07 23:33 GMT on Docker Desktop with 935 unit and 109 PostGIS integration tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
