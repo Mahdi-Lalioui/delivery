@@ -173,8 +173,12 @@ test("[AUTH-05:contract] only OTP verification can return an incomplete TOTP cha
 });
 
 test("[AUTH-03:contract] distinguishes current-session logout from revoking all sessions", () => {
-  expect(logoutInput.parse({ scope: "current" })).toEqual({ scope: "current" });
-  expect(logoutInput.parse({ scope: "all" })).toEqual({ scope: "all" });
+  for (const scope of ["current", "all"]) {
+    const command = { scope, expectedSessionId: sessionId };
+    expect(logoutInput.parse(command)).toEqual(command);
+  }
+  expect(logoutInput.safeParse({ scope: "all" }).success).toBe(false);
+  expect(logoutInput.safeParse({ scope: "all", expectedSessionId: "invalid" }).success).toBe(false);
   expect(logoutInput.safeParse({}).success).toBe(false);
   expect(logoutInput.safeParse({ scope: "other" }).success).toBe(false);
   expect(logoutInput.safeParse({ scope: "all", sessionId }).success).toBe(false);

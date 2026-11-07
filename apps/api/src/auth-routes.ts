@@ -201,6 +201,8 @@ function registerLogout(api: FastifyInstance, { auth, getSession }: AuthAccess):
       const session = getSession(request);
       if (!session) return sendProblem(reply, 401);
       if (!auth) return sendProblem(reply, 503);
+      if (request.body.expectedSessionId.toLowerCase() !== session.id)
+        return sendProblem(reply, 409, "session_changed");
       const scope =
         request.body.scope === "all"
           ? { kind: "all" as const }

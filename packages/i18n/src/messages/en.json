@@ -76,6 +76,29 @@
     "totpLocked": "You’ve reached the attempt limit. Sign in again.",
     "totpReplayed": "This authenticator code was already used. Wait for a new code.",
     "totpConsumed": "This verification has already been completed.",
-    "otpDeliveryUnavailable": "The SMS could not be sent. Try again."
+    "otpDeliveryUnavailable": "The SMS could not be sent. Try again.",
+    "manageDevices": "Manage devices"
+  },
+  "sessions": {
+    "title": "Signed-in devices",
+    "description": "Review the devices signed in to your account and sign out of any you no longer use.",
+    "loading": "Loading devices…",
+    "empty": "There are no active sessions.",
+    "unauthenticated": "Sign in to manage your devices.",
+    "signedOut": "You’re signed out.",
+    "signIn": "Sign in",
+    "loadError": "The device list could not be loaded.",
+    "actionError": "We couldn’t sign out the device. Try again.",
+    "retry": "Try again",
+    "currentDevice": "This device",
+    "unknownDevice": "Unknown device",
+    "lastSeen": "Last active",
+    "expires": "Expires",
+    "dateTime": "{date} at {time}",
+    "revoke": "Sign out device",
+    "revoked": "The device is signed out.",
+    "signOutCurrent": "Sign out on this device",
+    "signOutAll": "Sign out everywhere",
+    "working": "Signing out…"
   }
 }

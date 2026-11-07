@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 17:16 GMT — M2-1 device management
+
+- **Changed** — Added localized device sessions for Arabic, French and English, with per-device revocation, current-device sign-out and sign-out everywhere. The screen keeps the route across locale changes and never exposes a session token.
+- **Evidence** — Staged `pnpm verify` passed 51 tooling, 528 unit and 56 real PostGIS integration tests. `pnpm test:e2e:auth --fail-on-flaky-tests` passed four HTTPS journeys on the compiled app and Docker PostGIS. The device journey revoked a remote session while preserving the current one, then verified sign-out everywhere. A second account stayed authenticated when a stale browser tab tried to sign out the first account. All twelve theme, locale and viewport captures passed axe and overflow. [Device evidence](evidence/m2/device-sessions.md)
+- **Reviewer** — The design critic approved the corrected revoke control and the full matrix. Its accessible name preserves the visible label and the device context. The logout command now checks the displayed session ID against the authenticated session before revoking any devices.
+- **Next** — Continue the merchant HTTP and localized onboarding work.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 17:04 GMT — M2-2 merchant persistence and query contracts
 
 - **Changed** — Added the forward merchant migration and atomic signup, membership, review notice, audit and idempotency transactions. Commune pin validation uses PostGIS `ST_Covers`. Admin and commune queries use bounded keyset pages.
@@ -172,5 +180,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress)
 - The current M2 implementation snapshot ran `pnpm gate m2` and exited 1 at acceptance trace. It covered 28 of 37 IDs. Pending IDs are ADM-04, MER-01, MER-10, MER-11, MER-12, MER-14, MER-15, MER-16 and MER-23.
-- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 508 unit and 56 PostGIS integration tests
+- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 528 unit and 56 PostGIS integration tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

@@ -1,0 +1,98 @@
+.session-panel {
+  display: grid;
+  gap: var(--space-24);
+  inline-size: min(100%, calc(6 * var(--space-120)));
+  margin-inline: auto;
+}
+
+.session-heading,
+.session-list,
+.session-row {
+  display: grid;
+  gap: var(--space-12);
+}
+
+.session-heading h1 {
+  font-family: var(--font-display);
+  font-size: var(--font-size-display);
+  font-weight: var(--font-weight-display);
+  line-height: var(--line-height-display);
+}
+
+.session-heading p,
+.session-details dt {
+  color: var(--color-text-2);
+}
+
+.session-row {
+  padding: var(--space-20);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-e1);
+}
+
+.session-row-heading,
+.session-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.session-row h2 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-h3);
+  line-height: var(--line-height-h3);
+}
+
+.session-badge {
+  padding: var(--space-4) var(--space-8);
+  border-radius: var(--radius-pill);
+  background: var(--color-info-bg);
+  color: var(--color-info);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+}
+
+.session-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-12) var(--space-32);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+}
+
+.session-action,
+.session-revoke {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  min-block-size: var(--touch-target-min);
+  min-inline-size: var(--touch-target-min);
+  padding-inline: var(--space-12);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-label);
+  line-height: var(--line-height-label);
+}
+
+.session-revoke,
+.session-error,
+.session-actions button {
+  color: var(--color-danger);
+}
+
+.session-revoke:hover:not(:disabled),
+.session-actions button:hover:not(:disabled) {
+  background: var(--color-danger-bg);
+}
+
+.session-action:disabled,
+.session-revoke:disabled {
+  background: var(--color-surface-2);
+  color: var(--color-text-3);
+}

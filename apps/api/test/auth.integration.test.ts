@@ -128,12 +128,14 @@ test("[AUTH-01] [AUTH-03] [AUTH-09] uses live Postgres for HMAC and opaque web s
 
     const cookieHeader = { cookie: "__Host-session=" + cookie.value };
     const listed = await api.inject({ url: "/v1/me/sessions", headers: cookieHeader });
-    expect(sessionListOutput.parse(listed.json()).sessions).toMatchObject([{ current: true }]);
+    const [current] = sessionListOutput.parse(listed.json()).sessions;
+    expect(current?.current).toBe(true);
+    if (!current) throw new Error("Expected an authenticated session");
     const logout = await api.inject({
       method: "POST",
       url: "/v1/auth/logout",
       headers: { ...originHeaders, ...cookieHeader, "idempotency-key": randomUUIDv7() },
-      payload: { scope: "all" },
+      payload: { scope: "all", expectedSessionId: current.id },
     });
     expect(logout.statusCode).toBe(204);
     expect(logout.cookies).toMatchObject([{ name: "__Host-session", maxAge: 0 }]);
@@ -188,7 +190,7 @@ test("[AUTH-04] rejects cross-origin cookie writes before revoking an active ses
         "sec-fetch-site": "cross-site",
         "idempotency-key": randomUUIDv7(),
       },
-      payload: { scope: "all" },
+      payload: { scope: "all", expectedSessionId: randomUUIDv7() },
     });
     expect(response.statusCode).toBe(403);
     expect((await api.inject({ url: "/v1/me/sessions", headers: cookieHeader })).statusCode).toBe(

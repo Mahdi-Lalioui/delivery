@@ -125,7 +125,12 @@ const matrix: readonly MatrixRoute[] = [
   },
   { method: "POST", url: "/v1/auth/otp/verify", payload: verification, expected: 503 },
   { method: "POST", url: "/v1/auth/totp/verify", payload: verification, expected: 503 },
-  { method: "POST", url: "/v1/auth/logout", payload: { scope: "current" }, expected: 401 },
+  {
+    method: "POST",
+    url: "/v1/auth/logout",
+    payload: { scope: "current", expectedSessionId: challengeId },
+    expected: 401,
+  },
   { method: "GET", url: "/v1/me/sessions", expected: 401 },
   {
     method: "DELETE",

@@ -78,7 +78,10 @@ test("[AUTH-05] presents a separate authenticator challenge and restart path for
 });
 
 test("[AUTH-03] offers a localized home link after the server has authenticated the session", () => {
-  expect(render({ step: { kind: "done" } })).toMatch(/<a[^>]*href="\/ar"/);
+  const html = render({ step: { kind: "done" } });
+  expect(html).toMatch(/<a[^>]*href="\/ar"/);
+  expect(html).toMatch(/<a[^>]*href="\/ar\/account\/sessions"/);
+  expect(html).toContain(getMessages("ar").auth.manageDevices);
 });
 
 test("[AUTH-02] an available SMS retry exposes the retry action and localizes delivery failure", () => {

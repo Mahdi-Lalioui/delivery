@@ -125,7 +125,11 @@ const publicPosts = [
 
 test.each([
   ...publicPosts,
-  { url: logoutPath, method: "revokeSessions", payload: { scope: "current" } } as const,
+  {
+    url: logoutPath,
+    method: "revokeSessions",
+    payload: { scope: "current", expectedSessionId: sessionId },
+  } as const,
 ])(
   "[AUTH-01:http] POST $url requires a valid idempotency key",
   async ({ url, method, payload }) => {
@@ -359,7 +363,7 @@ test("[AUTH-04:http] cross-site cookie logout and revocation cannot resolve or m
     method: "POST",
     url: logoutPath,
     headers,
-    payload: { scope: "all" },
+    payload: { scope: "all", expectedSessionId: sessionId },
   });
   const revoke = await api.inject({
     method: "DELETE",
@@ -406,7 +410,7 @@ test.each([
       method: "POST",
       url: logoutPath,
       headers: { ...postHeaders, ...webCredential },
-      payload: { scope },
+      payload: { scope, expectedSessionId: sessionId },
     });
 
     expect(response.statusCode).toBe(204);
@@ -425,7 +429,7 @@ test("[AUTH-03:http] native logout revokes the bearer session without setting a 
     method: "POST",
     url: logoutPath,
     headers: { ...keyHeader, ...bearerCredential },
-    payload: { scope: "current" },
+    payload: { scope: "current", expectedSessionId: sessionId },
   });
 
   expect(response.statusCode).toBe(204);
@@ -435,4 +439,18 @@ test("[AUTH-03:http] native logout revokes the bearer session without setting a 
     kind: "one",
     sessionId,
   });
+});
+
+test("[AUTH-03:http] refuses to sign out a session that changed since the device list loaded", async () => {
+  const { api, service } = setup();
+  service.resolveSession.mockResolvedValue(resolvedSession);
+  const response = await api.inject({
+    method: "POST",
+    url: logoutPath,
+    headers: { ...postHeaders, ...webCredential },
+    payload: { scope: "all", expectedSessionId: otherSessionId },
+  });
+  expectProblem(response, 409, "session_changed");
+  expect(service.revokeSessions).not.toHaveBeenCalled();
+  expect(response.headers["set-cookie"]).toBeUndefined();
 });

@@ -76,6 +76,29 @@
     "totpLocked": "Vous avez atteint la limite d’essais. Reconnectez-vous.",
     "totpReplayed": "Ce code d’authentification a déjà été utilisé. Attendez le prochain code.",
     "totpConsumed": "Cette vérification a déjà été effectuée.",
-    "otpDeliveryUnavailable": "Le SMS n’a pas pu être envoyé. Réessayez."
+    "otpDeliveryUnavailable": "Le SMS n’a pas pu être envoyé. Réessayez.",
+    "manageDevices": "Gérer les appareils"
+  },
+  "sessions": {
+    "title": "Appareils connectés",
+    "description": "Consultez les appareils connectés à votre compte et déconnectez ceux que vous n’utilisez plus.",
+    "loading": "Chargement des appareils…",
+    "empty": "Il n’y a aucune session active.",
+    "unauthenticated": "Connectez-vous pour gérer vos appareils.",
+    "signedOut": "Vous êtes déconnecté.",
+    "signIn": "Se connecter",
+    "loadError": "La liste des appareils n’a pas pu être chargée.",
+    "actionError": "Impossible de déconnecter l’appareil. Réessayez.",
+    "retry": "Réessayer",
+    "currentDevice": "Cet appareil",
+    "unknownDevice": "Appareil inconnu",
+    "lastSeen": "Dernière activité",
+    "expires": "Expire",
+    "dateTime": "{date} à {time}",
+    "revoke": "Déconnecter l’appareil",
+    "revoked": "L’appareil est déconnecté.",
+    "signOutCurrent": "Se déconnecter sur cet appareil",
+    "signOutAll": "Se déconnecter partout",
+    "working": "Déconnexion…"
   }
 }

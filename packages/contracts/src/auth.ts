@@ -56,7 +56,10 @@ export const verifyTotpOutput = z.discriminatedUnion("transport", [
   bearerAuthenticated,
 ]);
 
-export const logoutInput = z.strictObject({ scope: z.enum(["current", "all"]) });
+export const logoutInput = z.strictObject({
+  scope: z.enum(["current", "all"]),
+  expectedSessionId: z.uuid(),
+});
 export const sessionIdParams = z.strictObject({ sessionId: z.uuid() });
 
 const session = z.strictObject({

@@ -208,9 +208,14 @@ export function SignInForm({ locale, purpose }: { locale: Locale; purpose: OtpPu
         <StepHeading flow={flow} purpose={purpose} translate={translate} />
       </div>
       {isDone ? (
-        <a className="auth-primary" href={`/${locale}`}>
-          {translate("home")}
-        </a>
+        <div className="auth-actions">
+          <a className="auth-primary" href={`/${locale}/account/sessions`}>
+            {translate("manageDevices")}
+          </a>
+          <a className="auth-secondary" href={`/${locale}`}>
+            {translate("home")}
+          </a>
+        </div>
       ) : (
         <form
           method="post"
