@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 19:00 GMT — M1 external P1 order guard coverage
+
+- **Changed** — Added 16 regressions for the ASAP timeout, scheduled time and release boundaries, pickup delivery-zone exemption, photo proof, failed code attempts, wait start, failure reason and call count. Pickup still requires the service area. The existing domain implementation passed every new case.
+- **Evidence** — All 106 focused order transition tests passed. `pnpm gate m1` exited 0 with 50 tooling tests, 396 unit tests, 12 real PostGIS integration tests, 212 domain coverage cases, a 94.21% mutation score and four seeded 1,000-case properties.
+- **Reviewer** — No P0/P1. Each new rejection reaches its intended guard with otherwise valid inputs. [External review checklist](reviews/2026-11-07-m1.md)
+- **Next** — Carry the two review fixes into M2.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 15:53 GMT — M1 gate passed
 
 - **Evidence** — `pnpm gate m1` exited 0 on clean `1d43c1cf279e30e2771a4fd216df23ab884473e6`. `pnpm exec node scripts/check-pr.ts` confirmed all required checks passed for the same commit. GitHub Actions reproduced the 92.65% mutation score and all 20 required acceptance IDs. [Gate and job evidence](evidence/m1/gate.md) · [M1 PR](https://github.com/Mahdi-Lalioui/delivery/pull/2)

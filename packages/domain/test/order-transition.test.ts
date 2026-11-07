@@ -118,6 +118,12 @@ const deliver = {
     proof: { kind: "code", isCodeValid: true, failedAttempts: 4 },
   },
 } as const satisfies OrderAction;
+const photoProof = {
+  kind: "photo",
+  photoId: "photo-a",
+  reason: "Code unavailable",
+  isPhotoVerified: true,
+} as const;
 const fail = {
   kind: "fail",
   reason: "No answer",
@@ -181,6 +187,54 @@ test.each([
 ])("[M1-2] refuses placement with failed trusted facts %j", (facts) => {
   expectError(
     run({ ...place, facts: { ...place.facts, ...facts } }, { order: null, actor: customer }),
+    "invalid_order_command",
+  );
+});
+
+test.each([0, 0.5, Number.MAX_SAFE_INTEGER - clock + 1])(
+  "[M1-2] rejects invalid ASAP acceptance timeout %s",
+  (acceptanceTimeoutMs) => {
+    const schedule = { ...place.facts.schedule, acceptanceTimeoutMs };
+    expectError(
+      run({ ...place, facts: { ...place.facts, schedule } }, { order: null, actor: customer }),
+      "invalid_order_command",
+    );
+  },
+);
+
+test.each([
+  {
+    guard: "scheduled time is now",
+    schedule: { ...scheduled, scheduledFor: clock, releaseAt: clock - 1 },
+  },
+  {
+    guard: "scheduled time has passed",
+    schedule: { ...scheduled, scheduledFor: clock - 1, releaseAt: clock - 2 },
+  },
+  {
+    guard: "release time equals the slot",
+    schedule: { ...scheduled, releaseAt: scheduled.scheduledFor },
+  },
+  {
+    guard: "release time follows the slot",
+    schedule: { ...scheduled, releaseAt: scheduled.scheduledFor + 1 },
+  },
+])("[M1-2] rejects scheduled placement when $guard", ({ schedule }) => {
+  expectError(
+    run({ ...place, facts: { ...place.facts, schedule } }, { order: null, actor: customer }),
+    "invalid_order_command",
+  );
+});
+
+test("[M1-2] pickup bypasses the delivery zone and still requires the service area", () => {
+  const facts = { ...place.facts, fulfilment: "pickup", isInsideDeliveryZone: false } as const;
+  const options = { order: null, actor: customer };
+  expect(applied(run({ ...place, facts }, options)).order).toMatchObject({
+    fulfilment: "pickup",
+    status: "pending_acceptance",
+  });
+  expectError(
+    run({ ...place, facts: { ...facts, isInsideServiceArea: false } }, options),
     "invalid_order_command",
   );
 });
@@ -327,15 +381,20 @@ test.each([
   expectError(run(action, { order: onRoad, actor: courier }), "invalid_order_command");
 });
 
+test.each([-1, 1.5])(
+  "[M1-2] rejects a valid code with malformed failed-attempt count %s",
+  (failedAttempts) => {
+    const proof = { ...deliver.facts.proof, failedAttempts };
+    expectError(
+      run({ ...deliver, facts: { proof } }, { order: onRoad, actor: courier }),
+      "invalid_order_command",
+    );
+  },
+);
+
 test("[M1-2] verified photo delivery retains only its proof reference and reason", () => {
-  const proof = {
-    kind: "photo",
-    photoId: "photo-a",
-    reason: "Code unavailable",
-    isPhotoVerified: true,
-  } as const;
   const result = applied(
-    run({ kind: "deliver", facts: { proof } }, { order: onRoad, actor: courier }),
+    run({ kind: "deliver", facts: { proof: photoProof } }, { order: onRoad, actor: courier }),
   );
   expect(result.event.payload).toEqual({
     kind: "deliver",
@@ -343,12 +402,23 @@ test("[M1-2] verified photo delivery retains only its proof reference and reason
   });
   expectError(
     run(
-      { kind: "deliver", facts: { proof: { ...proof, isPhotoVerified: false } } },
+      { kind: "deliver", facts: { proof: { ...photoProof, isPhotoVerified: false } } },
       { order: onRoad, actor: courier },
     ),
     "invalid_order_command",
   );
 });
+
+test.each([{ photoId: " \t" }, { reason: " \t" }])(
+  "[M1-2] rejects verified photo proof with a blank field %j",
+  (fields) => {
+    const proof = { ...photoProof, ...fields };
+    expectError(
+      run({ kind: "deliver", facts: { proof } }, { order: onRoad, actor: courier }),
+      "invalid_order_command",
+    );
+  },
+);
 
 test("[M1-2] failure requires two calls and a full ten-minute wait", () => {
   expect(applied(run(fail, { order: onRoad, actor: courier })).order.status).toBe(
@@ -359,6 +429,33 @@ test("[M1-2] failure requires two calls and a full ten-minute wait", () => {
     run({ ...fail, facts: { ...fail.facts, callAttempts: 1 } }, { order: onRoad, actor: courier })
       .ok,
   ).toBe(false);
+});
+
+test.each([null, -1])(
+  "[M1-2] rejects a failed delivery with invalid wait start %j",
+  (waitStartedAt) => {
+    expectError(
+      run({ ...fail, facts: { ...fail.facts, waitStartedAt } }, { order: onRoad, actor: courier }),
+      "invalid_order_command",
+    );
+  },
+);
+
+test("[M1-2] rejects a failed delivery with a blank reason after the required wait and calls", () => {
+  expectError(
+    run({ ...fail, reason: " \t" }, { order: onRoad, actor: courier }),
+    "invalid_order_command",
+  );
+});
+
+test("[M1-2] rejects a failed delivery with a fractional call count above the minimum", () => {
+  expectError(
+    run(
+      { ...fail, facts: { ...fail.facts, callAttempts: 2.5 } },
+      { order: onRoad, actor: courier },
+    ),
+    "invalid_order_command",
+  );
 });
 
 test("[M1-2] only ready pickup orders can be collected", () => {
