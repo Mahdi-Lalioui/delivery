@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 23:22 GMT — M2-7 bulk price input parsing and undo deadline (Claude, covering while Codex was out)
+
+- **Changed** — Added `apps/web/src/menu-price/bulk-price-editor.ts`. `parseBulkAdjustment` reads a raise or lower amount, either as a percentage with up to two decimals (a dot or French comma, plus Arabic-Indic and Persian digits) converted exactly to basis points without floating-point maths, or as whole dinars. It rejects zero, signs, exponents, suffixes and anything outside the shared `bulkPriceAdjustment` contract. `isUndoOffered` hides the undo button after ten minutes on the local clock. The server remains the authority (D-009).
+- **Evidence** — Wrote `apps/web/test/menu-price-editor.test.ts` first (19 `[MER-11]` cases) and saw it fail because the module did not exist. The tests passed after the implementation. `pnpm verify` exited 0: 902 unit tests, 109 PostGIS integration tests, build, knip, depcruise, trace, and only the existing moderate `minimatch` advisory.
+- **Reviewer** — Self-reviewed against AGENTS.md §10. No P0/P1. Percent parsing is integer-only, so 2.5 % becomes exactly 250 basis points.
+- **Next** — The bulk price panel component in the menu item workspace. It uses `parseBulkAdjustment`, `previewBulkPrices`, `applyBulkPrices`, `undoBulkPrices` and `isUndoOffered`, with ar/fr/en messages, logical CSS with DESIGN tokens, a production-build Playwright journey (select, preview, apply, undo, and an expired undo via the test clock), and the light/dark × ar/fr × 390/1280 screenshots.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 23:20 GMT — M2-7 bulk price web client (Claude, covering while Codex was out)
 
 - **Changed** — Added `apps/web/src/menu-price/bulk-price-http.ts`: `previewBulkPrices`, `applyBulkPrices` and `undoBulkPrices` against the three MER-11 endpoints. Requests are private, no-store and same-origin. Apply and undo send the idempotency key and the expected session. Responses are parsed with the shared contracts. A preview or apply that omits or adds an item, or an undo that echoes a different batch, is refused. Every problem code maps to a UI outcome: `undo-expired`, `price-changed`, `already-undone`, `revision-conflict`, `session-changed`, `invalid-change`, sign-in, forbidden, and rate-limited. Network and 5xx failures keep the retry key.
@@ -380,5 +388,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress)
 - The checklist snapshot reran `pnpm gate m2` on 2026-11-07 at 18:14 GMT and exited 1 at acceptance trace. It covered 28 of 37 IDs. Pending IDs are ADM-04, MER-01, MER-10, MER-11, MER-12, MER-14, MER-15, MER-16 and MER-23. MER-11's apply/history and undo endpoints landed at 22:41 and 23:18 GMT; the merchant UI is still needed to close MER-11.
-- Last green `pnpm verify`: 2026-11-07 23:20 GMT on Docker Desktop with 883 unit and 109 PostGIS integration tests
+- Last green `pnpm verify`: 2026-11-07 23:22 GMT on Docker Desktop with 902 unit and 109 PostGIS integration tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

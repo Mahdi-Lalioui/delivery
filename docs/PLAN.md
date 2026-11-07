@@ -89,6 +89,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
   - [x] Persist the per-item preview binding, apply rounded changes and price history atomically on the existing menu command/revision guard, and record an undo batch.
   - [x] Add the ten-minute undo endpoint that rejects an expired batch or an item whose price changed since the apply.
   - [x] Add the typed web client for preview, apply and undo that classifies every problem code and keeps the retry key after an uncertain failure.
+  - [x] Add the pure web editor that reads the percent or DA input into an exact adjustment and hides an expired undo.
   - [ ] Add the merchant-facing preview table and apply/undo UI in the menu workspace.
 - [ ] M2-8 CSV/XLSX import (MER-12). Publish the template, bound parsing, report row and field errors, and use a merchant-scoped external key for atomic idempotent application after preview.
 - [ ] M2-9 Hours and Ramadan (MER-15, MER-16). Persist weekly ranges, dated exceptions, Ramadan offsets and location. Render seven-day previews through the M1 rules and exercise overnight and Ramadan edits in Arabic and French.
