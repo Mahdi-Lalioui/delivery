@@ -55,7 +55,7 @@ function readyCommune() {
   });
 }
 
-test("[MER-01] an outside-commune rejection describes both editable coordinates", () => {
+test("[MER-01:web] an outside-commune rejection describes both editable coordinates", () => {
   readyCommune();
   const html = render({ error: "outsideCommune" });
   const { merchant } = getMessages("fr");
@@ -63,7 +63,7 @@ test("[MER-01] an outside-commune rejection describes both editable coordinates"
   expect(html.match(/aria-describedby="merchant-application-error"/g)).toHaveLength(2);
 });
 
-test("[MER-01] failed commune loading offers a retry and keeps submission unavailable", () => {
+test("[MER-01:web] failed commune loading offers a retry and keeps submission unavailable", () => {
   vi.mocked(useMerchantResource).mockReturnValue({ view: { kind: "error" }, retry });
   const html = render();
   const { merchant } = getMessages("fr");
@@ -72,7 +72,7 @@ test("[MER-01] failed commune loading offers a retry and keeps submission unavai
   expect(html).toMatch(/<button\b(?=[^>]*type="submit")(?=[^>]*\bdisabled)/);
 });
 
-test("[MER-01] incomplete fields expose localized errors through their labels and descriptions", () => {
+test("[MER-01:web] incomplete fields expose localized errors through their labels and descriptions", () => {
   readyCommune();
   const html = render({ fields: ["restaurantName", "communeId", "latitude", "cuisines"] });
   const { merchant } = getMessages("fr");
@@ -87,7 +87,7 @@ test("[MER-01] incomplete fields expose localized errors through their labels an
   expect(html).toContain('aria-describedby="merchant-cuisines-hint merchant-cuisines-error"');
 });
 
-test("[MER-01] expired sign-in replaces submit with the safe phone verification link", () => {
+test("[MER-01:web] expired sign-in replaces submit with the safe phone verification link", () => {
   readyCommune();
   const html = render({ error: "signInRequired" });
 
@@ -96,7 +96,7 @@ test("[MER-01] expired sign-in replaces submit with the safe phone verification 
   expect(html).not.toContain('type="submit"');
 });
 
-test("[MER-01] submitting locks the form and a recorded application presents pending review", () => {
+test("[MER-01:web] submitting locks the form and a recorded application presents pending review", () => {
   readyCommune();
   expect(render({ pending: true })).toMatch(/<fieldset\b[^>]*\bdisabled=""/);
   const submitted = render({ submitted: true });
@@ -105,7 +105,7 @@ test("[MER-01] submitting locks the form and a recorded application presents pen
   expect(submitted).not.toContain("<form");
 });
 
-test("[MER-01] a changed account discards visible draft values and offers an explicit refresh", () => {
+test("[MER-01:web] a changed account discards visible draft values and offers an explicit refresh", () => {
   readyCommune();
   const html = render({ sessionChanged: true });
   const { merchant } = getMessages("fr");

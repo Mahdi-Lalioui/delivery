@@ -6,7 +6,7 @@ import { createTestClone } from "../../../packages/db/test/clone.ts";
 import { sealTotpSecret } from "../src/auth-totp.ts";
 import type { startApi } from "../src/start.ts";
 import { startAuthProxy } from "./e2e-auth-proxy.ts";
-import type { AlgiersCommune, AuthHarness } from "./e2e-auth-types.ts";
+import type { AlgiersCommune, AuthHarness, MenuMembershipFixture } from "./e2e-auth-types.ts";
 
 const defaultTestUrl = "postgresql://zaafran:zaafran_dev_only@127.0.0.1:5432/zaafran_test";
 
@@ -41,6 +41,44 @@ async function seedAlgiersCommune(database: DatabaseConnection): Promise<Algiers
   `;
   if (!commune) throw new Error("The Algiers centre test commune has no boundary.");
   return commune;
+}
+
+const menuFixtureNames = {
+  owner: "Table fictive du propriétaire",
+  manager: "Table fictive du responsable",
+  staff: "Table fictive de l’équipe",
+} as const;
+
+async function seedMenuMemberships(database: DatabaseConnection, phone: string, time: Date) {
+  const { id: communeId, pin } = await seedAlgiersCommune(database);
+  const createdAt = time.toISOString();
+  return database.sql.begin(async (sql) => {
+    const [account] = await sql<{ id: string }[]>`
+      SELECT id FROM public.users WHERE phone_e164 = ${phone}
+      AND blocked_at IS NULL AND deleted_at IS NULL
+    `;
+    if (!account) throw new Error("Sign in the synthetic account before seeding its memberships.");
+
+    const fixtures: MenuMembershipFixture[] = [];
+    for (const role of ["owner", "manager", "staff"] as const) {
+      const merchantId = randomUUIDv7();
+      const restaurantName = menuFixtureNames[role];
+      await sql`
+        INSERT INTO public.merchants
+          (id, slug, restaurant_name, owner_name, phone_e164, commune_id, location,
+           cuisines, status, created_at, reviewed_at, is_demo)
+        VALUES (${merchantId}, ${"menu-fixture-" + merchantId}, ${restaurantName}, 'Synthetic owner',
+          ${phone}, ${communeId}, ST_SetSRID(ST_MakePoint(${pin.longitude}, ${pin.latitude}), 4326)::geography,
+          ARRAY['algerian'], 'approved', ${createdAt}, ${createdAt}, true)
+      `;
+      await sql`
+        INSERT INTO public.merchant_members (merchant_id, user_id, role)
+        VALUES (${merchantId}, ${account.id}, ${role})
+      `;
+      fixtures.push({ merchantId, restaurantName, role });
+    }
+    return fixtures;
+  });
 }
 
 export async function startAuthHarness(webOrigin: string): Promise<AuthHarness> {
@@ -82,6 +120,7 @@ export async function startAuthHarness(webOrigin: string): Promise<AuthHarness> 
     origin: proxy.origin,
     close: () => cleanup.disposeAsync(),
     seedAlgiersCommune: () => seedAlgiersCommune(database),
+    seedMenuMemberships: (phone) => seedMenuMemberships(database, phone, new Date(time)),
     advanceClock(milliseconds: number) {
       if (!Number.isSafeInteger(milliseconds) || milliseconds < 0) {
         throw new RangeError("The test clock can only advance by whole milliseconds.");

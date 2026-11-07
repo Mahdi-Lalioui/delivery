@@ -25,7 +25,7 @@ const application = {
 
 afterEach(() => vi.unstubAllGlobals());
 
-test("[MER-01] loads bounded Algiers commune pages with the public same-origin endpoint", async () => {
+test("[MER-01:web] loads bounded Algiers commune pages with the public same-origin endpoint", async () => {
   const second = { ...commune, id: merchantId, code: "1602" };
   const fetch = vi
     .fn()
@@ -50,7 +50,7 @@ test("[MER-01] loads bounded Algiers commune pages with the public same-origin e
   }
 });
 
-test("[MER-01] only reads the current account's persisted roles and statuses", async () => {
+test("[MER-01:web] only reads the current account's persisted roles and statuses", async () => {
   const memberships = [
     { merchantId, restaurantName: "Restaurant fictif", role: "owner", status: "approved" },
   ];
@@ -79,7 +79,7 @@ test("[MER-01] only reads the current account's persisted roles and statuses", a
   });
 });
 
-test("[MER-01] submits the pin and merchant fields using the verified session without a phone in the body", async () => {
+test("[MER-01:web] submits the pin and merchant fields using the verified session without a phone in the body", async () => {
   const data = { merchantId, status: "pending_review" };
   const fetch = vi.fn().mockResolvedValue(Response.json(data, { status: 201 }));
   vi.stubGlobal("fetch", fetch);
@@ -108,7 +108,7 @@ test("[MER-01] submits the pin and merchant fields using the verified session wi
   });
 });
 
-test("[MER-01] reports PostGIS pin rejection and distinguishes retryable delivery uncertainty", async () => {
+test("[MER-01:web] reports PostGIS pin rejection and distinguishes retryable delivery uncertainty", async () => {
   const fetch = vi
     .fn()
     .mockResolvedValueOnce(
@@ -146,7 +146,7 @@ test("[MER-01] reports PostGIS pin rejection and distinguishes retryable deliver
   }
 });
 
-test("[MER-01] an account switch is distinct from other application conflicts", async () => {
+test("[MER-01:web] an account switch is distinct from other application conflicts", async () => {
   const problem = {
     type: "about:blank",
     title: "Conflict",
@@ -181,7 +181,7 @@ test("[MER-01] an account switch is distinct from other application conflicts", 
   }
 });
 
-test("[MER-01] a lost committed response followed by rate limiting keeps the original command key", async () => {
+test("[MER-01:web] a lost committed response followed by rate limiting keeps the original command key", async () => {
   let committedKey: string | null = null;
   const receipt = { merchantId, status: "pending_review" };
   const fetch = vi

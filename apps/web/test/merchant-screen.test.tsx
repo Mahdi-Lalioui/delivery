@@ -27,7 +27,11 @@ const commune = {
 
 function render(screen: "application" | "status") {
   return renderToStaticMarkup(
-    <NextIntlClientProvider locale="ar-DZ" messages={{ merchant: getMessages("ar").merchant }}>
+    <NextIntlClientProvider
+      locale="ar-DZ"
+      timeZone="Africa/Algiers"
+      messages={{ merchant: getMessages("ar").merchant }}
+    >
       <MerchantScreen locale="ar" screen={screen} />
     </NextIntlClientProvider>,
   );
@@ -35,7 +39,7 @@ function render(screen: "application" | "status") {
 
 beforeEach(() => resource.mockReset());
 
-test("[MER-01] guests can start from the Arabic application and verify a phone with the safe return link", () => {
+test("[MER-01:web] guests can start from the Arabic application and verify a phone with the safe return link", () => {
   resource.mockReturnValueOnce({ view: { kind: "unauthenticated" }, retry });
   const html = render("application");
   const { merchant } = getMessages("ar");
@@ -47,7 +51,7 @@ test("[MER-01] guests can start from the Arabic application and verify a phone w
   expect(html).not.toContain("<form");
 });
 
-test("[MER-01] the authenticated form displays localized communes and labelled editable pin coordinates", () => {
+test("[MER-01:web] the authenticated form displays localized communes and labelled editable pin coordinates", () => {
   resource
     .mockReturnValueOnce({
       view: { kind: "ready", data: { sessionId: commune.id, memberships: [] } },
@@ -72,7 +76,7 @@ test("[MER-01] the authenticated form displays localized communes and labelled e
   expect(html).not.toMatch(/<input\b[^>]*type="tel"/);
 });
 
-test("[MER-01] the status view shows persisted roles and decisions and offers a new application", () => {
+test("[MER-01:web] the status view shows persisted roles and decisions and offers a new application", () => {
   resource.mockReturnValueOnce({
     view: {
       kind: "ready",
@@ -99,6 +103,39 @@ test("[MER-01] the status view shows persisted roles and decisions and offers a 
   expect(html).toContain('href="/ar/merchant/apply"');
 });
 
+test("[MER-23:web] links only approved owner and manager memberships to menu editing", () => {
+  const staffId = "019d6abc-1234-7234-8234-123456789abd";
+  const pendingId = "019d6abc-1234-7234-8234-123456789abe";
+  resource.mockReturnValueOnce({
+    view: {
+      kind: "ready",
+      data: {
+        sessionId: commune.id,
+        memberships: [
+          {
+            merchantId: commune.id,
+            restaurantName: "مطعم افتراضي",
+            role: "manager",
+            status: "approved",
+          },
+          { merchantId: staffId, restaurantName: "مطعم تجريبي", role: "staff", status: "active" },
+          {
+            merchantId: pendingId,
+            restaurantName: "مطعم قيد المراجعة",
+            role: "owner",
+            status: "pending_review",
+          },
+        ],
+      },
+    },
+    retry,
+  });
+  const html = render("status");
+  expect(html).toContain(`href="/ar/merchant/${commune.id}/menu"`);
+  expect(html).not.toContain(`href="/ar/merchant/${staffId}/menu"`);
+  expect(html).not.toContain(`href="/ar/merchant/${pendingId}/menu"`);
+});
+
 test("[I18N-01] public applications expose localized alternatives and personal status stays unindexed", async () => {
   await expect(generateArabicApplicationMetadata()).resolves.toEqual({
     title: getMessages("ar").merchant.applicationTitle,
@@ -116,4 +153,11 @@ test("[I18N-01] public applications expose localized alternatives and personal s
     title: getMessages("fr").merchant.statusTitle,
     robots: { index: false, follow: false },
   });
+});
+
+test("[MER-09:web] signed-out restaurant status links back to the list after verification", () => {
+  resource.mockReturnValueOnce({ view: { kind: "unauthenticated" }, retry });
+  const html = render("status");
+  expect(html).toContain('href="/ar/sign-in?continue=merchant-status"');
+  expect(html).toContain(getMessages("ar").merchant.signInToViewStatus);
 });

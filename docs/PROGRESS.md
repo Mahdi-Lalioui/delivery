@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 18:05 GMT — M2-5 localized category editor
+
+- **Changed** — Added bilingual category editing with Arabic, French and English UI, overnight availability, pointer and keyboard reordering, restored focus and localized announcements. The editor keeps commands bound to the loaded session and revision. The restaurant list links only eligible editors to it.
+- **Evidence** — Staged `pnpm verify` passed 51 tooling, 664 unit and 70 real PostGIS integration tests. All eight HTTPS Chromium journeys passed. The category journey proved both reorder paths persist after reload and that staff cannot enter the editor. The 12-screen design matrix and four 200% checks passed. [Browser and design evidence](evidence/m2/category-editor.md)
+- **Reviewer** — No P0/P1. Design review approved RTL, target size, accessible names and focus. The combined builder will add the active restaurant name above the menu.
+- **Next** — Complete the onboarding checklist and add the item and reusable option group editors. Signup acceptance remains open through optional photo upload in M2-6.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 18:01 GMT — M2-4 onboarding checklist contract
 
 - **Changed** — Defined a strict session-scoped checklist response for approved restaurant editors. Menu progress counts up to five configured items. Zone and test order are unavailable at this stage, so the response keeps Go live disabled.
@@ -236,5 +244,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress)
 - The current M2 implementation snapshot ran `pnpm gate m2` and exited 1 at acceptance trace. It covered 28 of 37 IDs. Pending IDs are ADM-04, MER-01, MER-10, MER-11, MER-12, MER-14, MER-15, MER-16 and MER-23.
-- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 636 unit and 70 PostGIS integration tests
+- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 664 unit and 70 PostGIS integration tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

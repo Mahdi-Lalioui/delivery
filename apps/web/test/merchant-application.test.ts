@@ -12,7 +12,7 @@ const draft = {
   rcNumber: "   ",
 };
 
-test("[MER-01] canonicalizes Arabic and French coordinate input and omits a blank RC number", () => {
+test("[MER-01:web] canonicalizes Arabic and French coordinate input and omits a blank RC number", () => {
   expect(parseMerchantDraft(draft)).toEqual({
     kind: "valid",
     data: {
@@ -25,7 +25,7 @@ test("[MER-01] canonicalizes Arabic and French coordinate input and omits a blan
   });
 });
 
-test("[MER-01] identifies required fields and refuses ambiguous or out-of-range coordinates", () => {
+test("[MER-01:web] identifies required fields and refuses ambiguous or out-of-range coordinates", () => {
   const result = parseMerchantDraft({
     ...draft,
     ownerName: "",
@@ -45,7 +45,7 @@ test("[MER-01] identifies required fields and refuses ambiguous or out-of-range 
   });
 });
 
-test("[MER-01] retains a request key for canonical retries and rotates it for an edited pin", () => {
+test("[MER-01:web] retains a request key for canonical retries and rotates it for an edited pin", () => {
   const result = parseMerchantDraft(draft);
   if (result.kind !== "valid") throw new Error("Expected valid application fixture.");
 

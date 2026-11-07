@@ -79,7 +79,8 @@
     "otpDeliveryUnavailable": "Le SMS n’a pas pu être envoyé. Réessayez.",
     "manageDevices": "Gérer les appareils",
     "continueApplication": "Poursuivre l’inscription du restaurant",
-    "continueReview": "Ouvrir la liste des demandes"
+    "continueReview": "Ouvrir la liste des demandes",
+    "continueRestaurants": "Accéder à vos restaurants"
   },
   "sessions": {
     "title": "Appareils connectés",
@@ -168,7 +169,9 @@
     "roleManager": "Responsable",
     "roleStaff": "Membre de l’équipe",
     "sessionChanged": "Le compte connecté a changé. Actualisez la page avant de commencer une nouvelle demande.",
-    "refreshAccount": "Actualiser le compte"
+    "refreshAccount": "Actualiser le compte",
+    "manageMenu": "Gérer le menu",
+    "signInToViewStatus": "Connectez-vous pour voir vos restaurants et vos demandes."
   },
   "adminMerchant": {
     "title": "Demandes des restaurants",
@@ -206,5 +209,51 @@
     "approved": "Demande approuvée",
     "rejected": "Demande refusée",
     "sessionChanged": "La session a changé. Actualisez la liste des demandes avant de continuer."
+  },
+  "menuCategory": {
+    "title": "Catégories du menu",
+    "description": "Organisez votre menu et définissez les plages de disponibilité.",
+    "backToRestaurants": "Vos restaurants",
+    "loading": "Chargement des catégories…",
+    "empty": "Aucune catégorie pour le moment.",
+    "loadError": "Impossible de charger les catégories.",
+    "signInRequired": "Connectez-vous pour gérer ce menu.",
+    "signIn": "Se connecter",
+    "forbidden": "Votre compte ne peut pas accéder à ce menu.",
+    "sessionChanged": "Le compte connecté a changé. Actualisez la page pour continuer.",
+    "revisionConflict": "Le menu a changé. Rechargez les catégories pour continuer.",
+    "reload": "Recharger les catégories",
+    "categoryList": "Catégories",
+    "orderHint": "Faites glisser la poignée ou utilisez Monter et Descendre.",
+    "newCategory": "Nouvelle catégorie",
+    "editCategory": "Modifier",
+    "editCategoryLabel": "Modifier {name}",
+    "createTitle": "Créer une catégorie",
+    "editTitle": "Modifier la catégorie",
+    "nameHint": "Saisissez un nom en arabe ou en français. L’anglais est facultatif.",
+    "nameAr": "Nom en arabe",
+    "nameFr": "Nom en français",
+    "nameEn": "Nom en anglais",
+    "availability": "Disponibilité",
+    "availabilityHint": "Utilisez le format 24 heures. Laissez les deux champs vides pour toute la journée. Une heure de fin antérieure indique le lendemain.",
+    "from": "De",
+    "to": "À",
+    "invalidName": "Saisissez un nom valide en arabe ou en français.",
+    "invalidWindow": "Saisissez deux heures différentes au format 24 heures ou laissez les deux champs vides.",
+    "allDay": "Toute la journée",
+    "windowTime": "{from}–{to}",
+    "overnightTime": "{from}–{to} le lendemain",
+    "moveUp": "Monter",
+    "moveDown": "Descendre",
+    "moveUpLabel": "Monter {name}",
+    "moveDownLabel": "Descendre {name}",
+    "save": "Enregistrer la catégorie",
+    "saving": "Enregistrement…",
+    "created": "Catégorie créée.",
+    "updated": "Catégorie modifiée.",
+    "moved": "{name} a été déplacée à la position {position} sur {total}.",
+    "saveError": "Impossible d’enregistrer la modification. Réessayez.",
+    "rateLimited": "Trop de demandes. Réessayez plus tard.",
+    "categoryLimit": "Ce menu a atteint sa limite de catégories."
   }
 }

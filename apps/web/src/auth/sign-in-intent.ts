@@ -4,8 +4,10 @@ import type { OtpPurpose } from "./auth-http";
 
 export interface SignInDestination {
   readonly href:
-    `/${Locale}/merchant/apply` | `/${Exclude<Locale, "ar">}/admin/merchant-applications`;
-  readonly label: "continueApplication" | "continueReview";
+    | `/${Locale}/merchant`
+    | `/${Locale}/merchant/apply`
+    | `/${Exclude<Locale, "ar">}/admin/merchant-applications`;
+  readonly label: "continueApplication" | "continueRestaurants" | "continueReview";
 }
 
 interface SignInIntent {
@@ -14,6 +16,7 @@ interface SignInIntent {
     | "/sign-in"
     | "/sign-in?purpose=admin"
     | "/sign-in?continue=merchant-apply"
+    | "/sign-in?continue=merchant-status"
     | "/sign-in?continue=admin-review";
   readonly destination?: SignInDestination;
 }
@@ -27,6 +30,13 @@ export function readSignInIntent(
       purpose: "sign_in",
       subpath: "/sign-in?continue=merchant-apply",
       destination: { href: `/${locale}/merchant/apply`, label: "continueApplication" },
+    };
+  }
+  if (query.continue === "merchant-status") {
+    return {
+      purpose: "sign_in",
+      subpath: "/sign-in?continue=merchant-status",
+      destination: { href: `/${locale}/merchant`, label: "continueRestaurants" },
     };
   }
   if (query.continue === "admin-review" && locale !== "ar") {

@@ -32,3 +32,11 @@ test.each([
     subpath: "/sign-in?purpose=admin",
   });
 });
+
+test("[MER-09:web] returns an authenticated restaurant editor to the localized restaurant list", () => {
+  expect(readSignInIntent({ continue: "merchant-status", purpose: "admin" }, "fr")).toEqual({
+    purpose: "sign_in",
+    subpath: "/sign-in?continue=merchant-status",
+    destination: { href: "/fr/merchant", label: "continueRestaurants" },
+  });
+});

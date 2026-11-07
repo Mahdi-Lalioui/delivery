@@ -79,7 +79,8 @@
     "otpDeliveryUnavailable": "The SMS could not be sent. Try again.",
     "manageDevices": "Manage devices",
     "continueApplication": "Continue to restaurant signup",
-    "continueReview": "Open review queue"
+    "continueReview": "Open review queue",
+    "continueRestaurants": "Continue to your restaurants"
   },
   "sessions": {
     "title": "Signed-in devices",
@@ -168,7 +169,9 @@
     "roleManager": "Manager",
     "roleStaff": "Staff",
     "sessionChanged": "The signed-in account changed. Refresh before starting a new application.",
-    "refreshAccount": "Refresh account"
+    "refreshAccount": "Refresh account",
+    "manageMenu": "Manage menu",
+    "signInToViewStatus": "Sign in to view your restaurants and applications."
   },
   "adminMerchant": {
     "title": "Restaurant applications",
@@ -206,5 +209,51 @@
     "approved": "Application approved",
     "rejected": "Application rejected",
     "sessionChanged": "The signed-in session changed. Refresh the queue before continuing."
+  },
+  "menuCategory": {
+    "title": "Menu categories",
+    "description": "Organize your menu and set when categories are available.",
+    "backToRestaurants": "Your restaurants",
+    "loading": "Loading categories…",
+    "empty": "No categories yet.",
+    "loadError": "We couldn’t load categories.",
+    "signInRequired": "Sign in to manage this menu.",
+    "signIn": "Sign in",
+    "forbidden": "This menu is unavailable to your account.",
+    "sessionChanged": "The signed-in account changed. Refresh to continue.",
+    "revisionConflict": "The menu changed. Reload categories before continuing.",
+    "reload": "Reload categories",
+    "categoryList": "Categories",
+    "orderHint": "Drag the grip or use Move up and Move down.",
+    "newCategory": "New category",
+    "editCategory": "Edit",
+    "editCategoryLabel": "Edit {name}",
+    "createTitle": "Create a category",
+    "editTitle": "Edit category",
+    "nameHint": "Enter a name in Arabic or French. English is optional.",
+    "nameAr": "Arabic name",
+    "nameFr": "French name",
+    "nameEn": "English name",
+    "availability": "Availability",
+    "availabilityHint": "Use 24-hour times. Leave both blank for all day. An earlier end time is on the next day.",
+    "from": "From",
+    "to": "To",
+    "invalidName": "Enter a valid Arabic or French name.",
+    "invalidWindow": "Enter different start and end times in 24-hour format, or leave both blank.",
+    "allDay": "All day",
+    "windowTime": "{from}–{to}",
+    "overnightTime": "{from}–{to} next day",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "moveUpLabel": "Move up {name}",
+    "moveDownLabel": "Move down {name}",
+    "save": "Save category",
+    "saving": "Saving…",
+    "created": "Category created.",
+    "updated": "Category updated.",
+    "moved": "{name} moved to position {position} of {total}.",
+    "saveError": "We couldn’t save the change. Try again.",
+    "rateLimited": "Too many requests. Try again later.",
+    "categoryLimit": "This menu has reached its category limit."
   }
 }

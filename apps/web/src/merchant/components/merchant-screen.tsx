@@ -19,6 +19,8 @@ const statusLabels = {
 
 const roleLabels = { owner: "roleOwner", manager: "roleManager", staff: "roleStaff" } as const;
 
+const editableStatuses = new Set<Membership["status"]>(["approved", "active", "paused"]);
+
 function MembershipList({
   locale,
   memberships,
@@ -43,6 +45,11 @@ function MembershipList({
                 <span>{translate(roleLabels[role])}</span>
                 <span className="merchant-status">{translate(statusLabels[status])}</span>
               </div>
+              {role !== "staff" && editableStatuses.has(status) && (
+                <a className="merchant-secondary" href={`/${locale}/merchant/${merchantId}/menu`}>
+                  {translate("manageMenu")}
+                </a>
+              )}
             </li>
           ))}
         </ul>
@@ -57,6 +64,7 @@ function MembershipList({
 function MerchantContent({ locale, screen }: { locale: Locale; screen: MerchantScreenKind }) {
   const translate = useTranslations("merchant");
   const { view, retry } = useMerchantResource(listMerchantMemberships);
+  const isApplication = screen === "application";
 
   switch (view.kind) {
     case "loading":
@@ -64,8 +72,11 @@ function MerchantContent({ locale, screen }: { locale: Locale; screen: MerchantS
     case "unauthenticated":
       return (
         <div className="merchant-card">
-          <p>{translate("signInRequired")}</p>
-          <a className="merchant-primary" href={`/${locale}/sign-in?continue=merchant-apply`}>
+          <p>{translate(isApplication ? "signInRequired" : "signInToViewStatus")}</p>
+          <a
+            className="merchant-primary"
+            href={`/${locale}/sign-in?continue=${isApplication ? "merchant-apply" : "merchant-status"}`}
+          >
             {translate("signIn")}
           </a>
         </div>
