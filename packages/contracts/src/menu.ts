@@ -145,27 +145,32 @@ export const menuItemArchiveOutput = z.strictObject({
   revision: menuRevision,
 });
 
-const itemCursorFields = z.strictObject({
+const revisionEntityCursorFields = z.strictObject({
   revision: cursorNumber.pipe(menuRevision),
-  itemId: uuid,
+  id: uuid,
 });
 
-export function readMenuItemCursor(cursor: string) {
-  const [revision, itemId, extra] = cursor.split("~");
+function readRevisionEntityCursor(cursor: string) {
+  const [revision, id, extra] = cursor.split("~");
   if (extra !== undefined) return undefined;
-  const result = itemCursorFields.safeParse({ revision, itemId });
+  const result = revisionEntityCursorFields.safeParse({ revision, id });
   return result.success ? result.data : undefined;
 }
 
-const itemCursor = z
+export function readMenuItemCursor(cursor: string) {
+  const parsed = readRevisionEntityCursor(cursor);
+  return parsed ? { revision: parsed.revision, itemId: parsed.id } : undefined;
+}
+
+const revisionEntityCursor = z
   .string()
   .max(53)
-  .refine((cursor) => readMenuItemCursor(cursor) !== undefined);
+  .refine((cursor) => readRevisionEntityCursor(cursor) !== undefined);
 
 export const menuItemPageQuery = z.strictObject({
   categoryId: uuid,
   limit: pageLimit,
-  cursor: itemCursor.optional(),
+  cursor: revisionEntityCursor.optional(),
 });
 
 export const menuItemPageOutput = z
@@ -173,7 +178,7 @@ export const menuItemPageOutput = z
     sessionId: uuid,
     revision: menuRevision,
     items: z.array(itemOutput).max(100),
-    nextCursor: itemCursor.nullable(),
+    nextCursor: revisionEntityCursor.nullable(),
   })
   .refine(
     ({ revision, nextCursor }) =>
@@ -187,17 +192,95 @@ const optionInput = z.strictObject({
   isAvailable: z.boolean(),
 });
 
+const optionGroupFields = {
+  names: name,
+  minimum: z.int().nonnegative(),
+  maximum: z.int().min(1).max(100),
+};
+
+function hasValidSelection({
+  minimum,
+  maximum,
+  options,
+}: {
+  minimum: number;
+  maximum: number;
+  options: readonly { isDefault: boolean }[];
+}): boolean {
+  return (
+    minimum <= maximum &&
+    maximum <= options.length &&
+    options.filter(({ isDefault }) => isDefault).length <= maximum
+  );
+}
+
+const selectionError = "Choose valid option limits and defaults.";
+
 export const menuOptionGroupInput = z
+  .strictObject({ ...optionGroupFields, options: z.array(optionInput).min(1).max(100) })
+  .refine(hasValidSelection, selectionError);
+
+export const menuOptionGroupCreateInput = z
+  .strictObject({ ...menuOptionGroupInput.shape, expectedRevision: menuRevision })
+  .refine(hasValidSelection, selectionError);
+
+const optionWithOptionalId = optionInput.extend({ optionId: uuid.optional() });
+
+export const menuOptionGroupUpdateInput = z
   .strictObject({
-    names: name,
-    minimum: z.int().nonnegative(),
-    maximum: z.int().positive(),
-    options: z.array(optionInput).min(1).max(100),
+    ...optionGroupFields,
+    expectedRevision: menuRevision,
+    options: z
+      .array(optionWithOptionalId)
+      .min(1)
+      .max(100)
+      .refine(
+        (options) => uniqueIds(options.flatMap(({ optionId }) => (optionId ? [optionId] : []))),
+        "List each existing option once.",
+      ),
+  })
+  .refine(hasValidSelection, selectionError);
+
+const optionGroupSummary = z
+  .strictObject({ ...optionGroupFields, optionGroupId: uuid })
+  .refine(({ minimum, maximum }) => minimum <= maximum);
+
+const optionGroupDetail = z
+  .strictObject({
+    ...optionGroupSummary.shape,
+    options: z
+      .array(optionInput.extend({ optionId: uuid }))
+      .min(1)
+      .max(100)
+      .refine((options) => uniqueIds(options.map(({ optionId }) => optionId))),
+  })
+  .refine(hasValidSelection, selectionError);
+
+export const menuOptionGroupWriteOutput = z.strictObject({
+  revision: menuRevision,
+  optionGroup: optionGroupDetail,
+});
+
+export const menuOptionGroupDetailOutput = menuOptionGroupWriteOutput.extend({ sessionId: uuid });
+
+export function readMenuOptionGroupCursor(cursor: string) {
+  const parsed = readRevisionEntityCursor(cursor);
+  return parsed ? { revision: parsed.revision, optionGroupId: parsed.id } : undefined;
+}
+
+export const menuOptionGroupPageQuery = z.strictObject({
+  limit: pageLimit,
+  cursor: revisionEntityCursor.optional(),
+});
+
+export const menuOptionGroupPageOutput = z
+  .strictObject({
+    sessionId: uuid,
+    revision: menuRevision,
+    optionGroups: z.array(optionGroupSummary).max(100),
+    nextCursor: revisionEntityCursor.nullable(),
   })
   .refine(
-    ({ minimum, maximum, options }) =>
-      minimum <= maximum &&
-      maximum <= options.length &&
-      options.filter(({ isDefault }) => isDefault).length <= maximum,
-    "Choose valid option limits and defaults.",
+    ({ revision, nextCursor }) =>
+      nextCursor === null || readMenuOptionGroupCursor(nextCursor)?.revision === revision,
   );

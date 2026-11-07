@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 18:33 GMT — M2-5 option library contracts
+
+- **Changed** — Added strict option-group summary pages, details and revision-bound commands. Updates carry existing option IDs, new options omit them, and duplicate aliases are rejected. Temporarily sold-out defaults retain their configured preference.
+- **Evidence** — All 12 menu contract tests passed. Staged `pnpm verify` passed 51 tooling, 693 unit and 81 real PostGIS integration tests.
+- **Reviewer** — No P0/P1. Verified stable ID semantics, selection limits and unchanged item cursor behavior.
+- **Next** — Implement tenant-scoped storage and attach reusable groups from the editor.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 18:29 GMT — M2-5 item repository and API
 
 - **Changed** — Added category-scoped item pages, session- and revision-bound editing, duplication, soft archive and narrow staff availability. PostGIS persists whole-dinar prices and ordered option attachments. Timed sell-out ends at the next Algiers midnight. Held moderation states survive text edits and duplication.
@@ -276,5 +284,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress)
 - The checklist snapshot reran `pnpm gate m2` on 2026-11-07 at 18:14 GMT and exited 1 at acceptance trace. It covered 28 of 37 IDs. Pending IDs are ADM-04, MER-01, MER-10, MER-11, MER-12, MER-14, MER-15, MER-16 and MER-23.
-- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 690 unit and 81 PostGIS integration tests
+- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 693 unit and 81 PostGIS integration tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
