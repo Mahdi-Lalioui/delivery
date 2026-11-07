@@ -1,5 +1,11 @@
 import { expect, test } from "vitest";
-import { adminMerchantReviewInput, adminMerchantReviewOutput } from "../src/admin.ts";
+import {
+  adminMerchantReviewInput,
+  adminMerchantReviewOutput,
+  adminReviewQueueQuery,
+  adminReviewQueueOutput,
+  readAdminReviewCursor,
+} from "../src/admin.ts";
 
 const merchantId = "01932f18-3150-7c33-8a7a-53acfd343001";
 const reviewedAt = "2026-11-07T12:00:00.000Z";
@@ -53,3 +59,39 @@ test.each(["approved", "rejected"])(
     }
   },
 );
+
+test("[ADM-03:contract] bounds the review queue and validates its cursor", () => {
+  const cursor = reviewedAt + "~" + merchantId;
+  expect(adminReviewQueueQuery.parse({})).toEqual({ limit: 50 });
+  expect(adminReviewQueueQuery.parse({ limit: "1", cursor })).toEqual({ limit: 1, cursor });
+  expect(readAdminReviewCursor(cursor)).toEqual({ submittedAt: reviewedAt, merchantId });
+  for (const query of [
+    { limit: "101" },
+    { cursor: "yesterday~" + merchantId },
+    { cursor: reviewedAt + "~wrong-id" },
+    { cursor: cursor + "~extra" },
+  ])
+    expect(adminReviewQueueQuery.safeParse(query).success).toBe(false);
+});
+
+test("[ADM-03:contract] exposes pending applications without account secrets", () => {
+  const application = {
+    merchantId,
+    restaurantName: "Table fictive",
+    ownerName: "Test propriétaire",
+    phoneE164: "+213500000001",
+    commune: { id: merchantId, nameAr: "بلدية تجريبية", nameFr: "Commune de test" },
+    pin: { latitude: 36.75, longitude: 3.06 },
+    cuisines: ["algerian"],
+    rcNumber: null,
+    submittedAt: reviewedAt,
+  };
+  const payload = { applications: [application], nextCursor: null };
+  expect(adminReviewQueueOutput.parse(payload)).toEqual(payload);
+  expect(
+    adminReviewQueueOutput.safeParse({
+      ...payload,
+      applications: [{ ...application, sessionToken: "fixture" }],
+    }).success,
+  ).toBe(false);
+});

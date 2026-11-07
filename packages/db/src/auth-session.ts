@@ -1,5 +1,5 @@
 import type { ISql, TransactionSql } from "postgres";
-import { authTimestampParsers } from "./auth-sql.js";
+import { timestampParsers } from "./timestamp-parsers.js";
 import type {
   AuthTransport,
   AuthUser,
@@ -51,7 +51,7 @@ export async function lockUserByPhone(
     SELECT id, phone_e164 AS "phoneE164", blocked_at AS "blockedAt", deleted_at AS "deletedAt"
     FROM public.users WHERE phone_e164 = ${phoneE164}
     FOR UPDATE
-  `.parsers(authTimestampParsers);
+  `.parsers(timestampParsers);
   return user;
 }
 
@@ -89,7 +89,7 @@ export async function insertSession(
     WHERE ${kind} = 'standard' OR EXISTS (SELECT FROM public.admins WHERE user_id = ${userId})
     RETURNING id, created_at AS "createdAt", last_seen_at AS "lastSeenAt", expires_at AS "expiresAt",
       device_name AS "deviceName"
-  `.parsers(authTimestampParsers);
+  `.parsers(timestampParsers);
   if (!session) throw new Error("Could not issue a session for an unenrolled administrator.");
   return session;
 }
@@ -115,7 +115,7 @@ export async function resolveSession(
     RETURNING session.id, session.user_id AS "userId", session.transport, session.kind,
       session.created_at AS "createdAt", session.last_seen_at AS "lastSeenAt",
       session.expires_at AS "expiresAt", session.device_name AS "deviceName"
-  `.parsers(authTimestampParsers);
+  `.parsers(timestampParsers);
   return session;
 }
 
@@ -132,7 +132,7 @@ export async function listSessions(
       AND account.blocked_at IS NULL AND account.deleted_at IS NULL
       AND (session.kind = 'standard' OR EXISTS (SELECT FROM public.admins WHERE user_id = account.id))
     ORDER BY session.last_seen_at DESC, session.id DESC
-  `.parsers(authTimestampParsers);
+  `.parsers(timestampParsers);
 }
 
 export async function revokeSessions(

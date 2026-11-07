@@ -5,7 +5,7 @@ import {
   type VerificationAttempt,
   type VerificationReceipt,
 } from "./auth-receipts.js";
-import { authTimestampParsers } from "./auth-sql.js";
+import { timestampParsers } from "./timestamp-parsers.js";
 import type { AuthPurpose } from "./auth-types.js";
 
 const minuteMs = 60_000;
@@ -113,7 +113,7 @@ async function findRetryAt(
       (SELECT requested_at + interval '24 hours' FROM phone_requests ORDER BY requested_at DESC OFFSET 9 LIMIT 1),
       (SELECT requested_at + interval '1 hour' FROM ip_requests ORDER BY requested_at DESC OFFSET 19 LIMIT 1)
     ) AS "retryAt"
-  `.parsers(authTimestampParsers);
+  `.parsers(timestampParsers);
   const retryAt = limits?.retryAt;
   return retryAt && retryAt > now ? retryAt : undefined;
 }
@@ -129,7 +129,7 @@ export async function reserveOtpChallenge(
     SELECT id, purpose, requested_at AS "requestedAt", expires_at AS "expiresAt"
     FROM public.otp_challenges
     WHERE phone_e164 = ${phoneE164} AND idempotency_key_hash = ${idempotencyKeyHash}
-  `.parsers(authTimestampParsers);
+  `.parsers(timestampParsers);
   if (receipt) return replayOtp(receipt, purpose);
 
   const ip = await lockOtpIp(sql, requestIp);
@@ -199,7 +199,7 @@ export async function redeemOtp(
       requested_at AS "requestedAt", expires_at AS "expiresAt", consumed_at AS "consumedAt", attempts
     FROM public.otp_challenges WHERE id = ${challengeId}
     FOR UPDATE
-  `.parsers(authTimestampParsers);
+  `.parsers(timestampParsers);
   if (!challenge) return { kind: "invalid" };
 
   const receipt: VerificationReceipt = { factor: "otp", challengeId, attempt };

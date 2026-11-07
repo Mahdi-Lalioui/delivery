@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 17:04 GMT — M2-2 merchant persistence and query contracts
+
+- **Changed** — Added the forward merchant migration and atomic signup, membership, review notice, audit and idempotency transactions. Commune pin validation uses PostGIS `ST_Covers`. Admin and commune queries use bounded keyset pages.
+- **Evidence** — The staged `pnpm verify` passed with 51 tooling, 508 unit and 56 real PostGIS integration tests. The focused merchant suite passed all 15 cases, including the transactional rollback, UUID alias race, lock order and same-millisecond review pagination. All 18 merchant and admin schema tests passed.
+- **Reviewer** — Fixed lock inversion with TOTP, advisory lock divergence for UUID aliases and review cursor precision. Each had a real Postgres reproduction. No remaining P0/P1 in this slice.
+- **Next** — Wire and test the merchant HTTP routes, then build the localized application and review screens.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 16:46 GMT — M2-2 and M2-3 merchant contracts
 
 - **Changed** — Added strict merchant application, commune page, membership and admin review schemas. Applicants cannot supply the account identity, phone, membership role or resulting status.
@@ -163,5 +171,6 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 ## Current status
 
 - Milestone: M1 (last passing gate, M2 in progress)
-- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 505 unit and 41 PostGIS integration tests
+- The current M2 implementation snapshot ran `pnpm gate m2` and exited 1 at acceptance trace. It covered 28 of 37 IDs. Pending IDs are ADM-04, MER-01, MER-10, MER-11, MER-12, MER-14, MER-15, MER-16 and MER-23.
+- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 508 unit and 56 PostGIS integration tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

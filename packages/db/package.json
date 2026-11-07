@@ -15,6 +15,10 @@
     "./migrate": {
       "types": "./src/migrate.ts",
       "default": "./dist/migrate.js"
+    },
+    "./merchant": {
+      "types": "./src/merchant.ts",
+      "default": "./dist/merchant.js"
     }
   },
   "scripts": {

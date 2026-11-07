@@ -5,7 +5,7 @@ import {
   type VerificationAttempt,
   type VerificationReceipt,
 } from "./auth-receipts.js";
-import { authTimestampParsers } from "./auth-sql.js";
+import { timestampParsers } from "./timestamp-parsers.js";
 import type { AuthTransport } from "./auth-types.js";
 
 const challengeLifetimeMs = 300_000;
@@ -88,7 +88,7 @@ async function lockChallenge(
     JOIN public.admins AS admin ON admin.user_id = challenge.user_id
     WHERE challenge.id = ${challengeId}
     FOR UPDATE OF challenge, admin
-  `.parsers(authTimestampParsers);
+  `.parsers(timestampParsers);
   return challenge;
 }
 

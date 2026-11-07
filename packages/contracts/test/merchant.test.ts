@@ -1,6 +1,7 @@
 import { expect, test } from "vitest";
 import {
   communeListOutput,
+  communeListQuery,
   merchantApplicationInput,
   merchantApplicationOutput,
   merchantMembershipsOutput,
@@ -210,4 +211,23 @@ test("[MER-02:contract] refuses invalid merchant states, global roles and member
       merchantMembershipsOutput.safeParse({ memberships: [{ ...membership, ...invalid }] }).success,
     ).toBe(false);
   }
+});
+
+test("[MER-01:contract] parses a bounded official-code commune page", () => {
+  expect(communeListQuery.parse({})).toEqual({ limit: 50 });
+  expect(communeListQuery.parse({ wilayaCode: "16", cursor: "1608", limit: "100" })).toEqual({
+    wilayaCode: 16,
+    cursor: "1608",
+    limit: 100,
+  });
+  for (const query of [
+    { wilayaCode: "0" },
+    { wilayaCode: "70" },
+    { limit: "101" },
+    { limit: "1e1" },
+    { limit: ["20", "50"] },
+    { cursor: "not-a-code" },
+    { admin: "true" },
+  ])
+    expect(communeListQuery.safeParse(query).success).toBe(false);
 });

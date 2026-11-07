@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { pageLimit } from "./pagination.js";
 
 const hasNoNull = (value: string) => !value.includes("\0");
 const displayName = z.string().trim().min(1).max(120).refine(hasNoNull);
@@ -29,15 +30,28 @@ export const merchantApplicationOutput = z.strictObject({
   status: z.literal("pending_review"),
 });
 
+const communeCode = z
+  .string()
+  .length(4)
+  .regex(/^[0-9]{4}$/);
+const wilayaCode = z.int().min(1).max(69);
 const commune = z.strictObject({
   id: uuid,
-  code: z
-    .string()
-    .length(4)
-    .regex(/^[0-9]{4}$/),
-  wilayaCode: z.int().min(1).max(69),
+  code: communeCode,
+  wilayaCode,
   nameAr: displayName,
   nameFr: displayName,
+});
+
+export const communeListQuery = z.strictObject({
+  wilayaCode: z
+    .string()
+    .regex(/^[0-9]{1,2}$/)
+    .transform(Number)
+    .pipe(wilayaCode)
+    .optional(),
+  cursor: communeCode.optional(),
+  limit: pageLimit,
 });
 
 export const communeListOutput = z.strictObject({
