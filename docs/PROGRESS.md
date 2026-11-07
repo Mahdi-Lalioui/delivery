@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 — M0 gate passed
+
+- **Evidence** — `pnpm gate m0` exited 0 on Docker Desktop for clean PR head `acf1db5`. All five required Actions checks passed. The gate also reran 47 tooling, 102 unit, 12 real PostGIS integration, 59 browser and 59 contrast checks with 4/4 traced acceptance IDs. [Gate evidence](evidence/m0/gate.md) · [M0 PR](https://github.com/Mahdi-Lalioui/delivery/pull/1)
+- **Clean checkout** — QA ran a frozen install from a fresh store, full verify and 59-case browser smoke at `acf1db5`. All exited 0 and the checkout stayed clean.
+- **Review** — No open P0/P1. The design critic approved both screens at all required sizes. The audit reports one moderate tooling advisory within the high-severity gate.
+- **Next** — M1 domain core, beginning with DZD arithmetic and pricing property tests.
+- **Needs Mahdi** — None for M0. The Docker Desktop stack is healthy.
+
 ### 2026-11-07 15:10 GMT — M0 verified foundation commits
 
 - **Changed** — Committed the health and problem contracts in `1f3d727` and the foundation implementation in `ce3adc6` on `m0-foundations`. The installed pre-commit hook ran formatting, ESLint and Gitleaks on both commits with zero leaks.
@@ -83,6 +91,6 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ## Current status
 
-- Milestone: M0 (foundation committed, clean-clone QA and PR gate pending)
+- Milestone: M0 (gate passed, M1 next)
 - Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 102 unit tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

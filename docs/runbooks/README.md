@@ -33,6 +33,8 @@ Use GitHub CLI authentication for the PR check in `pnpm gate m0`. It checks the 
 
 Run `bash infra/verify-dev-compose.sh` to exercise the three real services together. Integration suites clone a migrated template into one database per test file. The harness requires PostgreSQL 18 on the local test database URL. Let teardown complete so the clones are dropped.
 
+The M0 gate runs the workspace, browser smoke, contrast and PR checks. The full release suite also needs the domain mutation targets from M1 and route-level Lighthouse budgets from M3.
+
 ## Diagnose local failures
 
 - If PostGIS is unavailable, run `docker compose ps db` and `docker compose logs db`. Confirm port 5432 belongs to this stack and amd64 emulation is available on arm64.
