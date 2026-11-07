@@ -4,6 +4,10 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./admin": {
+      "types": "./src/admin.ts",
+      "default": "./dist/admin.js"
+    },
     "./auth": {
       "types": "./src/auth.ts",
       "default": "./dist/auth.js"
@@ -11,6 +15,10 @@
     "./health": {
       "types": "./src/health.ts",
       "default": "./dist/health.js"
+    },
+    "./merchant": {
+      "types": "./src/merchant.ts",
+      "default": "./dist/merchant.js"
     }
   },
   "scripts": {

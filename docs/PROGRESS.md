@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 16:46 GMT — M2-2 and M2-3 merchant contracts
+
+- **Changed** — Added strict merchant application, commune page, membership and admin review schemas. Applicants cannot supply the account identity, phone, membership role or resulting status.
+- **Evidence** — The two contract suites failed before the schemas existed. All 15 cases now pass. The staged `pnpm verify` passed with 51 tooling, 505 unit and 41 real PostGIS integration tests.
+- **Reviewer** — Reproduced PostgreSQL rejecting embedded NUL characters. The affected names, registration number and review reason now reject them at validation. No remaining P0/P1 in the contract slice.
+- **Next** — Prove merchant and owner creation, pin containment, tenant membership scope and audited admin review in Postgres. The verified national labels and codes will be paired with boundary data whose commercial reuse terms are clear.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 16:43 GMT — M2-1 production-built browser auth
 
 - **Changed** — Added a dedicated Playwright suite with optimized Next.js, the compiled API, local HTTPS, and disposable PostGIS. SMS and the injected clock stay inside the test process. CI runs the suite in its database-backed Verify job.
@@ -155,5 +163,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 ## Current status
 
 - Milestone: M1 (last passing gate, M2 in progress)
-- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 490 unit and 41 PostGIS integration tests
+- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 505 unit and 41 PostGIS integration tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
