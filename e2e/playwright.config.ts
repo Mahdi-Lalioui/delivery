@@ -10,6 +10,7 @@ const isCi = Boolean(process.env.CI);
 export default defineConfig({
   testDir: ".",
   testMatch: browserTestPattern,
+  testIgnore: "**/auth*.spec.ts",
   fullyParallel: true,
   forbidOnly: true,
   retries: isCi ? 1 : 0,

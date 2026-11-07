@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 16:43 GMT — M2-1 production-built browser auth
+
+- **Changed** — Added a dedicated Playwright suite with optimized Next.js, the compiled API, local HTTPS, and disposable PostGIS. SMS and the injected clock stay inside the test process. CI runs the suite in its database-backed Verify job.
+- **Evidence** — `pnpm test:e2e:auth --fail-on-flaky-tests` passed both real journeys. It proved Arabic phone formatting and E.164 storage, cookie attributes, cross-origin rejection, and French admin TOTP focus and twelve-hour expiry alongside a still-active customer. `pnpm test:e2e --grep @smoke --fail-on-flaky-tests` passed all 59 foundation cases. [Sign-in evidence](evidence/m2/sign-in.md)
+- **Reviewer** — The browser registration is now visible to acceptance tracing. `TRACE_MILESTONE=m2 pnpm trace` recognizes I18N-04 and reports 28 of 37 IDs as the merchant features are developed.
+- **Next** — Commit merchant signup and review contracts, build merchant persistence, and add the device-management screens.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 16:37 GMT — M2-1 authentication and localized sign-in
 
 - **Changed** — Added forward PostgreSQL auth migrations, transactional phone OTP and TOTP, hashed sessions, same-origin cookie protection, scoped device revoke, OpenAPI endpoints, and Arabic/French/English sign-in. The generated contract and authorization matrix include the new routes.
