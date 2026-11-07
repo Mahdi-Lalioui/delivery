@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 23:31 GMT — M2-9 opening-hours input contract (Claude, covering while Codex was out)
+
+- **Changed** — Added `@zaafran/contracts/merchant-hours` with `merchantHoursInput`: seven unique weekday entries and up to 60 unique special dates. Each day has up to four whole-minute ranges. A closing minute at or before the opening minute is an overnight range, and same-day overlaps, including an overnight range overlapping a later one, are rejected. Dates use the ISO calendar check. Recorded D-010 and split M2-9 into four sub-tasks in PLAN.
+- **Evidence** — Wrote `packages/contracts/test/merchant-hours.test.ts` first (11 `[MER-15:contract]` cases: split days, an 18:00–02:00 range and a 00:00–24:00 day are accepted; a missing or repeated weekday, an empty range, an off-clock or fractional minute, overlaps, five ranges, a repeated special date and 2026-02-30 are rejected). It failed because the module did not exist, then passed. `pnpm verify` exited 0: 927 unit tests, 109 PostGIS integration tests, build, knip, depcruise, trace, and only the existing moderate `minimatch` advisory.
+- **Reviewer** — Self-reviewed against AGENTS.md §10. No P0/P1. The schema matches the M1 `hours.ts` weekday and minute conventions, so the persistence task can feed `isOpenAt` without a translation layer.
+- **Next** — Two open threads. (1) M2-7, which is closer to the gate: the bulk price hook, workspace placement, CSS, production-build e2e and screenshots described in the 23:29 entry. The hook must refresh the item snapshot without remounting the workspace. `useMenuItemEditor.retry()` resets to loading and moves focus to the heading, so add a revision-bound refresh like `refreshOptionGroups`. (2) M2-9: persist weekly ranges and special dates (replace them in one owner-scoped idempotent transaction on `merchant_hours`, plus a new special-dates table), then Ramadan offsets.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 23:29 GMT — M2-7 bulk price panel component and messages (Claude, covering while Codex was out)
 
 - **Changed** — Added `apps/web/src/menu-price/components/bulk-price-panel.tsx`. It is a presentational `BulkPricePanel` driven by a `BulkPriceControls` object. It provides per-item checkboxes with the current price and an all-items-in-category toggle, raise/lower and %/DA radio groups, the amount input (`dir="ltr"`, decimal or numeric keyboard, `aria-invalid` with a described error), and a 1/5/10/50 DA rounding select. It also shows a captioned old → new preview table, then preview and apply buttons. After apply it shows an applied status with an undo button only while `isUndoOffered` holds and the batch is not terminally rejected. Every failure kind maps to a `role="alert"` message. Added the `menuPrice` namespace to the ar, fr and en catalogs. The panel is not yet placed in the workspace.
@@ -404,5 +412,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress)
 - The checklist snapshot reran `pnpm gate m2` on 2026-11-07 at 18:14 GMT and exited 1 at acceptance trace. It covered 28 of 37 IDs. Pending IDs are ADM-04, MER-01, MER-10, MER-11, MER-12, MER-14, MER-15, MER-16 and MER-23. MER-11's apply/history and undo endpoints landed at 22:41 and 23:18 GMT; the merchant UI is still needed to close MER-11.
-- Last green `pnpm verify`: 2026-11-07 23:29 GMT on Docker Desktop with 916 unit and 109 PostGIS integration tests
+- Last green `pnpm verify`: 2026-11-07 23:31 GMT on Docker Desktop with 927 unit and 109 PostGIS integration tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

@@ -95,6 +95,10 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
   - [ ] Drive the panel from a hook, place it in the menu item workspace with DESIGN-token logical CSS, and prove the production-build journey (preview, apply, undo, expired undo) plus the screenshot matrix.
 - [ ] M2-8 CSV/XLSX import (MER-12). Publish the template, bound parsing, report row and field errors, and use a merchant-scoped external key for atomic idempotent application after preview.
 - [ ] M2-9 Hours and Ramadan (MER-15, MER-16). Persist weekly ranges, dated exceptions, Ramadan offsets and location. Render seven-day previews through the M1 rules and exercise overnight and Ramadan edits in Arabic and French.
+  - [x] Define the weekly ranges and special-dates input contract (overnight ranges, no same-day overlap, bounded sizes).
+  - [ ] Persist weekly ranges and special dates with an owner-scoped, idempotent replace command and the closed-now override.
+  - [ ] Add the Ramadan offsets contract and persistence (Maghrib-relative opening, suhoor window, method and ± minutes).
+  - [ ] Render the seven-day preview through the M1 rules and build the Arabic/French hours editor with the overnight and Ramadan journeys.
 - [ ] M2-10 Moderation (§17.3, ADM-04). Check prohibited goods on every menu write path and public preview. Prove flagged items stay hidden until the audited review outcome permits listing.
 - [ ] M2-11 Staff roles (MER-23). Implement owner-managed, single-use invitations tied to a verified phone. Prove every role against both its own and another merchant's resources.
 - [ ] M2-12 Seed twelve fictional bilingual Algiers restaurants with synthetic imagery and `is_demo`, then run production-built onboarding, the complete route matrix, and the design critic's theme/locale/viewport checks. Record local and PR evidence.
