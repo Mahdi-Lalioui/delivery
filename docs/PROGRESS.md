@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 18:01 GMT — M2-4 onboarding checklist contract
+
+- **Changed** — Defined a strict session-scoped checklist response for approved restaurant editors. Menu progress counts up to five configured items. Zone and test order are unavailable at this stage, so the response keeps Go live disabled.
+- **Evidence** — Both focused contract tests passed. Staged `pnpm verify` passed 51 tooling, 636 unit and 70 real PostGIS integration tests.
+- **Reviewer** — No P0/P1. The contract refuses premature activation even when the profile, hours and five-item progress are complete.
+- **Next** — Wire the tenant-scoped read to stored hours and menu items, then render the localized checklist.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 17:56 GMT — M2-5 category repository and API
 
 - **Changed** — Added session-bound category list, create, rename and reorder endpoints for owners and managers of eligible restaurants. Reads use a consistent snapshot and revision-bound keyset pages. Writes verify the target membership, preserve immutable results for retries, and apply order and revision atomically.
@@ -228,5 +236,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress)
 - The current M2 implementation snapshot ran `pnpm gate m2` and exited 1 at acceptance trace. It covered 28 of 37 IDs. Pending IDs are ADM-04, MER-01, MER-10, MER-11, MER-12, MER-14, MER-15, MER-16 and MER-23.
-- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 634 unit and 70 PostGIS integration tests
+- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 636 unit and 70 PostGIS integration tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

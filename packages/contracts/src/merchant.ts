@@ -70,3 +70,20 @@ export const merchantMembershipsOutput = z.strictObject({
     }),
   ),
 });
+
+export const merchantOnboardingOutput = z.strictObject({
+  sessionId: uuid,
+  merchantId: uuid,
+  restaurantName: displayName,
+  steps: z.strictObject({
+    profile: z.literal("complete"),
+    hours: z.enum(["complete", "incomplete"]),
+    menu: z.strictObject({
+      itemsTowardMinimum: z.int().min(0).max(5),
+      requiredItems: z.literal(5),
+    }),
+    deliveryZone: z.literal("unavailable"),
+    testOrder: z.literal("unavailable"),
+  }),
+  canGoLive: z.literal(false),
+});
