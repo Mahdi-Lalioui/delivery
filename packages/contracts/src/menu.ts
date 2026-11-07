@@ -105,6 +105,81 @@ export const menuItemInput = z.strictObject({
   optionGroupIds: z.array(uuid).max(50).refine(uniqueIds, "Attach each option group once."),
 });
 
+export const menuItemRevisionInput = z.strictObject({ expectedRevision: menuRevision });
+export const menuItemCommandInput = menuItemInput.extend(menuItemRevisionInput.shape);
+export const menuItemAvailabilityInput = menuItemRevisionInput.extend({
+  availability: z.enum(["available", "end_of_day", "indefinite"]),
+});
+
+const availabilityOutputFields = {
+  itemId: uuid,
+  isAvailable: z.boolean(),
+  soldOutUntil: z.iso.datetime().nullable(),
+};
+
+function isValidItemAvailability({
+  isAvailable,
+  soldOutUntil,
+}: {
+  isAvailable: boolean;
+  soldOutUntil: string | null;
+}) {
+  return !isAvailable || soldOutUntil === null;
+}
+
+export const menuItemAvailabilityOutput = z
+  .strictObject({ ...availabilityOutputFields, revision: menuRevision })
+  .refine(isValidItemAvailability);
+
+const itemOutput = menuItemInput
+  .extend({
+    ...availabilityOutputFields,
+    moderationStatus: z.enum(["unreviewed", "approved", "blocked_pending_review", "rejected"]),
+  })
+  .refine(isValidItemAvailability);
+
+export const menuItemWriteOutput = z.strictObject({ item: itemOutput, revision: menuRevision });
+export const menuItemArchiveOutput = z.strictObject({
+  itemId: uuid,
+  archivedAt: z.iso.datetime(),
+  revision: menuRevision,
+});
+
+const itemCursorFields = z.strictObject({
+  revision: cursorNumber.pipe(menuRevision),
+  itemId: uuid,
+});
+
+export function readMenuItemCursor(cursor: string) {
+  const [revision, itemId, extra] = cursor.split("~");
+  if (extra !== undefined) return undefined;
+  const result = itemCursorFields.safeParse({ revision, itemId });
+  return result.success ? result.data : undefined;
+}
+
+const itemCursor = z
+  .string()
+  .max(53)
+  .refine((cursor) => readMenuItemCursor(cursor) !== undefined);
+
+export const menuItemPageQuery = z.strictObject({
+  categoryId: uuid,
+  limit: pageLimit,
+  cursor: itemCursor.optional(),
+});
+
+export const menuItemPageOutput = z
+  .strictObject({
+    sessionId: uuid,
+    revision: menuRevision,
+    items: z.array(itemOutput).max(100),
+    nextCursor: itemCursor.nullable(),
+  })
+  .refine(
+    ({ revision, nextCursor }) =>
+      nextCursor === null || readMenuItemCursor(nextCursor)?.revision === revision,
+  );
+
 const optionInput = z.strictObject({
   names: name,
   priceDeltaDzd: wholeDzd,

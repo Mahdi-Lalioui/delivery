@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 18:17 GMT — M2-5 item editing contracts
+
+- **Changed** — Defined strict item page, create, edit, duplicate, archive and sold-out contracts. Menu reads carry the session and revision. The availability command exposes only item ID, availability, deadline and revision.
+- **Evidence** — All three focused item contract tests passed. Staged `pnpm verify` passed 51 tooling, 684 unit and 72 real PostGIS integration tests.
+- **Reviewer** — No P0/P1. Verified the integer price bound and stale revision and archive shapes against PostgreSQL. Staff access will be limited to the dedicated sold-out operation.
+- **Next** — Implement item persistence and API against these contracts, then verify the localized editor.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 18:15 GMT — M2-4 localized setup checklist
 
 - **Changed** — Added a private restaurant setup screen in Arabic, French and English, with stored hours, menu progress, status and menu navigation. Delivery zone, test order and Go live remain visibly unavailable until their required flows exist.
@@ -260,5 +268,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress)
 - The checklist snapshot reran `pnpm gate m2` on 2026-11-07 at 18:14 GMT and exited 1 at acceptance trace. It covered 28 of 37 IDs. Pending IDs are ADM-04, MER-01, MER-10, MER-11, MER-12, MER-14, MER-15, MER-16 and MER-23.
-- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 681 unit and 72 PostGIS integration tests
+- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 684 unit and 72 PostGIS integration tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
