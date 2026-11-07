@@ -42,8 +42,10 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
   try {
     options.configure?.(api);
     const listener = { host: environment.API_HOST, port: environment.API_PORT };
-    const address = await (options.listen ? options.listen(api, listener) : api.listen(listener));
-    api.log.info({ address }, "API listening");
+    const listenAddress = await (options.listen
+      ? options.listen(api, listener)
+      : api.listen(listener));
+    api.log.info({ listenAddress }, "API listening");
     return api;
   } catch (error) {
     await api.close();
