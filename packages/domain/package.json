@@ -4,9 +4,17 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./eta": {
+      "types": "./src/eta.ts",
+      "default": "./dist/eta.js"
+    },
     "./money": {
       "types": "./src/money.ts",
       "default": "./dist/money.js"
+    },
+    "./order-transition": {
+      "types": "./src/order-transition.ts",
+      "default": "./dist/order-transition.js"
     },
     "./order-types": {
       "types": "./src/order-types.ts",

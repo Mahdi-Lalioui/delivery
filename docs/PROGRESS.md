@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 15:32 GMT — M1-1 integer pricing and cash change
+
+- **Changed** — `914b97b` added branded DZD, integer line and option calculations, discount and fee rounding, minimum checks, cash change, and the M1 coverage and mutation command wiring.
+- **Evidence** — The staged snapshot passed `pnpm verify` with 48 tooling, 154 unit and 12 real PostGIS integration tests. The domain pricing suite includes a seeded 1,000-run independent bigint oracle.
+- **Reviewer** — No P0/P1. Added a regression for a negative adjusted line hidden by another positive line.
+- **Next** — Prove the order transition and receipt contracts.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 — M0 gate passed
 
 - **Evidence** — `pnpm gate m0` exited 0 on Docker Desktop for clean PR head `acf1db5`. All five required Actions checks passed. The gate also reran 47 tooling, 102 unit, 12 real PostGIS integration, 59 browser and 59 contrast checks with 4/4 traced acceptance IDs. [Gate evidence](evidence/m0/gate.md) · [M0 PR](https://github.com/Mahdi-Lalioui/delivery/pull/1)
