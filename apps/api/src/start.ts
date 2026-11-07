@@ -4,6 +4,7 @@ import { createMediaRepository } from "@zaafran/db/media";
 import { createMenuCategoryRepository } from "@zaafran/db/menu-category";
 import { createMenuItemRepository } from "@zaafran/db/menu-item";
 import { createMenuOptionGroupRepository } from "@zaafran/db/menu-option-group";
+import { createMenuPriceRepository } from "@zaafran/db/menu-price";
 import { createMerchantRepository } from "@zaafran/db/merchant";
 import { createLocalMediaStore } from "@zaafran/media";
 import type { FastifyInstance, FastifyListenOptions } from "fastify";
@@ -44,6 +45,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     menuCategory: { repository: createMenuCategoryRepository(database), now },
     menuItem: { repository: createMenuItemRepository(database), now },
     menuOptionGroup: { repository: createMenuOptionGroupRepository(database), now },
+    menuPrice: { repository: createMenuPriceRepository(database), now },
   });
   api.addHook("onClose", () => database.close());
   try {

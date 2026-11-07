@@ -24,6 +24,7 @@ import {
   registerMenuOptionGroupRoutes,
   type MenuOptionGroupServices,
 } from "./menu-option-group-routes.js";
+import { registerMenuPriceRoutes, type MenuPriceServices } from "./menu-price-routes.js";
 import { enforceRoutePolicies, recordRoutePolicies, type ResolveActor } from "./policy.js";
 import { sendProblem } from "./problems.js";
 
@@ -34,6 +35,7 @@ interface ApiOptions {
   readonly menuCategory?: MenuCategoryServices;
   readonly menuItem?: MenuItemServices;
   readonly menuOptionGroup?: MenuOptionGroupServices;
+  readonly menuPrice?: MenuPriceServices;
   readonly trustedProxy?: string | undefined;
   readonly auth?: Parameters<typeof createAuthAccess>[0];
   readonly resolveActor?: ResolveActor;
@@ -95,6 +97,7 @@ export function createApi(options: ApiOptions): FastifyInstance {
     registerMenuCategoryRoutes(api, options.menuCategory);
     registerMenuItemRoutes(api, options.menuItem);
     registerMenuOptionGroupRoutes(api, options.menuOptionGroup);
+    registerMenuPriceRoutes(api, options.menuPrice);
     registerHealth(api, options.checkReadiness);
   });
   return api;

@@ -4,6 +4,7 @@
     "rootDir": "src",
     "outDir": "dist",
     "skipLibCheck": true,
+    "rewriteRelativeImportExtensions": true,
     "types": ["node"]
   },
   "files": ["src/server.ts"]

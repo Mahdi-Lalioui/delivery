@@ -32,6 +32,10 @@
       "types": "./src/menu-option-group.ts",
       "default": "./dist/menu-option-group.js"
     },
+    "./menu-price": {
+      "types": "./src/menu-price.ts",
+      "default": "./dist/menu-price.js"
+    },
     "./merchant": {
       "types": "./src/merchant.ts",
       "default": "./dist/merchant.js"
@@ -49,6 +53,7 @@
     "db:reset": "node --env-file-if-exists=../../.env src/cli.ts reset"
   },
   "dependencies": {
+    "@zaafran/domain": "workspace:*",
     "drizzle-orm": "0.45.4",
     "postgres": "4.1.0",
     "zod": "4.6.7"

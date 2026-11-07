@@ -71,6 +71,13 @@
       "when": 1794079500000,
       "tag": "0009_media_reservations",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794090600000,
+      "tag": "0010_menu_price_history",
+      "breakpoints": true
     }
   ]
 }

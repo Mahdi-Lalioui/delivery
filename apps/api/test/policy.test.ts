@@ -146,6 +146,15 @@ const itemPayload = {
   optionGroupIds: [],
 };
 
+const menuPricePath = "/v1/merchants/:merchantId/menu/prices";
+const menuPriceRequest = "/v1/merchants/" + challengeId + "/menu/prices";
+const pricePreviewPayload = {
+  itemIds: [challengeId],
+  adjustment: { kind: "percent", basisPoints: 1_000 },
+  roundingUnit: 10,
+};
+const priceApplyPayload = { ...pricePreviewPayload, expectedRevision: 0 };
+
 const menuGroupPath = "/v1/merchants/:merchantId/menu/option-groups";
 const menuGroupRequest = "/v1/merchants/" + challengeId + "/menu/option-groups";
 const groupPayload = {
@@ -301,6 +310,20 @@ const matrix: readonly MatrixRoute[] = [
     url: menuGroupPath + "/:optionGroupId",
     requestUrl: menuGroupRequest + "/" + challengeId,
     payload: groupPayload,
+    expected: menuRoles,
+  },
+  {
+    method: "POST",
+    url: menuPricePath + "/preview",
+    requestUrl: menuPriceRequest + "/preview",
+    payload: pricePreviewPayload,
+    expected: menuRoles,
+  },
+  {
+    method: "POST",
+    url: menuPricePath + "/apply",
+    requestUrl: menuPriceRequest + "/apply",
+    payload: priceApplyPayload,
     expected: menuRoles,
   },
   { method: "GET", url: "/v1/admin/merchant-applications", expected: adminRole },

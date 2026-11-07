@@ -24,6 +24,10 @@
       "types": "./src/menu.ts",
       "default": "./dist/menu.js"
     },
+    "./menu-price": {
+      "types": "./src/menu-price.ts",
+      "default": "./dist/menu-price.js"
+    },
     "./merchant": {
       "types": "./src/merchant.ts",
       "default": "./dist/merchant.js"
