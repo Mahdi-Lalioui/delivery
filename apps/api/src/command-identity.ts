@@ -10,7 +10,7 @@ export function commandIdentity(key: string, request: object) {
   };
 }
 
-export function resolveMenuCommand<Repository>({
+export function resolveSessionCommand<Repository>({
   request,
   reply,
   services,
@@ -34,5 +34,10 @@ export function resolveMenuCommand<Repository>({
     sendProblem(reply, 409, "session_changed");
     return undefined;
   }
-  return { accountId: actor.accountId, now: services.now(), repository: services.repository };
+  return {
+    accountId: actor.accountId,
+    sessionId: actor.sessionId,
+    now: services.now(),
+    repository: services.repository,
+  };
 }

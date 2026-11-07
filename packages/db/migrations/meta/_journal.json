@@ -64,6 +64,13 @@
       "when": 1794076500000,
       "tag": "0008_menu_option_group_command_receipts",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794079500000,
+      "tag": "0009_media_reservations",
+      "breakpoints": true
     }
   ]
 }

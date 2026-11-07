@@ -13,7 +13,7 @@ import type { createMenuOptionGroupRepository } from "@zaafran/db/menu-option-gr
 import type { FastifyInstance, FastifyReply } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
-import { commandIdentity, resolveMenuCommand } from "./command-identity.js";
+import { commandIdentity, resolveSessionCommand } from "./command-identity.js";
 import { getRequestActor } from "./policy.js";
 import { sendProblem } from "./problems.js";
 
@@ -140,7 +140,7 @@ function registerGroupWrites(api: FastifyInstance, services: MenuOptionGroupServ
       },
     },
     async (request, reply) => {
-      const context = resolveMenuCommand({
+      const context = resolveSessionCommand({
         request,
         reply,
         services,
@@ -171,7 +171,7 @@ function registerGroupWrites(api: FastifyInstance, services: MenuOptionGroupServ
       },
     },
     async (request, reply) => {
-      const context = resolveMenuCommand({
+      const context = resolveSessionCommand({
         request,
         reply,
         services,

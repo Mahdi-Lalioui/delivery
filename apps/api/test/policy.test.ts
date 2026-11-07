@@ -126,6 +126,7 @@ const merchantRoles = {
   merchant_staff: 503,
 } as const;
 const adminRole = { admin: 503 } as const;
+const mediaRoles = { ...merchantRoles, courier: 503 } as const;
 const menuRoles = { customer: 503, merchant_owner: 503, merchant_manager: 503 } as const;
 const menuCategoryPath = "/v1/merchants/:merchantId/menu/categories";
 const menuCategoryRequest = "/v1/merchants/" + challengeId + "/menu/categories";
@@ -194,6 +195,18 @@ const matrix: readonly MatrixRoute[] = [
     expected: merchantRoles,
   },
   { method: "GET", url: "/v1/me/merchants", expected: merchantRoles },
+  {
+    method: "POST",
+    url: "/v1/media/uploads",
+    payload: { kind: "application", contentType: "image/jpeg", bytes: 120 },
+    expected: mediaRoles,
+  },
+  {
+    method: "GET",
+    url: "/v1/media/:mediaId",
+    requestUrl: "/v1/media/" + challengeId,
+    expected: mediaRoles,
+  },
   { method: "GET", url: menuCategoryPath, requestUrl: menuCategoryRequest, expected: menuRoles },
   {
     method: "POST",

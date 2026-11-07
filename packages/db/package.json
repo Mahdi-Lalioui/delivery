@@ -16,6 +16,10 @@
       "types": "./src/geography.ts",
       "default": "./dist/geography.js"
     },
+    "./media": {
+      "types": "./src/media.ts",
+      "default": "./dist/media.js"
+    },
     "./menu-category": {
       "types": "./src/menu-category.ts",
       "default": "./dist/menu-category.js"
@@ -28,13 +32,13 @@
       "types": "./src/menu-option-group.ts",
       "default": "./dist/menu-option-group.js"
     },
-    "./migrate": {
-      "types": "./src/migrate.ts",
-      "default": "./dist/migrate.js"
-    },
     "./merchant": {
       "types": "./src/merchant.ts",
       "default": "./dist/merchant.js"
+    },
+    "./migrate": {
+      "types": "./src/migrate.ts",
+      "default": "./dist/migrate.js"
     }
   },
   "scripts": {
@@ -52,6 +56,7 @@
   "devDependencies": {
     "@types/node": "26.6.6",
     "@zaafran/config": "workspace:*",
+    "graphile-worker": "0.18.0",
     "typescript": "6.0.3",
     "vitest": "5.1.0"
   }

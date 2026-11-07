@@ -13,7 +13,7 @@ import type { createMenuCategoryRepository } from "@zaafran/db/menu-category";
 import type { FastifyInstance, FastifyReply } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
-import { commandIdentity, resolveMenuCommand } from "./command-identity.js";
+import { commandIdentity, resolveSessionCommand } from "./command-identity.js";
 import { getRequestActor } from "./policy.js";
 import { sendProblem } from "./problems.js";
 
@@ -94,7 +94,7 @@ function registerCategoryCreate(api: FastifyInstance, services: MenuCategoryServ
       },
     },
     async (request, reply) => {
-      const context = resolveMenuCommand({
+      const context = resolveSessionCommand({
         request,
         reply,
         services,
@@ -130,7 +130,7 @@ function registerCategoryRename(api: FastifyInstance, services: MenuCategoryServ
       },
     },
     async (request, reply) => {
-      const context = resolveMenuCommand({
+      const context = resolveSessionCommand({
         request,
         reply,
         services,
@@ -168,7 +168,7 @@ function registerCategoryReorder(api: FastifyInstance, services: MenuCategorySer
       },
     },
     async (request, reply) => {
-      const context = resolveMenuCommand({
+      const context = resolveSessionCommand({
         request,
         reply,
         services,

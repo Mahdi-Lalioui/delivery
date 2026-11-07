@@ -15,7 +15,7 @@ import type { createMenuItemRepository } from "@zaafran/db/menu-item";
 import type { FastifyInstance, FastifyReply } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
-import { commandIdentity, resolveMenuCommand } from "./command-identity.js";
+import { commandIdentity, resolveSessionCommand } from "./command-identity.js";
 import { getRequestActor } from "./policy.js";
 import { sendProblem } from "./problems.js";
 
@@ -120,7 +120,7 @@ function registerItemEdits(api: FastifyInstance, services: MenuItemServices | un
       },
     },
     async (request, reply) => {
-      const context = resolveMenuCommand({
+      const context = resolveSessionCommand({
         request,
         reply,
         services,
@@ -147,7 +147,7 @@ function registerItemEdits(api: FastifyInstance, services: MenuItemServices | un
       schema: { ...schema, params: itemParams, response: { 200: menuItemWriteOutput, ...errors } },
     },
     async (request, reply) => {
-      const context = resolveMenuCommand({
+      const context = resolveSessionCommand({
         request,
         reply,
         services,
@@ -185,7 +185,7 @@ function registerLifecycle(api: FastifyInstance, services: MenuItemServices | un
       schema: { ...schema, response: { 201: menuItemWriteOutput, ...errors } },
     },
     async (request, reply) => {
-      const context = resolveMenuCommand({
+      const context = resolveSessionCommand({
         request,
         reply,
         services,
@@ -213,7 +213,7 @@ function registerLifecycle(api: FastifyInstance, services: MenuItemServices | un
       schema: { ...schema, response: { 200: menuItemArchiveOutput, ...errors } },
     },
     async (request, reply) => {
-      const context = resolveMenuCommand({
+      const context = resolveSessionCommand({
         request,
         reply,
         services,
@@ -254,7 +254,7 @@ function registerAvailability(api: FastifyInstance, services: MenuItemServices |
       },
     },
     async (request, reply) => {
-      const context = resolveMenuCommand({
+      const context = resolveSessionCommand({
         request,
         reply,
         services,
