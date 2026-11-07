@@ -8,6 +8,10 @@
       "types": "./src/eta.ts",
       "default": "./dist/eta.js"
     },
+    "./hours": {
+      "types": "./src/hours.ts",
+      "default": "./dist/hours.js"
+    },
     "./money": {
       "types": "./src/money.ts",
       "default": "./dist/money.js"
@@ -23,6 +27,10 @@
     "./pricing": {
       "types": "./src/pricing.ts",
       "default": "./dist/pricing.js"
+    },
+    "./ramadan": {
+      "types": "./src/ramadan.ts",
+      "default": "./dist/ramadan.js"
     },
     "./search": {
       "types": "./src/search.ts",

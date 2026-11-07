@@ -13,6 +13,22 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 15:48 GMT — M1-3 scheduling and local M1 gate
+
+- **Changed** — Added Algiers civil hours, overnight and special-date precedence, busy pauses, 15-minute slots and Ramadan offsets, countdown and Iftar arrival. Extended order guard tests from the mutation review.
+- **Evidence** — `pnpm gate m1` exited 0 on Docker Desktop. It ran 50 tooling, 380 unit, 12 real PostGIS integration and 196 domain coverage cases. Coverage reached 99.26% lines and 98.87% branches, Stryker scored 92.65%, four seeded properties ran 1,000 cases each, and the trace covered all 20 required IDs. [Local reports](evidence/m1/gate.md)
+- **Reviewer** — Fixed offering an unusable current-time slot and closed historical calendar inputs outside the supported era. Verified the generated pnpm store exclusion and the workspace dependency rules. No remaining P0/P1.
+- **Next** — Push the M1 snapshot and verify GitHub Actions on the PR head.
+- **Needs Mahdi** — None.
+
+### 2026-11-07 15:46 GMT — M1-4 search, M1-5 zone and M1-6 localization
+
+- **Changed** — `637963d` added the cross-script search keys and 19 synonym groups, locale formatters and ICU messages, the geo adapter and polygon coverage, and shared CI checks for domain coverage, properties, and mutation analysis.
+- **Evidence** — The staged snapshot passed `pnpm verify` with 49 tooling, 322 unit and 12 real PostGIS integration tests. Targeted checks proved 1,000 seeded normalization cases, all six Arabic ICU plural forms, polygon boundaries and holes, and all 59 Maghrib reference dates within one minute.
+- **Reviewer** — Fixed missing JSX accessibility copy and visible submit, button and reset values, including uppercase and static template input types. The tooling regression and focused lint passed. No remaining P0/P1 in these changes.
+- **Next** — Verify the complete M1 assembly with the scheduling and Ramadan rules.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 15:39 GMT — M1-2 order lifecycle and M1-5 ETA
 
 - **Changed** — `ee11491` added order state and scope checks, exact retries, event projection, delivery proof, deadlines and ETA ranges and refresh limits.
@@ -107,6 +123,6 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ## Current status
 
-- Milestone: M0 (gate passed, M1 next)
-- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 102 unit tests
+- Milestone: M1 (local gate passed, PR checks pending)
+- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 380 unit tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

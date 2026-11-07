@@ -57,10 +57,10 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
 
 - [x] M1-1 Add branded DZD, integer pricing and cash change in `packages/domain`. Test line quantities and option adjustments, half-up discounts and caps, subtotal minimum, pickup and fee thresholds, overflow, and exact accounting with independent 1,000-run properties.
 - [x] M1-2 Add the pure order transition and receipt contracts. Test each lifecycle action and actor, deadlines, terminal immutability, monotonic events, stale versions and exact replay. Persisted concurrency and durable receipts remain in M4.
-- [ ] M1-3 Add Algiers weekly/special hours, overnight ranges, busy override, 15-minute slots and Ramadan offset functions. Derive Maghrib for a supplied location and civil date with the pinned astronomy adapter. Check in the sourced February–March 2027 reference and compare fixed dates.
-- [ ] M1-4 Add Unicode normalization, cross-script phonetic skeletons and the i18n synonym table. Test canonical golden spellings, punctuation and unknown input. Prove normalization is idempotent with 1,000 runs. Search ranking and database benchmarks remain in M3.
-- [ ] M1-5 Prove rounded delivery fees, ETA ranges and update throttling. Test a pure zone covers helper at edges and holes. PostGIS and OSRM integration remain in M5.
-- [ ] M1-6 Add Arabic/French/English DZD, Algerian phone, zoned date/time, content fallback and ICU plural formatting. Prove Latin digits, narrow no-break spaces, six Arabic forms and fallback order. Apply the UI literal guard and test its rejection.
+- [x] M1-3 Add Algiers weekly/special hours, overnight ranges, busy override, 15-minute slots and Ramadan offset functions. Derive Maghrib for a supplied location and civil date with the pinned astronomy adapter. Check in the sourced February–March 2027 reference and compare fixed dates.
+- [x] M1-4 Add Unicode normalization, cross-script phonetic skeletons and the i18n synonym table. Test canonical golden spellings, punctuation and unknown input. Prove normalization is idempotent with 1,000 runs. Search ranking and database benchmarks remain in M3.
+- [x] M1-5 Prove rounded delivery fees, ETA ranges and update throttling. Test a pure zone covers helper at edges and holes. PostGIS and OSRM integration remain in M5.
+- [x] M1-6 Add Arabic/French/English DZD, Algerian phone, zoned date/time, content fallback and ICU plural formatting. Prove Latin digits, narrow no-break spaces, six Arabic forms and fallback order. Apply the UI literal guard and test its rejection.
 - [ ] M1-7 Wire Stryker, threshold coverage and an explicit 1,000-run property suite into `pnpm gate m1` and CI. Require ≥85% mutation, ≥95% lines and ≥90% branches on the domain package and trace all M1 IDs. Record exact local and PR results.
 
 **Gate m1:** domain coverage ≥ 95/90, mutation score ≥ 85%, all property tests pass with 1 000 runs each.

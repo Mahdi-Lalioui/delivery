@@ -2,7 +2,15 @@
   "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
   "testRunner": "vitest",
   "plugins": ["@stryker-mutator/vitest-runner"],
-  "mutate": ["packages/domain/src/**/*.ts", "!packages/domain/src/**/*.d.ts"],
+  "mutate": ["packages/domain/src/**/*.ts"],
+  "ignorePatterns": [
+    "/.pnpm-store",
+    "**/.next",
+    "**/.next-design",
+    "**/.next-dev",
+    "**/.turbo",
+    "**/coverage"
+  ],
   "coverageAnalysis": "perTest",
   "concurrency": 4,
   "vitest": { "configFile": "vitest.domain.config.ts", "related": false },

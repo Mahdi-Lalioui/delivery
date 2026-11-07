@@ -591,3 +591,78 @@ test("[ORD-01] a completed delivery cannot emit a second delivery event", () => 
   expect(order.status).toBe("delivered");
   expect(order.version).toBe(3);
 });
+
+test.each([-1, 0.5, Number.MAX_SAFE_INTEGER + 1])(
+  "[ORD-02:domain] rejects an invalid injected event clock %s",
+  (now) => {
+    expectError(run(accept, { now }), "invalid_order_command");
+  },
+);
+
+test("[ORD-02:domain] permits the Unix epoch as an event timestamp", () => {
+  const order = snapshot("pending_acceptance", { lastEventAt: 0 });
+  expect(applied(run(accept, { order, now: 0 })).event.at).toBe(0);
+});
+
+test.each([
+  { ...eta, earliestAt: -1 },
+  { ...eta, latestAt: eta.latestAt + 0.5 },
+])("[M1-2] rejects invalid ETA timestamp %j", (invalidEta) => {
+  expectError(run({ ...accept, facts: { eta: invalidEta } }), "invalid_order_command");
+});
+
+test("[M1-2] accepts ETA with equal valid endpoints", () => {
+  const oneTime = { earliestAt: eta.earliestAt, latestAt: eta.earliestAt };
+  expect(applied(run({ ...accept, facts: { eta: oneTime } })).order.eta).toEqual(oneTime);
+});
+
+test.each([
+  ["accepted", customer],
+  ["ready", customer],
+  ["scheduled", merchant],
+  ["pending_acceptance", merchant],
+] as const)("[M1-2] forbids cancellation from %s for %j", (status, actor) => {
+  const order = snapshot(status);
+  expectError(
+    run({ kind: "cancel", reason: "Changed plans" }, { order, actor }),
+    "invalid_order_transition",
+  );
+});
+
+test("[ORD-03:domain] a new placement requires expected version zero", () => {
+  expectError(
+    run(place, { order: null, actor: customer, command: { expectedVersion: 1 } }),
+    "order_conflict",
+  );
+});
+
+test.each([
+  [
+    { kind: "release", facts: { acceptanceTimeoutMs: timeout } },
+    snapshot("ready", { releaseAt: clock }),
+  ],
+  [
+    { kind: "release", facts: { acceptanceTimeoutMs: timeout } },
+    snapshot("scheduled", { releaseAt: null }),
+  ],
+  [{ kind: "expire" }, snapshot("accepted", { acceptanceDeadlineAt: clock })],
+  [{ kind: "expire" }, snapshot("pending_acceptance", { acceptanceDeadlineAt: null })],
+] as const)("[ORD-07:domain] refuses a timer for ineligible state %j %j", (action, order) => {
+  expectError(run(action, { order, actor: system }), "invalid_order_transition");
+});
+
+test.each([0, Number.MAX_SAFE_INTEGER - clock + 1])(
+  "[ORD-07:domain] rejects invalid acceptance timeout %i",
+  (acceptanceTimeoutMs) => {
+    const order = snapshot("scheduled");
+    expectError(
+      run({ kind: "release", facts: { acceptanceTimeoutMs } }, { order, actor: system }),
+      "invalid_order_command",
+    );
+  },
+);
+
+test.each([deliver, fail])("[M1-2] denies courier completion before pickup %j", (action) => {
+  const order = snapshot("ready", { courierId: courier.courierId });
+  expectError(run(action, { order, actor: courier }), "invalid_order_transition");
+});
