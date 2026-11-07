@@ -21,6 +21,9 @@
     "test:e2e": "turbo run build --filter=@zaafran/web && pnpm --filter @zaafran/web build:design && playwright test --config e2e/playwright.config.ts",
     "test:visual": "pnpm test:e2e --grep @visual",
     "test:a11y": "pnpm test:e2e --grep @a11y",
+    "test:domain:coverage": "vitest run --config vitest.domain.config.ts --coverage",
+    "test:properties": "vitest run --config vitest.domain.config.ts -t @property",
+    "test:mutation": "stryker run stryker.config.json",
     "build": "turbo run build",
     "knip": "knip",
     "depcruise": "depcruise --config dependency-cruiser.cjs .",
@@ -36,6 +39,8 @@
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",
     "@playwright/test": "1.65.0",
+    "@stryker-mutator/core": "10.1.1",
+    "@stryker-mutator/vitest-runner": "10.1.1",
     "@types/node": "26.6.6",
     "@vitest/coverage-v8": "5.1.0",
     "@zaafran/config": "workspace:*",

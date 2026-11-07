@@ -33,18 +33,20 @@ export function parseGates(plan: string): ReadonlyMap<string, readonly string[]>
   return gates;
 }
 
+const requiredChecks: ReadonlyMap<string, readonly string[]> = new Map([
+  ["m0", ["e2e:@smoke", "tokens:contrast", "ci:pr"]],
+  ["m1", ["coverage:domain", "mutation:domain", "property:1000"]],
+]);
+
 export function getGateChecks(plan: string, milestone: string): readonly string[] {
   const checks = parseGates(plan).get(milestone);
   if (!checks) throw new Error("Missing gate definition for " + milestone);
   if (!checks.includes("verify") && !checks.includes("verify:full")) {
     throw new Error("Gate " + milestone + " must include verify or verify:full.");
   }
-  if (milestone === "m0") {
-    const missing = ["e2e:@smoke", "tokens:contrast", "ci:pr"].filter(
-      (check) => !checks.includes(check),
-    );
-    if (missing.length)
-      throw new Error("Gate m0 is missing required checks: " + missing.join(", "));
+  const missing = (requiredChecks.get(milestone) ?? []).filter((check) => !checks.includes(check));
+  if (missing.length) {
+    throw new Error("Gate " + milestone + " is missing required checks: " + missing.join(", "));
   }
   return checks;
 }

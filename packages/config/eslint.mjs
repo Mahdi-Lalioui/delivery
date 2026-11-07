@@ -12,6 +12,7 @@ export function createEslintConfig(tsconfigRootDir) {
         "**/.next-dev/**",
         "**/.next-design/**",
         "**/.turbo/**",
+        "**/.stryker-tmp/**",
         "**/.expo/**",
         "**/build/**",
         "**/dist/**",

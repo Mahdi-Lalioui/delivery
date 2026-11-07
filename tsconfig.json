@@ -9,6 +9,7 @@
     "tooling/**/*.ts",
     "scripts/**/*.ts",
     "vitest.config.ts",
+    "vitest.domain.config.ts",
     "packages/config/vitest.ts",
     "vitest.integration.config.ts",
     "e2e/**/*.ts",

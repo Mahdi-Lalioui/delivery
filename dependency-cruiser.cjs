@@ -47,7 +47,7 @@ module.exports = {
     doNotFollow: { path: "(?:^|/)node_modules(?:/|$)" },
     exclude: {
       path: [
-        "^(?:\\.(?:git|turbo|worktrees)|coverage|dist|playwright-report|test-results)(?:/|$)",
+        "^(?:\\.(?:git|turbo|stryker-tmp|worktrees)|coverage|dist|playwright-report|test-results)(?:/|$)",
         "^(?:apps|packages)/[^/]+/(?:\\.next|\\.next-dev|\\.next-design|\\.expo|coverage|dist)(?:/|$)",
       ],
     },
