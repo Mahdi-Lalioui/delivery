@@ -1,0 +1,17 @@
+{
+  "name": "@zaafran/i18n",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./locales": "./src/locales.ts",
+    "./messages": "./src/messages.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@zaafran/config": "workspace:*",
+    "typescript": "6.0.3"
+  }
+}

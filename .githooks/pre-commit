@@ -1,0 +1,17 @@
+#!/bin/sh
+set -eu
+
+if ! command -v gitleaks >/dev/null 2>&1 || [ "$(gitleaks version)" != "8.30.1" ]; then
+  printf '%s\n' 'Install gitleaks 8.30.1 and add it to PATH before committing.' >&2
+  exit 1
+fi
+
+pnpm lint:staged
+
+# Colored Git patches break the scanner's diff parser.
+config_slot=${GIT_CONFIG_COUNT:-0}
+export "GIT_CONFIG_KEY_$config_slot=color.ui" "GIT_CONFIG_VALUE_$config_slot=never"
+diff_slot=$((config_slot + 1))
+export "GIT_CONFIG_KEY_$diff_slot=color.diff" "GIT_CONFIG_VALUE_$diff_slot=never"
+export GIT_CONFIG_COUNT=$((diff_slot + 1))
+gitleaks git --staged --redact --no-banner

@@ -1,0 +1,27 @@
+{
+  "name": "@zaafran/worker",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsx watch --env-file-if-exists=../../.env src/worker.ts",
+    "start": "node dist/worker.js",
+    "migrate": "node --env-file-if-exists=../../.env dist/migrate.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@zaafran/db": "workspace:*",
+    "graphile-worker": "0.18.0",
+    "pino": "10.4.0",
+    "postgres": "4.1.0",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "@zaafran/config": "workspace:*",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3",
+    "vitest": "5.1.0"
+  }
+}

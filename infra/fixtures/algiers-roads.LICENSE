@@ -1,0 +1,9 @@
+algiers-roads.osm.pbf
+© OpenStreetMap contributors. https://www.openstreetmap.org/copyright
+Open Data Commons Open Database License (ODbL) 1.0.
+https://opendatacommons.org/licenses/odbl/1-0/
+
+Source extract from Geofabrik: https://download.geofabrik.de/africa/algeria-261106.osm.pbf
+Source MD5: dd9b2ae7171221de99646be1bac6c9fa
+Fixture SHA-256: a7f0d1c1c121f915762b35944f0cf0d1b0e16c649f6b6cdfeeccfe1eaaa8b812
+Derived public road subset for local OSRM checks. Generation: ../scripts/create-algiers-roads.sh

@@ -1,0 +1,51 @@
+{
+  "name": "zaafran",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.18.0",
+  "engines": {
+    "node": "26.13.0",
+    "pnpm": "12.18.0"
+  },
+  "scripts": {
+    "format:check": "prettier --check .",
+    "lint": "eslint . --max-warnings 0",
+    "typecheck": "tsc --noEmit && turbo run typecheck",
+    "test:tooling": "node --test tooling/*.test.ts scripts/*.test.ts",
+    "dev": "docker compose up -d --wait && pnpm db:migrate && turbo run dev",
+    "db:migrate": "pnpm --dir packages/db db:migrate && pnpm worker:migrate",
+    "db:seed": "pnpm --dir packages/db db:seed",
+    "db:reset": "pnpm --dir packages/db db:reset",
+    "test": "pnpm test:tooling && turbo run build --filter='./packages/*' && vitest run --coverage",
+    "test:int": "vitest run --config vitest.integration.config.ts",
+    "test:e2e": "turbo run build --filter=@zaafran/web && pnpm --filter @zaafran/web build:design && playwright test --config e2e/playwright.config.ts",
+    "test:visual": "pnpm test:e2e --grep @visual",
+    "test:a11y": "pnpm test:e2e --grep @a11y",
+    "build": "turbo run build",
+    "knip": "knip",
+    "depcruise": "depcruise --config dependency-cruiser.cjs .",
+    "trace": "node scripts/trace.ts",
+    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm --filter @zaafran/api openapi:check && pnpm test:int && pnpm knip && pnpm depcruise && pnpm audit --prod --audit-level high && pnpm trace",
+    "verify:full": "pnpm verify && pnpm test:e2e && pnpm test:visual && pnpm test:a11y && pnpm test:lighthouse && pnpm test:mutation",
+    "gate": "node scripts/gate.ts",
+    "fixtures:tiles": "node infra/scripts/create-synthetic-pmtiles.mjs",
+    "worker:migrate": "turbo run build --filter=@zaafran/worker && pnpm --filter @zaafran/worker migrate",
+    "hooks:install": "sh scripts/install-hooks.sh",
+    "lint:staged": "lint-staged"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@playwright/test": "1.65.0",
+    "@types/node": "26.6.6",
+    "@vitest/coverage-v8": "5.1.0",
+    "@zaafran/config": "workspace:*",
+    "dependency-cruiser": "18.7.2",
+    "eslint": "10.14.0",
+    "knip": "6.44.2",
+    "lint-staged": "17.6.0",
+    "prettier": "3.9.10",
+    "turbo": "2.11.10",
+    "typescript": "6.0.3",
+    "vitest": "5.1.0"
+  }
+}

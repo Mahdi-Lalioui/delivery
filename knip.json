@@ -1,0 +1,18 @@
+{
+  "$schema": "https://unpkg.com/knip@6.44.2/schema.json",
+  "ignoreBinaries": ["pmtiles"],
+  "workspaces": {
+    ".": {
+      "entry": ["scripts/check-pr.ts", "scripts/*.test.ts", "tooling/*.test.ts"]
+    },
+    "apps/api": {
+      "entry": ["src/server.ts", "test/**/*.test.ts"]
+    },
+    "apps/worker": {
+      "entry": ["src/migrate.ts", "test/**/*.test.ts"]
+    },
+    "apps/web": {
+      "entry": ["src/app/**/page.design.tsx"]
+    }
+  }
+}

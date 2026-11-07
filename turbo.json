@@ -1,0 +1,18 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["^build"],
+      "passThroughEnv": ["DATABASE_URL", "API_HOST", "API_PORT", "WORKER_CONCURRENCY"]
+    },
+    "typecheck": {
+      "dependsOn": ["^typecheck"]
+    }
+  }
+}

@@ -1,0 +1,150 @@
+import { Writable } from "node:stream";
+import {
+  healthResponseSchema,
+  problemResponseSchema,
+  readyResponseSchema,
+} from "@zaafran/contracts/health";
+import { expect, test } from "vitest";
+import { createApi } from "../src/app.ts";
+
+test("[M0-6] liveness responds even when readiness cannot reach its dependencies", async () => {
+  const failure = "private database failure fixture";
+  const api = createApi({
+    checkReadiness: () => Promise.reject(new Error(failure)),
+    logStream: new Writable({
+      write(_chunk, _encoding, done) {
+        done();
+      },
+    }),
+  });
+
+  try {
+    const health = await api.inject("/healthz");
+    expect(health.statusCode).toBe(200);
+    expect(healthResponseSchema.parse(health.json())).toEqual({ status: "ok" });
+
+    const readiness = await api.inject({
+      url: "/readyz",
+      headers: { "x-request-id": "probe-503" },
+    });
+    expect(readiness.statusCode).toBe(503);
+    expect(readiness.headers["content-type"]).toMatch(/^application\/problem\+json\b/);
+    expect(readiness.headers["x-request-id"]).toBe("probe-503");
+    expect(problemResponseSchema.parse(readiness.json())).toMatchObject({
+      status: 503,
+      code: "not_ready",
+      requestId: "probe-503",
+    });
+    expect(readiness.body).not.toContain(failure);
+  } finally {
+    await api.close();
+  }
+});
+
+test("[M0-6] readiness returns its contract and replaces an invalid request ID", async () => {
+  const api = createApi({
+    checkReadiness: () => Promise.resolve(),
+    logStream: new Writable({
+      write(_chunk, _encoding, done) {
+        done();
+      },
+    }),
+  });
+
+  try {
+    const reply = await api.inject({ url: "/readyz", headers: { "x-request-id": "two words" } });
+    expect(reply.statusCode).toBe(200);
+    expect(readyResponseSchema.parse(reply.json())).toEqual({ status: "ready" });
+    expect(reply.headers["x-request-id"]).toMatch(/^[0-9a-f-]{36}$/);
+  } finally {
+    await api.close();
+  }
+});
+
+test("[M0-6] rate limits repeated requests with a problem response", async () => {
+  const api = createApi({
+    checkReadiness: () => Promise.resolve(),
+    rateLimit: { max: 2, timeWindow: 60_000 },
+    logStream: new Writable({
+      write(_chunk, _encoding, done) {
+        done();
+      },
+    }),
+  });
+
+  try {
+    expect((await api.inject("/healthz")).statusCode).toBe(200);
+    expect((await api.inject("/healthz")).statusCode).toBe(200);
+    const limited = await api.inject({ url: "/healthz", headers: { "x-request-id": "limited" } });
+    expect(limited.statusCode).toBe(429);
+    expect(limited.headers["content-type"]).toMatch(/^application\/problem\+json\b/);
+    expect(problemResponseSchema.parse(limited.json())).toMatchObject({
+      status: 429,
+      code: "rate_limited",
+      requestId: "limited",
+    });
+  } finally {
+    await api.close();
+  }
+});
+
+test("[M0-6] structured logging redacts personal fields while preserving correlation IDs", async () => {
+  const logs: string[] = [];
+  const api = createApi({
+    checkReadiness: () => Promise.resolve(),
+    logStream: new Writable({
+      write(chunk, _encoding, done) {
+        logs.push(String(chunk));
+        done();
+      },
+    }),
+  });
+  const fixture = {
+    requestId: "synthetic-request",
+    orderId: "synthetic-order",
+    merchantId: "synthetic-merchant",
+    phone: "fixture-phone",
+    code: "fixture-code",
+    token: "fixture-token",
+    address: { landmark: "fixture-landmark" },
+    location: { label: "fixture-location" },
+  };
+
+  try {
+    api.log.info(fixture, "redaction check");
+    const output = logs.join("");
+    const line: unknown = JSON.parse(output.trim());
+    expect(line).toMatchObject({
+      requestId: "synthetic-request",
+      orderId: "synthetic-order",
+      merchantId: "synthetic-merchant",
+    });
+    for (const value of ["phone", "code", "token", "landmark", "location"]) {
+      expect(output).not.toContain("fixture-" + value);
+    }
+  } finally {
+    await api.close();
+  }
+});
+
+test("[M0-6] the generated OpenAPI document describes the readiness problem response", async () => {
+  const api = createApi({
+    checkReadiness: () => Promise.resolve(),
+    logStream: new Writable({
+      write(_chunk, _encoding, done) {
+        done();
+      },
+    }),
+  });
+
+  try {
+    await api.ready();
+    const schema = api.swagger();
+    expect(Object.keys(schema.paths ?? {}).sort()).toEqual(["/healthz", "/readyz"]);
+    expect(schema.paths?.["/readyz"]?.get?.responses).toMatchObject({
+      503: { content: { "application/problem+json": { schema: { type: "object" } } } },
+    });
+  } finally {
+    await api.close();
+  }
+});

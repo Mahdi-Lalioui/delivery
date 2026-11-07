@@ -19,3 +19,8 @@ infra/data/
 *.osm.pbf
 *.osrm*
 .DS_Store
+!infra/fixtures/synthetic.pmtiles
+!infra/fixtures/algiers-roads.osm.pbf
+.next-dev/
+.next-design/
+next-env.d.ts

@@ -1,0 +1,38 @@
+{
+  "shell": {
+    "skip": "Skip to content",
+    "languages": "Language"
+  },
+  "home": {
+    "eyebrow": "Algiers, Algeria",
+    "description": "Discover the tables and kitchens of Algiers."
+  },
+  "guide": {
+    "eyebrow": "Casbah Saffron",
+    "title": "Design guide",
+    "introduction": "Warm ivory, ink and a touch of saffron. The colours, type and controls that shape the interface.",
+    "system": "Design system",
+    "preview": "Foundation",
+    "palette": "Colour palette",
+    "paletteDescription": "The page and surface set the scene. Ink carries the text, and saffron draws the eye to the next action.",
+    "background": "Page",
+    "surface": "Surface",
+    "ink": "Ink",
+    "saffron": "Saffron",
+    "typography": "Typography",
+    "display": "Display",
+    "displaySample": "From the kitchens of Algiers",
+    "body": "Interface",
+    "bodySample": "A shared table, fresh bread and the warmth of home.",
+    "controls": "Controls and states",
+    "primary": "See the palette",
+    "secondary": "See the type",
+    "disabled": "Unavailable",
+    "field": "Example field",
+    "placeholder": "Enter a note",
+    "information": "Information",
+    "success": "Available",
+    "warning": "Check details",
+    "danger": "Action failed"
+  }
+}

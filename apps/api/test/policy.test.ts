@@ -1,0 +1,131 @@
+import { Writable } from "node:stream";
+import { expect, test } from "vitest";
+import { createApi } from "../src/app.ts";
+import { listRoutes, type Actor } from "../src/policy.ts";
+
+const actors: Readonly<Record<string, Actor | undefined>> = {
+  anonymous: undefined,
+  customerA: { role: "customer", accountId: "customer-a" },
+  customerB: { role: "customer", accountId: "customer-b" },
+  merchantOwnerA: { role: "merchant_owner", accountId: "merchant-owner-a" },
+  merchantManagerA: { role: "merchant_manager", accountId: "merchant-manager-a" },
+  merchantStaffA: { role: "merchant_staff", accountId: "merchant-staff-a" },
+  merchantOwnerB: { role: "merchant_owner", accountId: "merchant-owner-b" },
+  courierA: { role: "courier", accountId: "courier-a" },
+  courierB: { role: "courier", accountId: "courier-b" },
+  admin: { role: "admin", accountId: "admin" },
+};
+
+function createPolicyTestApi(resolveActor: () => Actor | undefined = () => undefined) {
+  return createApi({
+    checkReadiness: () => Promise.resolve(),
+    resolveActor: () => Promise.resolve(resolveActor()),
+    logStream: new Writable({
+      write(_chunk, _encoding, done) {
+        done();
+      },
+    }),
+  });
+}
+
+test("[AUTH-06] refuses to register a route without an explicit policy", async () => {
+  const api = createPolicyTestApi();
+  try {
+    expect(() => api.get("/undeclared", () => ({ status: "ok" }))).toThrow(/policy/i);
+  } finally {
+    await api.close();
+  }
+});
+
+test("[AUTH-06] denies anonymous and unlisted actors on a role-restricted route", async () => {
+  let actor: Actor | undefined;
+  const api = createPolicyTestApi(() => actor);
+  api.get("/restricted", { config: { policy: { kind: "roles", roles: ["admin"] } } }, () => ({
+    status: "ok",
+  }));
+  try {
+    expect((await api.inject("/restricted")).statusCode).toBe(401);
+    actor = actors.customerA;
+    expect((await api.inject("/restricted")).statusCode).toBe(403);
+    actor = actors.admin;
+    expect((await api.inject("/restricted")).statusCode).toBe(200);
+  } finally {
+    await api.close();
+  }
+});
+
+test("[AUTH-06] denies protected requests before a route hook can respond", async () => {
+  let actor: Actor | undefined;
+  const api = createPolicyTestApi(() => actor);
+  api.get(
+    "/hook-response",
+    {
+      config: { policy: { kind: "roles", roles: ["admin"] } },
+      onRequest: (_request, reply) => {
+        void reply.send({ status: "protected-response" });
+      },
+    },
+    () => ({ status: "handler" }),
+  );
+
+  try {
+    expect((await api.inject("/hook-response")).statusCode).toBe(401);
+    actor = actors.customerA;
+    expect((await api.inject("/hook-response")).statusCode).toBe(403);
+    actor = actors.admin;
+    expect((await api.inject("/hook-response")).json()).toEqual({ status: "protected-response" });
+  } finally {
+    await api.close();
+  }
+});
+
+test("[AUTH-06] throttles protected requests before resolving an actor", async () => {
+  let resolutions = 0;
+  const api = createApi({
+    checkReadiness: () => Promise.resolve(),
+    rateLimit: { max: 2, timeWindow: 60_000 },
+    resolveActor: () => {
+      resolutions += 1;
+      return Promise.resolve(undefined);
+    },
+  });
+  api.get("/throttled-auth", { config: { policy: { kind: "roles", roles: ["admin"] } } }, () => ({
+    status: "protected",
+  }));
+
+  try {
+    expect((await api.inject("/throttled-auth")).statusCode).toBe(401);
+    expect((await api.inject("/throttled-auth")).statusCode).toBe(401);
+    expect((await api.inject("/throttled-auth")).statusCode).toBe(429);
+    expect(resolutions).toBe(2);
+  } finally {
+    await api.close();
+  }
+});
+
+const matrix = [
+  { method: "GET", url: "/healthz", expected: 200 },
+  { method: "GET", url: "/readyz", expected: 200 },
+] as const;
+
+test("[AUTH-08] covers every registered route for every required actor", async () => {
+  let actor: Actor | undefined;
+  const api = createPolicyTestApi(() => actor);
+  try {
+    await api.ready();
+    expect(
+      listRoutes(api)
+        .map(({ method, url }) => method + " " + url)
+        .sort(),
+    ).toEqual(matrix.map(({ method, url }) => method + " " + url).sort());
+    for (const [label, candidate] of Object.entries(actors)) {
+      actor = candidate;
+      for (const { method, url, expected } of matrix) {
+        const response = await api.inject({ method, url });
+        expect(response.statusCode, method + " " + url + " for " + label).toBe(expected);
+      }
+    }
+  } finally {
+    await api.close();
+  }
+});
