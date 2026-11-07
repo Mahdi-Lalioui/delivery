@@ -43,6 +43,58 @@ function parseWholeNumber(input: string): number {
   return /^[0-9]+$/.test(digits) ? Number(digits) : Number.NaN;
 }
 
+function parseItemPrice(value: string) {
+  return menuItemCommandInput.shape.priceDzd.safeParse(parseWholeNumber(value));
+}
+
+type PriceCommand =
+  | { kind: "invalid" }
+  | { kind: "unchanged" }
+  | { kind: "ready"; command: Extract<MenuItemCommand, { kind: "edit" }> };
+
+export function buildInlinePriceCommand({
+  item,
+  value,
+  expectedRevision,
+}: {
+  item: MenuItem;
+  value: string;
+  expectedRevision: number;
+}): PriceCommand {
+  const price = parseItemPrice(value);
+  if (!price.success) return { kind: "invalid" };
+  if (price.data === item.priceDzd) return { kind: "unchanged" };
+
+  const {
+    itemId,
+    categoryId,
+    names,
+    descriptions,
+    photoId,
+    tags,
+    extraPrepMinutes,
+    optionGroupIds,
+  } = item;
+  return {
+    kind: "ready",
+    command: {
+      kind: "edit",
+      itemId,
+      input: {
+        categoryId,
+        names,
+        descriptions,
+        priceDzd: price.data,
+        photoId,
+        tags,
+        extraPrepMinutes,
+        optionGroupIds,
+        expectedRevision,
+      },
+    },
+  };
+}
+
 export function parseMenuItemDraft({
   draft,
   categoryId,
@@ -59,7 +111,7 @@ export function parseMenuItemDraft({
     localizedFields(draft.descriptionAr, draft.descriptionFr, draft.descriptionEn),
   );
   if (!descriptions.success) return { kind: "invalid", field: "descriptions" };
-  const price = shape.priceDzd.safeParse(parseWholeNumber(draft.price));
+  const price = parseItemPrice(draft.price);
   if (!price.success) return { kind: "invalid", field: "price" };
   const prep = shape.extraPrepMinutes.safeParse(parseWholeNumber(draft.prep));
   if (!prep.success) return { kind: "invalid", field: "prep" };

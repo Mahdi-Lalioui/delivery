@@ -107,6 +107,16 @@
   gap: var(--space-8);
 }
 
+.menu-item-inline-price {
+  flex: 1 1 100%;
+  min-inline-size: 0;
+}
+
+.menu-item-inline-price input {
+  font-family: var(--font-numbers);
+  font-variant-numeric: var(--font-variant-numeric-numbers);
+}
+
 .menu-item-money > span {
   flex: none;
   white-space: nowrap;

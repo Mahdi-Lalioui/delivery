@@ -1,15 +1,21 @@
 import { getLocalizedContent } from "@zaafran/i18n/content";
-import { formatAlgiersDate, formatAlgiersTime, formatDzd } from "@zaafran/i18n/formats";
+import { formatAlgiersDate, formatAlgiersTime } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
 import { useTranslations } from "next-intl";
 import type { ItemAvailability, MenuItem } from "../menu-item-http";
 import type { useMenuItemEditor } from "../use-menu-item-editor";
 import { itemTags } from "./menu-item-form";
+import { MenuItemInlinePrice } from "./menu-item-inline-price";
 
 type Controls = ReturnType<typeof useMenuItemEditor>;
 type RowControls = Pick<
   Controls,
   | "pending"
+  | "inlinePrice"
+  | "openPrice"
+  | "changePrice"
+  | "cancelPrice"
+  | "submitPrice"
   | "openEditor"
   | "duplicate"
   | "setAvailability"
@@ -81,9 +87,13 @@ function MenuItemRow({
         <h3>
           <bdi>{name}</bdi>
         </h3>
-        <p className="menu-item-price">
-          <bdi>{formatDzd(item.priceDzd, locale)}</bdi>
-        </p>
+        <MenuItemInlinePrice
+          item={item}
+          name={name}
+          locale={locale}
+          blocked={blocked}
+          controls={controls}
+        />
       </div>
       {description && (
         <p className="menu-item-hint" dir="auto">
@@ -202,7 +212,11 @@ export function MenuItemList({
   controls: Controls;
 }) {
   const translate = useTranslations("menuItem");
-  const blocked = controls.pending || controls.editor !== null || controls.archiveTarget !== null;
+  const blocked =
+    controls.pending ||
+    controls.editor !== null ||
+    controls.archiveTarget !== null ||
+    controls.inlinePrice !== null;
 
   return (
     <section className="menu-item-card" aria-labelledby="menu-item-list-title">

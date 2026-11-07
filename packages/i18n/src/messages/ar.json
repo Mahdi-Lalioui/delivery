@@ -285,6 +285,11 @@
     "forbidden": "لا يمكن لحسابك الوصول إلى إعداد المطعم."
   },
   "menuItem": {
+    "editPrice": "تعديل السعر",
+    "editPriceLabel": "تعديل السعر لـ {name}",
+    "inlinePriceLabel": "سعر {name}",
+    "savePrice": "حفظ السعر",
+    "priceUpdated": "تم تحديث السعر.",
     "contextSeparator": " · ",
     "title": "أصناف القائمة",
     "description": "أدر الأصناف والأسعار وتوفّرها.",

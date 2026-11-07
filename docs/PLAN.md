@@ -75,7 +75,8 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
 - [x] M2-4 Checklist (MER-02 first slice). Show profile, hours and five-item menu progress after approval. Prove that incomplete zone and test-order steps keep Go live unavailable until their later milestone flows can provide real evidence.
 - [ ] M2-5 Menu builder (MER-09 first slice, MER-10). Create, duplicate, archive, reorder by pointer and keyboard, edit bilingual items and DZD prices, and reuse option groups. Show the active restaurant name. Prove focus restoration, integer prices, ordering and cross-tenant rejection.
   - [x] Complete bilingual categories and item forms, reusable ordered option attachments, and authorized restaurant/category context. Verify the option library and attached-item screens in the design matrix.
-  - [ ] Add inline DZD price editing with keyboard save/cancel, focus restoration and preservation of the saved item fields. Keep the customer preview with the moderated M2-10/M2-12 flow.
+  - [x] Add inline DZD price editing with keyboard save/cancel, focus restoration and preservation of the saved item fields.
+  - [ ] Add category navigation alongside the desktop item workspace. Keep the customer preview with the moderated M2-10/M2-12 flow.
 - [ ] M2-6 Media pipeline (MER-14, §16). Commit upload/variant contracts, decode real HEVC HEIC in CI, validate declared and actual image type and the 8 MB limit, crop to the required ratios, and publish metadata-free WebP/AVIF variants with thumbhash after worker processing.
   - [x] Define the reservation, private preview, crop, and ready response contracts. Test exact upload bounds and all five output widths in both formats.
   - [ ] Persist owner and restaurant scope, upload receipts and job state. Accept binary uploads into quarantine and enqueue work in the same transaction as each state change. Prove safe retries, cross-tenant denial and private application photos.

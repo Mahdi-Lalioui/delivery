@@ -250,6 +250,40 @@ async function attachToItem({
   await expect(editor).toHaveCount(0);
 }
 
+async function editPriceInline(page: Page, path: string, itemName: string) {
+  const itemPage = await page.request.get(new URL(path, page.url()).href);
+  expect(itemPage.status()).toBe(200);
+  const item = menuItemPageOutput
+    .parse(await itemPage.json())
+    .items.find(({ names }) => names.fr === itemName);
+  if (!item) throw new Error("Expected a saved item with options before editing its price.");
+
+  const row = page.locator(`#menu-item-row-${item.itemId}`);
+  const edit = row.getByRole("button", { name: named(itemLabels.editPriceLabel, itemName) });
+  const input = row.getByRole("textbox", { name: named(itemLabels.inlinePriceLabel, itemName) });
+  await expect(edit).toBeVisible();
+  await edit.press("Enter");
+  await expect(input).toBeFocused();
+  await input.fill("601");
+  await input.press("Escape");
+  await expect(input).toHaveCount(0);
+  await expect(edit).toBeFocused();
+
+  await edit.press("Enter");
+  await expect(input).toHaveValue(String(item.priceDzd));
+  await input.fill("601.5");
+  await input.press("Enter");
+  await expect(row.getByText(itemLabels.invalidPrice)).toBeVisible();
+  await input.fill("612");
+  const write = observeWrite(page, "PUT", `${new URL(path, page.url()).pathname}/${item.itemId}`);
+  await input.press("Enter");
+  const response = await write;
+  expect(response.status()).toBe(200);
+  expect(menuItemWriteOutput.parse(await response.json()).item).toEqual({ ...item, priceDzd: 612 });
+  await expect(edit).toBeFocused();
+  await expect(page.getByRole("status").filter({ hasText: itemLabels.priceUpdated })).toBeVisible();
+}
+
 test("[MER-10] reuses a bilingual option group on two menu items @menu-option-groups", async ({
   baseURL,
   page,
@@ -280,6 +314,7 @@ test("[MER-10] reuses a bilingual option group on two menu items @menu-option-gr
       groups: [supplemental, shared],
     });
     await attachToItem({ page, path: itemPath, itemName: "Chorba", groups: [shared] });
+    await editPriceInline(page, itemPath, "Couscous");
 
     await page.getByRole("link", { name: itemLabels.backToCategories }).click();
     await page.getByRole("link", { name: fr.menuCategory.optionLibrary }).click();
@@ -295,9 +330,19 @@ test("[MER-10] reuses a bilingual option group on two menu items @menu-option-gr
     const response = await page.request.get(new URL(itemPath, page.url()).href);
     expect(response.status()).toBe(200);
     const { items } = menuItemPageOutput.parse(await response.json());
-    expect(items.map(({ names, optionGroupIds }) => ({ name: names.fr, optionGroupIds }))).toEqual([
-      { name: "Couscous", optionGroupIds: [shared.optionGroupId, supplemental.optionGroupId] },
-      { name: "Chorba", optionGroupIds: [shared.optionGroupId] },
+    expect(
+      items.map(({ names, priceDzd, optionGroupIds }) => ({
+        name: names.fr,
+        priceDzd,
+        optionGroupIds,
+      })),
+    ).toEqual([
+      {
+        name: "Couscous",
+        priceDzd: 612,
+        optionGroupIds: [shared.optionGroupId, supplemental.optionGroupId],
+      },
+      { name: "Chorba", priceDzd: 600, optionGroupIds: [shared.optionGroupId] },
     ]);
   });
 });

@@ -44,6 +44,11 @@ const editor = vi.mocked(useMenuItemEditor);
 const defaults = {
   view: ready,
   editor: null,
+  inlinePrice: null,
+  openPrice: vi.fn(),
+  changePrice: vi.fn(),
+  cancelPrice: vi.fn(),
+  submitPrice: vi.fn(),
   attachments: { kind: "loading" } as const,
   retryAttachments: vi.fn(),
   updateAttachments: vi.fn(),
@@ -222,3 +227,45 @@ test("[MER-10:attachments] blocks stale and pending saves and preserves unrelate
   expect(error).toContain(menuItem.optionGroupsRetry);
   expect(error).not.toMatch(/<button(?=[^>]*id="menu-item-save")(?=[^>]*disabled="")/);
 });
+
+test("[MER-09:inline-price] offers an item-specific price editing button next to the saved price", () => {
+  const html = render();
+  const label = menuItem.editPriceLabel.replace("{name}", "طبق مشوي");
+  expect(html).toMatch(
+    new RegExp(
+      `<button(?=[^>]*id="menu-item-edit-price-${itemId}")(?=[^>]*aria-label="${RegExp.escape(label)}")`,
+    ),
+  );
+  expect(html).toContain("1\u202f200 دج");
+  expect(html).not.toContain(`id="menu-item-price-input-${itemId}"`);
+});
+
+test("[MER-09:inline-price] renders the inline form, its currency and validation, and disables other actions", () => {
+  const html = render({ inlinePrice: { itemId, value: "12.5", invalid: true } });
+  const label = menuItem.inlinePriceLabel.replace("{name}", "طبق مشوي");
+  expect(html).toMatch(
+    new RegExp(
+      `<input(?=[^>]*id="menu-item-price-input-${itemId}")(?=[^>]*aria-invalid="true")(?=[^>]*inputMode="numeric")(?=[^>]*value="12.5")`,
+    ),
+  );
+  expect(html).toContain(label);
+  expect(html).toContain(menuItem.invalidPrice);
+  expect(html).toContain(menuItem.currency);
+  expect(html).toMatch(
+    new RegExp(`<button(?=[^>]*id="menu-item-duplicate-${itemId}")(?=[^>]*disabled="")`),
+  );
+  expect(html).toMatch(
+    new RegExp(`<select(?=[^>]*id="menu-item-availability-${itemId}")(?=[^>]*disabled="")`),
+  );
+  expect(html).not.toContain(`id="menu-item-edit-price-${itemId}"`);
+});
+
+test.each([{ editor: editWithAttachments }, { archiveTarget: itemId }])(
+  "[MER-09:inline-price] leaves inline editing disabled during drawer or archive actions",
+  (state) => {
+    const html = render(state);
+    expect(html).toMatch(
+      new RegExp(`<button(?=[^>]*id="menu-item-edit-price-${itemId}")(?=[^>]*disabled="")`),
+    );
+  },
+);

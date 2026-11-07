@@ -285,6 +285,11 @@
     "forbidden": "Restaurant setup is unavailable to your account."
   },
   "menuItem": {
+    "editPrice": "Edit price",
+    "editPriceLabel": "Edit price for {name}",
+    "inlinePriceLabel": "Price for {name}",
+    "savePrice": "Save price",
+    "priceUpdated": "Price updated.",
     "contextSeparator": " · ",
     "title": "Menu items",
     "description": "Manage dishes, prices and stock availability.",

@@ -1,0 +1,808 @@
+{
+  "buildId": "dPsW-2vgbqwdh56La4Szr",
+  "issues": [],
+  "screens": [
+    {
+      "capture": "inline-price-ar-light-390x844.webp",
+      "direction": "rtl",
+      "widths": [
+        390,
+        390,
+        390
+      ],
+      "doubledText": false,
+      "invalid": false,
+      "axeViolations": 0,
+      "currencySuffix": {
+        "text": "دج",
+        "lines": 1,
+        "width": 16.453125,
+        "height": 23,
+        "left": 49.5,
+        "right": 65.953125,
+        "top": 468.1875
+      },
+      "priceControl": {
+        "text": "1450",
+        "used": 34.78691101074219,
+        "available": 240.546875,
+        "width": 266.546875,
+        "height": 44,
+        "left": 73.953125,
+        "right": 340.5,
+        "top": 457.6875
+      },
+      "focus": {
+        "onInput": true,
+        "visible": true,
+        "outlineWidth": "2px",
+        "outlineStyle": "solid"
+      }
+    },
+    {
+      "capture": "inline-price-ar-light-390x844-invalid.webp",
+      "direction": "rtl",
+      "widths": [
+        390,
+        390,
+        390
+      ],
+      "doubledText": false,
+      "invalid": true,
+      "axeViolations": 0,
+      "currencySuffix": {
+        "text": "دج",
+        "lines": 1,
+        "width": 16.453125,
+        "height": 23,
+        "left": 49.5,
+        "right": 65.953125,
+        "top": 468.1875
+      },
+      "priceControl": {
+        "text": "12.5",
+        "used": 28.88958740234375,
+        "available": 240.546875,
+        "width": 266.546875,
+        "height": 44,
+        "left": 73.953125,
+        "right": 340.5,
+        "top": 457.6875
+      },
+      "focus": {
+        "onInput": true,
+        "visible": true,
+        "outlineWidth": "2px",
+        "outlineStyle": "solid"
+      }
+    },
+    {
+      "capture": "inline-price-ar-light-768x1024.webp",
+      "direction": "rtl",
+      "widths": [
+        768,
+        768,
+        768
+      ],
+      "doubledText": false,
+      "invalid": false,
+      "axeViolations": 0,
+      "currencySuffix": {
+        "text": "دج",
+        "lines": 1,
+        "width": 16.453125,
+        "height": 23,
+        "left": 58,
+        "right": 74.453125,
+        "top": 481.15625
+      },
+      "priceControl": {
+        "text": "1450",
+        "used": 34.78691101074219,
+        "available": 601.546875,
+        "width": 627.546875,
+        "height": 44,
+        "left": 82.453125,
+        "right": 710,
+        "top": 470.65625
+      },
+      "focus": {
+        "onInput": true,
+        "visible": true,
+        "outlineWidth": "2px",
+        "outlineStyle": "solid"
+      }
+    },
+    {
+      "capture": "inline-price-ar-light-1280x800.webp",
+      "direction": "rtl",
+      "widths": [
+        1280,
+        1280,
+        1280
+      ],
+      "doubledText": false,
+      "invalid": false,
+      "axeViolations": 0,
+      "currencySuffix": {
+        "text": "دج",
+        "lines": 1,
+        "width": 16.453125,
+        "height": 23,
+        "left": 98,
+        "right": 114.453125,
+        "top": 491.09375
+      },
+      "priceControl": {
+        "text": "1450",
+        "used": 34.78691101074219,
+        "available": 1033.546875,
+        "width": 1059.546875,
+        "height": 44,
+        "left": 122.453125,
+        "right": 1182,
+        "top": 480.59375
+      },
+      "focus": {
+        "onInput": true,
+        "visible": true,
+        "outlineWidth": "2px",
+        "outlineStyle": "solid"
+      }
+    },
+    {
+      "capture": "inline-price-ar-light-360x844-200.webp",
+      "direction": "rtl",
+      "widths": [
+        360,
+        360,
+        360
+      ],
+      "doubledText": true,
+      "invalid": false,
+      "axeViolations": 0,
+      "currencySuffix": {
+        "text": "دج",
+        "lines": 1,
+        "width": 32.890625,
+        "height": 46,
+        "left": 48,
+        "right": 80.890625,
+        "top": 1043.578125
+      },
+      "priceControl": {
+        "text": "1450",
+        "used": 69.5738525390625,
+        "available": 197.109375,
+        "width": 223.109375,
+        "height": 48,
+        "left": 88.890625,
+        "right": 312,
+        "top": 1042.578125
+      },
+      "focus": {
+        "onInput": true,
+        "visible": true,
+        "outlineWidth": "2px",
+        "outlineStyle": "solid"
+      }
+    },
+    {
+      "capture": "inline-price-ar-dark-390x844.webp",
+      "direction": "rtl",
+      "widths": [
+        390,
+        390,
+        390
+      ],
+      "doubledText": false,
+      "invalid": false,
+      "axeViolations": 0,
+      "currencySuffix": {
+        "text": "دج",
+        "lines": 1,
+        "width": 16.453125,
+        "height": 23,
+        "left": 49.5,
+        "right": 65.953125,
+        "top": 468.1875
+      },
+      "priceControl": {
+        "text": "1450",
+        "used": 34.78691101074219,
+        "available": 240.546875,
+        "width": 266.546875,
+        "height": 44,
+        "left": 73.953125,
+        "right": 340.5,
+        "top": 457.6875
+      },
+      "focus": {
+        "onInput": true,
+        "visible": true,
+        "outlineWidth": "2px",
+        "outlineStyle": "solid"
+      }
+    },
+    {
+      "capture": "inline-price-ar-dark-390x844-invalid.webp",
+      "direction": "rtl",
+      "widths": [
+        390,
+        390,
+        390
+      ],
+      "doubledText": false,
+      "invalid": true,
+      "axeViolations": 0,
+      "currencySuffix": {
+        "text": "دج",
+        "lines": 1,
+        "width": 16.453125,
+        "height": 23,
+        "left": 49.5,
+        "right": 65.953125,
+        "top": 468.1875
+      },
+      "priceControl": {
+        "text": "12.5",
+        "used": 28.88958740234375,
+        "available": 240.546875,
+        "width": 266.546875,
+        "height": 44,
+        "left": 73.953125,
+        "right": 340.5,
+        "top": 457.6875
+      },
+      "focus": {
+        "onInput": true,
+        "visible": true,
+        "outlineWidth": "2px",
+        "outlineStyle": "solid"
+      }
+    },
+    {
+      "capture": "inline-price-ar-dark-768x1024.webp",
+      "direction": "rtl",
+      "widths": [
+        768,
+        768,
+        768
+      ],
+      "doubledText": false,
+      "invalid": false,
+      "axeViolations": 0,
+      "currencySuffix": {
+        "text": "دج",
+        "lines": 1,
+        "width": 16.453125,
+        "height": 23,
+        "left": 58,
+        "right": 74.453125,
+        "top": 481.15625
+      },
+      "priceControl": {
+        "text": "1450",
+        "used": 34.78691101074219,
+        "available": 601.546875,
+        "width": 627.546875,
+        "height": 44,
+        "left": 82.453125,
+        "right": 710,
+        "top": 470.65625
+      },
+      "focus": {
+        "onInput": true,
+        "visible": true,
+        "outlineWidth": "2px",
+        "outlineStyle": "solid"
+      }
+    },
+    {
+      "capture": "inline-price-ar-dark-1280x800.webp",
+      "direction": "rtl",
+      "widths": [
+        1280,
+        1280,
+        1280
+      ],
+      "doubledText": false,
+      "invalid": false,
+      "axeViolations": 0,
+      "currencySuffix": {
+        "text": "دج",
+        "lines": 1,
+        "width": 16.453125,
+        "height": 23,
+        "left": 98,
+        "right": 114.453125,
+        "top": 491.09375
+      },
+      "priceControl": {
+        "text": "1450",
+        "used": 34.78691101074219,
+        "available": 1033.546875,
+        "width": 1059.546875,
+        "height": 44,
+        "left": 122.453125,
+        "right": 1182,
+        "top": 480.59375
+      },
+      "focus": {
+        "onInput": true,
+        "visible": true,
+        "outlineWidth": "2px",
+        "outlineStyle": "solid"
+      }
+    },
+    {
+      "capture": "inline-price-ar-dark-360x844-200.webp",
+      "direction": "rtl",
+      "widths": [
+        360,
+        360,
+        360
+      ],
+      "doubledText": true,
+      "invalid": false,
+      "axeViolations": 0,
+      "currencySuffix": {
+        "text": "دج",
+        "lines": 1,
+        "width": 32.890625,
+        "height": 46,
+        "left": 48,
+        "right": 80.890625,
+        "top": 1043.578125
+      },
+      "priceControl": {
+        "text": "1450",
+        "used": 69.5738525390625,
+        "available": 197.109375,
+        "width": 223.109375,
+        "height": 48,
+        "left": 88.890625,
+        "right": 312,
+        "top": 1042.578125
+      },
+      "focus": {
+        "onInput": true,
+        "visible": true,
+        "outlineWidth": "2px",
+        "outlineStyle": "solid"
+      }
+    },
+    {
+      "capture": "inline-price-fr-light-390x844.webp",
+      "direction": "ltr",
+      "widths": [
+        390,
+        390,
+        390
+      ],
+      "doubledText": false,
+      "invalid": false,
+      "axeViolations": 0,
+      "currencySuffix": {
+        "text": "DA",
+        "lines": 1,
+        "width": 19.515625,
+        "height": 20,
+        "left": 320.984375,
+        "right": 340.5,
+        "top": 486.5
+      },
+      "priceControl": {
+        "text": "1450",
+        "used": 32.46778869628906,
+        "available": 237.484375,
+        "width": 263.484375,
+        "height": 44,
+        "left": 49.5,
+        "right": 312.984375,
+        "top": 474.5
+      },
+      "focus": {
+        "onInput": true,
+        "visible": true,
+        "outlineWidth": "2px",
+        "outlineStyle": "solid"
+      }
+    },
+    {
+      "capture": "inline-price-fr-light-390x844-invalid.webp",
+      "direction": "ltr",
+      "widths": [
+        390,
+        390,
+        390
+      ],
+      "doubledText": false,
+      "invalid": true,
+      "axeViolations": 0,
+      "currencySuffix": {
+        "text": "DA",
+        "lines": 1,
+        "width": 19.515625,
+        "height": 20,
+        "left": 320.984375,
+        "right": 340.5,
+        "top": 486.5
+      },
+      "priceControl": {
+        "text": "12.5",
+        "used": 26.963607788085938,
+        "available": 237.484375,
+        "width": 263.484375,
+        "height": 44,
+        "left": 49.5,
+        "right": 312.984375,
+        "top": 474.5
+      },
+      "focus": {
+        "onInput": true,
+        "visible": true,
+        "outlineWidth": "2px",
+        "outlineStyle": "solid"
+      }
+    },
+    {
+      "capture": "inline-price-fr-light-768x1024.webp",
+      "direction": "ltr",
+      "widths": [
+        768,
+        768,
+        768
+      ],
+      "doubledText": false,
+      "invalid": false,
+      "axeViolations": 0,
+      "currencySuffix": {
+        "text": "DA",
+        "lines": 1,
+        "width": 19.515625,
+        "height": 20,
+        "left": 690.484375,
+        "right": 710,
+        "top": 462.359375
+      },
+      "priceControl": {
+        "text": "1450",
+        "used": 32.46778869628906,
+        "available": 598.484375,
+        "width": 624.484375,
+        "height": 44,
+        "left": 58,
+        "right": 682.484375,
+        "top": 450.359375
+      },
+      "focus": {
+        "onInput": true,
+        "visible": true,
+        "outlineWidth": "2px",
+        "outlineStyle": "solid"
+      }
+    },
+    {
+      "capture": "inline-price-fr-light-1280x800.webp",
+      "direction": "ltr",
+      "widths": [
+        1280,
+        1280,
+        1280
+      ],
+      "doubledText": false,
+      "invalid": false,
+      "axeViolations": 0,
+      "currencySuffix": {
+        "text": "DA",
+        "lines": 1,
+        "width": 19.515625,
+        "height": 20,
+        "left": 1162.484375,
+        "right": 1182,
+        "top": 471
+      },
+      "priceControl": {
+        "text": "1450",
+        "used": 32.46778869628906,
+        "available": 1030.484375,
+        "width": 1056.484375,
+        "height": 44,
+        "left": 98,
+        "right": 1154.484375,
+        "top": 459
+      },
+      "focus": {
+        "onInput": true,
+        "visible": true,
+        "outlineWidth": "2px",
+        "outlineStyle": "solid"
+      }
+    },
+    {
+      "capture": "inline-price-fr-light-360x844-200.webp",
+      "direction": "ltr",
+      "widths": [
+        360,
+        360,
+        360
+      ],
+      "doubledText": true,
+      "invalid": false,
+      "axeViolations": 0,
+      "currencySuffix": {
+        "text": "DA",
+        "lines": 1,
+        "width": 39.03125,
+        "height": 40,
+        "left": 272.96875,
+        "right": 312,
+        "top": 1091
+      },
+      "priceControl": {
+        "text": "1450",
+        "used": 64.93557739257812,
+        "available": 190.96875,
+        "width": 216.96875,
+        "height": 44,
+        "left": 48,
+        "right": 264.96875,
+        "top": 1089
+      },
+      "focus": {
+        "onInput": true,
+        "visible": true,
+        "outlineWidth": "2px",
+        "outlineStyle": "solid"
+      }
+    },
+    {
+      "capture": "inline-price-fr-dark-390x844.webp",
+      "direction": "ltr",
+      "widths": [
+        390,
+        390,
+        390
+      ],
+      "doubledText": false,
+      "invalid": false,
+      "axeViolations": 0,
+      "currencySuffix": {
+        "text": "DA",
+        "lines": 1,
+        "width": 19.515625,
+        "height": 20,
+        "left": 320.984375,
+        "right": 340.5,
+        "top": 486.5
+      },
+      "priceControl": {
+        "text": "1450",
+        "used": 32.46778869628906,
+        "available": 237.484375,
+        "width": 263.484375,
+        "height": 44,
+        "left": 49.5,
+        "right": 312.984375,
+        "top": 474.5
+      },
+      "focus": {
+        "onInput": true,
+        "visible": true,
+        "outlineWidth": "2px",
+        "outlineStyle": "solid"
+      }
+    },
+    {
+      "capture": "inline-price-fr-dark-390x844-invalid.webp",
+      "direction": "ltr",
+      "widths": [
+        390,
+        390,
+        390
+      ],
+      "doubledText": false,
+      "invalid": true,
+      "axeViolations": 0,
+      "currencySuffix": {
+        "text": "DA",
+        "lines": 1,
+        "width": 19.515625,
+        "height": 20,
+        "left": 320.984375,
+        "right": 340.5,
+        "top": 486.5
+      },
+      "priceControl": {
+        "text": "12.5",
+        "used": 26.963607788085938,
+        "available": 237.484375,
+        "width": 263.484375,
+        "height": 44,
+        "left": 49.5,
+        "right": 312.984375,
+        "top": 474.5
+      },
+      "focus": {
+        "onInput": true,
+        "visible": true,
+        "outlineWidth": "2px",
+        "outlineStyle": "solid"
+      }
+    },
+    {
+      "capture": "inline-price-fr-dark-768x1024.webp",
+      "direction": "ltr",
+      "widths": [
+        768,
+        768,
+        768
+      ],
+      "doubledText": false,
+      "invalid": false,
+      "axeViolations": 0,
+      "currencySuffix": {
+        "text": "DA",
+        "lines": 1,
+        "width": 19.515625,
+        "height": 20,
+        "left": 690.484375,
+        "right": 710,
+        "top": 462.359375
+      },
+      "priceControl": {
+        "text": "1450",
+        "used": 32.46778869628906,
+        "available": 598.484375,
+        "width": 624.484375,
+        "height": 44,
+        "left": 58,
+        "right": 682.484375,
+        "top": 450.359375
+      },
+      "focus": {
+        "onInput": true,
+        "visible": true,
+        "outlineWidth": "2px",
+        "outlineStyle": "solid"
+      }
+    },
+    {
+      "capture": "inline-price-fr-dark-1280x800.webp",
+      "direction": "ltr",
+      "widths": [
+        1280,
+        1280,
+        1280
+      ],
+      "doubledText": false,
+      "invalid": false,
+      "axeViolations": 0,
+      "currencySuffix": {
+        "text": "DA",
+        "lines": 1,
+        "width": 19.515625,
+        "height": 20,
+        "left": 1162.484375,
+        "right": 1182,
+        "top": 471
+      },
+      "priceControl": {
+        "text": "1450",
+        "used": 32.46778869628906,
+        "available": 1030.484375,
+        "width": 1056.484375,
+        "height": 44,
+        "left": 98,
+        "right": 1154.484375,
+        "top": 459
+      },
+      "focus": {
+        "onInput": true,
+        "visible": true,
+        "outlineWidth": "2px",
+        "outlineStyle": "solid"
+      }
+    },
+    {
+      "capture": "inline-price-fr-dark-360x844-200.webp",
+      "direction": "ltr",
+      "widths": [
+        360,
+        360,
+        360
+      ],
+      "doubledText": true,
+      "invalid": false,
+      "axeViolations": 0,
+      "currencySuffix": {
+        "text": "DA",
+        "lines": 1,
+        "width": 39.03125,
+        "height": 40,
+        "left": 272.96875,
+        "right": 312,
+        "top": 1091
+      },
+      "priceControl": {
+        "text": "1450",
+        "used": 64.93557739257812,
+        "available": 190.96875,
+        "width": 216.96875,
+        "height": 44,
+        "left": 48,
+        "right": 264.96875,
+        "top": 1089
+      },
+      "focus": {
+        "onInput": true,
+        "visible": true,
+        "outlineWidth": "2px",
+        "outlineStyle": "solid"
+      }
+    }
+  ],
+  "interactions": {
+    "ar": {
+      "previous": 1450,
+      "next": 1550,
+      "invalid": {
+        "focusVisible": true,
+        "width": "2px",
+        "style": "solid"
+      },
+      "tabSave": {
+        "focusVisible": true,
+        "width": "2px",
+        "style": "solid"
+      },
+      "tabCancel": {
+        "focusVisible": true,
+        "width": "2px",
+        "style": "solid"
+      },
+      "escape": {
+        "focusVisible": true,
+        "width": "2px",
+        "style": "solid"
+      },
+      "submitted": {
+        "focusVisible": true,
+        "width": "2px",
+        "style": "solid"
+      },
+      "writes": 1
+    },
+    "fr": {
+      "previous": 1550,
+      "next": 1650,
+      "invalid": {
+        "focusVisible": true,
+        "width": "2px",
+        "style": "solid"
+      },
+      "tabSave": {
+        "focusVisible": true,
+        "width": "2px",
+        "style": "solid"
+      },
+      "tabCancel": {
+        "focusVisible": true,
+        "width": "2px",
+        "style": "solid"
+      },
+      "escape": {
+        "focusVisible": true,
+        "width": "2px",
+        "style": "solid"
+      },
+      "submitted": {
+        "focusVisible": true,
+        "width": "2px",
+        "style": "solid"
+      },
+      "writes": 1
+    }
+  }
+}

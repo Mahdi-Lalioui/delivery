@@ -9,6 +9,7 @@ import {
   type ItemAttachments,
 } from "./item-attachments";
 import {
+  buildInlinePriceCommand,
   makeMenuItemDraft,
   parseMenuItemDraft,
   prepareMenuItemAttempt,
@@ -32,14 +33,19 @@ type Editor = ({ kind: "create" } | { kind: "edit"; itemId: string }) & {
   draft: ItemDraft;
   invalid: ItemField | null;
 };
-type Notice = "created" | "updated" | "duplicated" | "archived" | "availabilitySaved";
+type Notice =
+  "created" | "updated" | "duplicated" | "archived" | "availabilitySaved" | "priceUpdated";
+type InlinePrice = { itemId: string; value: string; invalid: boolean };
 type Focus =
   | { kind: "heading" | "list" | "editor" }
   | { kind: "row" | "confirmation"; itemId: string }
   | { kind: "field"; field: ItemField }
   | { kind: "control"; id: string };
 
-function commandControlId(command: MenuItemCommand): string {
+function commandControlId(command: MenuItemCommand, notice: Notice): string {
+  if (notice === "priceUpdated" && command.kind === "edit") {
+    return `menu-item-price-input-${command.itemId}`;
+  }
   switch (command.kind) {
     case "create":
     case "edit":
@@ -47,6 +53,19 @@ function commandControlId(command: MenuItemCommand): string {
     default:
       return `menu-item-${command.kind}-${command.itemId}`;
   }
+}
+
+function savedFocus(
+  result: Extract<ItemWrite, { data: unknown }>,
+  items: MenuItem[],
+  notice: Notice,
+): Focus {
+  if (result.kind === "archived") return { kind: "list" };
+  const itemId = result.kind === "saved" ? result.data.item.itemId : result.data.itemId;
+  if (!items.some((item) => item.itemId === itemId)) return { kind: "list" };
+  return notice === "priceUpdated"
+    ? { kind: "control", id: `menu-item-edit-price-${itemId}` }
+    : { kind: "row", itemId };
 }
 
 export function useMenuItemEditor({
@@ -58,6 +77,7 @@ export function useMenuItemEditor({
 }) {
   const [view, setView] = useState<View>({ kind: "loading" });
   const [editor, setEditor] = useState<Editor | null>(null);
+  const [inlinePrice, setInlinePrice] = useState<InlinePrice | null>(null);
   const [attachments, setAttachments] = useState<ItemAttachments>({ kind: "loading" });
   const [attachmentVersion, setAttachmentVersion] = useState(0);
   const [archiveTarget, setArchiveTarget] = useState<string | null>(null);
@@ -83,6 +103,7 @@ export function useMenuItemEditor({
 
   const resetPrivateState = useCallback(() => {
     setEditor(null);
+    setInlinePrice(null);
     setAttachments({ kind: "loading" });
     setArchiveTarget(null);
     setError(null);
@@ -98,6 +119,7 @@ export function useMenuItemEditor({
   }
 
   function openEditor(item?: MenuItem) {
+    if (inlinePrice) return;
     setError(null);
     setArchiveTarget(null);
     setAttachments({ kind: "loading" });
@@ -147,8 +169,50 @@ export function useMenuItemEditor({
       : run({ kind: "create", input }, "created"));
   }
 
+  function openPrice(itemId: string) {
+    if (view.kind !== "ready" || editor || archiveTarget || inlinePrice || inFlight.current) return;
+    const item = view.data.items.find((entry) => entry.itemId === itemId);
+    if (!item) return;
+
+    setInlinePrice({ itemId, value: String(item.priceDzd), invalid: false });
+    setError(null);
+    setNotice(null);
+    setFocus({ kind: "control", id: `menu-item-price-input-${itemId}` });
+  }
+
+  function changePrice(value: string) {
+    setInlinePrice((previous) => (previous ? { ...previous, value, invalid: false } : null));
+  }
+
+  function cancelPrice() {
+    if (!inlinePrice || inFlight.current) return;
+    setInlinePrice(null);
+    setError(null);
+    setFocus({ kind: "control", id: `menu-item-edit-price-${inlinePrice.itemId}` });
+  }
+
+  function submitPrice() {
+    if (view.kind !== "ready" || !inlinePrice || inFlight.current) return;
+    const item = view.data.items.find((entry) => entry.itemId === inlinePrice.itemId);
+    if (!item) return;
+
+    const result = buildInlinePriceCommand({
+      item,
+      value: inlinePrice.value,
+      expectedRevision: view.data.revision,
+    });
+    if (result.kind === "invalid") {
+      setInlinePrice({ ...inlinePrice, invalid: true });
+      setFocus({ kind: "control", id: `menu-item-price-input-${item.itemId}` });
+    } else if (result.kind === "unchanged") {
+      cancelPrice();
+    } else {
+      void run(result.command, "priceUpdated");
+    }
+  }
+
   function duplicate(itemId: string) {
-    if (view.kind === "ready") {
+    if (view.kind === "ready" && !inlinePrice) {
       void run(
         { kind: "duplicate", itemId, input: { expectedRevision: view.data.revision } },
         "duplicated",
@@ -157,7 +221,7 @@ export function useMenuItemEditor({
   }
 
   function setAvailability(itemId: string, availability: ItemAvailability) {
-    if (view.kind === "ready") {
+    if (view.kind === "ready" && !inlinePrice) {
       void run(
         {
           kind: "availability",
@@ -170,6 +234,7 @@ export function useMenuItemEditor({
   }
 
   function askArchive(itemId: string) {
+    if (inlinePrice) return;
     setArchiveTarget(itemId);
     setError(null);
     setFocus({ kind: "confirmation", itemId });
@@ -281,26 +346,22 @@ export function useMenuItemEditor({
     setView(refreshed);
     if (command.kind === "edit" || command.kind === "create") {
       setEditor(null);
+      setInlinePrice(null);
       setAttachments({ kind: "loading" });
     }
     if (command.kind === "archive") setArchiveTarget(null);
     setNotice(successNotice);
-    const itemId = result.kind === "saved" ? result.data.item.itemId : result.data.itemId;
-    setFocus(
-      result.kind === "archived" || !refreshed.data.items.some((item) => item.itemId === itemId)
-        ? { kind: "list" }
-        : { kind: "row", itemId },
-    );
+    setFocus(savedFocus(result, refreshed.data.items, successNotice));
   }
 
   function retryWrite(
     result: Extract<ItemWrite, { shouldReuseKey: boolean }>,
     currentAttempt: ItemAttempt,
-    command: MenuItemCommand,
+    controlId: string,
   ) {
     attempt.current = result.shouldReuseKey ? currentAttempt : undefined;
     setError(result.kind === "rate-limited" ? "rateLimited" : "saveError");
-    setFocus({ kind: "control", id: commandControlId(command) });
+    setFocus({ kind: "control", id: controlId });
   }
 
   async function run(command: MenuItemCommand, successNotice: Notice) {
@@ -324,7 +385,7 @@ export function useMenuItemEditor({
       if (signal.aborted) return;
 
       if ("shouldReuseKey" in result) {
-        retryWrite(result, currentAttempt, command);
+        retryWrite(result, currentAttempt, commandControlId(command, successNotice));
       } else if ("data" in result) {
         await finishWrite({ command, result, signal, sessionId, successNotice });
       } else {
@@ -339,6 +400,11 @@ export function useMenuItemEditor({
   return {
     view,
     editor,
+    inlinePrice,
+    openPrice,
+    changePrice,
+    cancelPrice,
+    submitPrice,
     attachments,
     retryAttachments,
     updateAttachments,

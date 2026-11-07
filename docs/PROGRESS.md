@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 19:25 GMT — M2-5 inline whole-dinar price editor
+
+- **Changed** — Added a keyboard-accessible row price form in Arabic, French and English. Enter saves whole dinars and Escape cancels. Both restore focus. The command starts from the saved item and preserves translations, category, tags, prep time, photo reference and ordered option groups.
+- **Evidence** — Staged `pnpm verify` passed 51 tooling, 804 unit and 86 real PostGIS integration tests. All 11 production HTTPS Chromium journeys passed. The price regression proved a fractional value did not save, Escape preserved the old value, and the exact price and attachments survived reload. The design critic approved 20 layout and validation captures. [Browser and design evidence](evidence/m2/inline-price.md)
+- **Reviewer** — No P0/P1. Verified the existing session, revision and idempotency guards and separate drawer focus targets. Live photo writes remain part of M2-6.
+- **Next** — Add category navigation to the wide menu workspace while building the private photo reservation and storage path.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 19:20 GMT — M2-6 photo upload and variant contracts
 
 - **Changed** — Defined strict upload reservations, session-scoped preparation and crop states, and complete ready manifests. Application uploads have no restaurant ID. Menu and profile uploads require one. Added standard Base64 ThumbHash and documented the bounded Linux HEVC decoder in D-007.

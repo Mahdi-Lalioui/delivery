@@ -285,6 +285,11 @@
     "forbidden": "Votre compte ne peut pas accéder à la configuration du restaurant."
   },
   "menuItem": {
+    "editPrice": "Modifier le prix",
+    "editPriceLabel": "Modifier le prix de {name}",
+    "inlinePriceLabel": "Prix de {name}",
+    "savePrice": "Enregistrer le prix",
+    "priceUpdated": "Prix mis à jour.",
     "contextSeparator": " · ",
     "title": "Articles du menu",
     "description": "Gérez les plats, les prix et la disponibilité.",
