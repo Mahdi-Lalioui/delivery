@@ -285,6 +285,7 @@
     "forbidden": "Restaurant setup is unavailable to your account."
   },
   "menuItem": {
+    "categoryNavigation": "Categories",
     "editPrice": "Edit price",
     "editPriceLabel": "Edit price for {name}",
     "inlinePriceLabel": "Price for {name}",

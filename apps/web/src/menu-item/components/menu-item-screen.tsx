@@ -5,10 +5,12 @@ import type { Locale } from "@zaafran/i18n/locales";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef } from "react";
 import { useMenuItemEditor } from "../use-menu-item-editor";
+import { MenuItemCategoryRail } from "./menu-item-category-rail";
 import { MenuItemForm } from "./menu-item-form";
 import { MenuItemList } from "./menu-item-list";
 
 type Controls = ReturnType<typeof useMenuItemEditor>;
+type ItemSnapshot = Extract<Controls["view"], { kind: "ready" }>["data"];
 
 const unavailableMessages = {
   error: "loadError",
@@ -43,9 +45,56 @@ function focusId(focus: NonNullable<Controls["focus"]>) {
   }
 }
 
-function ItemContent({ locale, controls }: { locale: Locale; controls: Controls }) {
+interface WorkspaceProps {
+  merchantId: string;
+  categoryId: string;
+  locale: Locale;
+  controls: Controls;
+}
+
+function ItemWorkspace({
+  merchantId,
+  categoryId,
+  locale,
+  controls,
+  snapshot,
+}: WorkspaceProps & { snapshot: ItemSnapshot }) {
   const translate = useTranslations("menuItem");
-  const { view, editor, pending, retry } = controls;
+  const { editor, pending, archiveTarget, inlinePrice, onRailAccessChanged } = controls;
+  const blocked = pending || editor !== null || archiveTarget !== null || inlinePrice !== null;
+
+  return (
+    <>
+      {controls.error && (
+        <p className="menu-item-error" role="alert">
+          {translate(controls.error)}
+        </p>
+      )}
+      <div className="menu-item-workspace" data-editing={editor !== null} aria-busy={pending}>
+        <MenuItemCategoryRail
+          merchantId={merchantId}
+          categoryId={categoryId}
+          locale={locale}
+          expected={snapshot}
+          blocked={blocked}
+          onAccessChanged={onRailAccessChanged}
+        />
+        <MenuItemList
+          items={snapshot.items}
+          locale={locale}
+          controls={controls}
+          blocked={blocked}
+        />
+        {editor && <MenuItemForm {...controls} editor={editor} locale={locale} />}
+      </div>
+    </>
+  );
+}
+
+function ItemContent(props: WorkspaceProps) {
+  const { locale, controls } = props;
+  const translate = useTranslations("menuItem");
+  const { view, retry } = controls;
 
   if (view.kind === "loading") return <p role="status">{translate("loading")}</p>;
   if (view.kind === "sign-in") {
@@ -73,19 +122,7 @@ function ItemContent({ locale, controls }: { locale: Locale; controls: Controls 
     );
   }
 
-  return (
-    <>
-      {controls.error && (
-        <p className="menu-item-error" role="alert">
-          {translate(controls.error)}
-        </p>
-      )}
-      <div className="menu-item-workspace" data-editing={editor !== null} aria-busy={pending}>
-        <MenuItemList items={view.data.items} locale={locale} controls={controls} />
-        {editor && <MenuItemForm {...controls} editor={editor} locale={locale} />}
-      </div>
-    </>
-  );
+  return <ItemWorkspace {...props} snapshot={view.data} />;
 }
 
 export function MenuItemScreen({
@@ -128,7 +165,12 @@ export function MenuItemScreen({
       <p className="menu-item-notice" role="status">
         {notice && translate(notice)}
       </p>
-      <ItemContent locale={locale} controls={controls} />
+      <ItemContent
+        merchantId={merchantId}
+        categoryId={categoryId}
+        locale={locale}
+        controls={controls}
+      />
     </section>
   );
 }

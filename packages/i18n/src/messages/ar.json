@@ -285,6 +285,7 @@
     "forbidden": "لا يمكن لحسابك الوصول إلى إعداد المطعم."
   },
   "menuItem": {
+    "categoryNavigation": "الفئات",
     "editPrice": "تعديل السعر",
     "editPriceLabel": "تعديل السعر لـ {name}",
     "inlinePriceLabel": "سعر {name}",

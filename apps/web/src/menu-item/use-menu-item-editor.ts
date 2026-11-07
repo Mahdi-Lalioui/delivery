@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { CategoryRailAccessFailure } from "./item-category-rail";
 import {
   applyItemAttachmentAction,
   isAttachmentSaveBlocked,
@@ -264,6 +265,15 @@ export function useMenuItemEditor({
     [resetPrivateState],
   );
 
+  const onRailAccessChanged = useCallback(
+    (kind: CategoryRailAccessFailure) => {
+      request.current?.abort();
+      setPending(false);
+      showUnavailable({ kind });
+    },
+    [showUnavailable],
+  );
+
   const isEditing = editor !== null;
   const revision = view.kind === "ready" ? view.data.revision : undefined;
   const sessionId = view.kind === "ready" ? view.data.sessionId : undefined;
@@ -414,6 +424,7 @@ export function useMenuItemEditor({
     notice,
     focus,
     retry,
+    onRailAccessChanged,
     openEditor,
     closeEditor,
     changeDraft,

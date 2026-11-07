@@ -206,17 +206,14 @@ export function MenuItemList({
   items,
   locale,
   controls,
+  blocked,
 }: {
   items: MenuItem[];
   locale: Locale;
   controls: Controls;
+  blocked: boolean;
 }) {
   const translate = useTranslations("menuItem");
-  const blocked =
-    controls.pending ||
-    controls.editor !== null ||
-    controls.archiveTarget !== null ||
-    controls.inlinePrice !== null;
 
   return (
     <section className="menu-item-card" aria-labelledby="menu-item-list-title">

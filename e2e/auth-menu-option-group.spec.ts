@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { expect, test, type Locator, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page, type Request } from "@playwright/test";
 import type { AuthHarness } from "../apps/api/tools/e2e-auth-types.ts";
 import {
   menuCategoryPageOutput,
@@ -16,6 +16,7 @@ const phone = "+213550000251";
 const groupLabels = fr.menuOptionGroup;
 const itemLabels = fr.menuItem;
 const categoryNames = { ar: "أطباق تجريبية", fr: "Plats du jardin" };
+const secondCategoryNames = { ar: "حلويات تجريبية", fr: "Desserts du jardin" };
 const itemNames = [
   { ar: "كسكس", fr: "Couscous" },
   { ar: "شربة", fr: "Chorba" },
@@ -86,7 +87,13 @@ async function seedItems(page: Page, origin: string, merchantId: string) {
   expect(categoryResponse.status()).toBe(201);
   const category = menuCategoryWriteOutput.parse(await categoryResponse.json());
   const categoryId = category.category.categoryId;
-  let expectedRevision = category.revision;
+  const secondResponse = await page.request.post(categoryEndpoint, {
+    headers: { ...headers, "idempotency-key": randomUUID() },
+    data: { names: secondCategoryNames, availability: null, expectedRevision: category.revision },
+  });
+  expect(secondResponse.status()).toBe(201);
+  const second = menuCategoryWriteOutput.parse(await secondResponse.json());
+  let expectedRevision = second.revision;
   for (const names of itemNames) {
     const item = await page.request.post(origin + root + "/items", {
       headers: { ...headers, "idempotency-key": randomUUID() },
@@ -105,7 +112,7 @@ async function seedItems(page: Page, origin: string, merchantId: string) {
     expect(item.status()).toBe(201);
     expectedRevision = menuItemWriteOutput.parse(await item.json()).revision;
   }
-  return { root, categoryId };
+  return { root, categoryId, secondCategoryId: second.category.categoryId };
 }
 
 function observeWrite(page: Page, method: "POST" | "PUT", path: string) {
@@ -284,13 +291,62 @@ async function editPriceInline(page: Page, path: string, itemName: string) {
   await expect(page.getByRole("status").filter({ hasText: itemLabels.priceUpdated })).toBeVisible();
 }
 
+async function verifyCategoryRail({
+  page,
+  itemPage,
+  categoryPath,
+  nextPage,
+}: {
+  page: Page;
+  itemPage: string;
+  categoryPath: string;
+  nextPage: string;
+}) {
+  const rail = page.getByRole("navigation", { name: itemLabels.categoryNavigation });
+  const categoryRequests: string[] = [];
+  const record = (request: Request) => {
+    if (new URL(request.url()).pathname === categoryPath) categoryRequests.push(request.url());
+  };
+  page.on("request", record);
+  try {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(itemPage);
+    await expect(page.getByRole("heading", { name: "Couscous" })).toBeVisible();
+    await expect(rail).toHaveCount(0);
+    expect(categoryRequests).toHaveLength(0);
+
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await expect(rail).toBeVisible();
+    expect(categoryRequests).toHaveLength(1);
+    await expect(rail.getByRole("link", { name: categoryNames.fr })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    const editor = await openItemEditor(page, "Couscous");
+    const next = rail.getByRole("link", { name: secondCategoryNames.fr });
+    await expect(next).toHaveCount(0);
+    await expect(
+      rail.locator('[aria-disabled="true"]').filter({ hasText: secondCategoryNames.fr }),
+    ).toBeVisible();
+    await editor.getByRole("button", { name: itemLabels.cancel, exact: true }).click();
+    await next.press("Enter");
+    await expect(page).toHaveURL(nextPage);
+    await expect(rail.getByRole("link", { name: secondCategoryNames.fr })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+  } finally {
+    page.off("request", record);
+  }
+}
+
 test("[MER-10] reuses a bilingual option group on two menu items @menu-option-groups", async ({
   baseURL,
   page,
 }) => {
   await withAuthHarness(baseURL, async (auth) => {
     const merchantId = await signInOwner(page, auth);
-    const { root, categoryId } = await seedItems(page, auth.origin, merchantId);
+    const { root, categoryId, secondCategoryId } = await seedItems(page, auth.origin, merchantId);
     const menu = `${auth.origin}/fr/merchant/${merchantId}/menu`;
     const libraryPath = root + "/option-groups";
     const itemPath = root + "/items?categoryId=" + categoryId;
@@ -344,5 +400,11 @@ test("[MER-10] reuses a bilingual option group on two menu items @menu-option-gr
       },
       { name: "Chorba", priceDzd: 600, optionGroupIds: [shared.optionGroupId] },
     ]);
+    await verifyCategoryRail({
+      page,
+      itemPage,
+      categoryPath: root + "/categories",
+      nextPage: `${menu}/${secondCategoryId}/items`,
+    });
   });
 });

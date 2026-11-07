@@ -58,6 +58,7 @@ const defaults = {
   notice: null,
   focus: null,
   retry: vi.fn(),
+  onRailAccessChanged: vi.fn(),
   openEditor: vi.fn(),
   closeEditor: vi.fn(),
   changeDraft: vi.fn(),
