@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 19:03 GMT — M0 external P1 API log privacy
+
+- **Changed** — Redact `phone`, `code`, `token`, `address`, and `location` at every depth after Pino serialization. Emit only the sanitized JSON, including when a later field shadows a sensitive child binding. The non-personal listener URL is logged as `listenAddress`.
+- **Evidence** — The new logger tests reproduced nested, string and shadowed-binding leaks. All four passed after the fix. `pnpm verify` exited 0 with 47 tooling tests, 106 unit tests, 12 real PostGIS integration tests and all four M0 acceptance IDs. The production integration test found the renamed listener and verified live health, readiness and excluded debug routes.
+- **Reviewer** — No P0/P1. Verified correlation IDs, serialized errors, child bindings and the live process diagnostic. [External review checklist](reviews/2026-11-07-m0.md)
+- **Next** — Carry the fix into M1 and M2.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 19:00 GMT — M1 external P1 order guard coverage
 
 - **Changed** — Added 16 regressions for the ASAP timeout, scheduled time and release boundaries, pickup delivery-zone exemption, photo proof, failed code attempts, wait start, failure reason and call count. Pickup still requires the service area. The existing domain implementation passed every new case.
