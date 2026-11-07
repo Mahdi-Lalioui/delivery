@@ -16,6 +16,10 @@
       "types": "./src/health.ts",
       "default": "./dist/health.js"
     },
+    "./menu": {
+      "types": "./src/menu.ts",
+      "default": "./dist/menu.js"
+    },
     "./merchant": {
       "types": "./src/merchant.ts",
       "default": "./dist/merchant.js"

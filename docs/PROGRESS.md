@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 17:27 GMT — M2-2 menu write contracts
+
+- **Changed** — Added strict category, category reorder, item and reusable option group inputs. They require Arabic or French content, whole-dinar prices, unique ordered group attachments and valid option selection limits. A temporarily sold-out option can retain its default preference.
+- **Evidence** — Four contract tests passed. Staged `pnpm verify` passed 51 tooling, 566 unit and 59 real PostGIS integration tests.
+- **Reviewer** — No P0/P1. The reviewer checked bilingual input, overnight availability, price bounds and option cardinality against MER-09 and MER-10.
+- **Next** — Build tenant-scoped persistence and HTTP commands against the input contracts.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 17:23 GMT — M2-3 geography seed
 
 - **Changed** — Added the nationwide bilingual reference catalog and seeded Algiers boundaries with pinned provenance. The guarded local seed upserts the fixtures atomically without replacing commune IDs.
@@ -196,5 +204,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress)
 - The current M2 implementation snapshot ran `pnpm gate m2` and exited 1 at acceptance trace. It covered 28 of 37 IDs. Pending IDs are ADM-04, MER-01, MER-10, MER-11, MER-12, MER-14, MER-15, MER-16 and MER-23.
-- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 562 unit and 59 PostGIS integration tests
+- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 566 unit and 59 PostGIS integration tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
