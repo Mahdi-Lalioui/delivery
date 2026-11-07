@@ -4,6 +4,10 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./bulk-price-change": {
+      "types": "./src/bulk-price-change.ts",
+      "default": "./dist/bulk-price-change.js"
+    },
     "./eta": {
       "types": "./src/eta.ts",
       "default": "./dist/eta.js"

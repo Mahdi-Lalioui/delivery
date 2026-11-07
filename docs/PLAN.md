@@ -85,6 +85,10 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
   - [ ] Decode JPEG, PNG, WebP and real HEVC HEIC in the worker. Normalize orientation, bound decoded pixels, remove metadata, derive the requested crop and thumbhash, and publish only after all variants exist. Prove retries recover after a worker interruption.
   - [ ] Connect optional application photos and item photos to the localized cropper. Verify valid and rejected uploads, keyboard crop, private previews, saved item readback and the design matrix.
 - [ ] M2-7 Bulk prices (MER-11). Bind preview to merchant and item revisions, apply rounded changes and history atomically, and prove ten-minute undo rejects expired or subsequently changed prices.
+  - [x] Add the pure percent/fixed rounding calculation (nearest 1/5/10/50 DA, ties up, clamped to zero).
+  - [ ] Persist the per-item preview binding, apply rounded changes and price history atomically on the existing menu command/revision guard, and record an undo batch.
+  - [ ] Add the ten-minute undo endpoint that rejects an expired batch or an item whose price changed since the apply.
+  - [ ] Add the merchant-facing preview table and apply/undo UI in the menu workspace.
 - [ ] M2-8 CSV/XLSX import (MER-12). Publish the template, bound parsing, report row and field errors, and use a merchant-scoped external key for atomic idempotent application after preview.
 - [ ] M2-9 Hours and Ramadan (MER-15, MER-16). Persist weekly ranges, dated exceptions, Ramadan offsets and location. Render seven-day previews through the M1 rules and exercise overnight and Ramadan edits in Arabic and French.
 - [ ] M2-10 Moderation (§17.3, ADM-04). Check prohibited goods on every menu write path and public preview. Prove flagged items stay hidden until the audited review outcome permits listing.
