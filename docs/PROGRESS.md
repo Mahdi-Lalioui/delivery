@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 23:20 GMT — M2-7 bulk price web client (Claude, covering while Codex was out)
+
+- **Changed** — Added `apps/web/src/menu-price/bulk-price-http.ts`: `previewBulkPrices`, `applyBulkPrices` and `undoBulkPrices` against the three MER-11 endpoints. Requests are private, no-store and same-origin. Apply and undo send the idempotency key and the expected session. Responses are parsed with the shared contracts. A preview or apply that omits or adds an item, or an undo that echoes a different batch, is refused. Every problem code maps to a UI outcome: `undo-expired`, `price-changed`, `already-undone`, `revision-conflict`, `session-changed`, `invalid-change`, sign-in, forbidden, and rate-limited. Network and 5xx failures keep the retry key.
+- **Evidence** — Wrote `apps/web/test/menu-price-http.test.ts` first (15 `[MER-11]` cases) and saw it fail because the module did not exist. It passed after the implementation. `pnpm verify` exited 0: 883 unit tests, 109 PostGIS integration tests, build, OpenAPI check, knip, depcruise, trace, and only the existing moderate `minimatch` advisory.
+- **Reviewer** — Self-reviewed against AGENTS.md §10. No P0/P1. The client never sends a price. It only sends the selection, the adjustment and the expected revision.
+- **Next** — The bulk price panel in the menu item workspace. Build a pure editor that turns the percent or DA input into an adjustment (`basisPoints`/`amountDzd`, with whole-number validation) and tracks the undo deadline. Then add the component with ar/fr/en messages and RTL-safe logical CSS tokens, a production-build Playwright journey (select, preview, apply, undo, and an expired undo using the test clock), and the light/dark × ar/fr × 390/1280 screenshots.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 23:18 GMT — M2-7 ten-minute bulk price undo (Claude, covering while Codex was out)
 
 - **Changed** — Added `POST /v1/merchants/:merchantId/menu/prices/batches/:batchId/undo`: an idempotent, session-bound menu command (`bulk_price_undo`, migration `0011_menu_price_undo.sql`) in the new `packages/db/src/menu-price-undo.ts`. It locks the batch, rejects an already-undone batch, an expired one (the pure `isBulkPriceUndoOpen` in `@zaafran/domain`, ten minutes inclusive on the injected clock) and one where any item is archived or no longer holds the price the batch set. Otherwise it restores every recorded old price atomically, stamps `undone_at` and bumps the menu revision. Added `bulkPriceUndoInput`/`bulkPriceUndoOutput` contracts. Recorded D-009.
@@ -372,5 +380,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress)
 - The checklist snapshot reran `pnpm gate m2` on 2026-11-07 at 18:14 GMT and exited 1 at acceptance trace. It covered 28 of 37 IDs. Pending IDs are ADM-04, MER-01, MER-10, MER-11, MER-12, MER-14, MER-15, MER-16 and MER-23. MER-11's apply/history and undo endpoints landed at 22:41 and 23:18 GMT; the merchant UI is still needed to close MER-11.
-- Last green `pnpm verify`: 2026-11-07 23:18 GMT on Docker Desktop with 868 unit and 109 PostGIS integration tests
+- Last green `pnpm verify`: 2026-11-07 23:20 GMT on Docker Desktop with 883 unit and 109 PostGIS integration tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
