@@ -25,7 +25,7 @@ const cases = [
 ] as const;
 
 test.each(cases)(
-  "[MER-09] the $locale menu route localizes metadata and preserves the tenant on language links",
+  "[MER-09:categories] the $locale menu route localizes metadata and preserves the tenant on language links",
   async ({ locale, element, metadata }) => {
     const stream = await renderToReadableStream(element);
     await stream.allReady;
@@ -43,7 +43,7 @@ test.each(cases)(
   },
 );
 
-test("[MER-09] invalid merchant route IDs are rejected before rendering an editor", async () => {
+test("[MER-09:categories] invalid merchant route IDs are rejected before rendering an editor", async () => {
   await expect(
     ArabicMerchantMenu({ params: Promise.resolve({ merchantId: "not-a-merchant-id" }) }),
   ).rejects.toThrow();

@@ -23,7 +23,7 @@ vi.mock("next-intl", async (importOriginal) => {
 type FormSubmission = { onSubmit(event: { preventDefault(): void }): void };
 
 test.each([false, true])(
-  "[MER-09] form submission prevents native navigation with revision conflict %s",
+  "[MER-09:categories] form submission prevents native navigation with revision conflict %s",
   (revisionConflict) => {
     const save = vi.fn<() => Promise<void>>().mockResolvedValue(undefined);
     const controls: MenuCategoryEditor = {

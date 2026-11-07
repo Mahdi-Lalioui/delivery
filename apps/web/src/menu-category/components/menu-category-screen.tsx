@@ -106,10 +106,12 @@ function CategoryAnnouncement({
 }
 
 function CategoryWorkspace({
+  merchantId,
   snapshot,
   controls,
   locale,
 }: {
+  merchantId: string;
   snapshot: CategorySnapshot;
   controls: MenuCategoryEditor;
   locale: Locale;
@@ -128,7 +130,12 @@ function CategoryWorkspace({
       )}
       <CategoryAnnouncement snapshot={snapshot} notice={controls.notice} locale={locale} />
       <div className="menu-category-workspace">
-        <CategoryList categories={snapshot.categories} controls={controls} locale={locale} />
+        <CategoryList
+          merchantId={merchantId}
+          categories={snapshot.categories}
+          controls={controls}
+          locale={locale}
+        />
         <CategoryForm controls={controls} />
       </div>
     </>
@@ -168,7 +175,12 @@ export function MenuCategoryScreen({ merchantId, locale }: { merchantId: string;
         <p>{translate("description")}</p>
       </header>
       {view.kind === "ready" ? (
-        <CategoryWorkspace snapshot={view.data} controls={controls} locale={locale} />
+        <CategoryWorkspace
+          merchantId={merchantId}
+          snapshot={view.data}
+          controls={controls}
+          locale={locale}
+        />
       ) : (
         <CategoryGate kind={view.kind} reload={controls.reload} locale={locale} />
       )}

@@ -48,6 +48,7 @@ function render(override: Partial<MenuCategoryEditor> = {}) {
   return renderToStaticMarkup(
     <NextIntlClientProvider
       locale="ar-DZ"
+      timeZone="Africa/Algiers"
       messages={{ menuCategory: getMessages("ar").menuCategory }}
     >
       <MenuCategoryScreen merchantId={merchantId} locale="ar" />
@@ -55,7 +56,7 @@ function render(override: Partial<MenuCategoryEditor> = {}) {
   );
 }
 
-test("[MER-09] exposes accessible category editing, reorder controls and overnight time in Arabic", () => {
+test("[MER-09:categories] exposes accessible category editing, reorder controls and overnight time in Arabic", () => {
   const html = render();
   const { menuCategory } = getMessages("ar");
   expect(html).toContain(menuCategory.title);
@@ -66,12 +67,14 @@ test("[MER-09] exposes accessible category editing, reorder controls and overnig
   expect(html).toContain(second.names.ar);
   expect(html).toContain(menuCategory.moveUp);
   expect(html).toContain(menuCategory.moveDown);
+  expect(html).toContain(`href="/ar/merchant/${merchantId}/menu/${first.categoryId}/items"`);
+  expect(html).toContain(menuCategory.manageItems);
   expect(html).toContain("21:00");
   expect(html).toContain("03:00");
   expect(html).toMatch(/<li\b(?=[^>]*data-category-id=)(?=[^>]*tabindex="-1")/i);
 });
 
-test("[MER-09] a changed session removes private rows and drafts and offers explicit reload", () => {
+test("[MER-09:categories] a changed session removes private rows and drafts and offers explicit reload", () => {
   const html = render({ view: { kind: "session-changed" } });
   const { menuCategory } = getMessages("ar");
   expect(html).toContain(menuCategory.sessionChanged);
@@ -81,14 +84,14 @@ test("[MER-09] a changed session removes private rows and drafts and offers expl
   expect(html).not.toContain("<form");
 });
 
-test("[MER-09] an expired editor links back through sign-in without exposing the menu", () => {
+test("[MER-09:categories] an expired editor links back through sign-in without exposing the menu", () => {
   const html = render({ view: { kind: "sign-in" } });
   expect(html).toContain('href="/ar/sign-in?continue=merchant-status"');
   expect(html).not.toContain(first.names.ar);
   expect(html).not.toContain("<form");
 });
 
-test("[MER-09] a stale revision preserves the draft but locks writes until reload", () => {
+test("[MER-09:categories] a stale revision preserves the draft but locks writes until reload", () => {
   const html = render({ revisionConflict: true });
   const { menuCategory } = getMessages("ar");
   expect(html).toContain(menuCategory.revisionConflict);
@@ -97,7 +100,7 @@ test("[MER-09] a stale revision preserves the draft but locks writes until reloa
   expect(html).toMatch(/<button\b(?=[^>]*type="submit")(?=[^>]*\bdisabled)/);
 });
 
-test("[MER-09] the persisted move is announced using the localized category name and Latin digits", () => {
+test("[MER-09:categories] the persisted move is announced using the localized category name and Latin digits", () => {
   const html = render({
     notice: { kind: "moved", categoryId: second.categoryId, position: 2, total: 2 },
   });
@@ -109,14 +112,17 @@ test.each([
   ["forbidden", "forbidden"],
   ["error", "loadError"],
   ["revision-conflict", "revisionConflict"],
-] as const)("[MER-09] renders the localized %s read state without tenant data", (kind, message) => {
-  const html = render({ view: { kind } });
-  expect(html).toContain(getMessages("ar").menuCategory[message]);
-  expect(html).not.toContain(first.names.ar);
-  expect(html).not.toContain("<form");
-});
+] as const)(
+  "[MER-09:categories] renders the localized %s read state without tenant data",
+  (kind, message) => {
+    const html = render({ view: { kind } });
+    expect(html).toContain(getMessages("ar").menuCategory[message]);
+    expect(html).not.toContain(first.names.ar);
+    expect(html).not.toContain("<form");
+  },
+);
 
-test("[MER-09] an empty menu offers category creation and announces a successful save", () => {
+test("[MER-09:categories] an empty menu offers category creation and announces a successful save", () => {
   const html = render({
     view: { kind: "ready", data: { sessionId, revision: 3, categories: [] } },
     notice: { kind: "created" },

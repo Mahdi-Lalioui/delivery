@@ -1,0 +1,281 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import {
+  makeMenuItemDraft,
+  parseMenuItemDraft,
+  prepareMenuItemAttempt,
+  type ItemAttempt,
+  type ItemDraft,
+  type ItemField,
+} from "./item-editor";
+import {
+  listMenuItems,
+  refreshMenuItems,
+  writeMenuItem,
+  type ItemAvailability,
+  type ItemRead,
+  type ItemWrite,
+  type MenuItem,
+  type MenuItemCommand,
+} from "./menu-item-http";
+
+type View = ItemRead | { kind: "loading" };
+type Editor = ({ kind: "create" } | { kind: "edit"; itemId: string }) & {
+  draft: ItemDraft;
+  invalid: ItemField | null;
+};
+type Notice = "created" | "updated" | "duplicated" | "archived" | "availabilitySaved";
+type Focus =
+  | { kind: "heading" | "list" | "editor" }
+  | { kind: "row" | "confirmation"; itemId: string }
+  | { kind: "field"; field: ItemField }
+  | { kind: "control"; id: string };
+
+function commandControlId(command: MenuItemCommand): string {
+  switch (command.kind) {
+    case "create":
+    case "edit":
+      return "menu-item-save";
+    default:
+      return `menu-item-${command.kind}-${command.itemId}`;
+  }
+}
+
+export function useMenuItemEditor({
+  merchantId,
+  categoryId,
+}: {
+  merchantId: string;
+  categoryId: string;
+}) {
+  const [view, setView] = useState<View>({ kind: "loading" });
+  const [editor, setEditor] = useState<Editor | null>(null);
+  const [archiveTarget, setArchiveTarget] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<"saveError" | "rateLimited" | null>(null);
+  const [notice, setNotice] = useState<Notice | null>(null);
+  const [focus, setFocus] = useState<Focus | null>(null);
+  const [loadVersion, setLoadVersion] = useState(0);
+  const request = useRef<AbortController | null>(null);
+  const inFlight = useRef(false);
+  const attempt = useRef<ItemAttempt | undefined>(undefined);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    request.current = controller;
+    void listMenuItems({ merchantId, categoryId, signal: controller.signal }).then((result) => {
+      if (!controller.signal.aborted) setView(result);
+    });
+    return () => {
+      controller.abort();
+    };
+  }, [merchantId, categoryId, loadVersion]);
+
+  function resetPrivateState() {
+    setEditor(null);
+    setArchiveTarget(null);
+    setError(null);
+    setNotice(null);
+    attempt.current = undefined;
+  }
+
+  function retry() {
+    resetPrivateState();
+    setFocus({ kind: "heading" });
+    setView({ kind: "loading" });
+    setLoadVersion((previous) => previous + 1);
+  }
+
+  function openEditor(item?: MenuItem) {
+    setError(null);
+    setArchiveTarget(null);
+    const fields = { draft: makeMenuItemDraft(item), invalid: null };
+    setEditor(
+      item ? { ...fields, kind: "edit", itemId: item.itemId } : { ...fields, kind: "create" },
+    );
+    setFocus({ kind: "editor" });
+  }
+
+  function closeEditor() {
+    if (editor?.kind === "edit") setFocus({ kind: "row", itemId: editor.itemId });
+    else setFocus({ kind: "list" });
+    setEditor(null);
+    setError(null);
+  }
+
+  function changeDraft(changes: Partial<ItemDraft>) {
+    setEditor((previous) =>
+      previous ? { ...previous, invalid: null, draft: { ...previous.draft, ...changes } } : null,
+    );
+  }
+
+  function submitDraft() {
+    if (view.kind !== "ready" || !editor || inFlight.current) return;
+    const result = parseMenuItemDraft({
+      draft: editor.draft,
+      categoryId,
+      expectedRevision: view.data.revision,
+    });
+    if (result.kind === "invalid") {
+      setEditor({ ...editor, invalid: result.field });
+      setFocus({ kind: "field", field: result.field });
+      return;
+    }
+    const { input } = result;
+    void (editor.kind === "edit"
+      ? run({ kind: "edit", itemId: editor.itemId, input }, "updated")
+      : run({ kind: "create", input }, "created"));
+  }
+
+  function duplicate(itemId: string) {
+    if (view.kind === "ready") {
+      void run(
+        { kind: "duplicate", itemId, input: { expectedRevision: view.data.revision } },
+        "duplicated",
+      );
+    }
+  }
+
+  function setAvailability(itemId: string, availability: ItemAvailability) {
+    if (view.kind === "ready") {
+      void run(
+        {
+          kind: "availability",
+          itemId,
+          input: { expectedRevision: view.data.revision, availability },
+        },
+        "availabilitySaved",
+      );
+    }
+  }
+
+  function askArchive(itemId: string) {
+    setArchiveTarget(itemId);
+    setError(null);
+    setFocus({ kind: "confirmation", itemId });
+  }
+
+  function cancelArchive() {
+    if (archiveTarget) setFocus({ kind: "row", itemId: archiveTarget });
+    setArchiveTarget(null);
+    setError(null);
+  }
+
+  function confirmArchive() {
+    if (view.kind === "ready" && archiveTarget) {
+      void run(
+        { kind: "archive", itemId: archiveTarget, input: { expectedRevision: view.data.revision } },
+        "archived",
+      );
+    }
+  }
+
+  function showUnavailable(result: Exclude<ItemRead, { kind: "ready" }>) {
+    resetPrivateState();
+    setView(result);
+    setFocus({ kind: "heading" });
+  }
+
+  async function finishWrite({
+    command,
+    result,
+    signal,
+    sessionId,
+    successNotice,
+  }: {
+    command: MenuItemCommand;
+    result: Extract<ItemWrite, { data: unknown }>;
+    signal: AbortSignal;
+    sessionId: string;
+    successNotice: Notice;
+  }) {
+    const refreshed = await refreshMenuItems({
+      merchantId,
+      categoryId,
+      signal,
+      sessionId,
+      minimumRevision: result.data.revision,
+    });
+    if (signal.aborted) return;
+    if (refreshed.kind !== "ready") {
+      showUnavailable(refreshed);
+      return;
+    }
+
+    attempt.current = undefined;
+    setView(refreshed);
+    if (command.kind === "edit" || command.kind === "create") setEditor(null);
+    if (command.kind === "archive") setArchiveTarget(null);
+    setNotice(successNotice);
+    const itemId = result.kind === "saved" ? result.data.item.itemId : result.data.itemId;
+    setFocus(
+      result.kind === "archived" || !refreshed.data.items.some((item) => item.itemId === itemId)
+        ? { kind: "list" }
+        : { kind: "row", itemId },
+    );
+  }
+
+  function retryWrite(
+    result: Extract<ItemWrite, { shouldReuseKey: boolean }>,
+    currentAttempt: ItemAttempt,
+    command: MenuItemCommand,
+  ) {
+    attempt.current = result.shouldReuseKey ? currentAttempt : undefined;
+    setError(result.kind === "rate-limited" ? "rateLimited" : "saveError");
+    setFocus({ kind: "control", id: commandControlId(command) });
+  }
+
+  async function run(command: MenuItemCommand, successNotice: Notice) {
+    const signal = request.current?.signal;
+    if (!signal || view.kind !== "ready" || inFlight.current) return;
+
+    inFlight.current = true;
+    setPending(true);
+    setError(null);
+    setNotice(null);
+    const sessionId = view.data.sessionId;
+
+    try {
+      const currentAttempt = prepareMenuItemAttempt(command, attempt.current);
+      const result = await writeMenuItem({
+        merchantId,
+        sessionId,
+        command,
+        idempotencyKey: currentAttempt.idempotencyKey,
+      });
+      if (signal.aborted) return;
+
+      if ("shouldReuseKey" in result) {
+        retryWrite(result, currentAttempt, command);
+      } else if ("data" in result) {
+        await finishWrite({ command, result, signal, sessionId, successNotice });
+      } else {
+        showUnavailable({ kind: result.kind });
+      }
+    } finally {
+      inFlight.current = false;
+      if (!signal.aborted) setPending(false);
+    }
+  }
+
+  return {
+    view,
+    editor,
+    archiveTarget,
+    pending,
+    error,
+    notice,
+    focus,
+    retry,
+    openEditor,
+    closeEditor,
+    changeDraft,
+    submitDraft,
+    duplicate,
+    setAvailability,
+    askArchive,
+    cancelArchive,
+    confirmArchive,
+  };
+}

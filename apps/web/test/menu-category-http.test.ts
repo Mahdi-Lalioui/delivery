@@ -40,7 +40,7 @@ function firstPage() {
 
 afterEach(() => vi.unstubAllGlobals());
 
-test("[MER-09] reads all ordered category pages within one revision and session", async () => {
+test("[MER-09:categories] reads all ordered category pages within one revision and session", async () => {
   const fetch = vi
     .fn()
     .mockResolvedValueOnce(firstPage())
@@ -70,7 +70,7 @@ test.each([
   [{ revision: 4 }, "revision-conflict"],
   [{ session: otherSession }, "session-changed"],
 ] as const)(
-  "[MER-09] refuses partial category pages after a changed revision or session",
+  "[MER-09:categories] refuses partial category pages after a changed revision or session",
   async (override, kind) => {
     vi.stubGlobal(
       "fetch",
@@ -86,7 +86,7 @@ test.each([
   },
 );
 
-test("[MER-09] a category create and rename bind the expected revision and authenticated session", async () => {
+test("[MER-09:categories] a category create and rename bind the expected revision and authenticated session", async () => {
   const data = { category, revision: 4 };
   const fetch = vi
     .fn()
@@ -121,7 +121,7 @@ test("[MER-09] a category create and rename bind the expected revision and authe
   );
 });
 
-test("[MER-09] reorder sends the complete category set as one revision-bound command", async () => {
+test("[MER-09:categories] reorder sends the complete category set as one revision-bound command", async () => {
   const order = { categoryIds: [second.categoryId, category.categoryId], expectedRevision: 3 };
   const data = { categoryIds: order.categoryIds, revision: 4 };
   const fetch = vi.fn().mockResolvedValue(Response.json(data));
@@ -141,7 +141,7 @@ test("[MER-09] reorder sends the complete category set as one revision-bound com
   );
 });
 
-test("[MER-09] recognizes only validated session and revision conflicts and preserves uncertain retry keys", async () => {
+test("[MER-09:categories] recognizes only validated session and revision conflicts and preserves uncertain retry keys", async () => {
   const problem = { type: "about:blank", title: "Conflict", status: 409, requestId: "menu-test" };
   vi.stubGlobal(
     "fetch",

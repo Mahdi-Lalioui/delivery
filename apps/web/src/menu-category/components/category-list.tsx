@@ -8,6 +8,7 @@ import type { MenuCategory } from "../menu-category-http";
 import type { MenuCategoryEditor } from "../use-menu-category-editor";
 
 interface CategoryListProps {
+  merchantId: string;
   categories: readonly MenuCategory[];
   locale: Locale;
   controls: MenuCategoryEditor;
@@ -16,6 +17,7 @@ interface CategoryListProps {
 type DragStart = { pointerId: number; categoryId: string };
 
 interface CategoryRowProps {
+  itemsHref: string;
   category: MenuCategory;
   locale: Locale;
   disabled: boolean;
@@ -48,6 +50,7 @@ function CategoryAvailability({ availability }: Pick<MenuCategory, "availability
 }
 
 function CategoryRow({
+  itemsHref,
   category,
   locale,
   disabled,
@@ -97,6 +100,13 @@ function CategoryRow({
         </div>
       </div>
       <div className="menu-category-actions">
+        <a
+          className="menu-category-secondary"
+          aria-label={translate("manageItemsLabel", { name })}
+          href={itemsHref}
+        >
+          {translate("manageItems")}
+        </a>
         <button
           className="menu-category-secondary"
           type="button"
@@ -135,7 +145,7 @@ function CategoryRow({
   );
 }
 
-export function CategoryList({ categories, locale, controls }: CategoryListProps) {
+export function CategoryList({ merchantId, categories, locale, controls }: CategoryListProps) {
   const translate = useTranslations("menuCategory");
   const list = useRef<HTMLUListElement>(null);
   const drag = useRef<DragStart | undefined>(undefined);
@@ -191,6 +201,7 @@ export function CategoryList({ categories, locale, controls }: CategoryListProps
               <CategoryRow
                 key={category.categoryId}
                 category={category}
+                itemsHref={`/${locale}/merchant/${merchantId}/menu/${category.categoryId}/items`}
                 locale={locale}
                 disabled={disabled}
                 selected={controls.selectedId === category.categoryId}

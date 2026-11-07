@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 18:41 GMT — M2-5 localized item editor
+
+- **Changed** — Added category-scoped Arabic, French and English item creation, editing, duplicate, archive and stock controls. The form preserves ordered option attachments and shows moderation separately. Category rows link directly to their items.
+- **Evidence** — Staged `pnpm verify` passed 51 tooling, 725 unit and 81 real PostGIS integration tests. All ten production HTTPS Chromium journeys passed. The item lifecycle covered exact DZD pricing, revisions, local midnight and reload persistence. The 16 normal and eight 200% design checks passed. [Browser and design evidence](evidence/m2/item-editor.md)
+- **Reviewer** — No P0/P1. Fixed the split currency suffix and clipped stock options, then verified the corrected layout at all audited sizes. Restaurant and category context remains part of the combined builder.
+- **Next** — Complete the reusable option-group library and item attachment controls, then media and preview.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 18:33 GMT — M2-5 option library contracts
 
 - **Changed** — Added strict option-group summary pages, details and revision-bound commands. Updates carry existing option IDs, new options omit them, and duplicate aliases are rejected. Temporarily sold-out defaults retain their configured preference.
@@ -284,5 +292,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress)
 - The checklist snapshot reran `pnpm gate m2` on 2026-11-07 at 18:14 GMT and exited 1 at acceptance trace. It covered 28 of 37 IDs. Pending IDs are ADM-04, MER-01, MER-10, MER-11, MER-12, MER-14, MER-15, MER-16 and MER-23.
-- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 693 unit and 81 PostGIS integration tests
+- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 725 unit and 81 PostGIS integration tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
