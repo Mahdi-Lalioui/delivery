@@ -1,0 +1,8 @@
+{
+  "extends": "@zaafran/config/tsconfig/base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "allowImportingTsExtensions": true
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts"]
+}
