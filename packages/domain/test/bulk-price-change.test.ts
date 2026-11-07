@@ -1,7 +1,7 @@
 import fc from "fast-check";
 import { expect, test } from "vitest";
 import { assertDomainProperty } from "./property.ts";
-import { previewBulkPriceChange } from "../src/bulk-price-change.ts";
+import { isBulkPriceUndoOpen, previewBulkPriceChange } from "../src/bulk-price-change.ts";
 import { dzd, type Dzd } from "../src/money.ts";
 
 function money(value: number): Dzd {
@@ -183,4 +183,13 @@ test("[MER-11:domain] new prices are always a nonnegative multiple of the roundi
       },
     ),
   );
+});
+
+test("[MER-11:domain] keeps the undo window open for exactly ten minutes after the apply", () => {
+  const appliedAt = new Date("2026-11-07T12:00:00.000Z");
+  const at = (milliseconds: number) => new Date(appliedAt.getTime() + milliseconds);
+  expect(isBulkPriceUndoOpen({ appliedAt, now: appliedAt })).toBe(true);
+  expect(isBulkPriceUndoOpen({ appliedAt, now: at(600_000) })).toBe(true);
+  expect(isBulkPriceUndoOpen({ appliedAt, now: at(600_001) })).toBe(false);
+  expect(isBulkPriceUndoOpen({ appliedAt, now: at(-1) })).toBe(false);
 });

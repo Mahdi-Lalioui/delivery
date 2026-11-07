@@ -5,6 +5,8 @@ import {
   bulkPriceApplyOutput,
   bulkPricePreviewInput,
   bulkPricePreviewOutput,
+  bulkPriceUndoInput,
+  bulkPriceUndoOutput,
 } from "@zaafran/contracts/menu-price";
 import type { createMenuPriceRepository } from "@zaafran/db/menu-price";
 import type { FastifyInstance, FastifyReply } from "fastify";
@@ -39,6 +41,9 @@ const failureStatus = {
   invalid_bulk_price_change: 400,
   revision_conflict: 409,
   idempotency_conflict: 409,
+  undo_window_expired: 409,
+  price_changed_since_apply: 409,
+  price_change_already_undone: 409,
 };
 
 function priceProblem(reply: FastifyReply, kind: keyof typeof failureStatus): FastifyReply {
@@ -127,10 +132,56 @@ function registerApply(api: FastifyInstance, services: MenuPriceServices | undef
   );
 }
 
+const batchParams = z.strictObject({ merchantId: z.uuid(), batchId: z.uuid() });
+
+function registerUndo(api: FastifyInstance, services: MenuPriceServices | undefined) {
+  api.withTypeProvider<ZodTypeProvider>().post(
+    path + "/batches/:batchId/undo",
+    {
+      config,
+      schema: {
+        params: batchParams,
+        headers: sessionBoundCommandHeaders,
+        body: bulkPriceUndoInput,
+        response: { 200: bulkPriceUndoOutput, ...errors },
+      },
+    },
+    async (request, reply) => {
+      const context = resolveSessionCommand({
+        request,
+        reply,
+        services,
+        expectedSessionId: request.headers["x-expected-session-id"],
+      });
+      if (!context) return reply;
+      const { accountId, now, repository } = context;
+      const input = {
+        batchId: request.params.batchId.toLowerCase(),
+        expectedRevision: request.body.expectedRevision,
+      };
+      const result = await repository.undo({
+        accountId,
+        merchantId: request.params.merchantId.toLowerCase(),
+        input,
+        now,
+        ...commandIdentity(request.headers["idempotency-key"], input),
+      });
+      return "batchId" in result
+        ? reply.send({
+            batchId: result.batchId,
+            revision: result.revision,
+            items: [...result.items],
+          })
+        : priceProblem(reply, result.kind);
+    },
+  );
+}
+
 export function registerMenuPriceRoutes(
   api: FastifyInstance,
   services: MenuPriceServices | undefined,
 ) {
   registerPreview(api, services);
   registerApply(api, services);
+  registerUndo(api, services);
 }

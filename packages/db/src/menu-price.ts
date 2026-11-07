@@ -8,6 +8,9 @@ import type { TransactionSql } from "postgres";
 import type { DatabaseConnection } from "./database.js";
 import { readMenuContext, type MenuScope } from "./menu-access.js";
 import { runMenuCommand, type CommandChange, type CommandRequest } from "./menu-commands.js";
+import { undoBulkPrice, type BulkPriceUndo } from "./menu-price-undo.js";
+
+export type { BulkPriceUndo } from "./menu-price-undo.js";
 
 // Mirrors the items.price_dzd column, which is a Postgres int4 and narrower than the
 // generic Dzd safe-integer bound, so an extreme adjustment is rejected before it is stored.
@@ -148,6 +151,13 @@ export function createMenuPriceRepository({ sql }: DatabaseConnection) {
         runMenuCommand(tx, request, {
           operation: "bulk_price_apply",
           apply: () => applyBulkPrice(tx, request),
+        }),
+      ),
+    undo: (request: BulkPriceUndo) =>
+      sql.begin((tx) =>
+        runMenuCommand(tx, request, {
+          operation: "bulk_price_undo",
+          apply: () => undoBulkPrice(tx, request),
         }),
       ),
   };

@@ -168,6 +168,7 @@ test("[M0-6] the generated OpenAPI document describes the readiness problem resp
       "/v1/merchants/{merchantId}/menu/option-groups",
       "/v1/merchants/{merchantId}/menu/option-groups/{optionGroupId}",
       "/v1/merchants/{merchantId}/menu/prices/apply",
+      "/v1/merchants/{merchantId}/menu/prices/batches/{batchId}/undo",
       "/v1/merchants/{merchantId}/menu/prices/preview",
       "/v1/merchants/{merchantId}/onboarding",
     ]);

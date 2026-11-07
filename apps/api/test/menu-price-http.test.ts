@@ -1,4 +1,8 @@
-import { bulkPriceApplyOutput, bulkPricePreviewOutput } from "@zaafran/contracts/menu-price";
+import {
+  bulkPriceApplyOutput,
+  bulkPricePreviewOutput,
+  bulkPriceUndoOutput,
+} from "@zaafran/contracts/menu-price";
 import type { createMenuPriceRepository } from "@zaafran/db/menu-price";
 import { expect, onTestFinished, test, vi } from "vitest";
 import { createApi } from "../src/app.ts";
@@ -24,6 +28,7 @@ function setup(actor?: Actor) {
   const repository = {
     preview: vi.fn<Repository["preview"]>(),
     apply: vi.fn<Repository["apply"]>(),
+    undo: vi.fn<Repository["undo"]>(),
   } satisfies Repository;
   const options = {
     checkReadiness: () => Promise.resolve(),
@@ -133,4 +138,65 @@ test("[MER-11:http] denies staff from previewing or applying a bulk price change
   ).toBe(403);
   expect(repository.preview).not.toHaveBeenCalled();
   expect(repository.apply).not.toHaveBeenCalled();
+});
+
+const batchId = "01932f18-3150-7c33-8a7a-53acfd343099";
+const undoUrl = path + "/batches/" + batchId + "/undo";
+const undoHeaders = { ...headers, "idempotency-key": "fixture-bulk-price-undo" };
+
+test("[MER-11:http] undoes a batch and returns the restored prices", async () => {
+  const { api, repository } = setup(owner);
+  const restored = { itemId, oldPriceDzd: 550, newPriceDzd: 500 };
+  repository.undo.mockResolvedValue({ kind: "applied", revision: 6, batchId, items: [restored] });
+
+  const result = await api.inject({
+    method: "POST",
+    url: undoUrl,
+    headers: undoHeaders,
+    payload: { expectedRevision: 5 },
+  });
+  expect(result.statusCode).toBe(200);
+  expect(bulkPriceUndoOutput.parse(result.json())).toEqual({
+    batchId,
+    revision: 6,
+    items: [restored],
+  });
+  expect(repository.undo).toHaveBeenCalledExactlyOnceWith(
+    expect.objectContaining({
+      accountId,
+      merchantId,
+      input: { batchId, expectedRevision: 5 },
+      now,
+    }),
+  );
+});
+
+test.each([
+  ["undo_window_expired", 409],
+  ["price_changed_since_apply", 409],
+  ["price_change_already_undone", 409],
+  ["not_found", 404],
+] as const)("[MER-11:http] maps an undo rejected as %s to %i", async (kind, status) => {
+  const { api, repository } = setup(owner);
+  repository.undo.mockResolvedValue({ kind });
+  const result = await api.inject({
+    method: "POST",
+    url: undoUrl,
+    headers: undoHeaders,
+    payload: { expectedRevision: 5 },
+  });
+  expect(result.statusCode).toBe(status);
+  expect(result.json()).toMatchObject({ code: kind });
+});
+
+test("[MER-11:http] denies staff from undoing a bulk price change", async () => {
+  const { api, repository } = setup(staff);
+  const result = await api.inject({
+    method: "POST",
+    url: undoUrl,
+    headers: undoHeaders,
+    payload: { expectedRevision: 5 },
+  });
+  expect(result.statusCode).toBe(403);
+  expect(repository.undo).not.toHaveBeenCalled();
 });

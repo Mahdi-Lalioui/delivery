@@ -3,6 +3,8 @@ import {
   bulkPriceApplyInput,
   bulkPricePreviewInput,
   bulkPricePreviewOutput,
+  bulkPriceUndoInput,
+  bulkPriceUndoOutput,
 } from "../src/menu-price.ts";
 
 const itemId = "01932f18-3150-7c33-8a7a-53acfd343001";
@@ -59,4 +61,18 @@ test("[MER-11:contract] reports each item's old and new whole-dinar price", () =
       items: [{ itemId, oldPriceDzd: -1, newPriceDzd: 0 }],
     }).success,
   ).toBe(false);
+});
+
+test("[MER-11:contract] undoes a batch against the expected revision only", () => {
+  expect(bulkPriceUndoInput.parse({ expectedRevision: 5 })).toEqual({ expectedRevision: 5 });
+  expect(bulkPriceUndoInput.safeParse({ expectedRevision: -1 }).success).toBe(false);
+  expect(
+    bulkPriceUndoInput.safeParse({ expectedRevision: 5, items: [{ itemId, priceDzd: 1 }] }).success,
+  ).toBe(false);
+  const output = {
+    batchId: otherId,
+    revision: 6,
+    items: [{ itemId, oldPriceDzd: 550, newPriceDzd: 500 }],
+  };
+  expect(bulkPriceUndoOutput.parse(output)).toEqual(output);
 });

@@ -78,6 +78,13 @@
       "when": 1794090600000,
       "tag": "0010_menu_price_history",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1794093600000,
+      "tag": "0011_menu_price_undo",
+      "breakpoints": true
     }
   ]
 }

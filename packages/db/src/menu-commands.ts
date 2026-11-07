@@ -12,7 +12,8 @@ type Operation =
   | "item_availability"
   | "option_group_create"
   | "option_group_update"
-  | "bulk_price_apply";
+  | "bulk_price_apply"
+  | "bulk_price_undo";
 
 export interface CommandRequest<
   Input extends { readonly expectedRevision: number },
@@ -24,7 +25,13 @@ export interface CommandRequest<
 }
 
 type CategoryWriteFailure = "not_found" | "category_limit" | "invalid_order";
-type WriteFailure = CategoryWriteFailure | "photos_unavailable" | "invalid_bulk_price_change";
+type WriteFailure =
+  | CategoryWriteFailure
+  | "photos_unavailable"
+  | "invalid_bulk_price_change"
+  | "undo_window_expired"
+  | "price_changed_since_apply"
+  | "price_change_already_undone";
 type CommandFailure = "not_found" | "idempotency_conflict" | "revision_conflict";
 
 export type CommandChange<Value, Failure extends WriteFailure = CategoryWriteFailure> =

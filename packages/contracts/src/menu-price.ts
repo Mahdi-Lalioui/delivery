@@ -47,3 +47,13 @@ export const bulkPriceApplyOutput = z.strictObject({
   revision: menuRevision,
   items: z.array(bulkPriceChangeItem).min(1).max(500),
 });
+
+// The batch id travels in the path; the server restores the prices it recorded, never client ones.
+export const bulkPriceUndoInput = z.strictObject({ expectedRevision: menuRevision });
+
+// Each restored item reports the price it held before the undo and the price it holds after.
+export const bulkPriceUndoOutput = z.strictObject({
+  batchId: uuid,
+  revision: menuRevision,
+  items: z.array(bulkPriceChangeItem).min(1).max(500),
+});

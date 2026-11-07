@@ -90,3 +90,16 @@ export function previewBulkPriceChange(
   }
   return { ok: true, value: changes };
 }
+
+const UNDO_WINDOW_MS = 10 * 60 * 1_000;
+
+export function isBulkPriceUndoOpen({
+  appliedAt,
+  now,
+}: {
+  readonly appliedAt: Date;
+  readonly now: Date;
+}): boolean {
+  const elapsedMs = now.getTime() - appliedAt.getTime();
+  return elapsedMs >= 0 && elapsedMs <= UNDO_WINDOW_MS;
+}

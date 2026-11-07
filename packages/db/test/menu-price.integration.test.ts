@@ -1,6 +1,10 @@
 import { createHash } from "node:crypto";
 import { beforeAll, expect, test } from "vitest";
-import { createMenuPriceRepository, type BulkPriceApply } from "../src/menu-price.ts";
+import {
+  createMenuPriceRepository,
+  type BulkPriceApply,
+  type BulkPriceUndo,
+} from "../src/menu-price.ts";
 import { registerTestDatabase } from "./database.ts";
 
 const database = registerTestDatabase();
@@ -32,6 +36,10 @@ const staleRevision = merchantFixture(50);
 const missingItem = merchantFixture(60);
 const overflowing = merchantFixture(70);
 const foreign = merchantFixture(80);
+const undoing = merchantFixture(90);
+const expiring = merchantFixture(100);
+const changedSince = merchantFixture(110);
+const undoneTwice = merchantFixture(120);
 
 const merchants = [
   previewing,
@@ -42,6 +50,10 @@ const merchants = [
   missingItem,
   overflowing,
   foreign,
+  undoing,
+  expiring,
+  changedSince,
+  undoneTwice,
 ];
 
 beforeAll(async () => {
@@ -281,4 +293,146 @@ test("[MER-11:db] rejects a change that would overflow the stored whole-dinar pr
   const [item] = await database.get()
     .sql`select price_dzd as "priceDzd" from items where id = ${overflowing.bigItem}`;
   expect(item?.priceDzd).toBe(2_000_000_000);
+});
+
+const tenMinutesMs = 10 * 60 * 1_000;
+
+function undo({
+  merchantId,
+  batchId,
+  key,
+  expectedRevision,
+  at = now,
+  accountId = ownerId,
+}: {
+  merchantId: string;
+  batchId: string;
+  key: string;
+  expectedRevision: number;
+  at?: Date;
+  accountId?: string;
+}): BulkPriceUndo {
+  const input = { batchId, expectedRevision };
+  return {
+    merchantId,
+    accountId,
+    now: at,
+    input,
+    idempotencyKeyHash: hash(key),
+    requestHash: hash(JSON.stringify(input)),
+  };
+}
+
+async function applyTenPercent(merchant: ReturnType<typeof merchantFixture>) {
+  const result = await repository().apply(
+    apply({
+      merchantId: merchant.merchantId,
+      key: "apply-before-undo",
+      input: {
+        itemIds: [merchant.firstItem, merchant.secondItem],
+        adjustment: { kind: "percent", basisPoints: 1_000 },
+        roundingUnit: 10,
+        expectedRevision: 0,
+      },
+    }),
+  );
+  if (!("batchId" in result)) throw new Error("Expected the bulk price change to apply.");
+  return result.batchId;
+}
+
+async function readPrices(merchant: ReturnType<typeof merchantFixture>) {
+  const rows = await database.get().sql<{ itemId: string; priceDzd: number }[]>`
+    select id as "itemId", price_dzd as "priceDzd" from items
+    where id in (${merchant.firstItem}, ${merchant.secondItem}) order by id
+  `;
+  return rows.map((row) => row.priceDzd);
+}
+
+test("[MER-11:db] undoes a batch within ten minutes and restores every old price", async () => {
+  const batchId = await applyTenPercent(undoing);
+  const at = new Date(now.getTime() + tenMinutesMs);
+  const result = await repository().undo(
+    undo({ merchantId: undoing.merchantId, batchId, key: "undo", expectedRevision: 1, at }),
+  );
+  expect(result).toEqual({
+    kind: "applied",
+    revision: 2,
+    batchId,
+    items: [
+      { itemId: undoing.firstItem, oldPriceDzd: 550, newPriceDzd: 500 },
+      { itemId: undoing.secondItem, oldPriceDzd: 1_320, newPriceDzd: 1_200 },
+    ],
+  });
+  expect(await readPrices(undoing)).toEqual([500, 1_200]);
+  const [batch] = await database.get().sql<{ isUndoneAtRequestTime: boolean }[]>`
+    select undone_at = ${at.toISOString()}::timestamptz as "isUndoneAtRequestTime"
+    from price_change_batches where id = ${batchId}
+  `;
+  expect(batch?.isUndoneAtRequestTime).toBe(true);
+
+  const replay = await repository().undo(
+    undo({ merchantId: undoing.merchantId, batchId, key: "undo", expectedRevision: 1, at }),
+  );
+  expect(replay).toEqual({ ...result, kind: "replayed" });
+});
+
+test("[MER-11:db] rejects an undo after the ten-minute window without touching prices", async () => {
+  const batchId = await applyTenPercent(expiring);
+  const at = new Date(now.getTime() + tenMinutesMs + 1);
+  const result = await repository().undo(
+    undo({ merchantId: expiring.merchantId, batchId, key: "late", expectedRevision: 1, at }),
+  );
+  expect(result).toEqual({ kind: "undo_window_expired" });
+  expect(await readPrices(expiring)).toEqual([550, 1_320]);
+});
+
+test("[MER-11:db] rejects an undo when a price changed after the apply", async () => {
+  const batchId = await applyTenPercent(changedSince);
+  await database.get().sql`update items set price_dzd = 600 where id = ${changedSince.firstItem}`;
+  const result = await repository().undo(
+    undo({ merchantId: changedSince.merchantId, batchId, key: "changed", expectedRevision: 1 }),
+  );
+  expect(result).toEqual({ kind: "price_changed_since_apply" });
+  expect(await readPrices(changedSince)).toEqual([600, 1_320]);
+});
+
+test("[MER-11:db] rejects a second undo of the same batch under a new key", async () => {
+  const batchId = await applyTenPercent(undoneTwice);
+  const merchantId = undoneTwice.merchantId;
+  const first = await repository().undo(
+    undo({ merchantId, batchId, key: "first", expectedRevision: 1 }),
+  );
+  expect(first).toMatchObject({ kind: "applied", revision: 2 });
+  const second = await repository().undo(
+    undo({ merchantId, batchId, key: "second", expectedRevision: 2 }),
+  );
+  expect(second).toEqual({ kind: "price_change_already_undone" });
+  expect(await readPrices(undoneTwice)).toEqual([500, 1_200]);
+});
+
+test("[MER-11:db] hides another merchant's batch and denies staff undo", async () => {
+  const [batch] = await database.get().sql<{ id: string }[]>`
+    select id from price_change_batches where merchant_id = ${undoing.merchantId}
+  `;
+  if (!batch) throw new Error("Expected the undo fixture batch to exist.");
+  const foreignUndo = await repository().undo(
+    undo({
+      merchantId: foreign.merchantId,
+      batchId: batch.id,
+      key: "foreign",
+      expectedRevision: 0,
+    }),
+  );
+  expect(foreignUndo).toEqual({ kind: "not_found" });
+
+  const staffUndo = await repository().undo(
+    undo({
+      merchantId: staffed.merchantId,
+      batchId: batch.id,
+      key: "staff",
+      expectedRevision: 0,
+      accountId: staffId,
+    }),
+  );
+  expect(staffUndo).toEqual({ kind: "not_found" });
 });

@@ -326,6 +326,13 @@ const matrix: readonly MatrixRoute[] = [
     payload: priceApplyPayload,
     expected: menuRoles,
   },
+  {
+    method: "POST",
+    url: menuPricePath + "/batches/:batchId/undo",
+    requestUrl: menuPriceRequest + "/batches/" + challengeId + "/undo",
+    payload: { expectedRevision: 0 },
+    expected: menuRoles,
+  },
   { method: "GET", url: "/v1/admin/merchant-applications", expected: adminRole },
   {
     method: "POST",
