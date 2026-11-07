@@ -31,16 +31,16 @@ The PWA is the Ramadan launch vehicle. The native apps follow as fast as store r
 
 **Goal:** a monorepo where every quality check runs locally and in CI before any feature exists.
 
-- [ ] M0-1 Verify and pin SPEC §19 in DECISIONS D-001. Record the registry or official release and compatibility constraints for each pin. Keep tools for later milestones out of the M0 dependency graph. Verify the selected Node and pnpm executables run together before locking dependencies.
-- [ ] M0-2 Create `package.json`, `pnpm-workspace.yaml`, `turbo.json`, `pnpm-lock.yaml` and `packages/config/` for strict TypeScript, type-aware ESLint, Prettier and Vitest. First prove the configuration rejects invalid types, unsafe code, broken boundaries and under-threshold coverage. Check a frozen install and the shared tooling against the first real packages.
-- [ ] M0-3 Implement the AGENTS §2 commands and `scripts/{trace,gate}`. Tests first for missing/unknown IDs, incidental ID mentions, malformed gate definitions, aliases and failed or unavailable commands. Trace lists future acceptance IDs as pending and fails for missing current or prior IDs. Release tracing checks every ID. Run the gate list without evaluating Markdown as shell code.
-- [ ] M0-4 Add `infra/compose.dev.yml` with PostgreSQL 18/PostGIS, Martin and OSRM and a root `compose.yml` entry point. Verify health checks, synthetic development data and a route using the Algiers extract. Add inspectable fake SMS and push outboxes and test that they are confined to development and test builds.
-- [ ] M0-5 Create `packages/db/{src,migrations,test}` for Drizzle, postgres.js and the extension migration. Integration tests query PostGIS, `pg_trgm`, `unaccent` and `uuidv7()` in real PostgreSQL. Run two test files in parallel and prove isolation, repeatable migrations and guarded cleanup of test databases cloned from a migrated template.
-- [ ] M0-6 Commit the `packages/contracts` health, readiness and RFC 9457 response shapes first. In `apps/api`, test route contracts, bad environment, DB/job readiness, request IDs, log redaction, rate limits and a deny-by-default route inventory. Require the full role matrix to cover each route. Start the production artifact and prove the separately composed test routes return 404.
-- [ ] M0-7 Create `apps/worker` with a typed Graphile Worker job registry. Test on Postgres that duplicate execution yields one committed effect and a failed transaction can retry. Readiness verifies the job schema.
-- [ ] M0-8 Implement `apps/web` locale routes, document direction, message catalogs, CSP nonce proxy and the localized `/[locale]/dev/design` guide. Wire the DESIGN §3–5 token source in `packages/tokens` and the four self-hosted font families. First write route, direction, nonce, font and theme assertions. Use an optimized test build for the guide and verify it is absent from the public production build.
-- [ ] M0-9 Recompute all DESIGN §3.3 WCAG contrast pairs from the canonical palette. Run the test for both themes and prove a deliberately low-contrast fixture is rejected.
-- [ ] M0-10 Configure Playwright mobile Chromium, mobile WebKit and desktop Chromium against an optimized build. Cover I18N-01/I18N-07 with the ar/fr × light/dark matrix, locale metadata, an expanded pseudo-locale, screenshots after `document.fonts.ready`, animations disabled and axe. Exercise the 360 px floor without claiming device certification.
+- [x] M0-1 Verify and pin SPEC §19 in DECISIONS D-001. Record the registry or official release and compatibility constraints for each pin. Keep tools for later milestones out of the M0 dependency graph. Verify the selected Node and pnpm executables run together before locking dependencies.
+- [x] M0-2 Create `package.json`, `pnpm-workspace.yaml`, `turbo.json`, `pnpm-lock.yaml` and `packages/config/` for strict TypeScript, type-aware ESLint, Prettier and Vitest. First prove the configuration rejects invalid types, unsafe code, broken boundaries and under-threshold coverage. Check a frozen install and the shared tooling against the first real packages.
+- [x] M0-3 Implement the AGENTS §2 commands and `scripts/{trace,gate}`. Tests first for missing/unknown IDs, incidental ID mentions, malformed gate definitions, aliases and failed or unavailable commands. Trace lists future acceptance IDs as pending and fails for missing current or prior IDs. Web release traces through M9. Mobile release traces all IDs. Run the gate list without evaluating Markdown as shell code.
+- [x] M0-4 Add `infra/compose.dev.yml` with PostgreSQL 18/PostGIS, Martin and OSRM and a root `compose.yml` entry point. Verify health checks, synthetic development data and a route using the Algiers extract. Add inspectable fake SMS and push outboxes and test that they are confined to development and test builds.
+- [x] M0-5 Create `packages/db/{src,migrations,test}` for Drizzle, postgres.js and the extension migration. Integration tests query PostGIS, `pg_trgm`, `unaccent` and `uuidv7()` in real PostgreSQL. Run two test files in parallel and prove isolation, repeatable migrations and guarded cleanup of test databases cloned from a migrated template.
+- [x] M0-6 Commit the `packages/contracts` health, readiness and RFC 9457 response shapes first. In `apps/api`, test route contracts, bad environment, DB/job readiness, request IDs, log redaction, rate limits and a deny-by-default route inventory. Require the full role matrix to cover each route. Start the production artifact and prove the separately composed test routes return 404.
+- [x] M0-7 Create `apps/worker` with a typed Graphile Worker job registry. Test on Postgres that duplicate execution yields one committed effect and a failed transaction can retry. Readiness verifies the job schema.
+- [x] M0-8 Implement `apps/web` locale routes, document direction, message catalogs, CSP nonce proxy and the localized `/[locale]/dev/design` guide. Wire the DESIGN §3–5 token source in `packages/tokens` and the four self-hosted font families. First write route, direction, nonce, font and theme assertions. Use an optimized test build for the guide and verify it is absent from the public production build.
+- [x] M0-9 Recompute all DESIGN §3.3 WCAG contrast pairs from the canonical palette. Run the test for both themes and prove a deliberately low-contrast fixture is rejected.
+- [x] M0-10 Configure Playwright mobile Chromium, mobile WebKit and desktop Chromium against an optimized build. Cover I18N-01/I18N-07 with the ar/fr × light/dark matrix, locale metadata, an expanded pseudo-locale, screenshots after `document.fonts.ready`, animations disabled and axe. Exercise the 360 px floor without claiming device certification.
 - [ ] M0-11 Add GitHub Actions for format, lint, types, unit, real PostGIS integration, optimized browser tests, audit, gitleaks and CodeQL. Install the pre-commit checks. Prove CI runs on the M0 PR and use the exact checks for that PR head as the gate evidence.
 - [ ] M0-12 Document every validated variable in `.env.example`; add `docs/runbooks/README.md` with setup, checks and recovery commands and a `docs/PRIVACY.md` skeleton. Have QA reproduce setup from a clean checkout and record remaining human-owned steps.
 
@@ -256,7 +256,7 @@ Platform riders and dispatch · groceries · online card payments with per-resta
 Keep this machine-readable list in sync with the sections above:
 
 ```
-m0: verify, e2e:@smoke, tokens:contrast
+m0: verify, e2e:@smoke, tokens:contrast, ci:pr
 m1: verify, coverage:domain, mutation:domain, property:1000
 m2: verify, e2e:@merchant-onboarding, authz:matrix, design:screens
 m3: verify, e2e:@discovery, bench:search, lighthouse:home,restaurant
@@ -266,6 +266,7 @@ m6: verify, e2e:@retention, design:screens
 m7: verify, e2e:@admin-billing, e2e:@privacy
 m8: verify:full, lighthouse:all, perf:hero, design:report-clean
 m9: verify:full, k6:all, zap:staging, drill:restore, smoke:staging, checklist:release
-m10: maestro:@customer, jest:coverage, perf:mobile
-m11: maestro:@partner, soak:background-location
+m10: verify, maestro:@customer, jest:coverage, perf:mobile
+m11: verify, maestro:@partner, soak:background-location
+m12: verify, store:submission
 ```

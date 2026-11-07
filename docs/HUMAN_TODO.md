@@ -5,7 +5,7 @@ Codex appends items here (what, why, exact steps). Mahdi ticks them. Items marke
 ## Accounts and tools
 - [ ] Repository visibility and protection. The requested `Mahdi-Lalioui/delivery` remote is currently public. If you want the private setup described in the starter, open the repository's **Settings → General → Danger Zone → Change repository visibility** and select **Private**. Check plan support for branch protection and CodeQL before switching. Keep `main` protected with required CI checks once those checks exist.
 - [ ] Enable Codex code review on the repo (Codex settings → code review → this repo).
-- [ ] Docker Compose on the development Mac. The Compose command and daemon are missing. Install Docker Desktop for Apple silicon from the [official macOS instructions](https://docs.docker.com/desktop/setup/install/mac-install/), open Docker, and finish setup. Enable Rosetta for x86/amd64 emulation if the PostGIS image requires it. In Terminal, run `docker compose version` and `docker info --format '{{.ServerVersion}}'`. Both must print versions before the local PostGIS gate can run. The disk check passed the 40 GB requirement.
+- [x] Docker on the development Mac. Mahdi enabled Docker Desktop, and the three-service smoke check passed on its `desktop-linux` context. CI uses the exact Compose pin from D-001.
 - [ ] Android Studio emulator (and Xcode + iOS simulator if you have a Mac) — needed from M10.
 
 ## Company and legal
