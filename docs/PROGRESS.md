@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 23:25 GMT — M2-7 bulk price panel state machine (Claude, covering while Codex was out)
+
+- **Changed** — Added `apps/web/src/menu-price/bulk-price-flow.ts`, a pure reducer through editing → previewed → applying → applied → undoing → undone. Apply sends the previewed selection. A network, 5xx or rate-limit failure keeps the idempotency key for the retry, and a definite failure drops it. A revision or session conflict on apply discards the stale preview. `undo-expired`, `price-changed` and `already-undone` permanently close undo for that batch. Changing the selection discards a preview, and events that do not fit the current step are ignored. Exported the `BulkPricePreview` and `BulkPriceBatch` types from the client.
+- **Evidence** — Wrote `apps/web/test/menu-price-flow.test.ts` first (10 `[MER-11]` cases) and saw it fail because the module did not exist. The tests passed after the implementation. The first `pnpm verify` failed at lint because the reducer's complexity was 11. After moving the step guards into the finish helpers, verify failed at knip on an unused exported type. With that type made module-private, `pnpm verify` exited 0: 912 unit tests, 109 PostGIS integration tests, build, knip, depcruise, trace, and only the existing moderate `minimatch` advisory.
+- **Reviewer** — Self-reviewed against AGENTS.md §10. No P0/P1. No business logic remains for the component. Retry keys follow the existing uncertain-response rule used by the option-group and item editors.
+- **Next** — Add the `BulkPricePanel` component and a `useBulkPricePanel` hook in the menu item workspace (`menu-item-screen.tsx`). The hook drives `reduceBulkPrice` with `previewBulkPrices`, `applyBulkPrices` and `undoBulkPrices`. Use the current snapshot revision as `expectedRevision` for both apply and undo, and reload the item list after each saved result. The component offers per-row and whole-category checkboxes, raise/lower, %/DA, a 1/5/10/50 rounding select defaulting to 10, the old → new preview table, and an undo button gated by `isUndoOffered`. Add `menuPrice` messages in ar/fr/en, logical CSS with DESIGN tokens, a production-build Playwright journey (including an expired undo via `/__test__/clock`), and the screenshot matrix.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 23:22 GMT — M2-7 bulk price input parsing and undo deadline (Claude, covering while Codex was out)
 
 - **Changed** — Added `apps/web/src/menu-price/bulk-price-editor.ts`. `parseBulkAdjustment` reads a raise or lower amount, either as a percentage with up to two decimals (a dot or French comma, plus Arabic-Indic and Persian digits) converted exactly to basis points without floating-point maths, or as whole dinars. It rejects zero, signs, exponents, suffixes and anything outside the shared `bulkPriceAdjustment` contract. `isUndoOffered` hides the undo button after ten minutes on the local clock. The server remains the authority (D-009).
@@ -388,5 +396,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress)
 - The checklist snapshot reran `pnpm gate m2` on 2026-11-07 at 18:14 GMT and exited 1 at acceptance trace. It covered 28 of 37 IDs. Pending IDs are ADM-04, MER-01, MER-10, MER-11, MER-12, MER-14, MER-15, MER-16 and MER-23. MER-11's apply/history and undo endpoints landed at 22:41 and 23:18 GMT; the merchant UI is still needed to close MER-11.
-- Last green `pnpm verify`: 2026-11-07 23:22 GMT on Docker Desktop with 902 unit and 109 PostGIS integration tests
+- Last green `pnpm verify`: 2026-11-07 23:25 GMT on Docker Desktop with 912 unit and 109 PostGIS integration tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

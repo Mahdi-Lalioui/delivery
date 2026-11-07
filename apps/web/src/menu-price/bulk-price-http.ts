@@ -9,16 +9,16 @@ import {
 
 export type BulkPriceSelection = ReturnType<typeof bulkPricePreviewInput.parse>;
 type ApplyInput = ReturnType<typeof bulkPriceApplyInput.parse>;
-type Preview = ReturnType<typeof bulkPricePreviewOutput.parse>;
-type Batch = ReturnType<typeof bulkPriceApplyOutput.parse>;
+export type BulkPricePreview = ReturnType<typeof bulkPricePreviewOutput.parse>;
+export type BulkPriceBatch = ReturnType<typeof bulkPriceApplyOutput.parse>;
 
 type Conflict =
   "session-changed" | "revision-conflict" | "undo-expired" | "price-changed" | "already-undone";
 type Rejection = Conflict | "sign-in" | "forbidden" | "invalid-change";
 type Failure = { kind: Rejection } | { kind: "rate-limited" | "error"; shouldReuseKey: boolean };
 
-type PreviewRead = { kind: "ready"; data: Preview } | { kind: Rejection | "error" };
-export type BulkPriceWrite = { kind: "saved"; data: Batch } | Failure;
+type PreviewRead = { kind: "ready"; data: BulkPricePreview } | { kind: Rejection | "error" };
+export type BulkPriceWrite = { kind: "saved"; data: BulkPriceBatch } | Failure;
 
 const privateRequest = {
   cache: "no-store",
