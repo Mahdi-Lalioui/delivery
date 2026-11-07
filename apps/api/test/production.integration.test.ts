@@ -38,9 +38,9 @@ test("[M0-6] the built production process excludes debug routes and reports unav
   try {
     const origin = await vi.waitFor(
       () => {
-        const address = /"address":"(http:\/\/127\.0\.0\.1:\d+)"/.exec(output)?.[1];
-        if (!address) throw new Error("API did not start: " + output);
-        return address;
+        const listenAddress = /"listenAddress":"(http:\/\/127\.0\.0\.1:\d+)"/.exec(output)?.[1];
+        if (!listenAddress) throw new Error("API did not report its listener: " + output);
+        return listenAddress;
       },
       { timeout: 5_000 },
     );
