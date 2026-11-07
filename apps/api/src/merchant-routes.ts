@@ -13,6 +13,7 @@ import {
   merchantApplicationInput,
   merchantApplicationOutput,
   merchantMembershipsOutput,
+  merchantOnboardingOutput,
 } from "@zaafran/contracts/merchant";
 import type { createMerchantRepository } from "@zaafran/db/merchant";
 import type { FastifyInstance, FastifyReply } from "fastify";
@@ -35,6 +36,9 @@ const merchantConfig = {
   },
 } as const;
 const adminConfig = { policy: { kind: "roles", roles: ["admin"] } } as const;
+const editorConfig = {
+  policy: { kind: "roles", roles: ["customer", "merchant_owner", "merchant_manager"] },
+} as const;
 
 const merchantIdParams = z.strictObject({ merchantId: z.uuid() });
 const errors = {
@@ -124,6 +128,41 @@ function registerMerchantReads(api: FastifyInstance, services: MerchantServices 
   );
 }
 
+function registerOnboarding(api: FastifyInstance, services: MerchantServices | undefined) {
+  api.withTypeProvider<ZodTypeProvider>().get(
+    "/v1/merchants/:merchantId/onboarding",
+    {
+      config: editorConfig,
+      schema: { params: merchantIdParams, response: { 200: merchantOnboardingOutput, ...errors } },
+    },
+    async (request, reply) => {
+      const actor = getRequestActor(request);
+      if (!actor) return sendProblem(reply, 401);
+      if (!services) return sendProblem(reply, 503);
+      reply.header("cache-control", "no-store");
+      const data = await services.repository.getOnboarding({
+        accountId: actor.accountId,
+        merchantId: request.params.merchantId.toLowerCase(),
+      });
+      if (!data) return sendProblem(reply, 404);
+      const { merchantId, restaurantName, hasHours, itemsTowardMinimum } = data;
+      return reply.send({
+        sessionId: actor.sessionId,
+        merchantId,
+        restaurantName,
+        steps: {
+          profile: "complete",
+          hours: hasHours ? "complete" : "incomplete",
+          menu: { itemsTowardMinimum, requiredItems: 5 },
+          deliveryZone: "unavailable",
+          testOrder: "unavailable",
+        },
+        canGoLive: false,
+      });
+    },
+  );
+}
+
 function registerAdminQueue(api: FastifyInstance, services: MerchantServices | undefined): void {
   api.withTypeProvider<ZodTypeProvider>().get(
     "/v1/admin/merchant-applications",
@@ -195,6 +234,7 @@ export function registerMerchantRoutes(
 ): void {
   registerApplication(api, services);
   registerMerchantReads(api, services);
+  registerOnboarding(api, services);
   registerAdminQueue(api, services);
   registerAdminReview(api, services);
 }

@@ -1,7 +1,7 @@
 import type { TransactionSql } from "postgres";
 import type { DatabaseConnection } from "./database.js";
 import { lockMerchantAdmin } from "./merchant-access.js";
-import { listCommunes, listPendingApplications } from "./merchant-queries.js";
+import { getOnboarding, listCommunes, listPendingApplications } from "./merchant-queries.js";
 import {
   lockMerchantCommand,
   recordMerchantCommand,
@@ -173,6 +173,7 @@ async function reviewApplication(
 
 export function createMerchantRepository({ sql }: DatabaseConnection) {
   return {
+    getOnboarding: (scope: Parameters<typeof getOnboarding>[1]) => getOnboarding(sql, scope),
     listCommunes: (page: Parameters<typeof listCommunes>[1]) => listCommunes(sql, page),
     listPendingApplications: (page: Parameters<typeof listPendingApplications>[1]) =>
       sql.begin((tx) => listPendingApplications(tx, page)),

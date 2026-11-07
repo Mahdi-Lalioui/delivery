@@ -192,6 +192,12 @@ const matrix: readonly MatrixRoute[] = [
     payload: { categoryIds: [challengeId], expectedRevision: 0 },
     expected: menuRoles,
   },
+  {
+    method: "GET",
+    url: "/v1/merchants/:merchantId/onboarding",
+    requestUrl: "/v1/merchants/" + challengeId + "/onboarding",
+    expected: menuRoles,
+  },
   { method: "GET", url: "/v1/admin/merchant-applications", expected: adminRole },
   {
     method: "POST",

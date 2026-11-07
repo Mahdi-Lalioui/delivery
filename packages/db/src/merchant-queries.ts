@@ -28,6 +28,46 @@ export async function listCommunes(sql: Sql, { wilayaCode, cursor, limit }: Comm
   return { communes, nextCursor: rows.length > limit ? (communes.at(-1)?.code ?? null) : null };
 }
 
+interface OnboardingScope {
+  readonly accountId: string;
+  readonly merchantId: string;
+}
+
+interface OnboardingProgress {
+  readonly merchantId: string;
+  readonly restaurantName: string;
+  readonly hasHours: boolean;
+  readonly itemsTowardMinimum: number;
+}
+
+export async function getOnboarding(
+  sql: Sql,
+  { accountId, merchantId }: OnboardingScope,
+): Promise<OnboardingProgress | undefined> {
+  const [progress] = await sql<OnboardingProgress[]>`
+    SELECT merchant.id AS "merchantId", merchant.restaurant_name AS "restaurantName",
+      EXISTS (
+        SELECT FROM public.merchant_hours AS hours WHERE hours.merchant_id = merchant.id
+      ) AS "hasHours",
+      (
+        SELECT count(*)::integer FROM (
+          SELECT FROM public.items AS item
+          WHERE item.merchant_id = merchant.id AND item.archived_at IS NULL
+            AND item.moderation_status IN ('approved', 'unreviewed')
+          LIMIT 5
+        ) AS configured_items
+      ) AS "itemsTowardMinimum"
+    FROM public.merchants AS merchant
+    JOIN public.merchant_members AS member ON member.merchant_id = merchant.id
+    JOIN public.users AS account ON account.id = member.user_id
+    WHERE merchant.id = ${merchantId} AND account.id = ${accountId}
+      AND merchant.status IN ('approved', 'active', 'paused')
+      AND member.role IN ('owner', 'manager')
+      AND account.blocked_at IS NULL AND account.deleted_at IS NULL
+  `;
+  return progress;
+}
+
 interface QueuePage {
   readonly adminUserId: string;
   readonly cursor?: { submittedAt: string; merchantId: string } | undefined;

@@ -43,6 +43,13 @@
       "when": 1794073500000,
       "tag": "0005_menu_command_receipts",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794074100000,
+      "tag": "0006_merchant_hours",
+      "breakpoints": true
     }
   ]
 }

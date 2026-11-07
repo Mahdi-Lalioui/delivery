@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 18:12 GMT — M2-4 stored onboarding progress
+
+- **Changed** — Added the weekly-hours table and an owner/manager-only checklist read. It uses one database snapshot for saved hours and up to five configured items. Read responses, including tenant-dependent 404s, use `Cache-Control: no-store`.
+- **Evidence** — Staged `pnpm verify` passed 51 tooling, 669 unit and 72 real PostGIS integration tests. The 89-test authorization suite and generated OpenAPI passed. Live tests proved the approval boundary, mixed-role denial, overnight hours and configured item eligibility. The worker migration required the explicit local development database URL in this checkout. With that URL, the guarded migration applied the menu and hours tables and retained 1,541 seeded communes.
+- **Reviewer** — No P0/P1. Added a regression for caching a checklist denial across approval and set no-store before the scoped lookup.
+- **Next** — Finish exact staged verification for the localized checklist.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 18:05 GMT — M2-5 localized category editor
 
 - **Changed** — Added bilingual category editing with Arabic, French and English UI, overnight availability, pointer and keyboard reordering, restored focus and localized announcements. The editor keeps commands bound to the loaded session and revision. The restaurant list links only eligible editors to it.
@@ -244,5 +252,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress)
 - The current M2 implementation snapshot ran `pnpm gate m2` and exited 1 at acceptance trace. It covered 28 of 37 IDs. Pending IDs are ADM-04, MER-01, MER-10, MER-11, MER-12, MER-14, MER-15, MER-16 and MER-23.
-- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 664 unit and 70 PostGIS integration tests
+- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 669 unit and 72 PostGIS integration tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

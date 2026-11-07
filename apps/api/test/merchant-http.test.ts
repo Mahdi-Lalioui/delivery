@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { problemResponseSchema } from "@zaafran/contracts/health";
+import { merchantOnboardingOutput } from "@zaafran/contracts/merchant";
 import type { createMerchantRepository } from "@zaafran/db/merchant";
 import type { LightMyRequestResponse } from "fastify";
 import { expect, onTestFinished, test, vi } from "vitest";
@@ -21,6 +22,7 @@ const applicationsPath = "/v1/merchant-applications";
 const queuePath = "/v1/admin/merchant-applications";
 const reviewPath = `${queuePath}/${merchantId}/review`;
 const membershipsPath = "/v1/me/merchants";
+const onboardingPath = `/v1/merchants/${merchantId}/onboarding`;
 const idempotencyKey = "fixture-merchant-command";
 const headers = { "idempotency-key": idempotencyKey, "x-expected-session-id": sessionId };
 const keyHash = createHash("sha256").update(idempotencyKey).digest();
@@ -67,6 +69,7 @@ function setup(actor?: Actor) {
     submitApplication: vi.fn<MerchantRepository["submitApplication"]>(),
     reviewApplication: vi.fn<MerchantRepository["reviewApplication"]>(),
     listMemberships: vi.fn<MerchantRepository["listMemberships"]>(),
+    getOnboarding: vi.fn<MerchantRepository["getOnboarding"]>(),
     findManagedMerchant: vi.fn<MerchantRepository["findManagedMerchant"]>(),
   } satisfies MerchantRepository;
   const resolveActor = vi.fn(() => Promise.resolve(actor));
@@ -407,3 +410,53 @@ test.each([
   repository.reviewApplication.mockResolvedValue({ kind });
   expectProblem(await api.inject(reviewRequest), status, kind);
 });
+
+test("[MER-02:http] reads checklist progress and leaves delivery and test order unavailable", async () => {
+  const { api, repository } = setup(customer);
+  repository.getOnboarding.mockResolvedValue({
+    merchantId,
+    restaurantName: application.restaurantName,
+    hasHours: true,
+    itemsTowardMinimum: 5,
+  });
+  const response = await api.inject(onboardingPath);
+  expect(response.statusCode).toBe(200);
+  expect(response.headers["cache-control"]).toBe("no-store");
+  expect(merchantOnboardingOutput.parse(response.json())).toEqual({
+    sessionId,
+    merchantId,
+    restaurantName: application.restaurantName,
+    steps: {
+      profile: "complete",
+      hours: "complete",
+      menu: { itemsTowardMinimum: 5, requiredItems: 5 },
+      deliveryZone: "unavailable",
+      testOrder: "unavailable",
+    },
+    canGoLive: false,
+  });
+  expect(repository.getOnboarding).toHaveBeenCalledExactlyOnceWith({ accountId, merchantId });
+});
+
+test("[MER-02:http] hides an unauthorized or not-yet-approved merchant checklist", async () => {
+  const { api, repository } = setup(customer);
+  repository.getOnboarding.mockResolvedValue(undefined);
+  const unavailable = await api.inject(onboardingPath);
+  expectProblem(unavailable, 404, "not_found");
+  expect(unavailable.headers["cache-control"]).toBe("no-store");
+  expectProblem(await api.inject("/v1/merchants/not-an-id/onboarding"), 400, "invalid_request");
+  expect(repository.getOnboarding).toHaveBeenCalledTimes(1);
+});
+
+test.each([
+  [undefined, 401, "unauthenticated"],
+  [admin, 403, "forbidden"],
+  [{ ...customer, role: "merchant_staff" }, 403, "forbidden"],
+] as const)(
+  "[AUTH-06:http] checklist rejects actors outside the editor role policy",
+  async (actor, status, code) => {
+    const { api, repository } = setup(actor);
+    expectProblem(await api.inject(onboardingPath), status, code);
+    expect(repository.getOnboarding).not.toHaveBeenCalled();
+  },
+);

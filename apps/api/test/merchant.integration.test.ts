@@ -10,6 +10,7 @@ import {
   communeListOutput,
   merchantApplicationOutput,
   merchantMembershipsOutput,
+  merchantOnboardingOutput,
 } from "@zaafran/contracts/merchant";
 import { expect, onTestFinished, test } from "vitest";
 import { registerTestDatabase } from "../../../packages/db/test/database.ts";
@@ -142,6 +143,10 @@ test("[MER-01:http] [ADM-03:http] submits, scopes and reviews a merchant on the 
   const created = await submit();
   expect(created.statusCode).toBe(201);
   const result = merchantApplicationOutput.parse(created.json());
+  const onboardingPath = "/v1/merchants/" + result.merchantId + "/onboarding";
+  expect((await api.inject({ url: onboardingPath, headers: applicant.headers })).statusCode).toBe(
+    404,
+  );
   expect((await submit()).json()).toEqual(result);
   const collision = await submit({ ...application, restaurantName: "Autre cuisine fictive" });
   expect(problemResponseSchema.parse(collision.json())).toMatchObject({
@@ -215,6 +220,23 @@ test("[MER-01:http] [ADM-03:http] submits, scopes and reviews a merchant on the 
   ]);
   const after = await api.inject({ url: membershipsPath, headers: applicant.headers });
   expect(merchantMembershipsOutput.parse(after.json()).memberships[0]?.status).toBe("approved");
+  const checklist = await api.inject({ url: onboardingPath, headers: applicant.headers });
+  expect(checklist.statusCode).toBe(200);
+  expect(merchantOnboardingOutput.parse(checklist.json())).toEqual({
+    sessionId: applicant.sessionId,
+    merchantId: result.merchantId,
+    restaurantName: application.restaurantName,
+    steps: {
+      profile: "complete",
+      hours: "incomplete",
+      menu: { itemsTowardMinimum: 0, requiredItems: 5 },
+      deliveryZone: "unavailable",
+      testOrder: "unavailable",
+    },
+    canGoLive: false,
+  });
+  expect((await api.inject({ url: onboardingPath, headers: other.headers })).statusCode).toBe(404);
+
   const completed = await api.inject({ url: queuePath, headers: admin.headers });
   expect(adminReviewQueueOutput.parse(completed.json()).applications).toEqual([]);
 });
