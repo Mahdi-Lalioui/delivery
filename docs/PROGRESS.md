@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 23:29 GMT — M2-7 bulk price panel component and messages (Claude, covering while Codex was out)
+
+- **Changed** — Added `apps/web/src/menu-price/components/bulk-price-panel.tsx`. It is a presentational `BulkPricePanel` driven by a `BulkPriceControls` object. It provides per-item checkboxes with the current price and an all-items-in-category toggle, raise/lower and %/DA radio groups, the amount input (`dir="ltr"`, decimal or numeric keyboard, `aria-invalid` with a described error), and a 1/5/10/50 DA rounding select. It also shows a captioned old → new preview table, then preview and apply buttons. After apply it shows an applied status with an undo button only while `isUndoOffered` holds and the batch is not terminally rejected. Every failure kind maps to a `role="alert"` message. Added the `menuPrice` namespace to the ar, fr and en catalogs. The panel is not yet placed in the workspace.
+- **Evidence** — Wrote `apps/web/test/menu-price-panel.test.tsx` first (4 `[MER-11]` static-render cases in Arabic) and saw it fail because the module did not exist. The tests passed after the implementation. Verify failed twice before going green: once at typecheck on a readonly fixture in the new test, fixed with `satisfies`, and once at knip on an unused exported form type, now module-private. The final `pnpm verify` exited 0: 916 unit tests, 109 PostGIS integration tests, build, knip, depcruise, trace, and only the existing moderate `minimatch` advisory.
+- **Reviewer** — Self-reviewed against AGENTS.md §10. No P0/P1. Copy comes only from messages, prices use `formatDzd` inside `bdi`, and the component holds no business logic. P2: the no-selection message reuses the amount error id. Give it its own id when the hook lands.
+- **Next** — Add `apps/web/src/menu-price/use-bulk-price-panel.ts`. It holds the form and drives `reduceBulkPrice` with `parseBulkAdjustment` and the three client calls, using a `crypto.randomUUID()` key or the state's `retryKey`. It uses the item snapshot's current revision as `expectedRevision` for apply and undo, re-renders at the undo deadline, and calls the item editor's reload after each saved result. Render `BulkPricePanel` in `menu-item-screen.tsx`'s `ItemWorkspace`, add `menuPrice` to the page's `NextIntlClientProvider` messages, and add logical-property CSS with DESIGN tokens for the `bulk-price-*` classes. Then add the production-build Playwright journey (preview, apply, undo, and an expired undo after advancing `/__test__/clock`) and the light/dark × ar/fr × 390/1280 screenshots, and close M2-7.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 23:25 GMT — M2-7 bulk price panel state machine (Claude, covering while Codex was out)
 
 - **Changed** — Added `apps/web/src/menu-price/bulk-price-flow.ts`, a pure reducer through editing → previewed → applying → applied → undoing → undone. Apply sends the previewed selection. A network, 5xx or rate-limit failure keeps the idempotency key for the retry, and a definite failure drops it. A revision or session conflict on apply discards the stale preview. `undo-expired`, `price-changed` and `already-undone` permanently close undo for that batch. Changing the selection discards a preview, and events that do not fit the current step are ignored. Exported the `BulkPricePreview` and `BulkPriceBatch` types from the client.
@@ -396,5 +404,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress)
 - The checklist snapshot reran `pnpm gate m2` on 2026-11-07 at 18:14 GMT and exited 1 at acceptance trace. It covered 28 of 37 IDs. Pending IDs are ADM-04, MER-01, MER-10, MER-11, MER-12, MER-14, MER-15, MER-16 and MER-23. MER-11's apply/history and undo endpoints landed at 22:41 and 23:18 GMT; the merchant UI is still needed to close MER-11.
-- Last green `pnpm verify`: 2026-11-07 23:25 GMT on Docker Desktop with 912 unit and 109 PostGIS integration tests
+- Last green `pnpm verify`: 2026-11-07 23:29 GMT on Docker Desktop with 916 unit and 109 PostGIS integration tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
