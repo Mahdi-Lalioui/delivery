@@ -171,7 +171,8 @@
     "sessionChanged": "Le compte connecté a changé. Actualisez la page avant de commencer une nouvelle demande.",
     "refreshAccount": "Actualiser le compte",
     "manageMenu": "Gérer le menu",
-    "signInToViewStatus": "Connectez-vous pour voir vos restaurants et vos demandes."
+    "signInToViewStatus": "Connectez-vous pour voir vos restaurants et vos demandes.",
+    "viewSetup": "Voir la configuration"
   },
   "adminMerchant": {
     "title": "Demandes des restaurants",
@@ -255,5 +256,29 @@
     "saveError": "Impossible d’enregistrer la modification. Réessayez.",
     "rateLimited": "Trop de demandes. Réessayez plus tard.",
     "categoryLimit": "Ce menu a atteint sa limite de catégories."
+  },
+  "merchantOnboarding": {
+    "title": "Configuration du restaurant",
+    "description": "Suivez les étapes avant la mise en ligne de votre restaurant.",
+    "backToRestaurants": "Vos restaurants",
+    "checklist": "Étapes de configuration",
+    "profile": "Profil",
+    "hours": "Horaires d’ouverture",
+    "menu": "Menu",
+    "deliveryZone": "Zone de livraison",
+    "testOrder": "Commande de test",
+    "complete": "Terminé",
+    "incomplete": "À terminer",
+    "unavailable": "Indisponible",
+    "menuProgress": "{completed} sur {required} plats requis configurés",
+    "editMenu": "Ouvrir l’éditeur de menu",
+    "goLive": "Mettre en ligne",
+    "goLiveDescription": "Configurez une zone de livraison et terminez une commande de test avant la mise en ligne.",
+    "loading": "Chargement de la configuration…",
+    "loadError": "Impossible de charger les étapes de configuration.",
+    "retry": "Réessayer",
+    "signInRequired": "Connectez-vous pour voir la configuration du restaurant.",
+    "signIn": "Se connecter",
+    "forbidden": "Votre compte ne peut pas accéder à la configuration du restaurant."
   }
 }

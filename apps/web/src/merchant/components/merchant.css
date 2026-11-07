@@ -99,7 +99,8 @@
 }
 
 .merchant-cuisines,
-.merchant-badges {
+.merchant-badges,
+.merchant-membership-actions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-8);

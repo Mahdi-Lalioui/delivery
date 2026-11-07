@@ -46,9 +46,17 @@ function MembershipList({
                 <span className="merchant-status">{translate(statusLabels[status])}</span>
               </div>
               {role !== "staff" && editableStatuses.has(status) && (
-                <a className="merchant-secondary" href={`/${locale}/merchant/${merchantId}/menu`}>
-                  {translate("manageMenu")}
-                </a>
+                <div className="merchant-membership-actions">
+                  <a
+                    className="merchant-secondary"
+                    href={`/${locale}/merchant/${merchantId}/setup`}
+                  >
+                    {translate("viewSetup")}
+                  </a>
+                  <a className="merchant-secondary" href={`/${locale}/merchant/${merchantId}/menu`}>
+                    {translate("manageMenu")}
+                  </a>
+                </div>
               )}
             </li>
           ))}

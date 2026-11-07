@@ -81,6 +81,35 @@ async function seedMenuMemberships(database: DatabaseConnection, phone: string, 
   });
 }
 
+async function seedOnboardingProgress(
+  database: DatabaseConnection,
+  merchantId: string,
+): Promise<void> {
+  await database.sql.begin(async (sql) => {
+    const [fixture] = await sql<{ id: string }[]>`
+      SELECT id FROM public.merchants WHERE id = ${merchantId} AND is_demo AND status = 'approved'
+    `;
+    if (!fixture) throw new Error("The checklist requires an approved synthetic merchant.");
+    await sql`
+      INSERT INTO public.merchant_hours (merchant_id, weekday, opens_minute, closes_minute)
+      VALUES (${fixture.id}, 5, 1080, 120)
+    `;
+    await sql`
+      WITH category AS (
+        INSERT INTO public.categories (merchant_id, names, sort)
+        VALUES (${fixture.id}, '{"ar":"أطباق تجريبية","fr":"Plats fictifs"}', 0) RETURNING id
+      )
+      INSERT INTO public.items
+        (merchant_id, category_id, names, descriptions, price_dzd, tags, prep_extra_min)
+      SELECT ${fixture.id}::uuid, category.id,
+        jsonb_build_object('ar', 'طبق تجريبي ' || item.number::text,
+                           'fr', 'Plat fictif ' || item.number::text),
+        '{"ar":"وصف تجريبي","fr":"Description fictive"}'::jsonb, 600, ARRAY[]::text[], 0
+      FROM category CROSS JOIN generate_series(1, 5) AS item(number)
+    `;
+  });
+}
+
 export async function startAuthHarness(webOrigin: string): Promise<AuthHarness> {
   const compiled: unknown = await import(new URL("../dist/start.js", import.meta.url).href);
   if (!isCompiledApi(compiled)) throw new Error("Build the API before running browser auth tests.");
@@ -121,6 +150,7 @@ export async function startAuthHarness(webOrigin: string): Promise<AuthHarness> 
     close: () => cleanup.disposeAsync(),
     seedAlgiersCommune: () => seedAlgiersCommune(database),
     seedMenuMemberships: (phone) => seedMenuMemberships(database, phone, new Date(time)),
+    seedOnboardingProgress: (merchantId) => seedOnboardingProgress(database, merchantId),
     advanceClock(milliseconds: number) {
       if (!Number.isSafeInteger(milliseconds) || milliseconds < 0) {
         throw new RangeError("The test clock can only advance by whole milliseconds.");

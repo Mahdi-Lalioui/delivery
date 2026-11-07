@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 18:15 GMT — M2-4 localized setup checklist
+
+- **Changed** — Added a private restaurant setup screen in Arabic, French and English, with stored hours, menu progress, status and menu navigation. Delivery zone, test order and Go live remain visibly unavailable until their required flows exist.
+- **Evidence** — Staged `pnpm verify` passed 51 tooling, 681 unit and 72 real PostGIS integration tests. Nine production HTTPS journeys passed, including stored 0-to-5 item progress, overnight hours and staff denial. The 24 normal and eight 200% design variants passed. [Browser and design evidence](evidence/m2/onboarding-checklist.md)
+- **Reviewer** — No P0/P1. Design review approved the native progress indicator, RTL, visible focus and unavailable activation state.
+- **Next** — Continue item editing, reusable options, media, bulk changes, imports, hours, moderation and staff roles.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 18:12 GMT — M2-4 stored onboarding progress
 
 - **Changed** — Added the weekly-hours table and an owner/manager-only checklist read. It uses one database snapshot for saved hours and up to five configured items. Read responses, including tenant-dependent 404s, use `Cache-Control: no-store`.
@@ -251,6 +259,6 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 ## Current status
 
 - Milestone: M1 (last passing gate, M2 in progress)
-- The current M2 implementation snapshot ran `pnpm gate m2` and exited 1 at acceptance trace. It covered 28 of 37 IDs. Pending IDs are ADM-04, MER-01, MER-10, MER-11, MER-12, MER-14, MER-15, MER-16 and MER-23.
-- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 669 unit and 72 PostGIS integration tests
+- The checklist snapshot reran `pnpm gate m2` on 2026-11-07 at 18:14 GMT and exited 1 at acceptance trace. It covered 28 of 37 IDs. Pending IDs are ADM-04, MER-01, MER-10, MER-11, MER-12, MER-14, MER-15, MER-16 and MER-23.
+- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 681 unit and 72 PostGIS integration tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

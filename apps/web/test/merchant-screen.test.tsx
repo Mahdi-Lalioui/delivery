@@ -132,6 +132,9 @@ test("[MER-23:web] links only approved owner and manager memberships to menu edi
   });
   const html = render("status");
   expect(html).toContain(`href="/ar/merchant/${commune.id}/menu"`);
+  expect(html).toContain(`href="/ar/merchant/${commune.id}/setup"`);
+  expect(html).not.toContain(`href="/ar/merchant/${staffId}/setup"`);
+  expect(html).not.toContain(`href="/ar/merchant/${pendingId}/setup"`);
   expect(html).not.toContain(`href="/ar/merchant/${staffId}/menu"`);
   expect(html).not.toContain(`href="/ar/merchant/${pendingId}/menu"`);
 });

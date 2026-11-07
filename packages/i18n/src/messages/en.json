@@ -171,7 +171,8 @@
     "sessionChanged": "The signed-in account changed. Refresh before starting a new application.",
     "refreshAccount": "Refresh account",
     "manageMenu": "Manage menu",
-    "signInToViewStatus": "Sign in to view your restaurants and applications."
+    "signInToViewStatus": "Sign in to view your restaurants and applications.",
+    "viewSetup": "View setup"
   },
   "adminMerchant": {
     "title": "Restaurant applications",
@@ -255,5 +256,29 @@
     "saveError": "We couldn’t save the change. Try again.",
     "rateLimited": "Too many requests. Try again later.",
     "categoryLimit": "This menu has reached its category limit."
+  },
+  "merchantOnboarding": {
+    "title": "Restaurant setup",
+    "description": "Track the steps before your restaurant can go live.",
+    "backToRestaurants": "Your restaurants",
+    "checklist": "Setup checklist",
+    "profile": "Profile",
+    "hours": "Opening hours",
+    "menu": "Menu",
+    "deliveryZone": "Delivery zone",
+    "testOrder": "Test order",
+    "complete": "Complete",
+    "incomplete": "Incomplete",
+    "unavailable": "Unavailable",
+    "menuProgress": "{completed} of {required} required items configured",
+    "editMenu": "Open menu editor",
+    "goLive": "Go live",
+    "goLiveDescription": "Set up a delivery zone and complete a test order before going live.",
+    "loading": "Loading setup…",
+    "loadError": "We couldn’t load the setup checklist.",
+    "retry": "Try again",
+    "signInRequired": "Sign in to view restaurant setup.",
+    "signIn": "Sign in",
+    "forbidden": "Restaurant setup is unavailable to your account."
   }
 }

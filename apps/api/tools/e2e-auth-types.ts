@@ -20,4 +20,5 @@ export interface AuthHarness {
   seedAdmin(phone: string): Promise<() => string>;
   seedAlgiersCommune(): Promise<AlgiersCommune>;
   seedMenuMemberships(phone: string): Promise<readonly MenuMembershipFixture[]>;
+  seedOnboardingProgress(merchantId: string): Promise<void>;
 }
