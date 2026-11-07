@@ -23,6 +23,10 @@
     "./pricing": {
       "types": "./src/pricing.ts",
       "default": "./dist/pricing.js"
+    },
+    "./search": {
+      "types": "./src/search.ts",
+      "default": "./dist/search.js"
     }
   },
   "scripts": {

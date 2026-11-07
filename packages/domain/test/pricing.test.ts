@@ -1,4 +1,5 @@
 import fc from "fast-check";
+import { assertDomainProperty } from "./property.ts";
 import { expect, test } from "vitest";
 import { dzd, type Dzd } from "../src/money.ts";
 import { calculateChange, priceOrder } from "../src/pricing.ts";
@@ -297,7 +298,7 @@ test("[MON-10] generated prices match an integer oracle for every amount @proper
     ),
   );
 
-  fc.assert(
+  assertDomainProperty(
     fc.property(fc.record({ lines, promo, fulfillment }), ({ lines, promo, fulfillment }) => {
       const input = order({ lines, fulfillment, ...(promo === undefined ? {} : { promo }) });
       const subtotal = lines.reduce((sum, item) => {
@@ -321,6 +322,5 @@ test("[MON-10] generated prices match an integer oracle for every amount @proper
         },
       });
     }),
-    { numRuns: 1_000, seed: 20_261_107 },
   );
 });

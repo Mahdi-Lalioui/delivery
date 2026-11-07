@@ -1,4 +1,5 @@
 import fc from "fast-check";
+import { assertDomainProperty } from "./property.ts";
 import { expect, test } from "vitest";
 import { transition } from "../src/order-transition.ts";
 import type {
@@ -530,7 +531,7 @@ test("[ORD-12] random command sequences preserve terminal, time and version inva
     now: fc.integer({ min: clock - 1_500, max: clock + timeout + 1 }),
   });
 
-  fc.assert(
+  assertDomainProperty(
     fc.property(start, fc.array(step, { minLength: 1, maxLength: 20 }), (status, steps) => {
       let order = snapshot(status, { courierId: courier.courierId });
       for (const { action, actor, isStale, now } of steps) {
@@ -558,7 +559,6 @@ test("[ORD-12] random command sequences preserve terminal, time and version inva
         order = next.order;
       }
     }),
-    { numRuns: 1_000, seed: 20_261_107 },
   );
 });
 
@@ -582,4 +582,12 @@ test("[ORD-03:domain] reports a stale fresh command after another command finish
     ),
     "order_conflict",
   );
+});
+
+test("[ORD-01] a completed delivery cannot emit a second delivery event", () => {
+  const order = snapshot("delivered", { courierId: courier.courierId });
+  const result = run(deliver, { order, actor: courier });
+  expectError(result, "order_terminal");
+  expect(order.status).toBe("delivered");
+  expect(order.version).toBe(3);
 });

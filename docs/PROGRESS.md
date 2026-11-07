@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-07 15:39 GMT — M1-2 order lifecycle and M1-5 ETA
+
+- **Changed** — `ee11491` added order state and scope checks, exact retries, event projection, delivery proof, deadlines and ETA ranges and refresh limits.
+- **Evidence** — The staged snapshot passed `pnpm verify` with 48 tooling, 231 unit and 12 real PostGIS integration tests. The order and ETA suite passed 77 focused cases, including a seeded 1,000-run command-sequence property.
+- **Reviewer** — Fixed and verified two P1 cases. Events now exclude extra action fields. A stale fresh command returns the version conflict even after a different command reached a terminal state. No remaining P0/P1.
+- **Next** — Verify the search, locale, and geo packages together.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 15:32 GMT — M1-1 integer pricing and cash change
 
 - **Changed** — `914b97b` added branded DZD, integer line and option calculations, discount and fee rounding, minimum checks, cash change, and the M1 coverage and mutation command wiring.

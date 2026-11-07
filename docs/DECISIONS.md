@@ -47,6 +47,8 @@ The scout checked stable releases with `npm view <package> version` and peer and
 | Native tests | `jest` `30.5.2`, `jest-expo` `58.0.14`, `@testing-library/react-native` `14.1.0`, `test-renderer` `1.3.1` |
 | Map tooling | `pmtiles` `4.5.0`, `@protomaps/basemaps` `5.7.2`, `@mapbox/mapbox-gl-rtl-text` `1.0.0` |
 
+M1 adds direct pins for `intl-messageformat` `11.2.15` and `@formatjs/icu-messageformat-parser` `3.5.22`, previously in the lockfile through the web i18n stack. Both exact npm releases were verified. They report BSD-3-Clause and MIT respectively. [ICU formatter registry entry](https://registry.npmjs.org/intl-messageformat/11.2.15) · [ICU parser registry entry](https://registry.npmjs.org/@formatjs%2ficu-messageformat-parser/3.5.22)
+
 TypeScript `7.0.2` is the latest stable release. The selected type-aware ESLint parser declares `>=4.8.4 <6.1.0`, so `6.0.3` is the supported pin. Expo uses the SDK bundle's React and native versions in the app workspaces. Select the Serwist adapter for Next's Turbopack build. [typescript-eslint support](https://typescript-eslint.io/users/dependency-versions/) · [Expo SDK 58](https://expo.dev/changelog/sdk-58) · [Serwist Next.js documentation](https://serwist.pages.dev/docs/next/getting-started)
 
 The official Darwin arm64 Node archive matched `SHASUMS256.txt`. `node --version` and `pnpm --version` then returned `v26.13.0` and `12.18.0` together. The temporary npm bootstrap exempted the exact pnpm pin from the host's three-day release-age window. [Node release index](https://nodejs.org/dist/index.json) · [Node checksums](https://nodejs.org/dist/v26.13.0/SHASUMS256.txt) · [npm release-age settings](https://docs.npmjs.com/cli/v11/using-npm/config/#min-release-age)
@@ -93,3 +95,9 @@ The clipped roads fixture was generated with Osmium Tool 1.18.0 (Debian `1.18.0-
 ### D-003 — Optimized web builds and font preloads (2026-11-07)
 
 Build the M0 web and design profiles with Next.js 16.4.5's Webpack mode. The Turbopack build merged font imports across the Arabic and Latin layouts and omitted the preload for the compound guide extension. The Webpack artifacts preload only Inter on Latin routes and only the IBM Plex UI weights on Arabic routes. The display fonts load on demand. Supersedes the M0 bundler assumption in D-001. Select the matching Serwist adapter when the PWA work starts. [Next.js CLI](https://nextjs.org/docs/app/api-reference/cli/next) · [Serwist Next.js documentation](https://serwist.pages.dev/docs/next/getting-started)
+
+### D-004 — Maghrib reference and delivery ETA rounding (2026-11-07)
+
+The default Algeria prayer calculation uses the Adhan Muslim World League profile with the published local three-minute sunset adjustment. The 2027 fixture uses USNO astronomical sunset for central Algiers plus that published adjustment. The adapter accepts a merchant-selected calculation profile and an independent minute offset. [USNO reference](https://aa.usno.navy.mil/calculated/rstt/year?ID=AA&year=2027&task=0&lat=36.7538&lon=3.0588&label=Algiers&tz=1&tz_sign=1) · [Ministry publication, p. 62](https://marw.gov.dz/sites/default/files/publications/ressalat_elmassjd-annee17-n02-1440h-2019.pdf)
+
+Display delivery ETA endpoints rounded independently to the nearest five minutes, with halves rounded up. Tracking can compute its first ETA immediately and refresh at the next 30-second boundary. M5 supplies the live route and authoritative PostGIS coverage check.

@@ -7,6 +7,9 @@
     "eyebrow": "الجزائر العاصمة، الجزائر",
     "description": "اكتشف موائد الجزائر العاصمة ومطابخها."
   },
+  "menu": {
+    "itemCount": "{count, plural, zero {لا أصناف} one {صنف واحد} two {صنفان} few {# أصناف} many {# صنفًا} other {# صنف}}"
+  },
   "guide": {
     "eyebrow": "زعفران القصبة",
     "title": "دليل التصميم",
