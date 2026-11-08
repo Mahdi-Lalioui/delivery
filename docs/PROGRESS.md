@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 07:36 GMT — M2-9 production-build hours journeys and screenshot matrix (Claude, covering while Codex was out)
+
+- **Changed** — Added `e2e/auth-merchant-hours.spec.ts` with `[MER-15:browser] [MER-16:browser]` in ar and fr. An owner saves an overnight Thursday 18:00–02:00 range and sees the next-day preview. They save a Ramadan range from Maghrib −30 to 02:00, switch the preview to Ramadan, and reload to read both schedules back. Each journey then checks light/dark × 390/1280 with axe and overflow. Added [hours evidence](evidence/m2/hours.md) with 8 lossless WebP captures. M2-9 is ticked.
+- **Evidence** — The new spec passed 2/2 on the production build. Changing the expected offset to −31 made it fail with `Received: "-30"`, and the value was restored. `pnpm test:e2e:auth` exited 0 with 14/14. `pnpm verify` exited 0: 1100 unit tests, 118 PostGIS integration tests, build, knip, depcruise, trace, and only the existing moderate advisory.
+- **Reviewer** — Self-reviewed against AGENTS.md §10. No P0/P1. P2 design note for M2-12: at 1280 px the preview card wraps below the closed-now card.
+- **Next (exact)** — M2-10 moderation (§17.3, ADM-04). Re-read SPEC §17.3 and ADM-04. Write the failing tests first: a pure prohibited-goods matcher in `packages/domain` (normalized ar/fr/en terms for medicines, alcohol, tobacco and gambling, with fast-check normalization properties). Then add integration tests proving that every menu write path (category, item create/update, option group, CSV import later) flags matching items as `hidden_pending_review`, and that the public preview excludes them until an audited admin outcome allows listing.
+- **Needs Mahdi** — None.
+
 ### 2026-11-08 07:32 GMT — M2-9 Ramadan editor wired into the hours page (Claude, covering while Codex was out)
 
 - **Changed** — Kept and finished Codex's uncommitted work. `use-ramadan-editor.ts` loads with `readRamadan` on the shared `version`, then saves with `prepareRamadanSave`, `crypto.randomUUID` and `replaceRamadan`. On success it advances the weekly hours flow. A weekly hours or pause success advances the Ramadan flow, and each of the three saves is blocked while another is in flight (D-011 shared revision). The new `components/ramadan-card.tsx` renders `RamadanFields` in its own form, with "Save Ramadan hours" (`data-ramadan-save`), loading and unavailable states, and an outcome. The weekly form stays usable if the Ramadan read fails. `ReloadHours`/`SaveOutcome` moved to `components/save-outcome.tsx` and are shared by both forms. A tested `isStale` in `hours-http.ts` picks the reload focus and keeps `save` within complexity 10. A Ramadan day error now focuses `#ramadan-<weekday>-0-opens-kind` (this fixes a narrowing type error in the draft hook). Added 3 messages in ar, fr and en.
@@ -622,6 +630,6 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 ## Current status
 
 - Milestone: M1 (last passing gate, M2 in progress)
-- `node scripts/trace.ts --through m2` on 2026-11-08 at 03:32 GMT covered 32 of 37 IDs. Pending: ADM-04, MER-01, MER-12, MER-14, MER-23. M2-9 has its API, preview, pure web models, and the weekly hours page with the closed-now control. The Ramadan editor is wired into the hours page. The production-build journeys and screenshots remain.
-- Last green `pnpm verify`: 2026-11-08 07:32 GMT on Docker Desktop with 1100 unit and 118 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 12/12 at 02:22 GMT.
+- `node scripts/trace.ts --through m2` on 2026-11-08 at 03:32 GMT covered 32 of 37 IDs. Pending: ADM-04, MER-01, MER-12, MER-14, MER-23. M2-9 has its API, preview, pure web models, and the weekly hours page with the closed-now control. M2-9 is done, with production-build ar/fr journeys and the screenshot matrix. Next is M2-10.
+- Last green `pnpm verify`: 2026-11-08 07:35 GMT on Docker Desktop with 1100 unit and 118 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 14/14 at 07:35 GMT.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
