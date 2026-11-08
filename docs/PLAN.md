@@ -117,7 +117,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Add the regular/Ramadan preview toggle to the hours page.
     - [x] Wire the Ramadan editor into the hours page.
     - [x] Prove the production-build overnight and Ramadan journeys in Arabic and French, plus the screenshot matrix.
-- [ ] M2-10 Moderation (§17.3, ADM-04). Check prohibited goods on every menu write path and public preview. Prove flagged items stay hidden until the audited review outcome permits listing.
+- [x] M2-10 Moderation (§17.3, ADM-04). Check prohibited goods on every menu write path and public preview. Prove flagged items stay hidden until the audited review outcome permits listing.
   - [x] Add the pure prohibited-goods matcher in `@zaafran/domain` (ar/fr/en/Arabizi keywords, whole words, property tests).
   - [x] Apply the matcher in the item create/update repository commands, setting `blocked_pending_review` in the same transaction, with integration tests per write path.
   - [x] Add the audited admin review command and route (approve/reject) with matrix rows, and prove the public preview hides blocked items until approval.
@@ -126,10 +126,10 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Add the keyset held-item queue read in `packages/db`.
     - [x] Add the admin routes, authorization-matrix rows and OpenAPI.
     - [x] Prove both routes end to end against PostGIS through `startApi`, including the merchant's visible items after each decision.
-  - [ ] Show the held status to merchants and give admins a review screen (ar/fr/en).
+  - [x] Show the held status to merchants and give admins a review screen (ar/fr/en).
     - [x] Explain the held status under the merchant item list badge.
     - [x] Add the typed web client for the held-item queue and review.
-    - [ ] Add the admin held-items screen with approve/reject and a required reason, and prove it in an auth e2e.
+    - [x] Add the admin held-items screen with approve/reject and a required reason, and prove it in an auth e2e.
 - [ ] M2-11 Staff roles (MER-23). Implement owner-managed, single-use invitations tied to a verified phone. Prove every role against both its own and another merchant's resources.
 - [ ] M2-12 Seed twelve fictional bilingual Algiers restaurants with synthetic imagery and `is_demo`, then run production-built onboarding, the complete route matrix, and the design critic's theme/locale/viewport checks. Record local and PR evidence.
 

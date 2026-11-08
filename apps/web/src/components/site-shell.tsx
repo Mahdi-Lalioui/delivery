@@ -13,6 +13,7 @@ interface SiteShellProps {
     | "/sign-in?continue=merchant-apply"
     | "/sign-in?continue=merchant-status"
     | "/sign-in?continue=admin-review"
+    | "/sign-in?continue=admin-moderation"
     | "/account/sessions"
     | "/merchant"
     | "/merchant/apply"
@@ -21,13 +22,20 @@ interface SiteShellProps {
     | `/merchant/${string}/menu/${string}/items`
     | `/merchant/${string}/setup`
     | `/merchant/${string}/hours`
-    | "/admin/merchant-applications";
+    | "/admin/merchant-applications"
+    | "/admin/menu-items";
 }
+
+const adminSubpaths: ReadonlySet<string> = new Set([
+  "/admin/merchant-applications",
+  "/admin/menu-items",
+  "/sign-in?continue=admin-review",
+  "/sign-in?continue=admin-moderation",
+]);
 
 export async function SiteShell({ children, locale, subpath }: SiteShellProps) {
   const translate = await getTranslations({ locale, namespace: "shell" });
-  const isAdmin =
-    subpath === "/admin/merchant-applications" || subpath === "/sign-in?continue=admin-review";
+  const isAdmin = subpath !== undefined && adminSubpaths.has(subpath);
   const languages = isAdmin ? publicLocales.filter((language) => language !== "ar") : publicLocales;
 
   return (

@@ -7,13 +7,16 @@ import { problemResponseSchema } from "@zaafran/contracts/health";
 
 type HeldPage = ReturnType<typeof adminItemQueueOutput.parse>;
 type ReviewInput = ReturnType<typeof adminItemReviewInput.parse>;
-type HeldItemReview = Readonly<{
+export type HeldItem = HeldPage["items"][number];
+export type HeldReviewField = keyof ReviewInput;
+export type HeldReviewDraft = { decision: ReviewInput["decision"] | ""; reason: string };
+export type HeldItemReview = Readonly<{
   itemId: string;
   expectedSessionId: string;
   input: ReviewInput;
   key: string;
 }>;
-type HeldPageRequest =
+export type HeldPageRequest =
   { cursor?: never; expectedSessionId?: never } | { cursor: string; expectedSessionId: string };
 type HeldPageResult =
   { kind: "ready"; page: HeldPage } | { kind: "sign-in" | "session-changed" | "error" };

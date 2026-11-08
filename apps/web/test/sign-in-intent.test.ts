@@ -21,6 +21,18 @@ test("[ADM-03:web] requires admin verification for the French and English review
   });
 });
 
+test("[ADM-04:web] requires admin verification for the French and English held-item queue", () => {
+  expect(readSignInIntent({ continue: "admin-moderation" }, "en")).toEqual({
+    purpose: "admin_sign_in",
+    subpath: "/sign-in?continue=admin-moderation",
+    destination: { href: "/en/admin/menu-items", label: "continueModeration" },
+  });
+  expect(readSignInIntent({ continue: "admin-moderation" }, "ar")).toEqual({
+    purpose: "sign_in",
+    subpath: "/sign-in",
+  });
+});
+
 test.each([
   "https://example.invalid",
   "//example.invalid",
