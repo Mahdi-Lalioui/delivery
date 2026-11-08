@@ -15,7 +15,8 @@ type Operation =
   | "bulk_price_apply"
   | "bulk_price_undo"
   | "hours_replace"
-  | "ramadan_replace";
+  | "ramadan_replace"
+  | "hours_pause";
 
 export interface CommandRequest<
   Input extends { readonly expectedRevision: number },
@@ -33,7 +34,8 @@ type WriteFailure =
   | "invalid_bulk_price_change"
   | "undo_window_expired"
   | "price_changed_since_apply"
-  | "price_change_already_undone";
+  | "price_change_already_undone"
+  | "pause_not_in_future";
 type CommandFailure = "not_found" | "idempotency_conflict" | "revision_conflict";
 
 export type CommandChange<Value, Failure extends WriteFailure = CategoryWriteFailure> =

@@ -23,6 +23,7 @@ const stale = fixtureId(30);
 const staffed = fixtureId(40);
 const foreign = fixtureId(50);
 const fasting = fixtureId(60);
+const pausing = fixtureId(70);
 
 function emptyWeek(): MerchantHours["weekly"] {
   return [0, 1, 2, 3, 4, 5, 6].map((weekday) => ({ weekday, ranges: [] }));
@@ -79,7 +80,7 @@ beforeAll(async () => {
     insert into users (id, phone_e164, created_at)
     values (${ownerId}, '+213500000010', ${now.toISOString()}::timestamptz)
   `;
-  for (const merchantId of [replacing, replaying, stale, staffed, foreign, fasting]) {
+  for (const merchantId of [replacing, replaying, stale, staffed, foreign, fasting, pausing]) {
     await sql`
       insert into merchants
         (id, slug, restaurant_name, owner_name, phone_e164, commune_id, location, cuisines, status, created_at)
@@ -88,7 +89,7 @@ beforeAll(async () => {
         array['algerian'], 'approved', ${now.toISOString()}::timestamptz)
     `;
   }
-  for (const merchantId of [replacing, replaying, stale, fasting]) {
+  for (const merchantId of [replacing, replaying, stale, fasting, pausing]) {
     await sql`insert into merchant_members (merchant_id, user_id, role) values (${merchantId}, ${ownerId}, 'owner')`;
   }
   await sql`insert into merchant_members (merchant_id, user_id, role) values (${staffed}, ${ownerId}, 'staff')`;
@@ -220,5 +221,51 @@ test("[MER-16:authz] denies the Ramadan schedule to staff and non-members", asyn
   for (const merchantId of [staffed, foreign]) {
     expect(await hours.replaceRamadan(ramadanRequest(merchantId))).toEqual({ kind: "not_found" });
     expect(await hours.readRamadan({ accountId: ownerId, merchantId })).toBeUndefined();
+  }
+});
+
+function pauseRequest(
+  merchantId: string,
+  {
+    key = "pause-1",
+    pausedUntil = "2026-11-08T05:00:00.000Z",
+    revision = 0,
+  }: { key?: string; pausedUntil?: string | null; revision?: number } = {},
+) {
+  return {
+    accountId: ownerId,
+    merchantId,
+    input: { pausedUntil, expectedRevision: revision },
+    idempotencyKeyHash: hash(key),
+    requestHash: hash(String(pausedUntil)),
+    now,
+  };
+}
+
+test("[MER-15:db] closes the restaurant until a future instant and reopens it", async () => {
+  const hours = createMerchantHoursRepository(database.get());
+  const scope = { accountId: ownerId, merchantId: pausing };
+  expect(await hours.readPause(scope)).toEqual({ revision: 0, pausedUntil: null });
+  expect(await hours.pause(pauseRequest(pausing))).toEqual({ kind: "applied", revision: 1 });
+  expect(await hours.readPause(scope)).toEqual({
+    revision: 1,
+    pausedUntil: "2026-11-08T05:00:00.000Z",
+  });
+  expect(
+    await hours.pause(
+      pauseRequest(pausing, { key: "pause-2", pausedUntil: now.toISOString(), revision: 1 }),
+    ),
+  ).toEqual({ kind: "pause_not_in_future" });
+  expect(
+    await hours.pause(pauseRequest(pausing, { key: "pause-3", pausedUntil: null, revision: 1 })),
+  ).toEqual({ kind: "applied", revision: 2 });
+  expect(await hours.readPause(scope)).toEqual({ revision: 2, pausedUntil: null });
+});
+
+test("[MER-15:authz] denies the closed-now override to staff and non-members", async () => {
+  const hours = createMerchantHoursRepository(database.get());
+  for (const merchantId of [staffed, foreign]) {
+    expect(await hours.pause(pauseRequest(merchantId))).toEqual({ kind: "not_found" });
+    expect(await hours.readPause({ accountId: ownerId, merchantId })).toBeUndefined();
   }
 });
