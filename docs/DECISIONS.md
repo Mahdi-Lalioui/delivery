@@ -196,3 +196,7 @@ For rollout, apply migration 0020 and replace every media worker with a crop-cap
 Store application photo IDs in submission order in the same transaction as the application. The upload owner retains private read access. Attach item photos only when a ready upload belongs to the acting editor and the target restaurant. The restaurant's other owners and managers may read ready variants while a live item references the photo. Raw upload and crop access stay with the uploader.
 
 A menu item edit with `photoId: null` keeps the saved photo so cached editors can still edit text or price safely. Removing a saved photo requires `removePhoto: true` with a null photo ID. A non-null replacement keeps the existing ownership and readiness checks. Apply migration 0021 before rolling out the attachment API and editor.
+
+### D-021 — In-app merchant application notices (2026-11-08)
+
+Deliver MER-01 notices inside the authenticated admin console. Signup already records one notice per application in the same transaction as the merchant, owner membership and replay receipt. A separate uncached admin read returns the pending count and most recent merchant ID from these notices. The existing review queue keeps its response shape and remains the way to open a case. An approval or rejection removes the application from the pending count in the same committed state change. Keep the notice row for provenance. The admin UI belongs to Lane B.

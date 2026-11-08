@@ -90,7 +90,11 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
 
 - [x] M2-1 Auth (AUTH-01…09, CUS-10). Commit strict OTP, TOTP and session schemas in `packages/contracts` first. Add forward auth migration and repositories in `packages/db`, then Fastify policies, cookie/Bearer sessions and fake SMS in `apps/api`. Prove rolling caps, single consumption under concurrency, idle and absolute expiry, device revocation, cookie CSRF, TOTP replay rejection, and localized OTP/resend UX. Add a protected device list, per-device revoke and sign out everywhere.
 - [ ] M2-2 Merchant schema. Commit the merchant, admin and menu contracts before migrating memberships, categories, items, option groups, media, price history, settings, flags and audit. Prove tenant-scoped foreign keys and SQL membership checks with the same account holding different roles at two merchants.
-- [x] M2-3 Signup and approval (MER-01, ADM-03 first slice). Verify the commune, pin and phone, create the pending merchant and owner membership atomically, enqueue the admin notice, and prove authorized approval and rejection in the admin queue.
+- [ ] M2-3 Signup and approval (MER-01, ADM-03 first slice).
+  - [x] Verify the commune, pin and phone, create the pending merchant and owner membership atomically, enqueue the admin notice, and prove authorized approval and rejection in the admin queue.
+  - [x] Define the session-bound pending notice read contract without changing the existing admin queue.
+  - [ ] Serve the notice from the signup transaction’s durable notice row. Prove exact replay, admin scope and retirement after review.
+  - [ ] Lane B displays the localized notice in the open admin console and proves arrival without a page reload.
 - [x] M2-4 Checklist (MER-02 first slice). Show profile, hours and five-item menu progress after approval. Prove that incomplete zone and test-order steps keep Go live unavailable until their later milestone flows can provide real evidence.
 - [x] M2-5 Menu builder (MER-09 first slice, MER-10). Create, duplicate, archive, reorder by pointer and keyboard, edit bilingual items and DZD prices, and reuse option groups. Show the active restaurant name. Prove focus restoration, integer prices, ordering and cross-tenant rejection.
   - [x] Complete bilingual categories and item forms, reusable ordered option attachments, and authorized restaurant/category context. Verify the option library and attached-item screens in the design matrix.

@@ -57,3 +57,13 @@ export const adminReviewQueueOutput = z.strictObject({
   applications: z.array(queuedApplication).max(100),
   nextCursor: z.string().max(96).nullable(),
 });
+
+export const adminMerchantNoticeOutput = z
+  .strictObject({
+    sessionId: z.uuid(),
+    pendingCount: z.int().nonnegative(),
+    latestMerchantId: z.uuid().nullable(),
+  })
+  .refine(
+    ({ pendingCount, latestMerchantId }) => (pendingCount === 0) === (latestMerchantId === null),
+  );
