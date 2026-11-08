@@ -13,6 +13,11 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 15:21 GMT — M2-8 deterministic ZIP checksum regression
+
+- **Effort and evidence** — Ultra. A fixed ZIP timestamp reproduced the wrong UTF-8 offset. A binary offset now changes valid XML whitespace, with a regenerated-checksum control. All 15 file tests passed, and review independently reproduced `Invalid CRC32` for the intended mutation.
+- **Next** — MER-01 in-app admin notice read and Lane B handoff.
+
 ### 2026-11-08 15:20 GMT — M2-9 dated hours exceptions
 
 - **Effort and evidence** — High for the editor and ultra for revision safety. `pnpm verify` passed 1,461 unit and 174 PostGIS tests. Three production browser journeys passed, including 12 accessible theme, language and viewport checks with a saved exception.

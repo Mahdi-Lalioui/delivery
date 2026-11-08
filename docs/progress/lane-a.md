@@ -26,3 +26,5 @@
 
 - 2026-11-08 · High and ultra · M2-9 dated exceptions passed `pnpm verify` with 1,461 unit and 174 PostGIS tests, plus three production browser cases. A sibling schedule save cannot let a stale draft overwrite another tab’s exception. See [hours evidence](../evidence/m2/hours.md).
 - 2026-11-08 · Ultra · Next stabilize the import CRC test, whose UTF-8 string offset can differ from the ZIP byte offset. Then add the MER-01 notice read for Lane B’s admin UI and the moderated customer preview for Lane A.
+
+- 2026-11-08 · Ultra · Fixed the M2-8 ZIP CRC fixture using a deterministic timestamp, byte offset and valid-XML control. All 15 file tests passed. Review confirmed truncation and overlap checks are unchanged.

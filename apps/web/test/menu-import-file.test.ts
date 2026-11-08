@@ -46,8 +46,9 @@ const worksheet = (content = sheetRow(1, menuImportColumns) + sheetRow(2, values
 
 async function zip(entries: Record<string, string>, level = 0) {
   const writer = new ZipWriter(new Uint8ArrayWriter(), { useWebWorkers: false });
+  const lastModDate = new Date("2026-11-08T15:02:00Z");
   for (const [name, xml] of Object.entries(entries)) {
-    await writer.add(name, new TextReader(xml), { level });
+    await writer.add(name, new TextReader(xml), { level, lastModDate });
   }
   const bytes = await writer.close();
   return bytes;
@@ -254,9 +255,15 @@ test("[MER-12:file] rejects truncated, corrupt-CRC and overlapping ZIP archives"
   expect(
     await parseMenuImportFile(new File([bytes.subarray(0, bytes.length - 22)], "menu.xlsx")),
   ).toEqual({ kind: "invalid_file", reason: "invalid_workbook" });
-  const corrupt = new Uint8Array(bytes);
-  const position = new TextDecoder().decode(corrupt).indexOf("<Types");
-  corrupt[position] = 63;
+  // XML whitespace remains valid, so this case depends on the CRC check.
+  const validWhitespace = contentTypes.replace("<Types ", "<Types\t");
+  expect(
+    await parseMenuImportFile(await xlsx({ "[Content_Types].xml": validWhitespace })),
+  ).toMatchObject({ kind: "parsed" });
+  const corrupt = Buffer.from(bytes);
+  const position = corrupt.indexOf("<Types ");
+  expect(position).toBeGreaterThanOrEqual(0);
+  corrupt[position + "<Types".length] = 9;
   expect(await parseMenuImportFile(new File([corrupt], "menu.xlsx"))).toEqual({
     kind: "invalid_file",
     reason: "invalid_workbook",
