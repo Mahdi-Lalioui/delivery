@@ -32,6 +32,7 @@ export type BulkPriceState =
 
 export type BulkPriceEvent =
   | ({ readonly kind: "preview-loaded" } & Previewed)
+  | { readonly kind: "preview-failed"; readonly failure: BulkPriceFailure }
   | { readonly kind: "selection-changed" | "reset" }
   | { readonly kind: "apply-started" | "undo-started"; readonly idempotencyKey: string }
   | { readonly kind: "apply-finished"; readonly result: BulkPriceWrite; readonly atMs: number }
@@ -78,6 +79,11 @@ function finishUndo(
   };
 }
 
+function failPreview(state: BulkPriceState, failure: BulkPriceFailure): BulkPriceState {
+  if (state.kind !== "editing" && state.kind !== "previewed") return state;
+  return { kind: "editing", failure };
+}
+
 function startApply(state: BulkPriceState, idempotencyKey: string): BulkPriceState {
   if (state.kind !== "previewed") return state;
   const { selection, preview } = state;
@@ -94,6 +100,8 @@ export function reduceBulkPrice(state: BulkPriceState, event: BulkPriceEvent): B
   switch (event.kind) {
     case "preview-loaded":
       return { kind: "previewed", selection: event.selection, preview: event.preview };
+    case "preview-failed":
+      return failPreview(state, event.failure);
     case "selection-changed":
       return state.kind === "previewed" ? initialBulkPriceState : state;
     case "reset":

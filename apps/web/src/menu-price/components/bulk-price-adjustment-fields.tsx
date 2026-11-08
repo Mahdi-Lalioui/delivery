@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
-import type { BulkPriceControls, RoundingUnit } from "../bulk-price-controls";
+import type { BulkPriceControls } from "../bulk-price-controls";
+import type { RoundingUnit } from "../bulk-price-form";
 
 const roundingUnits: readonly RoundingUnit[] = [1, 5, 10, 50];
 
