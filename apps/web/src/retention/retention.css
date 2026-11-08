@@ -1,0 +1,31 @@
+.star-field {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  border: 0;
+  padding: 0;
+}
+
+.star-field label {
+  display: inline-flex;
+  gap: var(--space-4);
+  align-items: center;
+}
+
+.rating-reply {
+  margin: 0;
+  padding: var(--space-12) var(--space-16);
+  border-inline-start: var(--space-4) solid var(--color-border-strong);
+  background: var(--color-surface);
+}
+
+.review-item {
+  display: grid;
+  gap: var(--space-8);
+  padding-block-end: var(--space-16);
+  border-block-end: 1px solid var(--color-border-subtle);
+}
+
+.star-field-icon::before {
+  content: "\2605";
+}

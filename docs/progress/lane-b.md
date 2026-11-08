@@ -13,3 +13,5 @@
 - 2026-11-08 · Ultra · BIL-04 dependency-free invoice PDF writer `apps/api/src/invoice-pdf.ts` (escaping, xref offsets, amount guard). BIL-01/ADM-08 settings screen `/[locale]/admin/billing/settings` on MSW.
   Proof: `vitest run apps/api/test/invoice-pdf.test.ts` 6/6, `apps/web/test/billing-settings*` 6/6, `pnpm verify` green.
   Next: M6 screens on lane A's ratings/promotions/scheduling contracts; wire PDF + planner into API routes when lane A lands the billing migration.
+- 2026-11-08 · High · M6-1 ratings on lane A's ratings contract: customer `/[locale]/orders/[id]/rating` (food/delivery stars, 24 h lock, reply shown) and merchant `/[locale]/merchant/[id]/reviews` (star filter, reply, report). MSW mocks; request `docs/requests/lane-b-ratings.md`.
+  Proof: `vitest run apps/web/test/ratings*` 10/10, `pnpm verify` green. Next: M6-3 promotions, M6-4 scheduling.
