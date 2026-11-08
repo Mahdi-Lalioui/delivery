@@ -369,6 +369,19 @@ const matrix: readonly MatrixRoute[] = [
     },
     expected: menuRoles,
   },
+  {
+    method: "GET",
+    url: "/v1/merchants/:merchantId/hours/pause",
+    requestUrl: "/v1/merchants/" + challengeId + "/hours/pause",
+    expected: menuRoles,
+  },
+  {
+    method: "PUT",
+    url: "/v1/merchants/:merchantId/hours/pause",
+    requestUrl: "/v1/merchants/" + challengeId + "/hours/pause",
+    payload: { pausedUntil: null, expectedRevision: 0 },
+    expected: menuRoles,
+  },
   { method: "GET", url: "/v1/admin/merchant-applications", expected: adminRole },
   {
     method: "POST",

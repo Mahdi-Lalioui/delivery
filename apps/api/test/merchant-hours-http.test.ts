@@ -173,3 +173,24 @@ test("[MER-16:http] replaces the Ramadan schedule and rejects an unknown method"
   expect(invalid.statusCode).toBe(400);
   expect(repository.replaceRamadan).toHaveBeenCalledTimes(2);
 });
+
+test("[MER-15:http] reads, sets and rejects a past closed-now override", async () => {
+  const { api, repository } = setup(owner);
+  const until = "2026-11-08T05:00:00.000Z";
+  repository.readPause.mockResolvedValueOnce({ revision: 1, pausedUntil: until });
+  const read = await api.inject({ method: "GET", url: path + "/pause" });
+  expect(read.statusCode).toBe(200);
+  expect(read.headers["cache-control"]).toBe("no-store");
+  expect(read.json()).toEqual({ sessionId, revision: 1, pausedUntil: until });
+
+  repository.pause.mockResolvedValueOnce({ kind: "applied", revision: 2 });
+  repository.pause.mockResolvedValueOnce({ kind: "pause_not_in_future" });
+  const payload = { pausedUntil: until, expectedRevision: 1 };
+  const applied = await api.inject({ method: "PUT", url: path + "/pause", headers, payload });
+  expect(applied.statusCode).toBe(200);
+  expect(applied.json()).toEqual({ revision: 2 });
+  expect(repository.pause.mock.calls[0]?.[0]).toMatchObject({ merchantId, input: payload, now });
+  const past = await api.inject({ method: "PUT", url: path + "/pause", headers, payload });
+  expect(past.statusCode).toBe(400);
+  expect(past.json()).toMatchObject({ code: "pause_not_in_future" });
+});

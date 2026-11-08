@@ -3,6 +3,8 @@ import { problemResponseSchema } from "@zaafran/contracts/health";
 import {
   merchantHoursCommandInput,
   merchantHoursOutput,
+  merchantHoursPauseInput,
+  merchantHoursPauseOutput,
   merchantHoursWriteOutput,
   merchantRamadanCommandInput,
   merchantRamadanOutput,
@@ -36,7 +38,12 @@ const errors = {
   429: problemResponseSchema,
   503: problemResponseSchema,
 };
-const failureStatus = { not_found: 404, revision_conflict: 409, idempotency_conflict: 409 };
+const failureStatus = {
+  not_found: 404,
+  revision_conflict: 409,
+  idempotency_conflict: 409,
+  pause_not_in_future: 400,
+};
 
 function registerRead(api: FastifyInstance, services: MerchantHoursServices | undefined) {
   api.withTypeProvider<ZodTypeProvider>().get(
@@ -164,6 +171,64 @@ function registerRamadanReplace(api: FastifyInstance, services: MerchantHoursSer
   );
 }
 
+function registerPauseRead(api: FastifyInstance, services: MerchantHoursServices | undefined) {
+  api.withTypeProvider<ZodTypeProvider>().get(
+    path + "/pause",
+    {
+      config,
+      schema: { params: merchantParams, response: { 200: merchantHoursPauseOutput, ...errors } },
+    },
+    async (request, reply) => {
+      const actor = getRequestActor(request);
+      if (!actor) return sendProblem(reply, 401);
+      if (!services) return sendProblem(reply, 503);
+      reply.header("cache-control", "no-store");
+      const stored = await services.repository.readPause({
+        accountId: actor.accountId,
+        merchantId: request.params.merchantId.toLowerCase(),
+      });
+      if (!stored) return sendProblem(reply, 404, "not_found");
+      return reply.send({ sessionId: actor.sessionId, ...stored });
+    },
+  );
+}
+
+function registerPauseSet(api: FastifyInstance, services: MerchantHoursServices | undefined) {
+  api.withTypeProvider<ZodTypeProvider>().put(
+    path + "/pause",
+    {
+      config,
+      schema: {
+        params: merchantParams,
+        headers: sessionBoundCommandHeaders,
+        body: merchantHoursPauseInput,
+        response: { 200: merchantHoursWriteOutput, ...errors },
+      },
+    },
+    async (request, reply) => {
+      const context = resolveSessionCommand({
+        request,
+        reply,
+        services,
+        expectedSessionId: request.headers["x-expected-session-id"],
+      });
+      if (!context) return reply;
+      const { accountId, now, repository } = context;
+      const input = request.body;
+      const result = await repository.pause({
+        accountId,
+        merchantId: request.params.merchantId.toLowerCase(),
+        input,
+        now,
+        ...commandIdentity(request.headers["idempotency-key"], input),
+      });
+      return result.kind === "applied" || result.kind === "replayed"
+        ? reply.send({ revision: result.revision })
+        : sendProblem(reply, failureStatus[result.kind], result.kind);
+    },
+  );
+}
+
 export function registerMerchantHoursRoutes(
   api: FastifyInstance,
   services: MerchantHoursServices | undefined,
@@ -172,4 +237,6 @@ export function registerMerchantHoursRoutes(
   registerReplace(api, services);
   registerRamadanRead(api, services);
   registerRamadanReplace(api, services);
+  registerPauseRead(api, services);
+  registerPauseSet(api, services);
 }

@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 02:35 GMT — M2-9 closed-now override API (Claude, covering while Codex was out)
+
+- **Changed** — Added `merchantHoursPauseInput` and `merchantHoursPauseOutput` to the contracts. `pausedUntil` is an ISO datetime with an offset, or null. Added `GET` and `PUT /v1/merchants/:merchantId/hours/pause` to `merchant-hours-routes.ts`, mapping `pause_not_in_future` to 400. Added the routes to the `[AUTH-08]` matrix and the OpenAPI path list, and regenerated `docs/openapi.json`. This ends the takeover run.
+- **Evidence** — Tests came first: 1 `[MER-15:contract]` case (an instant or null is accepted; a date-only value and a missing field are rejected) and 1 `[MER-15:http]` case (a `no-store` read, an applied set with the exact repository input, and a past instant returning 400 `pause_not_in_future`). Both failed, then 42/42 targeted tests passed. `pnpm verify` exited 0: 960 unit tests, 117 PostGIS integration tests, OpenAPI check, build, knip, depcruise, trace, and only the existing moderate advisory.
+- **Reviewer** — Self-reviewed against AGENTS.md §10. No P0/P1. P2: `merchant-hours-routes.ts` is now 242 lines with three near-identical PUT handlers. Extract a `registerHoursCommand({ path, body, run })` helper before adding more.
+- **Next** — M2-9's last sub-task: "Render the seven-day preview through the M1 rules and build the Arabic/French hours editor with the overnight and Ramadan journeys." Step 1: add `@zaafran/geo` as a dependency of `apps/web` or `apps/api`, wherever the preview is computed (check `.dependency-cruiser` boundaries and record a one-line DECISIONS entry). Add the test proving every `merchantRamadanInput` method yields a Maghrib time. Step 2: write a pure seven-day preview from `{ weekly, specialDates, pausedUntil, ramadan }` using M1 `hours.ts` and `resolveRamadanRange`, with tests first. Step 3: build the web hours editor (client modelled on `bulk-price-http.ts`, pure editor and reducer, then the screen), then the production-build journeys and the screenshot matrix.
+- **Needs Mahdi** — None.
+
 ### 2026-11-08 02:34 GMT — M2-9 persist the "closed now" override (Claude, covering while Codex was out)
 
 - **Changed** — Recorded D-012: "closed now" is the M1 `pausedUntil`. Added migration `0014_merchant_hours_pause`, which adds the `hours_pause` receipt operation and the nullable `merchants.hours_paused_until`. Added `packages/db/src/merchant-hours-pause.ts` and the repository methods `readPause` and `pause`. Pausing runs on the D-011 menu guard. It rejects an instant at or before the server clock (`pause_not_in_future`), and passing null reopens the restaurant. `readPause` formats the instant in SQL as UTC ISO with milliseconds, because this connection returns `timestamptz` as text.
@@ -471,5 +479,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress)
 - `pnpm trace --through m2` on 2026-11-08 at 02:21 GMT covered 30 of 37 IDs. Pending: ADM-04, MER-01, MER-12, MER-14, MER-15, MER-16, MER-23. M2-7 (MER-11) is complete with a production-build journey.
-- Last green `pnpm verify`: 2026-11-08 02:33 GMT on Docker Desktop with 958 unit and 117 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 12/12 at 02:22 GMT.
+- Last green `pnpm verify`: 2026-11-08 02:35 GMT on Docker Desktop with 960 unit and 117 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 12/12 at 02:22 GMT.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

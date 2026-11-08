@@ -99,7 +99,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
   - [x] Persist weekly ranges and special dates with an owner/manager-scoped, idempotent replace command on the menu revision guard (D-011).
   - [x] Add the authenticated `GET`/`PUT /v1/merchants/:merchantId/hours` routes with the command and read contracts, authorization-matrix rows and OpenAPI.
   - [x] Persist the "closed now" override as `hours_paused_until` with an owner/manager command (D-012).
-  - [ ] Add the closed-now override API route, contracts and matrix rows.
+  - [x] Add the closed-now override API route (`/v1/merchants/:merchantId/hours/pause`), contracts and matrix rows.
   - [x] Define the Ramadan input contract (Maghrib-relative or clock endpoints, suhoor window, method and ± minutes).
   - [x] Persist the Ramadan schedule with the same owner/manager-scoped command as weekly hours (D-011).
   - [x] Add the Ramadan read/replace API routes (`/v1/merchants/:merchantId/hours/ramadan`) with contracts, matrix rows and OpenAPI.
