@@ -350,6 +350,25 @@ const matrix: readonly MatrixRoute[] = [
     },
     expected: menuRoles,
   },
+  {
+    method: "GET",
+    url: "/v1/merchants/:merchantId/hours/ramadan",
+    requestUrl: "/v1/merchants/" + challengeId + "/hours/ramadan",
+    expected: menuRoles,
+  },
+  {
+    method: "PUT",
+    url: "/v1/merchants/:merchantId/hours/ramadan",
+    requestUrl: "/v1/merchants/" + challengeId + "/hours/ramadan",
+    payload: {
+      weekly: Array.from({ length: 7 }, (_, weekday) => ({ weekday, ranges: [] })),
+      suhoor: null,
+      method: "Algeria",
+      adjustmentMinutes: 0,
+      expectedRevision: 0,
+    },
+    expected: menuRoles,
+  },
   { method: "GET", url: "/v1/admin/merchant-applications", expected: adminRole },
   {
     method: "POST",

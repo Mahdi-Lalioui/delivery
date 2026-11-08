@@ -101,7 +101,8 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
   - [ ] Add the "closed now" override (column, decision, owner/manager command and route).
   - [x] Define the Ramadan input contract (Maghrib-relative or clock endpoints, suhoor window, method and ± minutes).
   - [x] Persist the Ramadan schedule with the same owner/manager-scoped command as weekly hours (D-011).
-  - [ ] Add the Ramadan read/replace API routes and prove every contract calculation method yields a Maghrib time where the schedule meets `calculateMaghrib`.
+  - [x] Add the Ramadan read/replace API routes (`/v1/merchants/:merchantId/hours/ramadan`) with contracts, matrix rows and OpenAPI.
+  - [ ] Prove every contract calculation method yields a Maghrib time where the schedule meets `calculateMaghrib`.
   - [ ] Render the seven-day preview through the M1 rules and build the Arabic/French hours editor with the overnight and Ramadan journeys.
 - [ ] M2-10 Moderation (§17.3, ADM-04). Check prohibited goods on every menu write path and public preview. Prove flagged items stay hidden until the audited review outcome permits listing.
 - [ ] M2-11 Staff roles (MER-23). Implement owner-managed, single-use invitations tied to a verified phone. Prove every role against both its own and another merchant's resources.

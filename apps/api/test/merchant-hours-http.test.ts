@@ -115,3 +115,59 @@ test("[MER-15:http] rejects overlapping ranges, a changed session and staff", as
   expect(forbidden.statusCode).toBe(403);
   expect(denied.repository.read).not.toHaveBeenCalled();
 });
+
+const ramadan = {
+  weekly: weekly.map(({ weekday }) => ({
+    weekday,
+    ranges: [
+      {
+        opens: { kind: "maghrib" as const, minutes: -60 },
+        closes: { kind: "clock" as const, minuteOfDay: 120 },
+      },
+    ],
+  })),
+  suhoor: { opensMinute: 0, closesMinute: 240 },
+  method: "Algeria",
+  adjustmentMinutes: 2,
+};
+
+test("[MER-16:http] reads a missing Ramadan schedule as null and a stored one whole", async () => {
+  const { api, repository } = setup(owner);
+  repository.readRamadan.mockResolvedValueOnce({ revision: 0, schedule: null });
+  repository.readRamadan.mockResolvedValueOnce({ revision: 2, schedule: ramadan });
+  const empty = await api.inject({ method: "GET", url: path + "/ramadan" });
+  expect(empty.statusCode).toBe(200);
+  expect(empty.headers["cache-control"]).toBe("no-store");
+  expect(empty.json()).toEqual({ sessionId, revision: 0, schedule: null });
+  const stored = await api.inject({ method: "GET", url: path + "/ramadan" });
+  expect(stored.json()).toEqual({ sessionId, revision: 2, schedule: ramadan });
+  repository.readRamadan.mockResolvedValueOnce(undefined);
+  expect((await api.inject({ method: "GET", url: path + "/ramadan" })).statusCode).toBe(404);
+});
+
+test("[MER-16:http] replaces the Ramadan schedule and rejects an unknown method", async () => {
+  const { api, repository } = setup(owner);
+  repository.replaceRamadan.mockResolvedValueOnce({ kind: "applied", revision: 3 });
+  repository.replaceRamadan.mockResolvedValueOnce({ kind: "revision_conflict" });
+  const payload = { ...ramadan, expectedRevision: 2 };
+  const applied = await api.inject({ method: "PUT", url: path + "/ramadan", headers, payload });
+  expect(applied.statusCode).toBe(200);
+  expect(applied.json()).toEqual({ revision: 3 });
+  expect(repository.replaceRamadan.mock.calls[0]?.[0]).toMatchObject({
+    accountId,
+    merchantId,
+    input: payload,
+    now,
+  });
+  const stale = await api.inject({ method: "PUT", url: path + "/ramadan", headers, payload });
+  expect(stale.statusCode).toBe(409);
+  expect(stale.json()).toMatchObject({ code: "revision_conflict" });
+  const invalid = await api.inject({
+    method: "PUT",
+    url: path + "/ramadan",
+    headers,
+    payload: { ...payload, method: "Other" },
+  });
+  expect(invalid.statusCode).toBe(400);
+  expect(repository.replaceRamadan).toHaveBeenCalledTimes(2);
+});
