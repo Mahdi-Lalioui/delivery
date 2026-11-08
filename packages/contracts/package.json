@@ -24,6 +24,10 @@
       "types": "./src/discovery.ts",
       "default": "./dist/discovery.js"
     },
+    "./feed": {
+      "types": "./src/feed.ts",
+      "default": "./dist/feed.js"
+    },
     "./health": {
       "types": "./src/health.ts",
       "default": "./dist/health.js"
