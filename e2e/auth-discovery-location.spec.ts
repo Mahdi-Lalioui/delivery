@@ -27,7 +27,7 @@ for (const locale of ["ar", "fr"] as const) {
       const commune = await harness.seedAlgiersCommune();
       const name = locale === "ar" ? commune.nameAr : commune.nameFr;
       const copy = labels[locale];
-      await page.goto(harness.origin + "/" + locale);
+      await page.goto(harness.origin + "/" + locale + "/discover");
       await expect(page.locator("html")).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
       await page.getByRole("button", { name: copy.open }).click();
       const dialog = page.getByRole("dialog");
@@ -79,7 +79,7 @@ test("[CUS-02:browser] keeps browsing available after saving an outside-area GPS
     await harness.seedAlgiersCommune();
     await context.grantPermissions(["geolocation"], { origin: harness.origin });
     await context.setGeolocation({ latitude: 35.69, longitude: -0.64, accuracy: 90 });
-    await page.goto(harness.origin + "/fr");
+    await page.goto(harness.origin + "/fr/discover");
     await page.getByRole("button", { name: labels.fr.open }).click();
     const gps = page.getByRole("button", { name: "Utiliser ma position" });
     const save = page.getByRole("button", { name: labels.fr.save });

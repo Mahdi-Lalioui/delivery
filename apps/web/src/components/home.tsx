@@ -7,12 +7,12 @@ import { DiscoveryFeed } from "../discovery/feed";
 import { DiscoverySearch } from "../discovery/search";
 import { SiteShell } from "./site-shell";
 
-export function homeMetadata(locale: Locale): Metadata {
+export function homeMetadata(locale: Locale, subpath = ""): Metadata {
   return {
     title: locale === "ar" ? brand.arabicName : brand.name,
     alternates: {
       languages: Object.fromEntries(
-        publicLocales.map((item) => [localeDetails[item].tag, `/${item}`]),
+        publicLocales.map((item) => [localeDetails[item].tag, `/${item}${subpath}`]),
       ),
     },
   };
@@ -26,7 +26,7 @@ export async function Home({ locale }: { locale: Locale }) {
   ]);
 
   return (
-    <SiteShell locale={locale}>
+    <SiteShell locale={locale} subpath="/discover">
       <section className="hero">
         <p className="eyebrow">{translate("eyebrow")}</p>
         <h1>{locale === "ar" ? brand.arabicName : brand.name}</h1>

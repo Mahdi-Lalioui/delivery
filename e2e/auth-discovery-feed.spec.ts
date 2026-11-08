@@ -30,6 +30,11 @@ for (const locale of ["ar", "fr"] as const) {
         expect(new Set(published.map(({ merchantId }) => merchantId)).size).toBe(3);
         expect(published.map(({ name }) => name)).toContain(fixture.publishedName);
         await page.goto(harness.origin + "/" + locale);
+        await page
+          .getByRole("link")
+          .and(page.locator(`a[href="/${locale}/discover"]`))
+          .click();
+        await expect(page).toHaveURL(harness.origin + "/" + locale + "/discover");
         const feed = page.getByRole("region", { name: headings[locale] });
         await expect(feed.getByText(fixture.publishedName, { exact: true })).toBeVisible();
         await expect(feed.getByText(fixture.hiddenName, { exact: true })).toHaveCount(0);

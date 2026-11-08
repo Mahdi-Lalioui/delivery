@@ -1,7 +1,9 @@
-import { Home, homeMetadata } from "../../components/home";
+import { Landing, landingMetadata } from "../../marketing/landing";
 
-export const metadata = homeMetadata("ar");
+export function generateMetadata() {
+  return landingMetadata("ar");
+}
 
 export default function ArabicHome() {
-  return <Home locale="ar" />;
+  return <Landing locale="ar" />;
 }

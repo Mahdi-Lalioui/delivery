@@ -30,13 +30,14 @@
     "knip": "knip",
     "depcruise": "depcruise --config dependency-cruiser.cjs .",
     "trace": "node scripts/trace.ts",
-    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm --filter @zaafran/api openapi:check && pnpm test:int && pnpm knip && pnpm depcruise && pnpm audit --prod --audit-level high && pnpm trace",
+    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm test:mobile && pnpm build && pnpm --filter @zaafran/api openapi:check && pnpm test:int && pnpm knip && pnpm depcruise && pnpm audit --prod --audit-level high && pnpm trace",
     "verify:full": "pnpm verify && pnpm test:e2e && pnpm test:e2e:auth && pnpm test:visual && pnpm test:a11y && pnpm test:lighthouse && pnpm test:mutation",
     "gate": "node scripts/gate.ts",
     "fixtures:tiles": "node infra/scripts/create-synthetic-pmtiles.mjs",
     "worker:migrate": "turbo run build --filter=@zaafran/worker && pnpm --filter @zaafran/worker migrate",
     "hooks:install": "sh scripts/install-hooks.sh",
-    "lint:staged": "lint-staged"
+    "lint:staged": "lint-staged",
+    "test:mobile": "pnpm --filter @zaafran/mobile test"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",

@@ -36,9 +36,9 @@ test.each(locales)(
     expect(html).toContain(`<h1>${name}</h1>`);
     expect(html).toContain(home.description);
     expect(html).toMatch(new RegExp(`<nav\\b[^>]*aria-label="${RegExp.escape(shell.languages)}"`));
-    expect(html).toMatch(/<a\b[^>]*href="\/ar"[^>]*>العربية<\/a>/);
-    expect(html).toMatch(/<a\b[^>]*href="\/fr"[^>]*>Français<\/a>/);
-    expect(html).toMatch(/<a\b[^>]*href="\/en"[^>]*>English<\/a>/);
+    expect(html).toMatch(/<a\b[^>]*href="\/ar\/discover"[^>]*>العربية<\/a>/);
+    expect(html).toMatch(/<a\b[^>]*href="\/fr\/discover"[^>]*>Français<\/a>/);
+    expect(html).toMatch(/<a\b[^>]*href="\/en\/discover"[^>]*>English<\/a>/);
   },
 );
 
@@ -49,6 +49,11 @@ test("[I18N-01] public metadata lists the three public language alternatives", (
   expect(homeMetadata("fr").alternates?.languages).toEqual(expected);
   expect(homeMetadata("ar").title).toBe(brand.arabicName);
   expect(homeMetadata("fr").title).toBe(brand.name);
+  expect(homeMetadata("ar", "/discover").alternates?.languages).toEqual({
+    "ar-DZ": "/ar/discover",
+    "fr-DZ": "/fr/discover",
+    en: "/en/discover",
+  });
 });
 
 test("[I18N-01] the shell preserves the guide path when switching languages", async () => {

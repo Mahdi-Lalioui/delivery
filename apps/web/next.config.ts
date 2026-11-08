@@ -27,6 +27,6 @@ export default function config(phase: string): NextConfig {
           },
         ]),
     }),
-    transpilePackages: ["@zaafran/config", "@zaafran/i18n"],
+    transpilePackages: ["@zaafran/config", "@zaafran/i18n", "@zaafran/ui"],
   });
 }

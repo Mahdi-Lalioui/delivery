@@ -8,6 +8,7 @@ interface SiteShellProps {
   locale: Locale;
   subpath?:
     | "/dev/design"
+    | "/discover"
     | "/sign-in"
     | "/sign-in?purpose=admin"
     | "/sign-in?continue=merchant-apply"
@@ -26,13 +27,29 @@ interface SiteShellProps {
     | `/merchant/${string}/profile/photos`
     | `/merchant/${string}/hours`
     | `/merchant/${string}/staff`
+    | `/merchant/${string}/billing`
+    | `/merchant/${string}/reviews`
+    | `/merchant/${string}/promotions`
+    | `/merchant/${string}/share`
+    | `/merchant/${string}/analytics`
+    | "/restaurants"
+    | `/orders/${string}/rating`
+    | "/orders"
     | "/admin/merchant-applications"
-    | "/admin/menu-items";
+    | "/admin/menu-items"
+    | "/admin/billing"
+    | "/admin/billing/settings"
+    | "/admin/platform"
+    | "/admin/dashboard";
 }
 
 const adminSubpaths: ReadonlySet<string> = new Set([
   "/admin/merchant-applications",
   "/admin/menu-items",
+  "/admin/billing",
+  "/admin/billing/settings",
+  "/admin/platform",
+  "/admin/dashboard",
   "/sign-in?continue=admin-review",
   "/sign-in?continue=admin-moderation",
 ]);
