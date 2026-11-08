@@ -912,5 +912,21 @@
     "flatBar": "Our flat fee",
     "savings": "You keep at least {amount} more each month.",
     "cta": "Apply for your restaurant"
+  },
+  "marketingLanding": {
+    "title": "{brand}: dinner from your neighbourhood",
+    "intro": "Order from Algiers restaurants you love. Pay at the door. Follow your order to your street.",
+    "heroImage": "Illustration of white Casbah houses above the sea at golden hour, with a saffron light trail from a kitchen to a home.",
+    "start": "Start ordering",
+    "forRestaurants": "Own a restaurant? See our flat fee",
+    "stepsTitle": "How it works",
+    "stepChooseTitle": "Choose",
+    "stepChooseBody": "Browse nearby restaurants in Arabic, French or English.",
+    "stepPayTitle": "Pay at the door",
+    "stepPayBody": "Cash by default, with change ready. No card needed.",
+    "stepTrackTitle": "Track",
+    "stepTrackBody": "See your order move on the map, right to your door. In Ramadan, pick the Iftar slot.",
+    "restaurantsTitle": "For restaurants",
+    "restaurantsBody": "One flat monthly fee, no commission, your own drivers."
   }
 }

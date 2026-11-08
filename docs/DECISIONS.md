@@ -178,3 +178,7 @@ CSV and XLSX use the same template and send up to 500 rows of raw text cells wit
 ### D-B02 — QR codes with qrcode-generator (2026-11-08)
 
 MER-24 posters need QR codes. `qrcode-generator` 2.0.4 (MIT, no dependencies, published 2025) encodes the modules; lane B draws them as one SVG path, so nothing is rasterised. Writing Reed–Solomon by hand was not worth the risk.
+
+### D-B03 — three.js and React Three Fiber for the landing hero (2026-11-08)
+
+DESIGN §8 asks for React Three Fiber. `three` 0.187.0 and `@react-three/fiber` 9.8.2 (MIT, exact pins, both older than the 3-day release age) load only in a lazy chunk after LCP on capable devices; everyone else keeps the server-rendered SVG poster. The hero's colours are DESIGN §3.1/§3.4 constants in `apps/web/src/marketing/hero-palette.ts` because the illustration must not invert in dark theme.

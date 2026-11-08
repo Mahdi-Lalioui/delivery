@@ -155,3 +155,83 @@
     transition: none;
   }
 }
+
+.casbah-poster {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.casbah-trail {
+  fill: none;
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.landing {
+  display: grid;
+  gap: var(--space-64);
+}
+
+.landing-hero {
+  display: grid;
+  gap: var(--space-24);
+}
+
+.casbah-frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  max-block-size: 70vh;
+  inline-size: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-2);
+}
+
+/* The canvas fades in over the matching poster, so there is no jump when the scene starts. */
+.casbah-canvas {
+  position: absolute;
+  inset: 0;
+  animation: casbah-fade var(--motion-scene) var(--ease-standard) both;
+}
+
+@keyframes casbah-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+.landing-hero-copy h1 {
+  font-family: var(--font-display);
+  font-size: var(--font-size-display);
+  font-weight: var(--font-weight-display);
+  line-height: var(--line-height-display);
+}
+
+.landing-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-16);
+  align-items: center;
+}
+
+@media (max-width: 40rem) {
+  .casbah-frame {
+    aspect-ratio: 4 / 5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .casbah-canvas {
+    animation-duration: var(--motion-instant);
+  }
+}
+
+.landing > section > h2 {
+  margin-block-end: var(--space-16);
+  font-family: var(--font-display);
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-h2);
+  line-height: var(--line-height-h2);
+}

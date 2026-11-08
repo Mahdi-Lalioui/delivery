@@ -912,5 +912,21 @@
     "flatBar": "Notre abonnement fixe",
     "savings": "Vous gardez au moins {amount} de plus par mois.",
     "cta": "Inscrire mon restaurant"
+  },
+  "marketingLanding": {
+    "title": "{brand} : le dîner de votre quartier",
+    "intro": "Commandez dans les restaurants d’Alger que vous aimez. Payez à la livraison. Suivez votre commande jusqu’à votre rue.",
+    "heroImage": "Illustration des maisons blanches de la Casbah au-dessus de la mer à l’heure dorée, avec une traînée de lumière safran d’une cuisine à une maison.",
+    "start": "Commander",
+    "forRestaurants": "Vous avez un restaurant ? Découvrez notre abonnement fixe",
+    "stepsTitle": "Comment ça marche",
+    "stepChooseTitle": "Choisissez",
+    "stepChooseBody": "Parcourez les restaurants proches en arabe, français ou anglais.",
+    "stepPayTitle": "Payez à la livraison",
+    "stepPayBody": "En espèces par défaut, avec la monnaie prête. Pas besoin de carte.",
+    "stepTrackTitle": "Suivez",
+    "stepTrackBody": "Voyez votre commande avancer sur la carte jusqu’à votre porte. Pendant le Ramadan, choisissez le créneau Iftar.",
+    "restaurantsTitle": "Pour les restaurants",
+    "restaurantsBody": "Un abonnement mensuel fixe, sans commission, avec vos propres livreurs."
   }
 }
