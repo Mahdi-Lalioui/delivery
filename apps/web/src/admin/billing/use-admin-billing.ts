@@ -13,6 +13,8 @@ type Notice = "recorded" | "voided" | "stale" | "saveError" | "reasonError";
 export type AdminBillingState = {
   view: AdminBillingResult | { kind: "loading" };
   notice: Notice | undefined;
+  /** Changes on every notice, so the same notice twice still shows a toast. */
+  noticeId: number;
   isSaving: boolean;
   refresh: () => void;
   confirmTransfer: (transferProofId: string, reason: string) => Promise<void>;
@@ -27,7 +29,12 @@ function noticeFor(kind: string): Notice {
 
 export function useAdminBilling(): AdminBillingState {
   const [view, setView] = useState<AdminBillingState["view"]>({ kind: "loading" });
-  const [notice, setNotice] = useState<Notice>();
+  const [notice, setNoticeValue] = useState<Notice>();
+  const [noticeId, setNoticeId] = useState(0);
+  const setNotice = useCallback((next: Notice) => {
+    setNoticeValue(next);
+    setNoticeId((value) => value + 1);
+  }, []);
   const [isSaving, setIsSaving] = useState(false);
   const [generation, setGeneration] = useState(0);
   // Reuse one Idempotency-Key per (proof, reason) until it succeeds, so a retry after a lost
@@ -56,7 +63,7 @@ export function useAdminBilling(): AdminBillingState {
       setNotice(noticeFor(result.kind));
       if (result.kind !== "error" && result.kind !== "invalid") refresh();
     },
-    [refresh],
+    [refresh, setNotice],
   );
 
   const confirmTransfer = useCallback(
@@ -79,7 +86,7 @@ export function useAdminBilling(): AdminBillingState {
         return result;
       });
     },
-    [run, view],
+    [run, setNotice, view],
   );
 
   const voidOne = useCallback(
@@ -91,8 +98,8 @@ export function useAdminBilling(): AdminBillingState {
       }
       await run(() => voidInvoice(prepared.attempt));
     },
-    [run],
+    [run, setNotice],
   );
 
-  return { view, notice, isSaving, refresh, confirmTransfer, voidInvoice: voidOne };
+  return { view, notice, noticeId, isSaving, refresh, confirmTransfer, voidInvoice: voidOne };
 }

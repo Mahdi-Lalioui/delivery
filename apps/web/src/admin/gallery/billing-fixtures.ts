@@ -1,0 +1,61 @@
+import {
+  billingInvoiceListOutput,
+  merchantBillingSubscriptionOutput,
+} from "@zaafran/contracts/billing";
+
+// Design-gallery fixtures. Parsed with the published contract, so the gallery never shows a shape
+// the API cannot send. Fictional data only.
+
+const merchantId = "019d6abc-0000-7000-8000-000000000002";
+const sessionId = "019d6abc-0000-7000-8000-000000000001";
+const period = { startsAt: "2027-01-31T23:00:00.000Z", endsAt: "2027-02-28T23:00:00.000Z" };
+
+function invoice(index: number, status: "issued" | "paid" | "void") {
+  return {
+    invoiceId: `019d6abc-0000-7000-8000-00000000010${String(index)}`,
+    merchantId,
+    number: `2027-00000${String(index)}`,
+    status,
+    period,
+    issuedAt: period.startsAt,
+    dueAt: "2027-02-07T23:00:00.000Z",
+    subtotalDzd: 5000,
+    taxRateBasisPoints: 0,
+    taxDzd: 0,
+    totalDzd: 5000,
+    pdfAvailable: true,
+  };
+}
+
+export const galleryInvoices = billingInvoiceListOutput.parse({
+  sessionId,
+  nextCursor: null,
+  invoices: [invoice(3, "issued"), invoice(2, "paid"), invoice(1, "void")],
+}).invoices;
+
+export const gallerySubscription = merchantBillingSubscriptionOutput.parse({
+  sessionId,
+  merchantId,
+  subscriptionOnlinePaymentEnabled: false,
+  subscription: {
+    subscriptionId: "019d6abc-0000-7000-8000-000000000003",
+    merchantId,
+    status: "past_due",
+    priceDzd: 5000,
+    trialEndsAt: "2027-01-31T23:00:00.000Z",
+    period,
+    nextInvoiceAt: period.endsAt,
+  },
+}).subscription;
+
+export const galleryTransfer = {
+  transferProofId: "019d6abc-0000-7000-8000-000000000006",
+  invoiceId: "019d6abc-0000-7000-8000-000000000103",
+  method: "baridimob" as const,
+  reference: "BM-2027-0042",
+  proofMediaId: "019d6abc-0000-7000-8000-000000000007",
+  status: "pending_confirmation" as const,
+  submittedAt: "2027-02-08T09:00:00.000Z",
+};
+
+export const galleryMerchantId = merchantId;

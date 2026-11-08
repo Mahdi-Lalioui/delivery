@@ -4,10 +4,11 @@ import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { ToastProvider } from "@zaafran/ui";
 import { AdminBilling } from "../../../../admin/billing/admin-billing";
 import { SiteShell } from "../../../../components/site-shell";
 import { requireLatinLocale, type LatinPageProps } from "../../../../i18n/latin-locale";
-import "../../../../admin/admin-merchant.css";
+import "@zaafran/ui/ui.css";
 import "../../../../admin/billing/admin-billing.css";
 
 async function requireAdminLocale(props: LatinPageProps): Promise<"en" | "fr"> {
@@ -29,7 +30,9 @@ export default async function AdminBillingPage(props: LatinPageProps) {
   return (
     <SiteShell locale={locale} subpath="/admin/billing">
       <NextIntlClientProvider locale={localeDetails[locale].tag} messages={{ adminBilling }}>
-        <AdminBilling />
+        <ToastProvider closeLabel={adminBilling.closeToast}>
+          <AdminBilling locale={locale} />
+        </ToastProvider>
       </NextIntlClientProvider>
     </SiteShell>
   );

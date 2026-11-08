@@ -688,13 +688,22 @@
     "loadError": "Billing could not be loaded.",
     "signInRequired": "Sign in with an admin account to manage billing.",
     "retry": "Try again",
-    "emptyTransfers": "No transfers waiting.",
+    "emptyTransfers": "All transfers are confirmed",
     "emptyInvoices": "No invoices.",
     "emptySubscriptions": "No subscriptions.",
     "recorded": "Payment recorded.",
     "voided": "Invoice voided.",
     "stale": "This invoice changed. The list was refreshed.",
-    "saveError": "The change could not be saved. Try again."
+    "saveError": "The change could not be saved. Try again.",
+    "cancel": "Cancel",
+    "confirmVoid": "Void this invoice",
+    "unknownInvoice": "Unknown invoice",
+    "emptyTransfersBody": "New CCP and BaridiMob proofs from restaurants appear here.",
+    "kpiOpen": "Waiting for payment",
+    "kpiOpenCount": "{count, plural, one {# open invoice} other {# open invoices}}",
+    "kpiTransfers": "Transfers to check",
+    "kpiOverdue": "Past due or suspended",
+    "closeToast": "Dismiss"
   },
   "merchantBilling": {
     "title": "Billing",
@@ -747,7 +756,11 @@
     "onlineSoon": "Online payment is not available yet.",
     "downloadInvoice": "Download invoice {number} (PDF)",
     "invoiceOption": "{number} — {total}",
-    "uploadExpired": "The upload took too long. Send the proof again."
+    "uploadExpired": "The upload took too long. Send the proof again.",
+    "payNow": "Pay now",
+    "noInvoicesBody": "Your first invoice is issued when the trial ends.",
+    "proofHint": "JPEG, PNG, HEIC or WebP, up to 8 MB",
+    "closeToast": "Dismiss"
   },
   "adminBillingSettings": {
     "title": "Billing settings",

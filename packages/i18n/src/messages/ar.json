@@ -688,13 +688,22 @@
     "loadError": "تعذر تحميل الفوترة.",
     "signInRequired": "سجّل الدخول بحساب مشرف لإدارة الفوترة.",
     "retry": "أعد المحاولة",
-    "emptyTransfers": "لا توجد تحويلات في الانتظار.",
+    "emptyTransfers": "تم تأكيد كل التحويلات",
     "emptyInvoices": "لا توجد فواتير.",
     "emptySubscriptions": "لا توجد اشتراكات.",
     "recorded": "تم تسجيل الدفع.",
     "voided": "تم إلغاء الفاتورة.",
     "stale": "تغيرت هذه الفاتورة. تم تحديث القائمة.",
-    "saveError": "تعذر حفظ التغيير. أعد المحاولة."
+    "saveError": "تعذر حفظ التغيير. أعد المحاولة.",
+    "cancel": "إلغاء",
+    "confirmVoid": "إلغاء هذه الفاتورة",
+    "unknownInvoice": "فاتورة غير معروفة",
+    "emptyTransfersBody": "تظهر هنا إثباتات CCP وبريدي موب الجديدة من المطاعم.",
+    "kpiOpen": "في انتظار الدفع",
+    "kpiOpenCount": "{count, plural, zero {لا فواتير مفتوحة} one {فاتورة مفتوحة واحدة} two {فاتورتان مفتوحتان} few {# فواتير مفتوحة} other {# فاتورة مفتوحة}}",
+    "kpiTransfers": "تحويلات للتحقق",
+    "kpiOverdue": "متأخرة أو موقوفة",
+    "closeToast": "إغلاق"
   },
   "merchantBilling": {
     "title": "الفوترة",
@@ -747,7 +756,11 @@
     "onlineSoon": "الدفع عبر الإنترنت غير متاح بعد.",
     "downloadInvoice": "تنزيل الفاتورة {number} (PDF)",
     "invoiceOption": "{number} — {total}",
-    "uploadExpired": "استغرق الرفع وقتًا طويلًا. أرسل الإثبات مرة أخرى."
+    "uploadExpired": "استغرق الرفع وقتًا طويلًا. أرسل الإثبات مرة أخرى.",
+    "payNow": "ادفع الآن",
+    "noInvoicesBody": "تصدر فاتورتك الأولى عند نهاية التجربة.",
+    "proofHint": "JPEG أو PNG أو HEIC أو WebP، حتى 8 ميغابايت",
+    "closeToast": "إغلاق"
   },
   "adminBillingSettings": {
     "title": "إعدادات الفوترة",

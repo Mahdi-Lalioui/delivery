@@ -18,6 +18,7 @@
     "@zaafran/domain": "workspace:*",
     "@zaafran/i18n": "workspace:*",
     "@zaafran/tokens": "workspace:*",
+    "@zaafran/ui": "workspace:*",
     "next": "16.4.5",
     "next-intl": "4.14.9",
     "qrcode-generator": "2.0.4",

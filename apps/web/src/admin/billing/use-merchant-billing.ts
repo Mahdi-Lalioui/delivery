@@ -21,6 +21,7 @@ type TransferDraft = {
 export type MerchantBillingState = {
   view: MerchantBillingResult | { kind: "loading" };
   outcome: TransferResult | undefined;
+  outcomeId: number;
   isSubmitting: boolean;
   refresh: () => void;
   submit: (draft: TransferDraft) => Promise<void>;
@@ -34,7 +35,12 @@ function waitForPoll(): Promise<void> {
 
 export function useMerchantBilling(merchantId: string): MerchantBillingState {
   const [view, setView] = useState<MerchantBillingState["view"]>({ kind: "loading" });
-  const [outcome, setOutcome] = useState<TransferResult>();
+  const [outcome, setOutcomeValue] = useState<TransferResult>();
+  const [outcomeId, setOutcomeId] = useState(0);
+  const setOutcome = useCallback((next: TransferResult) => {
+    setOutcomeValue(next);
+    setOutcomeId((value) => value + 1);
+  }, []);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [generation, setGeneration] = useState(0);
   const attempt = useRef<{ identity: string; keys: TransferKeys }>(undefined);
@@ -87,8 +93,8 @@ export function useMerchantBilling(merchantId: string): MerchantBillingState {
       setOutcome(result);
       if (result.kind === "submitted") refresh();
     },
-    [merchantId, refresh],
+    [merchantId, refresh, setOutcome],
   );
 
-  return { view, outcome, isSubmitting, refresh, submit };
+  return { view, outcome, outcomeId, isSubmitting, refresh, submit };
 }

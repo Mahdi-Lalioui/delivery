@@ -4,8 +4,9 @@ import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { SiteShell } from "../../components/site-shell";
-import "../admin-merchant.css";
+import "@zaafran/ui/ui.css";
 import "./admin-billing.css";
+import { ToastProvider } from "@zaafran/ui";
 import { MerchantBilling } from "./merchant-billing";
 
 export async function merchantBillingMetadata(locale: Locale): Promise<Metadata> {
@@ -27,7 +28,9 @@ export function MerchantBillingPage({
         timeZone="Africa/Algiers"
         messages={{ merchantBilling: getMessages(locale).merchantBilling }}
       >
-        <MerchantBilling key={merchantId} merchantId={merchantId} />
+        <ToastProvider closeLabel={getMessages(locale).merchantBilling.closeToast}>
+          <MerchantBilling key={merchantId} merchantId={merchantId} locale={locale} />
+        </ToastProvider>
       </NextIntlClientProvider>
     </SiteShell>
   );

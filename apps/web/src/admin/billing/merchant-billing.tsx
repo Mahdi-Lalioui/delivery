@@ -1,120 +1,267 @@
 "use client";
 
+import type { Locale } from "@zaafran/i18n/locales";
+import {
+  Button,
+  Card,
+  EmptyState,
+  ErrorState,
+  Icon,
+  KpiTile,
+  PageHeader,
+  SegmentedControl,
+  SelectField,
+  Skeleton,
+  TextField,
+  useToast,
+  type IconName,
+} from "@zaafran/ui";
 import { useFormatter, useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
+import { InvoiceBadge, Money, Period, SubscriptionBadge } from "./billing-display";
 import {
   billingBanner,
   invoicePdfUrl,
+  type BillingBanner,
   type MerchantInvoice,
   type MerchantSubscription,
+  type TransferMethod,
   type TransferResult,
 } from "./merchant-billing-http";
 import { useMerchantBilling, type MerchantBillingState } from "./use-merchant-billing";
 
-const bannerKeys = {
-  trial: "bannerTrial",
-  due: "bannerDue",
-  past_due: "bannerPastDue",
-  suspended: "bannerSuspended",
-} as const;
-const statusKeys = {
-  trialing: "statusTrialing",
-  active: "statusActive",
-  past_due: "statusPastDue",
-  suspended: "statusSuspended",
-  cancelled: "statusCancelled",
-} as const;
-const invoiceKeys = { issued: "invoiceIssued", paid: "invoicePaid", void: "invoiceVoid" } as const;
-const timeZone = "Africa/Algiers";
+type Ready = Extract<MerchantBillingState["view"], { kind: "ready" }>;
+type BannerStyle = { key: string; tone: "info" | "warning" | "danger"; icon: IconName };
+const banners = {
+  trial: { key: "bannerTrial", tone: "info", icon: "calendar" },
+  due: { key: "bannerDue", tone: "warning", icon: "receipt" },
+  past_due: { key: "bannerPastDue", tone: "warning", icon: "clock" },
+  suspended: { key: "bannerSuspended", tone: "danger", icon: "alert" },
+} as const satisfies Readonly<Record<BillingBanner, BannerStyle>>;
 
-function useMoney() {
-  const format = useFormatter();
-  return (amountDzd: number) =>
-    format.number(amountDzd, { style: "currency", currency: "DZD", maximumFractionDigits: 0 });
-}
-
-function Plan({ subscription }: { subscription: MerchantSubscription | null }) {
+function Banner({ banner, canPay }: { banner: BillingBanner; canPay: boolean }) {
   const translate = useTranslations("merchantBilling");
-  const format = useFormatter();
-  const money = useMoney();
-  if (subscription === null) return <p>{translate("noPlan")}</p>;
-  const date = (value: string) => format.dateTime(new Date(value), { dateStyle: "long", timeZone });
+  const { key, tone, icon } = banners[banner];
   return (
-    <dl className="merchant-billing-plan">
-      <dt>{translate("status")}</dt>
-      <dd>{translate(statusKeys[subscription.status])}</dd>
-      <dt>{translate("price")}</dt>
-      <dd>{money(subscription.priceDzd)}</dd>
-      {subscription.trialEndsAt !== null && (
-        <>
-          <dt>{translate("trialEnds")}</dt>
-          <dd>{date(subscription.trialEndsAt)}</dd>
-        </>
+    <div className="billing-banner" data-tone={tone} role={tone === "info" ? "status" : "alert"}>
+      <Icon name={icon} />
+      <p className="billing-banner-text">{translate(key)}</p>
+      {canPay && (
+        <a className="ui-button ui-button-primary ui-button-sm" href="#merchant-billing-pay">
+          {translate("payNow")}
+        </a>
       )}
-      {subscription.nextInvoiceAt !== null && (
-        <>
-          <dt>{translate("nextInvoice")}</dt>
-          <dd>{date(subscription.nextInvoiceAt)}</dd>
-        </>
-      )}
-    </dl>
+    </div>
   );
 }
 
-function InvoiceRows({
-  merchantId,
-  invoices,
-}: {
-  merchantId: string;
-  invoices: MerchantInvoice[];
-}) {
+function Plan(props: { subscription: MerchantSubscription | null; locale: Locale }) {
   const translate = useTranslations("merchantBilling");
   const format = useFormatter();
-  const money = useMoney();
-  if (invoices.length === 0) return <p>{translate("noInvoices")}</p>;
+  const { subscription, locale } = props;
+  if (subscription === null) return <EmptyState icon="calendar" title={translate("noPlan")} />;
+  const date = (value: string) =>
+    format.dateTime(new Date(value), { day: "numeric", month: "long", timeZone: "Africa/Algiers" });
+  const isTrial = subscription.status === "trialing" && subscription.trialEndsAt !== null;
   return (
-    <table className="admin-merchant-table">
-      <thead>
-        <tr>
-          <th scope="col">{translate("number")}</th>
-          <th scope="col">{translate("period")}</th>
-          <th scope="col">{translate("total")}</th>
-          <th scope="col">{translate("status")}</th>
-          <th scope="col">{translate("downloadPdf")}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {invoices.map((invoice) => (
-          <tr key={invoice.invoiceId}>
-            <th scope="row">
-              <bdi>{invoice.number}</bdi>
-            </th>
-            <td>
-              {format.dateTimeRange(
-                new Date(invoice.period.startsAt),
-                new Date(invoice.period.endsAt),
-                {
-                  dateStyle: "medium",
-                  timeZone,
-                },
-              )}
-            </td>
-            <td>{money(invoice.totalDzd)}</td>
-            <td>{translate(invoiceKeys[invoice.status])}</td>
-            <td>
-              {invoice.pdfAvailable && (
-                <a
-                  href={invoicePdfUrl(merchantId, invoice.invoiceId)}
-                  download
-                  aria-label={translate("downloadInvoice", { number: invoice.number })}
-                >
-                  {translate("downloadPdf")}
-                </a>
-              )}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <div className="billing-plan">
+      <KpiTile
+        label={translate("status")}
+        value={<SubscriptionBadge status={subscription.status} namespace="merchantBilling" />}
+      />
+      <KpiTile
+        label={translate("price")}
+        value={<Money amountDzd={subscription.priceDzd} locale={locale} />}
+      />
+      {isTrial && subscription.trialEndsAt !== null && (
+        <KpiTile label={translate("trialEnds")} value={date(subscription.trialEndsAt)} />
+      )}
+      {subscription.nextInvoiceAt !== null && (
+        <KpiTile label={translate("nextInvoice")} value={date(subscription.nextInvoiceAt)} />
+      )}
+    </div>
+  );
+}
+
+function InvoiceItem(props: { merchantId: string; invoice: MerchantInvoice; locale: Locale }) {
+  const translate = useTranslations("merchantBilling");
+  const { merchantId, invoice, locale } = props;
+  return (
+    <li className="billing-row">
+      <span className="billing-row-icon" aria-hidden="true">
+        <Icon name="receipt" />
+      </span>
+      <div className="billing-row-main">
+        <p className="billing-row-title">
+          <bdi>{invoice.number}</bdi>
+          <Money amountDzd={invoice.totalDzd} locale={locale} />
+        </p>
+        <p className="billing-row-meta">
+          <Period startsAt={invoice.period.startsAt} endsAt={invoice.period.endsAt} />
+          <InvoiceBadge status={invoice.status} namespace="merchantBilling" />
+        </p>
+      </div>
+      {invoice.pdfAvailable && (
+        <a
+          className="ui-icon-button"
+          href={invoicePdfUrl(merchantId, invoice.invoiceId)}
+          download
+          aria-label={translate("downloadInvoice", { number: invoice.number })}
+        >
+          <Icon name="download" />
+        </a>
+      )}
+    </li>
+  );
+}
+
+function InvoiceList(props: { merchantId: string; invoices: MerchantInvoice[]; locale: Locale }) {
+  const translate = useTranslations("merchantBilling");
+  if (props.invoices.length === 0) {
+    return (
+      <EmptyState
+        icon="receipt"
+        title={translate("noInvoices")}
+        body={translate("noInvoicesBody")}
+      />
+    );
+  }
+  return (
+    <ul className="billing-rows">
+      {props.invoices.map((invoice) => (
+        <InvoiceItem
+          key={invoice.invoiceId}
+          merchantId={props.merchantId}
+          invoice={invoice}
+          locale={props.locale}
+        />
+      ))}
+    </ul>
+  );
+}
+
+function ProofPicker({ isDisabled, isInvalid }: { isDisabled: boolean; isInvalid: boolean }) {
+  const translate = useTranslations("merchantBilling");
+  const [fileName, setFileName] = useState<string>();
+  return (
+    <label
+      className="billing-dropzone"
+      data-invalid={isInvalid || undefined}
+      data-filled={fileName !== undefined || undefined}
+    >
+      <Icon name={fileName === undefined ? "plus" : "check"} size={24} />
+      <span className="billing-dropzone-title">{fileName ?? translate("proof")}</span>
+      <span className="billing-dropzone-hint">{translate("proofHint")}</span>
+      <input
+        className="ui-visually-hidden"
+        name="proof"
+        type="file"
+        required
+        accept="image/jpeg,image/png,image/heic,image/webp"
+        disabled={isDisabled}
+        onChange={(event) => {
+          setFileName(event.currentTarget.files?.[0]?.name);
+        }}
+      />
+    </label>
+  );
+}
+
+function readDraft(form: HTMLFormElement) {
+  const data = new FormData(form);
+  const text = (name: string) => {
+    const value = data.get(name);
+    return typeof value === "string" ? value : "";
+  };
+  const file = data.get("proof");
+  const method: TransferMethod = text("method") === "baridimob" ? "baridimob" : "ccp";
+  return {
+    invoiceId: text("invoiceId"),
+    method,
+    reference: text("reference"),
+    file: file instanceof File && file.size > 0 ? file : undefined,
+  };
+}
+
+function InvoiceChoice(props: { payable: MerchantInvoice[]; isDisabled: boolean; locale: Locale }) {
+  const translate = useTranslations("merchantBilling");
+  const [only, ...others] = props.payable;
+  if (only !== undefined && others.length === 0) {
+    return (
+      <>
+        <input type="hidden" name="invoiceId" value={only.invoiceId} />
+        <p className="billing-row-title">
+          <bdi>{only.number}</bdi>
+          <Money amountDzd={only.totalDzd} locale={props.locale} />
+        </p>
+      </>
+    );
+  }
+  return (
+    <SelectField label={translate("invoice")} name="invoiceId" disabled={props.isDisabled}>
+      {props.payable.map((invoice) => (
+        <option key={invoice.invoiceId} value={invoice.invoiceId}>
+          {invoice.number}
+        </option>
+      ))}
+    </SelectField>
+  );
+}
+
+function PayCard(props: {
+  state: MerchantBillingState;
+  invoices: MerchantInvoice[];
+  locale: Locale;
+}) {
+  const translate = useTranslations("merchantBilling");
+  const { state } = props;
+  const payable = props.invoices.filter((invoice) => invoice.status === "issued");
+  if (payable.length === 0) return null;
+  const invalid = state.outcome?.kind === "invalid" ? state.outcome.field : undefined;
+  const methods = [
+    { value: "ccp" as const, label: translate("methodCcp") },
+    { value: "baridimob" as const, label: translate("methodBaridimob") },
+  ];
+  return (
+    <Card title={translate("payTitle")} titleId="merchant-billing-pay">
+      <p className="ui-page-intro">{translate("payIntro")}</p>
+      <form
+        className="billing-pay-form"
+        aria-busy={state.isSubmitting}
+        onSubmit={(event) => {
+          event.preventDefault();
+          void state.submit(readDraft(event.currentTarget));
+        }}
+      >
+        <InvoiceChoice payable={payable} isDisabled={state.isSubmitting} locale={props.locale} />
+        <SegmentedControl
+          legend={translate("method")}
+          name="method"
+          defaultValue={defaultMethod}
+          disabled={state.isSubmitting}
+          options={methods}
+        />
+        <TextField
+          label={translate("reference")}
+          name="reference"
+          required
+          maxLength={120}
+          dir="ltr"
+          width="short"
+          disabled={state.isSubmitting}
+          error={invalid === "reference" ? translate("referenceError") : undefined}
+        />
+        <ProofPicker isDisabled={state.isSubmitting} isInvalid={invalid === "file"} />
+        {invalid === "file" && (
+          <p className="ui-field-error" role="alert">
+            {translate("fileError")}
+          </p>
+        )}
+        <Button type="submit" variant="primary" size="lg" isBlock isLoading={state.isSubmitting}>
+          {translate(state.isSubmitting ? "submitting" : "submit")}
+        </Button>
+      </form>
+    </Card>
   );
 }
 
@@ -125,166 +272,102 @@ const outcomeKeys = {
   stale: "stale",
   "sign-in": "signInRequired",
   error: "saveError",
-} as const;
+} as const satisfies Readonly<Record<Exclude<TransferResult["kind"], "invalid">, string>>;
 
-function outcomeKey(outcome: TransferResult) {
-  if (outcome.kind === "invalid") return outcome.field === "file" ? "fileError" : "referenceError";
-  return outcomeKeys[outcome.kind];
+function useOutcomeToast(state: MerchantBillingState) {
+  const translate = useTranslations("merchantBilling");
+  const toast = useToast();
+  const { outcome, outcomeId } = state;
+  useEffect(() => {
+    if (outcome === undefined || outcome.kind === "invalid") return;
+    toast.show(
+      translate(outcomeKeys[outcome.kind]),
+      outcome.kind === "submitted" ? "success" : "danger",
+    );
+  }, [outcome, outcomeId, toast, translate]);
 }
 
-function readDraft(form: HTMLFormElement) {
-  const data = new FormData(form);
-  const text = (name: string) => {
-    const value = data.get(name);
-    return typeof value === "string" ? value : "";
-  };
-  const file = data.get("proof");
-  return {
-    invoiceId: text("invoiceId"),
-    method: text("method") === "baridimob" ? ("baridimob" as const) : ("ccp" as const),
-    reference: text("reference"),
-    file: file instanceof File && file.size > 0 ? file : undefined,
-  };
-}
-
-function TransferForm({
-  state,
-  invoices,
-}: {
+function ReadyView(props: {
+  merchantId: string;
+  view: Ready;
   state: MerchantBillingState;
-  invoices: MerchantInvoice[];
+  locale: Locale;
 }) {
   const translate = useTranslations("merchantBilling");
-  const money = useMoney();
-  const payable = invoices.filter((invoice) => invoice.status === "issued");
-  if (payable.length === 0) return null;
-  const { outcome } = state;
-  const isSuccess = outcome?.kind === "submitted";
+  const { view, locale } = props;
+  const banner = billingBanner(view.subscription, view.invoices);
+  const canPay = view.invoices.some((invoice) => invoice.status === "issued");
   return (
-    <section className="merchant-billing-pay" aria-labelledby="merchant-billing-pay">
-      <h2 id="merchant-billing-pay">{translate("payTitle")}</h2>
-      <p>{translate("payIntro")}</p>
-      <form
-        className="admin-merchant-form"
-        aria-busy={state.isSubmitting}
-        onSubmit={(event) => {
-          event.preventDefault();
-          void state.submit(readDraft(event.currentTarget));
-        }}
-      >
-        <label className="admin-merchant-field">
-          <span>{translate("invoice")}</span>
-          <select name="invoiceId" disabled={state.isSubmitting}>
-            {payable.map((invoice) => (
-              <option key={invoice.invoiceId} value={invoice.invoiceId}>
-                {translate("invoiceOption", {
-                  number: invoice.number,
-                  total: money(invoice.totalDzd),
-                })}
-              </option>
-            ))}
-          </select>
-        </label>
-        <fieldset disabled={state.isSubmitting}>
-          <legend>{translate("method")}</legend>
-          <label>
-            <input type="radio" name="method" value="ccp" defaultChecked /> {translate("methodCcp")}
-          </label>
-          <label>
-            <input type="radio" name="method" value="baridimob" /> {translate("methodBaridimob")}
-          </label>
-        </fieldset>
-        <label className="admin-merchant-field">
-          <span>{translate("reference")}</span>
-          <input
-            name="reference"
-            required
-            maxLength={120}
-            disabled={state.isSubmitting}
-            dir="ltr"
-          />
-        </label>
-        <label className="admin-merchant-field">
-          <span>{translate("proof")}</span>
-          <input
-            name="proof"
-            type="file"
-            required
-            accept="image/jpeg,image/png,image/heic,image/webp"
-            disabled={state.isSubmitting}
-          />
-        </label>
-        <button className="admin-merchant-button" type="submit" disabled={state.isSubmitting}>
-          {translate(state.isSubmitting ? "submitting" : "submit")}
-        </button>
-        {outcome !== undefined && (
-          <p
-            className={isSuccess ? "admin-merchant-success" : "admin-merchant-error"}
-            role={isSuccess ? "status" : "alert"}
-          >
-            {translate(outcomeKey(outcome))}
-          </p>
-        )}
-      </form>
-    </section>
+    <div className="billing-layout">
+      {banner !== undefined && <Banner banner={banner} canPay={canPay && banner !== "trial"} />}
+      <Plan subscription={view.subscription} locale={locale} />
+      <div className="billing-two-columns">
+        <Card title={translate("invoices")} titleId="merchant-billing-invoices">
+          <InvoiceList merchantId={props.merchantId} invoices={view.invoices} locale={locale} />
+        </Card>
+        <div className="billing-layout">
+          <PayCard state={props.state} invoices={view.invoices} locale={locale} />
+          {!view.isOnlinePaymentEnabled && (
+            <p className="billing-row-meta">
+              <Icon name="card" size={16} />
+              {translate("onlineSoon")}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 
-function Ready({ merchantId, state }: { merchantId: string; state: MerchantBillingState }) {
-  const translate = useTranslations("merchantBilling");
-  if (state.view.kind !== "ready") return null;
-  const { subscription, invoices, isOnlinePaymentEnabled } = state.view;
-  const banner = billingBanner(subscription, invoices);
-  return (
-    <>
-      {banner !== undefined && (
-        <p className={`merchant-billing-banner merchant-billing-banner-${banner}`} role="status">
-          {translate(bannerKeys[banner])}
-        </p>
-      )}
-      <section aria-labelledby="merchant-billing-plan">
-        <h2 id="merchant-billing-plan">{translate("plan")}</h2>
-        <Plan subscription={subscription} />
-      </section>
-      <section aria-labelledby="merchant-billing-invoices">
-        <h2 id="merchant-billing-invoices">{translate("invoices")}</h2>
-        <InvoiceRows merchantId={merchantId} invoices={invoices} />
-      </section>
-      <TransferForm state={state} invoices={invoices} />
-      {!isOnlinePaymentEnabled && <p>{translate("onlineSoon")}</p>}
-    </>
-  );
-}
-
+const defaultMethod: TransferMethod = "ccp";
 const failureKeys = {
   "sign-in": "signInRequired",
   "not-found": "notFound",
   error: "loadError",
 } as const;
 
-/** MER-22: the restaurant's billing page. */
-export function MerchantBilling({ merchantId }: { merchantId: string }) {
+/** MER-22 view: pure rendering of a billing state (page and design gallery). */
+export function MerchantBillingView(props: {
+  merchantId: string;
+  state: MerchantBillingState;
+  locale: Locale;
+}) {
   const translate = useTranslations("merchantBilling");
-  const state = useMerchantBilling(merchantId);
+  const { state } = props;
+  useOutcomeToast(state);
   const { view } = state;
   return (
-    <section className="admin-merchant" aria-labelledby="merchant-billing-title">
-      <header className="admin-merchant-heading">
-        <h1 id="merchant-billing-title">{translate("title")}</h1>
-        <p>{translate("intro")}</p>
-      </header>
-      {view.kind === "loading" && <p role="status">{translate("loading")}</p>}
-      {view.kind === "ready" && <Ready merchantId={merchantId} state={state} />}
-      {view.kind !== "loading" && view.kind !== "ready" && (
-        <div className="admin-merchant-notice">
-          <p role="alert">{translate(failureKeys[view.kind])}</p>
-          {view.kind === "error" && (
-            <button className="admin-merchant-button" type="button" onClick={state.refresh}>
-              {translate("retry")}
-            </button>
-          )}
-        </div>
+    <section className="billing-page" aria-labelledby="merchant-billing-title">
+      <PageHeader
+        title={translate("title")}
+        intro={translate("intro")}
+        titleId="merchant-billing-title"
+      />
+      {view.kind === "loading" && <Skeleton label={translate("loading")} lines={6} />}
+      {view.kind === "ready" && (
+        <ReadyView merchantId={props.merchantId} view={view} state={state} locale={props.locale} />
+      )}
+      {view.kind === "error" && (
+        <ErrorState
+          title={translate("loadError")}
+          retryLabel={translate("retry")}
+          onRetry={state.refresh}
+        />
+      )}
+      {(view.kind === "sign-in" || view.kind === "not-found") && (
+        <ErrorState title={translate(failureKeys[view.kind])} />
       )}
     </section>
+  );
+}
+
+/** MER-22: the restaurant's billing page. */
+export function MerchantBilling({ merchantId, locale }: { merchantId: string; locale: Locale }) {
+  return (
+    <MerchantBillingView
+      merchantId={merchantId}
+      state={useMerchantBilling(merchantId)}
+      locale={locale}
+    />
   );
 }

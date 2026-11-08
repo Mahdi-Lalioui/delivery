@@ -688,13 +688,22 @@
     "loadError": "La facturation n’a pas pu être chargée.",
     "signInRequired": "Connectez-vous avec un compte admin pour gérer la facturation.",
     "retry": "Réessayer",
-    "emptyTransfers": "Aucun virement en attente.",
+    "emptyTransfers": "Tous les virements sont confirmés",
     "emptyInvoices": "Aucune facture.",
     "emptySubscriptions": "Aucun abonnement.",
     "recorded": "Paiement enregistré.",
     "voided": "Facture annulée.",
     "stale": "Cette facture a changé. La liste a été actualisée.",
-    "saveError": "La modification n’a pas pu être enregistrée. Réessayez."
+    "saveError": "La modification n’a pas pu être enregistrée. Réessayez.",
+    "cancel": "Annuler",
+    "confirmVoid": "Annuler cette facture",
+    "unknownInvoice": "Facture inconnue",
+    "emptyTransfersBody": "Les nouvelles preuves CCP et BaridiMob des restaurants apparaissent ici.",
+    "kpiOpen": "En attente de paiement",
+    "kpiOpenCount": "{count, plural, one {# facture ouverte} other {# factures ouvertes}}",
+    "kpiTransfers": "Virements à vérifier",
+    "kpiOverdue": "En retard ou suspendus",
+    "closeToast": "Fermer"
   },
   "merchantBilling": {
     "title": "Facturation",
@@ -747,7 +756,11 @@
     "onlineSoon": "Le paiement en ligne n’est pas encore disponible.",
     "downloadInvoice": "Télécharger la facture {number} (PDF)",
     "invoiceOption": "{number} — {total}",
-    "uploadExpired": "L’envoi a pris trop de temps. Renvoyez la preuve."
+    "uploadExpired": "L’envoi a pris trop de temps. Renvoyez la preuve.",
+    "payNow": "Payer maintenant",
+    "noInvoicesBody": "Votre première facture est émise à la fin de l’essai.",
+    "proofHint": "JPEG, PNG, HEIC ou WebP, 8 Mo au plus",
+    "closeToast": "Fermer"
   },
   "adminBillingSettings": {
     "title": "Paramètres de facturation",

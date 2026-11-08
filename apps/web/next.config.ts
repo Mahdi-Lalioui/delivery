@@ -22,6 +22,6 @@ export default function config(phase: string): NextConfig {
       rewrites: () =>
         Promise.resolve([{ source: "/v1/:path*", destination: "http://127.0.0.1:3002/v1/:path*" }]),
     }),
-    transpilePackages: ["@zaafran/config", "@zaafran/i18n"],
+    transpilePackages: ["@zaafran/config", "@zaafran/i18n", "@zaafran/ui"],
   });
 }
