@@ -41,3 +41,5 @@
   Proof: rating tests 10/10, kit 6/6, `pnpm verify` green; reviewed 1280 fr light, 375 ar dark. Next: share kit, slot picker, recipient.
 - 2026-11-08 · Medium · Design bar: share kit (settings card with segmented language/paper, copy-link icon button + toast, primary print, elevated poster preview), slot picker (ASAP and Iftar cards, time chips per day, 24 h Algiers times), recipient (kit fields, +213 prefix kept LTR in RTL, tracking toggle). Kit: LTR field boxes keep affix order; new copy/moon icons. Gallery gains CUS-13/15.
   Proof: affected tests 16/16, `pnpm verify` green; reviewed 375 ar light. Next: pitch page + landing sections on the kit, then mobile app screens.
+- 2026-11-08 · Medium · Design bar: landing sections on the kit (hero copy with primary + ghost actions, numbered icon step cards, restaurants band with primary/secondary buttons). Motion values now come only from `@zaafran/ui/ui.css` (removed `moments/motion.css`).
+  Proof: landing tests 2/2, `pnpm verify` green; reviewed 1280 fr light. Next: the native customer app screens (M10) on ui-native, then e2e when lane A routes land.

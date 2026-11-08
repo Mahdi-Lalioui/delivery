@@ -963,7 +963,8 @@
     "stepTrackTitle": "Suivez",
     "stepTrackBody": "Voyez votre commande avancer sur la carte jusqu’à votre porte. Pendant le Ramadan, choisissez le créneau Iftar.",
     "restaurantsTitle": "Pour les restaurants",
-    "restaurantsBody": "Un abonnement mensuel fixe, sans commission, avec vos propres livreurs."
+    "restaurantsBody": "Un abonnement mensuel fixe, sans commission, avec vos propres livreurs.",
+    "forRestaurantsShort": "Pour les restaurants"
   },
   "marketingMoments": {
     "title": "Moments signature",

@@ -4,7 +4,7 @@ import { formatDzd } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
 import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
-import "./motion.css";
+import "@zaafran/ui/ui.css";
 import "./moments.css";
 import { CountdownRing } from "./countdown-ring";
 import { flyToCart } from "./fly-to-cart";

@@ -963,7 +963,8 @@
     "stepTrackTitle": "تابع",
     "stepTrackBody": "شاهد طلبك يتحرك على الخريطة حتى بابك. في رمضان، اختر موعد الإفطار.",
     "restaurantsTitle": "للمطاعم",
-    "restaurantsBody": "اشتراك شهري ثابت، بدون عمولة، مع موصّليك."
+    "restaurantsBody": "اشتراك شهري ثابت، بدون عمولة، مع موصّليك.",
+    "forRestaurantsShort": "للمطاعم"
   },
   "marketingMoments": {
     "title": "اللحظات المميزة",

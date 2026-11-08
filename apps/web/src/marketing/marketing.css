@@ -222,3 +222,91 @@
   font-weight: var(--font-weight-h2);
   line-height: var(--line-height-h2);
 }
+
+/* Landing sections on the ui kit */
+.landing-hero-copy {
+  display: grid;
+  gap: var(--space-16);
+  max-inline-size: 44rem;
+}
+
+.landing-intro {
+  font-size: var(--font-size-body-lg);
+  line-height: var(--line-height-body-lg);
+  color: var(--color-text-2);
+}
+
+.landing-section {
+  display: grid;
+  gap: var(--space-24);
+}
+
+.landing-steps {
+  display: grid;
+  gap: var(--space-16);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.landing-steps li {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: var(--space-8);
+  padding: var(--space-24);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.landing-steps h3 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-h3);
+}
+
+.landing-steps p {
+  color: var(--color-text-2);
+}
+
+.landing-step-icon {
+  display: grid;
+  place-items: center;
+  inline-size: 48px;
+  block-size: 48px;
+  margin-block-end: var(--space-8);
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.landing-step-number {
+  position: absolute;
+  inset-block-start: var(--space-20);
+  inset-inline-end: var(--space-24);
+  font-family: var(--font-display);
+  font-size: var(--font-size-h1);
+  color: var(--color-border-subtle);
+}
+
+.landing-restaurants {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-24);
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-32);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-2);
+}
+
+.landing-restaurants h2 {
+  font-family: var(--font-display);
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-h2);
+}
+
+.landing-restaurants p {
+  color: var(--color-text-2);
+}

@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { SiteShell } from "../components/site-shell";
-import "./moments/motion.css";
+import "@zaafran/ui/ui.css";
 import "./marketing.css";
 import { PitchCalculator } from "./pitch-calculator";
 
