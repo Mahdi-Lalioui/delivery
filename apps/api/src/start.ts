@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import { createAuthRepository } from "@zaafran/db/auth";
 import { openDatabase } from "@zaafran/db/database";
 import { createMediaRepository } from "@zaafran/db/media";
@@ -8,16 +9,19 @@ import { createMenuPriceRepository } from "@zaafran/db/menu-price";
 import { createMerchantHoursRepository } from "@zaafran/db/merchant-hours";
 import { createMenuModerationRepository } from "@zaafran/db/menu-moderation";
 import { createMerchantRepository } from "@zaafran/db/merchant";
+import { createMerchantStaffRepository } from "@zaafran/db/merchant-staff";
 import { createLocalMediaStore } from "@zaafran/media";
 import type { FastifyInstance, FastifyListenOptions } from "fastify";
 import { createApi } from "./app.js";
 import { createAuthService } from "./auth-service.js";
+import type { MerchantStaffServices } from "./merchant-staff-routes.js";
 import { readApiEnvironment } from "./environment.js";
 import { checkReadiness } from "./readiness.js";
 
 export interface StartOptions {
   readonly now?: () => Date;
   readonly sendSms?: Parameters<typeof createAuthService>[0]["sendSms"];
+  readonly sendInvitation?: MerchantStaffServices["sendInvitation"];
   readonly configure?: (api: FastifyInstance) => void;
   readonly environment?: Readonly<Record<string, string | undefined>>;
   readonly listen?: (api: FastifyInstance, options: FastifyListenOptions) => Promise<string>;
@@ -52,6 +56,12 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     menuPrice: { repository: createMenuPriceRepository(database), now },
     merchantHours: { repository: merchantHours, now },
     merchantHoursPreview: { repository: merchantHours, now },
+    merchantStaff: {
+      repository: createMerchantStaffRepository(database),
+      now,
+      createToken: () => randomBytes(32).toString("base64url"),
+      sendInvitation: options.sendInvitation ?? unavailableSms,
+    },
   });
   api.addHook("onClose", () => database.close());
   try {

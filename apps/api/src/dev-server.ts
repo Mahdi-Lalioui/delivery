@@ -10,4 +10,7 @@ await serveApi({
   sendSms: ({ phone, code }) => {
     outbox.sendSms({ recipientRef: phone, text: code });
   },
+  sendInvitation: ({ phone, token }) => {
+    outbox.sendSms({ recipientRef: phone, text: token });
+  },
 });

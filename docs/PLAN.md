@@ -134,9 +134,9 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
   - [x] Commit the invitation, staff list, revoke and accept contracts (`@zaafran/contracts/merchant-staff`, D-015).
   - [x] Add the invitation migration and owner-only create/list/revoke repository commands in `packages/db`, with hashed tokens and idempotent create. The API sends the SMS after commit, like the OTP. An open replay rotates the token and resends (D-015).
   - [x] Add the phone-bound, single-use accept command and prove concurrency, expiry, revocation, phone mismatch and existing membership against PostGIS.
-  - [ ] Add the API routes, authorization-matrix rows and OpenAPI, and prove each role at its own and another merchant.
+  - [x] Add the API routes, authorization-matrix rows and OpenAPI, and prove each role at its own and another merchant.
     - [x] Add the list, invite, revoke and accept routes with injected token and SMS services, matrix rows and OpenAPI.
-    - [ ] Wire the routes in `startApi` with a real token generator and an invitation SMS adapter. Prove owner, manager, staff and merchant-B owner against PostGIS through `startApi`.
+    - [x] Wire the routes in `startApi` with a real token generator and an invitation SMS adapter. Prove owner, manager, staff and merchant-B owner against PostGIS through `startApi`.
   - [ ] Add the owner staff screen and the invitee accept page (ar/fr/en) with an auth e2e and the design matrix.
 - [ ] M2-12 Seed twelve fictional bilingual Algiers restaurants with synthetic imagery and `is_demo`, then run production-built onboarding, the complete route matrix, and the design critic's theme/locale/viewport checks. Record local and PR evidence.
 

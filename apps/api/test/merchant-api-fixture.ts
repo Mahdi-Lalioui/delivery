@@ -2,14 +2,17 @@ import { randomUUIDv7 } from "node:crypto";
 import { onTestFinished } from "vitest";
 import { registerTestDatabase } from "../../../packages/db/test/database.ts";
 import { createSessionToken } from "../src/auth-crypto.ts";
-import { startApi } from "../src/start.ts";
+import { startApi, type StartOptions } from "../src/start.ts";
 
 const publicOrigin = "https://zaafran.test";
 
 export function registerMerchantApiFixture(now: string) {
   const database = registerTestDatabase();
 
-  async function openApi(clock: () => Date = () => new Date(now)) {
+  async function openApi(
+    clock: () => Date = () => new Date(now),
+    sendInvitation?: StartOptions["sendInvitation"],
+  ) {
     const api = await startApi({
       environment: {
         DATABASE_URL: database.url(),
@@ -18,6 +21,7 @@ export function registerMerchantApiFixture(now: string) {
         AUTH_TOTP_KEY: Buffer.alloc(32, 26).toString("hex"),
       },
       now: clock,
+      ...(sendInvitation === undefined ? {} : { sendInvitation }),
       async listen(app) {
         await app.ready();
         return "http://127.0.0.1:3002";
