@@ -453,6 +453,13 @@ const matrix: readonly MatrixRoute[] = [
     expected: menuRoles,
   },
   { method: "GET", url: "/v1/flags", expected: 503 },
+  { method: "GET", url: "/v1/feed", expected: 503 },
+  {
+    method: "GET",
+    url: "/v1/merchants/:merchantId/profile/photos/:mediaId/variants/:format/:width",
+    requestUrl: `/v1/merchants/${challengeId}/profile/photos/${challengeId}/variants/webp/320`,
+    expected: 503,
+  },
   {
     method: "POST",
     url: "/v1/geo/serviceability",

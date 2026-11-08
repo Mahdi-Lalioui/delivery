@@ -28,6 +28,10 @@
       "types": "./src/geography.ts",
       "default": "./dist/geography.js"
     },
+    "./public-feed": {
+      "types": "./src/public-feed.ts",
+      "default": "./dist/public-feed.js"
+    },
     "./service-area": {
       "types": "./src/service-area.ts",
       "default": "./dist/service-area.js"

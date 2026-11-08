@@ -15,11 +15,12 @@ import type {
   MediaStatus,
   MediaUploadDescriptor,
 } from "@zaafran/db/media";
-import type { MediaObject, MediaStore } from "@zaafran/media";
-import type { FastifyInstance, FastifyReply } from "fastify";
+import type { MediaStore } from "@zaafran/media";
+import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
 import { commandIdentity, resolveSessionCommand } from "./command-identity.js";
+import { binaryImage, sendImage } from "./image-response.js";
 import { getRequestActor } from "./policy.js";
 import { sendProblem } from "./problems.js";
 
@@ -62,7 +63,6 @@ const variantParams = mediaIdParams.extend({
     .transform(Number)
     .pipe(z.literal(photoVariantWidths)),
 });
-const binaryImage = { schema: z.string().meta({ format: "binary" }) };
 
 function mediaResponse(media: MediaStatus): z.output<typeof mediaOutput> {
   return media.status === "ready" ? { ...media, variants: [...media.variants] } : media;
@@ -274,15 +274,6 @@ function registerCrop(api: FastifyInstance, services: MediaReservationServices |
   );
 }
 
-// Fastify sends streams directly. The binary schema describes the HTTP representation.
-function sendPrivateImage(reply: FastifyReply, object: MediaObject, contentType: string) {
-  return reply
-    .type(contentType)
-    .header("x-content-type-options", "nosniff")
-    .header("content-length", object.bytes)
-    .send(object.body);
-}
-
 function registerPreview(api: FastifyInstance, services: MediaReservationServices | undefined) {
   api.withTypeProvider<ZodTypeProvider>().get(
     "/v1/media/:mediaId/preview",
@@ -310,7 +301,7 @@ function registerPreview(api: FastifyInstance, services: MediaReservationService
       if (!preview) return sendProblem(reply, 404);
       const object = await services.store.get(preview.key);
       if (!object) return sendProblem(reply, 503);
-      return sendPrivateImage(reply, object, "image/webp");
+      return sendImage(reply, object, "image/webp");
     },
   );
 }
@@ -345,7 +336,7 @@ function registerVariant(api: FastifyInstance, services: MediaReservationService
       if (!variant) return sendProblem(reply, 404);
       const object = await services.store.get(variant.key);
       if (!object) return sendProblem(reply, 503);
-      return sendPrivateImage(reply, object, `image/${format}`);
+      return sendImage(reply, object, `image/${format}`);
     },
   );
 }

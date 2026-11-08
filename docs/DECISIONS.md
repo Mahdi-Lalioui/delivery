@@ -218,3 +218,11 @@ Save both profile photo slots with one session-bound menu command. Owners and ma
 This supersedes the GET method for serviceability in SPEC §13. Use a public POST with a strict point
 or commune body and a no-store response. Exact coordinates stay out of URLs and their access logs.
 The lookup makes no writes. Geographic coverage does not imply that ordering is enabled.
+
+### D-026 — Public feed and profile photos share publication rules (2026-11-08)
+
+The initial feed uses merchant ID keyset pagination over active, non-demo restaurants. Saved
+weekly hours, exceptions and temporary pauses determine the displayed open state. Public profile
+photos resolve only a current, ready, same-merchant cover or logo. Every photo read rechecks
+publication and attachment and sends no-store. Storage keys stay server-side. Global open-first
+ordering and the geographic and commercial fields need their own data and cursor work.

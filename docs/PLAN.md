@@ -205,6 +205,9 @@ Close the remaining M2 acceptance checks and seed the demo restaurants. Then lan
   - [x] Save the user's selection in the localized home and prove supported and outside-area behavior in a production browser.
   - [ ] Complete location refinement, the outside-area opt-in and the audited polygon editor handoff.
 - [ ] M3-2 Feed endpoint and home, browsable without an account (CUS-01, CUS-03, CUS-04).
+  - [x] Publish active restaurants, current profile photos and regular-hours availability with bounded anonymous pagination.
+  - [x] Prove localized browse and public photos in a production browser.
+  - [ ] Add open-first ordering, cuisine browsing and the remaining sections and fields when their data producers are available.
 - [ ] M3-3 Search index, jobs, endpoint and UI (SRCH-04…06, CUS-05, CUS-06).
 - [ ] M3-4 Restaurant page and item sheet (CUS-07, CUS-08), with ETag caching.
 - [ ] M3-5 Cart (CUS-09) with persistence.

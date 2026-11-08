@@ -13,6 +13,12 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 18:48 GMT — M3-2 anonymous feed
+
+- **Effort and evidence** — Ultra for migration and media authorization, high for the feed UI. `pnpm verify` passed 1,568 unit and 222 PostGIS tests. Authorization passed 224 and the two production browser journeys passed.
+- **Review** — Fixed a far-future pause that could break the page. The reviewer reproduced HTTP 500 before and HTTP 200 after. The lead inspected 390px and 1280px captures and the design critic approved the eight final views. [Evidence](evidence/m3/feed.md)
+- **Next** — Search index and ranking. Feed ordering and its dependent sections remain open. M2 still lacks the Lane B live notice.
+
 ### 2026-11-08 17:45 GMT — M3-1 service areas and location selection
 
 - **Effort and evidence** — Ultra for the migration and API, high for the picker. `pnpm verify` passed 1,553 unit and 216 PostGIS tests, authorization passed 222, and the production discovery browser suite passed three journeys.

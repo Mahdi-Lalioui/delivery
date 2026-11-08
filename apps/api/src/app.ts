@@ -57,6 +57,7 @@ import {
 import { enforceRoutePolicies, recordRoutePolicies, type ResolveActor } from "./policy.js";
 import { registerPlatformRoutes, type PlatformServices } from "./platform-routes.js";
 import { registerRamadanRoutes, type RamadanServices } from "./ramadan-routes.js";
+import { registerPublicFeedRoutes, type PublicFeedServices } from "./public-feed-routes.js";
 import { sendProblem } from "./problems.js";
 
 interface ApiOptions {
@@ -67,6 +68,7 @@ interface ApiOptions {
   readonly platform?: PlatformServices;
   readonly ramadan?: RamadanServices;
   readonly discovery?: DiscoveryServices;
+  readonly publicFeed?: PublicFeedServices;
   readonly merchantProfilePhotos?: MerchantProfilePhotosServices;
   readonly merchantPromotions?: MerchantPromotionsServices;
   readonly menuModeration?: MenuModerationServices;
@@ -142,6 +144,7 @@ export function createApi(options: ApiOptions): FastifyInstance {
     registerPlatformRoutes(api, options.platform);
     registerRamadanRoutes(api, options.ramadan);
     registerDiscoveryRoutes(api, options.discovery);
+    registerPublicFeedRoutes(api, options.publicFeed);
     registerMerchantProfilePhotosRoutes(api, options.merchantProfilePhotos);
     registerMerchantPromotionsRoutes(api, options.merchantPromotions);
     registerAdminModerationRoutes(api, options.menuModeration);

@@ -52,3 +52,6 @@
 - 2026-11-08 · Low · M2 remains at 36/37. Lane B `db00086` has no visible notice wiring. The goal tool still holds the unfinished M2 goal and rejected creating M3. Track M3 in PLAN until M2 can close.
 - 2026-11-08 · Ultra and high · Location lookup and GPS/commune picker passed 1,553 unit, 216 PostGIS, 222 authorization and three production browser cases. Both reviews cleared after cache, stale-selection and contrast fixes. [Evidence](../evidence/m3/location.md)
 - 2026-11-08 · High · Resume M3-2 at public `GET /v1/feed`. Start with active merchants, bounded keyset pages, batched hours and tenant-scoped ready photos. Keep geo ranking, live fees, ETA and payment methods tied to their real producers. M3-1 map, opt-in and editor stay open.
+
+- 2026-11-08 · Ultra and high · Public feed and current profile variants passed 1,568 unit, 222 PostGIS, 224 authorization and two production browser cases. Reviewer closed the extended-year pause P0 and design critic approved eight captures. [Evidence](../evidence/m3/feed.md)
+- 2026-11-08 · High · Resume M3-3 with the search index and ranking. Share live publication checks with the feed and later restaurant pages. Keep M3-2 open for global ordering, additional sections and commercial data.

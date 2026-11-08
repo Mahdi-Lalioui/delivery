@@ -3,6 +3,7 @@ import { localeDetails, publicLocales, type Locale } from "@zaafran/i18n/locales
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { DiscoveryLocationSelector } from "../discovery/discovery-location-selector";
+import { DiscoveryFeed } from "../discovery/feed";
 import { SiteShell } from "./site-shell";
 
 export function homeMetadata(locale: Locale): Metadata {
@@ -35,6 +36,7 @@ export async function Home({ locale }: { locale: Locale }) {
           <a href={`/${locale}/merchant/apply`}>{translateMerchant("startApplication")}</a>
         </div>
       </section>
+      <DiscoveryFeed locale={locale} />
     </SiteShell>
   );
 }

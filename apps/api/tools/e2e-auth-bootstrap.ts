@@ -12,6 +12,7 @@ import { migrateDatabase } from "@zaafran/db/migrate";
 import { createTestClone } from "../../../packages/db/test/clone.ts";
 import { sealTotpSecret } from "../src/auth-totp.ts";
 import type { startApi } from "../src/start.ts";
+import { seedDiscoveryFeed } from "./e2e-discovery-feed.ts";
 import { startAuthProxy } from "./e2e-auth-proxy.ts";
 import type { AlgiersCommune, AuthHarness, MenuMembershipFixture } from "./e2e-auth-types.ts";
 
@@ -190,6 +191,14 @@ export async function startAuthHarness(
     origin: proxy.origin,
     close: () => cleanup.disposeAsync(),
     seedAlgiersCommune: () => seedAlgiersCommune(database),
+    async seedDiscoveryFeed() {
+      if (!mediaRoot) throw new Error("Start the test media worker for the discovery fixture.");
+      return seedDiscoveryFeed(database, {
+        root: mediaRoot,
+        commune: await seedAlgiersCommune(database),
+        now: new Date(time),
+      });
+    },
     seedMenuMemberships: (phone) => seedMenuMemberships(database, phone, new Date(time)),
     seedOnboardingProgress: (merchantId) => seedOnboardingProgress(database, merchantId),
     advanceClock(milliseconds: number) {
