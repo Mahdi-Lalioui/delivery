@@ -112,6 +112,9 @@ function MenuItemRow({
       <p className="menu-item-moderation" data-moderation={item.moderationStatus}>
         {translate(moderationMessages[item.moderationStatus])}
       </p>
+      {item.moderationStatus === "blocked_pending_review" && (
+        <p className="menu-item-hint">{translate("moderationBlockedHint")}</p>
+      )}
       <AvailabilityStatus item={item} locale={locale} />
       <select
         className="menu-item-select"

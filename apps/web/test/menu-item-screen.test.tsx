@@ -169,7 +169,9 @@ test("[ADM-04:ui] keeps held moderation distinct from available stock", () => {
     },
   });
   expect(html).toContain(menuItem.moderationBlocked);
+  expect(html).toContain(menuItem.moderationBlockedHint);
   expect(html).toMatch(new RegExp(`data-available="true">${RegExp.escape(menuItem.available)}<`));
+  expect(render({ view: ready })).not.toContain(menuItem.moderationBlockedHint);
 });
 
 test("[MER-09:items] exposes a new-item action when the category has no items", () => {

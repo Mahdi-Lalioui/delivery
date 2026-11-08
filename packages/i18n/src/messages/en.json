@@ -355,6 +355,7 @@
     "moderationApproved": "Approved",
     "moderationBlocked": "Held for review",
     "moderationRejected": "Rejected",
+    "moderationBlockedHint": "This item mentions goods that cannot be sold online (alcohol, tobacco, medicines, gambling). Our team will review it; customers will not see it until then.",
     "stockUntilDayEnd": "Sold out today",
     "stockSoldOut": "Sold out",
     "optionGroups": "Option groups",

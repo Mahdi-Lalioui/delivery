@@ -355,6 +355,7 @@
     "moderationApproved": "مقبول",
     "moderationBlocked": "موقوف للمراجعة",
     "moderationRejected": "مرفوض",
+    "moderationBlockedHint": "يحتوي هذا الصنف على كلمات لمنتجات يُمنع بيعها عبر الإنترنت (الكحول، التبغ، الأدوية، القمار). سيراجعه فريقنا، ويبقى مخفيًا عن الزبائن حتى ذلك الحين.",
     "stockUntilDayEnd": "نفد اليوم",
     "stockSoldOut": "نفد",
     "optionGroups": "مجموعات الخيارات",

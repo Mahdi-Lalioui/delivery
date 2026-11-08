@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 07:54 GMT — M2-10 merchant-facing held-item explanation (Claude, covering while Codex was out)
+
+- **Changed** — Under the "Held for review" badge, the merchant item list (`menu-item-list.tsx`) now shows a `menu-item-hint` that names the four prohibited categories and says the team will review the item and customers will not see it until then. Added `menuItem.moderationBlockedHint` in ar, fr and en. It renders only for `blocked_pending_review`. Split the remaining M2-10 web work in PLAN into a client step and a screen step.
+- **Evidence** — Tests came first: the `[ADM-04:ui]` screen case now expects the hint for a held item and its absence for an unreviewed one. It failed (`to include undefined`), then 20/20 passed. `pnpm verify` exited 0: 1119 unit tests, 123 PostGIS integration tests, build, knip, depcruise, trace, and only the existing moderate advisory.
+- **Reviewer** — Self-reviewed against AGENTS.md §10. No P0/P1. The copy names categories, never the matched word, so it does not hint at how to evade the screen.
+- **Next (exact)** — Add `apps/web/src/admin-moderation/moderation-http.ts`, following the admin merchant review client (find it with `grep -rn "admin/merchant-applications" apps/web/src`). It needs `readHeldItems({ cursor?, limit, signal })` parsed with `adminItemQueueOutput`, and `reviewHeldItem({ itemId, sessionId, idempotencyKey, input })` parsed with `adminItemReviewOutput`. Map 401 → sign-in, 403 → forbidden, 409 `session_changed`/`invalid_status`/`idempotency_conflict`, and 429/5xx → retry with the same key. Write the client tests first with mocked `fetch`. Then build the screen at `/<locale>/admin/menu-items` (ar/fr/en, token CSS, focus management) and `e2e/auth-admin-moderation.spec.ts`.
+- **Needs Mahdi** — None.
+
 ### 2026-11-08 07:52 GMT — M2-10 end-to-end held-item review on PostGIS (Claude, covering while Codex was out)
 
 - **Changed** — Added `apps/api/test/admin-moderation.integration.test.ts`, run through `startApi` with real sessions on PostGIS. An owner creates "Bière pression" through the menu API and gets `blocked_pending_review`, with 0 visible onboarding items. The admin queue lists it with `matches: ["alcohol"]`. The admin approves with an idempotency key, an exact replay returns the same body, and the owner's visible items rise to 1. The owner's own review attempt gets 403. The admin review sub-task of M2-10 is now ticked in PLAN.
@@ -694,6 +702,6 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 ## Current status
 
 - Milestone: M1 (last passing gate, M2 in progress)
-- `node scripts/trace.ts --through m2` on 2026-11-08 at 03:32 GMT covered 32 of 37 IDs. Pending: ADM-04, MER-01, MER-12, MER-14, MER-23. M2-9 has its API, preview, pure web models, and the weekly hours page with the closed-now control. M2-9 is done, with production-build ar/fr journeys and the screenshot matrix. M2-10 screens item writes and has the admin review contracts the audited review command, queue, admin API routes and an end-to-end PostGIS API test. Next is the web admin screen and the merchant badge copy.
-- Last green `pnpm verify`: 2026-11-08 07:52 GMT on Docker Desktop with 1119 unit and 123 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 14/14 at 07:52 GMT.
+- `node scripts/trace.ts --through m2` on 2026-11-08 at 03:32 GMT covered 32 of 37 IDs. Pending: ADM-04, MER-01, MER-12, MER-14, MER-23. M2-9 has its API, preview, pure web models, and the weekly hours page with the closed-now control. M2-9 is done, with production-build ar/fr journeys and the screenshot matrix. M2-10 screens item writes and has the admin review contracts the audited review command, queue, admin API routes and an end-to-end PostGIS API test. Merchants now see why an item is held. Next is the web admin client and screen.
+- Last green `pnpm verify`: 2026-11-08 07:54 GMT on Docker Desktop with 1119 unit and 123 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 14/14 at 07:52 GMT.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

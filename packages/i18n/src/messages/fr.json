@@ -355,6 +355,7 @@
     "moderationApproved": "Approuvé",
     "moderationBlocked": "Bloqué pour examen",
     "moderationRejected": "Refusé",
+    "moderationBlockedHint": "Ce plat contient des mots liés à des produits interdits à la vente en ligne (alcool, tabac, médicaments, jeux d’argent). Notre équipe va l’examiner ; il reste masqué aux clients d’ici là.",
     "stockUntilDayEnd": "Épuisé ce jour",
     "stockSoldOut": "Épuisé",
     "optionGroups": "Groupes d’options",
