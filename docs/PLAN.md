@@ -84,7 +84,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Stream the authorized binary PUT into private storage and verify exact length, abort cleanup, storage replay, and 8 MiB enforcement.
   - [ ] Decode JPEG, PNG, WebP and real HEVC HEIC in the worker. Normalize orientation, bound decoded pixels, remove metadata, derive the requested crop and thumbhash, and publish only after all variants exist. Prove retries recover after a worker interruption.
   - [ ] Connect optional application photos and item photos to the localized cropper. Verify valid and rejected uploads, keyboard crop, private previews, saved item readback and the design matrix.
-- [ ] M2-7 Bulk prices (MER-11). Bind preview to merchant and item revisions, apply rounded changes and history atomically, and prove ten-minute undo rejects expired or subsequently changed prices.
+- [x] M2-7 Bulk prices (MER-11). Bind preview to merchant and item revisions, apply rounded changes and history atomically, and prove ten-minute undo rejects expired or subsequently changed prices.
   - [x] Add the pure percent/fixed rounding calculation (nearest 1/5/10/50 DA, ties up, clamped to zero).
   - [x] Persist the per-item preview binding, apply rounded changes and price history atomically on the existing menu command/revision guard, and record an undo batch.
   - [x] Add the ten-minute undo endpoint that rejects an expired batch or an item whose price changed since the apply.
@@ -92,7 +92,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
   - [x] Add the pure web editor that reads the percent or DA input into an exact adjustment and hides an expired undo.
   - [x] Add the pure preview → apply → undo state machine that keeps retry keys only after uncertain failures and closes undo after a terminal rejection.
   - [x] Add the presentational bulk price panel (item and whole-category choices, raise/lower, %/DA, rounding, preview table, apply, gated undo, mapped failures) with ar/fr/en messages.
-  - [ ] Drive the panel from a hook, place it in the menu item workspace with DESIGN-token logical CSS, and prove the production-build journey (preview, apply, undo, expired undo) plus the screenshot matrix.
+  - [x] Drive the panel from a hook, place it in the menu item workspace with DESIGN-token logical CSS, and prove the production-build journey (preview, apply, undo, expired undo) plus the screenshot matrix.
 - [ ] M2-8 CSV/XLSX import (MER-12). Publish the template, bound parsing, report row and field errors, and use a merchant-scoped external key for atomic idempotent application after preview.
 - [ ] M2-9 Hours and Ramadan (MER-15, MER-16). Persist weekly ranges, dated exceptions, Ramadan offsets and location. Render seven-day previews through the M1 rules and exercise overnight and Ramadan edits in Arabic and French.
   - [x] Define the weekly ranges and special-dates input contract (overnight ranges, no same-day overlap, bounded sizes).

@@ -65,6 +65,7 @@ function AmountFields({ controls }: { controls: BulkPriceControls }) {
         <label htmlFor="bulk-price-rounding">{translate("roundingLabel")}</label>
         <select
           id="bulk-price-rounding"
+          className="menu-item-select"
           value={form.roundingUnit}
           onChange={(event) => {
             const unit = roundingUnits.find((value) => String(value) === event.target.value);
