@@ -1,0 +1,38 @@
+{
+  "shell": {
+    "skip": "Aller au contenu",
+    "languages": "Langue"
+  },
+  "home": {
+    "eyebrow": "Alger, Algérie",
+    "description": "Découvrez les tables et les cuisines d’Alger."
+  },
+  "guide": {
+    "eyebrow": "Safran de la Casbah",
+    "title": "Guide de design",
+    "introduction": "De l’ivoire chaud, de l’encre et une touche de safran. Les couleurs, les caractères et les commandes qui donnent forme à l’interface.",
+    "system": "Système de design",
+    "preview": "Fondations",
+    "palette": "Palette de couleurs",
+    "paletteDescription": "Le fond et les surfaces plantent le décor. L’encre porte le texte et le safran attire l’œil vers l’action suivante.",
+    "background": "Fond de page",
+    "surface": "Surface",
+    "ink": "Encre",
+    "saffron": "Safran",
+    "typography": "Typographie",
+    "display": "Titres",
+    "displaySample": "Dans les cuisines d’Alger",
+    "body": "Interface",
+    "bodySample": "Une table partagée, du pain frais et la chaleur du foyer.",
+    "controls": "Commandes et états",
+    "primary": "Voir la palette",
+    "secondary": "Voir la typographie",
+    "disabled": "Indisponible",
+    "field": "Champ d’exemple",
+    "placeholder": "Saisir une note",
+    "information": "Information",
+    "success": "Disponible",
+    "warning": "À vérifier",
+    "danger": "Action échouée"
+  }
+}

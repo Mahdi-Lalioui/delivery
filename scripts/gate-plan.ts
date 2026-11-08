@@ -1,0 +1,59 @@
+const milestonePattern = /^m(?:[0-9]|1[0-2])$/;
+const checkPattern = /^[a-z][a-z0-9-]*(?::@?[a-z0-9-]+(?:,[a-z0-9-]+)*)?$/;
+
+export function resolveGate(name: string): string {
+  if (name === "release-web") return "m9";
+  if (name === "release-mobile") return "m12";
+  if (milestonePattern.test(name)) return name;
+  throw new Error("Unknown milestone gate: " + name);
+}
+
+function readGateBlock(plan: string): string {
+  const section = plan.split(/^## Gate definitions for `pnpm gate`\s*$/m)[1];
+  const body = section?.split(/^## /m)[0];
+  const block = body?.match(/^```(?:text)?\r?\n([\s\S]+?)\r?\n```\s*$/m)?.[1];
+  if (!block?.trim()) throw new Error("PLAN.md has no fenced gate registry.");
+  return block;
+}
+
+export function parseGates(plan: string): ReadonlyMap<string, readonly string[]> {
+  const gates = new Map<string, readonly string[]>();
+  for (const line of readGateBlock(plan).split(/\r?\n/)) {
+    const [, name, commands] = /^(\S+):\s+(.+)$/.exec(line) ?? [];
+    if (!name || !commands || !milestonePattern.test(name)) {
+      throw new Error("Invalid gate definition: " + line);
+    }
+    if (gates.has(name)) throw new Error("Duplicate milestone gate: " + name);
+    const checks = commands.trim().split(/,\s+/);
+    if (!checks.every((check) => checkPattern.test(check))) {
+      throw new Error("Invalid command token in gate " + name + ".");
+    }
+    gates.set(name, checks);
+  }
+  return gates;
+}
+
+export function getGateChecks(plan: string, milestone: string): readonly string[] {
+  const checks = parseGates(plan).get(milestone);
+  if (!checks) throw new Error("Missing gate definition for " + milestone);
+  if (!checks.includes("verify") && !checks.includes("verify:full")) {
+    throw new Error("Gate " + milestone + " must include verify or verify:full.");
+  }
+  if (milestone === "m0") {
+    const missing = ["e2e:@smoke", "tokens:contrast", "ci:pr"].filter(
+      (check) => !checks.includes(check),
+    );
+    if (missing.length)
+      throw new Error("Gate m0 is missing required checks: " + missing.join(", "));
+  }
+  return checks;
+}
+
+export function runGate(checks: readonly string[], runCheck: (check: string) => number): number {
+  if (checks.length === 0) throw new Error("Cannot run an empty milestone gate.");
+  for (const check of checks) {
+    const status = runCheck(check);
+    if (status !== 0) return status;
+  }
+  return 0;
+}

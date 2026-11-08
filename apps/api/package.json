@@ -1,0 +1,32 @@
+{
+  "name": "@zaafran/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsx watch --env-file-if-exists=../../.env src/dev-server.ts",
+    "start": "node dist/server.js",
+    "openapi": "node --import=tsx tools/openapi.ts",
+    "openapi:check": "node --import=tsx tools/openapi.ts --check",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fastify/rate-limit": "11.2.2",
+    "@fastify/swagger": "9.9.3",
+    "@zaafran/contracts": "workspace:*",
+    "@zaafran/db": "workspace:*",
+    "fastify": "5.12.8",
+    "fastify-type-provider-zod": "7.0.0",
+    "openapi-types": "12.1.3",
+    "pino": "10.4.0",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "@zaafran/config": "workspace:*",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3",
+    "vitest": "5.1.0"
+  }
+}

@@ -65,6 +65,8 @@ Integration tests talk to the Postgres started by `docker compose up -d db` (TCP
 
 ## 3. Work loop (every task, no exceptions)
 
+External reviews: before starting a new task, check docs/reviews/. Fix every open P0/P1 item first, tick it, and record the fix in PROGRESS.
+
 1. Open `docs/PLAN.md`, take the next unchecked task of the current milestone, re-read the SPEC/DESIGN sections it touches.
 2. Write the failing tests first: unit, then integration, then e2e, as relevant. Name tests with the acceptance ID they prove, e.g. `it('[ORD-04] rejects a second accept on the same order', …)`. Run them and see them fail for the right reason.
 3. Implement the smallest clean change that makes them pass.

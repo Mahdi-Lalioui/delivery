@@ -1,0 +1,20 @@
+{
+  "name": "@zaafran/tokens",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./theme.css": "./dist/theme.css"
+  },
+  "scripts": {
+    "build": "node scripts/build.ts",
+    "typecheck": "tsc --noEmit",
+    "test:contrast": "vitest run --root ../.. --coverage.enabled=false packages/tokens/test/contrast.test.ts"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "@zaafran/config": "workspace:*",
+    "typescript": "6.0.3",
+    "vitest": "5.1.0"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "extends": "@zaafran/config/tsconfig/base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "types": ["node"]
+  },
+  "include": [
+    "tooling/**/*.ts",
+    "scripts/**/*.ts",
+    "vitest.config.ts",
+    "packages/config/vitest.ts",
+    "vitest.integration.config.ts",
+    "e2e/**/*.ts",
+    "packages/config/src/brand.ts"
+  ]
+}

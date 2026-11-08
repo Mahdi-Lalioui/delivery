@@ -1,0 +1,19 @@
+# Reference material and generated files.
+AGENTS.md
+docs/
+.codex/
+.worktrees/
+pnpm-lock.yaml
+**/node_modules/
+**/.next/
+**/.turbo/
+**/.expo/
+**/build/
+**/dist/
+**/coverage/
+**/reports/
+**/playwright-report/
+**/test-results/
+**/.next-dev/
+**/.next-design/
+**/next-env.d.ts

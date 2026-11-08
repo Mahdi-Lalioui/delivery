@@ -1,0 +1,34 @@
+{
+  "name": "@zaafran/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./database": {
+      "types": "./src/database.ts",
+      "default": "./dist/database.js"
+    },
+    "./migrate": {
+      "types": "./src/migrate.ts",
+      "default": "./dist/migrate.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "node --env-file-if-exists=../../.env src/cli.ts migrate",
+    "db:seed": "node --env-file-if-exists=../../.env src/cli.ts seed",
+    "db:reset": "node --env-file-if-exists=../../.env src/cli.ts reset"
+  },
+  "dependencies": {
+    "drizzle-orm": "0.45.4",
+    "postgres": "4.1.0",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "@zaafran/config": "workspace:*",
+    "typescript": "6.0.3",
+    "vitest": "5.1.0"
+  }
+}

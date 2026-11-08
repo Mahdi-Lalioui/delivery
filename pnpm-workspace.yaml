@@ -1,0 +1,29 @@
+packages:
+  - apps/*
+  - packages/*
+minimumReleaseAgeExclude:
+  - knip@6.44.2
+  - "@tailwindcss/node@4.3.5"
+  - "@tailwindcss/oxide-android-arm64@4.3.5"
+  - "@tailwindcss/oxide-darwin-arm64@4.3.5"
+  - "@tailwindcss/oxide-darwin-x64@4.3.5"
+  - "@tailwindcss/oxide-freebsd-x64@4.3.5"
+  - "@tailwindcss/oxide-linux-arm-gnueabihf@4.3.5"
+  - "@tailwindcss/oxide-linux-arm64-gnu@4.3.5"
+  - "@tailwindcss/oxide-linux-arm64-musl@4.3.5"
+  - "@tailwindcss/oxide-linux-x64-gnu@4.3.5"
+  - "@tailwindcss/oxide-linux-x64-musl@4.3.5"
+  - "@tailwindcss/oxide-wasm32-wasi@4.3.5"
+  - "@tailwindcss/oxide-win32-arm64-msvc@4.3.5"
+  - "@tailwindcss/oxide-win32-x64-msvc@4.3.5"
+  - "@tailwindcss/oxide@4.3.5"
+  - "@tailwindcss/postcss@4.3.5"
+  - tailwindcss@4.3.5
+
+storeDir: .pnpm-store
+
+# Supported platforms use the lockfile's prebuilt optional native packages.
+allowBuilds:
+  "@parcel/watcher@2.6.0": false
+  "@swc/core@1.16.22": false
+  "esbuild@0.28.2": false
