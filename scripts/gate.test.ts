@@ -57,6 +57,11 @@ void test("[M0-3] keeps verification mandatory in every executable gate", () => 
   assert.throws(() => getGateChecks(gateSection("m11: maestro:@partner"), "m11"), /verify/);
 });
 
+void test("[M1-7] rejects a domain gate that omits mutation analysis", () => {
+  const plan = gateSection("m1: verify, coverage:domain, property:1000");
+  assert.throws(() => getGateChecks(plan, "m1"), /mutation:domain/);
+});
+
 void test("[M0-3] rejects a raw gate invocation with an unrelated executable", () => {
   const script = fileURLToPath(new URL("./gate.ts", import.meta.url));
   const result = spawnSync(process.execPath, [script, "m0"], {

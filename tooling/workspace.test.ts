@@ -143,3 +143,16 @@ test("labels an open restaurant", () => {
   assert.match(result.output, /Coverage for lines[^\n]*threshold \(95%\)/);
   assert.match(result.output, /Coverage for branches[^\n]*threshold \(90%\)/);
 });
+
+void test("dependency-cruiser ignores pnpm's cached project artifacts", (context) => {
+  const config = configPath("dependency-cruiser.cjs");
+  const fixture = createFixture(context, {
+    "packages/domain/src/index.ts": "export const label = 'open';\n",
+    ".pnpm-store/v11/projects/cached/packages/domain/dist/index.d.ts":
+      'export type { OldType } from "./deleted-source.ts";\n',
+  });
+
+  const result = runTool("depcruise", fixture, ["--config", config, "--output-type", "err", "."]);
+  assert.equal(result.status, 0, result.output);
+  assert.match(result.output, /1 modules?/);
+});

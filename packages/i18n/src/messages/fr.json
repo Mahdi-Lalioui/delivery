@@ -7,6 +7,9 @@
     "eyebrow": "Alger, Algérie",
     "description": "Découvrez les tables et les cuisines d’Alger."
   },
+  "menu": {
+    "itemCount": "{count, plural, one {# article} other {# articles}}"
+  },
   "guide": {
     "eyebrow": "Safran de la Casbah",
     "title": "Guide de design",

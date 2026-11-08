@@ -21,6 +21,53 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 - **Next** — Carry the fix into M1 and M2.
 - **Needs Mahdi** — None.
 
+### 2026-11-07 19:00 GMT — M1 external P1 order guard coverage
+
+- **Changed** — Added 16 regressions for the ASAP timeout, scheduled time and release boundaries, pickup delivery-zone exemption, photo proof, failed code attempts, wait start, failure reason and call count. Pickup still requires the service area. The existing domain implementation passed every new case.
+- **Evidence** — All 106 focused order transition tests passed. `pnpm gate m1` exited 0 with 50 tooling tests, 396 unit tests, 12 real PostGIS integration tests, 212 domain coverage cases, a 94.21% mutation score and four seeded 1,000-case properties.
+- **Reviewer** — No P0/P1. Each new rejection reaches its intended guard with otherwise valid inputs. [External review checklist](reviews/2026-11-07-m1.md)
+- **Next** — Carry the two review fixes into M2.
+- **Needs Mahdi** — None.
+
+### 2026-11-07 15:53 GMT — M1 gate passed
+
+- **Evidence** — `pnpm gate m1` exited 0 on clean `1d43c1cf279e30e2771a4fd216df23ab884473e6`. `pnpm exec node scripts/check-pr.ts` confirmed all required checks passed for the same commit. GitHub Actions reproduced the 92.65% mutation score and all 20 required acceptance IDs. [Gate and job evidence](evidence/m1/gate.md) · [M1 PR](https://github.com/Mahdi-Lalioui/delivery/pull/2)
+- **Reviewer** — No remaining P0/P1 after the lifecycle, schedule, copy lint and generated cache regressions passed.
+- **Next** — M2 auth contracts, tenant-scoped persistence and merchant onboarding.
+- **Needs Mahdi** — None for M1.
+
+### 2026-11-07 15:48 GMT — M1-3 scheduling and local M1 gate
+
+- **Changed** — Added Algiers civil hours, overnight and special-date precedence, busy pauses, 15-minute slots and Ramadan offsets, countdown and Iftar arrival. Extended order guard tests from the mutation review.
+- **Evidence** — `pnpm gate m1` exited 0 on Docker Desktop. It ran 50 tooling, 380 unit, 12 real PostGIS integration and 196 domain coverage cases. Coverage reached 99.26% lines and 98.87% branches, Stryker scored 92.65%, four seeded properties ran 1,000 cases each, and the trace covered all 20 required IDs. [Local reports](evidence/m1/gate.md)
+- **Reviewer** — Fixed offering an unusable current-time slot and closed historical calendar inputs outside the supported era. Verified the generated pnpm store exclusion and the workspace dependency rules. No remaining P0/P1.
+- **Next** — Push the M1 snapshot and verify GitHub Actions on the PR head.
+- **Needs Mahdi** — None.
+
+### 2026-11-07 15:46 GMT — M1-4 search, M1-5 zone and M1-6 localization
+
+- **Changed** — `637963d` added the cross-script search keys and 19 synonym groups, locale formatters and ICU messages, the geo adapter and polygon coverage, and shared CI checks for domain coverage, properties, and mutation analysis.
+- **Evidence** — The staged snapshot passed `pnpm verify` with 49 tooling, 322 unit and 12 real PostGIS integration tests. Targeted checks proved 1,000 seeded normalization cases, all six Arabic ICU plural forms, polygon boundaries and holes, and all 59 Maghrib reference dates within one minute.
+- **Reviewer** — Fixed missing JSX accessibility copy and visible submit, button and reset values, including uppercase and static template input types. The tooling regression and focused lint passed. No remaining P0/P1 in these changes.
+- **Next** — Verify the complete M1 assembly with the scheduling and Ramadan rules.
+- **Needs Mahdi** — None.
+
+### 2026-11-07 15:39 GMT — M1-2 order lifecycle and M1-5 ETA
+
+- **Changed** — `ee11491` added order state and scope checks, exact retries, event projection, delivery proof, deadlines and ETA ranges and refresh limits.
+- **Evidence** — The staged snapshot passed `pnpm verify` with 48 tooling, 231 unit and 12 real PostGIS integration tests. The order and ETA suite passed 77 focused cases, including a seeded 1,000-run command-sequence property.
+- **Reviewer** — Fixed and verified two P1 cases. Events now exclude extra action fields. A stale fresh command returns the version conflict even after a different command reached a terminal state. No remaining P0/P1.
+- **Next** — Verify the search, locale, and geo packages together.
+- **Needs Mahdi** — None.
+
+### 2026-11-07 15:32 GMT — M1-1 integer pricing and cash change
+
+- **Changed** — `914b97b` added branded DZD, integer line and option calculations, discount and fee rounding, minimum checks, cash change, and the M1 coverage and mutation command wiring.
+- **Evidence** — The staged snapshot passed `pnpm verify` with 48 tooling, 154 unit and 12 real PostGIS integration tests. The domain pricing suite includes a seeded 1,000-run independent bigint oracle.
+- **Reviewer** — No P0/P1. Added a regression for a negative adjusted line hidden by another positive line.
+- **Next** — Prove the order transition and receipt contracts.
+- **Needs Mahdi** — None.
+
 ### 2026-11-07 — M0 gate passed
 
 - **Evidence** — `pnpm gate m0` exited 0 on Docker Desktop for clean PR head `acf1db5`. All five required Actions checks passed. The gate also reran 47 tooling, 102 unit, 12 real PostGIS integration, 59 browser and 59 contrast checks with 4/4 traced acceptance IDs. [Gate evidence](evidence/m0/gate.md) · [M0 PR](https://github.com/Mahdi-Lalioui/delivery/pull/1)
@@ -99,6 +146,6 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ## Current status
 
-- Milestone: M0 (gate passed, M1 next)
-- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 102 unit tests
+- Milestone: M1 (gate passed, M2 next)
+- Last green `pnpm verify`: 2026-11-07 on Docker Desktop with 380 unit tests
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
