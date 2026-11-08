@@ -160,6 +160,9 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Prove both routes end to end against PostGIS through `startApi`, including the merchant onboarding count after each decision.
   - [x] Re-screen the text when duplicating an approved item and prove the copy stays out of the onboarding count.
   - [ ] Prove the customer-facing preview excludes blocked items.
+    - [x] Define the saved-menu preview page and item detail contracts.
+    - [ ] Scope the read projection, cursor and photo reference to visible items at the selected restaurant. Prove tenant and moderation boundaries in PostGIS and HTTP.
+    - [ ] Add the localized builder preview and prove held items are absent until approval.
   - [x] Show the held status to merchants and give admins a review screen (ar/fr/en).
     - [x] Explain the held status under the merchant item list badge.
     - [x] Add the typed web client for the held-item queue and review.

@@ -200,3 +200,7 @@ A menu item edit with `photoId: null` keeps the saved photo so cached editors ca
 ### D-021 — In-app merchant application notices (2026-11-08)
 
 Deliver MER-01 notices inside the authenticated admin console. Signup already records one notice per application in the same transaction as the merchant, owner membership and replay receipt. A separate uncached admin read returns the pending count and most recent merchant ID from these notices. The existing review queue keeps its response shape and remains the way to open a case. An approval or rejection removes the application from the pending count in the same committed state change. Keep the notice row for provenance. The admin UI belongs to Lane B.
+
+### D-022 — Merchant preview reads the saved menu draft (2026-11-08)
+
+Give authorized owners and managers a customer-style preview of the saved menu for approved, active and paused restaurants. Bind the category page and item detail to the authenticated session and menu revision. The read projection contains display fields and ready item photo IDs. Apply moderation and archival filters before emitting an item or its options. Anonymous publication, customer links and public photo delivery belong to M3.

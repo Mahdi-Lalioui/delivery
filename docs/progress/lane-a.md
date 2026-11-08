@@ -33,3 +33,5 @@
 
 - 2026-11-08 · Ultra · MER-01 notice API passed `pnpm verify` with 1,466 unit and 176 PostGIS tests. Production signup and review proved pending notice, retirement and applicant denial. [Lane B handoff](../requests/lane-a-merchant-notice.md) covers the visible notice.
 - 2026-11-08 · High · Next implement the authenticated, read-only merchant menu preview. Filter archived, held and rejected items in the card, cursor and detail queries. Keep publication and anonymous customer pages in M3.
+
+- 2026-11-08 · High · The shared menu preview contracts define a revision-bound category page and on-demand item detail. Two new contract cases failed before implementation. All five focused preview and item cases passed. See D-022.

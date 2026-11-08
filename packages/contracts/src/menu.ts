@@ -293,3 +293,29 @@ export const menuOptionGroupPageOutput = z
     ({ revision, nextCursor }) =>
       nextCursor === null || readMenuOptionGroupCursor(nextCursor)?.revision === revision,
   );
+
+const menuPreviewItem = menuItemInput
+  .pick({ names: true, descriptions: true, priceDzd: true, photoId: true, tags: true })
+  .extend({ itemId: uuid, isAvailable: z.boolean() });
+
+export const menuPreviewPageOutput = z
+  .strictObject({
+    ...menuItemPageOutput.shape,
+    items: z.array(menuPreviewItem).max(100),
+    context: menuItemPageOutput.shape.context.unwrap(),
+  })
+  .refine(
+    ({ revision, nextCursor }) =>
+      nextCursor === null || readMenuItemCursor(nextCursor)?.revision === revision,
+  );
+
+export const menuPreviewItemQuery = z.strictObject({
+  expectedRevision: cursorNumber.pipe(menuRevision),
+});
+
+export const menuPreviewDetailOutput = z.strictObject({
+  sessionId: uuid,
+  revision: menuRevision,
+  item: menuPreviewItem,
+  optionGroups: z.array(optionGroupDetail).max(50),
+});
