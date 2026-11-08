@@ -94,6 +94,9 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
   - [x] Add the presentational bulk price panel (item and whole-category choices, raise/lower, %/DA, rounding, preview table, apply, gated undo, mapped failures) with ar/fr/en messages.
   - [x] Drive the panel from a hook, place it in the menu item workspace with DESIGN-token logical CSS, and prove the production-build journey (preview, apply, undo, expired undo) plus the screenshot matrix.
 - [ ] M2-8 CSV/XLSX import (MER-12). Publish the template, bound parsing, report row and field errors, and use a merchant-scoped external key for atomic idempotent application after preview.
+  - [x] Define the shared template columns, bounded row input, validation report and apply summary.
+  - [ ] Validate raw cells and implement revision-bound preview and atomic apply with prohibited-goods screening.
+  - [ ] Connect bounded CSV/XLSX parsing, template download and the localized import journey.
 - [x] M2-9 Hours and Ramadan (MER-15, MER-16). Persist weekly ranges, dated exceptions, Ramadan offsets and location. Render seven-day previews through the M1 rules and exercise overnight and Ramadan edits in Arabic and French.
   - [x] Define the weekly ranges and special-dates input contract (overnight ranges, no same-day overlap, bounded sizes).
   - [x] Persist weekly ranges and special dates with an owner/manager-scoped, idempotent replace command on the menu revision guard (D-011).

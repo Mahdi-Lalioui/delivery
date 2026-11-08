@@ -166,3 +166,7 @@ MER-23 invitations live in `@zaafran/contracts/merchant-staff`. Only an owner cr
 - **Alternatives:** an invite code the inviter reads out (rejected: it leaks into the inviter's screen and logs); auto-joining whoever signs in with the phone (rejected: a reassigned number would silently gain access).
 - **Web:** the SMS link is `/{locale}/staff/accept#token=…`. The page clears the fragment on load. When the invitee is signed out, it keeps the token in `sessionStorage` only until the sign-in round trip (`continue=staff-accept`) ends in a terminal answer, so the token never reaches a server log or another tab's history.
 - **Consequences:** a lost SMS means the owner revokes and re-invites; the M5 courier invitation (MER-08/COU-01) can reuse the same table with a `courier` role later.
+
+### D-016 — Menu import validates raw cells on the server (2026-11-08)
+
+CSV and XLSX use the same template and send up to 500 rows of raw text cells within the API body limit. Preserve interior blank rows so errors use the original spreadsheet row numbers. Only a valid preview returns a token. Bind the token to the merchant, account, session, menu revision and canonical validated rows. Apply must verify the token and revalidate inside the owner/manager write path. Merchant-scoped external item keys prevent duplicates on repeated imports. Imported text must pass the same prohibited-goods screening as other menu edits.

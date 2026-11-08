@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 09:55 GMT — M2-8 revision-bound import contract
+
+- **Changed** — Resumed the CSV/XLSX draft and added a required preview token to apply. Invalid previews carry field errors and no token. D-016 records the required merchant, account, session, revision and row binding.
+- **Evidence** — Seven focused contract tests passed. `pnpm verify` exited 0 with 1,210 unit tests and 138 PostGIS integration tests.
+- **Reviewer** — Closed the preview-binding gap in the contract. Token verification and the changed-price regression belong to the API implementation.
+- **Next** — Resolve the open S3 review finding, then implement import validation, preview and apply.
+- **Needs Mahdi** — None.
+
 ### 2026-11-08 09:38 GMT — M2-11 role-split acceptance test (Claude, covering while Codex was out)
 
 - **Changed** — Added `apps/api/test/merchant-roles.integration.test.ts` with `[MER-23]`. It runs through `startApi` on PostGIS with an owner, a manager and a staff member of one restaurant, plus another restaurant's owner. Staff management is owner-only. Menu writes are allowed for owners and managers. The sold-out toggle is allowed for all three roles. Every role is denied at the other restaurant, and the other owner is denied at the first. SPEC MER-23 also gives staff the live board, which does not exist yet, so PLAN M4-6 now says to extend this test with the board rights.
