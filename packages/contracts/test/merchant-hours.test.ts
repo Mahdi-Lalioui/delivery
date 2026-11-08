@@ -32,7 +32,18 @@ test("[MER-15:contract] accepts several ranges a day and a range across midnight
   expect(merchantHoursInput.parse(input)).toEqual(input);
 });
 
+test("[MER-15:contract] accepts positive Gregorian years and leap days", () => {
+  const specialDates = ["0001-01-01", "2028-02-29", "9999-12-31"].map((date) => ({
+    date,
+    ranges: [],
+  }));
+  expect(merchantHoursInput.parse({ weekly: week(), specialDates }).specialDates).toEqual(
+    specialDates,
+  );
+});
+
 test.each([
+  ["year zero", { weekly: week(), specialDates: [{ date: "0000-01-01", ranges: [] }] }],
   ["a missing weekday", { weekly: week().slice(0, 6), specialDates: [] }],
   [
     "a repeated weekday",

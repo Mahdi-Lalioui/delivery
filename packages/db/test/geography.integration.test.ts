@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { seedGeography } from "../src/geography.ts";
+import { readCommuneCoordinates, seedGeography } from "../src/geography.ts";
 import { registerTestDatabase } from "./database.ts";
 
 const database = registerTestDatabase();
@@ -77,4 +77,20 @@ test("[MER-01:db] rolls back wilaya changes when a commune cannot be seeded", as
   } finally {
     await sql`ALTER TABLE communes DROP CONSTRAINT reject_seed_commune`;
   }
+});
+
+test("[HRS-03:db] resolves the seeded Algiers centroid by commune ID", async () => {
+  const connection = database.get();
+  await seedGeography(connection);
+  const [commune] = await connection.sql<{ id: string }[]>`
+    SELECT id FROM public.communes WHERE code = '1601'
+  `;
+  if (!commune) throw new Error("Expected the seeded Algiers commune.");
+  await expect(readCommuneCoordinates(connection, commune.id)).resolves.toEqual({
+    longitude: 3.0574036,
+    latitude: 36.7666581,
+  });
+  await expect(
+    readCommuneCoordinates(connection, "01932f18-3150-7c33-8a7a-53acfd343001"),
+  ).resolves.toBeUndefined();
 });

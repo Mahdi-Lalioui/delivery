@@ -108,7 +108,12 @@ export const menuItemInput = z.strictObject({
 });
 
 export const menuItemRevisionInput = z.strictObject({ expectedRevision: menuRevision });
-export const menuItemCommandInput = menuItemInput.extend(menuItemRevisionInput.shape);
+export const menuItemCommandInput = menuItemInput
+  .extend({ ...menuItemRevisionInput.shape, removePhoto: z.literal(true).optional() })
+  .refine(({ removePhoto, photoId }) => !removePhoto || photoId === null, {
+    path: ["removePhoto"],
+    message: "A photo cannot be replaced and removed in the same command.",
+  });
 export const menuItemAvailabilityInput = menuItemRevisionInput.extend({
   availability: z.enum(["available", "end_of_day", "indefinite"]),
 });
@@ -288,3 +293,29 @@ export const menuOptionGroupPageOutput = z
     ({ revision, nextCursor }) =>
       nextCursor === null || readMenuOptionGroupCursor(nextCursor)?.revision === revision,
   );
+
+const menuPreviewItem = menuItemInput
+  .pick({ names: true, descriptions: true, priceDzd: true, photoId: true, tags: true })
+  .extend({ itemId: uuid, isAvailable: z.boolean() });
+
+export const menuPreviewPageOutput = z
+  .strictObject({
+    ...menuItemPageOutput.shape,
+    items: z.array(menuPreviewItem).max(100),
+    context: menuItemPageOutput.shape.context.unwrap(),
+  })
+  .refine(
+    ({ revision, nextCursor }) =>
+      nextCursor === null || readMenuItemCursor(nextCursor)?.revision === revision,
+  );
+
+export const menuPreviewItemQuery = z.strictObject({
+  expectedRevision: cursorNumber.pipe(menuRevision),
+});
+
+export const menuPreviewDetailOutput = z.strictObject({
+  sessionId: uuid,
+  revision: menuRevision,
+  item: menuPreviewItem,
+  optionGroups: z.array(optionGroupDetail).max(50),
+});

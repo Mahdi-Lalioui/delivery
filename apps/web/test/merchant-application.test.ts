@@ -57,3 +57,10 @@ test("[MER-01:web] retains a request key for canonical retries and rotates it fo
       .idempotencyKey,
   ).not.toBe(first.idempotencyKey);
 });
+
+test("[MER-14:web] includes only completed application photo selections", () => {
+  expect(parseMerchantDraft({ ...draft, photoIds: [null, communeId] })).toMatchObject({
+    kind: "valid",
+    data: { photoIds: [communeId] },
+  });
+});

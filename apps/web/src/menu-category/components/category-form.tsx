@@ -13,7 +13,7 @@ const timeInputs = ["from", "to"] as const;
 export function CategoryForm({ controls }: { controls: MenuCategoryEditor }) {
   const translate = useTranslations("menuCategory");
   const { draft, fieldError, isSaving, revisionConflict } = controls;
-  const disabled = isSaving || revisionConflict;
+  const disabled = isSaving || revisionConflict || controls.isImportOpen;
   const nameError = fieldError === "names";
   const timeError = fieldError === "availability";
 

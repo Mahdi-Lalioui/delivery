@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import type { TransactionSql } from "postgres";
 import type { DatabaseConnection } from "./database.js";
 import { lockMerchantAdmin } from "./merchant-access.js";
@@ -9,6 +10,7 @@ interface ReviewItem extends MerchantCommand {
   readonly itemId: string;
   readonly decision: "approve" | "reject";
   readonly reason: string;
+  readonly reviewToken?: string | undefined;
   readonly now: Date;
 }
 
@@ -21,9 +23,51 @@ interface Reviewed {
 
 type ReviewItemResult =
   | ({ readonly kind: "reviewed" | "replayed" } & Reviewed)
-  | { readonly kind: "forbidden" | "not_found" | "invalid_status" | "idempotency_conflict" };
+  | {
+      readonly kind:
+        "forbidden" | "not_found" | "invalid_status" | "idempotency_conflict" | "stale_review";
+    };
 
 type Identity = MerchantCommand & { readonly actorId: string };
+
+interface Translations {
+  readonly ar?: string;
+  readonly fr?: string;
+  readonly en?: string;
+}
+
+interface ReviewText {
+  readonly itemId: string;
+  readonly names: Translations;
+  readonly descriptions: Translations;
+}
+
+function countPriorReviews(sql: TransactionSql) {
+  return sql`(SELECT count(*)::text FROM public.item_review_receipts AS receipt
+    WHERE receipt.item_id = item.id)`;
+}
+
+function makeReviewToken({ itemId, names, descriptions }: ReviewText, priorReviews: string) {
+  const text = [names, descriptions].map(({ ar, fr, en }) => [ar ?? null, fr ?? null, en ?? null]);
+  return createHash("sha256")
+    .update(JSON.stringify([itemId, priorReviews, text]))
+    .digest("hex");
+}
+
+async function lockReviewState(
+  sql: TransactionSql,
+  { itemId, merchantId }: { itemId: string; merchantId: string },
+) {
+  const [item] = await sql<(ReviewText & { pending: boolean; priorReviews: string })[]>`
+    SELECT item.id AS "itemId", item.names, item.descriptions,
+      (item.moderation_status = 'blocked_pending_review' AND item.archived_at IS NULL) AS pending,
+      ${countPriorReviews(sql)} AS "priorReviews"
+    FROM public.items AS item
+    WHERE item.id = ${itemId} AND item.merchant_id = ${merchantId}
+    FOR NO KEY UPDATE OF item
+  `;
+  return item;
+}
 
 async function lockReceipt(sql: TransactionSql, identity: Identity) {
   const { actorId, idempotencyKeyHash, requestHash } = identity;
@@ -41,7 +85,7 @@ async function applyDecision(
   sql: TransactionSql,
   request: ReviewItem & { readonly actorId: string },
 ): Promise<ReviewItemResult> {
-  const { actorId, itemId, decision, reason, now } = request;
+  const { actorId, itemId, decision, reason, now, reviewToken } = request;
   // Menu editors lock the merchant before taking item locks.
   const [merchant] = await sql<{ merchantId: string }[]>`
     SELECT merchant.id AS "merchantId"
@@ -52,19 +96,21 @@ async function applyDecision(
   if (!merchant) return { kind: "not_found" };
 
   const { merchantId } = merchant;
+  const item = await lockReviewState(sql, { itemId, merchantId });
+  if (!item) return { kind: "not_found" };
+  if (!item.pending) return { kind: "invalid_status" };
+  // A legacy decision can only target the first hold, whose text is immutable while pending.
+  const stale =
+    reviewToken === undefined
+      ? item.priorReviews !== "0"
+      : reviewToken !== makeReviewToken(item, item.priorReviews);
+  if (stale) return { kind: "stale_review" };
+
   const status = decision === "approve" ? "approved" : "rejected";
-  const [item] = await sql`
+  await sql`
     UPDATE public.items SET moderation_status = ${status}
     WHERE id = ${itemId} AND merchant_id = ${merchantId}
-      AND moderation_status = 'blocked_pending_review' AND archived_at IS NULL
-    RETURNING id
   `;
-  if (!item) {
-    const [existing] = await sql`
-      SELECT id FROM public.items WHERE id = ${itemId} AND merchant_id = ${merchantId}
-    `;
-    return { kind: existing ? "invalid_status" : "not_found" };
-  }
   const at = now.toISOString();
   // A listing change is a menu change, so cached menus and open editors see a new revision.
   await sql`UPDATE public.merchants SET menu_revision = menu_revision + 1 WHERE id = ${merchantId}`;
@@ -95,34 +141,39 @@ interface HeldItemPage {
   readonly adminUserId: string;
   readonly cursor?: string | undefined;
   readonly limit: number;
+  readonly includeReviewToken?: boolean | undefined;
 }
 
-interface Translations {
-  readonly ar?: string;
-  readonly fr?: string;
-  readonly en?: string;
-}
-
-interface HeldItem {
-  readonly itemId: string;
+interface HeldItem extends ReviewText {
   readonly merchantId: string;
   readonly restaurantName: string;
-  readonly names: Translations;
-  readonly descriptions: Translations;
+  readonly reviewToken?: string;
 }
 
 /** Items held by the screen, oldest id first, on `items_held_for_review_idx`. */
-async function listHeldItems(sql: TransactionSql, { adminUserId, cursor, limit }: HeldItemPage) {
+async function listHeldItems(
+  sql: TransactionSql,
+  { adminUserId, cursor, limit, includeReviewToken }: HeldItemPage,
+) {
   if (!(await lockMerchantAdmin(sql, adminUserId))) return undefined;
-  const rows = await sql<HeldItem[]>`
+  const reviewCount = includeReviewToken
+    ? sql`, ${countPriorReviews(sql)} AS "priorReviews"`
+    : sql``;
+  const rows = await sql<(HeldItem & { priorReviews?: string })[]>`
     SELECT item.id AS "itemId", item.merchant_id AS "merchantId",
-      merchant.restaurant_name AS "restaurantName", item.names, item.descriptions
+      merchant.restaurant_name AS "restaurantName", item.names, item.descriptions ${reviewCount}
     FROM public.items AS item JOIN public.merchants AS merchant ON merchant.id = item.merchant_id
     WHERE item.moderation_status = 'blocked_pending_review' AND item.archived_at IS NULL
       AND (${cursor ?? null}::uuid IS NULL OR item.id > ${cursor ?? null}::uuid)
     ORDER BY item.id LIMIT ${limit + 1}
   `;
-  const items = rows.slice(0, limit);
+  const items: HeldItem[] = rows
+    .slice(0, limit)
+    .map(({ priorReviews, ...item }) =>
+      priorReviews === undefined
+        ? item
+        : { ...item, reviewToken: makeReviewToken(item, priorReviews) },
+    );
   const last = items.at(-1);
   return { items, nextCursor: rows.length > limit && last ? last.itemId : null };
 }

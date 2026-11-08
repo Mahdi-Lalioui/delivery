@@ -1,3 +1,4 @@
+import { canAdvanceRevision, type RevisionAdvanced } from "./hours-flow";
 import type { HoursWrite, RamadanInput, StoredRamadan } from "./hours-http";
 import {
   toRamadanDraft,
@@ -36,8 +37,7 @@ type RamadanEvent =
   | { readonly kind: "validation-failed"; readonly errors: readonly RamadanError[] }
   | { readonly kind: "save-started"; readonly idempotencyKey: string }
   | { readonly kind: "save-finished"; readonly result: HoursWrite }
-  /** Another command on the shared menu revision guard (D-011) succeeded. */
-  | { readonly kind: "revision-advanced"; readonly revision: number };
+  | RevisionAdvanced;
 
 type RamadanSaveAttempt =
   | { kind: "ready"; idempotencyKey: string; input: RamadanInput & { expectedRevision: number } }
@@ -74,10 +74,17 @@ function editDraft(state: RamadanState, draft: RamadanDraft): RamadanState {
   return { kind: "editing", sessionId, revision, draft, errors: [] };
 }
 
-function advanceRevision(state: RamadanState, revision: number): RamadanState {
-  if (state.kind !== "editing" || revision <= state.revision) return state;
-  const { sessionId, draft, errors } = state;
-  return { kind: "editing", sessionId, revision, draft, errors };
+function advanceRevision(state: RamadanState, change: RevisionAdvanced): RamadanState {
+  if (state.kind !== "editing" || !canAdvanceRevision(state, change)) return state;
+  const { sessionId, draft, errors, notice } = state;
+  return {
+    kind: "editing",
+    sessionId,
+    revision: change.revision,
+    draft,
+    errors,
+    ...(notice && { notice }),
+  };
 }
 
 export function reduceRamadan(state: RamadanState, event: RamadanEvent): RamadanState {
@@ -97,7 +104,7 @@ export function reduceRamadan(state: RamadanState, event: RamadanEvent): Ramadan
     case "save-finished":
       return finishSave(state, event.result);
     case "revision-advanced":
-      return advanceRevision(state, event.revision);
+      return advanceRevision(state, event);
   }
 }
 

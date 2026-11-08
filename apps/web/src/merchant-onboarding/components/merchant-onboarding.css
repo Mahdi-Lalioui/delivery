@@ -149,3 +149,11 @@
 .setup-panel .setup-error {
   color: var(--color-danger);
 }
+
+.setup-profile-link {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--touch-target-min);
+  margin-block-start: var(--space-4);
+  font-weight: var(--font-weight-label);
+}

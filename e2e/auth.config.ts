@@ -1,8 +1,9 @@
 import { fileURLToPath } from "node:url";
 import { defineConfig, devices } from "@playwright/test";
+import { authPort, loopbackOrigin } from "./ports.ts";
 
 const workspace = fileURLToPath(new URL("../", import.meta.url));
-const webOrigin = "http://127.0.0.1:3113";
+const webOrigin = loopbackOrigin(authPort);
 
 export default defineConfig({
   testDir: ".",
@@ -17,7 +18,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "pnpm --filter @zaafran/web start --hostname 127.0.0.1 --port 3113",
+    command: `pnpm --filter @zaafran/web start --hostname 127.0.0.1 --port ${authPort}`,
     cwd: workspace,
     url: webOrigin + "/fr",
     reuseExistingServer: false,

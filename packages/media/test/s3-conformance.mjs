@@ -6,7 +6,7 @@ import { buffer } from "node:stream/consumers";
 import { test } from "node:test";
 import { setTimeout } from "node:timers/promises";
 import { HeadBucketCommand, S3Client, S3ServiceException } from "@aws-sdk/client-s3";
-import { createS3MediaStore } from "@zaafran/media";
+import { createS3MediaStore } from "@zaafran/media/s3-store";
 
 const endpoint = "http://127.0.0.1:8333";
 const bucket = "zaafran-media-test";

@@ -1,5 +1,6 @@
 import { expect, test } from "vitest";
 import {
+  adminMerchantNoticeOutput,
   adminMerchantReviewInput,
   adminMerchantReviewOutput,
   adminReviewQueueQuery,
@@ -97,4 +98,22 @@ test("[ADM-03:contract] exposes pending applications without account secrets", (
       applications: [{ ...application, sessionToken: "fixture" }],
     }).success,
   ).toBe(false);
+});
+
+test("[MER-01:notice] counts pending applications and identifies the latest without personal data", () => {
+  const empty = { sessionId: merchantId, pendingCount: 0, latestMerchantId: null };
+  const pending = { sessionId: merchantId, pendingCount: 2, latestMerchantId: merchantId };
+  expect(adminMerchantNoticeOutput.parse(empty)).toEqual(empty);
+  expect(adminMerchantNoticeOutput.parse(pending)).toEqual(pending);
+  for (const invalid of [
+    { ...empty, latestMerchantId: merchantId },
+    { ...pending, latestMerchantId: null },
+    { ...pending, pendingCount: -1 },
+    { ...pending, pendingCount: 1.5 },
+    { ...pending, sessionId: "no-session" },
+    { ...pending, latestMerchantId: "no-merchant" },
+    { ...pending, phoneE164: "+213500000001" },
+  ]) {
+    expect(adminMerchantNoticeOutput.safeParse(invalid).success).toBe(false);
+  }
 });

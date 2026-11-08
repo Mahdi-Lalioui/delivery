@@ -132,3 +132,20 @@ test("[MER-09:inline-price] accepts only bounded whole dinars and identifies an 
     command: { input: { priceDzd: 0 } },
   });
 });
+
+test("[MER-14:web] preserves a selected photo on a normal item edit", () => {
+  const photoId = item.itemId;
+  const draft = makeMenuItemDraft({ ...item, tags: [...item.tags], photoId });
+  expect(parseMenuItemDraft({ draft, categoryId, expectedRevision: 9 })).toMatchObject({
+    kind: "valid",
+    input: { photoId },
+  });
+});
+
+test("[MER-14:web] sends explicit removal when clearing an attached photo", () => {
+  const draft = { ...makeMenuItemDraft({ ...item, tags: [...item.tags] }), removePhoto: true };
+  expect(parseMenuItemDraft({ draft, categoryId, expectedRevision: 9 })).toMatchObject({
+    kind: "valid",
+    input: { photoId: null, removePhoto: true },
+  });
+});

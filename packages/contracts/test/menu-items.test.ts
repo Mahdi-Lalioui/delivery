@@ -36,7 +36,12 @@ const itemView = {
 test("[MER-09:contract] revision-bound item edits keep lifecycle and moderation out of input", () => {
   const command = { ...item, expectedRevision: 2 };
   expect(menuItemCommandInput.parse(command)).toEqual(command);
+  expect(menuItemCommandInput.parse({ ...command, removePhoto: true })).toEqual({
+    ...command,
+    removePhoto: true,
+  });
   for (const invalid of [
+    { ...command, removePhoto: true, photoId: itemId },
     { ...item },
     { ...command, itemId },
     { ...command, archivedAt: now },

@@ -2,7 +2,7 @@
 
 You are building **Zaafran** (working name — the real name lives only in `packages/config/src/brand.ts`), a food-delivery marketplace for Algeria, starting in Algiers. Customers order from local restaurants. Restaurants pay a flat monthly fee (no commission) and, in v1, deliver with their own drivers. We ship the **web app first** (customer PWA, restaurant dashboard, courier PWA, admin), then the **native apps** (customer app, partner app) straight after.
 
-One human owns this project: **Mahdi**. Nobody else works on it. Work autonomously. Ask Mahdi only for what is listed under "Stop and ask".
+**Mahdi** is the project owner and the only human on the project. Codex and Claude Code work in the lanes below. Work autonomously. Ask Mahdi only for what is listed under "Stop and ask".
 
 ## 0. Parallel build week
 
@@ -15,7 +15,7 @@ These rules override slower work-loop and milestone sequencing rules through Sun
 
 - Lane A alone edits `packages/contracts` and DB migrations. Lane B files requests at `docs/requests/lane-b-<topic>.md`. Lane A lands requested changes the same day and publishes admin/billing, ratings, promotions and scheduling contracts first.
 - Use separate i18n namespaces for the two lanes. Record each task in `docs/progress/lane-a.md` or `docs/progress/lane-b.md`. Keep entries to four lines or fewer with effort, change, proof and next step. Leave a reproducible checkpoint with the branch, commit, current task and pending checks before switching accounts. A fresh account can resume by reading those files and `docs/PLAN.md`.
-- Lane B sets `COMPOSE_PROJECT_NAME=lane-b` and uses host ports 100 higher than lane A, including test services.
+- Lane B sets `COMPOSE_PROJECT_NAME=lane-b` and uses host ports 100 higher than lane A, including test services. From the repo root run `set -a; . infra/lane-b.env; set +a` before `pnpm dev`, Compose smoke checks, or tests in that lane.
 - Start by merging M0, M1 and the green M2 snapshot into `main` in order. Create and push both lane branches from that baseline. Every evening merge `lane-a` then `lane-b` into `main`. Require `pnpm verify` and end-to-end checks green on the integrated `main`. Both lanes rebase onto `main` each morning.
 
 Choose effort per task. The lead runs on medium and delegates important work with the effort set explicitly at spawn. Use at most two subagents at once.
@@ -29,7 +29,8 @@ Choose effort per task. The lead runs on medium and delegates important work wit
 
 Use ultra for `reviewer` and `security_auditor` on high-risk features and at every milestone gate, and for diagnosing a bug or flaky test after the first fix attempt fails. Split ultra work into small, clearly scoped subagent tasks. If unsure, choose higher effort for money, permissions and orders, and lower effort for purely visual work.
 
-- During week 1, test first, then run the affected package tests, typecheck and lint. Run full `pnpm verify` about every five tasks and before every push. Review each finished feature once. Keep implementations as simple as the acceptance criteria allow. Collect screenshots and run auditors at the end of the week.
+- During week 1, test first, then run the affected package tests, typecheck and lint. Run full `pnpm verify` about every five tasks and before every push. Review each finished feature once. Keep implementations as simple as the acceptance criteria allow. Collect milestone reports and run auditors at the end of the week.
+- UI acceptance requires a visual review before ticking the task. Capture and inspect the 390px and 1280px screens and compare them against DESIGN.md. Use one primary action, quiet secondary actions, separate destructive controls, content-sized fields, status badges, and token-based spacing and motion. Use map pins for locations, icon chips for cuisines, styled choice controls, and dish photos or generated placeholders. Provide loading skeletons, empty and error states, and save feedback. Bring existing Lane A screens to this standard by the end of the build week.
 - Each feature includes unit tests for logic, real Postgres integration tests for data, authorization matrix entries for routes and one end-to-end test per user flow.
 - From 16 November restore the full process below. Run gates M0–M11 in order, fix all findings, then run security, performance and design audits, k6, mutation tests, staging deployment and the restore drill. Complete `RELEASE_CHECKLIST`. Use high effort for fixes and ultra for audits.
 

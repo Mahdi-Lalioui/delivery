@@ -13,5 +13,6 @@ trap 'docker rm -fv "$server" >/dev/null' EXIT
 
 docker run --rm --network "container:$server" \
   --mount "type=bind,source=$workspace_dir/node_modules,target=/repo/node_modules,readonly" \
+  --mount "type=bind,source=$workspace_dir/packages/contracts,target=/repo/packages/contracts,readonly" \
   --mount "type=bind,source=$package_dir,target=/repo/packages/media,readonly" \
   --workdir /repo/packages/media "$node_image" node --test test/s3-conformance.mjs

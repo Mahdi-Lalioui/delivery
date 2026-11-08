@@ -1,9 +1,15 @@
-import { randomUUIDv7 } from "node:crypto";
+import { createHash, randomUUIDv7 } from "node:crypto";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { Readable } from "node:stream";
 import { mediaOutput } from "@zaafran/contracts/media";
-import { expect, test } from "vitest";
+import { createMediaRepository } from "@zaafran/db/media";
+import { createLocalMediaStore } from "@zaafran/media";
+import { expect, onTestFinished, test } from "vitest";
 import { registerMerchantApiFixture } from "./merchant-api-fixture.ts";
 
-const { openApi, seedActor, seedMenuMerchants } = registerMerchantApiFixture(
+const { database, openApi, seedActor, seedMenuMerchants } = registerMerchantApiFixture(
   "2026-11-07T12:00:00.000Z",
 );
 const reservationPath = "/v1/media/uploads";
@@ -64,4 +70,64 @@ test("[MER-14:http] [MER-23:http] checks the actor's role at the exact restauran
   });
   expect(forbidden.statusCode).toBe(404);
   expect(forbidden.headers["cache-control"]).toBe("no-store");
+});
+
+test("[MER-14:http] serves an adopted private preview through the production API", async () => {
+  const mediaRoot = await mkdtemp(join(tmpdir(), "zaafran-preview-api-"));
+  onTestFinished(() => rm(mediaRoot, { recursive: true, force: true }));
+  const api = await openApi(undefined, undefined, mediaRoot);
+  const owner = await seedActor("+213500000064", "standard");
+  const outsider = await seedActor("+213500000065", "standard");
+  const reserved = await api.inject({
+    method: "POST",
+    url: reservationPath,
+    headers: commandHeaders(owner),
+    payload: { kind: "application", contentType: "image/png", bytes: 4 },
+  });
+  expect(reserved.statusCode).toBe(201);
+  const { mediaId } = mediaOutput.parse(reserved.json());
+  const quarantineKey = "quarantine/" + mediaId;
+  await database.get().sql`
+    UPDATE public.media_uploads
+    SET status = 'preparing', quarantine_key = ${quarantineKey},
+      content_digest = ${Buffer.alloc(32)}, adopted_at = now()
+    WHERE id = ${mediaId}
+  `;
+
+  const url = "/v1/media/" + mediaId;
+  expect((await api.inject({ url: url + "/preview", headers: owner.headers })).statusCode).toBe(
+    404,
+  );
+  const repository = createMediaRepository(database.get());
+  const bytes = Buffer.from("synthetic preview");
+  const previewKey = "preview/" + mediaId;
+  await createLocalMediaStore({ root: mediaRoot }).put({
+    key: previewKey,
+    body: Readable.from([bytes]),
+    bytes: bytes.length,
+    checksumSha256: createHash("sha256").update(bytes).digest("base64"),
+  });
+  expect(
+    await repository.completePreparation({
+      mediaId,
+      quarantineKey,
+      result: { status: "awaiting_crop", previewKey, width: 96, height: 64 },
+    }),
+  ).toBe(true);
+
+  const status = await api.inject({ url, headers: owner.headers });
+  expect(status.json()).toEqual({
+    mediaId,
+    sessionId: owner.sessionId,
+    kind: "application",
+    status: "awaiting_crop",
+    width: 96,
+    height: 64,
+  });
+  const preview = await api.inject({ url: url + "/preview", headers: owner.headers });
+  expect(preview.statusCode).toBe(200);
+  expect(preview.rawPayload).toEqual(bytes);
+  expect((await api.inject({ url: url + "/preview", headers: outsider.headers })).statusCode).toBe(
+    404,
+  );
 });

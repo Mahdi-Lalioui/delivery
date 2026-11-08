@@ -9,7 +9,7 @@ const validRow = {
   price_dzd: "450",
 };
 
-test("[MER-12] canonicalizes text, localized digits and case-sensitive keys", () => {
+test("[MER-12:validation] canonicalizes text, localized digits and case-sensitive keys", () => {
   expect(
     validateMenuImportRows([
       {
@@ -46,7 +46,7 @@ test("[MER-12] canonicalizes text, localized digits and case-sensitive keys", ()
   });
 });
 
-test("[MER-12] preserves blank sheet rows and reports missing Arabic or French text", () => {
+test("[MER-12:validation] preserves blank sheet rows and reports missing Arabic or French text", () => {
   const { rows, errors } = validateMenuImportRows([
     validRow,
     {},
@@ -71,7 +71,7 @@ test("[MER-12] preserves blank sheet rows and reports missing Arabic or French t
   ]);
 });
 
-test("[MER-12] reports field reasons in template order and uses the menu text limits", () => {
+test("[MER-12:validation] reports field reasons in template order and uses the menu text limits", () => {
   const { rows, errors } = validateMenuImportRows([
     {
       ...validRow,
@@ -103,7 +103,7 @@ test("[MER-12] reports field reasons in template order and uses the menu text li
   ]);
 });
 
-test("[MER-12] reports subsequent duplicate keys even when the first row has another error", () => {
+test("[MER-12:validation] reports subsequent duplicate keys even when the first row has another error", () => {
   const { rows, errors } = validateMenuImportRows([
     { ...validRow, external_key: " Meal-01 ", price_dzd: "unknown" },
     { ...validRow, external_key: "Meal-01" },
@@ -119,7 +119,7 @@ test("[MER-12] reports subsequent duplicate keys even when the first row has ano
 });
 
 test.each(["+1", "-0", "12.0", "١٬٠٠٠", "1e2", "0x10", "2147483648", "9".repeat(120)])(
-  "[MER-12] rejects inexact or out-of-range DZD cell %s",
+  "[MER-12:validation] rejects inexact or out-of-range DZD cell %s",
   (price_dzd) => {
     expect(validateMenuImportRows([{ ...validRow, price_dzd }])).toEqual({
       rows: [],

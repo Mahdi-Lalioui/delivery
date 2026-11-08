@@ -1,5 +1,9 @@
 import { randomUUIDv7 } from "node:crypto";
-import { adminMerchantReviewOutput, adminReviewQueueOutput } from "@zaafran/contracts/admin";
+import {
+  adminMerchantNoticeOutput,
+  adminMerchantReviewOutput,
+  adminReviewQueueOutput,
+} from "@zaafran/contracts/admin";
 import { problemResponseSchema } from "@zaafran/contracts/health";
 import {
   menuCategoryOrderOutput,
@@ -50,6 +54,14 @@ test("[MER-01:http] [ADM-03:http] submits, scopes and reviews a merchant on the 
   const applicationsPath = "/v1/merchant-applications";
   const queuePath = "/v1/admin/merchant-applications";
   const membershipsPath = "/v1/me/merchants";
+  const noticePath = queuePath + "/notice";
+  const readNotice = async () => {
+    const response = await api.inject({ url: noticePath, headers: admin.headers });
+    expect(response.statusCode).toBe(200);
+    return adminMerchantNoticeOutput.parse(response.json());
+  };
+  const emptyNotice = { sessionId: admin.sessionId, pendingCount: 0, latestMerchantId: null };
+  expect(await readNotice()).toEqual(emptyNotice);
   const application = {
     restaurantName: "Cuisine fictive",
     ownerName: "Propriétaire fictif",
@@ -101,6 +113,12 @@ test("[MER-01:http] [ADM-03:http] submits, scopes and reviews a merchant on the 
     404,
   );
   expect((await submit()).json()).toEqual(result);
+  expect(await readNotice()).toEqual({
+    sessionId: admin.sessionId,
+    pendingCount: 1,
+    latestMerchantId: result.merchantId,
+  });
+  expect((await api.inject({ url: noticePath, headers: applicant.headers })).statusCode).toBe(403);
   const collision = await submit({ ...application, restaurantName: "Autre cuisine fictive" });
   expect(problemResponseSchema.parse(collision.json())).toMatchObject({
     status: 409,
@@ -192,6 +210,7 @@ test("[MER-01:http] [ADM-03:http] submits, scopes and reviews a merchant on the 
 
   const completed = await api.inject({ url: queuePath, headers: admin.headers });
   expect(adminReviewQueueOutput.parse(completed.json()).applications).toEqual([]);
+  expect(await readNotice()).toEqual(emptyNotice);
 });
 
 test("[MER-09:http] [MER-23:http] manages ordered categories through the live merchant API", async () => {

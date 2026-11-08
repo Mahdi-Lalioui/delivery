@@ -147,6 +147,8 @@ Undo is `POST /v1/merchants/:merchantId/menu/prices/batches/:batchId/undo`, an i
 
 Opening hours, special dates and (next) the Ramadan schedule are written by the same people and in the same merchant states as the menu: an owner or manager (SPEC MER-23 gives managers everything except billing and staff) of an approved, active or paused merchant (MER-02 shows hours in the post-approval checklist). Writes therefore run through `runMenuCommand` with operation `hours_replace`, bumping `merchants.menu_revision` and recording a `menu_command_receipts` row, so hours get the same idempotency, stale-revision rejection and SQL membership check as every menu write without a second mechanism. A replace swaps the whole week and every special date in one transaction. Special dates live in `merchant_special_dates` (a date with no ranges closes the day) with ranges in `merchant_special_hours`. The cost is that an hours save and a menu save from two tabs conflict on revision; the client re-reads and retries, which is acceptable for one restaurant's small team. The "closed now" override is a separate sub-task.
 
+The weekly and Ramadan editors load separate snapshots. After a successful sibling command, advance another draft only if it has the same session and the revision that command submitted. An older draft keeps its original revision so the server can reject it and require reload. The preview can refresh at the newer revision independently of the draft.
+
 ### D-012 — "Closed now" is the M1 `pausedUntil` (2026-11-08)
 
 MER-15's "closed now" override is stored as the nullable `merchants.hours_paused_until`, the instant the M1 `isOpenAt` rule already reads as `pausedUntil`. Owners and managers set it via the `hours_pause` command on the D-011 menu guard. The instant must be strictly after the server clock, or the command returns `pause_not_in_future`. Passing null reopens the restaurant on its regular hours. An end instant is always required, so a restaurant cannot stay closed indefinitely by forgetting a toggle. Indefinite closure is the merchant `paused` status, which admins and billing own.
@@ -170,3 +172,57 @@ MER-23 invitations live in `@zaafran/contracts/merchant-staff`. Only an owner cr
 ### D-016 — Menu import validates raw cells on the server (2026-11-08)
 
 CSV and XLSX use the same template and send up to 500 rows of raw text cells within the API body limit. Preserve interior blank rows so errors use the original spreadsheet row numbers. Only a valid preview returns a token. Bind the token to the merchant, account, session, menu revision and canonical validated rows. Apply must verify the token and revalidate inside the owner/manager write path. Merchant-scoped external item keys prevent duplicates on repeated imports. Imported text must pass the same prohibited-goods screening as other menu edits.
+
+### D-017 — Load bounded spreadsheet parsers on demand (2026-11-08)
+
+Use `read-excel-file` 9.3.14 for XLSX and `csv-parse` 7.0.3 for CSV. Load both only from the import flow. Preserve raw numeric strings, whitespace and interior blank rows. Before XLSX parsing, use `@zip.js/zip.js` 2.24.0 with strict archive and CRC checks, and `saxen` 11.2.0 for bounded XML inspection. Reject formulas, macros, external relationships, DTDs and entities. Bound the compressed file to 1 MiB, archive entries to 32 and total inflated bytes to 8 MiB. The row, column, field and API body limits also apply. These choices follow verified synthetic workbook, malformed archive and decompression probes. [XLSX reader](https://github.com/catamphetamine/read-excel-file) · [ZIP parser](https://github.com/gildas-lormeau/zip.js) · [CSV parser](https://csv.js.org/parse/options/) · [XML parser](https://github.com/nikku/saxen)
+
+### D-018 — Rollout order for persisted photo preparation (2026-11-08)
+
+Apply migration 0019 before starting the updated API. Replace every API instance before enabling the updated worker. The older API can read pending rows after the migration, but its responses omit preview dimensions and rejection reasons on the new states. For rollback, stop the prepare worker and keep the compatible API serving existing rows. Revert to the older API only with a compatible data restore or a backport of the new response projection.
+
+The worker checks the adopted byte count and digest before decoding. It writes the preview to a private, content-addressed key before atomically advancing the upload. Retrying with the same output reuses the object. If competing encoders produce different bytes, the losing object stays private and needs a future orphan sweep. Keep the quarantined original available for crop and remove it only after a durable rejection or completed publication.
+
+### D-019 — Original-session crop and atomic variant publication (2026-11-08)
+
+Record the session when a reservation is first created. A crop requires that session to still be live and the owner to retain access to the restaurant. Reservations created before migration 0020 have no trustworthy session provenance. An owner who needs to crop a legacy reservation or resume under a replacement session must create a reservation with a fresh idempotency key and re-upload. A reserve replay returns its original media ID without changing provenance.
+
+Store crop settings and enqueue the crop job in the same transaction. The worker encodes the quarantined original and stores each variant under a private, content-addressed key. Publish the complete set in one state change. Only then remove the original and preview. The ready status exposes dimensions, sizes and ThumbHash. Fetch variant bytes through the authenticated owner route. Public menu serving belongs with item attachment and listing.
+
+For rollout, apply migration 0020 and replace every media worker with a crop-capable build before exposing the new API. Pause uploads during the API switch so old instances cannot create sessionless reservations. Once ready rows exist, keep a compatible API during rollback, since earlier builds cannot serialize ready metadata.
+
+### D-020 — Photo attachment and explicit removal (2026-11-08)
+
+Store application photo IDs in submission order in the same transaction as the application. The upload owner retains private read access. Attach item photos only when a ready upload belongs to the acting editor and the target restaurant. The restaurant's other owners and managers may read ready variants while a live item references the photo. Raw upload and crop access stay with the uploader.
+
+A menu item edit with `photoId: null` keeps the saved photo so cached editors can still edit text or price safely. Removing a saved photo requires `removePhoto: true` with a null photo ID. A non-null replacement keeps the existing ownership and readiness checks. Apply migration 0021 before rolling out the attachment API and editor.
+
+### D-021 — In-app merchant application notices (2026-11-08)
+
+Deliver MER-01 notices inside the authenticated admin console. Signup already records one notice per application in the same transaction as the merchant, owner membership and replay receipt. A separate uncached admin read returns the pending count and most recent merchant ID from these notices. The existing review queue keeps its response shape and remains the way to open a case. An approval or rejection removes the application from the pending count in the same committed state change. Keep the notice row for provenance. The admin UI belongs to Lane B.
+
+### D-022 — Merchant preview reads the saved menu draft (2026-11-08)
+
+Give authorized owners and managers a customer-style preview of the saved menu for approved, active and paused restaurants. Bind the category page and item detail to the authenticated session and menu revision. The read projection contains display fields and ready item photo IDs. Apply moderation and archival filters before emitting an item or its options. Anonymous publication, customer links and public photo delivery belong to M3.
+
+### D-023 — Moderation binds to the reviewed text and cycle (2026-11-08)
+
+Freeze names and descriptions while an item awaits review in both direct edits and spreadsheet imports. Price, category and other non-text edits remain available. The opt-in held queue includes a review token computed from the canonical text, item ID and count of prior committed reviews. A later hold requires its current token, and any supplied token must match under the merchant lock. Exact retries return the original receipt. The legacy queue can complete first holds during the Lane B UI rollout. Refresh held queues during deployment so first-hold reviewers see the current text.
+
+### D-024 — Attach restaurant cover and logo under the menu revision (2026-11-08)
+
+Save both profile photo slots with one session-bound menu command. Owners and managers can retain a ready attachment. New selections must be ready uploads of the correct kind, owned by the editor and scoped to the restaurant. Null removes the corresponding slot. Other eligible editors can read ready variants while the photo is attached. Upload and crop stay scoped to the uploader.
+
+### D-025 — Keep discovery coordinates in the request body (2026-11-08)
+
+This supersedes the GET method for serviceability in SPEC §13. Use a public POST with a strict point
+or commune body and a no-store response. Exact coordinates stay out of URLs and their access logs.
+The lookup makes no writes. Geographic coverage does not imply that ordering is enabled.
+
+### D-026 — Public feed and profile photos share publication rules (2026-11-08)
+
+The initial feed uses merchant ID keyset pagination over active, non-demo restaurants. Saved
+weekly hours, exceptions and temporary pauses determine the displayed open state. Public profile
+photos resolve only a current, ready, same-merchant cover or logo. Every photo read rechecks
+publication and attachment and sends no-store. Storage keys stay server-side. Global open-first
+ordering and the geographic and commercial fields need their own data and cursor work.

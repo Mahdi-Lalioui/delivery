@@ -13,7 +13,7 @@ get() {
 }
 
 config="$(docker compose config --format json)"
-printf '%s' "$config" | node --input-type=module -e '
+addresses="$(printf '%s' "$config" | node --input-type=module -e '
   import assert from "node:assert/strict";
   import { readFileSync } from "node:fs";
 
@@ -30,7 +30,20 @@ printf '%s' "$config" | node --input-type=module -e '
   for (const [name, image] of Object.entries(images)) {
     assert.equal(services[name]?.image, image, `${name} must use its D-001 image pin`);
   }
-'
+
+  const targets = { db: 5432, martin: 3000, osrm: 5000 };
+  const addresses = Object.entries(targets).map(([name, target]) => {
+    const ports = services[name].ports;
+    assert.equal(ports?.length, 1, `${name} must publish one port`);
+    const [port] = ports;
+    assert.equal(port.target, target, `${name} must publish its service port`);
+    assert.equal(port.host_ip, "127.0.0.1", `${name} must bind to loopback`);
+    assert.match(port.published, /^[1-9]\d*$/, `${name} must publish a fixed host port`);
+    return `${port.host_ip}:${port.published}`;
+  });
+  console.log(addresses.join(" "));
+')"
+read -r db_address martin_address osrm_address <<< "$addresses"
 
 docker compose up -d --wait --wait-timeout 120
 
@@ -42,14 +55,15 @@ for service in db martin osrm; do
   printf '%s healthy\n' "$service"
 done
 
-db_address="$(docker compose port db 5432)"
-[[ "$db_address" == 127.0.0.1:5432 ]] || fail "Unexpected database address: $db_address"
+[[ "$(docker compose port db 5432)" == "$db_address" ]] || fail "Expected database on $db_address"
+[[ "$(docker compose port martin 3000)" == "$martin_address" ]] || fail "Expected Martin on $martin_address"
+[[ "$(docker compose port osrm 5000)" == "$osrm_address" ]] || fail "Expected OSRM on $osrm_address"
 node --input-type=module -e '
   import { createConnection } from "node:net";
 
-  const socket = createConnection(5432, "127.0.0.1", () => socket.destroy());
+  const socket = createConnection(Number(process.argv[1]), "127.0.0.1", () => socket.destroy());
   socket.setTimeout(5000, () => socket.destroy(new Error("PostgreSQL TCP connection timed out")));
-'
+' "${db_address##*:}"
 db_versions="$(
   docker compose exec -T db sh -ec \
     'psql -XAtw -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"' <<'SQL'
@@ -59,7 +73,7 @@ SQL
 [[ "$db_versions" == '180006|3.7.0' ]] || fail "Unexpected database versions: $db_versions"
 printf 'PostgreSQL 18.6 and PostGIS 3.7.0 on %s\n' "$db_address"
 
-get http://127.0.0.1:3001/synthetic | node --input-type=module -e '
+get "http://$martin_address/synthetic" | node --input-type=module -e '
   import assert from "node:assert/strict";
   import { readFileSync } from "node:fs";
 
@@ -71,12 +85,12 @@ get http://127.0.0.1:3001/synthetic | node --input-type=module -e '
   );
 '
 tile_response="$(get --output /dev/null --write-out '%{http_code} %{size_download}' \
-  http://127.0.0.1:3001/synthetic/0/0/0)"
+  "http://$martin_address/synthetic/0/0/0")"
 read -r tile_status tile_size <<< "$tile_response"
 [[ "$tile_status" == 200 && "$tile_size" -gt 0 ]] || fail "Missing synthetic tile: $tile_response"
 printf 'Martin synthetic tile 0/0/0 returned %s bytes\n' "$tile_size"
 
-get 'http://127.0.0.1:5000/route/v1/driving/3.0562,36.7631;3.0590,36.7574?overview=false' \
+get "http://$osrm_address/route/v1/driving/3.0562,36.7631;3.0590,36.7574?overview=false" \
   | node --input-type=module -e '
   import assert from "node:assert/strict";
   import { readFileSync } from "node:fs";

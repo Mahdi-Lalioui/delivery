@@ -3,7 +3,9 @@ import { once } from "node:events";
 import { readdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import { discoveryLocationOutput } from "@zaafran/contracts/discovery";
 import { problemResponseSchema, readyResponseSchema } from "@zaafran/contracts/health";
+import { seedGeography } from "@zaafran/db/geography";
 import { expect, test, vi } from "vitest";
 import { registerTestDatabase } from "../../../packages/db/test/database.ts";
 
@@ -60,6 +62,22 @@ test("[M0-6] the built production process excludes debug routes and reports unav
     expect(problemResponseSchema.parse(await authentication.json()).code).toBe(
       "otp_delivery_unavailable",
     );
+    await seedGeography(database.get());
+    const [commune] = await database.get().sql<{ id: string }[]>`
+      SELECT id FROM public.communes WHERE code = '1601'
+    `;
+    if (!commune) throw new Error("The seeded Algiers commune is missing.");
+    const location = await fetch(new URL("/v1/geo/serviceability", origin), {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ kind: "commune", communeId: commune.id }),
+    });
+    expect(location.status).toBe(200);
+    expect(location.headers.get("cache-control")).toBe("no-store");
+    const resolved = discoveryLocationOutput.parse(await location.json());
+    expect(resolved.communeId).toBe(commune.id);
+    expect(resolved.serviceAreaId).not.toBeNull();
+
     const privateRoutes = [
       ["POST", "/__test__/clock"],
       ["POST", "/__test__/reset"],

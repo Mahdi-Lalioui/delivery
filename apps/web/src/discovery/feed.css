@@ -1,0 +1,265 @@
+.restaurant-feed {
+  display: grid;
+  gap: var(--space-24);
+  margin-block-start: clamp(var(--space-40), 5vi, var(--space-64));
+}
+
+.restaurant-feed-header {
+  display: grid;
+  gap: var(--space-4);
+  padding-block-end: var(--space-16);
+  border-block-end: 1px solid var(--color-border-subtle);
+}
+
+.restaurant-feed-header h2 {
+  font: var(--font-weight-display) var(--font-size-display) / var(--line-height-display)
+    var(--font-display);
+}
+
+.restaurant-feed-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-20);
+  list-style: none;
+}
+
+@media (min-width: 640px) {
+  .restaurant-feed-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 960px) {
+  .restaurant-feed-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-24);
+  }
+}
+
+.restaurant-feed-card {
+  block-size: 100%;
+  overflow: hidden;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-e1);
+}
+
+.restaurant-feed-cover {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-block-end: 1px solid var(--color-border-subtle);
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in srgb, var(--color-primary) 24%, var(--color-surface-2)),
+    var(--color-surface-2)
+  );
+  color: var(--color-harissa-text);
+}
+
+.restaurant-feed-cover:is([data-cuisine="healthy"], [data-cuisine="seafood"]) {
+  background: radial-gradient(ellipse at center, var(--color-info-bg), var(--color-surface-2));
+  color: var(--color-info);
+}
+
+.restaurant-feed-plate {
+  inline-size: min(75%, calc(var(--space-120) + var(--space-64)));
+  block-size: auto;
+}
+
+.restaurant-feed-cover picture,
+.restaurant-feed-logo picture {
+  position: absolute;
+  inset: 0;
+}
+
+.restaurant-feed-cover img,
+.restaurant-feed-logo img {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+.restaurant-feed-logo img {
+  background-color: var(--color-surface-2);
+}
+
+.restaurant-feed-badge {
+  position: absolute;
+  inset-block-start: var(--space-12);
+  inset-inline-end: var(--space-12);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-8);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text-2);
+  font-weight: var(--font-weight-h3);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+}
+
+.restaurant-feed-badge[data-open="true"] {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.restaurant-feed-badge svg,
+.restaurant-feed-cuisines svg {
+  flex: none;
+  inline-size: var(--space-16);
+  block-size: var(--space-16);
+}
+
+.restaurant-feed-card-body {
+  display: grid;
+  gap: var(--space-12);
+  padding: var(--space-16);
+}
+
+.restaurant-feed-identity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+}
+
+.restaurant-feed-identity h3 {
+  font: var(--font-weight-h2) var(--font-size-h2) / var(--line-height-h2) var(--font-display);
+}
+
+.restaurant-feed-logo {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: var(--space-48);
+  block-size: var(--space-48);
+  overflow: hidden;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  font: var(--font-weight-h2) var(--font-size-h2) / var(--line-height-h2) var(--font-display);
+}
+
+.restaurant-feed-cuisines {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  list-style: none;
+}
+
+.restaurant-feed-cuisines li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-8);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-2);
+  color: var(--color-text-2);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+}
+
+.restaurant-feed-opening {
+  color: var(--color-text-2);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+}
+
+.restaurant-feed-opening bdi {
+  font-family: var(--font-numbers);
+  font-variant-numeric: var(--font-variant-numeric-numbers);
+}
+
+.restaurant-feed-announcement {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.restaurant-feed-empty,
+.restaurant-feed-actions {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-12);
+  text-align: center;
+}
+
+.restaurant-feed-empty {
+  padding: var(--space-32) var(--space-16);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-2);
+  color: var(--color-text-2);
+}
+
+.restaurant-feed-empty .restaurant-feed-plate {
+  inline-size: var(--space-120);
+  color: var(--color-harissa-text);
+}
+
+.restaurant-feed-actions p {
+  color: var(--color-danger);
+}
+
+.restaurant-feed-button {
+  min-block-size: var(--touch-target-min);
+  padding: var(--space-8) var(--space-20);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-weight: var(--font-weight-h3);
+  cursor: pointer;
+}
+
+.restaurant-feed-button:hover:not([aria-disabled="true"]) {
+  background: var(--color-surface-2);
+}
+
+.restaurant-feed-button[aria-disabled="true"] {
+  color: var(--color-text-3);
+  cursor: wait;
+}
+
+.restaurant-feed-skeleton .restaurant-feed-cover,
+.restaurant-feed-skeleton-title,
+.restaurant-feed-skeleton-chip {
+  background: var(--color-surface-3);
+}
+
+.restaurant-feed-skeleton-title,
+.restaurant-feed-skeleton-chip {
+  border-radius: var(--radius-pill);
+}
+
+.restaurant-feed-skeleton-title {
+  inline-size: 54%;
+  block-size: var(--space-48);
+}
+
+.restaurant-feed-skeleton-chip {
+  inline-size: 36%;
+  block-size: var(--space-24);
+}
+
+@media (max-width: 639px) {
+  .restaurant-feed-skeletons > :not(:first-child) {
+    display: none;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 959px) {
+  .restaurant-feed-skeletons > :last-child {
+    display: none;
+  }
+}

@@ -33,12 +33,13 @@ export function MerchantOnboardingPage({
   merchantId: string;
   locale: Locale;
 }) {
+  const { merchantOnboarding, merchantProfilePhotos } = getMessages(locale);
   return (
     <SiteShell locale={locale} subpath={`/merchant/${merchantId}/setup`}>
       <NextIntlClientProvider
         locale={localeDetails[locale].tag}
         timeZone="Africa/Algiers"
-        messages={{ merchantOnboarding: getMessages(locale).merchantOnboarding }}
+        messages={{ merchantOnboarding, merchantProfilePhotos }}
       >
         <MerchantOnboardingScreen key={merchantId} merchantId={merchantId} locale={locale} />
       </NextIntlClientProvider>

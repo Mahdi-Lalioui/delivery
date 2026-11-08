@@ -12,10 +12,12 @@ export function registerMerchantApiFixture(now: string) {
   async function openApi(
     clock: () => Date = () => new Date(now),
     sendInvitation?: StartOptions["sendInvitation"],
+    mediaRoot?: string,
   ) {
     const api = await startApi({
       environment: {
         DATABASE_URL: database.url(),
+        ...(mediaRoot === undefined ? {} : { MEDIA_STORAGE_ROOT: mediaRoot }),
         AUTH_PUBLIC_ORIGIN: publicOrigin,
         AUTH_OTP_KEY: Buffer.alloc(32, 19).toString("hex"),
         AUTH_TOTP_KEY: Buffer.alloc(32, 26).toString("hex"),

@@ -43,5 +43,25 @@ export async function seedGeography({ sql }: DatabaseConnection): Promise<void> 
         name_ar = EXCLUDED.name_ar, name_fr = EXCLUDED.name_fr,
         centroid = EXCLUDED.centroid, boundary = EXCLUDED.boundary
     `;
+
+    // The pilot footprint includes the inner Algiers communes and all demo restaurant communes.
+    await transaction`
+      INSERT INTO public.service_areas (slug, city, polygon, active)
+      SELECT 'algiers-launch', 'Alger', ST_Multi(ST_Union(boundary))::geography, true
+      FROM public.communes
+      WHERE wilaya_code = 16 AND code BETWEEN '1601' AND '1632' AND boundary IS NOT NULL
+        AND NOT EXISTS (SELECT 1 FROM public.service_areas WHERE slug = 'algiers-launch')
+      GROUP BY wilaya_code
+      ON CONFLICT (slug) DO NOTHING
+    `;
   });
+}
+
+export async function readCommuneCoordinates({ sql }: DatabaseConnection, communeId: string) {
+  const [row] = await sql<{ latitude: number; longitude: number }[]>`
+    SELECT ST_Y(centroid::geometry) AS latitude, ST_X(centroid::geometry) AS longitude
+    FROM public.communes
+    WHERE id = ${communeId}::uuid
+  `;
+  return row;
 }

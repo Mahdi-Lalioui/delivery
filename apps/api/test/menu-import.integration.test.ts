@@ -26,7 +26,7 @@ function client(
       return api.inject({
         method: "POST",
         url: root + "/preview",
-        headers: actor.headers,
+        headers: { ...actor.headers, "x-expected-session-id": actor.sessionId },
         payload: { rows, expectedRevision },
       });
     },

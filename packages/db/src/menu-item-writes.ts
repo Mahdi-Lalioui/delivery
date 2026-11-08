@@ -1,5 +1,6 @@
 import { findProhibitedGoods } from "@zaafran/domain/moderation";
 import type { TransactionSql } from "postgres";
+import { lockReadyPhotos } from "./media-access.js";
 import type { CommandChange, CommandRequest } from "./menu-commands.js";
 import {
   readChangedItem,
@@ -15,7 +16,8 @@ interface RevisionInput {
 }
 
 export type ItemWrite = CommandRequest<ItemData & RevisionInput>;
-export type ItemUpdate = ItemWrite & ItemTarget;
+export type ItemUpdate = CommandRequest<ItemData & RevisionInput & { removePhoto?: true }> &
+  ItemTarget;
 export type ItemRevision = CommandRequest<RevisionInput> & ItemTarget;
 export type ItemAvailabilityWrite = CommandRequest<
   RevisionInput & { readonly availability: "available" | "end_of_day" | "indefinite" }
@@ -24,7 +26,7 @@ export type ItemAvailabilityWrite = CommandRequest<
 
 type ItemEditChange = CommandChange<
   { readonly item: MenuItem },
-  "not_found" | "photos_unavailable"
+  "not_found" | "photos_unavailable" | "moderation_pending"
 >;
 
 async function lockItemReferences(
@@ -49,13 +51,28 @@ async function lockItemReferences(
 async function lockEditableItem(
   sql: TransactionSql,
   { merchantId, itemId }: ItemTarget,
-): Promise<boolean> {
-  const [item] = await sql`
-    SELECT id FROM public.items
+  { names, descriptions }: { names: string; descriptions: string },
+) {
+  const [item] = await sql<{ photoId: string | null; heldTextChanged: boolean }[]>`
+    SELECT photo_id AS "photoId",
+      moderation_status = 'blocked_pending_review' AND
+      (names IS DISTINCT FROM ${names}::jsonb OR descriptions IS DISTINCT FROM ${descriptions}::jsonb)
+      AS "heldTextChanged"
+    FROM public.items
     WHERE merchant_id = ${merchantId} AND id = ${itemId} AND archived_at IS NULL
     FOR NO KEY UPDATE
   `;
-  return item !== undefined;
+  return item;
+}
+
+async function lockNewItemPhoto(
+  sql: TransactionSql,
+  { accountId, merchantId, input }: ItemWrite,
+  currentPhotoId: string | null = null,
+): Promise<boolean> {
+  const { photoId } = input;
+  if (photoId === null || photoId.toLowerCase() === currentPhotoId) return true;
+  return lockReadyPhotos(sql, { accountId, merchantId, kind: "item", photoIds: [photoId] });
 }
 
 async function insertItemGroups(
@@ -82,15 +99,15 @@ function screenItemText({ names, descriptions }: ItemText): TextStatus {
 
 export async function createItem(sql: TransactionSql, request: ItemWrite): Promise<ItemEditChange> {
   const { merchantId, input, now } = request;
-  if (input.photoId !== null) return { kind: "photos_unavailable" };
   if (!(await lockItemReferences(sql, request))) return { kind: "not_found" };
+  if (!(await lockNewItemPhoto(sql, request))) return { kind: "photos_unavailable" };
 
   const [created] = await sql<{ itemId: string }[]>`
     INSERT INTO public.items
-      (merchant_id, category_id, names, descriptions, price_dzd, tags, prep_extra_min, moderation_status)
+      (merchant_id, category_id, names, descriptions, price_dzd, tags, prep_extra_min, photo_id, moderation_status)
     VALUES (${merchantId}, ${input.categoryId}, ${JSON.stringify(input.names)}::jsonb,
       ${JSON.stringify(input.descriptions)}::jsonb, ${input.priceDzd}, ${[...input.tags]}::text[],
-      ${input.extraPrepMinutes}, ${screenItemText(input)})
+      ${input.extraPrepMinutes}, ${input.photoId}, ${screenItemText(input)})
     RETURNING id AS "itemId"
   `;
   if (!created) throw new Error("Menu item insert returned no row.");
@@ -105,17 +122,22 @@ export async function updateItem(
   request: ItemUpdate,
 ): Promise<ItemEditChange> {
   const { merchantId, itemId, input, now } = request;
-  if (!(await lockEditableItem(sql, request))) return { kind: "not_found" };
-  if (input.photoId !== null) return { kind: "photos_unavailable" };
-  if (!(await lockItemReferences(sql, request))) return { kind: "not_found" };
-
   const names = JSON.stringify(input.names);
   const descriptions = JSON.stringify(input.descriptions);
+  const current = await lockEditableItem(sql, request, { names, descriptions });
+  if (!current) return { kind: "not_found" };
+  if (current.heldTextChanged) return { kind: "moderation_pending" };
+  if (!(await lockItemReferences(sql, request))) return { kind: "not_found" };
+  if (!(await lockNewItemPhoto(sql, request, current.photoId)))
+    return { kind: "photos_unavailable" };
+
+  const photoId = input.removePhoto ? null : (input.photoId ?? current.photoId);
   const textStatus = screenItemText(input);
   await sql`
     UPDATE public.items SET category_id = ${input.categoryId},
       names = ${names}::jsonb, descriptions = ${descriptions}::jsonb, price_dzd = ${input.priceDzd},
       tags = ${[...input.tags]}::text[], prep_extra_min = ${input.extraPrepMinutes},
+      photo_id = ${photoId},
       moderation_status = CASE
         WHEN moderation_status IN ('blocked_pending_review', 'rejected') THEN moderation_status
         WHEN names IS DISTINCT FROM ${names}::jsonb OR descriptions IS DISTINCT FROM ${descriptions}::jsonb
@@ -142,8 +164,8 @@ export async function duplicateItem(
 
   const [duplicate] = await sql<{ itemId: string }[]>`
     INSERT INTO public.items
-      (merchant_id, category_id, names, descriptions, price_dzd, tags, prep_extra_min, moderation_status)
-    SELECT merchant_id, category_id, names, descriptions, price_dzd, tags, prep_extra_min,
+      (merchant_id, category_id, names, descriptions, price_dzd, tags, prep_extra_min, photo_id, moderation_status)
+    SELECT merchant_id, category_id, names, descriptions, price_dzd, tags, prep_extra_min, photo_id,
       CASE WHEN moderation_status IN ('blocked_pending_review', 'rejected')
         THEN moderation_status ELSE ${screenItemText(source)} END
     FROM public.items WHERE merchant_id = ${merchantId} AND id = ${itemId} AND archived_at IS NULL

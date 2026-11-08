@@ -28,7 +28,6 @@ export interface ItemAvailability {
 }
 
 export interface MenuItem extends ItemData, ItemAvailability {
-  readonly photoId: null;
   readonly tags: ItemTag[];
   readonly optionGroupIds: string[];
   readonly moderationStatus: "unreviewed" | "approved" | "blocked_pending_review" | "rejected";
@@ -53,14 +52,19 @@ export interface ItemPage extends MenuScope {
 
 type ItemRow = Omit<MenuItem, "soldOutUntil"> & { readonly soldOutUntil: Date | null };
 
+export function itemIsAvailable(sql: TransactionSql, now: Date) {
+  return sql`CASE WHEN item.sold_out_until <= ${now.toISOString()}::timestamptz THEN true
+    ELSE item.is_available END`;
+}
+
 function itemColumns(sql: TransactionSql, now: Date) {
   const at = now.toISOString();
   return sql`
     item.id AS "itemId", item.category_id AS "categoryId", item.names, item.descriptions,
-    item.price_dzd AS "priceDzd", NULL AS "photoId", item.tags, item.prep_extra_min AS "extraPrepMinutes",
+    item.price_dzd AS "priceDzd", item.photo_id AS "photoId", item.tags,
+    item.prep_extra_min AS "extraPrepMinutes",
     item.moderation_status AS "moderationStatus",
-    CASE WHEN item.sold_out_until <= ${at}::timestamptz THEN true
-      ELSE item.is_available END AS "isAvailable",
+    ${itemIsAvailable(sql, now)} AS "isAvailable",
     CASE WHEN item.sold_out_until > ${at}::timestamptz THEN item.sold_out_until
       ELSE NULL END AS "soldOutUntil",
     coalesce((
@@ -87,7 +91,7 @@ export async function readChangedItem(
   return presentItem(row);
 }
 
-async function readCategoryNames(
+export async function readCategoryNames(
   sql: TransactionSql,
   { merchantId, categoryId }: Pick<ItemPage, "merchantId" | "categoryId">,
 ): Promise<Translations | undefined> {

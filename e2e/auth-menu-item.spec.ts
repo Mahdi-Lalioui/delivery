@@ -11,6 +11,7 @@ import {
 } from "../packages/contracts/src/menu.ts";
 import fr from "../packages/i18n/src/messages/fr.json" with { type: "json" };
 import { withAuthHarness } from "./auth-fixture.ts";
+import { attachPhoto, rejectInvalidPhoto } from "./media-photo-fixture.ts";
 
 const phone = "+213550000241";
 const labels = fr.menuItem;
@@ -109,163 +110,222 @@ async function expectPriceSuffixToStayTogether(page: Page) {
   expect(lines).toBe(1);
 }
 
-test("[MER-09:browser] an owner manages a bilingual item through its lifecycle @menu-items", async ({
+test("[MER-09:browser] [MER-14:browser] an owner manages a bilingual item through its lifecycle @menu-items", async ({
   baseURL,
   page,
 }) => {
-  await withAuthHarness(baseURL, async (auth) => {
-    const merchantId = await signInOwner(page, auth);
-    const { categoryId, revision, sessionId } = await createOwnedCategory(
-      page,
-      auth.origin,
-      merchantId,
-    );
-    const path = `/v1/merchants/${merchantId}/menu/items`;
-    const draft = { ...itemDraft, categoryId };
+  await withAuthHarness(
+    baseURL,
+    async (auth) => {
+      const merchantId = await signInOwner(page, auth);
+      const { categoryId, revision, sessionId } = await createOwnedCategory(
+        page,
+        auth.origin,
+        merchantId,
+      );
+      const path = `/v1/merchants/${merchantId}/menu/items`;
+      const draft = { ...itemDraft, categoryId };
 
-    await page.goto(`${auth.origin}/fr/merchant/${merchantId}/menu`);
-    const manageItems = page.getByRole("link", {
-      name: fr.menuCategory.manageItemsLabel.replace("{name}", categoryDraft.names.fr),
-      exact: true,
-    });
-    await expect(manageItems).toBeVisible();
-    await manageItems.click();
-    await expect(page.getByRole("heading", { name: labels.title, level: 1 })).toBeVisible();
-    await expect(page.getByText(labels.empty, { exact: true })).toBeVisible();
-    const save = page.getByRole("button", { name: labels.save, exact: true });
-
-    const created = await test.step("Create a bilingual item priced in whole dinars", async () => {
-      await fillItem(page);
-      const write = observeWrite(page, "POST", path);
-      await save.click();
-      const response = await write;
-      expect(response.status()).toBe(201);
-      expect(response.request().postDataJSON()).toEqual({ ...draft, expectedRevision: revision });
-      expect(response.request().headers()["x-expected-session-id"]).toBe(sessionId);
-      const created = menuItemWriteOutput.parse(await response.json());
-      expect(created.revision).toBe(revision + 1);
-      expect(created.item).toMatchObject({ ...draft, isAvailable: true, soldOutUntil: null });
-      const row = itemRow(page, created.item.itemId);
-      await expect(row.getByRole("heading", { name: draft.names.fr, exact: true })).toBeVisible();
-      await expect(row.getByText(draft.descriptions.fr, { exact: true })).toBeVisible();
-      await expect(row.getByText(/^650\s+DA$/)).toBeVisible();
-      await expect(row.getByText(labels.spicy, { exact: true })).toBeVisible();
-      await expect(row.getByText(labels.vegetarian, { exact: true })).toBeVisible();
-      return created;
-    });
-
-    const original = itemRow(page, created.item.itemId);
-    const itemPath = `${path}/${created.item.itemId}`;
-    const updated = await test.step("Update the original item’s price", async () => {
-      await original
-        .getByRole("button", { name: itemAction(labels.editLabel), exact: true })
-        .click();
-      await expectPriceSuffixToStayTogether(page);
-      const price = page.getByLabel(labels.price, { exact: true });
-      await expect(price).toHaveValue(String(draft.priceDzd));
-      await price.fill(String(updatedPrice));
-      const write = observeWrite(page, "PUT", itemPath);
-      await save.click();
-      const response = await write;
-      expect(response.status()).toBe(200);
-      expect(response.request().postDataJSON()).toEqual({
-        ...draft,
-        priceDzd: updatedPrice,
-        expectedRevision: created.revision,
+      await page.goto(`${auth.origin}/fr/merchant/${merchantId}/menu`);
+      const manageItems = page.getByRole("link", {
+        name: fr.menuCategory.manageItemsLabel.replace("{name}", categoryDraft.names.fr),
+        exact: true,
       });
-      const updated = menuItemWriteOutput.parse(await response.json());
-      expect(updated.revision).toBe(created.revision + 1);
-      expect(updated.item).toEqual({ ...created.item, priceDzd: updatedPrice });
-      await expect(original.getByText(/^725\s+DA$/)).toBeVisible();
-      return updated;
-    });
+      await expect(manageItems).toBeVisible();
+      await manageItems.click();
+      await expect(page.getByRole("heading", { name: labels.title, level: 1 })).toBeVisible();
+      await expect(page.getByText(labels.empty, { exact: true })).toBeVisible();
+      const save = page.getByRole("button", { name: labels.save, exact: true });
 
-    const duplicate = await test.step("Duplicate the edited item", async () => {
-      const write = observeWrite(page, "POST", `${itemPath}/duplicate`);
-      await original
-        .getByRole("button", { name: itemAction(labels.duplicateLabel), exact: true })
-        .click();
-      const response = await write;
-      expect(response.status()).toBe(201);
-      expect(response.request().postDataJSON()).toEqual({ expectedRevision: updated.revision });
-      const duplicate = menuItemWriteOutput.parse(await response.json());
-      expect(duplicate.revision).toBe(updated.revision + 1);
-      expect(duplicate.item.itemId).not.toBe(updated.item.itemId);
-      expect(duplicate.item).toEqual({ ...updated.item, itemId: duplicate.item.itemId });
-      await expect(itemRow(page, duplicate.item.itemId)).toBeFocused();
-      await expect(original).toBeVisible();
-      return duplicate;
-    });
+      const created =
+        await test.step("Create a bilingual item priced in whole dinars", async () => {
+          await fillItem(page);
+          await rejectInvalidPhoto(page, fr.mediaPhoto);
+          const photoId = await attachPhoto(page, fr.mediaPhoto, { save });
+          const write = observeWrite(page, "POST", path);
+          await save.click();
+          const response = await write;
+          expect(response.status()).toBe(201);
+          expect(response.request().postDataJSON()).toEqual({
+            ...draft,
+            photoId,
+            expectedRevision: revision,
+          });
+          expect(response.request().headers()["x-expected-session-id"]).toBe(sessionId);
+          const created = menuItemWriteOutput.parse(await response.json());
+          expect(created.revision).toBe(revision + 1);
+          expect(created.item).toMatchObject({
+            ...draft,
+            photoId,
+            isAvailable: true,
+            soldOutUntil: null,
+          });
+          const row = itemRow(page, created.item.itemId);
+          await expect(
+            row.getByRole("heading", { name: draft.names.fr, exact: true }),
+          ).toBeVisible();
+          await expect(row.getByText(draft.descriptions.fr, { exact: true })).toBeVisible();
+          await expect(row.getByText(/^650\s+DA$/)).toBeVisible();
+          await expect(row.getByText(labels.spicy, { exact: true })).toBeVisible();
+          await expect(row.getByText(labels.vegetarian, { exact: true })).toBeVisible();
+          return created;
+        });
 
-    const copied = itemRow(page, duplicate.item.itemId);
-    const stock = copied.getByRole("combobox", { name: itemAction(labels.availabilityLabel) });
-    const soldOut =
-      await test.step("Set only the copy sold out until the end of the Algiers day", async () => {
-        const write = observeWrite(page, "PUT", `${path}/${duplicate.item.itemId}/availability`);
-        await stock.selectOption("end_of_day");
+      const original = itemRow(page, created.item.itemId);
+      const itemPath = `${path}/${created.item.itemId}`;
+      const updated = await test.step("Update the original item’s price", async () => {
+        await original
+          .getByRole("button", { name: itemAction(labels.editLabel), exact: true })
+          .click();
+        const selectedPhoto = page.getByRole("img", { name: fr.mediaPhoto.selectedPreview });
+        await expect
+          .poll(() => selectedPhoto.evaluate((element: HTMLImageElement) => element.naturalWidth))
+          .toBeGreaterThan(0);
+        await expectPriceSuffixToStayTogether(page);
+        const price = page.getByLabel(labels.price, { exact: true });
+        await expect(price).toHaveValue(String(draft.priceDzd));
+        await price.fill(String(updatedPrice));
+        const write = observeWrite(page, "PUT", itemPath);
+        await save.click();
         const response = await write;
         expect(response.status()).toBe(200);
         expect(response.request().postDataJSON()).toEqual({
-          availability: "end_of_day",
-          expectedRevision: duplicate.revision,
+          ...draft,
+          priceDzd: updatedPrice,
+          photoId: created.item.photoId,
+          expectedRevision: created.revision,
         });
-        const soldOut = menuItemAvailabilityOutput.parse(await response.json());
-        expect(soldOut).toMatchObject({
-          itemId: duplicate.item.itemId,
-          isAvailable: false,
-          revision: duplicate.revision + 1,
+        const updated = menuItemWriteOutput.parse(await response.json());
+        expect(updated.revision).toBe(created.revision + 1);
+        expect(updated.item).toEqual({ ...created.item, priceDzd: updatedPrice });
+        await expect(original.getByText(/^725\s+DA$/)).toBeVisible();
+        return updated;
+      });
+
+      const duplicate = await test.step("Duplicate the edited item", async () => {
+        const write = observeWrite(page, "POST", `${itemPath}/duplicate`);
+        await original
+          .getByRole("button", { name: itemAction(labels.duplicateLabel), exact: true })
+          .click();
+        const response = await write;
+        expect(response.status()).toBe(201);
+        expect(response.request().postDataJSON()).toEqual({ expectedRevision: updated.revision });
+        const duplicate = menuItemWriteOutput.parse(await response.json());
+        expect(duplicate.revision).toBe(updated.revision + 1);
+        expect(duplicate.item.itemId).not.toBe(updated.item.itemId);
+        expect(duplicate.item).toEqual({ ...updated.item, itemId: duplicate.item.itemId });
+        await expect(itemRow(page, duplicate.item.itemId)).toBeFocused();
+        await expect(original).toBeVisible();
+        return duplicate;
+      });
+
+      const copied = itemRow(page, duplicate.item.itemId);
+      const stock = copied.getByRole("combobox", { name: itemAction(labels.availabilityLabel) });
+      const soldOut =
+        await test.step("Set only the copy sold out until the end of the Algiers day", async () => {
+          const write = observeWrite(page, "PUT", `${path}/${duplicate.item.itemId}/availability`);
+          await stock.selectOption("end_of_day");
+          const response = await write;
+          expect(response.status()).toBe(200);
+          expect(response.request().postDataJSON()).toEqual({
+            availability: "end_of_day",
+            expectedRevision: duplicate.revision,
+          });
+          const soldOut = menuItemAvailabilityOutput.parse(await response.json());
+          expect(soldOut).toMatchObject({
+            itemId: duplicate.item.itemId,
+            isAvailable: false,
+            revision: duplicate.revision + 1,
+          });
+          expect(soldOut.soldOutUntil).not.toBeNull();
+          await expect(stock).toHaveValue("end_of_day");
+          await expect(copied.getByText(/^Épuisé jusqu’au/)).toBeVisible();
+          await expect(original.getByRole("combobox")).toHaveValue("available");
+          return soldOut;
         });
-        expect(soldOut.soldOutUntil).not.toBeNull();
+
+      await test.step("Confirm archival of the original and reload the surviving copy", async () => {
+        await original
+          .getByRole("button", { name: itemAction(labels.archiveLabel), exact: true })
+          .click();
+        const confirmation = original.getByRole("group", {
+          name: itemAction(labels.archivePrompt),
+        });
+        await expect(confirmation.getByRole("button", { name: labels.cancel })).toBeFocused();
+        const write = observeWrite(page, "POST", `${itemPath}/archive`);
+        await confirmation
+          .getByRole("button", { name: labels.confirmArchive, exact: true })
+          .click();
+        const response = await write;
+        expect(response.status()).toBe(200);
+        expect(response.request().postDataJSON()).toEqual({ expectedRevision: soldOut.revision });
+        const archived = menuItemArchiveOutput.parse(await response.json());
+        expect(archived).toMatchObject({
+          itemId: created.item.itemId,
+          revision: soldOut.revision + 1,
+        });
+        await expect(original).toHaveCount(0);
+
+        const deadline = new Date(soldOut.soldOutUntil ?? "");
+        const algerianClock = new Intl.DateTimeFormat("en-GB", {
+          timeZone: "Africa/Algiers",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hourCycle: "h23",
+        });
+        const untilDeadline = deadline.valueOf() - Date.parse(archived.archivedAt);
+        expect(algerianClock.format(deadline)).toBe("00:00:00");
+        expect(untilDeadline).toBeGreaterThan(0);
+        expect(untilDeadline).toBeLessThanOrEqual(24 * 60 * 60 * 1000);
+
+        await page.reload();
+        const list = page.getByRole("list", { name: labels.listTitle, exact: true });
+        await expect(list.getByRole("heading", { name: draft.names.fr, exact: true })).toHaveCount(
+          1,
+        );
+        await expect(original).toHaveCount(0);
+        await expect(copied.getByText(/^725\s+DA$/)).toBeVisible();
         await expect(stock).toHaveValue("end_of_day");
-        await expect(copied.getByText(/^Épuisé jusqu’au/)).toBeVisible();
-        await expect(original.getByRole("combobox")).toHaveValue("available");
-        return soldOut;
+        const get = await page.request.get(`${auth.origin}${path}?categoryId=${categoryId}`);
+        expect(get.status()).toBe(200);
+        const persisted = menuItemPageOutput.parse(await get.json());
+        expect(persisted.revision).toBe(archived.revision);
+        expect(persisted.items).toEqual([
+          { ...duplicate.item, isAvailable: false, soldOutUntil: soldOut.soldOutUntil },
+        ]);
       });
 
-    await test.step("Confirm archival of the original and reload the surviving copy", async () => {
-      await original
-        .getByRole("button", { name: itemAction(labels.archiveLabel), exact: true })
-        .click();
-      const confirmation = original.getByRole("group", { name: itemAction(labels.archivePrompt) });
-      await expect(confirmation.getByRole("button", { name: labels.cancel })).toBeFocused();
-      const write = observeWrite(page, "POST", `${itemPath}/archive`);
-      await confirmation.getByRole("button", { name: labels.confirmArchive, exact: true }).click();
-      const response = await write;
-      expect(response.status()).toBe(200);
-      expect(response.request().postDataJSON()).toEqual({ expectedRevision: soldOut.revision });
-      const archived = menuItemArchiveOutput.parse(await response.json());
-      expect(archived).toMatchObject({
-        itemId: created.item.itemId,
-        revision: soldOut.revision + 1,
+      await test.step("Load the ready photo through the customer-style preview", async () => {
+        const labels = fr.menuPreview;
+        await page.getByRole("button", { name: labels.open, exact: true }).click();
+        const preview = page.locator("#menu-preview");
+        const photoId = duplicate.item.photoId;
+        if (!photoId) throw new Error("Expected the duplicate to retain the ready photo.");
+        const image = preview.locator(`img[src$="/${photoId}/variants/webp/320"]`);
+        await expect(image).toBeVisible();
+        await expect
+          .poll(() => image.evaluate((element: HTMLImageElement) => element.naturalWidth))
+          .toBeGreaterThan(0);
+        await preview.getByRole("button", { name: labels.close, exact: true }).click();
       });
-      await expect(original).toHaveCount(0);
 
-      const deadline = new Date(soldOut.soldOutUntil ?? "");
-      const algerianClock = new Intl.DateTimeFormat("en-GB", {
-        timeZone: "Africa/Algiers",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hourCycle: "h23",
+      await test.step("Explicitly remove the surviving item's photo", async () => {
+        await copied
+          .getByRole("button", { name: itemAction(labels.editLabel), exact: true })
+          .click();
+        await page.getByRole("button", { name: fr.mediaPhoto.remove, exact: true }).click();
+        const write = observeWrite(page, "PUT", `${path}/${duplicate.item.itemId}`);
+        await save.click();
+        const response = await write;
+        expect(response.status()).toBe(200);
+        expect(response.request().postDataJSON()).toMatchObject({
+          photoId: null,
+          removePhoto: true,
+        });
+        expect(menuItemWriteOutput.parse(await response.json()).item.photoId).toBeNull();
       });
-      const untilDeadline = deadline.valueOf() - Date.parse(archived.archivedAt);
-      expect(algerianClock.format(deadline)).toBe("00:00:00");
-      expect(untilDeadline).toBeGreaterThan(0);
-      expect(untilDeadline).toBeLessThanOrEqual(24 * 60 * 60 * 1000);
-
-      await page.reload();
-      const list = page.getByRole("list", { name: labels.listTitle, exact: true });
-      await expect(list.getByRole("heading", { name: draft.names.fr, exact: true })).toHaveCount(1);
-      await expect(original).toHaveCount(0);
-      await expect(copied.getByText(/^725\s+DA$/)).toBeVisible();
-      await expect(stock).toHaveValue("end_of_day");
-      const get = await page.request.get(`${auth.origin}${path}?categoryId=${categoryId}`);
-      expect(get.status()).toBe(200);
-      const persisted = menuItemPageOutput.parse(await get.json());
-      expect(persisted.revision).toBe(archived.revision);
-      expect(persisted.items).toEqual([
-        { ...duplicate.item, isAvailable: false, soldOutUntil: soldOut.soldOutUntil },
-      ]);
-    });
-  });
+    },
+    true,
+  );
 });

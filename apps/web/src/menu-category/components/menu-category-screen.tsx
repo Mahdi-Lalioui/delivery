@@ -4,6 +4,8 @@ import { getLocalizedContent } from "@zaafran/i18n/content";
 import type { Locale } from "@zaafran/i18n/locales";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef } from "react";
+import { MenuImportPanel } from "../../menu-import/components/menu-import-panel";
+import { useMenuImport } from "../../menu-import/use-menu-import";
 import type { CategorySnapshot } from "../menu-category-http";
 import { useMenuCategoryEditor, type MenuCategoryEditor } from "../use-menu-category-editor";
 import { CategoryForm } from "./category-form";
@@ -105,18 +107,57 @@ function CategoryAnnouncement({
   );
 }
 
-function CategoryWorkspace({
-  merchantId,
-  snapshot,
-  controls,
-  locale,
-}: {
+interface CategoryWorkspaceProps {
   merchantId: string;
   snapshot: CategorySnapshot;
   controls: MenuCategoryEditor;
   locale: Locale;
-}) {
+}
+
+function CategoryImportEntry({ merchantId, snapshot, controls, locale }: CategoryWorkspaceProps) {
   const translate = useTranslations("menuCategory");
+  const { isImportOpen } = controls;
+  const panel = useRef<HTMLDivElement>(null);
+  const menuImport = useMenuImport({
+    merchantId,
+    snapshot,
+    blocked: controls.isSaving || controls.revisionConflict,
+    onSaved: controls.refreshAfterImport,
+    onAccessChanged: controls.showAccessFailure,
+    onReload: controls.reload,
+  });
+
+  useEffect(() => {
+    if (isImportOpen) panel.current?.querySelector<HTMLElement>("#menu-import-title")?.focus();
+  }, [isImportOpen]);
+
+  return (
+    <>
+      <div className="menu-category-actions">
+        <button
+          className="menu-category-secondary"
+          type="button"
+          aria-expanded={isImportOpen}
+          aria-controls="menu-category-import"
+          disabled={menuImport.pending}
+          onClick={() => {
+            if (isImportOpen) menuImport.reset();
+            controls.toggleImport();
+          }}
+        >
+          {translate("importMenu")}
+        </button>
+      </div>
+      <div id="menu-category-import" ref={panel} hidden={!isImportOpen}>
+        {isImportOpen && <MenuImportPanel locale={locale} controls={menuImport} />}
+      </div>
+    </>
+  );
+}
+
+function CategoryWorkspace(props: CategoryWorkspaceProps) {
+  const translate = useTranslations("menuCategory");
+  const { merchantId, snapshot, controls, locale } = props;
 
   return (
     <>
@@ -129,6 +170,7 @@ function CategoryWorkspace({
         </p>
       )}
       <CategoryAnnouncement snapshot={snapshot} notice={controls.notice} locale={locale} />
+      <CategoryImportEntry {...props} />
       <div className="menu-category-workspace">
         <CategoryList
           merchantId={merchantId}

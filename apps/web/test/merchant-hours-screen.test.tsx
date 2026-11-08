@@ -46,6 +46,14 @@ const controls: MerchantHoursEditor = {
   change: vi.fn(),
   add: vi.fn(),
   remove: vi.fn(),
+  specialDates: {
+    addDate: vi.fn(),
+    changeDate: vi.fn(),
+    removeDate: vi.fn(),
+    addRange: vi.fn(),
+    changeRange: vi.fn(),
+    removeRange: vi.fn(),
+  },
   save: vi.fn(),
   reload: vi.fn(),
 };
@@ -90,8 +98,31 @@ test("[MER-15] disables the week and announces saving while a save is in flight"
     },
   });
   expect(html).toMatch(/<fieldset disabled="" class="hours-week">/);
+  expect(html).toMatch(/<fieldset disabled="" class="hours-week hours-special-dates">/);
   expect(html).toContain(merchantHours.saving);
 });
+
+test.each(["ar", "fr"] as const)(
+  "[MER-15:dates] labels the %s date and its validation error",
+  (locale) => {
+    const labels = getMessages(locale).merchantHours;
+    const html = render(locale, {
+      state: {
+        kind: "editing",
+        sessionId,
+        revision: 2,
+        draft: { ...draft, specialDates: [{ id: "one", date: "", ranges: [] }] },
+        errors: [{ dateId: "one", reason: "date" }],
+      },
+    });
+    expect(html).toContain(labels.specialDatesLegend);
+    expect(html).toContain(labels.specialDatesHint);
+    expect(html).toContain(labels.errorSpecialDate);
+    expect(html).toContain('id="hours-special-one-date" type="date"');
+    expect(html).toContain('aria-describedby="hours-special-one-error"');
+    expect(html).toContain('aria-invalid="true"');
+  },
+);
 
 test.each([
   ["saved", { notice: "saved" as const }],
@@ -147,6 +178,7 @@ test("[MER-15] places the closed-now control beside the week and locks both whil
     pause: { ...controls.pause, state: { kind: "saving", pausedUntil: null, command } },
   });
   expect(html).toMatch(/<fieldset disabled="" class="hours-week">/);
+  expect(html).toMatch(/<fieldset disabled="" class="hours-week hours-special-dates">/);
   expect(html).toMatch(/<fieldset disabled="" class="hours-pause">/);
   expect(html).toMatch(/<button[^>]*data-hours-save="true"[^>]*disabled=""/);
 });

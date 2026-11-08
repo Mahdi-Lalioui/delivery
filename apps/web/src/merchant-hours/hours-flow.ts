@@ -1,4 +1,4 @@
-import { toHoursDraft, toHoursInput, type DayError, type HoursDraft } from "./hours-editor";
+import { toHoursDraft, toHoursInput, type HoursDraft, type HoursError } from "./hours-editor";
 import type { HoursInput, HoursWrite, StoredHours } from "./hours-http";
 
 type Failure = Exclude<HoursWrite, { kind: "saved" }>;
@@ -9,7 +9,7 @@ interface Editing {
   readonly sessionId: string;
   readonly revision: number;
   readonly draft: HoursDraft;
-  readonly errors: readonly DayError[];
+  readonly errors: readonly HoursError[];
 }
 interface Outcome {
   /** Present only after an uncertain failure, so a retry cannot apply the week twice. */
@@ -24,19 +24,26 @@ export type HoursState =
   | ({ readonly kind: "editing" } & Editing & Outcome)
   | ({ readonly kind: "saving"; readonly idempotencyKey: string } & Editing);
 
+/** A successful command's transition on the shared menu revision guard (D-011). */
+export interface RevisionAdvanced {
+  readonly kind: "revision-advanced";
+  readonly sessionId: string;
+  readonly expectedRevision: number;
+  readonly revision: number;
+}
+
 export type HoursEvent =
   | { readonly kind: "loaded"; readonly hours: StoredHours }
   | { readonly kind: "load-failed"; readonly failure: LoadFailure }
   | { readonly kind: "draft-changed"; readonly draft: HoursDraft }
-  | { readonly kind: "validation-failed"; readonly errors: readonly DayError[] }
+  | { readonly kind: "validation-failed"; readonly errors: readonly HoursError[] }
   | { readonly kind: "save-started"; readonly idempotencyKey: string }
   | { readonly kind: "save-finished"; readonly result: HoursWrite }
-  /** Another command on the shared menu revision guard (D-011) succeeded, e.g. "closed now". */
-  | { readonly kind: "revision-advanced"; readonly revision: number };
+  | RevisionAdvanced;
 
 export type HoursSaveAttempt =
   | { kind: "ready"; idempotencyKey: string; input: HoursInput & { expectedRevision: number } }
-  | { kind: "invalid"; errors: DayError[] }
+  | { kind: "invalid"; errors: HoursError[] }
   | { kind: "unavailable" };
 
 export const initialHoursState: HoursState = { kind: "loading" };
@@ -74,13 +81,32 @@ function editDraft(state: HoursState, draft: HoursDraft): HoursState {
   return { kind: "editing", sessionId, revision, draft, errors: [] };
 }
 
-function advanceRevision(state: HoursState, revision: number): HoursState {
-  if (state.kind !== "editing" || revision <= state.revision) return state;
-  const { sessionId, draft, errors } = state;
-  return { kind: "editing", sessionId, revision, draft, errors };
+/** An independent draft can follow only a transition from its own snapshot. */
+export function canAdvanceRevision(
+  state: Pick<Editing, "sessionId" | "revision">,
+  change: RevisionAdvanced,
+): boolean {
+  return (
+    state.sessionId === change.sessionId &&
+    state.revision === change.expectedRevision &&
+    change.revision > state.revision
+  );
 }
 
-function rejectDraft(state: HoursState, errors: readonly DayError[]): HoursState {
+function advanceRevision(state: HoursState, change: RevisionAdvanced): HoursState {
+  if (state.kind !== "editing" || !canAdvanceRevision(state, change)) return state;
+  const { sessionId, draft, errors, notice } = state;
+  return {
+    kind: "editing",
+    sessionId,
+    revision: change.revision,
+    draft,
+    errors,
+    ...(notice && { notice }),
+  };
+}
+
+function rejectDraft(state: HoursState, errors: readonly HoursError[]): HoursState {
   return state.kind === "editing" ? { ...state, errors } : state;
 }
 
@@ -99,7 +125,7 @@ export function reduceHours(state: HoursState, event: HoursEvent): HoursState {
     case "save-finished":
       return finishSave(state, event.result);
     case "revision-advanced":
-      return advanceRevision(state, event.revision);
+      return advanceRevision(state, event);
   }
 }
 

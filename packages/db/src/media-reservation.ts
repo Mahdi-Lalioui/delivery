@@ -30,9 +30,10 @@ export async function reserveMedia(
   }
 
   const [upload] = await sql<{ id: string }[]>`
-    INSERT INTO public.media_uploads (owner_id, merchant_id, kind, content_type, bytes, created_at)
-    VALUES (${session.accountId}, ${merchantId}, ${input.kind}, ${input.contentType}, ${input.bytes},
-      ${now.toISOString()})
+    INSERT INTO public.media_uploads
+      (owner_id, reservation_session_id, merchant_id, kind, content_type, bytes, created_at)
+    VALUES (${session.accountId}, ${session.sessionId}, ${merchantId}, ${input.kind},
+      ${input.contentType}, ${input.bytes}, ${now.toISOString()})
     RETURNING id
   `;
   if (!upload) throw new Error("Media reservation insert returned no row.");

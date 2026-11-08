@@ -2,20 +2,9 @@ import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { basename, isAbsolute } from "node:path";
 import { fileURLToPath } from "node:url";
-import { getGateChecks, resolveGate, runGate } from "./gate-plan.ts";
+import { gateCommand, getGateChecks, resolveGate, runGate } from "./gate-plan.ts";
 
 const workspace = fileURLToPath(new URL("../", import.meta.url));
-const commands: ReadonlyMap<string, readonly string[]> = new Map([
-  ["verify", ["verify"]],
-  ["verify:full", ["verify:full"]],
-  ["tokens:contrast", ["--dir", "packages/tokens", "test:contrast"]],
-  ["ci:pr", ["exec", "node", "scripts/check-pr.ts"]],
-  ["coverage:domain", ["test:domain:coverage"]],
-  ["mutation:domain", ["test:mutation"]],
-  ["property:1000", ["test:properties"]],
-  ["authz:matrix", ["test:authz"]],
-]);
-
 const pnpmNames = new Set(["pnpm", "pnpm-native", "pnpm.cjs", "pnpm.exe"]);
 
 function requirePnpmPath(): string {
@@ -32,8 +21,7 @@ function requirePnpmPath(): string {
 }
 
 function runCheck(check: string, milestone: string, pnpm: string): number {
-  const testTag = /^e2e:(@[a-z0-9-]+)$/.exec(check)?.[1];
-  const args = testTag ? ["test:e2e", "--grep", testTag] : commands.get(check);
+  const args = gateCommand(milestone, check);
   if (!args) {
     process.stderr.write("Gate check is not available: " + check + "\n");
     return 127;

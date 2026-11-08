@@ -37,6 +37,7 @@ const failureStatus = {
   forbidden: 403,
   not_found: 404,
   invalid_status: 409,
+  stale_review: 409,
   idempotency_conflict: 409,
 };
 
@@ -59,11 +60,12 @@ function registerHeldQueue(api: FastifyInstance, services: MenuModerationService
       if (!actor) return sendProblem(reply, 401);
       if (!services) return sendProblem(reply, 503);
       reply.header("cache-control", "no-store");
-      const { cursor, limit } = request.query;
+      const { cursor, limit, includeReviewToken } = request.query;
       const page = await services.repository.listHeldItems({
         adminUserId: actor.accountId,
         limit,
         ...(cursor === undefined ? {} : { cursor: cursor.toLowerCase() }),
+        ...(includeReviewToken === "1" ? { includeReviewToken: true } : {}),
       });
       if (!page) return sendProblem(reply, 403, "forbidden");
       const items = page.items.map((item) => ({
@@ -93,6 +95,7 @@ function registerItemReview(api: FastifyInstance, services: MenuModerationServic
       if (!services) return sendProblem(reply, 503);
       if (request.headers["x-expected-session-id"].toLowerCase() !== actor.sessionId)
         return sendProblem(reply, 409, "session_changed");
+      reply.header("cache-control", "no-store");
       const body = { itemId: request.params.itemId.toLowerCase(), ...request.body };
       const result = await services.repository.reviewItem({
         ...body,

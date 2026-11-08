@@ -9,6 +9,7 @@ import { HoursPauseControl } from "./hours-pause-control";
 import { HoursPreviewList } from "./hours-preview-list";
 import { RamadanCard } from "./ramadan-card";
 import { ReloadHours, reloadMessages, SaveOutcome } from "./save-outcome";
+import { SpecialDateFields } from "./special-date-fields";
 import { WeeklyHoursFields } from "./weekly-hours-fields";
 
 type Editable = Extract<HoursState, { kind: "editing" | "saving" }>;
@@ -132,11 +133,17 @@ function HoursWorkspace({
       >
         <WeeklyHoursFields
           draft={state.draft}
-          errors={state.errors}
+          errors={state.errors.filter((error) => "weekday" in error)}
           isDisabled={isSaving}
           onChange={controls.change}
           onAdd={controls.add}
           onRemove={controls.remove}
+        />
+        <SpecialDateFields
+          draft={state.draft}
+          errors={state.errors.filter((error) => "dateId" in error)}
+          isDisabled={isSaving}
+          actions={controls.specialDates}
         />
         <SaveOutcome state={state} reload={controls.reload} />
         <button className="menu-item-primary" type="submit" data-hours-save disabled={isSaving}>
