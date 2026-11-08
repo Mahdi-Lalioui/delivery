@@ -142,7 +142,9 @@ export function FeedCard({ restaurant, locale }: { restaurant: FeedRestaurant; l
             )}
           </div>
           <h3 tabIndex={-1}>
-            <bdi>{name}</bdi>
+            <a href={`/${locale}/restaurants/${encodeURIComponent(restaurant.slug)}`}>
+              <bdi>{name}</bdi>
+            </a>
           </h3>
         </div>
         <ul className="restaurant-feed-cuisines" role="list">

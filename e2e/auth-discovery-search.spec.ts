@@ -38,7 +38,7 @@ for (const locale of ["ar", "fr"] as const) {
             return response.ok() && publicSearchOutput.parse(await response.json()).dishes.length;
           })
           .toBe(1);
-        await page.goto(harness.origin + "/" + locale);
+        await page.goto(harness.origin + "/" + locale + "/discover");
         await page.getByRole("button", { name: labels.search }).click();
         const dialog = page.getByRole("dialog");
         await dialog.getByRole("searchbox", { name: labels.search }).fill(labels.query);

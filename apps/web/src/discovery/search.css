@@ -329,3 +329,12 @@ html:has(.discovery-search-dialog[open]) {
   inline-size: var(--space-120);
   color: var(--color-harissa-text);
 }
+
+.discovery-search-result-name a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.discovery-search-result-name a:hover {
+  text-decoration: underline;
+}

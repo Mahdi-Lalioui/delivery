@@ -52,14 +52,16 @@ function SearchResults({ locale, page }: { locale: Locale; page: SearchPage }) {
         <div className="discovery-search-group">
           <h3>{messages.restaurants}</h3>
           <ul role="list">
-            {page.restaurants.map(({ merchantId, name, coverMediaId }) => (
+            {page.restaurants.map(({ merchantId, slug, name, coverMediaId }) => (
               <li className="discovery-search-result" key={merchantId}>
                 <div className="discovery-search-art" aria-hidden="true">
                   <FeedPlate />
                   <SearchCover key={coverMediaId} {...{ merchantId, coverMediaId }} />
                 </div>
                 <p className="discovery-search-result-name">
-                  <bdi>{name}</bdi>
+                  <a href={`/${locale}/restaurants/${encodeURIComponent(slug)}`}>
+                    <bdi>{name}</bdi>
+                  </a>
                 </p>
               </li>
             ))}
@@ -70,14 +72,16 @@ function SearchResults({ locale, page }: { locale: Locale; page: SearchPage }) {
         <div className="discovery-search-group">
           <h3>{messages.dishes}</h3>
           <ul role="list">
-            {page.dishes.map(({ itemId, names, merchantName, priceDzd }) => (
+            {page.dishes.map(({ itemId, merchantSlug, names, merchantName, priceDzd }) => (
               <li className="discovery-search-result" key={itemId}>
                 <div className="discovery-search-art" data-dish aria-hidden="true">
                   <FeedPlate />
                 </div>
                 <div>
                   <p className="discovery-search-result-name">
-                    <bdi>{getLocalizedContent(names, locale)}</bdi>
+                    <a href={`/${locale}/restaurants/${encodeURIComponent(merchantSlug)}`}>
+                      <bdi>{getLocalizedContent(names, locale)}</bdi>
+                    </a>
                   </p>
                   <p className="discovery-search-merchant">
                     <bdi>{merchantName}</bdi>

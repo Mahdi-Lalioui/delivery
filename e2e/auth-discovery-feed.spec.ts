@@ -29,7 +29,7 @@ for (const locale of ["ar", "fr"] as const) {
         const published = [...first.restaurants, ...next.restaurants];
         expect(new Set(published.map(({ merchantId }) => merchantId)).size).toBe(3);
         expect(published.map(({ name }) => name)).toContain(fixture.publishedName);
-        await page.goto(harness.origin + "/" + locale);
+        await page.goto(harness.origin + "/" + locale + "/discover");
         await page
           .getByRole("link")
           .and(page.locator(`a[href="/${locale}/discover"]`))

@@ -2,7 +2,7 @@ import { dzd, type Dzd } from "./money.ts";
 import { priceOrder } from "./pricing.ts";
 import { fail, type Result } from "./result.ts";
 
-export type CartNames = Readonly<Partial<Record<"ar" | "fr" | "en", string>>>;
+export type CartNames = Readonly<Partial<Record<"ar" | "fr" | "en", string | undefined>>>;
 export interface CartItem {
   readonly itemId: string;
   readonly names: CartNames;

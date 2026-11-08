@@ -66,3 +66,30 @@
 - 2026-11-08 · High · Both production search journeys now pass after scoping the history assertion with a relative locator. Eight captures are saved under docs/evidence/m3/search and design review is pending. Full verify is running under /private/tmp/zaafran-search-verify.log, session 30779. No feature push yet.
 - 2026-11-08 · High · Search passed full verify with 1,579 unit and 234 PostGIS cases, plus both ar/fr production journeys. Reviewer closed the work-bound P1 and design critic passed eight captures. Performance benchmark and complete ranking remain open.
 - 2026-11-08 · High · Mahdi targets half the overall scope by 22:00 London today. Measure against SPEC acceptance, with customer restaurant/item/cart journey the next implementation batch. This is a target, not verified completion.
+- 2026-11-08 · High and ultra · Resumed restaurant/item/cart batch after search push. Lane A merged verified main at `28db669`. Contract builder owns restaurant schemas; cart builder owns domain logic. Root will wire public repository/API against committed schemas. Frozen integrated install is running in session 82967.
+- 2026-11-08 · High · Public menu contract committed at `86269ca`. Root added three anonymous restaurant routes, policy inventory and revision error mapping. Eleven focused HTTP/inventory tests and API typecheck passed. Repository writer is reusing preview visibility safely; cart builder has 39 green cases. Next connect production repository and start restaurant UI.
+- 2026-11-08 · High · Added localized /restaurants/[slug] page entries and public client reads while repository and UI builders continue. Cart core committed separately after 290 domain tests. Root API start now uses public restaurant repository, awaiting its private-preview regression completion. Unfinished batch is unpushed.
+- 2026-11-08 · Ultra review · Restaurant reviewer found category serving windows were omitted from item availability. DB builder is adding shared Algiers-time window checks and boundary regressions before this batch can close. Public item-photo and route inventory tests pass 12 cases. Feed links pass 12 web cases; production item/cart journey is authored.
+- 2026-11-08 · High · Feed/search results now link to localized restaurant pages, with 12 web tests passing. Item/cart browser proof asserts required sauce blocks Add, two configured units total 1,100 DZD, and cart survives reload. UI and review fixes still in flight; no full batch push yet.
+- 2026-11-08 · Ultra · Full route authorization matrix passed 228 tests after public menu and photo wiring. DB builder reports both review fixes green across 24 relevant PostGIS cases; waiting final suite and independent re-review. UI build remains active; production item/cart test is ready.
+
+- **M3 public menu review (ultra).** Fixed Algiers serving-window boundaries and blocked
+  prohibited option names across list, detail and photo reads. Independent reviewer reran
+  24 PostGIS tests successfully. Opened a P1 for stale menu revision recovery.
+
+
+- 2026-11-08 · Ultra review · Main CI repair pushed at `5564a30` after full verify
+  (1,701 unit and 222 PostGIS tests) and all 65 smoke cases passed. The repair
+  isolates codec inputs and locale navigations into their existing per-test budgets.
+
+- 2026-11-08 · Ultra review · The menu now carries its category revision into item detail and
+  recovers from stale item or pagination reads. The cart preserves another tab’s renewal
+  when an older expiry timer fires. Both production browser regressions passed.
+
+- 2026-11-08 · High · Eight focused production discovery/cart cases and all 30 authenticated
+  browser cases passed. The bilingual journey selects a commune, searches, configures a
+  required option, checks the 1,100 DZD total, and reopens the saved cart after reload.
+
+- 2026-11-08 · High · Design critic approved the 48 restaurant/item/cart captures at
+  390×844, 768×1024 and 1280×800, ar/fr and light/dark. The item CTA stays visible in its
+  own footer. M3-4 and M3-5 remain open for ETag, restaurant information and cart merchandising.

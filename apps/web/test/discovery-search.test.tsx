@@ -126,7 +126,7 @@ test("[CUS-05] exposes a localized search trigger and groups bilingual results w
   expect(html).toContain(
     `/v1/merchants/${merchantId}/profile/photos/${coverMediaId}/variants/webp/320`,
   );
-  expect(html).not.toContain("href=");
+  expect(html).toContain('href="/ar/restaurants/jardins"');
 });
 
 test("[CUS-05] distinguishes loading, failures and zero results and offers searchable suggestions", () => {
