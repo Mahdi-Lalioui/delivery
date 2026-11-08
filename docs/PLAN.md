@@ -81,18 +81,86 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
 
 **Goal:** a restaurant can sign up, get approved and build a beautiful menu in minutes.
 
-- [ ] M2-1 Auth: OTP + sessions + roles (AUTH-01…09, CUS-10).
-- [ ] M2-2 Schema: merchants, members, categories, items, option groups, media, price history, settings, flags, audit log.
-- [ ] M2-3 Signup (MER-01) and a minimal admin approval page (ADM-03, first slice).
-- [ ] M2-4 Onboarding checklist (MER-02).
-- [ ] M2-5 Menu builder (MER-09, MER-10), including keyboard reordering.
-- [ ] M2-6 Media pipeline (MER-14, §16).
-- [ ] M2-7 Bulk price change with undo (MER-11).
-- [ ] M2-8 CSV/XLSX import (MER-12).
-- [ ] M2-9 Hours and Ramadan rules UI (MER-15, MER-16).
-- [ ] M2-10 Prohibited-goods moderation (§17.3, ADM-04).
-- [ ] M2-11 Staff roles (MER-23).
-- [ ] M2-12 Seed: 12 **fictional** demo restaurants in Algiers communes with realistic menus in ar/fr and realistic Algiers prices, marked `is_demo`.
+- [x] M2-1 Auth (AUTH-01…09, CUS-10). Commit strict OTP, TOTP and session schemas in `packages/contracts` first. Add forward auth migration and repositories in `packages/db`, then Fastify policies, cookie/Bearer sessions and fake SMS in `apps/api`. Prove rolling caps, single consumption under concurrency, idle and absolute expiry, device revocation, cookie CSRF, TOTP replay rejection, and localized OTP/resend UX. Add a protected device list, per-device revoke and sign out everywhere.
+- [ ] M2-2 Merchant schema. Commit the merchant, admin and menu contracts before migrating memberships, categories, items, option groups, media, price history, settings, flags and audit. Prove tenant-scoped foreign keys and SQL membership checks with the same account holding different roles at two merchants.
+- [x] M2-3 Signup and approval (MER-01, ADM-03 first slice). Verify the commune, pin and phone, create the pending merchant and owner membership atomically, enqueue the admin notice, and prove authorized approval and rejection in the admin queue.
+- [x] M2-4 Checklist (MER-02 first slice). Show profile, hours and five-item menu progress after approval. Prove that incomplete zone and test-order steps keep Go live unavailable until their later milestone flows can provide real evidence.
+- [x] M2-5 Menu builder (MER-09 first slice, MER-10). Create, duplicate, archive, reorder by pointer and keyboard, edit bilingual items and DZD prices, and reuse option groups. Show the active restaurant name. Prove focus restoration, integer prices, ordering and cross-tenant rejection.
+  - [x] Complete bilingual categories and item forms, reusable ordered option attachments, and authorized restaurant/category context. Verify the option library and attached-item screens in the design matrix.
+  - [x] Add inline DZD price editing with keyboard save/cancel, focus restoration and preservation of the saved item fields.
+  - [x] Add category navigation alongside the desktop item workspace. Keep the customer preview with the moderated M2-10/M2-12 flow.
+- [ ] M2-6 Media pipeline (MER-14, §16). Commit upload/variant contracts, decode real HEVC HEIC in CI, validate declared and actual image type and the 8 MB limit, crop to the required ratios, and publish metadata-free WebP/AVIF variants with thumbhash after worker processing.
+  - [x] Define the reservation, private preview, crop, and ready response contracts. Test exact upload bounds and all five output widths in both formats.
+  - [ ] Persist owner and restaurant scope, upload receipts and job state. Accept binary uploads into quarantine and enqueue work in the same transaction as each state change. Prove safe retries, cross-tenant denial and private application photos.
+    - [x] Reserve photos and read private status through the authenticated API. Verify eligible membership, session revocation, first-digest adoption and transactional preparation enqueue in PostGIS.
+    - [x] Stream the authorized binary PUT into private storage and verify exact length, abort cleanup, storage replay, and 8 MiB enforcement.
+  - [ ] Decode JPEG, PNG, WebP and real HEVC HEIC in the worker. Normalize orientation, bound decoded pixels, remove metadata, derive the requested crop and thumbhash, and publish only after all variants exist. Prove retries recover after a worker interruption.
+  - [ ] Connect optional application photos and item photos to the localized cropper. Verify valid and rejected uploads, keyboard crop, private previews, saved item readback and the design matrix.
+- [x] M2-7 Bulk prices (MER-11). Bind preview to merchant and item revisions, apply rounded changes and history atomically, and prove ten-minute undo rejects expired or subsequently changed prices.
+  - [x] Add the pure percent/fixed rounding calculation (nearest 1/5/10/50 DA, ties up, clamped to zero).
+  - [x] Persist the per-item preview binding, apply rounded changes and price history atomically on the existing menu command/revision guard, and record an undo batch.
+  - [x] Add the ten-minute undo endpoint that rejects an expired batch or an item whose price changed since the apply.
+  - [x] Add the typed web client for preview, apply and undo that classifies every problem code and keeps the retry key after an uncertain failure.
+  - [x] Add the pure web editor that reads the percent or DA input into an exact adjustment and hides an expired undo.
+  - [x] Add the pure preview → apply → undo state machine that keeps retry keys only after uncertain failures and closes undo after a terminal rejection.
+  - [x] Add the presentational bulk price panel (item and whole-category choices, raise/lower, %/DA, rounding, preview table, apply, gated undo, mapped failures) with ar/fr/en messages.
+  - [x] Drive the panel from a hook, place it in the menu item workspace with DESIGN-token logical CSS, and prove the production-build journey (preview, apply, undo, expired undo) plus the screenshot matrix.
+- [ ] M2-8 CSV/XLSX import (MER-12). Publish the template, bound parsing, report row and field errors, and use a merchant-scoped external key for atomic idempotent application after preview.
+  - [x] Define the shared template columns, bounded row input, validation report and apply summary.
+  - [x] Validate raw cells and sign the validated preview context. Cover field errors, duplicate keys and exact prices.
+  - [x] Persist external keys and implement revision-bound preview and atomic apply with prohibited-goods screening.
+  - [ ] Connect bounded CSV/XLSX parsing, template download and the localized import journey.
+- [ ] M2-9 Hours and Ramadan (MER-15, MER-16). Persist weekly ranges, dated exceptions, Ramadan offsets and location. Render seven-day previews through the M1 rules and exercise overnight and Ramadan edits in Arabic and French.
+  - [x] Define the weekly ranges and special-dates input contract (overnight ranges, no same-day overlap, bounded sizes).
+  - [x] Persist weekly ranges and special dates with an owner/manager-scoped, idempotent replace command on the menu revision guard (D-011).
+  - [x] Add the authenticated `GET`/`PUT /v1/merchants/:merchantId/hours` routes with the command and read contracts, authorization-matrix rows and OpenAPI.
+  - [x] Persist the "closed now" override as `hours_paused_until` with an owner/manager command (D-012).
+  - [x] Add the closed-now override API route (`/v1/merchants/:merchantId/hours/pause`), contracts and matrix rows.
+  - [x] Define the Ramadan input contract (Maghrib-relative or clock endpoints, suhoor window, method and ± minutes).
+  - [x] Persist the Ramadan schedule with the same owner/manager-scoped command as weekly hours (D-011).
+  - [x] Add the Ramadan read/replace API routes (`/v1/merchants/:merchantId/hours/ramadan`) with contracts, matrix rows and OpenAPI.
+  - [x] Prove every contract calculation method yields a Maghrib time where the schedule meets `calculateMaghrib`.
+  - [x] Render the seven-day preview through the M1 rules and build the Arabic/French hours editor with the overnight and Ramadan journeys.
+    - [x] Compute the pure seven-day preview in `@zaafran/domain` and prove it matches the M1 open-now rule.
+    - [x] Serve `GET /v1/merchants/:merchantId/hours/preview?schedule=regular|ramadan` with Maghrib at the stored location.
+    - [x] Add the typed web client and the pure weekly editor model, validated by the contract.
+    - [x] Add the presentational weekly hours fields with ar/fr/en messages.
+    - [x] Add the hours page and routes (hook, weekly save, regular preview, focus restoration, token CSS).
+    - [x] Add the closed-now control to the hours page.
+    - [x] Add the pure Ramadan draft edit helpers (ranges, endpoint kind, suhoor).
+    - [x] Add the presentational Ramadan fields (endpoints, suhoor, method, adjustment).
+    - [x] Add the pure Ramadan load/save state machine.
+    - [x] Add the regular/Ramadan preview toggle to the hours page.
+    - [x] Wire the Ramadan editor into the hours page.
+    - [x] Prove the production-build overnight and Ramadan journeys in Arabic and French, plus the screenshot matrix.
+  - [ ] Add dated exceptions to the web editor and prove create, edit and delete in the production browser journey.
+- [ ] M2-10 Moderation (§17.3, ADM-04). Check prohibited goods on every menu write path and public preview. Prove flagged items stay hidden until the audited review outcome permits listing.
+  - [x] Add the pure prohibited-goods matcher in `@zaafran/domain` (ar/fr/en/Arabizi keywords, whole words, property tests).
+  - [x] Apply the matcher in the item create/update repository commands, setting `blocked_pending_review` in the same transaction, with integration tests per write path.
+  - [x] Add the audited admin review command and route (approve/reject) with matrix rows, and prove the onboarding checklist excludes blocked items.
+    - [x] Commit the held-item queue and review contracts (`@zaafran/contracts/admin-moderation`).
+    - [x] Add the idempotent, audited review command in `packages/db` (D-014).
+    - [x] Add the keyset held-item queue read in `packages/db`.
+    - [x] Add the admin routes, authorization-matrix rows and OpenAPI.
+    - [x] Prove both routes end to end against PostGIS through `startApi`, including the merchant onboarding count after each decision.
+  - [x] Re-screen the text when duplicating an approved item and prove the copy stays out of the onboarding count.
+  - [ ] Prove the customer-facing preview excludes blocked items.
+  - [x] Show the held status to merchants and give admins a review screen (ar/fr/en).
+    - [x] Explain the held status under the merchant item list badge.
+    - [x] Add the typed web client for the held-item queue and review.
+    - [x] Add the admin held-items screen with approve/reject and a required reason, and prove it in an auth e2e.
+- [x] M2-11 Staff roles (MER-23). Implement owner-managed, single-use invitations tied to a verified phone. Prove every role against both its own and another merchant's resources.
+  - [x] Commit the invitation, staff list, revoke and accept contracts (`@zaafran/contracts/merchant-staff`, D-015).
+  - [x] Add the invitation migration and owner-only create/list/revoke repository commands in `packages/db`, with hashed tokens and idempotent create. The API sends the SMS after commit, like the OTP. An open replay rotates the token and resends (D-015).
+  - [x] Add the phone-bound, single-use accept command and prove concurrency, expiry, revocation, phone mismatch and existing membership against PostGIS.
+  - [x] Add the API routes, authorization-matrix rows and OpenAPI, and prove each role at its own and another merchant.
+    - [x] Add the list, invite, revoke and accept routes with injected token and SMS services, matrix rows and OpenAPI.
+    - [x] Wire the routes in `startApi` with a real token generator and an invitation SMS adapter. Prove owner, manager, staff and merchant-B owner against PostGIS through `startApi`.
+  - [x] Add the owner staff screen and the invitee accept page (ar/fr/en) with an auth e2e and the design matrix.
+    - [x] Expose sent invitation tokens in the e2e auth harness and add the typed web client (`apps/web/src/merchant-staff/staff-http.ts`).
+    - [x] Add the owner staff page, the accept page, ar/fr/en messages and `e2e/auth-merchant-staff.spec.ts` with the design matrix.
+- [ ] M2-12 Seed twelve fictional bilingual Algiers restaurants with synthetic imagery and `is_demo`, then run production-built onboarding, the complete route matrix, and the design critic's theme/locale/viewport checks. Record local and PR evidence.
+  - [ ] Wire the authenticated onboarding tag, complete the dedicated authorization matrix, and register the design screen gate check. See `docs/evidence/m2/baseline-audit.md`.
 
 **Gate m2:**
 
@@ -127,7 +195,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
 - [ ] M4-3 Three-step checkout (CUS-12…15), plus the restaurant's pay-at-door settings (MER-18).
 - [ ] M4-4 Order placement and transitions in the API (§3, ORD-01…11), with concurrency integration tests.
 - [ ] M4-5 Realtime WebSocket with replay (RT-01…04).
-- [ ] M4-6 Restaurant live board (MER-03…07): sound gate, wake lock, offline replay, ticket printing.
+- [ ] M4-6 Restaurant live board (MER-03…07): sound gate, wake lock, offline replay, ticket printing. Extend `apps/api/test/merchant-roles.integration.test.ts` (`[MER-23]`) with the staff board rights.
 - [ ] M4-7 Timers and escalation jobs (MER-05, ORD-07, JOB-01…04).
 - [ ] M4-8 Notifications: web push + SMS adapters and fakes, the event matrix and board sound (SPEC §8, NOT-01…05, CUS-20).
 - [ ] M4-9 Customer tracking without the map yet (CUS-18 timeline part), and cancel (CUS-19).

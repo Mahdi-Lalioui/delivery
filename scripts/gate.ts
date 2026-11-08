@@ -13,6 +13,7 @@ const commands: ReadonlyMap<string, readonly string[]> = new Map([
   ["coverage:domain", ["test:domain:coverage"]],
   ["mutation:domain", ["test:mutation"]],
   ["property:1000", ["test:properties"]],
+  ["authz:matrix", ["test:authz"]],
 ]);
 
 const pnpmNames = new Set(["pnpm", "pnpm-native", "pnpm.cjs", "pnpm.exe"]);

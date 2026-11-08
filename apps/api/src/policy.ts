@@ -7,6 +7,7 @@ type Role =
 export interface Actor {
   readonly role: Role;
   readonly accountId: string;
+  readonly sessionId: string;
 }
 
 type Policy =
@@ -45,6 +46,12 @@ export function recordRoutePolicies(api: FastifyInstance): void {
   });
 }
 
+const requestActors = new WeakMap<FastifyRequest, Actor>();
+
+export function getRequestActor(request: FastifyRequest): Actor | undefined {
+  return requestActors.get(request);
+}
+
 export function enforceRoutePolicies(api: FastifyInstance, resolveActor?: ResolveActor): void {
   api.addHook("onRequest", async (request, reply) => {
     if (request.is404) return;
@@ -54,5 +61,6 @@ export function enforceRoutePolicies(api: FastifyInstance, resolveActor?: Resolv
     const actor = await resolveActor?.(request);
     if (!actor) return sendProblem(reply, 401);
     if (!policy.roles.includes(actor.role)) return sendProblem(reply, 403);
+    requestActors.set(request, actor);
   });
 }

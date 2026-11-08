@@ -46,6 +46,8 @@ jobs:
       - run: pnpm test:domain:coverage
       - run: pnpm test:properties
       - run: pnpm test:mutation
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e:auth --fail-on-flaky-tests
 
   browser-smoke:
     name: Browser smoke

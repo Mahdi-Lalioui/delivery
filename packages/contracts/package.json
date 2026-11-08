@@ -4,9 +4,49 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./admin-moderation": {
+      "types": "./src/admin-moderation.ts",
+      "default": "./dist/admin-moderation.js"
+    },
+    "./admin": {
+      "types": "./src/admin.ts",
+      "default": "./dist/admin.js"
+    },
+    "./auth": {
+      "types": "./src/auth.ts",
+      "default": "./dist/auth.js"
+    },
     "./health": {
       "types": "./src/health.ts",
       "default": "./dist/health.js"
+    },
+    "./media": {
+      "types": "./src/media.ts",
+      "default": "./dist/media.js"
+    },
+    "./menu": {
+      "types": "./src/menu.ts",
+      "default": "./dist/menu.js"
+    },
+    "./menu-price": {
+      "types": "./src/menu-price.ts",
+      "default": "./dist/menu-price.js"
+    },
+    "./merchant": {
+      "types": "./src/merchant.ts",
+      "default": "./dist/merchant.js"
+    },
+    "./merchant-staff": {
+      "types": "./src/merchant-staff.ts",
+      "default": "./dist/merchant-staff.js"
+    },
+    "./merchant-hours": {
+      "types": "./src/merchant-hours.ts",
+      "default": "./dist/merchant-hours.js"
+    },
+    "./menu-import": {
+      "types": "./src/menu-import.ts",
+      "default": "./dist/menu-import.js"
     }
   },
   "scripts": {

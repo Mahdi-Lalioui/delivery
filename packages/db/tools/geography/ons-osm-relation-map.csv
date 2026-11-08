@@ -1,0 +1,1542 @@
+ons_commune_code,wilaya_code,osm_relation_id,ons_name_fr,version,name_fr,admin_level,type,boundary,ref_ons,geometry_ways,status
+0101,1,4171602,ADRAR,19,Adrar,8,boundary,administrative,0101,4,confirmed_exact_ons_tag
+0102,1,4171622,TAMEST,12,Tamest,8,boundary,administrative,0102,4,confirmed_exact_ons_tag
+0104,1,4171617,REGGANE,16,Reggane,8,boundary,administrative,0104,9,confirmed_exact_ons_tag
+0105,1,4171611,IN ZEGHMIR,11,In Zghmir,8,boundary,administrative,0105,4,confirmed_exact_ons_tag
+0106,1,4171626,TIT,14,Tit,8,boundary,administrative,0106,4,confirmed_exact_ons_tag
+0108,1,4171627,TSABIT,14,Tsabit,8,boundary,administrative,0108,7,confirmed_exact_ons_tag
+0111,1,4171629,ZAOUIET KOUNTA,13,Zaouiet Kounta,8,boundary,administrative,0111,5,confirmed_exact_ons_tag
+0112,1,4171605,AOULEF,13,Aoulef,8,boundary,administrative,0112,4,confirmed_exact_ons_tag
+0113,1,4171628,TIMOKTEN,14,Timokten,8,boundary,administrative,0113,11,confirmed_exact_ons_tag
+0114,1,4171621,TAMANTIT,12,Tamentit,8,boundary,administrative,0114,6,confirmed_exact_ons_tag
+0115,1,4171609,FENOUGHIL,11,Fenoughil,8,boundary,administrative,0115,5,confirmed_exact_ons_tag
+0118,1,4171618,SALI,12,Sali,8,boundary,administrative,0118,4,confirmed_exact_ons_tag
+0119,1,4171603,AKABLI,14,Akabli,8,boundary,administrative,0119,4,confirmed_exact_ons_tag
+0121,1,4171614,OULED AHMED TIMMI,12,Ouled Ahmed Tammi,8,boundary,administrative,0121,5,confirmed_exact_ons_tag
+0122,1,4171607,BOUDA,12,Bouda,8,boundary,administrative,0122,4,confirmed_exact_ons_tag
+0126,1,4171619,SEBAA,14,Sebaa,8,boundary,administrative,0126,6,confirmed_exact_ons_tag
+0201,2,4295138,CHLEF,16,Chlef,8,boundary,administrative,0201,7,confirmed_exact_ons_tag
+0202,2,6532382,TENES,25,Ténès,8,boundary,administrative,0202,4,confirmed_exact_ons_tag
+0203,2,5147901,BENAIRIA,17,Benairia,8,boundary,administrative,0203,5,confirmed_exact_ons_tag
+0204,2,2785546,EL KARIMIA,18,El Karimia,8,boundary,administrative,0204,8,confirmed_exact_ons_tag
+0205,2,4833525,TADJENA,18,Tadjena,8,boundary,administrative,0205,6,confirmed_exact_ons_tag
+0206,2,4813599,TAOUGRITE,18,Taougrite,8,boundary,administrative,0206,6,confirmed_exact_ons_tag
+0207,2,5130869,BENI HAOUA,22,Beni Haoua,8,boundary,administrative,0207,7,confirmed_exact_ons_tag
+0208,2,4822051,SOBHA,18,Sobha,8,boundary,administrative,0208,7,confirmed_exact_ons_tag
+0209,2,2792071,HARCHOUN,18,Harchoun,8,boundary,administrative,0209,5,confirmed_exact_ons_tag
+0210,2,4826404,OULED FARES,20,Ouled Fares,8,boundary,administrative,0210,9,confirmed_exact_ons_tag
+0211,2,5151277,SIDI AKKACHA,22,Sidi Akkacha,8,boundary,administrative,0211,6,confirmed_exact_ons_tag
+0212,2,4564555,BOUKADIR,14,Boukadir,8,boundary,administrative,0212,8,confirmed_exact_ons_tag
+0213,2,5124256,BENI RACHED,16,Beni Rachid,8,boundary,administrative,0213,6,confirmed_exact_ons_tag
+0214,2,4836837,TALASSA,19,Talassa,8,boundary,administrative,0214,5,confirmed_exact_ons_tag
+0215,2,4830347,HARENFA,18,Harenfa,8,boundary,administrative,0215,6,confirmed_exact_ons_tag
+0216,2,5139279,OUED GOUSSINE,20,Oued Ghoussine,8,boundary,administrative,0216,6,confirmed_exact_ons_tag
+0217,2,4813363,DAHRA,18,Dahra,8,boundary,administrative,0217,8,confirmed_exact_ons_tag
+0218,2,4295685,OULED ABBES,12,Ouled Abbes,8,boundary,administrative,0218,4,confirmed_exact_ons_tag
+0219,2,2799177,SENDJAS,19,Sendjas,8,boundary,administrative,0219,9,confirmed_exact_ons_tag
+0220,2,5126947,ZEBOUDJA,24,Zeboudja,8,boundary,administrative,0220,11,confirmed_exact_ons_tag
+0221,2,4546198,OUED SLY,13,Oued Sly,8,boundary,administrative,0221,7,confirmed_exact_ons_tag
+0222,2,4844288,ABOU EL HASSEN,18,Abou El Hassen,8,boundary,administrative,0222,5,confirmed_exact_ons_tag
+0223,2,4813524,EL MARSA,20,El Marsa,8,boundary,administrative,0223,6,confirmed_exact_ons_tag
+0224,2,4542228,CHETTIA,14,Chettia,8,boundary,administrative,0224,3,confirmed_exact_ons_tag
+0225,2,4843814,SIDI ABDERRAHMANE,20,Sidi Abderrahmane,8,boundary,administrative,0225,5,confirmed_exact_ons_tag
+0226,2,4832928,MOUSSADEK,18,Moussadek,8,boundary,administrative,0226,5,confirmed_exact_ons_tag
+0227,2,2801336,EL HADJADJ,16,El Hadjadj,8,boundary,administrative,0227,2,confirmed_exact_ons_tag
+0228,2,5126924,LABIOD MEDJADJA,17,Labiodh Medjadja,8,boundary,administrative,0228,6,confirmed_exact_ons_tag
+0229,2,2789469,OUED FODDA,20,Oued Fodda,8,boundary,administrative,0229,7,confirmed_exact_ons_tag
+0230,2,2803637,OULED BEN.AEK,19,Ouled Ben Abdelkader,8,boundary,administrative,0230,9,confirmed_exact_ons_tag
+0231,2,5147952,BOUZGHAIA,17,Bouzeghaia,8,boundary,administrative,0231,5,confirmed_exact_ons_tag
+0232,2,4821631,AIN MERANE,17,Ain Merane,8,boundary,administrative,0232,5,confirmed_exact_ons_tag
+0233,2,4295551,OUM EL DROU,14,Oum Drou,8,boundary,administrative,0233,6,confirmed_exact_ons_tag
+0234,2,5130868,BREIRA,18,Breira,8,boundary,administrative,0234,4,confirmed_exact_ons_tag
+0235,2,2785325,BENI BOUATTAB,18,Beni Bouattab,8,boundary,administrative,0235,6,confirmed_exact_ons_tag
+0301,3,6546026,LAGHOUAT,9,Laghouat,8,boundary,administrative,0301,5,confirmed_exact_ons_tag
+0302,3,6546025,KSAR EL HIRANE,11,Ksar El Hirane,8,boundary,administrative,0302,4,confirmed_exact_ons_tag
+0303,3,6546015,BENACER BEN CHOHRA,11,Bennasser Benchohra,8,boundary,administrative,0303,6,confirmed_exact_ons_tag
+0304,3,6546031,SIDI MAKHLOUF,11,Sidi Makhlouf,8,boundary,administrative,0304,6,confirmed_exact_ons_tag
+0305,3,6546022,HASSI DALAA,11,Hassi Delaa,8,boundary,administrative,0305,7,confirmed_exact_ons_tag
+0306,3,6546023,HASSI R'MEL,11,Hassi R'Mel,8,boundary,administrative,0306,6,confirmed_exact_ons_tag
+0307,3,6546012,AIN MAHDI,10,Aïn Madhi,8,boundary,administrative,0307,9,confirmed_exact_ons_tag
+0308,3,6546032,TADJEMOUT,12,Tadjemout,8,boundary,administrative,0308,12,confirmed_exact_ons_tag
+0309,3,6546024,KHENEG,10,Kheneg,8,boundary,administrative,0309,6,confirmed_exact_ons_tag
+0310,59,6546020,GUELTAT SIDI SAAD,10,Gueltat Sidi Saad,8,boundary,administrative,0310,8,confirmed_exact_ons_tag
+0311,59,6546013,AIN SIDI ALI,10,Aïn Sidi Ali,8,boundary,administrative,0311,4,confirmed_exact_ons_tag
+0312,59,6546014,BEIDHA,13,Beidha,8,boundary,administrative,0312,6,confirmed_exact_ons_tag
+0313,59,6546016,BRIDA,9,Brida,8,boundary,administrative,0313,6,confirmed_exact_ons_tag
+0314,59,6546018,EL GHICHA,10,El Ghicha,8,boundary,administrative,0314,6,confirmed_exact_ons_tag
+0315,59,6546021,HADJ MECHERI,11,Hadj Mechri,8,boundary,administrative,0315,9,confirmed_exact_ons_tag
+0316,59,6546029,SEBGAG,10,Sebgag,8,boundary,administrative,0316,6,confirmed_exact_ons_tag
+0317,59,6546034,TAOUIALA,10,Taouiala,8,boundary,administrative,0317,5,confirmed_exact_ons_tag
+0318,3,6546033,TAJROUNA,10,Tadjrouna,8,boundary,administrative,0318,6,confirmed_exact_ons_tag
+0319,59,6546011,AFLOU,11,Aflou,8,boundary,administrative,0319,5,confirmed_exact_ons_tag
+0320,3,6546017,EL ASSAFIA,12,El Assafia,8,boundary,administrative,0320,6,confirmed_exact_ons_tag
+0321,59,6546028,OUED MORRA,10,Oued Morra,8,boundary,administrative,0321,4,confirmed_exact_ons_tag
+0322,59,6546027,OUED M' ZI,10,Oued M'zi,8,boundary,administrative,0322,4,confirmed_exact_ons_tag
+0323,3,6546019,EL HOUITA,10,El Houaita,8,boundary,administrative,0323,3,confirmed_exact_ons_tag
+0324,59,6546030,SIDI BOUZID,11,Sidi Bouzid,8,boundary,administrative,0324,6,confirmed_exact_ons_tag
+0401,4,4469695,OUM BOUAGHI,18,Oum El Bouaghi,8,boundary,administrative,0401,6,confirmed_exact_ons_tag
+0402,4,4486894,AIN BEIDA,14,Aïn Beïda,8,boundary,administrative,0402,3,confirmed_exact_ons_tag
+0403,4,3678573,AIN M'LILA,15,Ain M'lila,8,boundary,administrative,0403,7,confirmed_exact_ons_tag
+0404,4,4489885,BEHIR CHERGUI,15,Behir Chergui,8,boundary,administrative,0404,6,confirmed_exact_ons_tag
+0405,4,3669980,EL AMIRIA,14,El Amiria,8,boundary,administrative,0405,5,confirmed_exact_ons_tag
+0406,4,3669909,SIGUS,17,Sigus,8,boundary,administrative,0406,7,confirmed_exact_ons_tag
+0407,4,4494201,EL BELALA,12,El Belala,8,boundary,administrative,0407,6,confirmed_exact_ons_tag
+0408,4,4471690,AIN BABOUCHE,11,Aïn Babouche,8,boundary,administrative,0408,5,confirmed_exact_ons_tag
+0409,4,4489752,BERRICHE,12,Berriche,8,boundary,administrative,0409,8,confirmed_exact_ons_tag
+0410,4,4432661,OULED HAMLA,15,Ouled Hamla,8,boundary,administrative,0410,5,confirmed_exact_ons_tag
+0411,4,4491867,DHALAA,12,Dhalaa,8,boundary,administrative,0411,5,confirmed_exact_ons_tag
+0412,4,4470516,AIN KERCHA,11,Aïn Kercha,8,boundary,administrative,0412,5,confirmed_exact_ons_tag
+0413,4,4469769,HENCHIR TOUMGHANI,12,Hanchir Toumghani,8,boundary,administrative,0413,5,confirmed_exact_ons_tag
+0414,4,4491892,EL DJAZIA,12,El Djazia,8,boundary,administrative,0414,6,confirmed_exact_ons_tag
+0415,4,3671772,AIN DISS,14,Aïn Diss,8,boundary,administrative,0415,5,confirmed_exact_ons_tag
+0416,4,4486870,F'KIRINA,15,F'Kirina,8,boundary,administrative,0416,8,confirmed_exact_ons_tag
+0417,4,4432660,SOUK NAAMANE,13,Souk Naamane,8,boundary,administrative,0417,7,confirmed_exact_ons_tag
+0418,4,4489766,ZORG,14,Zorg,8,boundary,administrative,0418,7,confirmed_exact_ons_tag
+0419,4,4471633,EL FEDJOUDJ BOUGHARA SAOUDI,13,El Fedjoudj Boughrara Saoudi,8,boundary,administrative,0419,7,confirmed_exact_ons_tag
+0420,4,4469615,OULED ZOUAI,12,Ouled Zouai,8,boundary,administrative,0420,6,confirmed_exact_ons_tag
+0421,4,4432659,BIR CHOUHADA,14,Bir Chouhada,8,boundary,administrative,0421,6,confirmed_exact_ons_tag
+0422,4,4487146,KSAR SBAHI,15,Ksar Sbahi,8,boundary,administrative,0422,6,confirmed_exact_ons_tag
+0423,4,4491789,OUED NINI,12,Oued Nini,8,boundary,administrative,0423,6,confirmed_exact_ons_tag
+0424,4,4491932,MESKIANA,11,Meskiana,8,boundary,administrative,0424,6,confirmed_exact_ons_tag
+0425,4,4469737,AIN FAKROUN,12,Aïn Fakroun,8,boundary,administrative,0425,6,confirmed_exact_ons_tag
+0426,4,4491702,RAHIA,11,El Rahia,8,boundary,administrative,0426,5,confirmed_exact_ons_tag
+0427,4,4471647,AIN ZITOUN,16,Aïn Zitoun,8,boundary,administrative,0427,8,confirmed_exact_ons_tag
+0428,4,3672487,OULED GACEM,15,Ouled Gacem,8,boundary,administrative,0428,5,confirmed_exact_ons_tag
+0429,4,4469646,EL HARMILIA,11,El Harmilia,8,boundary,administrative,0429,5,confirmed_exact_ons_tag
+0501,5,4224144,BATNA,16,Batna,8,boundary,administrative,0501,6,confirmed_exact_ons_tag
+0502,5,5202030,GHASSIRA,14,Ghassira,8,boundary,administrative,0502,5,confirmed_exact_ons_tag
+0503,5,5195796,MAAFA,14,Maafa,8,boundary,administrative,0503,5,confirmed_exact_ons_tag
+0504,5,4864533,MEROUANA,14,Merouana,8,boundary,administrative,0504,6,confirmed_exact_ons_tag
+0505,5,5229467,SERIANA,14,Seriana,8,boundary,administrative,0505,6,confirmed_exact_ons_tag
+0506,5,5200833,MENAA,28,Menaa,8,boundary,administrative,0506,7,confirmed_exact_ons_tag
+0507,5,5230088,ELMADHER,15,El Madher,8,boundary,administrative,0507,6,confirmed_exact_ons_tag
+0508,5,4650420,TAZOULT,13,Tazoult,8,boundary,administrative,0508,5,confirmed_exact_ons_tag
+0509,5,5149366,N'GAOUS,14,N'Gaous,8,boundary,administrative,0509,6,confirmed_exact_ons_tag
+0510,5,5149244,GUIGBA,13,Guigba,8,boundary,administrative,0510,4,confirmed_exact_ons_tag
+0511,5,5204390,INOUGHISSENE,15,Inoughissen,8,boundary,administrative,0511,7,confirmed_exact_ons_tag
+0512,5,5234181,OUYOUN EL ASSAFIR,13,Ouyoun El Assafir,8,boundary,administrative,0512,6,confirmed_exact_ons_tag
+0513,5,5229598,DJERMA,15,Djerma,8,boundary,administrative,0513,6,confirmed_exact_ons_tag
+0514,60,5177042,BITAM,16,Bitam,8,boundary,administrative,0514,10,confirmed_exact_ons_tag
+0515,60,5160749,AZIL ABDELKADER,23,Abdelkader Azil,8,boundary,administrative,0515,10,confirmed_exact_ons_tag
+0516,5,5201972,ARRIS,18,Arris,8,boundary,administrative,0516,9,confirmed_exact_ons_tag
+0517,5,5204368,KIMMEL,17,Kimmel,8,boundary,administrative,0517,6,confirmed_exact_ons_tag
+0518,60,5180262,TILATOU,15,Tilatou,8,boundary,administrative,0518,6,confirmed_exact_ons_tag
+0519,5,5216386,AIN DJASSER,12,Aïn Djasser,8,boundary,administrative,0519,5,confirmed_exact_ons_tag
+0520,5,4727888,OULED SELLAM,18,Ouled Sellam,8,boundary,administrative,0520,7,confirmed_exact_ons_tag
+0521,5,5200635,TIGHERGHAR,14,Tigherghar,8,boundary,administrative,0521,5,confirmed_exact_ons_tag
+0522,5,5240863,AIN YAGOUT,16,Aïn Yagout,8,boundary,administrative,0522,6,confirmed_exact_ons_tag
+0523,5,4633179,FESDIS,19,Fesdis,8,boundary,administrative,0523,5,confirmed_exact_ons_tag
+0524,5,5176888,SEFIANE,17,Sefiane,8,boundary,administrative,0524,5,confirmed_exact_ons_tag
+0525,5,4730910,RAHBAT,16,Rahbat,8,boundary,administrative,0525,5,confirmed_exact_ons_tag
+0526,5,5201437,TIGHANIMINE,23,Tighanimine,8,boundary,administrative,0526,10,confirmed_exact_ons_tag
+0527,5,5147423,LEMSANE,16,Lemsen,8,boundary,administrative,0527,4,confirmed_exact_ons_tag
+0528,5,5207822,KSAR BELEZMA,17,Ksar Belezma,8,boundary,administrative,0528,5,confirmed_exact_ons_tag
+0529,60,5177086,SEGGANA,17,Seggana,8,boundary,administrative,0529,6,confirmed_exact_ons_tag
+0530,5,5231289,ICHEMOUL,16,Ichemoul,8,boundary,administrative,0530,7,confirmed_exact_ons_tag
+0531,5,5234253,FOUM TOUB,16,Foum Toub,8,boundary,administrative,0531,5,confirmed_exact_ons_tag
+0532,5,5195901,BENI FOUDHALA EL HAKANIA,18,Beni Foudhala El Hakania,8,boundary,administrative,0532,7,confirmed_exact_ons_tag
+0533,5,5226549,OUED EL MA,16,Oued El Ma,8,boundary,administrative,0533,8,confirmed_exact_ons_tag
+0534,5,4730802,TALKHAMT,21,Talkhamt,8,boundary,administrative,0534,8,confirmed_exact_ons_tag
+0535,5,5196080,BOUZINA,22,Bouzina,8,boundary,administrative,0535,8,confirmed_exact_ons_tag
+0536,5,5241205,CHEMORA,19,Chemora,8,boundary,administrative,0536,7,confirmed_exact_ons_tag
+0537,5,4633383,OUED CHAABA,18,Oued Chaaba,8,boundary,administrative,0537,6,confirmed_exact_ons_tag
+0538,5,5147557,TAXLENT,16,Taxlent,8,boundary,administrative,0538,5,confirmed_exact_ons_tag
+0539,5,5175666,GOSBAT,17,Gosbat,8,boundary,administrative,0539,11,confirmed_exact_ons_tag
+0540,5,5176250,OULED AOUF,19,Ouled Aouf,8,boundary,administrative,0540,6,confirmed_exact_ons_tag
+0541,5,5175546,BOUMAGUEUR,19,Boumagueur,8,boundary,administrative,0541,11,confirmed_exact_ons_tag
+0542,60,5176213,BARIKA,19,Barika,8,boundary,administrative,0542,6,confirmed_exact_ons_tag
+0543,60,5175823,DJEZZAR,21,Djezzar,8,boundary,administrative,0543,13,confirmed_exact_ons_tag
+0544,5,5204381,T’KOUT,17,T'Kout,8,boundary,administrative,0544,5,confirmed_exact_ons_tag
+0545,5,5181217,AIN TOUTA,18,Aïn Touta,8,boundary,administrative,0545,7,confirmed_exact_ons_tag
+0546,5,4864578,HIDOUSSA,14,Hidoussa,8,boundary,administrative,0546,6,confirmed_exact_ons_tag
+0547,5,5201404,TENIET EL ABED,18,Teniet El Abed,8,boundary,administrative,0547,5,confirmed_exact_ons_tag
+0548,5,5234317,OUED TAGA,17,Oued Taga,8,boundary,administrative,0548,9,confirmed_exact_ons_tag
+0549,5,5241219,OULED FADHEL,17,Ouled Fadel,8,boundary,administrative,0549,5,confirmed_exact_ons_tag
+0550,5,5240919,TIMGAD,16,Timgad,8,boundary,administrative,0550,7,confirmed_exact_ons_tag
+0551,5,5149283,RAS EL AIOUN,20,Ras El Aïoun,8,boundary,administrative,0551,6,confirmed_exact_ons_tag
+0552,5,5201376,CHIR,18,Chir,8,boundary,administrative,0552,4,confirmed_exact_ons_tag
+0553,5,5149321,OULED SI SLIMANE,19,Ouled Si Slimane,8,boundary,administrative,0553,7,confirmed_exact_ons_tag
+0554,5,5226646,ZANAT EL BEIDA,15,Zana El Beida,8,boundary,administrative,0554,7,confirmed_exact_ons_tag
+0555,60,5177026,AMDOUKEL,14,M'Doukel,8,boundary,administrative,0555,2,confirmed_exact_ons_tag
+0556,60,5175812,OULED AMMAR,16,Ouled Ammar,8,boundary,administrative,0556,4,confirmed_exact_ons_tag
+0557,5,5209309,EL HASSI,20,El Hassi,8,boundary,administrative,0557,6,confirmed_exact_ons_tag
+0558,5,5229570,LAZROU,16,Lazrou,8,boundary,administrative,0558,5,confirmed_exact_ons_tag
+0559,5,5240975,BOUMIA,16,Boumia,8,boundary,administrative,0559,6,confirmed_exact_ons_tag
+0560,5,5241047,BOULHILET,16,Boulehilet,8,boundary,administrative,0560,6,confirmed_exact_ons_tag
+0561,5,5195935,LARBAA,16,Larbaa,8,boundary,administrative,0561,3,confirmed_exact_ons_tag
+0601,6,2094122,BEJAIA,44,Béjaïa,8,boundary,administrative,0601,13,confirmed_exact_ons_tag
+0602,6,4112937,AMIZOUR,23,Amizour,8,boundary,administrative,0602,8,confirmed_exact_ons_tag
+0603,6,4112903,FERAOUN,19,Feraoun,8,boundary,administrative,0603,6,confirmed_exact_ons_tag
+0604,6,4067932,TAOURIRT IGHIL,20,Taourirt Ighil,8,boundary,administrative,0604,5,confirmed_exact_ons_tag
+0605,6,4069657,CHELLATA,19,Chellata,8,boundary,administrative,0605,6,confirmed_exact_ons_tag
+0606,6,4069720,TAMOKRA,19,Tamokra,8,boundary,administrative,0606,5,confirmed_exact_ons_tag
+0607,6,4070118,TIMEZRIT,26,Timezrit,8,boundary,administrative,0607,6,confirmed_exact_ons_tag
+0608,6,4112879,SOUK EL TENINE,17,Souk El Ténine,8,boundary,administrative,0608,5,confirmed_exact_ons_tag
+0609,6,4070101,M'CISNA,21,M'Cisna,8,boundary,administrative,0609,6,confirmed_exact_ons_tag
+0610,6,4069489,TINEBDAR,23,Thinabdher,8,boundary,administrative,0610,5,confirmed_exact_ons_tag
+0611,6,4112952,TICHY,17,Tichy,8,boundary,administrative,0611,5,confirmed_exact_ons_tag
+0612,6,4112934,SEMAOUN,18,Semaoun,8,boundary,administrative,0612,6,confirmed_exact_ons_tag
+0613,6,4112944,KENDIRA,15,Kendira,8,boundary,administrative,0613,5,confirmed_exact_ons_tag
+0614,6,4069500,TIFRA,17,Tifra,8,boundary,administrative,0614,5,confirmed_exact_ons_tag
+0615,6,4069668,IGHRAM,18,Ighram,8,boundary,administrative,0615,5,confirmed_exact_ons_tag
+0616,6,4069971,AMALOU,16,Amalou,8,boundary,administrative,0616,4,confirmed_exact_ons_tag
+0617,6,4069801,IGHIL ALI,19,Ighil Ali,8,boundary,administrative,0617,6,confirmed_exact_ons_tag
+0618,6,4067950,IFELAIN ILMATHEN,25,Fenaia Ilmaten,8,boundary,administrative,0618,7,confirmed_exact_ons_tag
+0619,6,4067893,TOUDJA,16,Toudja,8,boundary,administrative,0619,6,confirmed_exact_ons_tag
+0620,6,4112864,DARGUINA,16,Darguina,8,boundary,administrative,0620,7,confirmed_exact_ons_tag
+0621,6,4069491,SIDI AYAD,21,Sidi Ayad,8,boundary,administrative,0621,4,confirmed_exact_ons_tag
+0622,6,4112961,AOKAS,14,Aokas,8,boundary,administrative,0622,5,confirmed_exact_ons_tag
+0623,6,4112900,BENI DJELLIL,18,Beni Djellil,8,boundary,administrative,0623,5,confirmed_exact_ons_tag
+0624,6,4067907,ADEKAR,20,Adekar,8,boundary,administrative,0624,7,confirmed_exact_ons_tag
+0625,6,4069688,AKBOU,19,Akbou,8,boundary,administrative,0625,7,confirmed_exact_ons_tag
+0626,6,4070075,SEDDOUK,19,Seddouk,8,boundary,administrative,0626,6,confirmed_exact_ons_tag
+0627,6,4069751,TAZMALT,18,Tazmalt,8,boundary,administrative,0627,5,confirmed_exact_ons_tag
+0628,6,4069831,AIT R’ZINE,18,Aït R'Zine,8,boundary,administrative,0628,5,confirmed_exact_ons_tag
+0629,6,4069536,CHEMINI,19,Chemini,8,boundary,administrative,0629,4,confirmed_exact_ons_tag
+0630,6,4069543,SOUK OUFELLA,22,Souk Oufella,8,boundary,,0630,5,confirmed_exact_ons_tag
+0631,6,4112874,TASKRIOUT,20,Taskriout,8,boundary,administrative,0631,6,confirmed_exact_ons_tag
+0632,6,4069542,TIBANE,19,Tibane,8,boundary,administrative,0632,4,confirmed_exact_ons_tag
+0633,6,4112949,TALA HAMZA,16,Tala Hamza,8,boundary,administrative,0633,4,confirmed_exact_ons_tag
+0634,6,4112945,BARBACHA,15,Barbacha,8,boundary,administrative,0634,5,confirmed_exact_ons_tag
+0635,6,4067904,BENI KSILA,20,Beni Ksila,8,boundary,administrative,0635,7,confirmed_exact_ons_tag
+0636,6,4069556,OUZELLAGUEN,17,Ouzellaguen,8,boundary,administrative,0636,6,confirmed_exact_ons_tag
+0637,6,4069950,BOUHAMZA,19,Bouhamza,8,boundary,administrative,0637,7,confirmed_exact_ons_tag
+0638,6,2170758,BENI MELIKECHE,16,Beni Melikeche,8,boundary,administrative,0638,5,confirmed_exact_ons_tag
+0639,6,4069476,SIDI AICH,26,Sidi-Aïch,8,boundary,administrative,0639,5,confirmed_exact_ons_tag
+0640,6,4067937,EL KSEUR,21,El Kseur,8,boundary,administrative,0640,7,confirmed_exact_ons_tag
+0641,6,4112877,MELBOU,17,Melbou,8,boundary,administrative,0641,5,confirmed_exact_ons_tag
+0642,6,4069527,AKFADOU,23,Akfadou,8,boundary,administrative,0642,7,confirmed_exact_ons_tag
+0643,6,4069493,LEFLAY,23,Leflaye,8,boundary,administrative,0643,7,confirmed_exact_ons_tag
+0644,6,4112854,KHERRATA,16,Kherrata,8,boundary,administrative,0644,5,confirmed_exact_ons_tag
+0645,6,4112846,DRAA EL KAID,16,Draâ El-Kaïd,8,boundary,administrative,0645,8,confirmed_exact_ons_tag
+0646,6,1283404,TAMRIDJET,15,Tamridjet,8,boundary,administrative,0646,5,confirmed_exact_ons_tag
+0647,6,4112875,AIT SMAIL,13,Ait Smaïl,8,boundary,administrative,0647,4,confirmed_exact_ons_tag
+0648,6,4112950,BOUKHLIFA,16,Boukhelifa,8,boundary,administrative,0648,8,confirmed_exact_ons_tag
+0649,6,4112960,TIZI N’BERBER,15,Tizi N'Berber,8,boundary,administrative,0649,5,confirmed_exact_ons_tag
+0650,6,4070138,BENI MAOUCHE,20,Beni Maouche,8,boundary,administrative,0650,9,confirmed_exact_ons_tag
+0651,6,4067884,OUED GHIR,28,Oued Ghir,8,boundary,administrative,0651,5,confirmed_exact_ons_tag
+0652,6,4069763,BOUDJELLIL,17,Boudjellil,8,boundary,administrative,0652,8,confirmed_exact_ons_tag
+0701,7,4120759,BISKRA,18,Biskra,8,boundary,administrative,0701,6,confirmed_exact_ons_tag
+0702,7,4120782,OUMACH,16,Oumache,8,boundary,administrative,0702,7,confirmed_exact_ons_tag
+0703,61,4120762,BRANIS,18,Branis,8,boundary,administrative,0703,6,confirmed_exact_ons_tag
+0704,7,4120763,CHETMA,16,Chetma,8,boundary,administrative,0704,4,confirmed_exact_ons_tag
+0711,7,4120786,SIDI OKBA,16,Sidi Okba,8,boundary,administrative,0711,6,confirmed_exact_ons_tag
+0712,7,4120777,M'CHOUNECHE,18,M'Chouneche,8,boundary,administrative,0712,8,confirmed_exact_ons_tag
+0713,7,4120770,EL HAOUCH,15,El Haouch,8,boundary,administrative,0713,5,confirmed_exact_ons_tag
+0714,7,4120756,AIN NAGA,16,Ain Naga,8,boundary,administrative,0714,6,confirmed_exact_ons_tag
+0715,7,4120788,ZERIBET EL OUED,15,Zeribet El Oued,8,boundary,administrative,0715,7,confirmed_exact_ons_tag
+0716,7,4120767,EL FEIDH,13,El Feidh,8,boundary,administrative,0716,5,confirmed_exact_ons_tag
+0717,61,4120771,EL KANTARA,19,El Kantara,8,boundary,administrative,0717,7,confirmed_exact_ons_tag
+0718,61,4120757,AIN ZAATOUT,19,Aïn Zaatout,8,boundary,administrative,0718,6,confirmed_exact_ons_tag
+0719,61,4120772,EL OUTAYA,15,El Outaya,8,boundary,administrative,0719,7,confirmed_exact_ons_tag
+0720,61,4120765,DJEMORAH,17,Djemorah,8,boundary,administrative,0720,5,confirmed_exact_ons_tag
+0721,7,4120787,TOLGA,18,Tolga,8,boundary,administrative,0721,15,confirmed_exact_ons_tag
+0722,7,4120776,LIOUA,15,Lioua,8,boundary,administrative,0722,7,confirmed_exact_ons_tag
+0723,7,4120775,LICHANA,15,Lichana,8,boundary,administrative,0723,4,confirmed_exact_ons_tag
+0724,7,4120783,OURLAL,15,Ourlal,8,boundary,administrative,0724,4,confirmed_exact_ons_tag
+0725,7,4120778,M'LILI,15,M'Lili,8,boundary,administrative,0725,5,confirmed_exact_ons_tag
+0726,7,4120773,FOUGHALA,14,Foughala,8,boundary,administrative,0726,4,confirmed_exact_ons_tag
+0727,7,4120760,BORDJ BEN AZZOUZ,14,Bordj Ben Azzouz,8,boundary,administrative,0727,4,confirmed_exact_ons_tag
+0728,7,4120779,M’ZIRAA,19,M'Ziraa,8,boundary,administrative,0728,6,confirmed_exact_ons_tag
+0729,7,4120761,BOUCHAGROUN,14,Bouchagroune,8,boundary,administrative,0729,6,confirmed_exact_ons_tag
+0730,7,4120780,MEKHADMA,19,Mekhadma,8,boundary,administrative,0730,5,confirmed_exact_ons_tag
+0731,7,4120768,EL GHROUS,14,El Ghrous,8,boundary,administrative,0731,6,confirmed_exact_ons_tag
+0732,7,4120769,EL HADJEB,16,El Hadjeb,8,boundary,administrative,0732,6,confirmed_exact_ons_tag
+0733,7,4120774,KHENGHET SIDI NADJI,16,Khenguet Sidi Nadji,8,boundary,administrative,0733,5,confirmed_exact_ons_tag
+0801,8,6530988,BECHAR,17,Béchar,8,boundary,administrative,0801,5,confirmed_exact_ons_tag
+0802,8,6530992,ERG FERRADJ,17,Erg Ferradj,8,boundary,administrative,0802,6,confirmed_exact_ons_tag
+0804,8,6530999,MERIDJA,17,Meridja,8,boundary,administrative,0804,6,confirmed_exact_ons_tag
+0806,8,6530997,LAHMAR,13,Lahmar,8,boundary,administrative,0806,4,confirmed_exact_ons_tag
+0809,8,6530998,MECHRAA H. BOUMEDIENE,13,Mechraa Houari Boumediene,8,boundary,administrative,0809,3,confirmed_exact_ons_tag
+0810,8,6530994,KENADSA,18,Kenadsa,8,boundary,administrative,0810,6,confirmed_exact_ons_tag
+0813,8,6531002,TAGHIT,16,Taghit,8,boundary,administrative,0813,6,confirmed_exact_ons_tag
+0815,8,6530987,BOUKAIS,17,Boukais,8,boundary,administrative,0815,8,confirmed_exact_ons_tag
+0816,8,6531000,MOGHEUL,14,Mougheul,8,boundary,administrative,0816,6,confirmed_exact_ons_tag
+0817,8,6530985,ABADLA,15,Abadla,8,boundary,administrative,0817,5,confirmed_exact_ons_tag
+0821,8,6530990,BENI OUNIF,27,Béni Ounif,8,boundary,administrative,0821,17,confirmed_exact_ons_tag
+0901,9,3823201,BLIDA,29,Blida,8,multipolygon,administrative,0901,14,confirmed_exact_ons_tag
+0902,9,3827714,CHEBLI,17,Chebli,8,boundary,administrative,0902,7,confirmed_exact_ons_tag
+0903,9,3827717,BOUINAN,19,Bouinan,8,boundary,administrative,0903,6,confirmed_exact_ons_tag
+0904,9,3825025,OUED EL ALLEUG,19,Oued El Alleug,8,boundary,administrative,0904,7,confirmed_exact_ons_tag
+0907,9,3825582,OULED YAICH,17,Ouled Yaïch,8,boundary,administrative,0907,4,confirmed_exact_ons_tag
+0908,9,2621789,CHREA,20,Chréa,8,boundary,administrative,0908,9,confirmed_exact_ons_tag
+0910,9,2614958,EL AFFROUN,13,El Affroun,8,boundary,administrative,0910,5,confirmed_exact_ons_tag
+0911,9,2621615,CHIFFA,14,Chiffa,8,boundary,administrative,0911,6,confirmed_exact_ons_tag
+0912,9,2621816,HAMMAM MELOUANE,14,Hammam Melouane,8,boundary,administrative,0912,9,confirmed_exact_ons_tag
+0913,9,3823981,BEN KHELIL,22,Ben Khellil,8,boundary,administrative,0913,8,confirmed_exact_ons_tag
+0914,9,3827610,SOUMAA,12,Soumaa,8,boundary,administrative,0914,5,confirmed_exact_ons_tag
+0916,9,2617049,MOUZAIA,14,Mouzaia,8,boundary,administrative,0916,7,confirmed_exact_ons_tag
+0917,9,3830116,SOUHANE,13,Souhane,8,boundary,administrative,0917,6,confirmed_exact_ons_tag
+0918,9,1299236,MEFTAH,22,Meftah,8,boundary,administrative,0918,10,confirmed_exact_ons_tag
+0919,9,3828802,OULED SLAMA,16,Ouled Slama,8,boundary,administrative,0919,7,confirmed_exact_ons_tag
+0920,9,3823980,BOUFARIK,22,Boufarik,8,boundary,administrative,0920,8,confirmed_exact_ons_tag
+0921,9,1299237,LARBAA,18,Larbaa,8,boundary,administrative,0921,10,confirmed_exact_ons_tag
+0922,9,2614832,OUED DJER,17,Oued Djer,8,boundary,administrative,0922,6,confirmed_exact_ons_tag
+0923,9,3825351,BENI TAMOU,13,Beni Tamou,8,boundary,administrative,0923,5,confirmed_exact_ons_tag
+0924,9,2621697,BOUARFA,15,Bouarfa,8,boundary,administrative,0924,11,confirmed_exact_ons_tag
+0925,9,3825648,BENI MERAD,16,Beni Mered,8,boundary,administrative,0925,6,confirmed_exact_ons_tag
+0926,9,2623687,BOUGARA,16,Bougara,8,boundary,administrative,0926,9,confirmed_exact_ons_tag
+0927,9,3827421,GUEROUAOU,16,Guerrouaou,8,boundary,administrative,0927,5,confirmed_exact_ons_tag
+0928,9,2620528,AIN ROMANA,16,Aïn Romana,8,boundary,administrative,0928,6,confirmed_exact_ons_tag
+0929,9,1299267,DJEBABRA,18,Djebabra,8,boundary,administrative,0929,5,confirmed_exact_ons_tag
+1001,10,3416774,BOUIRA,19,Bouira,8,boundary,administrative,1001,8,confirmed_exact_ons_tag
+1002,10,3414084,EL ASNAM,12,El Asnam,8,boundary,administrative,1002,7,confirmed_exact_ons_tag
+1003,10,3443260,GUERROUMA,12,Guerrouma,8,boundary,administrative,1003,6,confirmed_exact_ons_tag
+1004,10,3435106,SOUK EL KHEMIS,10,Souk El Khemis,8,boundary,administrative,1004,5,confirmed_exact_ons_tag
+1005,10,3459499,KADIRIA,13,Kadiria,8,boundary,administrative,1005,7,confirmed_exact_ons_tag
+1006,10,3390920,AHNIF,15,Ahnif,8,boundary,administrative,1006,6,confirmed_exact_ons_tag
+1007,10,3202071,DIRAH,13,Dirah,8,boundary,administrative,1007,5,confirmed_exact_ons_tag
+1008,10,3416156,AIT LAAZIZ,15,Aït Laaziz,8,boundary,administrative,1008,6,confirmed_exact_ons_tag
+1009,10,3414766,TAGHZOUT,13,Taghzout,8,boundary,administrative,1009,6,confirmed_exact_ons_tag
+1010,10,3279505,RAOURAOUA,17,Raouraoua,8,boundary,administrative,1010,6,confirmed_exact_ons_tag
+1011,10,3201914,MEZDOUR,15,Mezdour,8,boundary,administrative,1011,6,confirmed_exact_ons_tag
+1012,10,3414631,HAIZER,12,Haizer,8,boundary,administrative,1012,5,confirmed_exact_ons_tag
+1013,10,3827782,LAKHDARIA,12,Lakhdaria,8,boundary,administrative,1013,5,confirmed_exact_ons_tag
+1014,10,3445352,MAALA,12,Maala,8,boundary,administrative,1014,5,confirmed_exact_ons_tag
+1015,10,3403218,EL HACHIMIA,14,El Hachimia,8,boundary,administrative,1015,9,confirmed_exact_ons_tag
+1016,10,3422623,AOMAR,13,Aomar,8,boundary,administrative,1016,6,confirmed_exact_ons_tag
+1017,10,3397401,CHORFA,12,Chorfa,8,boundary,administrative,1017,5,confirmed_exact_ons_tag
+1018,10,3399110,BORDJ OKHRISS,11,Bordj Oukhris,8,boundary,administrative,1018,4,confirmed_exact_ons_tag
+1019,10,3412721,EL ADJIBA,12,El Adjiba,8,boundary,administrative,1019,6,confirmed_exact_ons_tag
+1020,10,3400553,EL HAKIMIA,10,El Hakimia,8,boundary,administrative,1020,5,confirmed_exact_ons_tag
+1021,10,3302416,EL KHABOUZIA,11,El Khabouzia,8,boundary,administrative,1021,6,confirmed_exact_ons_tag
+1022,10,3403768,AHL EL KSAR,13,Ahl El Ksar,8,boundary,administrative,1022,4,confirmed_exact_ons_tag
+1023,10,3445431,BOUDERBALA,13,Bouderbala,8,boundary,administrative,1023,6,confirmed_exact_ons_tag
+1024,10,3441846,ZBARBAR,11,Zbarbar,8,boundary,administrative,1024,5,confirmed_exact_ons_tag
+1025,10,3420998,AIN EL HADJAR,14,Aïn El Hadjar,8,boundary,administrative,1025,6,confirmed_exact_ons_tag
+1026,10,3423129,DJEBAHIA,12,Djebahia,8,boundary,administrative,1026,7,confirmed_exact_ons_tag
+1027,10,3397589,AGHBALOU,15,Aghbalou,8,boundary,administrative,1027,7,confirmed_exact_ons_tag
+1028,10,2971955,TAGUEDITE,14,Taguedit,8,boundary,administrative,1028,6,confirmed_exact_ons_tag
+1029,10,3421330,AIN TURK,12,Ain Turk,8,boundary,administrative,1029,5,confirmed_exact_ons_tag
+1030,10,3397675,SAHARIDJ,16,Saharidj,8,boundary,administrative,1030,8,confirmed_exact_ons_tag
+1031,10,3279197,DECHMIA,12,Dechmia,8,boundary,administrative,1031,7,confirmed_exact_ons_tag
+1032,10,3279012,RIDANE,10,Ridane,8,boundary,administrative,1032,7,confirmed_exact_ons_tag
+1033,10,3413543,BECHLOUL,11,Bechloul,8,boundary,administrative,1033,6,confirmed_exact_ons_tag
+1034,10,3443670,BOUKRAM,13,Boukram,8,boundary,administrative,1034,8,confirmed_exact_ons_tag
+1035,10,3303478,AIN BESSAM,18,Aïn Bessam,8,boundary,administrative,1035,9,confirmed_exact_ons_tag
+1036,10,3297140,BIR GHBALOU,10,Bir Ghbalou,8,boundary,administrative,1036,4,confirmed_exact_ons_tag
+1037,10,3398694,M'CHEDALLAH,11,M'Chedallah,8,boundary,administrative,1037,6,confirmed_exact_ons_tag
+1038,10,3303641,SOUR EL GHOZLANE,12,Sour El Ghozlane,8,boundary,administrative,1038,7,confirmed_exact_ons_tag
+1039,10,3278688,MAAMORA,12,Mamora,8,boundary,administrative,1039,6,confirmed_exact_ons_tag
+1040,10,3398839,OULED RACHED,14,Ouled Rached,8,boundary,administrative,1040,7,confirmed_exact_ons_tag
+1041,10,3420252,AIN LALOUI,12,Aïn Laloui,8,boundary,administrative,1041,4,confirmed_exact_ons_tag
+1042,10,3202034,HADJERA ZERGA,13,Hadjera Zergua,8,boundary,administrative,1042,4,confirmed_exact_ons_tag
+1043,10,3390977,ATH MANSOUR,16,Ath Mansour,8,boundary,administrative,1043,7,confirmed_exact_ons_tag
+1044,10,3435135,EL MOKRANI,14,El Mokrani,8,boundary,administrative,1044,6,confirmed_exact_ons_tag
+1045,10,3403611,OUED EL BERDI,13,Oued El Bardi,8,boundary,administrative,1045,4,confirmed_exact_ons_tag
+1101,11,4175374,TAMENGHASSET,16,Tamanrasset,8,boundary,administrative,1101,5,confirmed_exact_ons_tag
+1102,11,4175367,ABALESSA,12,Abalessa,8,boundary,administrative,1102,6,confirmed_exact_ons_tag
+1105,11,4175369,IDELES,16,Idles,8,boundary,administrative,1105,8,confirmed_exact_ons_tag
+1106,11,4175375,TAZROUK,13,Tazrouk,8,boundary,administrative,1106,6,confirmed_exact_ons_tag
+1109,11,4175370,IN AMGUEL,14,In Amguel,8,boundary,administrative,1109,8,confirmed_exact_ons_tag
+1201,12,2814580,TEBESSA,20,Tébessa,8,boundary,administrative,1201,7,confirmed_exact_ons_tag
+1202,62,6618831,BIR EL ATER,14,Bir El Ater,8,boundary,administrative,1202,11,confirmed_exact_ons_tag
+1203,12,6618834,CHERIA,10,Cheria,8,boundary,administrative,1203,5,confirmed_exact_ons_tag
+1204,12,6618851,STAH GUENTIS,10,Stah Guentis,8,boundary,administrative,1204,8,confirmed_exact_ons_tag
+1205,12,6618835,EL AOUINET,11,El Aouinet,8,boundary,administrative,1205,9,confirmed_exact_ons_tag
+1206,12,6618836,EL HOUIDJBET,12,El Houidjbet,8,boundary,administrative,1206,6,confirmed_exact_ons_tag
+1207,12,6618850,SAFSAF EL OUESRA,12,Safsaf El Ouesra,8,boundary,administrative,1207,9,confirmed_exact_ons_tag
+1208,12,6618844,HAMMAMET,13,Hammamet,8,boundary,administrative,1208,5,confirmed_exact_ons_tag
+1209,62,6618846,NEGRINE,12,Negrine,8,boundary,administrative,1209,7,confirmed_exact_ons_tag
+1210,12,6618830,BIR MOKADEM,12,Bir Mokkadem,8,boundary,administrative,1210,6,confirmed_exact_ons_tag
+1211,12,6618837,EL KOUIF,12,El Kouif,8,boundary,administrative,1211,7,confirmed_exact_ons_tag
+1212,12,6618845,MORSOTT,11,Morsott,8,boundary,administrative,1212,8,confirmed_exact_ons_tag
+1213,12,6618841,EL OGLA,11,El Ogla,8,boundary,administrative,1213,4,confirmed_exact_ons_tag
+1214,12,6618829,BIR DHEHEB,11,Bir Dheb,8,boundary,administrative,1214,5,confirmed_exact_ons_tag
+1215,62,6618847,EL OGLA EL MALHA,11,Ogla Melha,8,boundary,administrative,1215,7,confirmed_exact_ons_tag
+1216,12,6618843,GORRIGUER,11,Guorriguer,8,boundary,administrative,1216,9,confirmed_exact_ons_tag
+1217,12,6618828,BEKKARIA,11,Bekkaria,8,boundary,administrative,1217,7,confirmed_exact_ons_tag
+1218,12,6618832,BOUKHADRA,11,Boukhadra,8,boundary,administrative,1218,4,confirmed_exact_ons_tag
+1219,12,6618848,OUENZA,13,Ouenza,8,boundary,administrative,1219,7,confirmed_exact_ons_tag
+1220,12,6618838,EL MA EL BIODH,11,El Ma Labiodh,8,boundary,administrative,1220,6,confirmed_exact_ons_tag
+1221,12,6618849,OUM ALI,12,Oum Ali,8,boundary,administrative,1221,6,confirmed_exact_ons_tag
+1222,12,6618852,THLIDJEN,11,Tlidjene,8,boundary,administrative,1222,6,confirmed_exact_ons_tag
+1223,12,6618826,AIN ZERGA,14,Aïn Zerga,8,boundary,administrative,1223,7,confirmed_exact_ons_tag
+1224,12,6618839,EL MERIDJ,12,El Meridj,8,boundary,administrative,1224,7,confirmed_exact_ons_tag
+1225,12,6618833,BOULHEF DYR,12,Boulhaf Dir,8,boundary,administrative,1225,6,confirmed_exact_ons_tag
+1226,12,6618827,BEDJEN,11,Bedjene,8,boundary,administrative,1226,7,confirmed_exact_ons_tag
+1227,12,6618840,EL MEZERAA,12,El Mezeraa,8,boundary,administrative,1227,7,confirmed_exact_ons_tag
+1228,62,6618842,FERKANE,11,Ferkane,8,boundary,administrative,1228,4,confirmed_exact_ons_tag
+1301,13,4291172,TLEMCEN,28,Tlemcen,8,boundary,administrative,1301,10,confirmed_exact_ons_tag
+1302,13,5265113,BENI MESTER,21,Beni Mester,8,boundary,administrative,1302,12,confirmed_exact_ons_tag
+1303,13,6666550,AIN TELLOUT,17,Aïn Tallout,8,boundary,administrative,1303,10,confirmed_exact_ons_tag
+1304,13,6666575,REMCHI,15,Remchi,8,boundary,administrative,1304,8,confirmed_exact_ons_tag
+1305,13,6666563,EL FEHOUL,15,El Fehoul,8,boundary,administrative,1305,5,confirmed_exact_ons_tag
+1306,13,6666576,SABRA,15,Sabra,8,boundary,administrative,1306,6,confirmed_exact_ons_tag
+1307,13,6666565,GHAZAOUET,14,Ghazaouet,8,boundary,administrative,1307,11,confirmed_exact_ons_tag
+1308,13,6666582,SOUANI,18,Souani,8,boundary,administrative,1308,5,confirmed_exact_ons_tag
+1309,13,6666562,DJEBALA,15,Djebala,8,boundary,administrative,1309,6,confirmed_exact_ons_tag
+1310,63,6666560,EL GOR,16,El Gor,8,boundary,administrative,1310,6,confirmed_exact_ons_tag
+1311,13,6666572,OUED LAKHDAR,15,Oued Lakhdar,8,boundary,administrative,1311,4,confirmed_exact_ons_tag
+1312,13,6666547,AIN FEZZA,16,Aïn Fezza,8,boundary,administrative,1312,7,confirmed_exact_ons_tag
+1313,13,6666573,OULED MIMOUN,16,Ouled Mimoun,8,boundary,administrative,1313,5,confirmed_exact_ons_tag
+1314,13,6666544,AMIEUR,16,Amieur,8,boundary,administrative,1314,10,confirmed_exact_ons_tag
+1315,13,6666551,AIN YOUCEF,16,Aïn Youcef,8,boundary,administrative,1315,6,confirmed_exact_ons_tag
+1316,13,6666586,ZENATA,16,Zenata,8,boundary,administrative,1316,6,confirmed_exact_ons_tag
+1317,13,6666558,BENI SNOUS,15,Beni Snous,8,boundary,administrative,1317,6,confirmed_exact_ons_tag
+1318,13,6666552,BAB EL ASSA,18,Bab El Assa,8,boundary,administrative,1318,8,confirmed_exact_ons_tag
+1319,13,6666561,DAR YAGHMOURACENE,24,Dar Yaghmouracene,8,boundary,administrative,1319,5,confirmed_exact_ons_tag
+1320,13,6666564,FILAOUCENE,15,Fellaoucene,8,boundary,administrative,1320,5,confirmed_exact_ons_tag
+1321,13,6666545,AZAILES,14,Azails,8,boundary,administrative,1321,5,confirmed_exact_ons_tag
+1322,13,6666577,SEBAA CHIOUKH,15,Sebaa Chioukh,8,boundary,administrative,1322,5,confirmed_exact_ons_tag
+1323,13,6666584,TERNI BENI HEDIEL,18,Terny Beni Hediel,8,boundary,administrative,1323,12,confirmed_exact_ons_tag
+1324,13,5836758,BENSEKRANE,17,Bensekrane,8,boundary,administrative,1324,6,confirmed_exact_ons_tag
+1325,13,5836689,AIN NEHALA,17,Ain Nahala,8,boundary,administrative,1325,6,confirmed_exact_ons_tag
+1326,13,6666567,HENNAYA,17,Hennaya,8,boundary,administrative,1326,9,confirmed_exact_ons_tag
+1327,13,6666570,MAGHNIA,19,Maghnia,8,boundary,administrative,1327,15,confirmed_exact_ons_tag
+1328,13,6666566,HAMMAM BOUGHRARA,15,Hammam Boughrara,8,boundary,administrative,1328,8,confirmed_exact_ons_tag
+1329,13,6666581,SOUAHLIA,15,Souahlia,8,boundary,administrative,1329,7,confirmed_exact_ons_tag
+1330,13,6666569,MSIRDA FOUAGA,18,MSirda Fouaga,8,boundary,administrative,1330,8,confirmed_exact_ons_tag
+1331,13,6666546,AIN FATAH,15,Aïn Fetah,8,boundary,administrative,1331,4,confirmed_exact_ons_tag
+1332,63,6666587,EL ARICHA,15,El Aricha,8,boundary,administrative,1332,6,confirmed_exact_ons_tag
+1333,13,6666583,SOUK TLETA,15,Souk Tlata,8,boundary,administrative,1333,4,confirmed_exact_ons_tag
+1334,13,5836649,SIDI ABDELLI,19,Sidi Abdelli,8,boundary,administrative,1334,8,confirmed_exact_ons_tag
+1335,13,6666578,SEBDOU,16,Sebdou,8,boundary,administrative,1335,7,confirmed_exact_ons_tag
+1336,13,6666556,BENI OUARSOUS,15,Beni Ouarsous,8,boundary,administrative,1336,8,confirmed_exact_ons_tag
+1337,13,6666579,SIDI MEDJAHED,15,Sidi Medjahed,8,boundary,administrative,1337,6,confirmed_exact_ons_tag
+1338,13,6666554,BENI BOUSSAID,18,Beni Boussaid,8,boundary,administrative,1338,10,confirmed_exact_ons_tag
+1339,13,4586232,MARSA BEN MHIDI,20,Marsa Ben M'Hidi,8,boundary,administrative,1339,6,confirmed_exact_ons_tag
+1340,13,6666571,NEDROMA,20,Nedroma,8,boundary,administrative,1340,8,confirmed_exact_ons_tag
+1341,63,6666589,SIDI DJILLALI,15,Sidi Djillali,8,boundary,administrative,1341,5,confirmed_exact_ons_tag
+1342,13,6666553,BENI BAHDEL,15,Beni Bahdel,8,boundary,administrative,1342,5,confirmed_exact_ons_tag
+1343,63,6666588,EL BOUIHI,15,El Bouihi,8,boundary,administrative,1343,8,confirmed_exact_ons_tag
+1344,13,6666568,HONAINE,21,Honaïne,8,boundary,administrative,1344,6,confirmed_exact_ons_tag
+1345,13,6666585,TIANET,15,Tienet,8,boundary,administrative,1345,4,confirmed_exact_ons_tag
+1346,13,6666574,OULED RIYAH,17,Oulad Riah,8,boundary,administrative,1346,7,confirmed_exact_ons_tag
+1347,13,6666559,BOUHLOU,15,Bouhlou,8,boundary,administrative,1347,6,confirmed_exact_ons_tag
+1348,13,6666555,BENI KHELLAD,15,Beni Khellad,8,boundary,administrative,1348,7,confirmed_exact_ons_tag
+1349,13,6666548,AIN GHORABA,15,Aïn Ghoraba,8,boundary,administrative,1349,6,confirmed_exact_ons_tag
+1350,13,4589407,CHETOUANE,28,Chetouane,8,boundary,administrative,1350,12,confirmed_exact_ons_tag
+1351,13,4291183,MANSOURAH,17,Mansourah,8,boundary,administrative,1351,4,confirmed_exact_ons_tag
+1352,13,6666557,BENI SEMIEL,16,Beni Semiel,8,boundary,administrative,1352,6,confirmed_exact_ons_tag
+1353,13,6666549,AIN KEBIRA,16,Aïn Kebira,8,boundary,administrative,1353,5,confirmed_exact_ons_tag
+1401,14,6545450,TIARET,14,Tiaret,8,boundary,administrative,1401,6,confirmed_exact_ons_tag
+1402,14,6545433,MEDROUSSA,12,Medroussa,8,boundary,administrative,1402,5,confirmed_exact_ons_tag
+1403,14,6545416,AIN BOUCHEKIF,12,Aïn Bouchekif,8,boundary,administrative,1403,7,confirmed_exact_ons_tag
+1404,14,6545444,SIDI ALI MELLAL,13,Sidi Ali Mellal,8,boundary,administrative,1404,6,confirmed_exact_ons_tag
+1405,14,6545415,AIN ZARIT,12,Aïn Zarit,8,boundary,administrative,1405,7,confirmed_exact_ons_tag
+1406,14,6545417,AIN DEHEB,13,Aïn Deheb,8,boundary,administrative,1406,4,confirmed_exact_ons_tag
+1407,14,6545445,SIDI BAKHTI,12,Sidi Bakhti,8,boundary,administrative,1407,5,confirmed_exact_ons_tag
+1408,14,6545432,MEDRISSA,14,Medrissa,8,boundary,administrative,1408,5,confirmed_exact_ons_tag
+1409,64,4290303,ZMALET EL EMIR AEK,16,Zmalet El Emir Abdelkader,8,boundary,administrative,1409,8,confirmed_exact_ons_tag
+1410,14,6545429,MADNA,10,Madna,8,boundary,administrative,1410,5,confirmed_exact_ons_tag
+1411,14,6545434,SEBT,14,Sebt,8,boundary,administrative,1411,5,confirmed_exact_ons_tag
+1412,14,6545435,MELLAKOU,12,Mellakou,8,boundary,administrative,1412,7,confirmed_exact_ons_tag
+1413,14,6545422,DAHMOUNI,14,Dahmouni,8,boundary,administrative,1413,5,confirmed_exact_ons_tag
+1414,14,6545439,RAHOUIA,13,Rahouia,8,boundary,administrative,1414,6,confirmed_exact_ons_tag
+1415,14,6545430,MAHDIA,12,Mahdia,8,boundary,administrative,1415,3,confirmed_exact_ons_tag
+1416,14,6545447,SOUGUEUR,12,Sougueur,8,boundary,administrative,1416,5,confirmed_exact_ons_tag
+1417,14,6545442,SI ABDELGHANI,11,Si Abdelghani,8,boundary,administrative,1417,6,confirmed_exact_ons_tag
+1418,14,6545418,AIN EL HADID,12,Aïn El Hadid,8,boundary,administrative,1418,7,confirmed_exact_ons_tag
+1419,14,6545423,DJEBILET ROSFA,11,Djebilet Rosfa,8,boundary,administrative,1419,6,confirmed_exact_ons_tag
+1420,14,6545437,NAIMA,12,Naima,8,boundary,administrative,1420,8,confirmed_exact_ons_tag
+1421,14,6545483,MEGHILA,12,Meghila,8,boundary,administrative,1421,5,confirmed_exact_ons_tag
+1422,14,6545427,GUERTOUFA,12,Guertoufa,8,boundary,administrative,1422,6,confirmed_exact_ons_tag
+1423,14,6545446,SIDI HOSNI,14,Sidi Hosni,8,boundary,administrative,1423,6,confirmed_exact_ons_tag
+1424,14,6545424,DJILALI BEN AMAR,12,Djillali Ben Amar,8,boundary,administrative,1424,6,confirmed_exact_ons_tag
+1425,14,6545441,SEBAINE,12,Sebaïne,8,boundary,administrative,1425,9,confirmed_exact_ons_tag
+1426,14,6545452,TOUSNINA,12,Tousnina,8,boundary,administrative,1426,7,confirmed_exact_ons_tag
+1427,14,6545426,FRENDA,11,Frenda,8,boundary,administrative,1427,7,confirmed_exact_ons_tag
+1428,14,6545419,AIN KERMES,11,Aïn Kermes,8,boundary,administrative,1428,7,confirmed_exact_ons_tag
+1429,64,4290194,KSAR CHELLALA,16,Ksar Chellala,8,boundary,administrative,1429,4,confirmed_exact_ons_tag
+1430,64,6545440,RECHAIGA,12,Rechaiga,8,boundary,administrative,1430,9,confirmed_exact_ons_tag
+1431,14,6545436,NADORAH,12,Nadorah,8,boundary,administrative,1431,5,confirmed_exact_ons_tag
+1432,14,6545448,TAGDEMT,14,Tagdemt,8,boundary,administrative,1432,4,confirmed_exact_ons_tag
+1433,14,6545438,OUED LILI,12,Oued Lilli,8,boundary,administrative,1433,8,confirmed_exact_ons_tag
+1434,14,6545431,MECHRAA SFA,11,Mechraa Safa,8,boundary,administrative,1434,7,confirmed_exact_ons_tag
+1435,64,6545428,HAMADIA,13,Hamadia,8,boundary,administrative,1435,6,confirmed_exact_ons_tag
+1436,14,6545421,CHEHAIMA,15,Chehaima,8,boundary,administrative,1436,8,confirmed_exact_ons_tag
+1437,14,6545449,TAKHEMARET,13,Takhemaret,8,boundary,administrative,1437,9,confirmed_exact_ons_tag
+1438,14,6545443,SIDI ABDERAHMANE,13,Sidi Abderrahmane,8,boundary,administrative,1438,7,confirmed_exact_ons_tag
+1439,64,4290220,SERGHINE,15,Serghine,8,boundary,administrative,1439,5,confirmed_exact_ons_tag
+1440,64,6545420,BOUGARA,13,Bougara,8,boundary,administrative,1440,6,confirmed_exact_ons_tag
+1441,14,6545425,FAIDJA,14,Faidja,8,boundary,administrative,1441,6,confirmed_exact_ons_tag
+1442,14,6545451,TIDDA,12,Tidda,8,boundary,administrative,1442,6,confirmed_exact_ons_tag
+1501,15,3081643,TIZI OUZOU,23,Tizi Ouzou,8,boundary,administrative,1501,12,confirmed_exact_ons_tag
+1502,15,4288602,AIN EL HAMMAM,14,Aïn El Hammam,8,boundary,administrative,1502,7,confirmed_exact_ons_tag
+1503,15,4288635,AKBIL,11,Akbil,8,boundary,administrative,1503,7,confirmed_exact_ons_tag
+1504,15,3079569,FREHA,19,Freha,8,boundary,administrative,1504,7,confirmed_exact_ons_tag
+1505,15,4282805,SOUAMAA,12,Souamaâ,8,boundary,administrative,1505,5,confirmed_exact_ons_tag
+1506,15,4293793,MECHTRASS,14,Mechtras,8,boundary,administrative,1506,5,confirmed_exact_ons_tag
+1507,15,4285909,IRDJEN,16,Irdjen,8,boundary,administrative,1507,6,confirmed_exact_ons_tag
+1508,15,3274799,TIMIZART,15,Timizart,8,boundary,administrative,1508,6,confirmed_exact_ons_tag
+1509,15,3499472,MAKOUDA,14,Makouda,8,boundary,administrative,1509,5,confirmed_exact_ons_tag
+1510,15,4293703,DRAA EL MIZAN,17,Draâ El Mizan,8,boundary,administrative,1510,6,confirmed_exact_ons_tag
+1511,15,4293716,TIZI GHENNIF,13,Tizi Ghenif,8,boundary,administrative,1511,4,confirmed_exact_ons_tag
+1512,15,4293695,BOUNOUH,13,Bounouh,8,boundary,administrative,1512,5,confirmed_exact_ons_tag
+1513,15,4285400,AIT CHAFFAA,13,Aït Chafâa,8,boundary,administrative,1513,8,confirmed_exact_ons_tag
+1514,15,4293699,FRIKAT,13,Frikat,8,boundary,administrative,1514,5,confirmed_exact_ons_tag
+1515,15,4291589,BENI AISSI,12,Beni Aïssi,8,boundary,administrative,1515,4,confirmed_exact_ons_tag
+1516,15,4292527,BENI ZMENZER,13,Beni Zmenzer,8,boundary,administrative,1516,4,confirmed_exact_ons_tag
+1517,15,2170762,IFERHOUNENE,18,Iferhounene,8,boundary,administrative,1517,8,confirmed_exact_ons_tag
+1518,15,4280112,AZAZGA,14,Azazga,8,boundary,administrative,1518,7,confirmed_exact_ons_tag
+1519,15,2170761,ILOULA OUMALOU,19,Iloula Oumalou,8,boundary,administrative,1519,10,confirmed_exact_ons_tag
+1520,15,2177213,YAKOURENE,15,Yakouren,8,boundary,administrative,1520,7,confirmed_exact_ons_tag
+1521,15,4286304,LARBAE NATH IRATHENE,13,Larbaa N'Aït Irathen,8,boundary,administrative,1521,6,confirmed_exact_ons_tag
+1522,15,4285748,TIZI RACHED,13,Tizi Rached,8,boundary,administrative,1522,6,confirmed_exact_ons_tag
+1523,15,4285366,ZEKRI,10,Zekri,8,boundary,administrative,1523,4,confirmed_exact_ons_tag
+1524,15,3080287,OUAGUENOUN,19,Ouaguenoun,8,boundary,administrative,1524,5,confirmed_exact_ons_tag
+1525,15,4293792,AIN ZAOUIA,14,Ain Zaouia,8,boundary,administrative,1525,6,confirmed_exact_ons_tag
+1526,15,4293722,M’KIRA,13,Mkira,8,boundary,administrative,1526,5,confirmed_exact_ons_tag
+1527,15,2175824,AIT YAHIA,19,Ait Yahia,8,boundary,administrative,1527,10,confirmed_exact_ons_tag
+1528,15,4292443,AIT MAHMOUD,11,Aït Mahmoud,8,boundary,administrative,1528,5,confirmed_exact_ons_tag
+1529,15,4293796,MAATKA,15,Mâatkas,8,boundary,administrative,1529,7,confirmed_exact_ons_tag
+1530,15,4289197,AIT BOUMAHDI,13,Aït Boumahdi,8,boundary,administrative,1530,6,confirmed_exact_ons_tag
+1531,15,4279944,ABI YOUCEF,13,Abi Youcef,8,boundary,administrative,1531,4,confirmed_exact_ons_tag
+1532,15,4292506,BENI DOUALA,14,Beni Douala,8,boundary,administrative,1532,7,confirmed_exact_ons_tag
+1533,15,2170759,ILLILTEN,14,Illilten,8,boundary,administrative,1533,4,confirmed_exact_ons_tag
+1534,15,2175826,BOUZGUENE,18,Bouzguen,8,boundary,administrative,1534,7,confirmed_exact_ons_tag
+1535,15,4288585,AIT AGOUACHA,13,Aït Aggouacha,8,boundary,administrative,1535,6,confirmed_exact_ons_tag
+1536,15,4291973,OUADHIA,13,Ouadhia,8,boundary,administrative,1536,7,confirmed_exact_ons_tag
+1537,15,4285456,AZZEFOUN,16,Azeffoun,8,boundary,administrative,1537,7,confirmed_exact_ons_tag
+1538,15,4285531,TIGZIRT,10,Tigzirt,8,boundary,administrative,1538,5,confirmed_exact_ons_tag
+1539,15,3080944,AIT AISSA MIMOUN,17,Ait Aissa Mimoun,8,boundary,administrative,1539,5,confirmed_exact_ons_tag
+1540,15,4293648,BOGHNI,17,Boghni,8,boundary,administrative,1540,6,confirmed_exact_ons_tag
+1541,15,2175825,IFIGHA,17,Ifigha,8,boundary,administrative,1541,7,confirmed_exact_ons_tag
+1542,15,4285835,AIT OUMALOU,12,Aït Oumalou,8,boundary,administrative,1542,4,confirmed_exact_ons_tag
+1543,15,4293797,TIRMITINE,14,Tirmitine,8,boundary,administrative,1543,5,confirmed_exact_ons_tag
+1544,15,4285411,AKERROU,11,Akerrou,8,boundary,administrative,1544,5,confirmed_exact_ons_tag
+1545,15,4288664,YATAFENE,15,Yatafene,8,boundary,administrative,1545,5,confirmed_exact_ons_tag
+1546,15,2175827,BENI ZIKI,14,Beni Ziki,8,boundary,administrative,1546,4,confirmed_exact_ons_tag
+1547,15,4285617,DRAA BEN KHEDA,12,Draa Ben Khedda,8,boundary,administrative,1547,4,confirmed_exact_ons_tag
+1548,15,4289193,OUACIF,12,Ouacif,8,boundary,administrative,1548,5,confirmed_exact_ons_tag
+1549,15,2177075,IDJEUR,18,Idjer,8,boundary,administrative,1549,5,confirmed_exact_ons_tag
+1550,15,4285700,MEKLA,13,Mekla,8,boundary,administrative,1550,8,confirmed_exact_ons_tag
+1551,15,4292807,TIZI N’TLETA,13,Tizi N'Tleta,8,boundary,administrative,1551,6,confirmed_exact_ons_tag
+1552,15,4289177,BENI YENNI,13,Beni Yenni,8,boundary,administrative,1552,8,confirmed_exact_ons_tag
+1553,15,4285438,AGHRIB,14,Aghrib,8,boundary,administrative,1553,8,confirmed_exact_ons_tag
+1554,15,4285481,IFLISSEN,12,Iflissen,8,boundary,administrative,1554,7,confirmed_exact_ons_tag
+1555,15,3274166,BOUDJIMA,16,Boudjima,8,boundary,administrative,1555,6,confirmed_exact_ons_tag
+1556,15,4293723,AIT YAHIA MOUSSA,15,Ait Yahia Moussa,8,boundary,administrative,1556,8,confirmed_exact_ons_tag
+1557,15,4293795,SOUK EL TENINE,14,Souk El Tenine,8,boundary,administrative,1557,6,confirmed_exact_ons_tag
+1558,15,4285690,AIT KHELLILI,11,Aït Khelili,8,boundary,administrative,1558,3,confirmed_exact_ons_tag
+1559,15,4279910,SIDI NAAMANE,13,Sidi Naamane,8,boundary,administrative,1559,8,confirmed_exact_ons_tag
+1560,15,4288710,IBOUDRARENE,14,Iboudraren,8,boundary,administrative,1560,5,confirmed_exact_ons_tag
+1561,15,4291805,AGOUNI GUEGHRANE,12,Agouni Gueghrane,8,boundary,administrative,1561,6,confirmed_exact_ons_tag
+1562,15,4285550,MIZRANA,10,Mizrana,8,boundary,administrative,1562,5,confirmed_exact_ons_tag
+1563,15,2175823,IMSOUHAL,16,Imsouhal,8,boundary,administrative,1563,3,confirmed_exact_ons_tag
+1564,15,4285627,TADMAIT,13,Tadmaït,8,boundary,administrative,1564,6,confirmed_exact_ons_tag
+1565,15,4292593,AIT BOUADOU,14,Aït Bouadou,8,boundary,administrative,1565,6,confirmed_exact_ons_tag
+1566,15,4293167,ASSI YOUCEF,13,Assi Youcef,8,boundary,administrative,1566,6,confirmed_exact_ons_tag
+1567,15,4289238,AIT TOUDERT,14,Aït Toudert,8,boundary,administrative,1567,5,confirmed_exact_ons_tag
+1601,16,157183,ALGER CENTRE,30,Alger-Centre,8,boundary,administrative,1601,7,confirmed_exact_ons_tag
+1602,16,157182,SIDI M'HAMED,19,Sidi M'Hamed,8,boundary,administrative,1602,4,confirmed_exact_ons_tag
+1603,16,545892,EL MADANIA,17,El Madania,8,boundary,administrative,1603,6,confirmed_exact_ons_tag
+1604,16,157175,MOHAMED BELOUIZDAD,23,Belouizdad,8,boundary,administrative,1604,6,confirmed_exact_ons_tag
+1605,16,157185,BAB EL OUED,24,Bab El Oued,8,boundary,administrative,1605,4,confirmed_exact_ons_tag
+1606,16,548210,BOLOGHINE IBNOU ZIRI,15,Bologhine,8,boundary,administrative,1606,6,confirmed_exact_ons_tag
+1607,16,157184,CASBAH,24,Casbah,8,boundary,administrative,1607,5,confirmed_exact_ons_tag
+1608,16,157186,OUED KORICHE,22,Oued Koreiche,8,boundary,administrative,1608,6,confirmed_exact_ons_tag
+1609,16,545896,BIR MOURAD RAIS,22,Bir Mourad Raïs,8,boundary,administrative,1609,7,confirmed_exact_ons_tag
+1610,16,545878,EL BIAR,16,El Biar,8,boundary,administrative,1610,6,confirmed_exact_ons_tag
+1611,16,542498,BOUZAREAH,25,Bouzaréah,8,boundary,administrative,1611,7,confirmed_exact_ons_tag
+1612,16,546311,BIRKHADEM,15,Birkhadem,8,boundary,administrative,1612,6,confirmed_exact_ons_tag
+1613,16,542583,EL HARRACH,13,El Harrach,8,boundary,administrative,1613,5,confirmed_exact_ons_tag
+1614,16,540550,BARAKI,20,Baraki,8,boundary,administrative,1614,6,confirmed_exact_ons_tag
+1615,16,157521,OUED SMAR,16,Oued Smar,8,boundary,administrative,1615,4,confirmed_exact_ons_tag
+1616,16,542584,BOUBOUBA,18,Bourouba,8,boundary,administrative,1616,5,confirmed_exact_ons_tag
+1617,16,157086,HUSSEIN DEY,28,Hussein Dey,8,boundary,administrative,1617,7,confirmed_exact_ons_tag
+1618,16,545895,KOUBA,17,Kouba,8,boundary,administrative,1618,10,confirmed_exact_ons_tag
+1619,16,542690,BACHDJARAH,14,Bachdjarah,8,boundary,administrative,1619,4,confirmed_exact_ons_tag
+1620,16,157498,DAR EL BEIDA,31,Dar El Beïda,8,boundary,administrative,1620,8,confirmed_exact_ons_tag
+1621,16,157508,BAB EZZOUAR,20,Bab Ezzouar,8,boundary,administrative,1621,5,confirmed_exact_ons_tag
+1622,16,544814,BEN AKNOUN,18,Ben Aknoun,8,boundary,administrative,1622,7,confirmed_exact_ons_tag
+1623,16,544840,DELY BRAHIM,18,Dély Brahim,8,boundary,administrative,1623,7,confirmed_exact_ons_tag
+1624,16,542467,EL HAMMAMET,18,Hammamet,8,boundary,administrative,1624,6,confirmed_exact_ons_tag
+1625,16,548025,RAIS HAMIDOU,15,Raïs Hamidou,8,boundary,administrative,1625,4,confirmed_exact_ons_tag
+1626,16,2711708,DJASR KASSENTINA,11,Gué de Constantine,8,boundary,administrative,1626,5,confirmed_exact_ons_tag
+1627,16,545891,EL MOURADIA,17,El Mouradia,8,boundary,administrative,1627,5,confirmed_exact_ons_tag
+1628,16,545879,HYDRA,23,Hydra,8,boundary,administrative,1628,9,confirmed_exact_ons_tag
+1629,16,157511,MOHAMMADIA,27,Mohammadia,8,boundary,administrative,1629,6,confirmed_exact_ons_tag
+1630,16,157472,BORDJ EL KIFFAN,25,Bordj El Kiffan,8,boundary,administrative,1630,6,confirmed_exact_ons_tag
+1631,16,542689,EL MAGHARIA,18,El Magharia,8,boundary,administrative,1631,3,confirmed_exact_ons_tag
+1632,16,542466,BENI MESSOUS,20,Beni Messous,8,boundary,administrative,1632,5,confirmed_exact_ons_tag
+1633,16,157532,EUCALYPTUS,21,Eucalyptus,8,boundary,administrative,1633,6,confirmed_exact_ons_tag
+1634,16,540555,BIRTOUTA,21,Birtouta,,boundary,,1634,7,confirmed_exact_ons_tag
+1635,16,540604,TESSALA EL MERDJA,15,Tessala El Merdja,8,boundary,administrative,1635,5,confirmed_exact_ons_tag
+1636,16,540556,OULED CHEBEL,15,Ouled Chebel,8,boundary,administrative,1636,5,confirmed_exact_ons_tag
+1637,16,540549,SIDI MOUSSA,16,Sidi Moussa,8,boundary,administrative,1637,8,confirmed_exact_ons_tag
+1638,16,157460,AIN TAYA,31,Aïn Taya,8,boundary,administrative,1638,5,confirmed_exact_ons_tag
+1639,16,157478,BORDJ EL BAHRI,25,Bordj El Bahri,8,boundary,administrative,1639,5,confirmed_exact_ons_tag
+1640,16,157462,EL MARSA,20,El Marsa,8,boundary,administrative,1640,7,confirmed_exact_ons_tag
+1641,16,157456,HARAOUA,21,Herraoua,8,boundary,administrative,1641,4,confirmed_exact_ons_tag
+1642,16,157480,ROUIBA,23,Rouiba,8,boundary,administrative,1642,9,confirmed_exact_ons_tag
+1643,16,157452,REGHAIA,21,Reghaïa,8,boundary,administrative,1643,6,confirmed_exact_ons_tag
+1644,16,542350,AIN BENIAN,19,Aïn Benian,8,boundary,administrative,1644,4,confirmed_exact_ons_tag
+1645,16,540527,STAOUELI,17,Staoueli,8,boundary,administrative,1645,6,confirmed_exact_ons_tag
+1646,16,241408,ZERALDA,19,Zéralda,8,boundary,administrative,1646,6,confirmed_exact_ons_tag
+1647,16,241459,MAHELMA,22,Mâalma,8,boundary,administrative,1647,7,confirmed_exact_ons_tag
+1648,16,241470,RAHMANIA,15,Rahmania,8,boundary,administrative,1648,3,confirmed_exact_ons_tag
+1649,16,540526,SOUIDANIA,20,Souidania,8,boundary,administrative,1649,6,confirmed_exact_ons_tag
+1650,16,542318,CHERAGA,22,Chéraga,8,boundary,administrative,1650,6,confirmed_exact_ons_tag
+1651,16,541087,OULED FAYET,22,Ouled Fayet,8,boundary,administrative,1651,7,confirmed_exact_ons_tag
+1652,16,544815,EL ACHOUR,27,El Achour,8,boundary,administrative,1652,10,confirmed_exact_ons_tag
+1653,16,544766,DRARIA,20,Draria,8,boundary,administrative,1653,7,confirmed_exact_ons_tag
+1654,16,540605,DOUERA,22,Douera,8,boundary,administrative,1654,12,confirmed_exact_ons_tag
+1655,16,541086,BABA HASSAN,26,Baba Hassen,8,boundary,administrative,1655,16,confirmed_exact_ons_tag
+1656,16,541085,KHRAICIA,16,Khraïssia,8,boundary,administrative,1656,7,confirmed_exact_ons_tag
+1657,16,541102,SAOULA,16,Saoula,8,boundary,administrative,1657,7,confirmed_exact_ons_tag
+1701,17,6533510,DJELFA,10,Djelfa,8,boundary,administrative,1701,7,confirmed_exact_ons_tag
+1702,17,6533524,MOUDJEBARA,12,Moudjebara,8,boundary,administrative,1702,8,confirmed_exact_ons_tag
+1703,17,6533512,EL GUEDID,12,El Guedid,8,boundary,administrative,1703,7,confirmed_exact_ons_tag
+1704,17,6533519,HASSI BAHBAH,12,Hassi Bahbah,8,boundary,administrative,1704,5,confirmed_exact_ons_tag
+1705,17,6533501,AIN MAABED,12,Aïn Maabed,8,boundary,administrative,1705,6,confirmed_exact_ons_tag
+1706,66,6533526,SED RAHAL,13,Sed Rahal,8,boundary,administrative,1706,7,confirmed_exact_ons_tag
+1707,66,6533515,FEIDH EL BOTMA,13,Faïdh El Botma,8,boundary,administrative,1707,5,confirmed_exact_ons_tag
+1708,65,6533505,BIRINE,13,Birine,8,boundary,administrative,1708,7,confirmed_exact_ons_tag
+1709,65,6533506,BOUIRA LAHDEB,11,Bouirat El Hedab,8,boundary,administrative,1709,6,confirmed_exact_ons_tag
+1710,17,6533531,ZACCAR,12,Zaccar,8,boundary,administrative,1710,4,confirmed_exact_ons_tag
+1711,65,6533514,EL KHEMIS,12,El Khemis,8,boundary,administrative,1711,6,confirmed_exact_ons_tag
+1712,17,6533528,SIDI BAYZID,12,Sidi Baizid,8,boundary,administrative,1712,5,confirmed_exact_ons_tag
+1713,17,6533522,MLILIHA,11,M'Liliha,8,boundary,administrative,1713,6,confirmed_exact_ons_tag
+1714,17,6533513,EL IDRISSIA,13,El Idrissia,8,boundary,administrative,1714,6,confirmed_exact_ons_tag
+1715,17,6533511,DOUIS,12,Douis,8,boundary,administrative,1715,6,confirmed_exact_ons_tag
+1716,17,6533520,HASSI EL EUCH,12,Hassi El Euch,8,boundary,administrative,1716,5,confirmed_exact_ons_tag
+1717,66,6533523,MESSAAD,12,Messaad,8,boundary,administrative,1717,3,confirmed_exact_ons_tag
+1718,66,6533517,GUETTARA,13,Guettara,8,boundary,administrative,1718,7,confirmed_exact_ons_tag
+1719,65,6533529,SIDI LAADJEL,15,Sidi Ladjel,8,boundary,administrative,1719,7,confirmed_exact_ons_tag
+1720,65,6533518,HAD SAHARY,14,Had Sahary,8,boundary,administrative,1720,8,confirmed_exact_ons_tag
+1721,65,6533516,GUERNINI,11,Guernini,8,boundary,administrative,1721,7,confirmed_exact_ons_tag
+1722,66,6533527,SELMANA,12,Selmana,8,boundary,administrative,1722,7,confirmed_exact_ons_tag
+1723,17,6533498,AIN CHOUHADA,12,Aïn Chouhada,8,boundary,administrative,1723,5,confirmed_exact_ons_tag
+1724,66,6533525,OUM LADHAM,12,Oum Laadham,8,boundary,administrative,1724,5,confirmed_exact_ons_tag
+1725,17,6533508,DAR CHIOUKH,10,Dar Chioukh,8,boundary,administrative,1725,7,confirmed_exact_ons_tag
+1726,17,6533507,CHAREF,14,Charef,8,boundary,administrative,1726,5,confirmed_exact_ons_tag
+1727,17,6533504,BENI YAGOUB,12,Beni Yagoub,8,boundary,administrative,1727,5,confirmed_exact_ons_tag
+1728,17,6533532,ZAAFRANE,9,Zaafrane,8,boundary,administrative,1728,10,confirmed_exact_ons_tag
+1729,66,6533509,DELDOUL,13,Deldoul,8,boundary,administrative,1729,8,confirmed_exact_ons_tag
+1730,17,6533499,AIN EL IBEL,11,Aïn El Bel,8,boundary,administrative,1730,7,confirmed_exact_ons_tag
+1731,65,6533502,AIN OUSSERA,12,Aïn Oussara,8,boundary,administrative,1731,7,confirmed_exact_ons_tag
+1732,65,6533503,BENHAR,11,Benhar,8,boundary,administrative,1732,6,confirmed_exact_ons_tag
+1733,65,6533521,HASSI FEDOUL,13,Hassi Fedoul,8,boundary,administrative,1733,6,confirmed_exact_ons_tag
+1734,66,6533497,AMOURAH,13,Amourah,8,boundary,administrative,1734,5,confirmed_exact_ons_tag
+1735,65,6533500,AIN FEKKA,13,Aïn Feka,8,boundary,administrative,1735,6,confirmed_exact_ons_tag
+1736,17,6533530,TADMIT,13,Tadmit,8,boundary,administrative,1736,8,confirmed_exact_ons_tag
+1801,18,1982669,JIJEL,19,Jijel,8,boundary,administrative,1801,5,confirmed_exact_ons_tag
+1802,18,5802951,ERRAGUENE,17,Erraguene,8,boundary,administrative,1802,7,confirmed_exact_ons_tag
+1803,18,5806798,EL AOUANA,25,El Aouana,8,boundary,administrative,1803,10,confirmed_exact_ons_tag
+1804,18,5806875,ZIAMA MANSOURIA,28,Ziama Mansouriah,8,boundary,administrative,1804,17,confirmed_exact_ons_tag
+1805,18,6024211,TAHER,17,Taher,8,boundary,administrative,1805,7,confirmed_exact_ons_tag
+1806,18,6024202,EMIR ABDELKADER,17,Emir Abdelkader,8,boundary,administrative,1806,6,confirmed_exact_ons_tag
+1807,18,6669721,CHEKFA,12,Chekfa,8,boundary,administrative,1807,5,confirmed_exact_ons_tag
+1808,18,6024234,CHAHANA,16,Chahna,8,boundary,administrative,1808,6,confirmed_exact_ons_tag
+1809,18,6669725,EL MILIA,16,El Milia,8,boundary,administrative,1809,12,confirmed_exact_ons_tag
+1810,18,6669732,SIDI MAAROUF,11,Sidi Maarouf,8,boundary,administrative,1810,7,confirmed_exact_ons_tag
+1811,18,6669730,SETTARA,11,Settara,8,boundary,administrative,1811,5,confirmed_exact_ons_tag
+1812,18,6669723,EL ANCER,13,El Ancer,8,boundary,administrative,1812,6,confirmed_exact_ons_tag
+1813,18,6669731,SIDI ABDELAZIZ,13,Sidi Abdelaziz,8,boundary,administrative,1813,4,confirmed_exact_ons_tag
+1814,18,5803898,KAOUS,15,Kaous,8,boundary,administrative,1814,4,confirmed_exact_ons_tag
+1815,18,6669726,GHEBALA,12,Ghebala,8,boundary,administrative,1815,6,confirmed_exact_ons_tag
+1816,18,6669720,BOURAOUI BELHADEF,12,Bouraoui Belhadef,8,boundary,administrative,1816,4,confirmed_exact_ons_tag
+1817,18,6024221,DJMILA,18,Djimla,8,boundary,administrative,1817,7,confirmed_exact_ons_tag
+1818,18,5806878,SELMA BENZIADA,15,Selma Ben Ziada,8,boundary,administrative,1818,4,confirmed_exact_ons_tag
+1819,18,6024238,BOUSSIF OULED ASKEUR,16,Boussif Ouled Askeur,8,boundary,administrative,1819,9,confirmed_exact_ons_tag
+1820,18,6669724,EL KENNAR NOUCHFI,13,El Kennar Nouchfi,8,boundary,administrative,1820,5,confirmed_exact_ons_tag
+1821,18,6669729,OULED YAHIA KHADROUCH,12,Ouled Yahia Khedrouche,8,boundary,administrative,1821,6,confirmed_exact_ons_tag
+1822,18,5802582,BOUDRIA BENI YADJIS,19,Boudria Ben Yadjis,8,boundary,administrative,1822,4,confirmed_exact_ons_tag
+1823,18,6669727,KHEIRI OUED ADJOUL,13,Kheïri Oued Adjoul,8,boundary,administrative,1823,5,confirmed_exact_ons_tag
+1824,18,5803876,TEXENNA,20,Texenna,8,boundary,administrative,1824,8,confirmed_exact_ons_tag
+1825,18,6669722,DJEMAA BENI HABIBI,13,Djemaa Beni Habibi,8,boundary,administrative,1825,5,confirmed_exact_ons_tag
+1826,18,6669719,BORDJ TAHER,12,Bordj Tahar,8,boundary,administrative,1826,5,confirmed_exact_ons_tag
+1827,18,6669728,OULED RABAH,12,Ouled Rabah,8,boundary,administrative,1827,5,confirmed_exact_ons_tag
+1828,18,6024233,OUDJANA,16,Oudjana,8,boundary,administrative,1828,5,confirmed_exact_ons_tag
+1901,19,1617602,SETIF,19,Sétif,8,boundary,administrative,1901,8,confirmed_exact_ons_tag
+1902,19,1625323,AIN EL KEBIRA,17,Aïn El Kebira,8,boundary,administrative,1902,6,confirmed_exact_ons_tag
+1903,19,1618551,BENI AZIZ,13,Beni Aziz,8,boundary,administrative,1903,4,confirmed_exact_ons_tag
+1904,19,4307666,OULED SI AHMED,15,Ouled Si Ahmed,8,boundary,administrative,1904,6,confirmed_exact_ons_tag
+1905,19,1625414,BOUTALEB,16,Boutaleb,8,boundary,administrative,1905,5,confirmed_exact_ons_tag
+1906,19,1625347,AIN ROUA,19,Aïn Roua,8,boundary,administrative,1906,6,confirmed_exact_ons_tag
+1907,19,1625410,DRAA KEBILA,20,Draa Kebila,8,boundary,administrative,1907,8,confirmed_exact_ons_tag
+1908,19,1618480,BIR EL ARCH,19,Bir El Arch,8,boundary,administrative,1908,5,confirmed_exact_ons_tag
+1909,19,1625370,BENI CHEBANA,14,Beni Chebana,8,boundary,administrative,1909,6,confirmed_exact_ons_tag
+1910,19,4308847,OULED TEBBEN,17,Ouled Tebben,8,boundary,administrative,1910,7,confirmed_exact_ons_tag
+1911,19,1625413,HAMMA,18,Hamma,8,boundary,administrative,1911,6,confirmed_exact_ons_tag
+1912,19,1618547,MAAOUIA,17,Maaouia,8,boundary,administrative,1912,6,confirmed_exact_ons_tag
+1913,19,1625385,AIN LEGRADJ,18,Aïn Legradj,8,boundary,administrative,1913,8,confirmed_exact_ons_tag
+1914,19,1620848,AIN ABESSA,18,Aïn Abessa,8,boundary,administrative,1914,6,confirmed_exact_ons_tag
+1915,19,1625322,DEHAMCHA,14,Dehamcha,8,boundary,administrative,1915,5,confirmed_exact_ons_tag
+1916,19,1620770,BABOR,16,Babor,8,boundary,administrative,1916,8,confirmed_exact_ons_tag
+1917,19,1618383,GUIDJEL,17,Guidjel,8,boundary,administrative,1917,7,confirmed_exact_ons_tag
+1918,19,4308805,AIN EL HADJAR,15,Aïn Lahdjar,8,boundary,administrative,1918,7,confirmed_exact_ons_tag
+1919,19,1625368,BOUSSELAM,16,Bousselam,8,boundary,administrative,1919,8,confirmed_exact_ons_tag
+1920,19,1617600,EL EULMA,17,El Eulma,8,boundary,administrative,1920,5,confirmed_exact_ons_tag
+1921,19,1618540,DJEMILA,19,Djemila,8,boundary,administrative,1921,7,confirmed_exact_ons_tag
+1922,19,1625374,BENI OURTILANE,16,Beni Ouartilane,8,boundary,administrative,1922,5,confirmed_exact_ons_tag
+1923,19,4308871,ROSFA,14,Rosfa,8,boundary,administrative,1923,7,confirmed_exact_ons_tag
+1924,19,1625325,OULED ADOUANE,13,Ouled Addouane,8,boundary,administrative,1924,4,confirmed_exact_ons_tag
+1925,19,1618501,BELAA,21,Belaa,8,boundary,administrative,1925,9,confirmed_exact_ons_tag
+1926,19,1618289,AIN ARNAT,21,Aïn Arnat,8,boundary,administrative,1926,7,confirmed_exact_ons_tag
+1927,19,1625324,AMOUCHA,15,Amoucha,8,boundary,administrative,1927,6,confirmed_exact_ons_tag
+1928,19,4307775,AIN OULMENE,17,Aïn Oulmane,8,boundary,administrative,1928,6,confirmed_exact_ons_tag
+1929,19,4297917,BEIDA BORDJ,18,Beïda Bordj,8,boundary,administrative,1929,6,confirmed_exact_ons_tag
+1930,19,2449042,BOUANDAS,12,Bouandas,8,boundary,administrative,1930,4,confirmed_exact_ons_tag
+1931,19,1618476,BAZER SAKHRA,19,Bazer Sakra,8,boundary,administrative,1931,7,confirmed_exact_ons_tag
+1932,19,1618534,HAMMAM SOUKHNA,18,Hammam Sokhna,8,boundary,administrative,1932,6,confirmed_exact_ons_tag
+1933,19,1618321,MEZLOUG,18,Mezloug,8,boundary,administrative,1933,8,confirmed_exact_ons_tag
+1934,19,4307792,BIR HADDADA,14,Bir Haddada,8,boundary,administrative,1934,7,confirmed_exact_ons_tag
+1935,19,1620746,SERDJ EL GHOUL,13,Serdj El Ghoul,8,boundary,administrative,1935,5,confirmed_exact_ons_tag
+1936,19,1625394,HARBIL,16,Harbil,8,boundary,administrative,1936,5,confirmed_exact_ons_tag
+1937,19,1618273,EL OURICIA,17,El Ouricia,8,boundary,administrative,1937,6,confirmed_exact_ons_tag
+1938,19,1620847,TIZI N'BECHAR,14,Tizi N'Bechar,8,boundary,administrative,1938,6,confirmed_exact_ons_tag
+1939,19,4308872,SALAH BEY,13,Salah Bey,8,boundary,administrative,1939,5,confirmed_exact_ons_tag
+1940,19,4298137,AIN AZEL,19,Aïn Azal,8,boundary,administrative,1940,8,confirmed_exact_ons_tag
+1941,19,1625389,GUENZET,16,Guenzet,8,boundary,administrative,1941,6,confirmed_exact_ons_tag
+1942,19,1625353,TALA IFACENE,19,Tala Ifacene,8,boundary,administrative,1942,6,confirmed_exact_ons_tag
+1943,19,1625406,BOUGAA,14,Bougaa,8,boundary,administrative,1943,4,confirmed_exact_ons_tag
+1944,19,1618261,BENI FOUDA,14,Beni Fouda,8,boundary,administrative,1944,10,confirmed_exact_ons_tag
+1945,19,2670866,TACHOUDA,15,Tachouda,8,boundary,administrative,1945,4,confirmed_exact_ons_tag
+1946,19,1625369,BENI MOUHLI,17,Beni Mouhli,8,boundary,administrative,1946,5,confirmed_exact_ons_tag
+1947,19,1617605,OULED SABOR,14,Ouled Sabor,8,boundary,administrative,1947,6,confirmed_exact_ons_tag
+1948,19,4298222,GUELLAL,15,Guellal,8,boundary,administrative,1948,6,confirmed_exact_ons_tag
+1949,19,1618549,AIN SEBT,18,Aïn Sebt,8,boundary,administrative,1949,5,confirmed_exact_ons_tag
+1950,19,1625403,HAMMAM GUERGOUR,14,Hammam Guergour,8,boundary,administrative,1950,8,confirmed_exact_ons_tag
+1951,19,1625366,AIT NOUAL M’ZADA,17,Aït Nawal M'zada,8,boundary,administrative,1951,5,confirmed_exact_ons_tag
+1952,19,4307617,KSAR EL ABTAL,15,Ksar El Abtal,8,boundary,administrative,1952,5,confirmed_exact_ons_tag
+1953,19,1625407,BENI HOCINE,16,Beni Hocine,8,boundary,administrative,1953,6,confirmed_exact_ons_tag
+1954,19,1625360,AIT TIZI,22,Aït Tizi,8,boundary,administrative,1954,8,confirmed_exact_ons_tag
+1955,19,1625349,MAOKLANE,21,Maoklane,8,boundary,administrative,1955,6,confirmed_exact_ons_tag
+1956,19,1618503,GUELTA ZERGA,14,Guelta Zerga,8,boundary,administrative,1956,5,confirmed_exact_ons_tag
+1957,19,1620801,OUED EL BARED,15,Oued El Bared,8,boundary,administrative,1957,4,confirmed_exact_ons_tag
+1958,19,1618535,TAYA,18,Taya,8,boundary,administrative,1958,6,confirmed_exact_ons_tag
+1959,19,1618537,EL OULDJA,18,El Oueldja,8,boundary,administrative,1959,5,confirmed_exact_ons_tag
+1960,19,1618532,TELLA,15,Tella,8,boundary,administrative,1960,5,confirmed_exact_ons_tag
+2001,20,5321733,SAIDA,17,Saïda,8,boundary,administrative,2001,6,confirmed_exact_ons_tag
+2002,20,6544865,DOUI THABET,11,Doui Thabet,8,boundary,administrative,2002,5,confirmed_exact_ons_tag
+2003,20,6544862,AIN HADJAR,12,Aïn El Hadjar,8,boundary,administrative,2003,9,confirmed_exact_ons_tag
+2004,20,6544871,OULED KHALED,10,Ouled Khaled,8,boundary,administrative,2004,9,confirmed_exact_ons_tag
+2005,20,6544869,MOULAY LARBI,13,Moulay Larbi,8,boundary,administrative,2005,6,confirmed_exact_ons_tag
+2006,20,6544876,YOUB,13,Youb,8,boundary,administrative,2006,7,confirmed_exact_ons_tag
+2007,20,6544867,HOUNET,13,Hounet,8,boundary,administrative,2007,7,confirmed_exact_ons_tag
+2008,20,6544873,SIDI AMAR,12,Sidi Amar,8,boundary,administrative,2008,4,confirmed_exact_ons_tag
+2009,20,6544874,SIDI BOUBEKEUR,10,Sidi Boubekeur,8,boundary,administrative,2009,8,confirmed_exact_ons_tag
+2010,20,6544866,EL HASSASSNA,11,El Hessasna,8,boundary,administrative,2010,7,confirmed_exact_ons_tag
+2011,20,6544868,MAAMORA,12,Maamora,8,boundary,administrative,2011,8,confirmed_exact_ons_tag
+2012,20,6544872,SIDI AHMED,11,Sidi Ahmed,8,boundary,administrative,2012,6,confirmed_exact_ons_tag
+2013,20,6544863,AIN SKHOUNA,13,Aïn Skhouna,8,boundary,administrative,2013,4,confirmed_exact_ons_tag
+2014,20,6544870,OULED BRAHIM,12,Ouled Brahim,8,boundary,administrative,2014,5,confirmed_exact_ons_tag
+2015,20,6544875,TIRCINE,11,Tircine,8,boundary,administrative,2015,6,confirmed_exact_ons_tag
+2016,20,6544864,AIN SOLTANE,11,Aïn Soltane,8,boundary,administrative,2016,6,confirmed_exact_ons_tag
+2101,21,2514757,SKIKDA,28,Skikda,8,boundary,administrative,2101,9,confirmed_exact_ons_tag
+2102,21,6543278,AIN ZOUIT,16,Aïn Zouit,8,boundary,administrative,2102,7,confirmed_exact_ons_tag
+2103,21,6543286,EL HADAIEK,13,El Hadaik,8,boundary,administrative,2103,5,confirmed_exact_ons_tag
+2104,21,6543279,AZZABA,14,Azzaba,8,boundary,administrative,2104,6,confirmed_exact_ons_tag
+2105,21,5173305,DJENDEL SAADI MED,16,Djendel Saadi Mohamed,8,boundary,administrative,2105,7,confirmed_exact_ons_tag
+2106,21,6543276,AIN CHERCHAR,13,Aïn Charchar,8,boundary,administrative,2106,5,confirmed_exact_ons_tag
+2107,21,6437423,BEKKOUCHE LAKHDAR,15,Bekkouche Lakhdar,8,boundary,administrative,2107,6,confirmed_exact_ons_tag
+2108,21,5170972,BEN AZZOUZ,16,Ben Azouz,8,boundary,administrative,2108,7,confirmed_exact_ons_tag
+2109,21,6543289,ES SEBT,12,Es Sebt,8,boundary,administrative,2109,7,confirmed_exact_ons_tag
+2110,21,6407308,COLLO,24,Collo,8,boundary,administrative,2110,4,confirmed_exact_ons_tag
+2111,21,6543282,BENI ZID,12,Beni Zid,8,boundary,administrative,2111,7,confirmed_exact_ons_tag
+2112,21,6543291,KERKERA,14,Kerkera,8,boundary,administrative,2112,6,confirmed_exact_ons_tag
+2113,21,6543295,OULED ATTIA,12,Ouled Attia,8,boundary,administrative,2113,7,confirmed_exact_ons_tag
+2114,21,6543293,OUED ZHOUR,15,Oued Zehour,8,boundary,administrative,2114,7,confirmed_exact_ons_tag
+2115,21,6543303,ZITOUNA,12,Zitouna,8,boundary,administrative,2115,4,confirmed_exact_ons_tag
+2116,21,6543287,EL HARROUCH,14,El Harrouch,8,boundary,administrative,2116,6,confirmed_exact_ons_tag
+2117,21,6543302,ZARDEZAS,12,Zerdaza,8,boundary,administrative,2117,6,confirmed_exact_ons_tag
+2118,21,6543296,OULED HEBABA,12,Ouled Hbaba,8,boundary,administrative,2118,7,confirmed_exact_ons_tag
+2119,21,6543300,SIDI MEZGHICHE,12,Sidi Mezghiche,8,boundary,administrative,2119,7,confirmed_exact_ons_tag
+2120,21,6543288,EMDJEZ EDCHICH,12,Emdjez Edchich,8,boundary,administrative,2120,5,confirmed_exact_ons_tag
+2121,21,6543281,BENI OULBANE,16,Beni Oulbane,8,boundary,administrative,2121,7,confirmed_exact_ons_tag
+2122,21,6543275,AIN BOUZIANE,13,Ain Bouziane,8,boundary,administrative,2122,4,confirmed_exact_ons_tag
+2123,21,6543298,RAMDANE DJAMEL,12,Ramdane Djamel,8,boundary,administrative,2123,8,confirmed_exact_ons_tag
+2124,21,6543280,BENI BACHIR,13,Beni Bechir,8,boundary,administrative,2124,4,confirmed_exact_ons_tag
+2125,21,6543299,SALAH BOUCHAOUR,12,Salah Bouchaour,8,boundary,administrative,2125,5,confirmed_exact_ons_tag
+2126,21,6543301,TAMALOUS,13,Tamalous,8,boundary,administrative,2126,7,confirmed_exact_ons_tag
+2127,21,6543277,AIN KECHERA,14,Aïn Kechra,8,boundary,administrative,2127,7,confirmed_exact_ons_tag
+2128,21,6543297,OUM TOUB,13,Oum Toub,8,boundary,administrative,2128,7,confirmed_exact_ons_tag
+2129,21,6543283,BEIN EL OUIDEN,13,Bin El Ouiden,8,boundary,administrative,2129,4,confirmed_exact_ons_tag
+2130,21,5174375,FILFILA,14,Filfila,8,boundary,administrative,2130,5,confirmed_exact_ons_tag
+2131,21,6407346,CHERAIA,16,Cheraia,8,boundary,administrative,2131,7,confirmed_exact_ons_tag
+2132,21,6407549,KANOUA,14,Kanoua,8,boundary,administrative,2132,4,confirmed_exact_ons_tag
+2133,21,6543285,EL GHEDIR,13,El Ghedir,8,boundary,administrative,2133,5,confirmed_exact_ons_tag
+2134,21,6543284,BOUCHETATA,13,Bouchtata,8,boundary,administrative,2134,6,confirmed_exact_ons_tag
+2135,21,6543294,OULDJA BOULBALOUT,12,Ouldja Boulballout,8,boundary,administrative,2135,3,confirmed_exact_ons_tag
+2136,21,6543292,KHENAK MAYOUN,13,Kheneg Mayoum,8,boundary,administrative,2136,5,confirmed_exact_ons_tag
+2137,21,6543290,HAMADI KROUMA,12,Hamadi Krouma,8,boundary,administrative,2137,6,confirmed_exact_ons_tag
+2138,21,5170284,EL MARSA,20,El Marsa,8,boundary,administrative,2138,11,confirmed_exact_ons_tag
+2201,22,2361464,SIDI BEL ABBES,17,Sidi Bel Abbès,8,boundary,administrative,2201,5,confirmed_exact_ons_tag
+2202,22,6662016,TESSALA,15,Tessala,8,boundary,administrative,2202,8,confirmed_exact_ons_tag
+2203,22,6662004,SIDI BRAHIM,16,Sidi Brahim,8,boundary,administrative,2203,5,confirmed_exact_ons_tag
+2204,22,6661993,MOSTEFA BEN BRAHIM,14,Mostefa Ben Brahim,8,boundary,administrative,2204,6,confirmed_exact_ons_tag
+2205,22,6662015,TELAGH,14,Telagh,8,boundary,administrative,2205,6,confirmed_exact_ons_tag
+2206,22,6661992,MEZAOUROU,15,Mezaourou,8,boundary,administrative,2206,7,confirmed_exact_ons_tag
+2207,22,6661981,BOUKHANIFIS,15,Boukhanafis,8,boundary,administrative,2207,7,confirmed_exact_ons_tag
+2208,22,6662003,SIDI ALI BOUSSIDI,15,Sidi Ali Boussidi,8,boundary,administrative,2208,7,confirmed_exact_ons_tag
+2209,22,6661975,BADREDINE EL MOKRANI,14,Badredine El Mokrani,8,boundary,administrative,2209,5,confirmed_exact_ons_tag
+2210,22,6661990,MARHOUM,15,Marhoum,8,boundary,administrative,2210,6,confirmed_exact_ons_tag
+2211,22,6662012,TAFISSOUR,15,Tafissour,8,boundary,administrative,2211,7,confirmed_exact_ons_tag
+2212,22,6661969,AMARNAS,15,Amarnas,8,boundary,administrative,2212,8,confirmed_exact_ons_tag
+2213,22,6662017,TILMOUNI,15,Tilmouni,8,boundary,administrative,2213,8,confirmed_exact_ons_tag
+2214,22,6662009,SIDI LAHCENE,15,Sidi Lahcene,8,boundary,administrative,2214,9,confirmed_exact_ons_tag
+2215,22,6661973,AIN TRID,15,Aïn Thrid,8,boundary,administrative,2215,8,confirmed_exact_ons_tag
+2216,22,6661989,MAKEDRA,15,Makedra,8,boundary,administrative,2216,3,confirmed_exact_ons_tag
+2217,22,6662018,TENIRA,14,Ténira,8,boundary,administrative,2217,6,confirmed_exact_ons_tag
+2218,22,6661994,MOULAY SLISSEN,17,Moulay Slissen,8,boundary,administrative,2218,6,confirmed_exact_ons_tag
+2219,22,6661984,EL HACAIBA,15,El Haçaiba,8,boundary,administrative,2219,5,confirmed_exact_ons_tag
+2220,22,6661986,HASSI ZAHANA,15,Hassi Zahana,8,boundary,administrative,2220,6,confirmed_exact_ons_tag
+2221,22,6662011,TABIA,15,Tabia,8,boundary,administrative,2221,5,confirmed_exact_ons_tag
+2222,22,6661991,MERINE,15,Merine,8,boundary,administrative,2222,7,confirmed_exact_ons_tag
+2223,22,6661998,RAS EL MA,16,Ras El Ma,8,boundary,administrative,2223,4,confirmed_exact_ons_tag
+2224,22,6661974,AIN TINDAMINE,15,Aïn Tindamine,8,boundary,administrative,2224,5,confirmed_exact_ons_tag
+2225,22,6661972,AIN KADA,15,Aïn Kada,8,boundary,administrative,2225,5,confirmed_exact_ons_tag
+2226,22,6661988,M'CID,16,M'Cid,8,boundary,administrative,2226,5,confirmed_exact_ons_tag
+2227,22,6662008,SIDI KHALED,15,Sidi Khaled,8,boundary,administrative,2227,8,confirmed_exact_ons_tag
+2228,22,6661971,AIN EL BERD,15,Aïn El Berd,8,boundary,administrative,2228,6,confirmed_exact_ons_tag
+2229,22,6662001,SFISEF,16,Sfisef,8,boundary,administrative,2229,7,confirmed_exact_ons_tag
+2230,22,6661970,AIN ADDEN,14,Aïn Adden,8,boundary,administrative,2230,4,confirmed_exact_ons_tag
+2231,22,6661997,OUED TAOURIRA,15,Oued Taourira,8,boundary,administrative,2231,8,confirmed_exact_ons_tag
+2232,22,6661983,DHAYA,15,Dhaya,8,boundary,administrative,2232,5,confirmed_exact_ons_tag
+2233,22,6662019,ZEROUALA,15,Zerouala,8,boundary,administrative,2233,9,confirmed_exact_ons_tag
+2234,22,6661987,LAMTAR,14,Lamtar,8,boundary,administrative,2234,7,confirmed_exact_ons_tag
+2235,22,6662005,SIDI CHAIB,15,Sidi Chaib,8,boundary,administrative,2235,4,confirmed_exact_ons_tag
+2236,22,6662006,SIDI DAHO DE ZAIRS,15,Sidi Daho De Zairs,8,boundary,administrative,2236,8,confirmed_exact_ons_tag
+2237,22,6661995,OUED SEBAA,15,Oued Sebaa,8,boundary,administrative,2237,8,confirmed_exact_ons_tag
+2238,22,6661980,BOUDJEBAA EL BORDJ,15,Boudjebaa El Bordj,8,boundary,administrative,2238,7,confirmed_exact_ons_tag
+2239,22,6662000,SEHALA THAOURA,15,Sehala Thaoura,8,boundary,administrative,2239,5,confirmed_exact_ons_tag
+2240,22,6662010,SIDI YACOUB,15,Sidi Yacoub,8,boundary,administrative,2240,5,confirmed_exact_ons_tag
+2241,22,6662007,SIDI HAMADOUCHE,15,Sidi Hamadouche,8,boundary,administrative,2241,7,confirmed_exact_ons_tag
+2242,22,6661976,BELARBI,15,Belarbi,8,boundary,administrative,2242,7,confirmed_exact_ons_tag
+2243,22,6661996,OUED SEFIOUN,15,Oued Sefioun,8,boundary,administrative,2243,9,confirmed_exact_ons_tag
+2244,22,6662014,TEGHALIMET,15,Teghalimet,8,boundary,administrative,2244,6,confirmed_exact_ons_tag
+2245,22,6661977,BEN BADIS,15,Ben Badis,8,boundary,administrative,2245,6,confirmed_exact_ons_tag
+2246,22,6662002,SIDI ALI BENYOUB,14,Sidi Ali Benyoub,8,boundary,administrative,2246,6,confirmed_exact_ons_tag
+2247,22,6661982,CHETOUANE BELAILA,16,Chettouane Belaila,8,boundary,administrative,2247,5,confirmed_exact_ons_tag
+2248,22,6661979,BIR EL HAMMAM,15,Bir El Hammam,8,boundary,administrative,2248,6,confirmed_exact_ons_tag
+2249,22,6662013,TAOUDMOUT,15,Taoudmout,8,boundary,administrative,2249,4,confirmed_exact_ons_tag
+2250,22,6661999,REDJEM DEMOUCHE,16,Redjem Demouche,8,boundary,administrative,2250,8,confirmed_exact_ons_tag
+2251,22,6661978,BENACHIBA CHELIA,15,Benachiba Chelia,8,boundary,administrative,2251,6,confirmed_exact_ons_tag
+2252,22,6661985,HASSI DAHO,15,Hassi Dahou,8,boundary,administrative,2252,5,confirmed_exact_ons_tag
+2301,23,1616109,ANNABA,23,Annaba,8,boundary,administrative,2301,15,confirmed_exact_ons_tag
+2302,23,1616145,BERRAHAL,14,Berrahal,8,boundary,administrative,2302,7,confirmed_exact_ons_tag
+2303,23,1616094,EL HADJAR,16,El Hadjar,8,boundary,administrative,2303,7,confirmed_exact_ons_tag
+2304,23,1616083,EL EULMA,14,Eulma,8,boundary,administrative,2304,6,confirmed_exact_ons_tag
+2305,23,1616108,EL BOUNI,17,El Bouni,8,boundary,administrative,2305,12,confirmed_exact_ons_tag
+2306,23,1616122,OUED EL ANEB,14,Oued El Aneb,8,boundary,administrative,2306,6,confirmed_exact_ons_tag
+2307,23,1616091,CHEURFA,12,Cheurfa,8,boundary,administrative,2307,5,confirmed_exact_ons_tag
+2308,23,1616121,SERAIDI,12,Seraïdi,8,boundary,administrative,2308,4,confirmed_exact_ons_tag
+2309,23,1616090,AIN BERDA,16,Aïn Berda,8,boundary,administrative,2309,8,confirmed_exact_ons_tag
+2310,23,1616147,CHETAIBI,29,Chetaïbi,8,boundary,administrative,2310,17,confirmed_exact_ons_tag
+2311,23,1616146,SIDI AMAR,14,Sidi Amar,8,boundary,administrative,2311,4,confirmed_exact_ons_tag
+2312,23,1616127,TREAT,13,Treat,8,boundary,administrative,2312,5,confirmed_exact_ons_tag
+2401,24,6537637,GUELMA,16,Guelma,8,boundary,administrative,2401,5,confirmed_exact_ons_tag
+2402,24,6537644,NECHMAYA,14,Nechmaya,8,boundary,administrative,2402,7,confirmed_exact_ons_tag
+2403,24,6537628,BOUATI MAHMOUD,12,Bouati Mahmoud,8,boundary,administrative,2403,6,confirmed_exact_ons_tag
+2404,24,6537646,OUED ZENATI,14,Oued Zenati,8,boundary,administrative,2404,6,confirmed_exact_ons_tag
+2405,24,6537650,TAMLOUKA,15,Tamlouka,8,boundary,administrative,2405,8,confirmed_exact_ons_tag
+2406,24,6537645,OUED FRAGHA,13,Oued Fragha,8,boundary,administrative,2406,5,confirmed_exact_ons_tag
+2407,24,6537623,AIN SANDEL,14,Ain Sandel,8,boundary,administrative,2407,6,confirmed_exact_ons_tag
+2408,24,6537647,RAS EL AGBA,13,Ras El Agba,8,boundary,administrative,2408,4,confirmed_exact_ons_tag
+2409,24,6537633,DAHOUARA,13,Dahouara,8,boundary,administrative,2409,3,confirmed_exact_ons_tag
+2410,24,6674817,BELKHEIR,10,Belkheir,8,boundary,administrative,2410,8,confirmed_exact_ons_tag
+2411,24,6537625,BEN DJARAH,13,Bendjarah,8,boundary,administrative,2411,6,confirmed_exact_ons_tag
+2412,24,6537631,BOUHAMDANE,13,Bouhamdane,8,boundary,administrative,2412,5,confirmed_exact_ons_tag
+2413,24,6537621,AIN MAKHLOUF,16,Ain Makhlouf,8,boundary,administrative,2413,7,confirmed_exact_ons_tag
+2414,24,6537618,AIN BEN BEIDA,15,Ain Ben Beida,8,boundary,administrative,2414,7,confirmed_exact_ons_tag
+2415,24,6537641,KHEZARAS,13,Khezara,8,boundary,administrative,2415,5,confirmed_exact_ons_tag
+2416,24,6537626,BENI MEZLINE,12,Beni Mezline,8,boundary,administrative,2416,5,confirmed_exact_ons_tag
+2417,24,6537630,BOUHACHANA,13,Bouhachana,8,boundary,administrative,2417,4,confirmed_exact_ons_tag
+2418,24,6537636,GUELAAT BOU SBAA,12,Guelaat Bou Sbaa,8,boundary,administrative,2418,4,confirmed_exact_ons_tag
+2419,24,6537638,HAMMAM DEBAGH,11,Hammam Debagh,8,boundary,administrative,2419,5,confirmed_exact_ons_tag
+2420,24,6537635,EL FEDJOUDJ,13,El Fedjoudj,8,boundary,administrative,2420,6,confirmed_exact_ons_tag
+2421,24,6537627,BORDJ SABAT,14,Bordj Sabat,8,boundary,administrative,2421,8,confirmed_exact_ons_tag
+2422,24,6537639,HAMMAM N'BAIL,14,Hammam Nbail,8,boundary,administrative,2422,11,confirmed_exact_ons_tag
+2423,24,6537620,AIN LARBI,13,Ain Larbi,8,boundary,administrative,2423,8,confirmed_exact_ons_tag
+2424,24,6537642,MEDJEZ AMAR,13,Medjez Amar,8,boundary,administrative,2424,5,confirmed_exact_ons_tag
+2425,24,6537629,BOUCHEGOUF,13,Boucheghouf,8,boundary,administrative,2425,6,confirmed_exact_ons_tag
+2426,24,6537640,HELIOPOLIS,14,Heliopolis,8,boundary,administrative,2426,6,confirmed_exact_ons_tag
+2427,24,6674818,HOUARI BOUMEDIENE,11,Houari Boumediène,8,boundary,administrative,2427,7,confirmed_exact_ons_tag
+2428,24,6537648,ROKNIA,14,Roknia,8,boundary,administrative,2428,7,confirmed_exact_ons_tag
+2429,24,6537649,SELLAOUA ANNOUNA,13,Selloua Anouna,8,boundary,administrative,2429,6,confirmed_exact_ons_tag
+2430,24,6537643,MEDJEZ SFA,15,Medjez Sfa,8,boundary,administrative,2430,5,confirmed_exact_ons_tag
+2431,24,6537632,BOUMAHRA AHMED,13,Boumahra Ahmed,8,boundary,administrative,2431,5,confirmed_exact_ons_tag
+2432,24,6537622,AIN REGGADA,14,Ain Regada,8,boundary,administrative,2432,4,confirmed_exact_ons_tag
+2433,24,6674824,OUED CHEHAM,8,Oued Cheham,8,boundary,administrative,2433,5,confirmed_exact_ons_tag
+2434,24,6537634,DJEBALLAH KHEMISSI,12,Djebala Khemissi,8,boundary,administrative,2434,6,confirmed_exact_ons_tag
+2501,25,2245418,CONSTANTINE,24,Constantine,8,boundary,administrative,2501,7,confirmed_exact_ons_tag
+2502,25,4434597,HAMMA BOUZIANE,15,Hamma Bouziane,8,boundary,administrative,2502,5,confirmed_exact_ons_tag
+2503,25,4437665,IBN BADIS,12,Ibn Badis,8,boundary,administrative,2503,7,confirmed_exact_ons_tag
+2504,25,4437759,ZIGHOUT YOUCEF,15,Zighoud Youcef,8,boundary,administrative,2504,9,confirmed_exact_ons_tag
+2505,25,4437720,DIDOUCHE MOURAD,14,Didouche Mourad,8,boundary,administrative,2505,4,confirmed_exact_ons_tag
+2506,25,4437507,EL KHROUB,17,El Khroub,8,boundary,administrative,2506,5,confirmed_exact_ons_tag
+2507,25,4437624,AIN ABID,17,Aïn Abid,8,boundary,administrative,2507,7,confirmed_exact_ons_tag
+2508,25,4437758,BENI HAMIDENE,15,Beni Hamidene,8,boundary,administrative,2508,6,confirmed_exact_ons_tag
+2509,25,4437575,OULED RAHMOUNE,16,Ouled Rahmoun,8,boundary,administrative,2509,7,confirmed_exact_ons_tag
+2510,25,4434146,AIN SMARA,15,Aïn Smara,8,boundary,administrative,2510,5,confirmed_exact_ons_tag
+2511,25,4437319,MESSAOUD BOUJERIOU,13,Messaoud Boudjriou,8,boundary,administrative,2511,7,confirmed_exact_ons_tag
+2512,25,4437296,IBN ZIAD,13,Ibn Ziad,8,boundary,administrative,2512,8,confirmed_exact_ons_tag
+2601,26,2563082,MEDEA,15,Médéa,8,boundary,administrative,2601,5,confirmed_exact_ons_tag
+2602,26,2586879,OUZERA,13,Ouzera,8,boundary,administrative,2602,7,confirmed_exact_ons_tag
+2603,67,2907908,OULED MAAREF,14,Ouled Maaref,8,boundary,administrative,2603,6,confirmed_exact_ons_tag
+2604,67,2903605,AIN BOUCIF,15,Aïn Boucif,8,boundary,administrative,2604,8,confirmed_exact_ons_tag
+2605,26,2962879,AISSAOUIA,15,El Aïssaouia,8,boundary,administrative,2605,8,confirmed_exact_ons_tag
+2606,26,2594929,OULED DEID,15,Ouled Deide,8,boundary,administrative,2606,8,confirmed_exact_ons_tag
+2607,26,2588517,EL OMARIA,14,El Omaria,8,boundary,administrative,2607,6,confirmed_exact_ons_tag
+2608,67,2434897,DERRAG,13,Derrag,8,boundary,administrative,2608,6,confirmed_exact_ons_tag
+2609,26,2915512,EL GUELB EL KEBIR,17,El Guelb Kebir,8,boundary,administrative,2609,7,confirmed_exact_ons_tag
+2610,67,2433345,BOUAICHE,16,Bouaiche,8,boundary,administrative,2610,8,confirmed_exact_ons_tag
+2611,26,2947376,MEZGHANA,15,Mezerana,8,boundary,administrative,2611,6,confirmed_exact_ons_tag
+2612,26,2587075,OULED BRAHIM,13,Ouled Brahim,8,boundary,administrative,2612,5,confirmed_exact_ons_tag
+2613,26,2584701,TIZI MAHDI,13,Tizi Mahdi,8,boundary,administrative,2613,6,confirmed_exact_ons_tag
+2614,26,2898796,SIDI ZIANE,16,Sidi Ziane,8,boundary,administrative,2614,7,confirmed_exact_ons_tag
+2615,26,2562432,TAMESGUIDA,18,Tamesguida,8,boundary,administrative,2615,9,confirmed_exact_ons_tag
+2616,26,2571726,EL HAMDANIA,15,El Hamdania,8,boundary,administrative,2616,7,confirmed_exact_ons_tag
+2617,67,2901631,KEF LAKHDAR,13,Kef Lakhdar,8,boundary,administrative,2617,5,confirmed_exact_ons_tag
+2618,67,2897130,CHELLALET EL ADHAOURA,15,Chelalat El Adhoura,8,boundary,administrative,2618,6,confirmed_exact_ons_tag
+2619,26,2914188,BOUSKENE,13,Bousekene,8,boundary,administrative,2619,5,confirmed_exact_ons_tag
+2620,26,2900032,REBAIA,13,Rebaia,8,boundary,administrative,2620,5,confirmed_exact_ons_tag
+2621,26,2964918,BOUCHRAHIL,12,Bouchrahil,8,boundary,administrative,2621,7,confirmed_exact_ons_tag
+2622,67,2518403,OULED HELLAL,17,Ouled Hellal,8,boundary,administrative,2622,7,confirmed_exact_ons_tag
+2623,67,2897135,TAFRAOUT,13,Tafraout,8,boundary,administrative,2623,5,confirmed_exact_ons_tag
+2624,26,2590266,BAATA,15,Baata,8,boundary,administrative,2624,7,confirmed_exact_ons_tag
+2625,67,2523191,BOGHAR,12,Boghar,8,boundary,administrative,2625,4,confirmed_exact_ons_tag
+2626,26,2590284,SIDI NAAMANE,14,Sidi Naamane,8,boundary,administrative,2626,7,confirmed_exact_ons_tag
+2627,26,2540223,OULED BOUACHRA,13,Ouled Bouachra,8,boundary,administrative,2627,4,confirmed_exact_ons_tag
+2628,26,2898797,SIDI ZAHAR,12,Sidi Zahar,8,boundary,administrative,2628,5,confirmed_exact_ons_tag
+2629,26,2562272,OUED HARBIL,14,Oued Harbil,8,boundary,administrative,2629,6,confirmed_exact_ons_tag
+2630,26,2584955,BEN CHICAO,12,Benchicao,8,boundary,administrative,2630,5,confirmed_exact_ons_tag
+2631,67,2907811,SIDI DAMED,13,Sidi Damed,8,boundary,administrative,2631,6,confirmed_exact_ons_tag
+2632,67,2433890,AZIZ,20,Aziz,8,boundary,administrative,2632,7,confirmed_exact_ons_tag
+2633,26,2898689,SOUAGUI,17,Souagui,8,boundary,administrative,2633,10,confirmed_exact_ons_tag
+2634,26,2529800,ZOUBIRIA,15,Zoubiria,8,boundary,administrative,2634,8,confirmed_exact_ons_tag
+2635,67,2523204,KSAR EL BOUKHARI,14,Ksar El Boukhari,8,boundary,administrative,2635,5,confirmed_exact_ons_tag
+2636,26,2924481,EL AZIZIA,14,El Azizia,8,boundary,administrative,2636,6,confirmed_exact_ons_tag
+2637,26,2897143,DJOUAB,14,Djouab,8,boundary,administrative,2637,5,confirmed_exact_ons_tag
+2638,67,2432880,CHAHBOUNIA,15,Chahbounia,8,boundary,administrative,2638,5,confirmed_exact_ons_tag
+2639,26,2930390,MEGHRAOUA,15,Meghraoua,8,boundary,administrative,2639,6,confirmed_exact_ons_tag
+2640,67,4463370,CHENIGUEL,11,Cheniguel,8,boundary,administrative,2640,5,confirmed_exact_ons_tag
+2641,67,2897101,AIN OUKSIR,16,Aïn Ouksir,8,boundary,administrative,2641,5,confirmed_exact_ons_tag
+2642,67,2437644,OUM EL DJALIL,16,Oum El Djalil,8,boundary,administrative,2642,6,confirmed_exact_ons_tag
+2643,26,2561384,OUAMRI,16,Ouamri,8,boundary,administrative,2643,6,confirmed_exact_ons_tag
+2644,26,2583963,SI MAHDJOUB,13,Si Mahdjoub,8,boundary,administrative,2644,4,confirmed_exact_ons_tag
+2645,26,2908041,TLATET EDDOUAIR,12,Tlatet Eddouair,8,boundary,administrative,2645,8,confirmed_exact_ons_tag
+2646,26,2914517,BENI SLIMANE,14,Beni Slimane,8,boundary,administrative,2646,6,confirmed_exact_ons_tag
+2647,26,2537784,BERROUAGHIA,15,Berrouaghia,8,boundary,administrative,2647,5,confirmed_exact_ons_tag
+2648,26,2528015,SEGHOUANE,13,Seghouane,8,boundary,administrative,2648,4,confirmed_exact_ons_tag
+2649,67,2525270,MFATHA,16,Mefatha,8,boundary,administrative,2649,8,confirmed_exact_ons_tag
+2650,26,2938025,MIHOUB,15,Mihoub,8,boundary,administrative,2650,7,confirmed_exact_ons_tag
+2651,67,2435706,BOUGHZOUL,16,Boughezoul,8,boundary,administrative,2651,6,confirmed_exact_ons_tag
+2652,26,2957959,TABLAT,14,Tablat,8,boundary,administrative,2652,5,confirmed_exact_ons_tag
+2653,26,2962878,DEUX BASSINS,14,Deux Bassins,8,boundary,administrative,2653,4,confirmed_exact_ons_tag
+2654,26,2562899,DRAA ESSAMAR,13,Draa Esmar,8,boundary,administrative,2654,4,confirmed_exact_ons_tag
+2655,26,2957917,SIDI ERRABIE,12,Sidi Errabia,8,boundary,administrative,2655,4,confirmed_exact_ons_tag
+2656,26,2920923,BIR BEN ABED,13,Bir Ben Abed,8,boundary,administrative,2656,6,confirmed_exact_ons_tag
+2657,67,2907855,EL OUINET,14,El Aouinet,8,boundary,administrative,2657,3,confirmed_exact_ons_tag
+2658,67,2522974,OULED ANTAR,15,Ouled Antar,8,boundary,administrative,2658,7,confirmed_exact_ons_tag
+2659,26,2548192,BOUAICHOUN,13,Bouaichoune,8,boundary,administrative,2659,6,confirmed_exact_ons_tag
+2660,26,2561252,HANNACHA,14,Hannacha,8,boundary,administrative,2660,6,confirmed_exact_ons_tag
+2661,26,2922524,SEDRAIA,15,Sedraia,8,boundary,administrative,2661,6,confirmed_exact_ons_tag
+2662,26,2525423,MEDJEBAR,12,Moudjbar,8,boundary,administrative,2662,6,confirmed_exact_ons_tag
+2663,26,2592263,KHAMS DJOUAMAA,15,Khams Djouamaa,8,boundary,administrative,2663,4,confirmed_exact_ons_tag
+2664,67,2525173,SANEG,13,Saneg,8,boundary,administrative,2664,5,confirmed_exact_ons_tag
+2701,27,5752724,MOSTAGANEM,16,Mostaganem,8,boundary,administrative,2701,8,confirmed_exact_ons_tag
+2702,27,5752725,SAYADA,13,Sayada,8,boundary,administrative,2702,5,confirmed_exact_ons_tag
+2703,27,6660568,FORNAKA,13,Fornaka,8,boundary,administrative,2703,7,confirmed_exact_ons_tag
+2704,27,6660577,STIDIA,13,Stidia,8,boundary,administrative,2704,6,confirmed_exact_ons_tag
+2705,27,6660565,AIN NOUISSY,11,Aïn Nouïssy,8,boundary,administrative,2705,4,confirmed_exact_ons_tag
+2706,27,5752722,HASSI MAAMECHE,13,Hassi Mameche,8,boundary,administrative,2706,8,confirmed_exact_ons_tag
+2707,27,5757183,AIN TADLES,12,Aïn Tedles,8,boundary,administrative,2707,6,confirmed_exact_ons_tag
+2708,27,6660583,SOUR,11,Sour,8,boundary,administrative,2708,7,confirmed_exact_ons_tag
+2709,27,6660573,OUED EL KHEIR,11,Oued El Kheir,8,boundary,administrative,2709,5,confirmed_exact_ons_tag
+2710,27,6660579,SIDI BELATTAR,11,Sidi Belattar,8,boundary,administrative,2710,6,confirmed_exact_ons_tag
+2711,27,5757184,KHEIREDINE,14,Kheireddine,8,boundary,administrative,2711,5,confirmed_exact_ons_tag
+2712,27,6660578,SIDI ALI,12,Sidi Ali,8,boundary,administrative,2712,8,confirmed_exact_ons_tag
+2713,27,6660562,ABDELMALEK RAMDANE,11,Abdelmalek Ramdane,8,boundary,administrative,2713,4,confirmed_exact_ons_tag
+2714,27,6660569,HADJADJ,12,Hadjadj,8,boundary,administrative,2714,7,confirmed_exact_ons_tag
+2715,27,6660572,NEKMARIA,11,Nekmaria,8,boundary,administrative,2715,6,confirmed_exact_ons_tag
+2716,27,6660580,SIDI LAKHDAR,14,Sidi Lakhdar,8,boundary,administrative,2716,7,confirmed_exact_ons_tag
+2717,27,6660563,ACHAACHA,12,Achaacha,8,boundary,administrative,2717,5,confirmed_exact_ons_tag
+2718,27,6660570,KHADRA,12,Khadra,8,boundary,administrative,2718,5,confirmed_exact_ons_tag
+2719,27,6660566,BOUGUIRAT,13,Bouguirat,8,boundary,administrative,2719,9,confirmed_exact_ons_tag
+2720,27,6660581,SIRAT,11,Sirat,8,boundary,administrative,2720,7,confirmed_exact_ons_tag
+2721,27,6660564,AIN SIDI CHERIF,11,Ain Sidi Cherif,8,boundary,administrative,2721,4,confirmed_exact_ons_tag
+2722,27,6674836,MESRA,10,Mesra,8,boundary,administrative,2722,5,confirmed_exact_ons_tag
+2723,27,6660571,MANSOURAH,11,Mansourah,8,boundary,administrative,2723,7,confirmed_exact_ons_tag
+2724,27,6660582,SOUAFLIA,11,Souaflia,8,boundary,administrative,2724,7,confirmed_exact_ons_tag
+2725,27,6660574,OULED BOUGHALEM,11,Ouled Boughalem,8,boundary,administrative,2725,3,confirmed_exact_ons_tag
+2726,27,6660575,OULED MAALLAH,11,Ouled Maaleh,8,boundary,administrative,2726,6,confirmed_exact_ons_tag
+2727,27,5752723,MEZGHRANE,11,Mazagran,8,boundary,administrative,2727,4,confirmed_exact_ons_tag
+2728,27,5757182,AIN BOUDINAR,12,Aïn Boudinar,8,boundary,administrative,2728,4,confirmed_exact_ons_tag
+2729,27,6660584,TAZGAIT,11,Tazgait,8,boundary,administrative,2729,6,confirmed_exact_ons_tag
+2730,27,6660576,SAFSAF,12,Safsaf,8,boundary,administrative,2730,6,confirmed_exact_ons_tag
+2731,27,6660585,TOUAHRIA,11,Touahria,8,boundary,administrative,2731,6,confirmed_exact_ons_tag
+2732,27,6660567,EL HASSIANE,11,El Hassiane,8,boundary,administrative,2732,5,confirmed_exact_ons_tag
+2801,28,6547246,M'SILA,14,M'Sila,8,boundary,administrative,2801,5,confirmed_exact_ons_tag
+2802,28,6547247,MAADID,14,Maadid,8,boundary,administrative,2802,7,confirmed_exact_ons_tag
+2803,28,6547241,HAMMAM DHALAA,15,Hammam Delaa,8,boundary,administrative,2803,7,confirmed_exact_ons_tag
+2804,28,6547254,OULED DERRADJ,13,Ouled Derradj,8,boundary,administrative,2804,4,confirmed_exact_ons_tag
+2805,28,6547266,TARMOUNT,13,Tarmount,8,boundary,administrative,2805,4,confirmed_exact_ons_tag
+2806,28,6547245,MTARFA,14,M'Tarfa,8,boundary,administrative,2806,5,confirmed_exact_ons_tag
+2807,68,6547243,KHOUBANA,14,Khoubana,8,boundary,administrative,2807,4,confirmed_exact_ons_tag
+2808,68,6547244,M'CIF,14,M'Cif,8,boundary,administrative,2808,5,confirmed_exact_ons_tag
+2809,28,6547237,CHELLAL,14,Chellal,8,boundary,administrative,2809,7,confirmed_exact_ons_tag
+2810,28,6547255,OULED MAHDI,13,Ouled Madhi,8,boundary,administrative,2810,5,confirmed_exact_ons_tag
+2811,28,6547249,MAGRA,12,Magra,8,boundary,administrative,2811,8,confirmed_exact_ons_tag
+2812,28,6547234,BERHOUM,13,Berhoum,8,boundary,administrative,2812,4,confirmed_exact_ons_tag
+2813,28,6547230,AIN KHADRA,13,Aïn Khadra,8,boundary,administrative,2813,4,confirmed_exact_ons_tag
+2814,28,6547253,OULED ADDI GUEBALA,15,Ouled Addi Guebala,8,boundary,administrative,2814,8,confirmed_exact_ons_tag
+2815,28,6547231,BELAIBA,12,Belaiba,8,boundary,administrative,2815,5,confirmed_exact_ons_tag
+2816,28,6547260,SIDI AISSA,14,Sidi Aïssa,8,boundary,administrative,2816,9,confirmed_exact_ons_tag
+2817,28,6547229,AIN EL HADJEL,14,Aïn El Hadjel,8,boundary,administrative,2817,5,confirmed_exact_ons_tag
+2818,28,6547261,SIDI HADJERES,14,Sidi Hadjeres,8,boundary,administrative,2818,8,confirmed_exact_ons_tag
+2819,28,6547252,OUANOUGHA,14,Ouanougha,8,boundary,administrative,2819,7,confirmed_exact_ons_tag
+2820,68,6547235,BOUSAADA,14,Bou Saâda,8,boundary,administrative,2820,6,confirmed_exact_ons_tag
+2821,68,6547257,OULED SIDI BRAHIM,13,Ouled Sidi Brahim,8,boundary,administrative,2821,5,confirmed_exact_ons_tag
+2822,68,6547259,SIDI AMEUR,13,Sidi Ameur,8,boundary,administrative,2822,6,confirmed_exact_ons_tag
+2823,68,6547263,TAMSA,14,Tamsa,8,boundary,administrative,2823,7,confirmed_exact_ons_tag
+2824,68,5559082,BEN SROUR,15,Ben Srour,8,boundary,administrative,2824,5,confirmed_exact_ons_tag
+2825,68,5558595,OULED SLIMANE,16,Ouled Slimane,8,boundary,administrative,2825,6,confirmed_exact_ons_tag
+2826,68,6547240,EL HOUAMED,15,El Houamed,8,boundary,administrative,2826,9,confirmed_exact_ons_tag
+2827,68,6547239,EL HAMEL,13,El Hamel,8,boundary,administrative,2827,4,confirmed_exact_ons_tag
+2828,28,6547256,OULED MANSOUR,14,Ouled Mansour,8,boundary,administrative,2828,7,confirmed_exact_ons_tag
+2829,28,6547248,MAARIF,15,Maarif,8,boundary,administrative,2829,5,confirmed_exact_ons_tag
+2830,28,6547238,DEHAHNA,15,Dehahna,8,boundary,administrative,2830,5,confirmed_exact_ons_tag
+2831,28,6547236,BOUTI SAYAH,14,Bouti Sayah,8,boundary,administrative,2831,6,confirmed_exact_ons_tag
+2832,28,6547242,KHETTOUTI CED EL DJIR,14,Khettouti Sed El Djir,8,boundary,administrative,2832,6,confirmed_exact_ons_tag
+2833,68,5558909,ZARZOUR,18,Zerzour,8,boundary,administrative,2833,6,confirmed_exact_ons_tag
+2834,68,5539319,MOHAMED BOUDIAF,17,Mohamed Boudiaf,8,boundary,administrative,2834,5,confirmed_exact_ons_tag
+2835,68,6547233,BENZOUH,15,Benzouh,8,boundary,administrative,2835,6,confirmed_exact_ons_tag
+2836,68,5514983,BIR FODDA,16,Bir Fodda,8,boundary,administrative,2836,5,confirmed_exact_ons_tag
+2837,68,5538988,AIN FARES,13,Aïn Fares,8,boundary,administrative,2837,7,confirmed_exact_ons_tag
+2838,68,5528024,SIDI M'HAMED,18,Sidi M'hamed,8,boundary,administrative,2838,8,confirmed_exact_ons_tag
+2839,68,6547251,MENEA,18,Ouled Atia,8,boundary,administrative,2839,6,confirmed_exact_ons_tag
+2840,28,6547262,SOUAMAA,15,Souamaa,8,boundary,administrative,2840,7,confirmed_exact_ons_tag
+2841,68,5544000,AIN EL MELH,13,Aïn El Melh,8,boundary,administrative,2841,5,confirmed_exact_ons_tag
+2842,68,6547250,MEDJEDEL,13,Medjedel,8,boundary,administrative,2842,8,confirmed_exact_ons_tag
+2843,68,5514905,SLIM,19,Slim,8,boundary,administrative,2843,6,confirmed_exact_ons_tag
+2844,68,5526120,AIN ERRICH,23,Ain Errich,8,boundary,administrative,2844,7,confirmed_exact_ons_tag
+2845,28,6547232,BENI ILMANE,15,Beni Ilmene,8,boundary,administrative,2845,5,confirmed_exact_ons_tag
+2846,68,6547258,OULTEN,13,Oultem,8,boundary,administrative,2846,4,confirmed_exact_ons_tag
+2847,68,5561173,DJEBEL MESSAAD,14,Djebel Messaad,8,boundary,administrative,2847,10,confirmed_exact_ons_tag
+2901,29,4571792,MASCARA,22,Mascara,8,boundary,administrative,2901,7,confirmed_exact_ons_tag
+2902,29,5585374,BOUHANIFIA,15,Bouhanifia,8,boundary,administrative,2902,7,confirmed_exact_ons_tag
+2903,29,4652433,TIZI,15,Tizi,8,boundary,administrative,2903,8,confirmed_exact_ons_tag
+2904,29,6668176,HACINE,11,Hacine,8,boundary,administrative,2904,7,confirmed_exact_ons_tag
+2905,29,4589684,MAOUSSA,19,Maoussa,8,boundary,administrative,2905,8,confirmed_exact_ons_tag
+2906,29,4596004,TIGHENNIF,15,Tighennif,8,boundary,administrative,2906,8,confirmed_exact_ons_tag
+2907,29,5348242,EL HACHEM,18,Hachem,8,boundary,administrative,2907,7,confirmed_exact_ons_tag
+2908,29,6668190,SIDI KADA,12,Sidi Kada,8,boundary,administrative,2908,6,confirmed_exact_ons_tag
+2909,29,5349138,ZELAMTA,17,Zelmata,8,boundary,administrative,2909,5,confirmed_exact_ons_tag
+2910,29,5347304,OUED EL ABTAL,17,Oued El Abtal,8,boundary,administrative,2910,6,confirmed_exact_ons_tag
+2911,29,5347189,AIN FERAH,16,Ain Ferah,8,boundary,administrative,2911,5,confirmed_exact_ons_tag
+2912,29,5488962,GHRISS,13,Ghriss,8,boundary,administrative,2912,6,confirmed_exact_ons_tag
+2913,29,5488961,FROHA,12,Froha,8,boundary,administrative,2913,5,confirmed_exact_ons_tag
+2914,29,5488963,MATEMORE,13,Matemor,8,boundary,administrative,2914,5,confirmed_exact_ons_tag
+2915,29,6668178,MAKDHA,12,Makdha,8,boundary,administrative,2915,5,confirmed_exact_ons_tag
+2916,29,6668189,SIDI BOUSSAID,12,Sidi Boussaid,8,boundary,administrative,2916,6,confirmed_exact_ons_tag
+2917,29,6668171,EL BORDJ,12,El Bordj,8,boundary,administrative,2917,7,confirmed_exact_ons_tag
+2918,29,5482554,AIN FEKAN,14,Ain Fekan,8,boundary,administrative,2918,7,confirmed_exact_ons_tag
+2919,29,6668168,BENIAN,12,Beniane,8,boundary,administrative,2919,6,confirmed_exact_ons_tag
+2920,29,6668177,KHALOUIA,12,Khalouia,8,boundary,administrative,2920,7,confirmed_exact_ons_tag
+2921,29,6668173,EL MENAOUER,13,El Menaouer,8,boundary,administrative,2921,6,confirmed_exact_ons_tag
+2922,29,6668183,OUED TARIA,12,Oued Taria,8,boundary,administrative,2922,6,confirmed_exact_ons_tag
+2923,29,6668167,AOUF,12,Aouf,8,boundary,administrative,2923,6,confirmed_exact_ons_tag
+2924,29,4595944,AIN FARES,13,Aïn Fares,8,boundary,administrative,2924,9,confirmed_exact_ons_tag
+2925,29,5581838,AIN FRASS,16,Aïn Fras,8,boundary,administrative,2925,5,confirmed_exact_ons_tag
+2926,29,6668191,SIG,11,Sig,8,boundary,administrative,2926,5,confirmed_exact_ons_tag
+2927,29,6668182,OGGAZ,12,Oggaz,8,boundary,administrative,2927,6,confirmed_exact_ons_tag
+2928,29,6668166,ALAIMIA,13,Alaïmia,8,boundary,administrative,2928,5,confirmed_exact_ons_tag
+2929,29,6668174,EL GAADA,15,El Gaada,8,boundary,administrative,2929,7,confirmed_exact_ons_tag
+2930,29,6668192,ZAHANA,15,Zahana,8,boundary,administrative,2930,6,confirmed_exact_ons_tag
+2931,29,6668180,MOHAMMADIA,11,Mohammadia,8,boundary,administrative,2931,6,confirmed_exact_ons_tag
+2932,29,6668188,SIDI ABDELMOUMENE,13,Sidi Abdelmoumen,8,boundary,administrative,2932,4,confirmed_exact_ons_tag
+2933,29,6668175,FERRAGUIG,12,Ferraguig,8,boundary,administrative,2933,6,confirmed_exact_ons_tag
+2934,29,6668172,EL GHOMRI,14,El Ghomri,8,boundary,administrative,2934,9,confirmed_exact_ons_tag
+2935,29,6668185,SEDJERARA,13,Sedjerara,8,boundary,administrative,2935,6,confirmed_exact_ons_tag
+2936,29,6668179,MOCTA DOUZ,13,Mocta Douz,8,boundary,administrative,2936,7,confirmed_exact_ons_tag
+2937,29,6668169,BOU HENNI,12,Bou Henni,8,boundary,administrative,2937,7,confirmed_exact_ons_tag
+2938,29,5585377,EL GUETNA,15,El Guettana,8,boundary,administrative,2938,5,confirmed_exact_ons_tag
+2939,29,1334214,EL MAMOUNIA,22,Mamounia,8,boundary,administrative,2939,5,confirmed_exact_ons_tag
+2940,29,4652378,EL KEURT,13,El Keurt,8,boundary,administrative,2940,4,confirmed_exact_ons_tag
+2941,29,5349395,GHARROUS,16,Gharrous,8,boundary,administrative,2941,5,confirmed_exact_ons_tag
+2942,29,5481675,GUERDJOUM,15,Guerdjoum,8,boundary,administrative,2942,5,confirmed_exact_ons_tag
+2943,29,6668170,CHORFA,12,Chorfa,8,boundary,administrative,2943,7,confirmed_exact_ons_tag
+2944,29,6668184,RAS AIN AMIROUCHE,14,Ras El Aïn Amirouche,8,boundary,administrative,2944,6,confirmed_exact_ons_tag
+2945,29,6668181,NESMOTH,12,Nesmoth,8,boundary,administrative,2945,6,confirmed_exact_ons_tag
+2946,29,6668187,SIDI ABDELDJEBAR,12,Sidi Abdeldjebar,8,boundary,administrative,2946,4,confirmed_exact_ons_tag
+2947,29,6668186,SEHAILIA,12,Sehailia,8,boundary,administrative,2947,5,confirmed_exact_ons_tag
+3001,30,4601326,OUARGLA,20,Ouargla,8,boundary,administrative,3001,5,confirmed_exact_ons_tag
+3002,30,4603105,AIN BEIDA,18,Aïn El Beïda,8,boundary,administrative,3002,5,confirmed_exact_ons_tag
+3003,30,6542941,N'GOUSSA,14,N'Goussa,8,boundary,administrative,3003,6,confirmed_exact_ons_tag
+3004,30,6542939,HASSI MESSAOUD,13,Hassi Messaoud,8,boundary,administrative,3004,11,confirmed_exact_ons_tag
+3005,30,4602355,ROUISSAT,23,Rouissat,8,boundary,administrative,3005,9,confirmed_exact_ons_tag
+3011,30,4603118,SIDI KHOUILED,14,Sidi Khouiled,8,boundary,administrative,3011,4,confirmed_exact_ons_tag
+3012,30,5129428,HASSI BEN ABDELLAH,16,Hassi Ben Abdellah,8,boundary,administrative,3012,5,confirmed_exact_ons_tag
+3021,30,6542938,EL BORMA,15,El Borma,8,boundary,administrative,3021,8,confirmed_exact_ons_tag
+3101,31,1259562,ORAN,34,Oran,8,boundary,administrative,3101,7,confirmed_exact_ons_tag
+3102,31,4270862,GDYEL,16,Gdyel,8,boundary,administrative,3102,5,confirmed_exact_ons_tag
+3103,31,2078699,BIR EL DJIR,25,Bir el-Djir,8,boundary,administrative,3103,5,confirmed_exact_ons_tag
+3104,31,2079112,HASSI BOUNIF,20,Hassi Bounif,8,boundary,administrative,3104,5,confirmed_exact_ons_tag
+3105,31,1259764,ES SENIA,16,Es Senia,8,boundary,administrative,3105,4,confirmed_exact_ons_tag
+3106,31,4271171,ARZEW,15,Arzew,8,boundary,administrative,3106,5,confirmed_exact_ons_tag
+3107,31,3170952,BETHIOUA,18,Bethioua,8,boundary,administrative,3107,6,confirmed_exact_ons_tag
+3108,31,3170951,MARSAT EL HADJADJ,17,Mersat El Hadjadj,8,boundary,administrative,3108,5,confirmed_exact_ons_tag
+3109,31,1259773,AIN TURK,17,Aïn El Turk,8,boundary,administrative,3109,5,confirmed_exact_ons_tag
+3110,31,4267290,EL ANCOR,15,El Ançor,8,boundary,administrative,3110,5,confirmed_exact_ons_tag
+3111,31,4270377,OUED TLELAT,15,Oued Tlelat,8,boundary,administrative,3111,6,confirmed_exact_ons_tag
+3112,31,4270346,TAFRAOUI,15,Tafraoui,8,boundary,administrative,3112,7,confirmed_exact_ons_tag
+3113,31,2078700,SIDI CHAMI,27,Sidi Chahmi,8,boundary,administrative,3113,8,confirmed_exact_ons_tag
+3114,31,4270795,BOUFATIS,16,Boufatis,8,boundary,administrative,3114,9,confirmed_exact_ons_tag
+3115,31,1259772,MERS EL KEBIR,18,Mers El Kebir,8,boundary,administrative,3115,3,confirmed_exact_ons_tag
+3116,31,4267270,BOUSFER,14,Bousfer,8,boundary,administrative,3116,6,confirmed_exact_ons_tag
+3117,31,4267830,EL KERMA,16,El Kerma,8,boundary,administrative,3117,8,confirmed_exact_ons_tag
+3118,31,4270378,EL BRAYA,16,El Braya,8,boundary,administrative,3118,4,confirmed_exact_ons_tag
+3119,31,4267303,HASSI BEN OKBA,19,Hassi Ben Okba,8,boundary,administrative,3119,5,confirmed_exact_ons_tag
+3120,31,4270796,BEN FREHA,15,Ben Freha,8,boundary,administrative,3120,7,confirmed_exact_ons_tag
+3121,31,4270902,HASSI MEFSOUKH,15,Hassi Mefsoukh,8,boundary,administrative,3121,5,confirmed_exact_ons_tag
+3122,31,4271172,SIDI BEN YABKA,16,Sidi Ben Yebka,8,boundary,administrative,3122,5,confirmed_exact_ons_tag
+3123,31,1259561,MESSERGHIN,22,Misserghin,8,boundary,administrative,3123,13,confirmed_exact_ons_tag
+3124,31,4267929,BOUTLELIS,14,Boutlelis,8,boundary,administrative,3124,4,confirmed_exact_ons_tag
+3125,31,4267928,AIN KERMA,18,Aïn El Kerma,8,boundary,administrative,3125,11,confirmed_exact_ons_tag
+3126,31,4268173,AIN BIYA,17,Aïn El Bia,8,boundary,administrative,3126,5,confirmed_exact_ons_tag
+3201,32,6533981,EL BAYADH,13,El Bayadh,8,boundary,administrative,3201,7,confirmed_exact_ons_tag
+3202,32,6533988,ROGASSA,13,Rogassa,8,boundary,administrative,3202,9,confirmed_exact_ons_tag
+3203,32,6533992,STITTEN,13,Stitten,8,boundary,administrative,3203,5,confirmed_exact_ons_tag
+3204,32,6533977,BREZINA,12,Brezina,8,boundary,administrative,3204,13,confirmed_exact_ons_tag
+3205,32,6533984,GHASSOUL,10,Ghassoul,8,boundary,administrative,3205,5,confirmed_exact_ons_tag
+3206,32,6533974,BOUALEM,10,Boualem,8,boundary,administrative,3206,4,confirmed_exact_ons_tag
+3207,69,6533980,EL ABIODH SIDI CHEIKH,12,El Abiodh Sidi Cheikh,8,boundary,administrative,3207,6,confirmed_exact_ons_tag
+3208,69,6533973,AIN EL ORAK,10,Aïn El Orak,8,boundary,administrative,3208,4,confirmed_exact_ons_tag
+3209,69,6533972,ARBAOUET,11,Arbaouat,8,boundary,administrative,3209,5,confirmed_exact_ons_tag
+3210,32,6533975,BOUGTOUB,12,Bougtob,8,boundary,administrative,3210,6,confirmed_exact_ons_tag
+3211,32,6533982,EL KHEITER,14,El Kheiter,8,boundary,administrative,3211,5,confirmed_exact_ons_tag
+3212,32,6533985,KEF EL AHMAR,12,Kef El Ahmar,8,boundary,administrative,3212,4,confirmed_exact_ons_tag
+3213,69,6533976,BOUSSEMGHOUN,12,Boussemghoun,8,boundary,administrative,3213,6,confirmed_exact_ons_tag
+3214,69,6533979,CHELLALA,12,Chellala,8,boundary,administrative,3214,4,confirmed_exact_ons_tag
+3215,32,6533986,KERAKDA,10,Krakda,8,boundary,administrative,3215,5,confirmed_exact_ons_tag
+3216,69,6533987,EL BNOUD,10,Lebnoud,8,boundary,administrative,3216,6,confirmed_exact_ons_tag
+3217,32,6533978,CHEGUIG,11,Cheguig,8,boundary,administrative,3217,6,confirmed_exact_ons_tag
+3218,32,6533989,SIDI AMEUR,12,Sidi Ameur,8,boundary,administrative,3218,6,confirmed_exact_ons_tag
+3219,69,6533983,EL MEHARA,12,El Mehara,8,boundary,administrative,3219,11,confirmed_exact_ons_tag
+3220,32,6533993,TOUSMOULINE,11,Tousmouline,8,boundary,administrative,3220,5,confirmed_exact_ons_tag
+3221,32,6533990,SIDI SLIMANE,13,Sidi Slimane,8,boundary,administrative,3221,4,confirmed_exact_ons_tag
+3222,32,6533991,SIDI TIFOUR,11,Sidi Taïfour,8,boundary,administrative,3222,8,confirmed_exact_ons_tag
+3301,33,4174334,ILLIZI,21,Illizi,8,boundary,administrative,3301,9,confirmed_exact_ons_tag
+3303,33,4174332,DEBDEB,15,Debdeb,8,boundary,administrative,3303,6,confirmed_exact_ons_tag
+3304,33,4174331,BORDJ OMAR DRISS,21,Bordj Omar Driss,8,boundary,administrative,3304,9,confirmed_exact_ons_tag
+3306,33,4174335,IN AMENAS,15,In Amenas,8,boundary,administrative,3306,5,confirmed_exact_ons_tag
+3401,34,4309047,BORDJ BOU ARRERIDJ,18,Bordj Bou Arreridj,8,boundary,administrative,3401,6,confirmed_exact_ons_tag
+3402,34,4484758,RAS EL OUED,18,Ras El Oued,8,boundary,administrative,3402,8,confirmed_exact_ons_tag
+3403,34,4424825,BORDJ ZEMOURA,14,Bordj Zemoura,8,boundary,administrative,3403,7,confirmed_exact_ons_tag
+3404,34,4474340,MANSOURA,17,Mansoura,8,boundary,administrative,3404,7,confirmed_exact_ons_tag
+3405,34,4474380,EL M'HIR,15,El Mehir,8,boundary,administrative,3405,6,confirmed_exact_ons_tag
+3406,34,4474388,BEN DAOUD,14,Bendaoud,8,boundary,administrative,3406,5,confirmed_exact_ons_tag
+3407,34,4474509,EL ACHIR,14,El Achir,8,boundary,administrative,3407,5,confirmed_exact_ons_tag
+3408,34,4470401,AIN TAGHROUT,14,Aïn Taghrout,8,boundary,administrative,3408,7,confirmed_exact_ons_tag
+3409,34,4484898,BORDJ GHDIR,14,Bordj Ghedir,8,boundary,administrative,3409,8,confirmed_exact_ons_tag
+3410,34,4472662,SIDI EMBAREK,14,Sidi Embarek,8,boundary,administrative,3410,7,confirmed_exact_ons_tag
+3411,34,4483586,EL HAMADIA,16,El Hammadia,8,boundary,administrative,3411,8,confirmed_exact_ons_tag
+3412,34,4484852,BELIMOUR,14,Belimour,8,boundary,administrative,3412,4,confirmed_exact_ons_tag
+3413,34,4474256,MEDJANA,13,Medjana,8,boundary,administrative,3413,6,confirmed_exact_ons_tag
+3414,34,4474260,TENIET ENNASR,15,Teniet Ennasr,8,boundary,administrative,3414,5,confirmed_exact_ons_tag
+3415,34,4422302,DJAAFRA,14,Djaafra,8,boundary,administrative,3415,6,confirmed_exact_ons_tag
+3416,34,4421437,EL MAIN,13,El Main,8,boundary,administrative,3416,7,confirmed_exact_ons_tag
+3417,34,4484474,OULED BRAHEM,13,Ouled Brahem,8,boundary,administrative,3417,3,confirmed_exact_ons_tag
+3418,34,4424982,OULED DAHMANE,12,Ouled Dahmane,8,boundary,administrative,3418,6,confirmed_exact_ons_tag
+3419,34,4472187,HASNAOUA,12,Hasnaoua,8,boundary,administrative,3419,6,confirmed_exact_ons_tag
+3420,34,4463906,KHELIL,14,Khelil,8,boundary,administrative,3420,7,confirmed_exact_ons_tag
+3421,34,4484766,TAGLAIT,17,Taglait,8,boundary,administrative,3421,6,confirmed_exact_ons_tag
+3422,34,4475315,KSOUR,15,Ksour,8,boundary,administrative,3422,5,confirmed_exact_ons_tag
+3423,34,4474359,OULED SIDI BRAHIM,14,Ouled Sidi Brahim,8,boundary,administrative,3423,8,confirmed_exact_ons_tag
+3424,34,4421860,TAFREG,15,Tafreg,8,boundary,administrative,3424,5,confirmed_exact_ons_tag
+3425,34,4424696,COLLA,16,Colla,8,boundary,administrative,3425,5,confirmed_exact_ons_tag
+3426,34,4484437,TIXTER,14,Tixter,8,boundary,administrative,3426,6,confirmed_exact_ons_tag
+3427,34,4475450,EL ACH,16,El Euch,8,boundary,administrative,3427,8,confirmed_exact_ons_tag
+3428,34,4484791,EL ANSEUR,13,El Annasser,8,boundary,administrative,3428,5,confirmed_exact_ons_tag
+3429,34,4424736,TESMART,13,Tassamert,8,boundary,administrative,3429,4,confirmed_exact_ons_tag
+3430,34,4484871,AIN TASRA,14,Aïn Tassera,8,boundary,administrative,3430,8,confirmed_exact_ons_tag
+3431,34,4473944,BIR KASDALI,12,Bir Kasdali,8,boundary,administrative,3431,4,confirmed_exact_ons_tag
+3432,34,4484899,GHILASSA,14,Ghilassa,8,boundary,administrative,3432,4,confirmed_exact_ons_tag
+3433,34,4475556,RABTA,14,Rabta,8,boundary,administrative,3433,4,confirmed_exact_ons_tag
+3434,34,4474389,HARAZA,13,Haraza,8,boundary,administrative,3434,6,confirmed_exact_ons_tag
+3501,35,4272680,BOUMERDES,17,Boumerdès,8,boundary,administrative,3501,4,confirmed_exact_ons_tag
+3502,35,4272645,BOUDOUAOU,18,Boudouaou,8,boundary,administrative,3502,8,confirmed_exact_ons_tag
+3504,35,4274887,AFIR,14,Afir,8,boundary,administrative,3504,7,confirmed_exact_ons_tag
+3505,35,4273869,BORDJ MENAIEL,19,Bordj Menaiel,8,boundary,administrative,3505,7,confirmed_exact_ons_tag
+3506,35,4274938,BAGHLIA,16,Baghlia,8,boundary,administrative,3506,8,confirmed_exact_ons_tag
+3507,35,4274575,SIDI DAOUD,17,Sidi Daoud,8,boundary,administrative,3507,6,confirmed_exact_ons_tag
+3508,35,4274475,NACIRIA,16,Naciria,8,boundary,administrative,3508,6,confirmed_exact_ons_tag
+3509,35,4274526,DJINET,17,Djenet,8,boundary,administrative,3509,6,confirmed_exact_ons_tag
+3510,35,4273316,ISSER,16,Isser,8,boundary,administrative,3510,6,confirmed_exact_ons_tag
+3511,35,1457972,ZEMMOURI,19,Zemmouri,8,boundary,administrative,3511,6,confirmed_exact_ons_tag
+3512,35,4272821,SI MUSTAPHA,19,Si Mustapha,8,boundary,administrative,3512,6,confirmed_exact_ons_tag
+3513,35,4272917,TIDJELABINE,16,Tidjelabine,8,boundary,administrative,3513,6,confirmed_exact_ons_tag
+3514,35,4273200,CHAABET EL AMEUR,17,Chaabet El Ameur,8,boundary,administrative,3514,8,confirmed_exact_ons_tag
+3515,35,4272977,THENIA,19,Thenia,8,boundary,administrative,3515,7,confirmed_exact_ons_tag
+3518,35,4273246,TIMEZRIT,19,Timezrit,8,boundary,administrative,3518,6,confirmed_exact_ons_tag
+3519,35,4272665,CORSO,18,Corso,8,boundary,administrative,3519,5,confirmed_exact_ons_tag
+3520,35,3596000,OULED MOUSSA,21,Ouled Moussa,8,boundary,administrative,3520,5,confirmed_exact_ons_tag
+3521,35,4272511,LARBATACHE,14,Larbatache,8,boundary,administrative,3521,4,confirmed_exact_ons_tag
+3522,35,4272865,BOUZEGZA KEDDARA,15,Bouzegza Keddara,8,boundary,administrative,3522,6,confirmed_exact_ons_tag
+3525,35,4274939,TAOURGA,14,Taourga,8,boundary,administrative,3525,4,confirmed_exact_ons_tag
+3526,35,4274599,OULED AISSA,16,Ouled Aissa,8,boundary,administrative,3526,5,confirmed_exact_ons_tag
+3527,35,4274705,BENCHOUD,16,Ben Choud,8,boundary,administrative,3527,3,confirmed_exact_ons_tag
+3528,35,4274775,DELLYS,18,Dellys,8,boundary,administrative,3528,7,confirmed_exact_ons_tag
+3529,35,4273110,AMMAL,14,Ammal,8,boundary,administrative,3529,5,confirmed_exact_ons_tag
+3530,35,4273152,BENI AMRANE,15,Beni Amrane,8,boundary,administrative,3530,7,confirmed_exact_ons_tag
+3531,35,4273075,SOUK EL HAD,14,Souk El Had,8,boundary,administrative,3531,4,confirmed_exact_ons_tag
+3532,35,3018662,BOUDOUAOU EL BAHRI,18,Boudouaou El Bahri,8,boundary,administrative,3532,4,confirmed_exact_ons_tag
+3533,35,4272376,OULED HEDADJ,15,Ouled Haddadj,8,boundary,administrative,3533,5,confirmed_exact_ons_tag
+3535,35,4273218,LAGHATA,15,Leghata,8,boundary,administrative,3535,5,confirmed_exact_ons_tag
+3536,35,1299269,HAMMADI,13,Hammedi,8,boundary,administrative,3536,4,confirmed_exact_ons_tag
+3537,35,1299268,KHEMIS EL KHECHNA,15,Khemis El Khechna,8,boundary,administrative,3537,8,confirmed_exact_ons_tag
+3538,35,4272566,EL KHARROUBA,16,Kherrouba,8,boundary,administrative,3538,6,confirmed_exact_ons_tag
+3601,36,1614578,EL TARF,18,El Tarf,8,boundary,administrative,3601,5,confirmed_exact_ons_tag
+3602,36,1614505,BOUHADJAR,18,Bouhadjar,8,boundary,administrative,3602,8,confirmed_exact_ons_tag
+3603,36,1604920,BEN M'HIDI,14,Ben M'Hidi,8,boundary,administrative,3603,11,confirmed_exact_ons_tag
+3604,36,1614539,BOUGOUS,20,Bougous,8,boundary,administrative,3604,11,confirmed_exact_ons_tag
+3605,36,1604275,EL KALA,19,El Kala,8,boundary,administrative,3605,9,confirmed_exact_ons_tag
+3606,36,1614560,AIN EL ASSEL,13,Aïn El Assel,8,boundary,administrative,3606,5,confirmed_exact_ons_tag
+3607,36,1614575,EL AIOUN,16,El Aioun,8,boundary,administrative,3607,5,confirmed_exact_ons_tag
+3608,36,1614602,BOUTELDJA,12,Bouteldja,8,boundary,administrative,3608,6,confirmed_exact_ons_tag
+3609,36,1604271,SOUAREKH,16,Souarekh,8,boundary,administrative,3609,6,confirmed_exact_ons_tag
+3610,36,1604277,BERRIHANE,14,Berrihane,8,boundary,administrative,3610,6,confirmed_exact_ons_tag
+3611,36,1615225,LAC DES OISEAUX,12,Lac des Oiseaux,8,boundary,administrative,3611,4,confirmed_exact_ons_tag
+3612,36,1615226,CHEFFIA,12,Chefia,8,boundary,administrative,3612,8,confirmed_exact_ons_tag
+3613,36,1614472,DREAN,15,Drean,8,boundary,administrative,3613,6,confirmed_exact_ons_tag
+3614,36,1614361,CHIHANI,14,Chihani,8,boundary,administrative,3614,9,confirmed_exact_ons_tag
+3615,36,1614473,CHEBAITA MOKHTAR,14,Chbaita Mokhtar,8,boundary,administrative,3615,4,confirmed_exact_ons_tag
+3616,36,1605151,BESBES,14,Besbes,8,boundary,administrative,3616,9,confirmed_exact_ons_tag
+3617,36,1614324,ASFOUR,12,Asfour,8,boundary,administrative,3617,5,confirmed_exact_ons_tag
+3618,36,1604928,ECHATT,17,Echatt,8,boundary,administrative,3618,11,confirmed_exact_ons_tag
+3619,36,1614312,ZERIZER,12,Zerizer,8,boundary,administrative,3619,3,confirmed_exact_ons_tag
+3620,36,1614533,ZITOUNA,16,Zitouna,8,boundary,administrative,3620,8,confirmed_exact_ons_tag
+3621,36,1614523,AIN KERMA,13,Aïn Kerma,8,boundary,administrative,3621,4,confirmed_exact_ons_tag
+3622,36,1614484,OUED ZITOUN,15,Oued Zitoun,8,boundary,administrative,3622,4,confirmed_exact_ons_tag
+3623,36,1614443,HAMMAM BENI SALAH,17,Hammam Beni Salah,8,boundary,administrative,3623,8,confirmed_exact_ons_tag
+3624,36,1614561,RAML SOUK,19,Raml Souk,8,boundary,administrative,3624,6,confirmed_exact_ons_tag
+3701,37,4101596,TINDOUF,23,Tindouf,8,boundary,administrative,3701,9,confirmed_exact_ons_tag
+3702,37,4101595,OUM EL ASSEL,15,Oum el Assel,8,boundary,administrative,3702,11,confirmed_exact_ons_tag
+3801,38,6534595,TISSEMSSILT,13,Tissemsilt,8,boundary,administrative,3801,7,confirmed_exact_ons_tag
+3802,38,6534578,BORDJ BOU NAAMA,13,Bordj Bou Naama,8,boundary,administrative,3802,6,confirmed_exact_ons_tag
+3803,38,6534594,THENIET EL HAD,10,Theniet El Had,8,boundary,administrative,3803,10,confirmed_exact_ons_tag
+3804,38,6534585,LAZHARIA,11,Lazharia,8,boundary,administrative,3804,7,confirmed_exact_ons_tag
+3805,38,6534576,BENI CHAIB,11,Beni Chaib,8,boundary,administrative,3805,7,confirmed_exact_ons_tag
+3806,38,6534584,LARDJEM,14,Lardjem,8,boundary,administrative,3806,11,confirmed_exact_ons_tag
+3807,38,6534587,MELAAB,12,Melaab,8,boundary,administrative,3807,10,confirmed_exact_ons_tag
+3808,38,6534591,SIDI LANTRI,12,Sidi Lantri,8,boundary,administrative,3808,6,confirmed_exact_ons_tag
+3809,38,6534579,BORDJ EMIR AEK,9,Bordj El Emir Abdelkader,8,boundary,administrative,3809,5,confirmed_exact_ons_tag
+3810,38,6534582,LAAYOUNE,9,Laayoune,8,boundary,administrative,3810,6,confirmed_exact_ons_tag
+3811,38,6534581,KHEMISTI,11,Khemisti,8,boundary,administrative,3811,7,confirmed_exact_ons_tag
+3812,38,6534588,OULED BESSEM,10,Ouled Bessam,8,boundary,administrative,3812,5,confirmed_exact_ons_tag
+3813,38,6534575,AMMARI,12,Ammari,8,boundary,administrative,3813,7,confirmed_exact_ons_tag
+3814,38,6534596,YOUSSOUFIA,10,Youssoufia,8,boundary,administrative,3814,3,confirmed_exact_ons_tag
+3815,38,6534590,SIDI BOUTOUCHENT,9,Sidi Boutouchent,8,boundary,administrative,3815,4,confirmed_exact_ons_tag
+3816,38,6534583,LARBAA,10,Larbaâ,8,boundary,administrative,3816,4,confirmed_exact_ons_tag
+3817,38,6534586,MAACEM,11,Maacem,8,boundary,administrative,3817,5,confirmed_exact_ons_tag
+3818,38,6534589,SIDI ABED,10,Sidi Abed,8,boundary,administrative,3818,6,confirmed_exact_ons_tag
+3819,38,6534593,TAMELLAHT,11,Tamalaht,8,boundary,administrative,3819,4,confirmed_exact_ons_tag
+3820,38,6534592,SIDI SLIMANE,10,Sidi Slimane,8,boundary,administrative,3820,4,confirmed_exact_ons_tag
+3821,38,6534580,BOUCAID,12,Boucaïd,8,boundary,administrative,3821,6,confirmed_exact_ons_tag
+3822,38,6534577,BENI LAHCENE,12,Beni Lahcene,8,boundary,administrative,3822,6,confirmed_exact_ons_tag
+3901,39,4318197,EL OUED,24,El Oued,8,boundary,administrative,3901,7,confirmed_exact_ons_tag
+3902,39,5139596,ROBBAH,16,Robbah,8,boundary,administrative,3902,6,confirmed_exact_ons_tag
+3903,39,5139561,OUED EL ALENDA,13,Oued Allenda,8,boundary,administrative,3903,6,confirmed_exact_ons_tag
+3904,39,4497229,BAYADHA,23,Bayadha,8,boundary,administrative,3904,8,confirmed_exact_ons_tag
+3905,39,5139651,NAKHLA,15,Nekhla,8,boundary,administrative,3905,4,confirmed_exact_ons_tag
+3906,39,5139191,GUEMAR,15,Guemar,8,boundary,administrative,3906,5,confirmed_exact_ons_tag
+3907,39,4424393,KOUININE,15,Kouinine,8,boundary,administrative,3907,5,confirmed_exact_ons_tag
+3908,39,5139082,REGUIBA,14,Reguiba,8,boundary,administrative,3908,4,confirmed_exact_ons_tag
+3909,39,5144163,HAMRAIA,17,Hamraia,8,boundary,administrative,3909,13,confirmed_exact_ons_tag
+3910,39,4489521,TAGHZOUT,17,Taghzout,8,boundary,administrative,3910,6,confirmed_exact_ons_tag
+3911,39,5139056,DEBILA,15,Debila,8,boundary,administrative,3911,5,confirmed_exact_ons_tag
+3912,39,5139039,HASSANI ABDELKRIM,10,Hassani Abdelkrim,8,boundary,administrative,3912,7,confirmed_exact_ons_tag
+3913,39,5139378,HASSI KHELIFA,11,Hassi Khelifa,8,boundary,administrative,3913,5,confirmed_exact_ons_tag
+3914,39,5139474,TALEB LARBI,14,Taleb Larbi,8,boundary,administrative,3914,7,confirmed_exact_ons_tag
+3915,39,5139619,DOUAR EL MA,15,Douar El Ma,8,boundary,administrative,3915,15,confirmed_exact_ons_tag
+3916,39,5139341,SIDI AOUN,12,Sidi Aoun,8,boundary,administrative,3916,5,confirmed_exact_ons_tag
+3917,39,5139300,TRIFAOUI,14,Trifaoui,8,boundary,administrative,3917,7,confirmed_exact_ons_tag
+3918,39,5139359,MAGRANE,11,Magrane,8,boundary,administrative,3918,5,confirmed_exact_ons_tag
+3919,39,5139455,BEN GHECHA,15,Beni Guecha,8,boundary,administrative,3919,8,confirmed_exact_ons_tag
+3920,39,4489484,OURMAS,12,Ourmes,8,boundary,administrative,3920,4,confirmed_exact_ons_tag
+3925,39,5139646,EL OGLA,12,El Ogla,8,boundary,administrative,3925,3,confirmed_exact_ons_tag
+3926,39,5139492,MIH OUENSA,13,Mih Ouensa,8,boundary,administrative,3926,4,confirmed_exact_ons_tag
+4001,40,6561885,KHENCHELA,13,Khenchela,8,boundary,administrative,4001,3,confirmed_exact_ons_tag
+4002,40,6561887,M'TOUSSA,11,M'Toussa,8,boundary,administrative,4002,5,confirmed_exact_ons_tag
+4003,40,6561884,KAIS,9,Kais,8,boundary,administrative,4003,5,confirmed_exact_ons_tag
+4004,40,6561875,BAGHAI,12,Baghaï,8,boundary,administrative,4004,6,confirmed_exact_ons_tag
+4005,40,6561880,EL HAMMA,11,El Hamma,8,boundary,administrative,4005,6,confirmed_exact_ons_tag
+4006,40,6561873,AIN TOUILA,14,Aïn Touila,8,boundary,administrative,4006,9,confirmed_exact_ons_tag
+4007,40,6561891,TAOUZIANET,9,Taouzient,8,boundary,administrative,4007,5,confirmed_exact_ons_tag
+4008,40,6561876,BOUHMAMA,12,Bouhmama,8,boundary,administrative,4008,6,confirmed_exact_ons_tag
+4009,40,6561882,EL OUELDJA,10,El Oueldja,8,boundary,administrative,4009,5,confirmed_exact_ons_tag
+4010,40,6561889,REMILA,10,Remila,8,boundary,administrative,4010,8,confirmed_exact_ons_tag
+4011,40,6561877,CHECHAR,10,Chechar,8,boundary,administrative,4011,8,confirmed_exact_ons_tag
+4012,40,6561879,DJELLAL,11,Djellal,8,boundary,administrative,4012,4,confirmed_exact_ons_tag
+4013,40,6561874,BABAR,11,Babar,8,boundary,administrative,4013,22,confirmed_exact_ons_tag
+4014,40,6561890,TAMSA,10,Tamza,8,boundary,administrative,4014,7,confirmed_exact_ons_tag
+4015,40,6561883,ENSIGHA,10,Ensigha,8,boundary,administrative,4015,8,confirmed_exact_ons_tag
+4016,40,6561888,OULED RECHACHE,12,Ouled Rechache,8,boundary,administrative,4016,4,confirmed_exact_ons_tag
+4017,40,6561881,EL MAHMEL,10,El Mahmal,8,boundary,administrative,4017,10,confirmed_exact_ons_tag
+4018,40,5846914,EL MSARA,11,M'Sara,8,boundary,administrative,4018,5,confirmed_exact_ons_tag
+4019,40,6561892,YABOUS,10,Yabous,8,boundary,administrative,4019,8,confirmed_exact_ons_tag
+4020,40,6561886,KHIRANE,10,Khirane,8,boundary,administrative,4020,9,confirmed_exact_ons_tag
+4021,40,6561878,CHELIA,10,Chélia,8,boundary,administrative,4021,6,confirmed_exact_ons_tag
+4101,41,6663208,SOUK AHRAS,9,Souk Ahras,8,boundary,administrative,4101,6,confirmed_exact_ons_tag
+4102,41,6663206,SEDRATA,7,Sedrata,8,boundary,administrative,4102,8,confirmed_exact_ons_tag
+4103,41,6663193,HANANCHA,7,Hanancha,8,boundary,administrative,4103,8,confirmed_exact_ons_tag
+4104,41,6663197,MECHROHA,7,Mechroha,8,boundary,administrative,4104,7,confirmed_exact_ons_tag
+4105,41,6663201,OULED DRISS,7,Ouled Driss,8,boundary,administrative,4105,7,confirmed_exact_ons_tag
+4106,41,6663211,TIFFECH,8,Tiffech,8,boundary,administrative,4106,5,confirmed_exact_ons_tag
+4107,41,6663212,ZAAROURIA,8,Zaarouria,8,boundary,administrative,4107,8,confirmed_exact_ons_tag
+4108,41,6663209,TAOURA,7,Taoura,8,boundary,administrative,4108,5,confirmed_exact_ons_tag
+4109,41,6663191,DREA,7,Drea,8,boundary,administrative,4109,7,confirmed_exact_ons_tag
+4110,41,6663192,HADDADA,8,Haddada,8,boundary,administrative,4110,6,confirmed_exact_ons_tag
+4111,41,6663194,KHEDDARA,8,Kheddara,8,boundary,administrative,4111,8,confirmed_exact_ons_tag
+4112,41,6663198,MERAHNA,9,Merahna,8,boundary,administrative,4112,6,confirmed_exact_ons_tag
+4113,41,6663202,OULED MOUMEN,8,Ouled Moumen,8,boundary,administrative,4113,7,confirmed_exact_ons_tag
+4114,41,6663190,BIR BOUHOUCHE,8,Bir Bouhouche,8,boundary,administrative,4114,6,confirmed_exact_ons_tag
+4115,41,6663196,M'DAOUROUCH,7,M'daourouch,8,boundary,administrative,4115,4,confirmed_exact_ons_tag
+4116,41,6663203,OUM EL ADHAIM,8,Oum El Adhaim,8,boundary,administrative,4116,8,confirmed_exact_ons_tag
+4117,41,6663189,AIN ZANA,9,Aïn Zana,8,boundary,administrative,4117,6,confirmed_exact_ons_tag
+4118,41,6663188,AIN SOLTANE,8,Ain Soltane,8,boundary,administrative,4118,5,confirmed_exact_ons_tag
+4119,41,6663200,OUILLEN,8,Ouillen,8,boundary,administrative,4119,5,confirmed_exact_ons_tag
+4120,41,6663207,SIDI FREDJ,9,Sidi Fredj,8,boundary,administrative,4120,8,confirmed_exact_ons_tag
+4121,41,6663205,SAFEL EL OUIDEN,9,Safel El Ouiden,8,boundary,administrative,4121,6,confirmed_exact_ons_tag
+4122,41,6663204,RAGOUBA,8,Ragouba,8,boundary,administrative,4122,5,confirmed_exact_ons_tag
+4123,41,6663195,KHEMISSA,7,Khemissa,8,boundary,administrative,4123,6,confirmed_exact_ons_tag
+4124,41,6663199,OUED KEBRIT,8,Oued Kebrit,8,boundary,administrative,4124,4,confirmed_exact_ons_tag
+4125,41,6663210,TERRAGUELT,9,Terraguelt,8,boundary,administrative,4125,5,confirmed_exact_ons_tag
+4126,41,6663213,ZOUABI,10,Zouabi,8,boundary,administrative,4126,6,confirmed_exact_ons_tag
+4201,42,2312615,TIPAZA,26,Tipaza,8,boundary,administrative,4201,13,confirmed_exact_ons_tag
+4202,42,2316687,MENACEUR,19,Menaceur,8,boundary,administrative,4202,7,confirmed_exact_ons_tag
+4203,42,2612369,LARHAT,15,Larhat,8,boundary,administrative,4203,6,confirmed_exact_ons_tag
+4204,42,2280929,DOUAOUDA,14,Douaouda,8,boundary,administrative,4204,5,confirmed_exact_ons_tag
+4205,42,2308420,BOURKIKA,15,Bourkika,8,boundary,administrative,4205,5,confirmed_exact_ons_tag
+4206,42,2300950,KHEMISTI,16,Khemisti,8,boundary,administrative,4206,5,confirmed_exact_ons_tag
+4210,42,2612478,AGHBAL,18,Aghbal,8,boundary,administrative,4210,3,confirmed_exact_ons_tag
+4212,42,2308454,HADJOUT,18,Hadjout,8,boundary,administrative,4212,6,confirmed_exact_ons_tag
+4213,42,2312607,SIDI AMAR,18,Sidi Amar,8,boundary,administrative,4213,6,confirmed_exact_ons_tag
+4214,42,2614802,GOURAYA,18,Gouraya,8,boundary,administrative,4214,9,confirmed_exact_ons_tag
+4215,42,2312606,NADOR,21,Nador,8,boundary,administrative,4215,4,confirmed_exact_ons_tag
+4216,42,2296879,CHAIBA,21,Chaïba,8,boundary,administrative,4216,7,confirmed_exact_ons_tag
+4217,42,2305516,AIN TAGOURAIT,15,Aïn Tagourait,8,boundary,administrative,4217,5,confirmed_exact_ons_tag
+4222,42,2312620,CHERCHELL,19,Cherchell,8,boundary,administrative,4222,8,confirmed_exact_ons_tag
+4223,42,2609923,DAMOUS,20,Damous,8,boundary,administrative,4223,7,confirmed_exact_ons_tag
+4224,42,2308455,MERAD,20,Merad,8,boundary,administrative,4224,7,confirmed_exact_ons_tag
+4225,42,2280930,FOUKA,22,Fouka,8,boundary,administrative,4225,5,confirmed_exact_ons_tag
+4226,42,2297203,BOU ISMAIL,22,Bou Ismaïl,8,boundary,administrative,4226,5,confirmed_exact_ons_tag
+4227,42,2308419,AHMER EL AIN,16,Ahmer El Aïn,8,boundary,administrative,4227,5,confirmed_exact_ons_tag
+4230,42,2301021,BOUHAROUN,15,Bouharoun,8,boundary,administrative,4230,4,confirmed_exact_ons_tag
+4232,42,2318188,SIDI GHILES,15,Sidi Ghiles,8,boundary,administrative,4232,4,confirmed_exact_ons_tag
+4233,42,2320421,MESSELMOUN,22,Messelmoun,8,boundary,administrative,4233,11,confirmed_exact_ons_tag
+4234,42,2305517,SIDI RACHED,21,Sidi Rached,8,boundary,administrative,4234,6,confirmed_exact_ons_tag
+4235,42,2280931,KOLEA,18,Kolea,8,boundary,administrative,4235,6,confirmed_exact_ons_tag
+4236,42,2302521,ATTATBA,22,Attatba,8,boundary,administrative,4236,9,confirmed_exact_ons_tag
+4240,42,2317935,SIDI SEMIANE,15,Sidi Semiane,8,boundary,administrative,4240,6,confirmed_exact_ons_tag
+4241,42,2611086,BENI MILLEUK,18,Beni Mileuk,8,boundary,administrative,4241,6,confirmed_exact_ons_tag
+4242,42,2318187,HADJRET ENNOUS,16,Hadjret Ennous,8,boundary,administrative,4242,6,confirmed_exact_ons_tag
+4301,43,2239839,MILA,16,Mila,8,boundary,administrative,4301,8,confirmed_exact_ons_tag
+4302,43,2155365,FERDJIOUA,20,Ferdjioua,8,boundary,administrative,4302,7,confirmed_exact_ons_tag
+4303,43,2195009,CHELGHOUM LAID,19,Chelghoum Laïd,8,boundary,administrative,4303,7,confirmed_exact_ons_tag
+4304,43,2198535,OUED ATHMANIA,15,Oued Athmania,8,boundary,administrative,4304,6,confirmed_exact_ons_tag
+4305,43,2195010,AIN MELOUK,16,Aïn Mellouk,8,boundary,administrative,4305,6,confirmed_exact_ons_tag
+4306,43,2197207,TELERGHMA,17,Teleghma,8,boundary,administrative,4306,5,confirmed_exact_ons_tag
+4307,43,2197217,OUED SEGUEN,18,Oued Seguen,8,boundary,administrative,4307,6,confirmed_exact_ons_tag
+4308,43,2195008,TADJENANET,16,Tadjenanet,8,boundary,administrative,4308,7,confirmed_exact_ons_tag
+4309,43,2189769,BENYAHIA ABDERRAHMANE,17,Benyahia Abderrahmane,8,boundary,administrative,4309,6,confirmed_exact_ons_tag
+4310,43,2239838,OUED ENDJA,15,Oued Endja,8,boundary,administrative,4310,7,confirmed_exact_ons_tag
+4311,43,2204813,AHMED RACHEDI,13,Ahmed Rachedi,8,boundary,administrative,4311,6,confirmed_exact_ons_tag
+4312,43,2196245,OULED KHELOUF,17,Ouled Khellouf,8,boundary,administrative,4312,6,confirmed_exact_ons_tag
+4313,43,2262854,TIBERGUENT,13,Tiberguent,8,boundary,administrative,4313,5,confirmed_exact_ons_tag
+4314,43,2189768,BOUHATEM,16,Bouhatem,8,boundary,administrative,4314,7,confirmed_exact_ons_tag
+4315,43,2155364,ROUACHED,19,Rouached,8,boundary,administrative,4315,8,confirmed_exact_ons_tag
+4316,43,2255332,TESSALA LEMTAI,16,Tassala Lemtaï,8,boundary,administrative,4316,6,confirmed_exact_ons_tag
+4317,43,2240222,GRAREM GOUGA,17,Grarem Gouga,8,boundary,administrative,4317,8,confirmed_exact_ons_tag
+4318,43,2502114,SIDI MEROUANE,12,Sidi Mérouane,8,boundary,administrative,4318,4,confirmed_exact_ons_tag
+4319,43,2155362,TASSADANE HADDADA,19,Tassadane Haddada,8,boundary,administrative,4319,7,confirmed_exact_ons_tag
+4320,43,2163225,DERADJI BOUSSELAH,15,Derrahi Bousselah,8,boundary,administrative,4320,6,confirmed_exact_ons_tag
+4321,43,2155363,MINAR ZARZA,14,Minar Zarza,8,boundary,administrative,4321,4,confirmed_exact_ons_tag
+4322,43,2254494,AMIRA ARRAS,16,Amira Arrès,8,boundary,administrative,4322,5,confirmed_exact_ons_tag
+4323,43,2254248,TERRAI BAINEN,18,Terrai Bainen,8,boundary,administrative,4323,6,confirmed_exact_ons_tag
+4324,43,2242607,HAMALA,14,Hamala,8,boundary,administrative,4324,4,confirmed_exact_ons_tag
+4325,43,2205276,AIN TINN,16,Aïn Tinn,8,boundary,administrative,4325,4,confirmed_exact_ons_tag
+4326,43,2196246,EL MECHIRA,16,M'Chira,8,boundary,administrative,4326,5,confirmed_exact_ons_tag
+4327,43,2205192,SIDI KHELIFA,13,Sidi Khelifa,8,boundary,administrative,4327,6,confirmed_exact_ons_tag
+4328,43,2267408,ZEGHAIA,13,Zeghaïa,8,boundary,administrative,4328,4,confirmed_exact_ons_tag
+4329,43,2155366,EL AYADI BARBES,15,El Ayadi Barbes,8,boundary,administrative,4329,6,confirmed_exact_ons_tag
+4330,43,2162145,AIN BEIDA HARRICHE,15,Aïn Beida Harriche,8,boundary,administrative,4330,4,confirmed_exact_ons_tag
+4331,43,2261946,YAHIA BENI GUECHA,14,Yahia Beni Guecha,8,boundary,administrative,4331,4,confirmed_exact_ons_tag
+4332,43,2242666,CHIGARA,14,Chigara,8,boundary,administrative,4332,6,confirmed_exact_ons_tag
+4401,44,21037899,AIN DEFLA,1,Commune Aïn Defla,8,boundary,administrative,,6,verified_by_name_and_boundary
+4402,44,2783389,MILIANA,13,Miliana,8,boundary,administrative,4402,3,confirmed_exact_ons_tag
+4403,44,2625705,BOUMEDFAA,18,Boumedfaa,8,boundary,administrative,4403,8,confirmed_exact_ons_tag
+4404,44,2658815,KHEMIS MILIANA,17,Khemis Milana,8,boundary,administrative,4404,6,confirmed_exact_ons_tag
+4405,44,2625844,HAMMAM RIGHA,15,Hammam Righa,8,boundary,administrative,4405,4,confirmed_exact_ons_tag
+4406,44,2781482,ARIB,20,Arib,8,boundary,administrative,4406,8,confirmed_exact_ons_tag
+4407,44,2737123,DJELIDA,19,Djelida,8,boundary,administrative,4407,8,confirmed_exact_ons_tag
+4408,44,2755387,EL AMRA,14,El Amra,8,boundary,administrative,4408,5,confirmed_exact_ons_tag
+4409,44,2762966,BOURACHED,14,Bourached,8,boundary,administrative,4409,4,confirmed_exact_ons_tag
+4410,44,2744462,EL ATTAF,17,El Attaf,8,boundary,administrative,4410,6,confirmed_exact_ons_tag
+4411,44,2749875,EL ABADIA,16,El Abadia,8,boundary,administrative,4411,6,confirmed_exact_ons_tag
+4412,44,2642511,DJENDEL,13,Djendel,8,boundary,administrative,4412,6,confirmed_exact_ons_tag
+4413,44,2645875,OUED CHEURFA,15,Oued Chorfa,8,boundary,administrative,4413,9,confirmed_exact_ons_tag
+4414,44,2647524,AIN LECHIAKH,12,Aïn Lachiakh,8,boundary,administrative,4414,5,confirmed_exact_ons_tag
+4415,44,2648233,OUED DJEMAA,12,Oued Djemaa,8,boundary,administrative,4415,8,confirmed_exact_ons_tag
+4416,44,2756568,ROUINA,14,Rouina,8,boundary,administrative,4416,6,confirmed_exact_ons_tag
+4417,44,2759956,ZEDDINE,12,Zeddine,8,boundary,administrative,4417,8,confirmed_exact_ons_tag
+4418,44,2740818,EL HASSANIA,14,El Hassania,8,boundary,administrative,4418,5,confirmed_exact_ons_tag
+4419,44,2656735,BIR OULED KHELIFA,13,Bir Ouled Khelifa,8,boundary,administrative,4419,6,confirmed_exact_ons_tag
+4420,44,2645628,AIN SOLTANE,15,Aïn Soltane,8,boundary,administrative,4420,7,confirmed_exact_ons_tag
+4421,44,2656514,TARIK IBN ZIAD,14,Tarik Ibn Ziad,8,boundary,administrative,4421,8,confirmed_exact_ons_tag
+4422,44,2654404,BORDJ EMIR KHALED,15,Bordj Emir Khaled,8,boundary,administrative,4422,5,confirmed_exact_ons_tag
+4423,44,2626770,AIN TORKI,18,Aïn Torki,8,boundary,administrative,4423,9,confirmed_exact_ons_tag
+4424,44,2782513,SIDI LAKHDAR,17,Sidi Lakhdar,8,boundary,administrative,4424,5,confirmed_exact_ons_tag
+4425,44,2782897,BEN ALLEL,15,Ben Allel,8,boundary,administrative,4425,6,confirmed_exact_ons_tag
+4426,44,2626176,AIN BENIAN,17,Aïn Benian,8,boundary,administrative,4426,4,confirmed_exact_ons_tag
+4427,44,2628695,HOCEINIA,14,Hoceinia,8,boundary,administrative,4427,5,confirmed_exact_ons_tag
+4428,44,2647126,BARBOUCHE,13,Birbouche,8,boundary,administrative,4428,4,confirmed_exact_ons_tag
+4429,44,2738270,DJEMAA OULED CHEIKH,14,Djemaa Ouled Cheikh,8,boundary,administrative,4429,6,confirmed_exact_ons_tag
+4430,44,2780991,MEKHATRIA,11,Mekhatria,8,boundary,administrative,4430,4,confirmed_exact_ons_tag
+4431,44,2742409,BATHIA,12,Bathia,8,boundary,administrative,4431,7,confirmed_exact_ons_tag
+4432,44,2752239,TACHETA ZEGAGHA,14,Tacheta Zoughagha,8,boundary,administrative,4432,7,confirmed_exact_ons_tag
+4433,44,2754069,AIN BOUYAHIA,13,Aïn Bouyahia,8,boundary,administrative,4433,8,confirmed_exact_ons_tag
+4434,44,2742666,EL MAINE,15,El Maine,8,boundary,administrative,4434,5,confirmed_exact_ons_tag
+4435,44,2743654,TIBERKANINE,14,Tiberkanine,8,boundary,administrative,4435,6,confirmed_exact_ons_tag
+4436,44,2742602,BELAAS,13,Belaas,8,boundary,administrative,4436,6,confirmed_exact_ons_tag
+4501,45,6544124,NAAMA,11,Naâma,8,boundary,administrative,4501,8,confirmed_exact_ons_tag
+4502,45,6544122,MECHERIA,14,Mécheria,8,boundary,administrative,4502,4,confirmed_exact_ons_tag
+4503,45,6544117,AIN SEFRA,14,Aïn Séfra,8,boundary,administrative,4503,4,confirmed_exact_ons_tag
+4504,45,6544126,TIOUT,13,Tiout,8,boundary,administrative,4504,4,confirmed_exact_ons_tag
+4505,45,6544125,SFISSIFA,13,Sfissifa,8,boundary,administrative,4505,5,confirmed_exact_ons_tag
+4506,45,6544123,MOGHRAR,12,Moghrar,8,boundary,administrative,4506,5,confirmed_exact_ons_tag
+4507,45,6544115,ASSELA,14,Assela,8,boundary,administrative,4507,7,confirmed_exact_ons_tag
+4508,45,6544118,DJENIEN BOURZEG,12,Djeniene Bourezg,8,boundary,administrative,4508,5,confirmed_exact_ons_tag
+4509,45,6544116,AIN BEN KHELIL,13,Aïn Ben Khellil,8,boundary,administrative,4509,7,confirmed_exact_ons_tag
+4510,45,6544121,MEKMEN BEN AMAR,12,Makman Ben Ammar,8,boundary,administrative,4510,4,confirmed_exact_ons_tag
+4511,45,6544120,KASDIR,14,Kasdir,8,boundary,administrative,4511,9,confirmed_exact_ons_tag
+4512,45,6544119,EL BIODH,13,El Biod,8,boundary,administrative,4512,10,confirmed_exact_ons_tag
+4601,46,6535198,AIN TEMOUCHENT,20,Aïn Témouchent,8,boundary,administrative,4601,6,confirmed_exact_ons_tag
+4602,46,6535203,CHAABET EL HAM,15,Chaabet El Leham,8,boundary,administrative,4602,6,confirmed_exact_ons_tag
+4603,46,6535197,AIN KIHAL,13,Ain Kihal,8,boundary,administrative,4603,5,confirmed_exact_ons_tag
+4604,46,6535209,HAMMAM BOUHADJAR,20,Hammam Bou Hadjar,8,boundary,administrative,4604,8,confirmed_exact_ons_tag
+4605,46,6535202,BOUZEDJAR,14,Bouzedjar,8,boundary,administrative,4605,5,confirmed_exact_ons_tag
+4606,46,6535213,OUED BERKECHE,15,Oued Berkeche,8,boundary,administrative,4606,4,confirmed_exact_ons_tag
+4607,46,6535195,AGHLAL,14,Aghlal,8,boundary,administrative,4607,8,confirmed_exact_ons_tag
+4608,46,6535220,TERGA,17,Terga,8,boundary,administrative,4608,6,confirmed_exact_ons_tag
+4609,46,6535196,AIN EL ARBAA,14,Ain El Arbaa,8,boundary,administrative,4609,4,confirmed_exact_ons_tag
+4610,46,6535219,TAMZOURA,15,Tamzoura,8,boundary,administrative,4610,6,confirmed_exact_ons_tag
+4611,46,6535204,CHENTOUF,16,Chentouf,8,boundary,administrative,4611,5,confirmed_exact_ons_tag
+4612,46,6535216,SIDI BEN ADDA,14,Sidi Ben Adda,8,boundary,administrative,4612,6,confirmed_exact_ons_tag
+4613,46,6535200,AOUBELLIL,15,Aoubellil,8,boundary,administrative,4613,5,confirmed_exact_ons_tag
+4614,46,6535207,EL MALAH,15,El Mallah,8,boundary,administrative,4614,5,confirmed_exact_ons_tag
+4615,46,6535217,SIDI BOUMEDIENE,14,Sidi Boumediene,8,boundary,administrative,4615,5,confirmed_exact_ons_tag
+4616,46,6535212,OUED SEBBAH,13,Oued Sebbah,8,boundary,administrative,4616,5,confirmed_exact_ons_tag
+4617,46,6535214,OULED BOUDJEMAA,17,Ouled Boudjemaa,8,boundary,administrative,4617,5,confirmed_exact_ons_tag
+4618,46,6535199,AIN TOLBA,14,Ain Tolba,8,boundary,administrative,4618,7,confirmed_exact_ons_tag
+4619,46,6535205,EL AMRIA,15,El Amria,8,boundary,administrative,4619,6,confirmed_exact_ons_tag
+4620,46,6535211,HASSI EL GHELLA,13,Hassi El Ghella,8,boundary,administrative,4620,6,confirmed_exact_ons_tag
+4621,46,6535210,HASSASSNA,16,Hassasna,8,boundary,administrative,4621,8,confirmed_exact_ons_tag
+4622,46,6535215,OULED KIHAL,13,Ouled Kihal,8,boundary,administrative,4622,3,confirmed_exact_ons_tag
+4623,46,6535201,BENI SAF,17,Beni Saf,8,boundary,administrative,4623,5,confirmed_exact_ons_tag
+4624,46,6535218,SIDI SAFI,13,Sidi Safi,8,boundary,administrative,4624,5,confirmed_exact_ons_tag
+4625,46,5839815,OULHACA GHERABA,17,Oulhaça El Gheraba,8,boundary,administrative,4625,6,confirmed_exact_ons_tag
+4626,46,5839700,SIDI OURRACH,15,Sidi Ouriache,8,boundary,administrative,4626,3,confirmed_exact_ons_tag
+4627,46,6535206,EMIR ABDELKADER,16,El Emir Abdelkader,8,boundary,administrative,4627,6,confirmed_exact_ons_tag
+4628,46,6535208,EL MESSAID,18,El Messaid,8,boundary,administrative,4628,7,confirmed_exact_ons_tag
+4701,47,4503228,GHARDAIA,25,Ghardaïa,8,boundary,administrative,4701,7,confirmed_exact_ons_tag
+4703,47,6823963,DHAYET BEN DHAOUA,25,Daïra Dayet Ben Dahoua,6,boundary,administrative,4703,10,confirmed_coextensive_daira
+4704,47,4873727,BERRIANE,12,Berriane,8,boundary,administrative,4704,7,confirmed_exact_ons_tag
+4705,47,5012152,METLILI,12,Metlili,8,boundary,administrative,4705,7,confirmed_exact_ons_tag
+4706,47,4874055,EL GUERRARA,13,El Guerrara,8,boundary,administrative,4706,6,confirmed_exact_ons_tag
+4707,47,4873693,EL ATTEUF,16,El Atteuf,8,boundary,administrative,4707,5,confirmed_exact_ons_tag
+4708,47,4874098,ZELFANA,12,Zelfana,8,boundary,administrative,4708,6,confirmed_exact_ons_tag
+4709,47,5012624,SEBSEB,12,Sebseb,8,boundary,administrative,4709,4,confirmed_exact_ons_tag
+4710,47,4873420,BOUNOURA,13,Bounoura,8,boundary,administrative,4710,5,confirmed_exact_ons_tag
+4713,47,5117521,MANSOURA,12,Mansoura,8,boundary,administrative,4713,4,confirmed_exact_ons_tag
+4801,48,6559416,RELIZANE,9,Relizane,8,boundary,administrative,4801,7,confirmed_exact_ons_tag
+4802,48,6559412,OUED RHIOU,9,Oued Rhiou,8,boundary,administrative,4802,6,confirmed_exact_ons_tag
+4803,48,6559345,BELAASSEL BOUZEGZA,10,Belassel Bouzegza,8,boundary,administrative,4803,6,confirmed_exact_ons_tag
+4804,48,6559421,SIDI SAADA,12,Sidi Saada,8,boundary,administrative,4804,6,confirmed_exact_ons_tag
+4805,48,6559414,OULED AICH,9,Ouled Yaich,8,boundary,administrative,4805,7,confirmed_exact_ons_tag
+4806,48,6559418,SIDI LAZREG,9,Sidi Lazreg,8,boundary,administrative,4806,4,confirmed_exact_ons_tag
+4807,48,6559375,EL H'MADNA,9,El Hamadna,8,boundary,administrative,4807,5,confirmed_exact_ons_tag
+4808,48,6559419,SIDI M'HAMED BEN ALI,9,Sidi M'Hamed Ben Ali,8,boundary,administrative,4808,6,confirmed_exact_ons_tag
+4809,48,6559406,MEDIOUNA,9,Mediouna,8,boundary,administrative,4809,7,confirmed_exact_ons_tag
+4810,48,6559417,SIDI KHETTAB,10,Sidi Khettab,8,boundary,administrative,4810,7,confirmed_exact_ons_tag
+4811,48,6559331,AMMI MOUSSA,10,Ammi Moussa,8,boundary,administrative,4811,7,confirmed_exact_ons_tag
+4812,48,6559424,ZEMMOURA,11,Zemmora,8,boundary,administrative,4812,7,confirmed_exact_ons_tag
+4813,48,6559354,BENI DERGOUN,9,Beni Dergoun,8,boundary,administrative,4813,5,confirmed_exact_ons_tag
+4814,48,6559366,DJIDIOUIA,9,Djdiouia,8,boundary,administrative,4814,11,confirmed_exact_ons_tag
+4815,48,6559371,EL GUETTAR,9,El Guettar,8,boundary,administrative,4815,6,confirmed_exact_ons_tag
+4816,48,6559394,EL HAMRI,9,Hamri,8,boundary,administrative,4816,8,confirmed_exact_ons_tag
+4817,48,6559382,EL MATMAR,10,El Matmar,8,boundary,administrative,4817,6,confirmed_exact_ons_tag
+4818,48,6559420,SIDI M'HAMED BENAOUDA,10,Sidi M'Hamed Benaouda,8,boundary,administrative,4818,8,confirmed_exact_ons_tag
+4819,48,6559342,AIN TAREK,10,Aïn Tarek,8,boundary,administrative,4819,5,confirmed_exact_ons_tag
+4820,48,6559411,OUED ESSALEM,10,Oued Essalem,8,boundary,administrative,4820,7,confirmed_exact_ons_tag
+4821,48,6559409,OUARIZANE,9,Ouarizane,8,boundary,administrative,4821,6,confirmed_exact_ons_tag
+4822,48,6559405,MAZOUNA,9,Mazouna,8,boundary,administrative,4822,5,confirmed_exact_ons_tag
+4823,48,6559400,KALAA,10,Kalaa,8,boundary,administrative,4823,5,confirmed_exact_ons_tag
+4824,48,6559336,AIN RAHMA,9,Aïn Rahma,8,boundary,administrative,4824,8,confirmed_exact_ons_tag
+4825,48,6559423,YELLEL,12,Yellel,8,boundary,administrative,4825,9,confirmed_exact_ons_tag
+4826,48,6559410,OUED EL DJEMAA,11,Oued El Djemaa,8,boundary,administrative,4826,7,confirmed_exact_ons_tag
+4827,48,6559415,RAMKA,10,Ramka,8,boundary,administrative,4827,5,confirmed_exact_ons_tag
+4828,48,6559407,MENDES,11,Mendes,8,boundary,administrative,4828,9,confirmed_exact_ons_tag
+4829,48,6559404,LAHLEF,9,Lahlef,8,boundary,administrative,4829,5,confirmed_exact_ons_tag
+4830,48,6559358,BENI ZENTIS,13,Beni Zentis,8,boundary,administrative,4830,5,confirmed_exact_ons_tag
+4831,48,6559422,SOUK EL HAD,11,Souk El Had,8,boundary,administrative,4831,5,confirmed_exact_ons_tag
+4832,48,6559362,DAR BEN ABDELLAH,10,Dar Ben Abdellah,8,boundary,administrative,4832,5,confirmed_exact_ons_tag
+4833,48,6559378,EL HASSI,10,El Hassi,8,boundary,administrative,4833,4,confirmed_exact_ons_tag
+4834,48,6559390,HAD ECHKALLA,10,Had Echkalla,8,boundary,administrative,4834,6,confirmed_exact_ons_tag
+4835,48,6559349,BEN DAOUD,9,Bendaoud,8,boundary,administrative,4835,4,confirmed_exact_ons_tag
+4836,48,6559386,EL OULDJA,10,El Ouldja,8,boundary,administrative,4836,7,confirmed_exact_ons_tag
+4837,48,6559408,MERDJA SIDI ABED,10,Merdja Sidi Abed,8,boundary,administrative,4837,4,confirmed_exact_ons_tag
+4838,48,6559413,OULED SIDI MIHOUB,9,Ouled Sidi Mihoub,8,boundary,administrative,4838,6,confirmed_exact_ons_tag
+4901,49,4171624,TIMIMOUN,18,Timimoun,8,boundary,administrative,0109,6,confirmed_historical_ons_tag
+4902,49,4171610,CHAROUINE,14,Charouine,8,boundary,administrative,0103,5,confirmed_historical_ons_tag
+4903,49,4171612,KSAR KADDOUR,13,Ksar Kaddour,8,boundary,administrative,0107,6,confirmed_historical_ons_tag
+4904,49,4171616,OULED SAID,12,Ouled Saïd,8,boundary,administrative,0110,3,confirmed_historical_ons_tag
+4905,49,4171625,TINERKOUK,17,Tinerkouk,8,boundary,administrative,0116,7,confirmed_historical_ons_tag
+4906,49,4171608,DELDOUL,13,Deldoul,8,boundary,administrative,0117,4,confirmed_historical_ons_tag
+4907,49,4171613,METARFA,12,Metarfa,8,boundary,administrative,0120,5,confirmed_historical_ons_tag
+4908,49,4171604,AOUGROUT,18,Aougrout,8,boundary,administrative,0123,8,confirmed_historical_ons_tag
+4909,49,4171620,TALMINE,13,Talmine,8,boundary,administrative,0124,6,confirmed_historical_ons_tag
+4910,49,4171615,OULED AISSA,14,Ouled Aissa,8,boundary,administrative,0127,7,confirmed_historical_ons_tag
+5001,50,4171606,BORDJ BADJI MOKHTAR,15,Bordj Badji Mokhtar,8,boundary,administrative,0125,6,confirmed_historical_ons_tag
+5002,50,4171623,TIMIAOUINE,12,Timiaouine,8,boundary,administrative,0128,5,confirmed_historical_ons_tag
+5101,51,4120781,OULED DJELLAL,20,Ouled Djellal,8,boundary,administrative,0705,6,confirmed_historical_ons_tag
+5102,51,4120784,RAS EL MIAAD,25,Ras El Miaad,8,boundary,administrative,0706,9,confirmed_historical_ons_tag
+5103,51,4120758,BESBES,19,Besbes,8,boundary,administrative,0707,8,confirmed_historical_ons_tag
+5104,51,4120785,SIDI KHALED,18,Sidi Khaled,8,boundary,administrative,0708,3,confirmed_historical_ons_tag
+5105,51,4120766,DOUCEN,18,Doucen,8,boundary,administrative,0709,5,confirmed_historical_ons_tag
+5106,51,4120764,CHAIBA,18,Ech Chaïba,8,boundary,administrative,0710,8,confirmed_historical_ons_tag
+5201,52,6530989,BENI ABBES,14,Béni Abbès,8,boundary,administrative,0807,5,confirmed_historical_ons_tag
+5202,52,6531001,OULED KHODEIR,14,Ouled Khoudir,8,boundary,administrative,0803,3,confirmed_historical_ons_tag
+5203,52,6531004,TIMOUDI,17,Timmoudi,8,boundary,administrative,0805,7,confirmed_historical_ons_tag
+5204,52,6530986,BENI IKHLEF,13,Beni Ikhlef,8,boundary,administrative,0808,2,confirmed_historical_ons_tag
+5205,52,6530993,IGLI,15,Igli,8,boundary,administrative,0811,5,confirmed_historical_ons_tag
+5206,52,6530809,TABELBALA,19,Tabelbala,8,boundary,administrative,0812,18,confirmed_historical_ons_tag
+5207,52,6530991,EL OUATA,13,El Ouatta,8,boundary,administrative,0814,4,confirmed_historical_ons_tag
+5208,52,6530995,KERZAZ,15,Kerzaz,8,boundary,administrative,0818,8,confirmed_historical_ons_tag
+5209,52,6530996,KSABI,14,Ksabi,8,boundary,administrative,0819,4,confirmed_historical_ons_tag
+5210,52,6531003,TAMTERT,16,Tamtert,8,boundary,administrative,0820,4,confirmed_historical_ons_tag
+5301,53,4175373,IN SALAH,14,In Salah,8,boundary,administrative,1108,6,confirmed_historical_ons_tag
+5302,53,4175371,IN GHAR,18,In Ghar,8,boundary,administrative,1103,7,confirmed_historical_ons_tag
+5303,53,4175368,FOGGARET EZZAOUIA,12,Foggaret Ezzaouia,8,boundary,administrative,1110,5,confirmed_historical_ons_tag
+5401,54,4175372,IN GUEZZAM,15,In Guezzam,8,boundary,administrative,1104,6,confirmed_historical_ons_tag
+5402,54,4175376,TIN ZAOUATINE,19,Tinzaouten,8,boundary,administrative,1107,9,confirmed_historical_ons_tag
+5501,55,5711077,TOUGGOURT,17,Touggourt,8,boundary,administrative,3013,5,confirmed_historical_ons_tag
+5502,55,6542935,BLIDAT AMEUR,13,Blidet Amor,8,boundary,administrative,3006,3,confirmed_historical_ons_tag
+5503,55,5711076,TEBESBEST,19,Tebesbest,8,boundary,administrative,3007,4,confirmed_historical_ons_tag
+5504,55,5711075,NEZLA,19,Nezla,8,boundary,administrative,3008,5,confirmed_historical_ons_tag
+5505,55,5711078,ZAOUIA EL ABIDIA,18,Zaouia El Abidia,8,boundary,administrative,3009,4,confirmed_historical_ons_tag
+5506,55,6542942,SIDI SLIMANE,12,Sidi Slimane,8,boundary,administrative,3010,4,confirmed_historical_ons_tag
+5507,55,6542937,EL HADJIRA,13,El Hadjira,8,boundary,administrative,3014,5,confirmed_historical_ons_tag
+5508,55,6542944,TAIBET,14,Taïbet,8,boundary,administrative,3015,10,confirmed_historical_ons_tag
+5509,55,6542943,TAMACINE,13,Tamacine,8,boundary,administrative,3016,4,confirmed_historical_ons_tag
+5510,55,6542934,BENACEUR,14,Benaceur,8,boundary,administrative,3017,7,confirmed_historical_ons_tag
+5511,55,6542979,M'NAGUAR,11,M'Naguer,8,boundary,administrative,3018,19,confirmed_historical_ons_tag
+5512,55,6542940,MEGARINE,12,Magarine,8,boundary,administrative,3019,5,confirmed_historical_ons_tag
+5513,55,6542936,EL ALLIA,12,El Allia,8,boundary,administrative,3020,12,confirmed_historical_ons_tag
+5601,56,4174333,DJANET,26,Djanet,8,boundary,administrative,3302,9,confirmed_historical_ons_tag
+5602,56,4174330,BORDJ EL HAOUASSE,17,Bordj El Haouas,8,boundary,administrative,3305,4,confirmed_historical_ons_tag
+5701,57,5143582,EL MEGAIER,13,El M'Ghair,8,boundary,administrative,3927,6,confirmed_historical_ons_tag
+5702,57,5144111,STILL,12,Still,8,boundary,administrative,3921,9,confirmed_historical_ons_tag
+5703,57,4521831,M'RARA,15,M'Rara,8,boundary,administrative,3922,5,confirmed_historical_ons_tag
+5704,57,5143617,SIDI KHELIL,13,Sidi Khelil,8,boundary,administrative,3923,3,confirmed_historical_ons_tag
+5705,57,5143651,TENDLA,12,Tendla,8,boundary,administrative,3924,7,confirmed_historical_ons_tag
+5706,57,4521856,DJAMAA,14,Djamaa,8,boundary,administrative,3928,5,confirmed_historical_ons_tag
+5707,57,5143571,OUM TOUYOUR,12,Oum Tyour,8,boundary,administrative,3929,5,confirmed_historical_ons_tag
+5708,57,4521670,SIDI AMRANE,16,Sidi Amrane,8,boundary,administrative,3930,5,confirmed_historical_ons_tag
+5801,58,5118960,EL MENIAA,12,El Menia,8,boundary,administrative,4702,6,confirmed_historical_ons_tag
+5802,58,5117624,HASSI FEHAL,10,Hassi Fehal,8,boundary,administrative,4711,4,confirmed_historical_ons_tag
+5803,58,5118975,HASSI EL GARA,10,Hassi Gara,8,boundary,administrative,4712,6,confirmed_historical_ons_tag

@@ -18,6 +18,10 @@ export default function config(phase: string): NextConfig {
     env: { ZAAFRAN_DESIGN_ENABLED: includeDesign ? "1" : "0" },
     pageExtensions: includeDesign ? ["design.tsx", "tsx", "ts"] : ["tsx", "ts"],
     poweredByHeader: false,
+    ...(phase === PHASE_DEVELOPMENT_SERVER && {
+      rewrites: () =>
+        Promise.resolve([{ source: "/v1/:path*", destination: "http://127.0.0.1:3002/v1/:path*" }]),
+    }),
     transpilePackages: ["@zaafran/config", "@zaafran/i18n"],
   });
 }

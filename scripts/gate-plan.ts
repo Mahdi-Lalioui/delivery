@@ -36,6 +36,7 @@ export function parseGates(plan: string): ReadonlyMap<string, readonly string[]>
 const requiredChecks: ReadonlyMap<string, readonly string[]> = new Map([
   ["m0", ["e2e:@smoke", "tokens:contrast", "ci:pr"]],
   ["m1", ["coverage:domain", "mutation:domain", "property:1000"]],
+  ["m2", ["e2e:@merchant-onboarding", "authz:matrix", "design:screens"]],
 ]);
 
 export function getGateChecks(plan: string, milestone: string): readonly string[] {

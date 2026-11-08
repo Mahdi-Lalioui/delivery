@@ -152,3 +152,15 @@ a {
   font-size: var(--font-size-body-lg);
   line-height: var(--line-height-body-lg);
 }
+
+.home-actions {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--space-24);
+}
+
+.home-actions a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--touch-target-min);
+}

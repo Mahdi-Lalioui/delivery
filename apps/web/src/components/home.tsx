@@ -16,7 +16,11 @@ export function homeMetadata(locale: Locale): Metadata {
 }
 
 export async function Home({ locale }: { locale: Locale }) {
-  const translate = await getTranslations({ locale, namespace: "home" });
+  const [translate, translateAuth, translateMerchant] = await Promise.all([
+    getTranslations({ locale, namespace: "home" }),
+    getTranslations({ locale, namespace: "auth" }),
+    getTranslations({ locale, namespace: "merchant" }),
+  ]);
 
   return (
     <SiteShell locale={locale}>
@@ -24,6 +28,10 @@ export async function Home({ locale }: { locale: Locale }) {
         <p className="eyebrow">{translate("eyebrow")}</p>
         <h1>{locale === "ar" ? brand.arabicName : brand.name}</h1>
         <p className="intro">{translate("description")}</p>
+        <div className="home-actions">
+          <a href={`/${locale}/sign-in`}>{translateAuth("title")}</a>
+          <a href={`/${locale}/merchant/apply`}>{translateMerchant("startApplication")}</a>
+        </div>
       </section>
     </SiteShell>
   );

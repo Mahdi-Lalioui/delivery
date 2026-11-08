@@ -15,6 +15,125 @@
       "when": 1794058860000,
       "tag": "0001_job_effects",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794066960000,
+      "tag": "0002_auth",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794070200000,
+      "tag": "0003_merchants",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794072728000,
+      "tag": "0004_menu",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794073500000,
+      "tag": "0005_menu_command_receipts",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794074100000,
+      "tag": "0006_merchant_hours",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1794075600000,
+      "tag": "0007_menu_item_command_receipts",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794076500000,
+      "tag": "0008_menu_option_group_command_receipts",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794079500000,
+      "tag": "0009_media_reservations",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794090600000,
+      "tag": "0010_menu_price_history",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1794093600000,
+      "tag": "0011_menu_price_undo",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1794096600000,
+      "tag": "0012_merchant_special_hours",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1794100200000,
+      "tag": "0013_merchant_ramadan_schedules",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1794103800000,
+      "tag": "0014_merchant_hours_pause",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1794107400000,
+      "tag": "0015_item_review_receipts",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1794111000000,
+      "tag": "0016_merchant_staff_invitations",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1794114600000,
+      "tag": "0017_menu_price_versions",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1794118200000,
+      "tag": "0018_menu_import",
+      "breakpoints": true
     }
   ]
 }

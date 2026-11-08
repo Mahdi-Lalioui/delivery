@@ -1,0 +1,515 @@
+[
+  {
+    "code_commune": 1601,
+    "wilaya_code": 16,
+    "name_fr": "Alger centre",
+    "name_ar": "الجزائر الوسطى",
+    "circonscription": "Sidi M'Hamed",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1602,
+    "wilaya_code": 16,
+    "name_fr": "Sidi M'Hamed",
+    "name_ar": "سيدي امحمد",
+    "circonscription": "Sidi M'Hamed",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1603,
+    "wilaya_code": 16,
+    "name_fr": "El Madania",
+    "name_ar": "المدنية",
+    "circonscription": "Sidi M'Hamed",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1604,
+    "wilaya_code": 16,
+    "name_fr": "Mohamed Belouizdad",
+    "name_ar": "محمد بلوزداد",
+    "circonscription": "Hussein Dey",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1605,
+    "wilaya_code": 16,
+    "name_fr": "Bab El Oued",
+    "name_ar": "باب الوادي",
+    "circonscription": "Bab El Oued",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1606,
+    "wilaya_code": 16,
+    "name_fr": "Bologhine",
+    "name_ar": "بولوغين",
+    "circonscription": "Bab El Oued",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1607,
+    "wilaya_code": 16,
+    "name_fr": "Casbah",
+    "name_ar": "القصبة",
+    "circonscription": "Bab El Oued",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1608,
+    "wilaya_code": 16,
+    "name_fr": "Oued Koriche",
+    "name_ar": "وادي قريش",
+    "circonscription": "Bab El Oued",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1609,
+    "wilaya_code": 16,
+    "name_fr": "Bir Mourad Raïs",
+    "name_ar": "بئر مراد رايس",
+    "circonscription": "Bir Mourad Raïs",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1610,
+    "wilaya_code": 16,
+    "name_fr": "El Biar",
+    "name_ar": "الأبيار",
+    "circonscription": "Bouzaréah",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1611,
+    "wilaya_code": 16,
+    "name_fr": "Bouzaréah",
+    "name_ar": "بوزريعة",
+    "circonscription": "Bouzaréah",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1612,
+    "wilaya_code": 16,
+    "name_fr": "Birkhadem",
+    "name_ar": "بئر خادم",
+    "circonscription": "Bir Mourad Raïs",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1613,
+    "wilaya_code": 16,
+    "name_fr": "El Harrach",
+    "name_ar": "الحراش",
+    "circonscription": "El Harrach",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1614,
+    "wilaya_code": 16,
+    "name_fr": "Baraki",
+    "name_ar": "براقي",
+    "circonscription": "Baraki",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1615,
+    "wilaya_code": 16,
+    "name_fr": "Oued Smar",
+    "name_ar": "وادي السمار",
+    "circonscription": "El Harrach",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1616,
+    "wilaya_code": 16,
+    "name_fr": "Bourouba",
+    "name_ar": "بوروبة",
+    "circonscription": "El Harrach",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1617,
+    "wilaya_code": 16,
+    "name_fr": "Hussein Dey",
+    "name_ar": "حسين داي",
+    "circonscription": "Hussein Dey",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1618,
+    "wilaya_code": 16,
+    "name_fr": "Kouba",
+    "name_ar": "القبة",
+    "circonscription": "Hussein Dey",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1619,
+    "wilaya_code": 16,
+    "name_fr": "Bach Djerah",
+    "name_ar": "باش جراح",
+    "circonscription": "El Harrach",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1620,
+    "wilaya_code": 16,
+    "name_fr": "Dar El Beïda",
+    "name_ar": "الدار البيضاء",
+    "circonscription": "Dar El Beïda",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1621,
+    "wilaya_code": 16,
+    "name_fr": "Bab Ezzouar",
+    "name_ar": "باب الزوار",
+    "circonscription": "Dar El Beïda",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1622,
+    "wilaya_code": 16,
+    "name_fr": "Ben Aknoun",
+    "name_ar": "بن عكنون",
+    "circonscription": "Bouzaréah",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1623,
+    "wilaya_code": 16,
+    "name_fr": "Dely Brahim",
+    "name_ar": "دالي ابراهيم",
+    "circonscription": "Chéraga",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1624,
+    "wilaya_code": 16,
+    "name_fr": "Hammamet",
+    "name_ar": "الحمامات",
+    "circonscription": "Chéraga",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1625,
+    "wilaya_code": 16,
+    "name_fr": "Raïs Hamidou",
+    "name_ar": "الرايس حميدو",
+    "circonscription": "Bab El Oued",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1626,
+    "wilaya_code": 16,
+    "name_fr": "Djasr Kaçentina",
+    "name_ar": "جسر قسنطينة",
+    "circonscription": "Bir Mourad Raïs",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1627,
+    "wilaya_code": 16,
+    "name_fr": "El Mouradia",
+    "name_ar": "المرادية",
+    "circonscription": "Sidi M'Hamed",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1628,
+    "wilaya_code": 16,
+    "name_fr": "Hydra",
+    "name_ar": "حيدرة",
+    "circonscription": "Bir Mourad Raïs",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1629,
+    "wilaya_code": 16,
+    "name_fr": "Mohammadia",
+    "name_ar": "المحمدية",
+    "circonscription": "El Harrach",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1630,
+    "wilaya_code": 16,
+    "name_fr": "Bordj El Kiffan",
+    "name_ar": "برج الكيفان",
+    "circonscription": "Dar El Beïda",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1631,
+    "wilaya_code": 16,
+    "name_fr": "El Magharia",
+    "name_ar": "المقارية",
+    "circonscription": "Hussein Dey",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1632,
+    "wilaya_code": 16,
+    "name_fr": "Béni Messous",
+    "name_ar": "بني مسوس",
+    "circonscription": "Bouzaréah",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1633,
+    "wilaya_code": 16,
+    "name_fr": "Les Eucalyptus",
+    "name_ar": "الكاليتوس",
+    "circonscription": "Baraki",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1634,
+    "wilaya_code": 16,
+    "name_fr": "Birtouta",
+    "name_ar": "بئر توتة",
+    "circonscription": "Birtouta",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1635,
+    "wilaya_code": 16,
+    "name_fr": "Tessala El Merdja",
+    "name_ar": "تسالة المرجة",
+    "circonscription": "Birtouta",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1636,
+    "wilaya_code": 16,
+    "name_fr": "Ouled Chebel",
+    "name_ar": "أولاد شبل",
+    "circonscription": "Birtouta",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1637,
+    "wilaya_code": 16,
+    "name_fr": "Sidi Moussa",
+    "name_ar": "سيدي موسى",
+    "circonscription": "Baraki",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1638,
+    "wilaya_code": 16,
+    "name_fr": "Aïn Taya",
+    "name_ar": "عين طاية",
+    "circonscription": "Rouiba",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1639,
+    "wilaya_code": 16,
+    "name_fr": "Bordj El Bahri",
+    "name_ar": "برج البحري",
+    "circonscription": "Dar El Beïda",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1640,
+    "wilaya_code": 16,
+    "name_fr": "El Marsa",
+    "name_ar": "المرسى",
+    "circonscription": "Rouiba",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1641,
+    "wilaya_code": 16,
+    "name_fr": "Heraoua",
+    "name_ar": "هراوة",
+    "circonscription": "Rouiba",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1642,
+    "wilaya_code": 16,
+    "name_fr": "Rouiba",
+    "name_ar": "الرويبة",
+    "circonscription": "Rouiba",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1643,
+    "wilaya_code": 16,
+    "name_fr": "Réghaïa",
+    "name_ar": "الرغاية",
+    "circonscription": "Rouiba",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1644,
+    "wilaya_code": 16,
+    "name_fr": "Aïn Benian",
+    "name_ar": "عين البنيان",
+    "circonscription": "Chéraga",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1645,
+    "wilaya_code": 16,
+    "name_fr": "Staouéli",
+    "name_ar": "سطاوالي",
+    "circonscription": "Zéralda",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1646,
+    "wilaya_code": 16,
+    "name_fr": "Zéralda",
+    "name_ar": "زرالدة",
+    "circonscription": "Zéralda",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1647,
+    "wilaya_code": 16,
+    "name_fr": "Mahelma",
+    "name_ar": "محالمة",
+    "circonscription": "Zéralda",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1648,
+    "wilaya_code": 16,
+    "name_fr": "Rahmania",
+    "name_ar": "الرحمانية",
+    "circonscription": "Zéralda",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1649,
+    "wilaya_code": 16,
+    "name_fr": "Souidania",
+    "name_ar": "السويدانية",
+    "circonscription": "Zéralda",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1650,
+    "wilaya_code": 16,
+    "name_fr": "Chéraga",
+    "name_ar": "الشراقة",
+    "circonscription": "Chéraga",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1651,
+    "wilaya_code": 16,
+    "name_fr": "Ouled Fayet",
+    "name_ar": "أولاد فايت",
+    "circonscription": "Chéraga",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1652,
+    "wilaya_code": 16,
+    "name_fr": "El Achour",
+    "name_ar": "العاشور",
+    "circonscription": "Draria",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1653,
+    "wilaya_code": 16,
+    "name_fr": "Draria",
+    "name_ar": "الدرارية",
+    "circonscription": "Draria",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1654,
+    "wilaya_code": 16,
+    "name_fr": "Douéra",
+    "name_ar": "الدويرة",
+    "circonscription": "Draria",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1655,
+    "wilaya_code": 16,
+    "name_fr": "Baba Hacène",
+    "name_ar": "بابا حسن",
+    "circonscription": "Draria",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1656,
+    "wilaya_code": 16,
+    "name_fr": "Khraissia",
+    "name_ar": "خرايسية",
+    "circonscription": "Draria",
+    "decree": "26-112",
+    "page": 3
+  },
+  {
+    "code_commune": 1657,
+    "wilaya_code": 16,
+    "name_fr": "Saoula",
+    "name_ar": "السحاولة",
+    "circonscription": "Bir Mourad Raïs",
+    "decree": "26-112",
+    "page": 3
+  }
+]

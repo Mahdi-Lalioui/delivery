@@ -32,4 +32,12 @@ const ibmPlexSansArabic = localFont({
   ],
 });
 
-export const arabicFonts = `${notoNaskhArabic.variable} ${ibmPlexSansArabic.variable}`;
+const interNumbers = localFont({
+  src: "./inter-latin.woff2",
+  weight: "400 600",
+  display: "swap",
+  preload: false,
+  variable: "--font-inter",
+});
+
+export const arabicFonts = `${notoNaskhArabic.variable} ${ibmPlexSansArabic.variable} ${interNumbers.variable}`;

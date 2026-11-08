@@ -1,0 +1,74 @@
+[
+  {
+    "capture": "bulk-price-ar-light-390x844.webp",
+    "axeViolations": [],
+    "direction": "rtl",
+    "scrollWidth": 390,
+    "innerWidth": 390,
+    "panelInside": true,
+    "controlsUnder44px": 0
+  },
+  {
+    "capture": "bulk-price-ar-light-1280x800.webp",
+    "axeViolations": [],
+    "direction": "rtl",
+    "scrollWidth": 1280,
+    "innerWidth": 1280,
+    "panelInside": true,
+    "controlsUnder44px": 0
+  },
+  {
+    "capture": "bulk-price-ar-dark-390x844.webp",
+    "axeViolations": [],
+    "direction": "rtl",
+    "scrollWidth": 390,
+    "innerWidth": 390,
+    "panelInside": true,
+    "controlsUnder44px": 0
+  },
+  {
+    "capture": "bulk-price-ar-dark-1280x800.webp",
+    "axeViolations": [],
+    "direction": "rtl",
+    "scrollWidth": 1280,
+    "innerWidth": 1280,
+    "panelInside": true,
+    "controlsUnder44px": 0
+  },
+  {
+    "capture": "bulk-price-fr-light-390x844.webp",
+    "axeViolations": [],
+    "direction": "ltr",
+    "scrollWidth": 390,
+    "innerWidth": 390,
+    "panelInside": true,
+    "controlsUnder44px": 0
+  },
+  {
+    "capture": "bulk-price-fr-light-1280x800.webp",
+    "axeViolations": [],
+    "direction": "ltr",
+    "scrollWidth": 1280,
+    "innerWidth": 1280,
+    "panelInside": true,
+    "controlsUnder44px": 0
+  },
+  {
+    "capture": "bulk-price-fr-dark-390x844.webp",
+    "axeViolations": [],
+    "direction": "ltr",
+    "scrollWidth": 390,
+    "innerWidth": 390,
+    "panelInside": true,
+    "controlsUnder44px": 0
+  },
+  {
+    "capture": "bulk-price-fr-dark-1280x800.webp",
+    "axeViolations": [],
+    "direction": "ltr",
+    "scrollWidth": 1280,
+    "innerWidth": 1280,
+    "panelInside": true,
+    "controlsUnder44px": 0
+  }
+]

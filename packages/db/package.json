@@ -4,13 +4,61 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./auth": {
+      "types": "./src/auth.ts",
+      "default": "./dist/auth.js"
+    },
     "./database": {
       "types": "./src/database.ts",
       "default": "./dist/database.js"
     },
+    "./geography": {
+      "types": "./src/geography.ts",
+      "default": "./dist/geography.js"
+    },
+    "./media": {
+      "types": "./src/media.ts",
+      "default": "./dist/media.js"
+    },
+    "./menu-category": {
+      "types": "./src/menu-category.ts",
+      "default": "./dist/menu-category.js"
+    },
+    "./menu-moderation": {
+      "types": "./src/menu-moderation.ts",
+      "default": "./dist/menu-moderation.js"
+    },
+    "./menu-item": {
+      "types": "./src/menu-item.ts",
+      "default": "./dist/menu-item.js"
+    },
+    "./menu-option-group": {
+      "types": "./src/menu-option-group.ts",
+      "default": "./dist/menu-option-group.js"
+    },
+    "./menu-price": {
+      "types": "./src/menu-price.ts",
+      "default": "./dist/menu-price.js"
+    },
+    "./merchant-hours": {
+      "types": "./src/merchant-hours.ts",
+      "default": "./dist/merchant-hours.js"
+    },
+    "./merchant": {
+      "types": "./src/merchant.ts",
+      "default": "./dist/merchant.js"
+    },
+    "./merchant-staff": {
+      "types": "./src/merchant-staff.ts",
+      "default": "./dist/merchant-staff.js"
+    },
     "./migrate": {
       "types": "./src/migrate.ts",
       "default": "./dist/migrate.js"
+    },
+    "./menu-import": {
+      "types": "./src/menu-import.ts",
+      "default": "./dist/menu-import.js"
     }
   },
   "scripts": {
@@ -21,6 +69,7 @@
     "db:reset": "node --env-file-if-exists=../../.env src/cli.ts reset"
   },
   "dependencies": {
+    "@zaafran/domain": "workspace:*",
     "drizzle-orm": "0.45.4",
     "postgres": "4.1.0",
     "zod": "4.6.7"
@@ -28,6 +77,7 @@
   "devDependencies": {
     "@types/node": "26.6.6",
     "@zaafran/config": "workspace:*",
+    "graphile-worker": "0.18.0",
     "typescript": "6.0.3",
     "vitest": "5.1.0"
   }

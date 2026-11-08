@@ -1,0 +1,26 @@
+{
+  "name": "@zaafran/media",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test:s3:conformance": "pnpm run build && sh ./test/s3-conformance.sh"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "3.1163.0"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "@zaafran/config": "workspace:*",
+    "typescript": "6.0.3",
+    "vitest": "5.1.0"
+  }
+}

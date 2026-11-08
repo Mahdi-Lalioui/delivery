@@ -4,6 +4,10 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./bulk-price-change": {
+      "types": "./src/bulk-price-change.ts",
+      "default": "./dist/bulk-price-change.js"
+    },
     "./eta": {
       "types": "./src/eta.ts",
       "default": "./dist/eta.js"
@@ -11,6 +15,14 @@
     "./hours": {
       "types": "./src/hours.ts",
       "default": "./dist/hours.js"
+    },
+    "./hours-preview": {
+      "types": "./src/hours-preview.ts",
+      "default": "./dist/hours-preview.js"
+    },
+    "./moderation": {
+      "types": "./src/moderation.ts",
+      "default": "./dist/moderation.js"
     },
     "./money": {
       "types": "./src/money.ts",

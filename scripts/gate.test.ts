@@ -110,3 +110,16 @@ for (const [reason, exitCode] of [
     assert.deepEqual(attempted, ["verify", "e2e:@smoke"]);
   });
 }
+
+void test("[M2-gate] requires onboarding, authorization and design evidence", () => {
+  const required = ["e2e:@merchant-onboarding", "authz:matrix", "design:screens"];
+  for (const omitted of required) {
+    const included = ["verify", ...required.filter((check) => check !== omitted)];
+    const plan = gateSection("m2: " + included.join(", "));
+    assert.throws(() => getGateChecks(plan, "m2"), {
+      message: "Gate m2 is missing required checks: " + omitted,
+    });
+  }
+  const checks = ["verify", ...required];
+  assert.deepEqual(getGateChecks(gateSection("m2: " + checks.join(", ")), "m2"), checks);
+});

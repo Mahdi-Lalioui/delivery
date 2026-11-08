@@ -1,0 +1,206 @@
+.admin-merchant,
+.admin-merchant-heading,
+.admin-merchant-workspace,
+.admin-merchant-list,
+.admin-merchant-review,
+.admin-merchant-notice,
+.admin-merchant-form fieldset,
+.admin-merchant-field {
+  display: grid;
+  gap: var(--space-12);
+  min-inline-size: 0;
+}
+
+.admin-merchant,
+.admin-merchant-workspace {
+  gap: var(--space-20);
+  align-items: start;
+}
+
+.admin-merchant-heading h1 {
+  font-family: var(--font-display);
+  font-size: var(--font-size-display);
+  font-weight: var(--font-weight-display);
+  line-height: var(--line-height-display);
+}
+
+.admin-merchant-heading p,
+.admin-merchant-placeholder,
+.admin-merchant-table thead,
+.admin-merchant-details dt,
+.admin-merchant-field p:not(.admin-merchant-error) {
+  color: var(--color-text-2);
+}
+
+.admin-merchant-list,
+.admin-merchant-review,
+.admin-merchant-notice {
+  padding: var(--space-16);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-e1);
+}
+
+.admin-merchant-table {
+  inline-size: 100%;
+  text-align: start;
+}
+
+.admin-merchant-table th,
+.admin-merchant-table td {
+  padding-block: var(--space-4);
+  padding-inline: var(--space-8);
+  border-block-end: 1px solid var(--color-border-subtle);
+  text-align: start;
+}
+
+.admin-merchant-table th {
+  font-weight: var(--font-weight-label);
+}
+
+.admin-merchant-row-action {
+  min-block-size: var(--touch-target-min);
+  padding-block: var(--space-4);
+  color: var(--color-link);
+  text-align: start;
+  text-decoration: underline var(--color-primary) var(--link-underline-width);
+  text-underline-offset: var(--link-underline-offset);
+}
+
+.admin-merchant-row-action[aria-pressed="true"] {
+  font-weight: var(--font-weight-h3);
+}
+
+.admin-merchant-date,
+.admin-merchant-details dd {
+  font-variant-numeric: var(--font-variant-numeric-numbers);
+}
+
+.admin-merchant-date {
+  display: grid;
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+}
+
+.admin-merchant-phone {
+  white-space: nowrap;
+}
+
+.admin-merchant-review h2 {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-h2);
+  line-height: var(--line-height-h2);
+}
+
+.admin-merchant-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, max(var(--space-120), 8em)), 1fr));
+  gap: var(--space-12);
+}
+
+.admin-merchant-details dt,
+.admin-merchant-field p {
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+}
+
+.admin-merchant-coordinates,
+.admin-merchant-cuisines,
+.admin-merchant-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4) var(--space-8);
+}
+
+.admin-merchant-cuisines li {
+  padding-inline: var(--space-8);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-2);
+}
+
+.admin-merchant-form fieldset {
+  padding-block-start: var(--space-12);
+  border-block-start: 1px solid var(--color-border-subtle);
+}
+
+.admin-merchant-form legend,
+.admin-merchant-field label {
+  font-weight: var(--font-weight-h3);
+}
+
+.admin-merchant-choices,
+.admin-merchant-field {
+  gap: var(--space-4) var(--space-12);
+}
+
+.admin-merchant-choice {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  min-block-size: var(--touch-target-min);
+  padding-inline: var(--space-12);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+}
+
+.admin-merchant-field textarea {
+  inline-size: 100%;
+  padding: var(--space-8);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  resize: vertical;
+}
+
+.admin-merchant-button {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  min-block-size: var(--touch-target-min);
+  padding: var(--space-8) var(--space-12);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-weight: var(--font-weight-label);
+}
+
+.admin-merchant-confirm {
+  min-block-size: var(--touch-target-operations-primary);
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.admin-merchant-button:hover:not(:disabled),
+.admin-merchant-choice:has(input:checked) {
+  background: var(--color-surface-2);
+}
+
+.admin-merchant-confirm:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.admin-merchant-button:disabled,
+.admin-merchant-row-action:disabled {
+  background: var(--color-surface-2);
+  color: var(--color-text-3);
+}
+
+.admin-merchant-error {
+  color: var(--color-danger);
+}
+
+.admin-merchant-success {
+  padding: var(--space-12);
+  border-radius: var(--radius-sm);
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+@media (min-width: 768px) {
+  .admin-merchant-workspace {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}

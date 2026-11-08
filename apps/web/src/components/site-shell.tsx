@@ -6,11 +6,40 @@ import type { ReactNode } from "react";
 interface SiteShellProps {
   children: ReactNode;
   locale: Locale;
-  subpath?: "/dev/design";
+  subpath?:
+    | "/dev/design"
+    | "/sign-in"
+    | "/sign-in?purpose=admin"
+    | "/sign-in?continue=merchant-apply"
+    | "/sign-in?continue=merchant-status"
+    | "/sign-in?continue=staff-accept"
+    | "/sign-in?continue=admin-review"
+    | "/sign-in?continue=admin-moderation"
+    | "/account/sessions"
+    | "/merchant"
+    | "/merchant/apply"
+    | "/staff/accept"
+    | `/merchant/${string}/menu`
+    | `/merchant/${string}/menu/options`
+    | `/merchant/${string}/menu/${string}/items`
+    | `/merchant/${string}/setup`
+    | `/merchant/${string}/hours`
+    | `/merchant/${string}/staff`
+    | "/admin/merchant-applications"
+    | "/admin/menu-items";
 }
+
+const adminSubpaths: ReadonlySet<string> = new Set([
+  "/admin/merchant-applications",
+  "/admin/menu-items",
+  "/sign-in?continue=admin-review",
+  "/sign-in?continue=admin-moderation",
+]);
 
 export async function SiteShell({ children, locale, subpath }: SiteShellProps) {
   const translate = await getTranslations({ locale, namespace: "shell" });
+  const isAdmin = subpath !== undefined && adminSubpaths.has(subpath);
+  const languages = isAdmin ? publicLocales.filter((language) => language !== "ar") : publicLocales;
 
   return (
     <>
@@ -24,7 +53,7 @@ export async function SiteShell({ children, locale, subpath }: SiteShellProps) {
             {locale === "ar" ? brand.arabicName : brand.name}
           </a>
           <nav className="languages" aria-label={translate("languages")}>
-            {publicLocales.map((language) => {
+            {languages.map((language) => {
               const { name, tag, direction } = localeDetails[language];
 
               return (
