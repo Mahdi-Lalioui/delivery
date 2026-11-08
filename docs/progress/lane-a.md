@@ -1,3 +1,12 @@
 # Lane A progress
 
 - 2026-11-08 · Low · Recorded the parallel build rules. Next, integrate the green milestone branches, publish lane B contracts and finish M2.
+- 2026-11-08 · High · Integrated M0, M1 and the green M2 baseline in order. Both lanes start at `9f675ed`. M2 CI passed all six checks, local verification passed 1,250 unit and 156 PostGIS tests, and Playwright passed 59 foundation and 16 auth cases.
+- 2026-11-08 · High · M2 gate remains open at 35/37 acceptance IDs (`MER-01`, `MER-14`). See [baseline audit](../evidence/m2/baseline-audit.md). Local mutation score was 94.07%. The dependency audit reports moderate `GHSA-g3hv-75wg-m249` in tooling via `packages/config`.
+- 2026-11-08 · Low · Active worktree is `../lane-a` beside the original `delivery` checkout. Import UI work stays in the original checkout on `m2-merchant-onboarding`; preserve its uncommitted changes. Publish Lane B contracts before resuming it.
+- 2026-11-08 · Ultra · `@zaafran/contracts/billing` defines owner subscription, invoice and transfer-proof schemas and admin list, issue, void, record-payment and billing settings schemas. Eight focused cases passed, including the private invoice proof upload contract and zero-tax guard. Lane B owns the routes and UI.
+- 2026-11-08 · High · `@zaafran/contracts/promotions` defines code/automatic promotions, discount and eligibility inputs, stats, and four quote rejection codes. All 32 focused cases passed, including rejection of text that cannot round-trip to PostgreSQL. Lane A owns quote integration and redemption.
+- 2026-11-08 · Ultra · `@zaafran/contracts/ratings` defines customer rating input and merchant review list, reply and report schemas. All seven focused cases passed. Order ownership, delivery eligibility, edit deadlines and audit are server responsibilities.
+- 2026-11-08 · Ultra · `@zaafran/contracts/scheduling` defines address-bound delivery and address-free pickup discovery. All 16 focused cases passed, including preserving exact Iftar time. Server quote and placement revalidate every selection.
+- 2026-11-08 · Low · Handoff: rebase or cherry-pick the shared contract commit onto `lane-b` when needed. Lane A next resumes the import hook and production journey, then closes the media, hours, preview, seed and M2 gate gaps.
+- 2026-11-08 · Ultra review · No open P0/P1 after the promotion text and billing private-proof fixes. `pnpm verify` exited 0 with 1,313 unit and 156 PostGIS integration tests. Contract cases are qualified so they do not close feature acceptance IDs.
