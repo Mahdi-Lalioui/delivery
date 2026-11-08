@@ -120,6 +120,13 @@
       "when": 1794111000000,
       "tag": "0016_merchant_staff_invitations",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1794114600000,
+      "tag": "0017_menu_price_versions",
+      "breakpoints": true
     }
   ]
 }

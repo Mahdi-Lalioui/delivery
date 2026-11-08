@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { beforeAll, expect, test } from "vitest";
+import { createMenuItemRepository } from "../src/menu-item.ts";
 import {
   createMenuPriceRepository,
   type BulkPriceApply,
@@ -40,6 +41,9 @@ const undoing = merchantFixture(90);
 const expiring = merchantFixture(100);
 const changedSince = merchantFixture(110);
 const undoneTwice = merchantFixture(120);
+const returnedPrice = merchantFixture(130);
+const unchangedPrice = merchantFixture(140);
+const legacyHistory = merchantFixture(150);
 
 const merchants = [
   previewing,
@@ -54,6 +58,9 @@ const merchants = [
   expiring,
   changedSince,
   undoneTwice,
+  returnedPrice,
+  unchangedPrice,
+  legacyHistory,
 ];
 
 beforeAll(async () => {
@@ -435,4 +442,102 @@ test("[MER-11:db] hides another merchant's batch and denies staff undo", async (
     }),
   );
   expect(staffUndo).toEqual({ kind: "not_found" });
+});
+
+async function editFirstItem(
+  merchant: ReturnType<typeof merchantFixture>,
+  { expectedRevision, priceDzd }: { expectedRevision: number; priceDzd: number },
+) {
+  const input = {
+    expectedRevision,
+    categoryId: merchant.categoryId,
+    names: { fr: "Nom édité" },
+    descriptions: { fr: "Description" },
+    priceDzd,
+    photoId: null,
+    tags: [],
+    extraPrepMinutes: 0,
+    optionGroupIds: [],
+  };
+  const result = await createMenuItemRepository(database.get()).update({
+    merchantId: merchant.merchantId,
+    itemId: merchant.firstItem,
+    accountId: ownerId,
+    now,
+    input,
+    idempotencyKeyHash: hash(`edit-price-item-${String(expectedRevision)}`),
+    requestHash: hash(JSON.stringify(input)),
+  });
+  expect(result).toMatchObject({ kind: "applied", revision: expectedRevision + 1 });
+}
+
+test("[MER-11:db] rejects undo after a price returns to the applied amount", async () => {
+  const { merchantId } = returnedPrice;
+  const batchId = await applyTenPercent(returnedPrice);
+  await editFirstItem(returnedPrice, { expectedRevision: 1, priceDzd: 600 });
+  await editFirstItem(returnedPrice, { expectedRevision: 2, priceDzd: 550 });
+
+  const result = await repository().undo(
+    undo({ merchantId, batchId, key: "undo-returned-price", expectedRevision: 3 }),
+  );
+  expect(result).toEqual({ kind: "price_changed_since_apply" });
+  expect(await readPrices(returnedPrice)).toEqual([550, 1_320]);
+  const [batch] = await database.get().sql`
+    SELECT batch.undone_at, merchant.menu_revision::int AS revision
+    FROM public.price_change_batches AS batch
+    JOIN public.merchants AS merchant ON merchant.id = batch.merchant_id
+    WHERE batch.id = ${batchId}
+  `;
+  expect(batch).toEqual({ undone_at: null, revision: 3 });
+});
+
+test("[MER-11:db] preserves undo after an item edit and a rounded adjustment that leave its price unchanged", async () => {
+  const { merchantId, firstItem } = unchangedPrice;
+  const batchId = await applyTenPercent(unchangedPrice);
+  await editFirstItem(unchangedPrice, { expectedRevision: 1, priceDzd: 550 });
+  const noChange = await repository().apply(
+    apply({
+      merchantId,
+      key: "apply-rounded-no-op",
+      input: {
+        itemIds: [firstItem],
+        adjustment: { kind: "fixed", amountDzd: 1 },
+        roundingUnit: 10,
+        expectedRevision: 2,
+      },
+    }),
+  );
+  expect(noChange).toMatchObject({
+    kind: "applied",
+    revision: 3,
+    items: [{ itemId: firstItem, oldPriceDzd: 550, newPriceDzd: 550 }],
+  });
+
+  const result = await repository().undo(
+    undo({ merchantId, batchId, key: "undo-after-non-price-edit", expectedRevision: 3 }),
+  );
+  expect(result).toMatchObject({ kind: "applied", revision: 4 });
+  expect(await readPrices(unchangedPrice)).toEqual([500, 1_200]);
+  const [item] = await database.get().sql`SELECT names FROM public.items WHERE id = ${firstItem}`;
+  expect(item).toEqual({ names: { fr: "Nom édité" } });
+});
+
+test("[MER-11:db] refuses to undo legacy history whose applied price version is unknown", async () => {
+  const { merchantId, firstItem } = legacyHistory;
+  const batchId = fixtureId(155);
+  const { sql } = database.get();
+  await sql`
+    INSERT INTO public.price_change_batches (id, merchant_id, actor_id, applied_at)
+    VALUES (${batchId}, ${merchantId}, ${ownerId}, ${now.toISOString()})
+  `;
+  await sql`
+    INSERT INTO public.price_history (merchant_id, batch_id, item_id, old_price_dzd, new_price_dzd)
+    VALUES (${merchantId}, ${batchId}, ${firstItem}, 450, 500)
+  `;
+
+  const result = await repository().undo(
+    undo({ merchantId, batchId, key: "undo-legacy-price", expectedRevision: 0 }),
+  );
+  expect(result).toEqual({ kind: "price_changed_since_apply" });
+  expect(await readPrices(legacyHistory)).toEqual([500, 1_200]);
 });

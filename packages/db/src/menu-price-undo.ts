@@ -22,6 +22,13 @@ interface HistoryRow {
   readonly itemId: string;
   readonly appliedOldPriceDzd: number;
   readonly appliedNewPriceDzd: number;
+  readonly appliedPriceVersion: string | null;
+}
+
+interface LivePrice {
+  readonly itemId: string;
+  readonly priceDzd: number;
+  readonly priceVersion: string;
 }
 
 interface BatchScope {
@@ -42,7 +49,7 @@ async function lockBatch(sql: TransactionSql, { merchantId, batchId }: BatchScop
 async function readHistory(sql: TransactionSql, { merchantId, batchId }: BatchScope) {
   return sql<HistoryRow[]>`
     SELECT item_id AS "itemId", old_price_dzd AS "appliedOldPriceDzd",
-      new_price_dzd AS "appliedNewPriceDzd"
+      new_price_dzd AS "appliedNewPriceDzd", applied_price_version::text AS "appliedPriceVersion"
     FROM public.price_history
     WHERE merchant_id = ${merchantId} AND batch_id = ${batchId}
     ORDER BY item_id
@@ -52,29 +59,40 @@ async function readHistory(sql: TransactionSql, { merchantId, batchId }: BatchSc
 async function lockLivePrices(
   sql: TransactionSql,
   { merchantId, itemIds }: { merchantId: string; itemIds: readonly string[] },
-): Promise<Map<string, number>> {
-  const rows = await sql<{ itemId: string; priceDzd: number }[]>`
-    SELECT id AS "itemId", price_dzd AS "priceDzd" FROM public.items
+): Promise<Map<string, LivePrice>> {
+  const rows = await sql<LivePrice[]>`
+    SELECT id AS "itemId", price_dzd AS "priceDzd", price_version::text AS "priceVersion"
+    FROM public.items
     WHERE merchant_id = ${merchantId} AND id = ANY(${[...itemIds]}::uuid[]) AND archived_at IS NULL
     ORDER BY id
     FOR NO KEY UPDATE
   `;
-  return new Map(rows.map((row) => [row.itemId, row.priceDzd]));
+  return new Map(rows.map((row) => [row.itemId, row]));
 }
 
-function isUnchangedSinceApply(history: readonly HistoryRow[], live: Map<string, number>) {
-  return history.every((row) => live.get(row.itemId) === row.appliedNewPriceDzd);
+function isUnchangedSinceApply(history: readonly HistoryRow[], live: Map<string, LivePrice>) {
+  return history.every((row) => {
+    const price = live.get(row.itemId);
+    return (
+      row.appliedPriceVersion !== null &&
+      price?.priceDzd === row.appliedNewPriceDzd &&
+      price.priceVersion === row.appliedPriceVersion
+    );
+  });
 }
 
 async function restorePrices(sql: TransactionSql, request: BulkPriceUndo, history: HistoryRow[]) {
   const { merchantId, input, now } = request;
-  const itemIds = history.map((row) => row.itemId);
-  const restoredPrices = history.map((row) => row.appliedOldPriceDzd);
-  await sql`
-    UPDATE public.items AS item SET price_dzd = change.old_price
-    FROM unnest(${itemIds}::uuid[], ${restoredPrices}::integer[]) AS change(item_id, old_price)
-    WHERE item.merchant_id = ${merchantId} AND item.id = change.item_id
+  const restored = await sql`
+    UPDATE public.items AS item SET price_dzd = history.old_price_dzd
+    FROM public.price_history AS history
+    WHERE history.merchant_id = ${merchantId} AND history.batch_id = ${input.batchId}
+      AND item.merchant_id = history.merchant_id AND item.id = history.item_id
+      AND item.archived_at IS NULL AND item.price_dzd = history.new_price_dzd
+      AND item.price_version = history.applied_price_version
   `;
+  if (restored.count !== history.length)
+    throw new Error("Locked price history changed during undo.");
   await sql`
     UPDATE public.price_change_batches SET undone_at = ${now.toISOString()}::timestamptz
     WHERE merchant_id = ${merchantId} AND id = ${input.batchId}

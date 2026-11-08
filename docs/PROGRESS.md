@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 — M2-7 price undo after intervening edits
+
+- **Changed** — Migration 0017 tracks each item's price version. Bulk apply records that version and undo requires the same price and version under the existing locks. Legacy history without a verifiable version is rejected.
+- **Evidence** — The PostGIS regression reproduced the incorrect undo after a price changed away and back. All 28 focused price, item and migration tests passed after the fix. `pnpm verify` exited 0 with 1,229 unit and 142 integration tests.
+- **Review** — Checked version increments, exact history matching, atomic restore and unchanged-price behavior. [Closed findings](reviews/2026-11-08-menu-moderation.md)
+- **Next** — Menu import persistence, preview and apply, then the remaining media pipeline and M2 gate.
+- **Needs Mahdi** — None.
+
 ### 2026-11-08 10:09 GMT — M2-8 import row validation and preview signing
 
 - **Changed** — Validate spreadsheet cells in source row order, reuse the menu text and price bounds, and normalize Arabic and Persian digits. Sign the validated rows and merchant, account, session and revision with a domain-separated HMAC.

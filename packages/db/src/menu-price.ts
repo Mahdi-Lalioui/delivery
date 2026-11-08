@@ -117,12 +117,6 @@ async function applyBulkPrice(
   const oldPrices = preview.items.map((item) => item.oldPriceDzd);
   const newPrices = preview.items.map((item) => item.newPriceDzd);
 
-  await sql`
-    UPDATE public.items AS item SET price_dzd = change.new_price
-    FROM unnest(${itemIds}::uuid[], ${newPrices}::integer[]) AS change(item_id, new_price)
-    WHERE item.merchant_id = ${merchantId} AND item.id = change.item_id
-  `;
-
   const [batch] = await sql<{ batchId: string }[]>`
     INSERT INTO public.price_change_batches (merchant_id, actor_id, applied_at)
     VALUES (${merchantId}, ${accountId}, ${now.toISOString()}::timestamptz)
@@ -131,10 +125,17 @@ async function applyBulkPrice(
   if (!batch) throw new Error("Price change batch insert returned no row.");
 
   await sql`
-    INSERT INTO public.price_history (merchant_id, batch_id, item_id, old_price_dzd, new_price_dzd)
-    SELECT ${merchantId}::uuid, ${batch.batchId}::uuid, change.item_id, change.old_price, change.new_price
-    FROM unnest(${itemIds}::uuid[], ${oldPrices}::integer[], ${newPrices}::integer[])
-      AS change(item_id, old_price, new_price)
+    WITH changed AS (
+      UPDATE public.items AS item SET price_dzd = change.new_price
+      FROM unnest(${itemIds}::uuid[], ${oldPrices}::integer[], ${newPrices}::integer[])
+        AS change(item_id, old_price, new_price)
+      WHERE item.merchant_id = ${merchantId} AND item.id = change.item_id
+      RETURNING item.id, change.old_price, item.price_dzd, item.price_version
+    )
+    INSERT INTO public.price_history
+      (merchant_id, batch_id, item_id, old_price_dzd, new_price_dzd, applied_price_version)
+    SELECT ${merchantId}::uuid, ${batch.batchId}::uuid, id, old_price, price_dzd, price_version
+    FROM changed
   `;
 
   return { kind: "changed", value: { batchId: batch.batchId, items: preview.items } };
