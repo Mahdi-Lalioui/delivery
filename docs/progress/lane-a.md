@@ -47,3 +47,8 @@
 - 2026-11-08 · Ultra · Lane B batch in the Lane A worktree. Promotion DB scope passed 169 PostGIS tests, including five promotion cases. Seven focused API suites passed 25 tests across billing, promotions, platform settings, Ramadan and the route authorization matrix.
 - 2026-11-08 · Ultra · Billing overlap and mixed-case admin replay regressions passed under their respective locks. `pnpm verify` passed with 1,539 unit and 210 PostGIS cases, authz with 218, and the production browser regressions with 19.
 - 2026-11-08 · Low · See the [batch handoff](../requests/lane-a-backend-batch.md) for API bindings and pending order, ratings and billing lifecycle dependencies. M3 starts with the service-area data and location contract.
+
+- 2026-11-08 · High and ultra · M3-1 started from `67ec76f` on `lane-a`. Contract `4cd1936` uses a public POST body for exact pins and keeps coverage separate from ordering. Two contract and 13 HTTP/inventory tests passed. The compiled production regression reproduced a 404 before wiring.
+- 2026-11-08 · Low · M2 remains at 36/37. Lane B `db00086` has no visible notice wiring. The goal tool still holds the unfinished M2 goal and rejected creating M3. Track M3 in PLAN until M2 can close.
+- 2026-11-08 · Ultra and high · Location lookup and GPS/commune picker passed 1,553 unit, 216 PostGIS, 222 authorization and three production browser cases. Both reviews cleared after cache, stale-selection and contrast fixes. [Evidence](../evidence/m3/location.md)
+- 2026-11-08 · High · Resume M3-2 at public `GET /v1/feed`. Start with active merchants, bounded keyset pages, batched hours and tenant-scoped ready photos. Keep geo ranking, live fees, ETA and payment methods tied to their real producers. M3-1 map, opt-in and editor stay open.

@@ -28,6 +28,10 @@
       "types": "./src/geography.ts",
       "default": "./dist/geography.js"
     },
+    "./service-area": {
+      "types": "./src/service-area.ts",
+      "default": "./dist/service-area.js"
+    },
     "./media": {
       "types": "./src/media.ts",
       "default": "./dist/media.js"

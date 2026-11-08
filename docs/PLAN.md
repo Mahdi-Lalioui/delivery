@@ -201,6 +201,9 @@ Close the remaining M2 acceptance checks and seed the demo restaurants. Then lan
 **Goal:** browsing feels instant and beautiful; search understands Algiers.
 
 - [ ] M3-1 Location onboarding and service areas (CUS-02, GEO-01, GEO-02, address search, commune list).
+  - [x] Seed and resolve active Algiers service-area polygons for anonymous GPS and commune selection.
+  - [x] Save the user's selection in the localized home and prove supported and outside-area behavior in a production browser.
+  - [ ] Complete location refinement, the outside-area opt-in and the audited polygon editor handoff.
 - [ ] M3-2 Feed endpoint and home, browsable without an account (CUS-01, CUS-03, CUS-04).
 - [ ] M3-3 Search index, jobs, endpoint and UI (SRCH-04…06, CUS-05, CUS-06).
 - [ ] M3-4 Restaurant page and item sheet (CUS-07, CUS-08), with ETag caching.

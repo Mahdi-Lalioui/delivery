@@ -1,0 +1,98 @@
+import { expect, test } from "@playwright/test";
+import { discoveryLocationOutput } from "../packages/contracts/src/discovery.ts";
+import { withAuthHarness } from "./auth-fixture.ts";
+import { attachPageScreenshot } from "./visual.ts";
+
+const labels = {
+  fr: {
+    open: "Choisir une adresse",
+    search: "Rechercher une commune",
+    save: "Confirmer le lieu de livraison",
+    saved: "Lieu de livraison enregistré",
+  },
+  ar: {
+    open: "اختيار عنوان",
+    search: "البحث عن بلدية",
+    save: "تأكيد موقع التوصيل",
+    saved: "تم حفظ موقع التوصيل",
+  },
+} as const;
+
+for (const locale of ["ar", "fr"] as const) {
+  test(`[CUS-02:browser] ${locale} saves a covered commune without signing in @discovery-location`, async ({
+    baseURL,
+    page,
+  }, testInfo) => {
+    await withAuthHarness(baseURL, async (harness) => {
+      const commune = await harness.seedAlgiersCommune();
+      const name = locale === "ar" ? commune.nameAr : commune.nameFr;
+      const copy = labels[locale];
+      await page.goto(harness.origin + "/" + locale);
+      await expect(page.locator("html")).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
+      await page.getByRole("button", { name: copy.open }).click();
+      const dialog = page.getByRole("dialog");
+      const search = dialog.getByRole("searchbox", { name: copy.search });
+      const communeChoice = dialog.getByRole("radio", { name, exact: true });
+      await search.fill(name);
+      await communeChoice.check();
+      await search.fill("0000");
+      await expect(dialog.getByRole("button", { name: copy.save })).toBeDisabled();
+      await search.fill(name);
+      await communeChoice.check();
+
+      for (const theme of ["light", "dark"] as const) {
+        await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
+        for (const width of [390, 1280]) {
+          await page.setViewportSize({ width, height: width === 390 ? 844 : 800 });
+          await attachPageScreenshot(
+            page,
+            testInfo,
+            `discovery-${locale}-${theme}-${String(width)}`,
+          );
+        }
+      }
+
+      const lookup = page.waitForResponse(
+        (response) =>
+          response.request().method() === "POST" &&
+          new URL(response.url()).pathname === "/v1/geo/serviceability",
+      );
+      await page.getByRole("button", { name: copy.save }).click();
+      const response = await lookup;
+      expect(response.status()).toBe(200);
+      const location = discoveryLocationOutput.parse(await response.json());
+      expect(location.communeId).toBe(commune.id);
+      expect(location.serviceAreaId).not.toBeNull();
+      await expect(page.getByText(copy.saved, { exact: true })).toBeVisible();
+      await page.reload();
+      await expect(page.getByText(copy.saved, { exact: true })).toBeVisible();
+    });
+  });
+}
+
+test("[CUS-02:browser] keeps browsing available after saving an outside-area GPS point @discovery-location", async ({
+  baseURL,
+  context,
+  page,
+}) => {
+  await withAuthHarness(baseURL, async (harness) => {
+    await harness.seedAlgiersCommune();
+    await context.grantPermissions(["geolocation"], { origin: harness.origin });
+    await context.setGeolocation({ latitude: 35.69, longitude: -0.64, accuracy: 90 });
+    await page.goto(harness.origin + "/fr");
+    await page.getByRole("button", { name: labels.fr.open }).click();
+    const gps = page.getByRole("button", { name: "Utiliser ma position" });
+    const save = page.getByRole("button", { name: labels.fr.save });
+    await gps.click();
+    await expect(page.getByText(/Votre position est approximative/u)).toBeVisible();
+    await expect(save).toBeDisabled();
+    await context.setGeolocation({ latitude: 35.69, longitude: -0.64, accuracy: 15 });
+    await gps.click();
+    await save.click();
+    const outside = page.getByText("Nous ne livrons pas encore à cet endroit.", { exact: true });
+    await expect(outside).toBeVisible();
+    await page.reload();
+    await expect(outside).toBeVisible();
+    await expect(page.getByRole("main")).toBeVisible();
+  });
+});

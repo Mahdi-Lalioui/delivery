@@ -17,6 +17,7 @@ import { createMerchantPromotionsRepository } from "@zaafran/db/promotions";
 import { createMerchantProfilePhotosRepository } from "@zaafran/db/merchant-profile-photos";
 import { createMerchantRepository } from "@zaafran/db/merchant";
 import { createMerchantStaffRepository } from "@zaafran/db/merchant-staff";
+import { createServiceAreaRepository } from "@zaafran/db/service-area";
 import { createLocalMediaStore } from "@zaafran/media";
 import type { FastifyInstance, FastifyListenOptions } from "fastify";
 import { createApi } from "./app.js";
@@ -55,6 +56,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     billing: createBillingRepository(database),
     billingWrites: { repository: createBillingWriteRepository(database), now },
     platform: { repository: platform, now },
+    discovery: createServiceAreaRepository(database),
     ramadan: {
       isRamadanEnabled: async () => (await platform.readPublicFlags()).flags.ramadan_mode === true,
       findCoordinates: (communeId) => readCommuneCoordinates(database, communeId),

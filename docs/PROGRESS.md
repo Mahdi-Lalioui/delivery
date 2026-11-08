@@ -13,6 +13,12 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 17:45 GMT — M3-1 service areas and location selection
+
+- **Effort and evidence** — Ultra for the migration and API, high for the picker. `pnpm verify` passed 1,553 unit and 216 PostGIS tests, authorization passed 222, and the production discovery browser suite passed three journeys.
+- **Review** — Closed no-store errors, stale commune selection and radio contrast findings. The lead inspected phone and desktop captures, and the design critic approved all eight final views. [Evidence](evidence/m3/location.md)
+- **Next** — M3-2 anonymous feed. M3-1 still needs the fixed-centre map, outside-area opt-in and polygon editor. M2 still lacks the Lane B notice.
+
 ### 2026-11-08 16:48 GMT — Lane B billing, promotions, platform and Ramadan backend
 
 - **Effort and evidence** — Ultra. `pnpm verify` passed 1,539 unit and 210 PostGIS tests. Authorization passed 218 cases and the authenticated production browser regression passed 19.
@@ -915,4 +921,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 - M2 is at 36 of 37 IDs, with the live Lane B admin notice still open. See [M2 gate evidence](evidence/m2/gate-status.md).
 - Lane A backend slice passed `pnpm verify` with 1,539 unit and 210 PostGIS tests, `pnpm test:authz` with 218 tests, and `pnpm test:e2e:auth` with 19 production browser regressions. The new Lane B screens still need live backend integration.
 - Billing period overlap and platform replay reviews are closed. Pending billing lifecycle, ratings and retention dependencies are in the [batch handoff](requests/lane-a-backend-batch.md). Resume from [Lane A progress](progress/lane-a.md).
+- M3 location lookup and GPS/commune picker passed 1,553 unit, 216 PostGIS, 222 authorization and three production browser tests. [Location evidence](evidence/m3/location.md)
 - See [HUMAN_TODO](HUMAN_TODO.md) for outstanding production dependencies.

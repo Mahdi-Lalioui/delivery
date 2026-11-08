@@ -454,6 +454,12 @@ const matrix: readonly MatrixRoute[] = [
   },
   { method: "GET", url: "/v1/flags", expected: 503 },
   {
+    method: "POST",
+    url: "/v1/geo/serviceability",
+    payload: { kind: "point", latitude: 36.76, longitude: 3.05 },
+    expected: 503,
+  },
+  {
     method: "GET",
     url: "/v1/ramadan/today",
     requestUrl: "/v1/ramadan/today?communeId=" + challengeId,

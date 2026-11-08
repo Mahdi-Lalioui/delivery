@@ -204,6 +204,13 @@
       "when": 1794130200000,
       "tag": "0028_platform_ops",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1794130800000,
+      "tag": "0029_service_areas",
+      "breakpoints": true
     }
   ]
 }

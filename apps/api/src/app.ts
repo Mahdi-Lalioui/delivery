@@ -13,6 +13,7 @@ import { createAuthAccess } from "./auth-access.js";
 import { registerBillingReadRoutes, type BillingRepository } from "./billing-read-routes.js";
 import { registerBillingWriteRoutes, type BillingWriteServices } from "./billing-write-routes.js";
 import { registerAuthRoutes } from "./auth-routes.js";
+import { registerDiscoveryRoutes, type DiscoveryServices } from "./discovery-routes.js";
 import { registerHealth } from "./health.js";
 import {
   registerMerchantProfilePhotosRoutes,
@@ -65,6 +66,7 @@ interface ApiOptions {
   readonly billingWrites?: BillingWriteServices;
   readonly platform?: PlatformServices;
   readonly ramadan?: RamadanServices;
+  readonly discovery?: DiscoveryServices;
   readonly merchantProfilePhotos?: MerchantProfilePhotosServices;
   readonly merchantPromotions?: MerchantPromotionsServices;
   readonly menuModeration?: MenuModerationServices;
@@ -139,6 +141,7 @@ export function createApi(options: ApiOptions): FastifyInstance {
     registerBillingWriteRoutes(api, options.billingWrites);
     registerPlatformRoutes(api, options.platform);
     registerRamadanRoutes(api, options.ramadan);
+    registerDiscoveryRoutes(api, options.discovery);
     registerMerchantProfilePhotosRoutes(api, options.merchantProfilePhotos);
     registerMerchantPromotionsRoutes(api, options.merchantPromotions);
     registerAdminModerationRoutes(api, options.menuModeration);

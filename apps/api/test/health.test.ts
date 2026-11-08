@@ -165,6 +165,7 @@ test("[M0-6] the generated OpenAPI document describes the readiness problem resp
       "/v1/auth/totp/verify",
       "/v1/communes",
       "/v1/flags",
+      "/v1/geo/serviceability",
       "/v1/me/merchants",
       "/v1/me/sessions",
       "/v1/me/sessions/{sessionId}",
