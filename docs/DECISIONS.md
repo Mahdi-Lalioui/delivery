@@ -182,3 +182,7 @@ MER-24 posters need QR codes. `qrcode-generator` 2.0.4 (MIT, no dependencies, pu
 ### D-B03 — three.js and React Three Fiber for the landing hero (2026-11-08)
 
 DESIGN §8 asks for React Three Fiber. `three` 0.187.0 and `@react-three/fiber` 9.8.2 (MIT, exact pins, both older than the 3-day release age) load only in a lazy chunk after LCP on capable devices; everyone else keeps the server-rendered SVG poster. The hero's colours are DESIGN §3.1/§3.4 constants in `apps/web/src/marketing/hero-palette.ts` because the illustration must not invert in dark theme.
+
+### D-B04 — Customer app on Expo SDK 58 with Jest in verify (2026-11-08)
+
+`apps/mobile` uses Expo SDK 58.0.23 with the exact versions from Expo's `bundledNativeModules.json` (React 19.3.0, React Native 0.88.1, Expo Router, Reanimated 4.7.1). Tests use jest-expo + React Native Testing Library 14 (async `render`, `userEvent`); root Vitest already excludes mobile, so `pnpm verify` gains `pnpm test:mobile`. `packages/ui-native` builds its theme from `@zaafran/tokens` `palettes.json`/`metrics.json`, newly exported for this. `expo-updates` is ignored in knip until M10-6 adds EAS Update.
