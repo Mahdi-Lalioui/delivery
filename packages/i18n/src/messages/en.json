@@ -486,6 +486,12 @@
     "remove": "Remove",
     "removeRange": "Remove {opens}–{closes} on {day}",
     "errorTime": "Enter an opening and a closing time that differ.",
-    "errorOverlap": "These hours overlap. Change one range so they don't."
+    "errorOverlap": "These hours overlap. Change one range so they don't.",
+    "previewTitle": "Next seven days",
+    "previewDay": "{weekday} {date}",
+    "previewSpecial": "Special date",
+    "previewMaghrib": "Maghrib at {time}",
+    "previewRange": "{opens}–{closes}",
+    "previewRangeNextDay": "{opens}–{closes} (next day)"
   }
 }

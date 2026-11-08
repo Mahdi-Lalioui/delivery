@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 03:29 GMT — M2-9 presentational seven-day preview list (Claude, covering while Codex was out)
+
+- **Changed** — Added `apps/web/src/merchant-hours/components/hours-preview-list.tsx`. It renders the seven preview days as an ordered list. Each day has a localized weekday and date heading, a "Special date" badge, "Maghrib at …" on Ramadan days, and "Closed" when a day has no intervals. Each range shows Africa/Algiers times with Latin digits through `formatAlgiersTime`. A range is marked "next day" only when it closes after that day's local midnight, so 18:00–00:00 stays unmarked. Every visible pattern, including the en dash and the parentheses, comes from new `merchantHours.preview*` messages in ar, fr and en.
+- **Evidence** — Tests came first: 2 `[MER-16]` render cases in French and Arabic. They failed on the missing module. A wrong fixture expectation (18:23 instead of Maghrib − 60 = 17:23) was then corrected in the test, not the code. 2/2 passed. `pnpm verify` exited 0: 1035 unit tests, 118 PostGIS integration tests, build, knip, depcruise, trace, and only the existing moderate advisory.
+- **Reviewer** — Self-reviewed against AGENTS.md §10. Moved the hard-coded range punctuation into the catalogs before commit (P1, hard-coded string). No P0/P1 remain.
+- **Next** — Same as the 03:27 entry: `use-hours-editor.ts`, then the page and route, token CSS, closed-now control, preview tabs (render `HoursPreviewList`), Ramadan fields, journeys and the screenshot matrix.
+- **Needs Mahdi** — None.
+
 ### 2026-11-08 03:27 GMT — M2-9 pure hours load/save state machine (Claude, covering while Codex was out)
 
 - **Changed** — Added `apps/web/src/merchant-hours/hours-flow.ts`. `reduceHours` moves between `loading`, `load-failed`, `editing` and `saving` on the events `loaded`, `load-failed`, `draft-changed`, `validation-failed`, `save-started` and `save-finished`. A successful save moves to the returned revision with a `saved` notice. A failed save keeps the draft and the failure. `retryKey` survives only an uncertain failure (5xx, network, rate limit) and is dropped on any edit, so a retried key always carries the same body. Events that do not fit the current state are ignored. `prepareHoursSave(state, createKey)` validates the draft through the contract-backed `toHoursInput` and attaches `expectedRevision`. It reuses the retry key when one is held.

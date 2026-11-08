@@ -486,6 +486,12 @@
     "remove": "Retirer",
     "removeRange": "Retirer le créneau {opens}–{closes} ({day})",
     "errorTime": "Saisissez une heure d’ouverture et une heure de fermeture différentes.",
-    "errorOverlap": "Ces créneaux se chevauchent. Modifiez-en un."
+    "errorOverlap": "Ces créneaux se chevauchent. Modifiez-en un.",
+    "previewTitle": "Les sept prochains jours",
+    "previewDay": "{weekday} {date}",
+    "previewSpecial": "Date spéciale",
+    "previewMaghrib": "Maghrib à {time}",
+    "previewRange": "{opens}–{closes}",
+    "previewRangeNextDay": "{opens}–{closes} (lendemain)"
   }
 }

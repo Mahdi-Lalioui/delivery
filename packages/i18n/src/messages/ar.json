@@ -486,6 +486,12 @@
     "remove": "حذف",
     "removeRange": "حذف الفترة {opens}–{closes} يوم {day}",
     "errorTime": "أدخل وقت فتح ووقت إغلاق مختلفين.",
-    "errorOverlap": "هذه الفترات متداخلة. عدّل إحداها."
+    "errorOverlap": "هذه الفترات متداخلة. عدّل إحداها.",
+    "previewTitle": "الأيام السبعة القادمة",
+    "previewDay": "{weekday} {date}",
+    "previewSpecial": "تاريخ خاص",
+    "previewMaghrib": "المغرب على {time}",
+    "previewRange": "{opens}–{closes}",
+    "previewRangeNextDay": "{opens}–{closes} (اليوم التالي)"
   }
 }
