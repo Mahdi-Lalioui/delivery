@@ -36,6 +36,10 @@
       "types": "./src/merchant.ts",
       "default": "./dist/merchant.js"
     },
+    "./merchant-staff": {
+      "types": "./src/merchant-staff.ts",
+      "default": "./dist/merchant-staff.js"
+    },
     "./merchant-hours": {
       "types": "./src/merchant-hours.ts",
       "default": "./dist/merchant-hours.js"

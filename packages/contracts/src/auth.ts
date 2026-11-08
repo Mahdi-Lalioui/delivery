@@ -1,7 +1,8 @@
 import { z } from "zod";
 
 const challengeId = z.uuid();
-const phone = z
+/** An Algerian mobile number in E.164, the only kind that can receive the OTP SMS. */
+export const algerianMobilePhone = z
   .string()
   .length(13)
   .regex(/^\+213[567][0-9]{8}$/);
@@ -22,7 +23,7 @@ export const idempotencyKeySchema = z
   .max(128)
   .regex(/^[A-Za-z0-9._:-]+$/);
 export const requestOtpInput = z.strictObject({
-  phone,
+  phone: algerianMobilePhone,
   purpose: z.enum(["sign_in", "admin_sign_in"]),
 });
 export const requestOtpOutput = z.strictObject({
