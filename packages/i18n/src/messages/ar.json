@@ -858,5 +858,15 @@
     "empty": "لا توجد عروض بعد.",
     "uses": "{count, plural, zero {لا استخدام} one {استخدام واحد} two {استخدامان} few {# استخدامات} other {# استخدامًا}}",
     "sales": "مبيعات بقيمة {amount}"
+  },
+  "retentionScheduling": {
+    "when": "متى",
+    "asap": "في أقرب وقت",
+    "iftarSlot": "الإفطار — يصل على {time}",
+    "noSlots": "لا توجد مواعيد لاحقة متاحة.",
+    "iftarAt": "الإفطار اليوم على {time}",
+    "iftarNow": "صحة فطوركم! حان وقت الإفطار.",
+    "countdownTime": "{hours, number, ::00}:{minutes, number, ::00}:{seconds, number, ::00}",
+    "countdown": "الإفطار بعد {time}"
   }
 }

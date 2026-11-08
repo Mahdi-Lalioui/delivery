@@ -858,5 +858,15 @@
     "empty": "Aucune promotion pour l’instant.",
     "uses": "{count, plural, one {# utilisation} other {# utilisations}}",
     "sales": "{amount} de ventes"
+  },
+  "retentionScheduling": {
+    "when": "Quand",
+    "asap": "Dès que possible",
+    "iftarSlot": "Iftar — arrivée à {time}",
+    "noSlots": "Aucun créneau ultérieur disponible.",
+    "iftarAt": "Iftar aujourd’hui à {time}",
+    "iftarNow": "Saha ftourkoum ! C’est l’heure de l’Iftar.",
+    "countdownTime": "{hours, number, ::00}:{minutes, number, ::00}:{seconds, number, ::00}",
+    "countdown": "Iftar dans {time}"
   }
 }

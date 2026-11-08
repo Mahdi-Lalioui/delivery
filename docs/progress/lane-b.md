@@ -17,3 +17,5 @@
   Proof: `vitest run apps/web/test/ratings*` 10/10, `pnpm verify` green. Next: M6-3 promotions, M6-4 scheduling.
 - 2026-11-08 · High · M6-3 promotions editor `/[locale]/merchant/[id]/promotions`: code/automatic, percent+cap/fixed/free delivery, conditions, stats, live worked example priced by `@zaafran/domain/pricing` (web now depends on domain). MSW; request `docs/requests/lane-b-promotions.md`.
   Proof: `vitest run apps/web/test/promotion*` 10/10, `pnpm verify` green. Gap: weekly day/hour conditions. Next: M6-4 scheduling + iftar countdown.
+- 2026-11-08 · High · M6-4 scheduling: slot loader/grouping (Algiers days, Iftar slot first), `SlotPicker`, `IftarCountdown` (domain `getMaghribCountdownMs`, silent timer role). Request `docs/requests/lane-b-scheduling.md` (slots route, Maghrib endpoint, motion tokens).
+  Proof: `vitest run apps/web/test/scheduling*` 7/7, `pnpm verify` green. Next: M6-5 order-for-someone-else, M6-6 busy mode, M6-7 QR posters.

@@ -35,3 +35,47 @@
   border: 1px solid var(--color-border-subtle);
   background: var(--color-surface);
 }
+
+.iftar-banner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-12);
+  align-items: center;
+  padding: var(--space-8) var(--space-16);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-2);
+}
+
+/* A lantern line icon drawn with borders, so no image asset is needed. */
+.iftar-banner-icon {
+  inline-size: var(--space-12);
+  block-size: var(--space-16);
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+}
+
+.iftar-banner-time {
+  margin-inline-start: auto;
+  font-family: var(--font-numbers);
+  font-variant-numeric: var(--font-variant-numeric-numbers);
+}
+
+.slot-picker,
+.slot-day {
+  display: grid;
+  gap: var(--space-8);
+  min-inline-size: 0;
+}
+
+.slot-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+}
+
+.slot-option {
+  display: inline-flex;
+  gap: var(--space-4);
+  align-items: center;
+  min-block-size: var(--touch-target-min);
+}
