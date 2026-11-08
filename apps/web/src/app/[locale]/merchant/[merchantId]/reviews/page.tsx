@@ -1,6 +1,6 @@
 import { requireLatinLocale } from "../../../../../i18n/latin-locale";
 import { requireMenuMerchantId } from "../../../../../menu-category/components/menu-category-page";
-import { MerchantReviewsPage, ratingMetadata } from "../../../../../retention/rating-pages";
+import { MerchantReviewsPage, ratingMetadata } from "../../../../../retention/retention-pages";
 
 interface Props {
   params: Promise<{ locale: string; merchantId: string }>;

@@ -15,3 +15,5 @@
   Next: M6 screens on lane A's ratings/promotions/scheduling contracts; wire PDF + planner into API routes when lane A lands the billing migration.
 - 2026-11-08 · High · M6-1 ratings on lane A's ratings contract: customer `/[locale]/orders/[id]/rating` (food/delivery stars, 24 h lock, reply shown) and merchant `/[locale]/merchant/[id]/reviews` (star filter, reply, report). MSW mocks; request `docs/requests/lane-b-ratings.md`.
   Proof: `vitest run apps/web/test/ratings*` 10/10, `pnpm verify` green. Next: M6-3 promotions, M6-4 scheduling.
+- 2026-11-08 · High · M6-3 promotions editor `/[locale]/merchant/[id]/promotions`: code/automatic, percent+cap/fixed/free delivery, conditions, stats, live worked example priced by `@zaafran/domain/pricing` (web now depends on domain). MSW; request `docs/requests/lane-b-promotions.md`.
+  Proof: `vitest run apps/web/test/promotion*` 10/10, `pnpm verify` green. Gap: weekly day/hour conditions. Next: M6-4 scheduling + iftar countdown.

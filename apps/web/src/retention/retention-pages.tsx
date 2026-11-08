@@ -11,6 +11,7 @@ import "../admin/admin-merchant.css";
 import "../admin/billing/admin-billing.css";
 import { MerchantReviews } from "./merchant-reviews";
 import { OrderRating } from "./order-rating";
+import { PromotionsEditor } from "./promotions-editor";
 import "./retention.css";
 
 export async function requireOrderId(params: Promise<{ orderId: string }>): Promise<string> {
@@ -62,6 +63,25 @@ export function MerchantReviewsPage({
       <Messages locale={locale}>
         <MerchantReviews key={merchantId} merchantId={merchantId} />
       </Messages>
+    </SiteShell>
+  );
+}
+
+export async function promotionsMetadata(locale: Locale): Promise<Metadata> {
+  const translate = await getTranslations({ locale, namespace: "retentionPromotions" });
+  return { title: translate("title"), robots: { index: false, follow: false } };
+}
+
+export function PromotionsPage({ merchantId, locale }: { merchantId: string; locale: Locale }) {
+  return (
+    <SiteShell locale={locale} subpath={`/merchant/${merchantId}/promotions`}>
+      <NextIntlClientProvider
+        locale={localeDetails[locale].tag}
+        timeZone="Africa/Algiers"
+        messages={{ retentionPromotions: getMessages(locale).retentionPromotions }}
+      >
+        <PromotionsEditor key={merchantId} merchantId={merchantId} />
+      </NextIntlClientProvider>
     </SiteShell>
   );
 }

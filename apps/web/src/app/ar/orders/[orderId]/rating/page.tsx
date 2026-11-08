@@ -2,7 +2,7 @@ import {
   OrderRatingPage,
   ratingMetadata,
   requireOrderId,
-} from "../../../../../retention/rating-pages";
+} from "../../../../../retention/retention-pages";
 
 interface Props {
   params: Promise<{ orderId: string }>;

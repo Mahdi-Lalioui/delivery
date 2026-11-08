@@ -2,7 +2,7 @@ import {
   requireMenuMerchantId,
   type MenuCategoryRouteProps,
 } from "../../../../../menu-category/components/menu-category-page";
-import { MerchantReviewsPage, ratingMetadata } from "../../../../../retention/rating-pages";
+import { MerchantReviewsPage, ratingMetadata } from "../../../../../retention/retention-pages";
 
 export function generateMetadata() {
   return ratingMetadata("ar", "reviewsTitle");
