@@ -16,6 +16,7 @@ interface SiteShellProps {
     | "/sign-in?continue=admin-review"
     | "/sign-in?continue=admin-moderation"
     | "/account/sessions"
+    | "/account/privacy"
     | "/merchant"
     | "/merchant/apply"
     | "/staff/accept"

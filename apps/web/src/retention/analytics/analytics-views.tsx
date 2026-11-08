@@ -15,6 +15,7 @@ import {
 } from "@zaafran/ui";
 import { useTranslations } from "next-intl";
 import { CancellationBars, OrdersHeatmap, TotalsTiles } from "./analytics-charts";
+import { downloadBlob } from "../privacy/use-privacy";
 import { analyticsCsv, type DashboardToday, type MerchantAnalytics } from "./analytics-http";
 import {
   useDashboardToday,
@@ -49,11 +50,7 @@ function useCsvDownload(analytics: MerchantAnalytics, locale: Locale) {
     const blob = new Blob([analyticsCsv(analytics, labels, (names) => itemName(names, locale))], {
       type: "text/csv;charset=utf-8",
     });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = translate("csvFile");
-    link.click();
-    URL.revokeObjectURL(link.href);
+    downloadBlob(blob, translate("csvFile"));
   };
 }
 
