@@ -7,6 +7,7 @@ import { AdminBillingView } from "../billing/admin-billing";
 import { BillingSettingsView } from "../billing/billing-settings";
 import { settingsToDraft } from "../billing/billing-settings-http";
 import { MerchantBillingView } from "../billing/merchant-billing";
+import { PlatformConsoleView } from "../platform/platform-console";
 import { emptyPromotionDraft } from "../../retention/promotion-draft";
 import { MerchantReviewsView } from "../../retention/merchant-reviews";
 import { OrderRatingView } from "../../retention/order-rating";
@@ -32,7 +33,8 @@ type Screen =
   | "promotions"
   | "reviews"
   | "rating"
-  | "checkout";
+  | "checkout"
+  | "platform";
 type Mode = "ready" | "empty" | "loading" | "error";
 const noop = () => undefined;
 const noopAsync = () => Promise.resolve();
@@ -202,6 +204,54 @@ const gallerySlots = [
   })),
 ];
 
+function PlatformSample({ mode }: { mode: Mode }) {
+  const settings = {
+    order_accept_timeout_seconds: 180,
+    first_order_cash_cap_dzd: 5000,
+    subscription_price_dzd: 5000,
+    subscription_trial_days: 30,
+    maintenance_banner: null,
+  };
+  const event = {
+    id: galleryMerchantId,
+    actorId: galleryMerchantId,
+    entity: "flag" as const,
+    entityId: "ramadan_mode",
+    action: "flag.enabled",
+    reason: "Début du Ramadan",
+    createdAt: "2027-02-08T09:00:00.000Z",
+  };
+  const view =
+    mode === "ready" || mode === "empty"
+      ? {
+          kind: "ready" as const,
+          sessionId: galleryMerchantId,
+          settings,
+          flags: { ramadan_mode: true, online_payments: false, menu_photo_import: false },
+        }
+      : { kind: mode };
+  const audit = {
+    kind: "ready" as const,
+    events: mode === "ready" ? [event] : [],
+    nextCursor: null,
+  };
+  return (
+    <PlatformConsoleView
+      state={{
+        view,
+        audit,
+        entity: undefined,
+        notice: undefined,
+        isSaving: false,
+        filterAudit: noop,
+        setFlag: () => Promise.resolve(true),
+        setSetting: () => Promise.resolve(true),
+        refresh: noop,
+      }}
+    />
+  );
+}
+
 function CheckoutSample() {
   const [slot, setSlot] = useState<SlotChoice>({ kind: "asap" });
   const [recipient, setRecipient] = useState<RecipientDraft>({
@@ -242,6 +292,7 @@ export function LaneBGallery({
             { value: "reviews", label: "MER-20" },
             { value: "rating", label: "CUS-22" },
             { value: "checkout", label: "CUS-13/15" },
+            { value: "platform", label: "ADM-08" },
           ]}
         />
         <SegmentedControl
@@ -264,6 +315,7 @@ export function LaneBGallery({
       {screen === "reviews" && <ReviewsSample mode={mode} />}
       {screen === "rating" && <RatingSample mode={mode} />}
       {screen === "checkout" && <CheckoutSample />}
+      {screen === "platform" && <PlatformSample mode={mode} />}
     </div>
   );
 }

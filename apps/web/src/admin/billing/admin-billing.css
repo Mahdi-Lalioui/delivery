@@ -229,3 +229,15 @@
 .billing-dropzone-hint {
   font-size: var(--font-size-caption);
 }
+
+/* ADM-08 platform console */
+.platform-flag {
+  display: grid;
+  gap: var(--space-12);
+  padding-block: var(--space-12);
+  border-block-end: 1px solid var(--color-border-subtle);
+}
+
+.platform-flag:last-child {
+  border-block-end: 0;
+}
