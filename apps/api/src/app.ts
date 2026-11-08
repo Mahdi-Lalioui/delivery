@@ -14,6 +14,10 @@ import { registerAuthRoutes } from "./auth-routes.js";
 import { registerHealth } from "./health.js";
 import { registerMerchantRoutes, type MerchantServices } from "./merchant-routes.js";
 import {
+  registerAdminModerationRoutes,
+  type MenuModerationServices,
+} from "./admin-moderation-routes.js";
+import {
   registerMediaReservationRoutes,
   type MediaReservationServices,
 } from "./media-reservation-routes.js";
@@ -39,6 +43,7 @@ import { sendProblem } from "./problems.js";
 interface ApiOptions {
   readonly checkReadiness: () => Promise<void>;
   readonly merchant?: MerchantServices;
+  readonly menuModeration?: MenuModerationServices;
   readonly media?: MediaReservationServices;
   readonly menuCategory?: MenuCategoryServices;
   readonly menuItem?: MenuItemServices;
@@ -103,6 +108,7 @@ export function createApi(options: ApiOptions): FastifyInstance {
     });
     registerAuthRoutes(api, access);
     registerMerchantRoutes(api, options.merchant);
+    registerAdminModerationRoutes(api, options.menuModeration);
     registerMediaReservationRoutes(api, options.media);
     registerMenuCategoryRoutes(api, options.menuCategory);
     registerMenuItemRoutes(api, options.menuItem);

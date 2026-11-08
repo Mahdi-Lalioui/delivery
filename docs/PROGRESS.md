@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 07:50 GMT — M2-10 admin held-item API routes (Claude, covering while Codex was out)
+
+- **Changed** — Added `apps/api/src/admin-moderation-routes.ts`, wired as `menuModeration` in `app.ts` and `start.ts`. `GET /v1/admin/menu-items/held` (admin policy, `no-store`) returns `adminItemQueueOutput`, with `matches` computed by `findProhibitedGoods` over the ar/fr/en names and descriptions. A repository denial returns 403 `forbidden`. `POST /v1/admin/menu-items/:itemId/review` (session-bound command headers, strict body) returns `adminItemReviewOutput`. It maps `not_found` → 404, `invalid_status`/`idempotency_conflict` → 409 and `forbidden` → 403, and a stale session gets 409 `session_changed`. Both routes are in the authorization matrix (admin only) and in the regenerated `docs/openapi.json`.
+- **Evidence** — Tests came first: 8 `[ADM-04:http]` cases in `apps/api/test/admin-moderation-http.test.ts`, plus the `[AUTH-08]` matrix rows and the `[M0-6]` OpenAPI path list. 9 failed before the routes existed (the 404 mapping passed early only because the route was missing). Afterwards, 18/18 passed in those files. The OpenAPI path list was first written out of sort order, and only the test's ordering was corrected. `pnpm --filter @zaafran/api openapi` regenerated the document. `pnpm verify` exited 0: 1119 unit tests, 122 PostGIS integration tests, API coverage thresholds, build, knip, depcruise, trace, and only the existing moderate advisory.
+- **Reviewer** — Self-reviewed against AGENTS.md §10. No P0/P1. The route policy rejects non-admins before the handler runs, and the repository checks the admin again under lock, so a revoked admin with a live session is refused.
+- **Next (exact)** — Add `apps/api/test/admin-moderation.integration.test.ts` using `registerMerchantApiFixture` (`seedActor(…, "admin")`, `seedMenuMerchants`). An owner creates "Bière pression" through `POST /v1/merchants/:id/menu/items` and gets `blocked_pending_review`. The admin sees it in `GET /v1/admin/menu-items/held` with `matches: ["alcohol"]`, approves it via `POST …/review`, and the owner's `GET /v1/merchants/:id/onboarding` `itemsTowardMinimum` rises by one. A replay with the same key returns the same body. Then M2-10 sub-task 4: an admin held-items screen in `apps/web`, plus the merchant-side message for a held item (the existing `moderationBlocked` badge), with ar/fr/en strings and tests.
+- **Needs Mahdi** — None.
+
 ### 2026-11-08 07:49 GMT — M2-10 contract/domain category parity (Claude, covering while Codex was out)
 
 - **Changed** — Exported `prohibitedCategories` from `@zaafran/domain/moderation` and `prohibitedCategory` from `@zaafran/contracts/admin-moderation`. Added `apps/api/test/moderation-parity.test.ts` so the queue contract's `matches` enum cannot drift from what the screen reports. The API is the only package that depends on both.
@@ -678,6 +686,6 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 ## Current status
 
 - Milestone: M1 (last passing gate, M2 in progress)
-- `node scripts/trace.ts --through m2` on 2026-11-08 at 03:32 GMT covered 32 of 37 IDs. Pending: ADM-04, MER-01, MER-12, MER-14, MER-23. M2-9 has its API, preview, pure web models, and the weekly hours page with the closed-now control. M2-9 is done, with production-build ar/fr journeys and the screenshot matrix. M2-10 screens item writes and has the admin review contracts the audited db review command and the held-item queue read; next is the API routes.
-- Last green `pnpm verify`: 2026-11-08 07:48 GMT on Docker Desktop with 1111 unit and 122 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 14/14 at 07:35 GMT.
+- `node scripts/trace.ts --through m2` on 2026-11-08 at 03:32 GMT covered 32 of 37 IDs. Pending: ADM-04, MER-01, MER-12, MER-14, MER-23. M2-9 has its API, preview, pure web models, and the weekly hours page with the closed-now control. M2-9 is done, with production-build ar/fr journeys and the screenshot matrix. M2-10 screens item writes and has the admin review contracts the audited db review command, the queue read and the admin API routes; next is the PostGIS end-to-end API test, then the admin screen.
+- Last green `pnpm verify`: 2026-11-08 07:50 GMT on Docker Desktop with 1119 unit and 122 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 14/14 at 07:35 GMT.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

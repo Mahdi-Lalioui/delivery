@@ -396,6 +396,14 @@ const matrix: readonly MatrixRoute[] = [
     payload: { decision: "approve", reason: "Synthetic review" },
     expected: adminRole,
   },
+  { method: "GET", url: "/v1/admin/menu-items/held", expected: adminRole },
+  {
+    method: "POST",
+    url: "/v1/admin/menu-items/:itemId/review",
+    requestUrl: `/v1/admin/menu-items/${challengeId}/review`,
+    payload: { decision: "reject", reason: "Synthetic review" },
+    expected: adminRole,
+  },
 ];
 
 test("[AUTH-08] covers every registered route for every required actor", async () => {

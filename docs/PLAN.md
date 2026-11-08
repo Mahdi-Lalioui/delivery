@@ -124,7 +124,8 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Commit the held-item queue and review contracts (`@zaafran/contracts/admin-moderation`).
     - [x] Add the idempotent, audited review command in `packages/db` (D-014).
     - [x] Add the keyset held-item queue read in `packages/db`.
-    - [ ] Add the admin routes, authorization-matrix rows and OpenAPI, and prove the public preview after each decision.
+    - [x] Add the admin routes, authorization-matrix rows and OpenAPI.
+    - [ ] Prove both routes end to end against PostGIS through `startApi`, including the merchant's visible items after each decision.
   - [ ] Show the blocked status and the reason in the merchant item list and editor (ar/fr/en).
 - [ ] M2-11 Staff roles (MER-23). Implement owner-managed, single-use invitations tied to a verified phone. Prove every role against both its own and another merchant's resources.
 - [ ] M2-12 Seed twelve fictional bilingual Algiers restaurants with synthetic imagery and `is_demo`, then run production-built onboarding, the complete route matrix, and the design critic's theme/locale/viewport checks. Record local and PR evidence.
