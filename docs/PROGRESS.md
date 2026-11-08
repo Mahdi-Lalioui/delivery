@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 02:25 GMT — M2-9 persist weekly hours and special dates (Claude, covering while Codex was out)
+
+- **Changed** — Recorded D-011: hours writes use the menu guard, so owners and managers of approved, active or paused merchants can write them through `runMenuCommand` with the new `hours_replace` operation. Added migration `0012_merchant_special_hours`, which adds the operation to the receipt check and creates `merchant_special_dates` plus `merchant_special_hours`, with a composite FK and cascade. Added `@zaafran/db/merchant-hours`. `replace` swaps every weekly range and special date in one transaction. `read` returns seven weekdays and the special dates sorted by date, where an empty range list means closed. Split the remaining override and API work into a new M2-9 sub-task in PLAN.
+- **Evidence** — Wrote `packages/db/test/merchant-hours.integration.test.ts` first: 3 `[MER-15:db]` cases and 1 `[MER-15:authz]` case. They cover the replace and read-back of a split day with an overnight range, a closed special date, full replacement, same-key replay versus `idempotency_conflict`, a stale revision leaving hours untouched, and staff and non-member accounts denied in SQL with no rows written. The file failed on the missing module, then passed 4/4 on real PostGIS. `pnpm verify` exited 0: 947 unit tests, 113 integration tests, build, knip, depcruise, trace.
+- **Reviewer** — Self-reviewed against AGENTS.md §10. No P0/P1. The repository trusts the zod contract for overlap rules, while the DB still enforces minute bounds and non-empty ranges. Every hours query is keyed on the `(merchant_id, …)` primary-key prefix.
+- **Next** — The new M2-9 sub-task covers several pieces. Add `GET` and `PUT /v1/merchants/:merchantId/hours` in `apps/api`, modelled on `menu-price-routes.ts`. They need the `x-expected-session-id` and `Idempotency-Key` headers, the parsed `merchantHoursInput` plus `expectedRevision`, and an `hours_replace` request hash. Add authorization-matrix rows, OpenAPI regeneration and route contract tests. Then add the closed-now override, which needs its own column, decision and test.
+- **Needs Mahdi** — None.
+
 ### 2026-11-08 02:22 GMT — M2-7 bulk price hook, workspace placement, journey and screenshots (Claude, covering while Codex was out)
 
 - **Changed** — Codex had left a refactor of the panel uncommitted, and `bulk-price-panel.tsx` did not compile: a stray `v` replaced the `PreviewTable` signature. Repaired it and kept Codex's split into `bulk-price-controls.ts` and `bulk-price-adjustment-fields.tsx`, plus the separate `bulk-price-selection-error` id (`80b09d3`).
@@ -431,5 +439,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress)
 - `pnpm trace --through m2` on 2026-11-08 at 02:21 GMT covered 30 of 37 IDs. Pending: ADM-04, MER-01, MER-12, MER-14, MER-15, MER-16, MER-23. M2-7 (MER-11) is complete with a production-build journey.
-- Last green `pnpm verify`: 2026-11-08 02:21 GMT on Docker Desktop with 947 unit and 109 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 12/12 at 02:22 GMT.
+- Last green `pnpm verify`: 2026-11-08 02:24 GMT on Docker Desktop with 947 unit and 113 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 12/12 at 02:22 GMT.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
