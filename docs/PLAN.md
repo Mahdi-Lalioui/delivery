@@ -132,7 +132,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Add the admin held-items screen with approve/reject and a required reason, and prove it in an auth e2e.
 - [ ] M2-11 Staff roles (MER-23). Implement owner-managed, single-use invitations tied to a verified phone. Prove every role against both its own and another merchant's resources.
   - [x] Commit the invitation, staff list, revoke and accept contracts (`@zaafran/contracts/merchant-staff`, D-015).
-  - [ ] Add the invitation migration and owner-only create/list/revoke repository commands in `packages/db`, with hashed tokens and an SMS outbox effect in the same transaction.
+  - [x] Add the invitation migration and owner-only create/list/revoke repository commands in `packages/db`, with hashed tokens and idempotent create. The API service sends the SMS after commit, like the OTP, and never on a replay.
   - [ ] Add the phone-bound, single-use accept command and prove concurrency, expiry, revocation, phone mismatch and existing membership against PostGIS.
   - [ ] Add the API routes, authorization-matrix rows and OpenAPI, and prove each role at its own and another merchant.
   - [ ] Add the owner staff screen and the invitee accept page (ar/fr/en) with an auth e2e and the design matrix.

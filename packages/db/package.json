@@ -48,6 +48,10 @@
       "types": "./src/merchant.ts",
       "default": "./dist/merchant.js"
     },
+    "./merchant-staff": {
+      "types": "./src/merchant-staff.ts",
+      "default": "./dist/merchant-staff.js"
+    },
     "./migrate": {
       "types": "./src/migrate.ts",
       "default": "./dist/migrate.js"
