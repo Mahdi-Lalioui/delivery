@@ -155,3 +155,7 @@ MER-15's "closed now" override is stored as the nullable `merchants.hours_paused
 ### D-013 — Geo tests read the contract's method list (2026-11-08)
 
 `@zaafran/geo` takes `@zaafran/contracts` as a dev dependency only, so `maghrib-methods.test.ts` can prove that every method `merchantRamadanInput` accepts yields a Maghrib time from `calculateMaghrib`. Its runtime code still does not import contracts. The seven-day preview is computed in the API: `apps/api` gains `@zaafran/geo` (Maghrib per day at the merchant's stored location) and `@zaafran/domain` (the pure M1 hours and Ramadan rules), keeping astronomy out of the browser bundle and the clock on the server.
+
+### D-014 — Prohibited-goods screening and item review receipts (2026-11-08)
+
+SPEC §17.3 screening is the pure `findProhibitedGoods` in `@zaafran/domain/moderation`, called by the item create/update commands in `packages/db`. That puts the held status in the same transaction as the write, as `menu-price.ts` already does with domain rules. Admin decisions (ADM-04) use their own `item_review_receipts` table, keyed by admin and idempotency key, rather than widening `merchant_command_receipts`, whose rows describe a merchant, not an item. A decision moves an item only from `blocked_pending_review` to `approved` or `rejected`, writes `audit_log` (`item_approved`/`item_rejected`), and increments `menu_revision`, because a listing change is a menu change for ETags and open editors.

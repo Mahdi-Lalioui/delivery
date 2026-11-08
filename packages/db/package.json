@@ -24,6 +24,10 @@
       "types": "./src/menu-category.ts",
       "default": "./dist/menu-category.js"
     },
+    "./menu-moderation": {
+      "types": "./src/menu-moderation.ts",
+      "default": "./dist/menu-moderation.js"
+    },
     "./menu-item": {
       "types": "./src/menu-item.ts",
       "default": "./dist/menu-item.js"
