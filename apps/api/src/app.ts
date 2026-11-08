@@ -37,6 +37,10 @@ import {
   registerMerchantHoursRoutes,
   type MerchantHoursServices,
 } from "./merchant-hours-routes.js";
+import {
+  registerMerchantStaffRoutes,
+  type MerchantStaffServices,
+} from "./merchant-staff-routes.js";
 import { enforceRoutePolicies, recordRoutePolicies, type ResolveActor } from "./policy.js";
 import { sendProblem } from "./problems.js";
 
@@ -51,6 +55,7 @@ interface ApiOptions {
   readonly menuPrice?: MenuPriceServices;
   readonly merchantHours?: MerchantHoursServices;
   readonly merchantHoursPreview?: MerchantHoursPreviewServices;
+  readonly merchantStaff?: MerchantStaffServices;
   readonly trustedProxy?: string | undefined;
   readonly auth?: Parameters<typeof createAuthAccess>[0];
   readonly resolveActor?: ResolveActor;
@@ -116,6 +121,7 @@ export function createApi(options: ApiOptions): FastifyInstance {
     registerMenuPriceRoutes(api, options.menuPrice);
     registerMerchantHoursRoutes(api, options.merchantHours);
     registerMerchantHoursPreviewRoute(api, options.merchantHoursPreview);
+    registerMerchantStaffRoutes(api, options.merchantStaff);
     registerHealth(api, options.checkReadiness);
   });
   return api;

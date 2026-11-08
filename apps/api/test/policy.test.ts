@@ -126,6 +126,9 @@ const merchantRoles = {
   merchant_staff: 503,
 } as const;
 const adminRole = { admin: 503 } as const;
+const staffOwnerRoles = { customer: 503, merchant_owner: 503 } as const;
+const staffPath = "/v1/merchants/:merchantId/staff";
+const staffRequest = "/v1/merchants/" + challengeId + "/staff";
 const mediaRoles = { ...merchantRoles, courier: 503 } as const;
 const menuRoles = { customer: 503, merchant_owner: 503, merchant_manager: 503 } as const;
 const menuCategoryPath = "/v1/merchants/:merchantId/menu/categories";
@@ -395,6 +398,26 @@ const matrix: readonly MatrixRoute[] = [
     requestUrl: `/v1/admin/merchant-applications/${challengeId}/review`,
     payload: { decision: "approve", reason: "Synthetic review" },
     expected: adminRole,
+  },
+  { method: "GET", url: staffPath, requestUrl: staffRequest, expected: staffOwnerRoles },
+  {
+    method: "POST",
+    url: staffPath + "/invitations",
+    requestUrl: staffRequest + "/invitations",
+    payload: { phone: "+213550000301", role: "staff" },
+    expected: staffOwnerRoles,
+  },
+  {
+    method: "POST",
+    url: staffPath + "/invitations/:invitationId/revoke",
+    requestUrl: staffRequest + "/invitations/" + challengeId + "/revoke",
+    expected: staffOwnerRoles,
+  },
+  {
+    method: "POST",
+    url: "/v1/staff-invitations/accept",
+    payload: { token: "A".repeat(42) + "E" },
+    expected: merchantRoles,
   },
   { method: "GET", url: "/v1/admin/menu-items/held", expected: adminRole },
   {

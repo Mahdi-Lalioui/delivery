@@ -110,7 +110,11 @@ test("[MER-23:db] an owner invites a phone once and a retry replays the same inv
   });
   if (created.kind !== "applied") throw new Error("Expected a new invitation.");
 
-  expect(await staff.create(request)).toEqual({ kind: "replayed", invitation: created.invitation });
+  expect(await staff.create(request)).toEqual({
+    kind: "replayed",
+    invitation: created.invitation,
+    isOpen: true,
+  });
   expect(await staff.create({ ...request, requestHash: hash("other") })).toEqual({
     kind: "idempotency_conflict",
   });
@@ -311,4 +315,29 @@ test("[MER-23:db] an account that joined meanwhile cannot accept a second role",
     select role from merchant_members where merchant_id = ${merchantA} and user_id = ${accountId}
   `;
   expect(member?.role).toBe("staff");
+});
+
+test("[MER-23:db] an open replay rotates the token so only the newest SMS link works", async () => {
+  const staff = createMerchantStaffRepository(database.get());
+  const phone = "+213550000334";
+  const accountId = await addInvitee(104, phone);
+  const first = invite({ phone, idempotencyKeyHash: hash("k-rot"), tokenHash: hash("rot-1") });
+  await staff.create(first);
+  expect(await staff.create({ ...first, tokenHash: hash("rot-2") })).toMatchObject({
+    kind: "replayed",
+    isOpen: true,
+  });
+  expect(await staff.accept({ accountId, tokenHash: hash("rot-1"), now })).toEqual({
+    kind: "not_found",
+  });
+  expect(await staff.accept({ accountId, tokenHash: hash("rot-2"), now })).toMatchObject({
+    kind: "accepted",
+  });
+  expect(await staff.create({ ...first, tokenHash: hash("rot-3") })).toMatchObject({
+    kind: "replayed",
+    isOpen: false,
+  });
+  expect(await staff.create({ ...first, tokenHash: hash("rot-4"), now: later })).toMatchObject({
+    isOpen: false,
+  });
 });

@@ -26,8 +26,28 @@ interface StaffInvitation {
   readonly expiresAt: string;
 }
 
+interface StaffMember {
+  readonly userId: string;
+  readonly phoneE164: string;
+  readonly role: "owner" | InvitedRole;
+  readonly isSelf: boolean;
+}
+
+interface OpenInvitationRow {
+  readonly invitationId: string;
+  readonly phoneE164: string;
+  readonly role: InvitedRole;
+  readonly createdAt: string;
+  readonly expiresAt: string;
+}
+
 type CreateResult =
-  | { readonly kind: "applied" | "replayed"; readonly invitation: StaffInvitation }
+  | { readonly kind: "applied"; readonly invitation: StaffInvitation }
+  | {
+      readonly kind: "replayed";
+      readonly invitation: StaffInvitation;
+      readonly isOpen: boolean;
+    }
   | { readonly kind: "not_found" | "idempotency_conflict" | "already_member" | "already_invited" };
 
 const invitationDays = 7;
@@ -52,19 +72,28 @@ async function lockOwnedMerchant(sql: TransactionSql, { accountId, merchantId }:
 }
 
 async function readReplay(sql: TransactionSql, request: StaffInvitationCreate) {
-  const [row] = await sql<(StaffInvitation & { matches: boolean })[]>`
+  const [row] = await sql<(StaffInvitation & { matches: boolean; isOpen: boolean })[]>`
     SELECT request_hash = ${request.requestHash} AS matches, id AS "invitationId",
       merchant_id AS "merchantId", phone_e164 AS "phoneE164", role, 'pending' AS status,
-      to_char(expires_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS "expiresAt"
+      to_char(expires_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS "expiresAt",
+      (consumed_at IS NULL AND revoked_at IS NULL
+        AND expires_at > ${request.now.toISOString()}::timestamptz) AS "isOpen"
     FROM public.merchant_staff_invitations
     WHERE merchant_id = ${request.merchantId} AND invited_by = ${request.accountId}
       AND key_hash = ${request.idempotencyKeyHash}
+    FOR UPDATE
   `;
   if (!row) return undefined;
-  const { matches, ...invitation } = row;
-  return matches
-    ? { kind: "replayed" as const, invitation }
-    : { kind: "idempotency_conflict" as const };
+  const { matches, isOpen, ...invitation } = row;
+  if (!matches) return { kind: "idempotency_conflict" as const };
+  // A retry after a lost or failed SMS gets a fresh link; the previous token stops working.
+  if (isOpen) {
+    await sql`
+      UPDATE public.merchant_staff_invitations SET token_hash = ${request.tokenHash}
+      WHERE id = ${invitation.invitationId}
+    `;
+  }
+  return { kind: "replayed" as const, invitation, isOpen };
 }
 
 async function isMember(sql: TransactionSql, { merchantId, phone }: StaffInvitationCreate) {
@@ -123,7 +152,7 @@ async function listStaff(sql: TransactionSql, scope: OwnerScope & { readonly now
       AND account.blocked_at IS NULL AND account.deleted_at IS NULL
   `;
   if (!owner) return undefined;
-  const members = await sql<{ userId: string; phoneE164: string; role: string; isSelf: boolean }[]>`
+  const members = await sql<StaffMember[]>`
     SELECT member.user_id AS "userId", account.phone_e164 AS "phoneE164", member.role,
       member.user_id = ${accountId} AS "isSelf"
     FROM public.merchant_members AS member
@@ -132,7 +161,7 @@ async function listStaff(sql: TransactionSql, scope: OwnerScope & { readonly now
     ORDER BY array_position(array['owner', 'manager', 'staff'], member.role), member.user_id
     LIMIT 50
   `;
-  const invitations = await sql<{ invitationId: string; phoneE164: string; role: InvitedRole }[]>`
+  const invitations = await sql<OpenInvitationRow[]>`
     SELECT id AS "invitationId", phone_e164 AS "phoneE164", role,
       to_char(created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS "createdAt", to_char(expires_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS "expiresAt"
     FROM public.merchant_staff_invitations
