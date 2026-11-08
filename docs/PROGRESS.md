@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 03:27 GMT — M2-9 pure hours load/save state machine (Claude, covering while Codex was out)
+
+- **Changed** — Added `apps/web/src/merchant-hours/hours-flow.ts`. `reduceHours` moves between `loading`, `load-failed`, `editing` and `saving` on the events `loaded`, `load-failed`, `draft-changed`, `validation-failed`, `save-started` and `save-finished`. A successful save moves to the returned revision with a `saved` notice. A failed save keeps the draft and the failure. `retryKey` survives only an uncertain failure (5xx, network, rate limit) and is dropped on any edit, so a retried key always carries the same body. Events that do not fit the current state are ignored. `prepareHoursSave(state, createKey)` validates the draft through the contract-backed `toHoursInput` and attaches `expectedRevision`. It reuses the retry key when one is held.
+- **Evidence** — Tests came first: 9 `[MER-15]` cases in `apps/web/test/merchant-hours-flow.test.ts`. They failed on the missing module, then 9/9 passed. `pnpm verify` exited 0: 1033 unit tests, 118 PostGIS integration tests, build, knip, depcruise, trace, and only the existing moderate advisory.
+- **Reviewer** — Self-reviewed against AGENTS.md §10. No P0/P1.
+- **Next** — Add `use-hours-editor.ts`. It loads with `readHours` (abort on unmount), dispatches `draft-changed` from the editor helpers, saves via `prepareHoursSave` with `crypto.randomUUID`, and on `revision-conflict` or `session-changed` offers a reload. It moves focus to the new range's opening input after add and to the day's Add button after remove. Then add the page and route (`/[locale]/merchant/[merchantId]/hours` and `/ar/…`, modelled on `menu-category-page.tsx`), token-only logical CSS, the closed-now control, preview tabs, the Ramadan fields, and the ar/fr production-build journeys and screenshot matrix.
+- **Needs Mahdi** — None.
+
 ### 2026-11-08 03:25 GMT — M2-9 presentational weekly hours fields (Claude, covering while Codex was out)
 
 - **Changed** — Added `apps/web/src/merchant-hours/components/weekly-hours-fields.tsx`. It renders one `fieldset` per weekday from Sunday, with a localized legend and "Closed" when a day has no ranges. Each range has a labelled pair of `<input type="time">` controls (`hours-<weekday>-<index>-opens|closes`), an "ends the next day" badge for overnight ranges, and a Remove button. That button's accessible name contains its visible label plus the times and day. "Add hours" is disabled at four ranges. A day error is linked with `aria-describedby`, and the whole week is disabled while saving. Added the `merchantHours` messages in ar, fr and en. Split the remaining M2-9 sub-task in PLAN into done and open steps.
