@@ -31,6 +31,7 @@ Codex appends items here (what, why, exact steps). Mahdi ticks them. Items marke
 - [ ] Apple Developer Program ($99/year). An organisation account needs a D-U-N-S number.
 - [ ] Google Play Console ($25 once). **A new personal account must run a closed test with 12 testers opted in for 14 continuous days, per app, before production.** Recruit 12+ testers early (friends, family, pilot restaurants) and start the customer-app closed test by 15 Jan.
 - [ ] A real low-end Android phone (2–3 GB RAM) for testing, plus an iPhone if possible.
+- [ ] Install Xcode on the development Mac (App Store, free, ~15 GB; sign in with your Apple ID), then run `sudo xcode-select -s /Applications/Xcode.app` and open Xcode once to accept the licence and install the iOS simulator. Also install Android Studio with one emulator (Pixel, API 35). Why: lane B cannot run the M10 customer app on a simulator or run the Maestro flows (MOB-08) until these exist; today the app is only tested with Jest.
 
 ## Ground work
 - [ ] Visit restaurants and sign 3–5 pilot restaurants for 11–20 Jan; photograph their menus (with permission).

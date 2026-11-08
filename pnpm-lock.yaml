@@ -275,6 +275,9 @@ importers:
       '@zaafran/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@zaafran/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@zaafran/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
@@ -302,6 +305,9 @@ importers:
       expo-system-ui:
         specifier: 58.0.7
         version: 58.0.7(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.13(supports-color@7.2.0))(@react-native/metro-config@0.88.1(@babel/core@7.29.13(supports-color@7.2.0))(supports-color@7.2.0))(@types/react@19.3.0)(react@19.3.0)(supports-color@7.2.0))(supports-color@7.2.0)
+      intl-messageformat:
+        specifier: 11.2.15
+        version: 11.2.15
       react:
         specifier: 19.3.0
         version: 19.3.0

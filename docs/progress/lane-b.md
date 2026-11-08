@@ -43,3 +43,5 @@
   Proof: affected tests 16/16, `pnpm verify` green; reviewed 375 ar light. Next: pitch page + landing sections on the kit, then mobile app screens.
 - 2026-11-08 · Medium · Design bar: landing sections on the kit (hero copy with primary + ghost actions, numbered icon step cards, restaurants band with primary/secondary buttons). Motion values now come only from `@zaafran/ui/ui.css` (removed `moments/motion.css`).
   Proof: landing tests 2/2, `pnpm verify` green; reviewed 1280 fr light. Next: the native customer app screens (M10) on ui-native, then e2e when lane A routes land.
+- 2026-11-08 · Medium · M10: ui-native gains `StarRating` (52 pt radio stars), `Card`, `TextAreaField`, `SwitchRow`; app gains the CUS-22 rating screen (`app/orders/[orderId]/rating.tsx`) validated with the shared ratings contract. No Xcode/Android SDK on the Mac → filed HUMAN_TODO; app not yet run on a simulator.
+  Proof: mobile Jest 4/4, `pnpm verify` green. Next: API client + SecureStore auth (MOB-03) when lane A's auth contract is usable from native; more screens as contracts land.
