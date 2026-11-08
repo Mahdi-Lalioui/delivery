@@ -173,7 +173,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
 - [ ] M4-3 Three-step checkout (CUS-12…15), plus the restaurant's pay-at-door settings (MER-18).
 - [ ] M4-4 Order placement and transitions in the API (§3, ORD-01…11), with concurrency integration tests.
 - [ ] M4-5 Realtime WebSocket with replay (RT-01…04).
-- [ ] M4-6 Restaurant live board (MER-03…07): sound gate, wake lock, offline replay, ticket printing.
+- [ ] M4-6 Restaurant live board (MER-03…07): sound gate, wake lock, offline replay, ticket printing. Extend `apps/api/test/merchant-roles.integration.test.ts` (`[MER-23]`) with the staff board rights.
 - [ ] M4-7 Timers and escalation jobs (MER-05, ORD-07, JOB-01…04).
 - [ ] M4-8 Notifications: web push + SMS adapters and fakes, the event matrix and board sound (SPEC §8, NOT-01…05, CUS-20).
 - [ ] M4-9 Customer tracking without the map yet (CUS-18 timeline part), and cancel (CUS-19).
