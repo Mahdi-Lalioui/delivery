@@ -113,6 +113,25 @@ async function replaceHours(
   return { kind: "changed", value: {} };
 }
 
+/** Everything the seven-day preview needs, read from one snapshot. */
+async function readSchedule(sql: TransactionSql, scope: MenuScope) {
+  const hours = await readHours(sql, scope);
+  const ramadan = await readRamadan(sql, scope);
+  const pause = await readPause(sql, scope);
+  if (!hours || !ramadan || !pause) return undefined;
+  const [location] = await sql<{ latitude: number; longitude: number }[]>`
+    SELECT ST_Y(location::geometry) AS latitude, ST_X(location::geometry) AS longitude
+    FROM public.merchants WHERE id = ${scope.merchantId}
+  `;
+  if (!location) return undefined;
+  return {
+    hours: { weekly: hours.weekly, specialDates: hours.specialDates },
+    ramadan: ramadan.schedule,
+    pausedUntil: pause.pausedUntil,
+    coordinates: { latitude: location.latitude, longitude: location.longitude },
+  };
+}
+
 export function createMerchantHoursRepository({ sql }: DatabaseConnection) {
   return {
     read: (scope: MenuScope) =>
@@ -133,6 +152,8 @@ export function createMerchantHoursRepository({ sql }: DatabaseConnection) {
           apply: () => replaceRamadan(tx, request),
         }),
       ),
+    readSchedule: (scope: MenuScope) =>
+      sql.begin("isolation level repeatable read read only", (tx) => readSchedule(tx, scope)),
     readPause: (scope: MenuScope) =>
       sql.begin("isolation level repeatable read read only", (tx) => readPause(tx, scope)),
     pause: (request: HoursPause) =>

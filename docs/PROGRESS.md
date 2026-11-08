@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 03:14 GMT — M2-9 read the preview schedule in one snapshot (Claude, covering while Codex was out)
+
+- **Changed** — Added `readSchedule(scope)` to `createMerchantHoursRepository`. A single repeatable-read, read-only transaction returns the weekly hours and special dates, the Ramadan schedule (or null), `pausedUntil`, and the merchant's stored `location` as `{ latitude, longitude }`. It reuses `readHours`, `readRamadan` and `readPause`, so the same SQL membership check applies, and it returns `undefined` for staff and non-members. Added `readSchedule` to the API repository fake.
+- **Evidence** — Added 1 `[MER-16:db]` case first, covering an empty read, a read after hours, Ramadan and pause writes, and denial for staff and a foreign merchant. It failed with `hours.readSchedule is not a function`, then 9/9 file cases passed. The first `pnpm verify` failed at API typecheck because the HTTP fake lacked the new method. It then exited 0: 982 unit tests, 118 PostGIS integration tests, build, knip, depcruise, trace, and only the existing moderate advisory.
+- **Reviewer** — Self-reviewed against AGENTS.md §10. No P0/P1. P2: three membership checks run in one snapshot, which costs two extra indexed lookups. Fold them if the preview becomes hot.
+- **Next** — Add `GET /v1/merchants/:merchantId/hours/preview?schedule=regular|ramadan`, as described in the previous entry.
+- **Needs Mahdi** — None.
+
 ### 2026-11-08 03:13 GMT — M2-9 pure seven-day hours preview (Claude, covering while Codex was out)
 
 - **Changed** — Added `getHoursPreview` in `packages/domain/src/hours-preview.ts`, exported as `@zaafran/domain/hours-preview`. It returns seven Algiers days starting with the day that contains `from`. Each day has `date`, `source` (`weekly`, `special` or `ramadan`), `maghribAt` and its intervals. A range stays on its opening day, so 18:00–02:00 is one interval. A special date beats Ramadan, and Ramadan beats the week. A Ramadan day is any date the caller lists in `maghribAtByDate`. Its evening ranges resolve through the M1 `resolveRamadanRange`, and the suhoor window is added. To match `isOpenAt`, a range running into a special next day is cut at midnight, and the closed-now `pausedUntil` trims ranges. `hours.ts` now exports `getAlgiersDate`, `getDaySchedule`, `toIntervals` and its types instead of duplicating them. `ramadan.ts` exports `RamadanEndpoint`.

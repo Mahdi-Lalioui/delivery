@@ -26,6 +26,7 @@ function setup(actor?: Actor) {
     replace: vi.fn<Repository["replace"]>(),
     readRamadan: vi.fn<Repository["readRamadan"]>(),
     replaceRamadan: vi.fn<Repository["replaceRamadan"]>(),
+    readSchedule: vi.fn<Repository["readSchedule"]>(),
     readPause: vi.fn<Repository["readPause"]>(),
     pause: vi.fn<Repository["pause"]>(),
   } satisfies Repository;

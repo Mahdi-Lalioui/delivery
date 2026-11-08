@@ -24,6 +24,7 @@ const staffed = fixtureId(40);
 const foreign = fixtureId(50);
 const fasting = fixtureId(60);
 const pausing = fixtureId(70);
+const previewing = fixtureId(80);
 
 function emptyWeek(): MerchantHours["weekly"] {
   return [0, 1, 2, 3, 4, 5, 6].map((weekday) => ({ weekday, ranges: [] }));
@@ -80,7 +81,16 @@ beforeAll(async () => {
     insert into users (id, phone_e164, created_at)
     values (${ownerId}, '+213500000010', ${now.toISOString()}::timestamptz)
   `;
-  for (const merchantId of [replacing, replaying, stale, staffed, foreign, fasting, pausing]) {
+  for (const merchantId of [
+    replacing,
+    replaying,
+    stale,
+    staffed,
+    foreign,
+    fasting,
+    pausing,
+    previewing,
+  ]) {
     await sql`
       insert into merchants
         (id, slug, restaurant_name, owner_name, phone_e164, commune_id, location, cuisines, status, created_at)
@@ -89,7 +99,7 @@ beforeAll(async () => {
         array['algerian'], 'approved', ${now.toISOString()}::timestamptz)
     `;
   }
-  for (const merchantId of [replacing, replaying, stale, fasting, pausing]) {
+  for (const merchantId of [replacing, replaying, stale, fasting, pausing, previewing]) {
     await sql`insert into merchant_members (merchant_id, user_id, role) values (${merchantId}, ${ownerId}, 'owner')`;
   }
   await sql`insert into merchant_members (merchant_id, user_id, role) values (${staffed}, ${ownerId}, 'staff')`;
@@ -267,5 +277,31 @@ test("[MER-15:authz] denies the closed-now override to staff and non-members", a
   for (const merchantId of [staffed, foreign]) {
     expect(await hours.pause(pauseRequest(merchantId))).toEqual({ kind: "not_found" });
     expect(await hours.readPause({ accountId: ownerId, merchantId })).toBeUndefined();
+  }
+});
+
+test("[MER-16:db] reads hours, Ramadan, pause and location for the preview in one snapshot", async () => {
+  const hours = createMerchantHoursRepository(database.get());
+  const scope = { accountId: ownerId, merchantId: previewing };
+  expect(await hours.readSchedule(scope)).toEqual({
+    hours: { weekly: emptyWeek(), specialDates: [] },
+    ramadan: null,
+    pausedUntil: null,
+    coordinates: { latitude: 36.765, longitude: 3.05 },
+  });
+  await hours.replace(replaceRequest(previewing));
+  await hours.replaceRamadan(ramadanRequest(previewing, { expectedRevision: 1 }));
+  await hours.pause(pauseRequest(previewing, { revision: 2 }));
+  expect(await hours.readSchedule(scope)).toEqual({
+    hours: {
+      weekly: splitWeek.weekly,
+      specialDates: [...splitWeek.specialDates].sort((a, b) => a.date.localeCompare(b.date)),
+    },
+    ramadan,
+    pausedUntil: "2026-11-08T05:00:00.000Z",
+    coordinates: { latitude: 36.765, longitude: 3.05 },
+  });
+  for (const merchantId of [staffed, foreign]) {
+    expect(await hours.readSchedule({ accountId: ownerId, merchantId })).toBeUndefined();
   }
 });
