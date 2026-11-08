@@ -240,6 +240,12 @@ const matrix: readonly MatrixRoute[] = [
     requestUrl: "/v1/media/" + challengeId,
     expected: mediaRoles,
   },
+  {
+    method: "GET",
+    url: "/v1/media/:mediaId/preview",
+    requestUrl: "/v1/media/" + challengeId + "/preview",
+    expected: mediaRoles,
+  },
   { method: "GET", url: menuCategoryPath, requestUrl: menuCategoryRequest, expected: menuRoles },
   {
     method: "POST",

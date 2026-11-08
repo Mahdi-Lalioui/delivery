@@ -18,6 +18,8 @@
         "AUTH_PUBLIC_ORIGIN",
         "AUTH_OTP_KEY",
         "AUTH_TOTP_KEY",
+        "MEDIA_STORAGE_ROOT",
+        "HEIC_DECODER_PATH",
         "WORKER_CONCURRENCY"
       ]
     },

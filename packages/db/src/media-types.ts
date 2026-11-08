@@ -32,11 +32,35 @@ export interface MediaAdoptionRequest extends MediaScope, MediaUploadDescriptor 
   readonly digest: Uint8Array;
 }
 
-export interface MediaStatus {
+type MediaRejection = {
+  readonly status: "rejected";
+  readonly reason: "content_type_mismatch" | "invalid_image" | "image_too_large";
+};
+
+type MediaPreview = {
+  readonly status: "awaiting_crop";
+  readonly width: number;
+  readonly height: number;
+};
+
+export type MediaState =
+  { readonly status: "awaiting_upload" | "preparing" } | MediaPreview | MediaRejection;
+
+export type MediaStatus = MediaState & {
   readonly mediaId: string;
   readonly sessionId: string;
   readonly kind: MediaKind;
-  readonly status: "awaiting_upload" | "preparing";
+};
+
+export type MediaPreparationSource = { readonly quarantineKey: string } & (
+  | ({ readonly status: "preparing"; readonly digest: Uint8Array } & MediaUploadDescriptor)
+  | { readonly status: "rejected" }
+);
+
+export interface MediaPreparationCompletion {
+  readonly mediaId: string;
+  readonly quarantineKey: string;
+  readonly result: (MediaPreview & { readonly previewKey: string }) | MediaRejection;
 }
 
 export type MediaReservationResult =

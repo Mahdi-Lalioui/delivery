@@ -158,6 +158,7 @@ test("[M0-6] the generated OpenAPI document describes the readiness problem resp
       "/v1/media/uploads",
       "/v1/media/uploads/{mediaId}/content",
       "/v1/media/{mediaId}",
+      "/v1/media/{mediaId}/preview",
       "/v1/merchant-applications",
       "/v1/merchants/{merchantId}/hours",
       "/v1/merchants/{merchantId}/hours/pause",
@@ -184,6 +185,9 @@ test("[M0-6] the generated OpenAPI document describes the readiness problem resp
       "/v1/merchants/{merchantId}/staff/invitations/{invitationId}/revoke",
       "/v1/staff-invitations/accept",
     ]);
+    expect(schema.paths?.["/v1/media/{mediaId}/preview"]?.get?.responses).toMatchObject({
+      200: { content: { "image/webp": { schema: { type: "string", format: "binary" } } } },
+    });
     expect(schema.paths?.["/readyz"]?.get?.responses).toMatchObject({
       503: { content: { "application/problem+json": { schema: { type: "object" } } } },
     });

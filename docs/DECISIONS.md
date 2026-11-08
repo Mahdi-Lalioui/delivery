@@ -174,3 +174,9 @@ CSV and XLSX use the same template and send up to 500 rows of raw text cells wit
 ### D-017 — Load bounded spreadsheet parsers on demand (2026-11-08)
 
 Use `read-excel-file` 9.3.14 for XLSX and `csv-parse` 7.0.3 for CSV. Load both only from the import flow. Preserve raw numeric strings, whitespace and interior blank rows. Before XLSX parsing, use `@zip.js/zip.js` 2.24.0 with strict archive and CRC checks, and `saxen` 11.2.0 for bounded XML inspection. Reject formulas, macros, external relationships, DTDs and entities. Bound the compressed file to 1 MiB, archive entries to 32 and total inflated bytes to 8 MiB. The row, column, field and API body limits also apply. These choices follow verified synthetic workbook, malformed archive and decompression probes. [XLSX reader](https://github.com/catamphetamine/read-excel-file) · [ZIP parser](https://github.com/gildas-lormeau/zip.js) · [CSV parser](https://csv.js.org/parse/options/) · [XML parser](https://github.com/nikku/saxen)
+
+### D-018 — Rollout order for persisted photo preparation (2026-11-08)
+
+Apply migration 0019 before starting the updated API. Replace every API instance before enabling the updated worker. The older API can read pending rows after the migration, but its responses omit preview dimensions and rejection reasons on the new states. For rollback, stop the prepare worker and keep the compatible API serving existing rows. Revert to the older API only with a compatible data restore or a backport of the new response projection.
+
+The worker checks the adopted byte count and digest before decoding. It writes the preview to a private, content-addressed key before atomically advancing the upload. Retrying with the same output reuses the object. If competing encoders produce different bytes, the losing object stays private and needs a future orphan sweep. Keep the quarantined original available for crop and remove it only after a durable rejection or completed publication.

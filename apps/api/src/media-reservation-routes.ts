@@ -8,8 +8,8 @@ import type {
   MediaAdoptionResult,
   MediaUploadDescriptor,
 } from "@zaafran/db/media";
-import type { MediaStore } from "@zaafran/media";
-import type { FastifyInstance } from "fastify";
+import type { MediaObject, MediaStore } from "@zaafran/media";
+import type { FastifyInstance, FastifyReply } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
 import { commandIdentity, resolveSessionCommand } from "./command-identity.js";
@@ -17,7 +17,10 @@ import { getRequestActor } from "./policy.js";
 import { sendProblem } from "./problems.js";
 
 export interface MediaReservationServices {
-  readonly repository: ReturnType<typeof createMediaRepository>;
+  readonly repository: Pick<
+    ReturnType<typeof createMediaRepository>,
+    "reserve" | "read" | "findUpload" | "acceptUpload" | "findPreview"
+  >;
   readonly store: MediaStore;
   readonly now: () => Date;
 }
@@ -207,12 +210,54 @@ function registerUploadContent(
   });
 }
 
+// Fastify sends streams directly. The binary schema describes the HTTP representation.
+function sendPreview(reply: FastifyReply, object: MediaObject) {
+  return reply
+    .type("image/webp")
+    .header("x-content-type-options", "nosniff")
+    .header("content-length", object.bytes)
+    .send(object.body);
+}
+
+function registerPreview(api: FastifyInstance, services: MediaReservationServices | undefined) {
+  api.withTypeProvider<ZodTypeProvider>().get(
+    "/v1/media/:mediaId/preview",
+    {
+      config: privatePhotoPolicy,
+      schema: {
+        params: mediaIdParams,
+        response: {
+          200: { content: { "image/webp": { schema: z.string().meta({ format: "binary" }) } } },
+          ...readErrors,
+        },
+      },
+    },
+    async (request, reply) => {
+      reply.header("cache-control", "private, no-store");
+      const actor = getRequestActor(request);
+      if (!actor) return sendProblem(reply, 401);
+      if (!services) return sendProblem(reply, 503);
+      const preview = await services.repository.findPreview({
+        accountId: actor.accountId,
+        sessionId: actor.sessionId,
+        mediaId: request.params.mediaId.toLowerCase(),
+        now: services.now(),
+      });
+      if (!preview) return sendProblem(reply, 404);
+      const object = await services.store.get(preview.key);
+      if (!object) return sendProblem(reply, 503);
+      return sendPreview(reply, object);
+    },
+  );
+}
+
 export function registerMediaReservationRoutes(
   api: FastifyInstance,
   services: MediaReservationServices | undefined,
 ): void {
   registerReserve(api, services);
   registerUploadContent(api, services);
+  registerPreview(api, services);
   api.withTypeProvider<ZodTypeProvider>().get(
     "/v1/media/:mediaId",
     {

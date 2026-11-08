@@ -1,10 +1,27 @@
 import type { ISql, TransactionSql } from "postgres";
 import type {
+  MediaKind,
   MediaScope,
   MediaSessionScope,
+  MediaState,
   MediaStatus,
   MediaUploadDescriptor,
 } from "./media-types.js";
+
+type VisibleMedia = MediaStatus & MediaUploadDescriptor & { readonly previewKey: string | null };
+
+export function mediaStatus(
+  media: MediaState & { readonly mediaId: string; readonly kind: MediaKind },
+  sessionId: string,
+): MediaStatus {
+  const { mediaId, kind, status } = media;
+  const identity = { mediaId, sessionId, kind };
+  if (status === "awaiting_crop") {
+    return { ...identity, status, width: media.width, height: media.height };
+  }
+  if (status === "rejected") return { ...identity, status, reason: media.reason };
+  return { ...identity, status };
+}
 
 function standardSession(sql: ISql, { sessionId, now }: MediaSessionScope) {
   const at = now.toISOString();
@@ -57,10 +74,11 @@ export async function lockMediaTarget(
 export async function readVisibleMedia(
   sql: ISql,
   scope: MediaScope,
-): Promise<(MediaStatus & MediaUploadDescriptor) | undefined> {
-  const [media] = await sql<(MediaStatus & MediaUploadDescriptor)[]>`
+): Promise<VisibleMedia | undefined> {
+  const [media] = await sql<VisibleMedia[]>`
     SELECT upload.id AS "mediaId", session.id AS "sessionId", upload.kind, upload.status,
-      upload.content_type AS "contentType", upload.bytes
+      upload.content_type AS "contentType", upload.bytes, upload.preview_key AS "previewKey",
+      upload.preview_width AS width, upload.preview_height AS height, upload.rejection_reason AS reason
     FROM public.media_uploads AS upload
     JOIN public.users AS account ON account.id = upload.owner_id
     JOIN public.sessions AS session ON session.user_id = account.id

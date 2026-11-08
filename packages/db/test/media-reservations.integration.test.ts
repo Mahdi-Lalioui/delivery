@@ -329,3 +329,127 @@ test("[JOB-03:db] failed enqueue rolls back adoption and an exact retry can adop
   expect(await repo().acceptUpload(request)).toMatchObject({ kind: "accepted" });
   expect(await jobsFor(media.mediaId)).toHaveLength(1);
 });
+
+test("[MER-14:db] a prepared preview is visible only to its authorized owner", async () => {
+  const owner = await actor(700);
+  const other = await actor(701);
+  const merchantId = await restaurant(710);
+  await membership(merchantId, owner.accountId, "manager");
+  await membership(merchantId, other.accountId, "owner");
+  const request = reserveRequest(owner, { ...png, kind: "cover", merchantId });
+  const scope = await reserve(request);
+  const { mediaId } = scope;
+  const adoption = upload(scope, "preview-original");
+  const { quarantineKey } = adoption;
+  const repository = repo();
+  expect(await repository.findPreparation(mediaId)).toBeUndefined();
+  expect(await repository.findPreview(scope)).toBeUndefined();
+
+  await repository.acceptUpload(adoption);
+  expect(await repository.findPreparation(mediaId)).toEqual({
+    status: "preparing",
+    quarantineKey,
+    ...png,
+    digest: adoption.digest,
+  });
+  const previewKey = `previews/${mediaId}/candidate`;
+  const result = { status: "awaiting_crop", previewKey, width: 1280, height: 960 } as const;
+  expect(
+    await repository.completePreparation({ mediaId, quarantineKey: "stale-key", result }),
+  ).toBe(false);
+  expect(await repository.completePreparation({ mediaId, quarantineKey, result })).toBe(true);
+  expect(await repository.findPreparation(mediaId)).toBeUndefined();
+  const status = {
+    mediaId,
+    sessionId: owner.sessionId,
+    kind: "cover",
+    status: "awaiting_crop",
+    width: 1280,
+    height: 960,
+  };
+  expect(await repository.read(scope)).toEqual(status);
+  expect(await repository.findPreview(scope)).toEqual({ key: previewKey });
+  expect(await repository.findPreview({ ...other, mediaId })).toBeUndefined();
+  expect(await repository.findPreview({ ...scope, now: expiresAt })).toBeUndefined();
+  expect(await repository.acceptUpload(upload(scope, "preview-replay"))).toEqual({
+    kind: "replayed",
+    media: status,
+  });
+  expect(await repository.reserve(request)).toEqual({
+    kind: "replayed",
+    media: { mediaId, sessionId: owner.sessionId, kind: "cover", status: "awaiting_upload" },
+  });
+  expect(await jobsFor(mediaId)).toHaveLength(1);
+
+  const { sql } = database.get();
+  await sql`UPDATE public.merchant_members SET role = 'staff' WHERE merchant_id = ${merchantId} AND user_id = ${owner.accountId}`;
+  expect(await repository.findPreview(scope)).toBeUndefined();
+});
+
+test("[MER-14:db] concurrent rejections preserve the first result and allow original cleanup on retry", async () => {
+  const scope = await reserve(reserveRequest(await actor(800)));
+  const { mediaId } = scope;
+  const adoption = upload(scope, "rejected-original");
+  const { quarantineKey } = adoption;
+  const repository = repo();
+  await repository.acceptUpload(adoption);
+  const [first, second] = await concurrently(
+    (connection) =>
+      connection.completePreparation({
+        mediaId,
+        quarantineKey,
+        result: { status: "rejected", reason: "invalid_image" },
+      }),
+    (connection) =>
+      connection.completePreparation({
+        mediaId,
+        quarantineKey,
+        result: { status: "rejected", reason: "image_too_large" },
+      }),
+  );
+  expect([first, second].sort()).toEqual([false, true]);
+  const status = {
+    mediaId,
+    sessionId: scope.sessionId,
+    kind: "application",
+    status: "rejected",
+    reason: first ? "invalid_image" : "image_too_large",
+  };
+  expect(await repository.read(scope)).toEqual(status);
+  expect(await repository.findPreview(scope)).toBeUndefined();
+  expect(await repository.findPreparation(mediaId)).toEqual({ status: "rejected", quarantineKey });
+  expect(await repository.acceptUpload(upload(scope, "rejected-replay"))).toEqual({
+    kind: "replayed",
+    media: status,
+  });
+  expect(await repository.acceptUpload(upload(scope, "changed-body", "another"))).toEqual({
+    kind: "upload_conflict",
+  });
+});
+
+test("[MER-14:db] terminal preparation state requires complete valid metadata", async () => {
+  const scope = await reserve(reserveRequest(await actor(900)));
+  const { mediaId } = scope;
+  const adoption = upload(scope, "invalid-preview");
+  const repository = repo();
+  await repository.acceptUpload(adoption);
+
+  await expect(
+    repository.completePreparation({
+      mediaId,
+      quarantineKey: adoption.quarantineKey,
+      result: {
+        status: "awaiting_crop",
+        previewKey: `previews/${mediaId}/invalid`,
+        width: 1281,
+        height: 960,
+      },
+    }),
+  ).rejects.toMatchObject({ code: "23514" });
+
+  const { sql } = database.get();
+  await expect(
+    sql`UPDATE public.media_uploads SET status = 'rejected' WHERE id = ${mediaId}`,
+  ).rejects.toMatchObject({ code: "23514" });
+  expect(await repository.read(scope)).toMatchObject({ status: "preparing" });
+});

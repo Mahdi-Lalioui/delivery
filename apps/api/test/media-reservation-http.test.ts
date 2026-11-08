@@ -1,12 +1,13 @@
 import { createHash } from "node:crypto";
+import { Readable } from "node:stream";
 import { mediaOutput } from "@zaafran/contracts/media";
-import type { createMediaRepository } from "@zaafran/db/media";
 import type { MediaStore } from "@zaafran/media";
 import { expect, onTestFinished, test, vi } from "vitest";
 import { createApi } from "../src/app.ts";
+import type { MediaReservationServices } from "../src/media-reservation-routes.ts";
 import type { Actor } from "../src/policy.ts";
 
-type Repository = ReturnType<typeof createMediaRepository>;
+type Repository = MediaReservationServices["repository"];
 
 const accountId = "019d6abc-1234-7234-8234-123456789000";
 const sessionId = "019d6abc-1234-7234-8234-123456789001";
@@ -25,6 +26,7 @@ function setup(authenticated?: Actor) {
   const repository = {
     reserve: vi.fn<Repository["reserve"]>(),
     read: vi.fn<Repository["read"]>(),
+    findPreview: vi.fn<Repository["findPreview"]>(),
     findUpload: vi.fn<Repository["findUpload"]>(),
     acceptUpload: vi.fn<Repository["acceptUpload"]>(),
   } satisfies Repository;
@@ -40,7 +42,7 @@ function setup(authenticated?: Actor) {
   };
   const api = createApi(options);
   onTestFinished(() => api.close());
-  return { api, repository };
+  return { api, repository, store };
 }
 
 test("[MER-14:http] reserves an authorized merchant photo with a bounded strict body", async () => {
@@ -123,3 +125,28 @@ test.each([
     expect(repository.read).not.toHaveBeenCalled();
   },
 );
+
+test("[MER-14:http] streams only a scoped private WebP preview", async () => {
+  const { api, repository, store } = setup(actor);
+  const key = "preview/private";
+  const bytes = Buffer.from([0x52, 0x49, 0x46, 0x46]);
+  repository.findPreview.mockResolvedValueOnce(undefined).mockResolvedValue({ key });
+  store.get.mockResolvedValueOnce({ body: Readable.from([bytes]), bytes: bytes.length });
+
+  const denied = await api.inject(read + "/preview");
+  expect(denied.statusCode).toBe(404);
+  expect(store.get).not.toHaveBeenCalled();
+
+  const preview = await api.inject(read + "/preview");
+  expect(preview.statusCode).toBe(200);
+  expect(preview.headers).toMatchObject({
+    "cache-control": "private, no-store",
+    "content-type": "image/webp",
+    "content-length": String(bytes.length),
+    "x-content-type-options": "nosniff",
+  });
+  expect(preview.rawPayload).toEqual(bytes);
+  expect(repository.findPreview).toHaveBeenLastCalledWith({ accountId, mediaId, sessionId, now });
+
+  expect((await api.inject(read + "/preview")).statusCode).toBe(503);
+});

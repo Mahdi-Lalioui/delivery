@@ -1,13 +1,15 @@
 import type { TransactionSql } from "postgres";
-import { lockMediaSession, lockMediaTarget } from "./media-access.js";
+import { lockMediaSession, lockMediaTarget, mediaStatus } from "./media-access.js";
 import type {
   MediaAdoptionRequest,
   MediaAdoptionResult,
+  MediaState,
   MediaStatus,
   MediaUploadDescriptor,
 } from "./media-types.js";
 
-type LockedUpload = Pick<MediaStatus, "mediaId" | "kind" | "status"> &
+type LockedUpload = Pick<MediaStatus, "mediaId" | "kind"> &
+  MediaState &
   MediaUploadDescriptor & { readonly matchesDigest: boolean | null };
 
 async function lockOwnedUpload(
@@ -23,6 +25,7 @@ async function lockOwnedUpload(
   // Lock merchant membership before the upload, matching the parent-to-child foreign-key order.
   const [upload] = await sql<LockedUpload[]>`
     SELECT id AS "mediaId", kind, status, content_type AS "contentType", bytes,
+      preview_width AS width, preview_height AS height, rejection_reason AS reason,
       content_digest = ${digest} AS "matchesDigest"
     FROM public.media_uploads
     WHERE id = ${mediaId} AND owner_id = ${accountId}
@@ -46,8 +49,8 @@ export async function adoptMedia(
   }
 
   const { mediaId, kind, status } = upload;
-  const media = { mediaId, sessionId: session.sessionId, kind, status };
   if (status !== "awaiting_upload") {
+    const media = mediaStatus(upload, session.sessionId);
     return upload.matchesDigest ? { kind: "replayed", media } : { kind: "upload_conflict" };
   }
 
@@ -63,5 +66,8 @@ export async function adoptMedia(
       queue_name => 'media', job_key => ${`media:prepare:${mediaId}`}
     )
   `;
-  return { kind: "accepted", media: { ...media, status: "preparing" } };
+  return {
+    kind: "accepted",
+    media: { mediaId, sessionId: session.sessionId, kind, status: "preparing" },
+  };
 }

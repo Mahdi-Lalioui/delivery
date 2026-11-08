@@ -1,12 +1,20 @@
 import type { DatabaseConnection } from "./database.js";
-import { readVisibleMedia } from "./media-access.js";
+import { mediaStatus, readVisibleMedia } from "./media-access.js";
 import { adoptMedia } from "./media-adoption.js";
+import { completeMediaPreparation, findMediaPreparation } from "./media-preparation.js";
 import { reserveMedia } from "./media-reservation.js";
-import type { MediaAdoptionRequest, MediaReservationRequest, MediaScope } from "./media-types.js";
+import type {
+  MediaAdoptionRequest,
+  MediaPreparationCompletion,
+  MediaReservationRequest,
+  MediaScope,
+} from "./media-types.js";
 
 export type {
   MediaAdoptionRequest,
   MediaAdoptionResult,
+  MediaPreparationCompletion,
+  MediaPreparationSource,
   MediaReservationRequest,
   MediaReservationResult,
   MediaScope,
@@ -22,8 +30,7 @@ export function createMediaRepository({ sql }: DatabaseConnection) {
     read: async (scope: MediaScope) => {
       const media = await readVisibleMedia(sql, scope);
       if (!media) return undefined;
-      const { mediaId, sessionId, kind, status } = media;
-      return { mediaId, sessionId, kind, status };
+      return mediaStatus(media, media.sessionId);
     },
     findUpload: async (scope: MediaScope) => {
       const media = await readVisibleMedia(sql, scope);
@@ -31,7 +38,16 @@ export function createMediaRepository({ sql }: DatabaseConnection) {
       const { contentType, bytes } = media;
       return { contentType, bytes };
     },
+    findPreview: async (scope: MediaScope) => {
+      const media = await readVisibleMedia(sql, scope);
+      return media?.status === "awaiting_crop" && media.previewKey !== null
+        ? { key: media.previewKey }
+        : undefined;
+    },
     acceptUpload: (request: MediaAdoptionRequest) =>
       sql.begin(writeIsolation, (tx) => adoptMedia(tx, request)),
+    findPreparation: (mediaId: string) => findMediaPreparation(sql, mediaId),
+    completePreparation: (request: MediaPreparationCompletion) =>
+      completeMediaPreparation(sql, request),
   };
 }
