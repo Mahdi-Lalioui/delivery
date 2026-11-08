@@ -324,7 +324,11 @@ async function verifyCategoryRail({
     );
     const editor = await openItemEditor(page, "Couscous");
     const next = rail.getByRole("link", { name: secondCategoryNames.fr });
-    await expect(next).toHaveCount(0);
+    // While an item is open the rail keeps its entries but none of them can navigate.
+    await expect(next).toBeDisabled();
+    await expect(rail.locator("a[href]").filter({ hasText: secondCategoryNames.fr })).toHaveCount(
+      0,
+    );
     await expect(
       rail.locator('[aria-disabled="true"]').filter({ hasText: secondCategoryNames.fr }),
     ).toBeVisible();

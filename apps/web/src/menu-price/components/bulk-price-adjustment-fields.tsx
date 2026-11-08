@@ -45,7 +45,7 @@ function AmountFields({ controls }: { controls: BulkPriceControls }) {
     <div className="bulk-price-amount">
       <div className="menu-item-field">
         <label htmlFor="bulk-price-amount">{translate("amountLabel")}</label>
-        <div className="menu-item-money">
+        <div className="bulk-price-money">
           <input
             id="bulk-price-amount"
             type="text"
