@@ -174,7 +174,8 @@
     "refreshAccount": "Actualiser le compte",
     "manageMenu": "Gérer le menu",
     "signInToViewStatus": "Connectez-vous pour voir vos restaurants et vos demandes.",
-    "viewSetup": "Voir la configuration"
+    "viewSetup": "Voir la configuration",
+    "manageTeam": "Gérer l’équipe"
   },
   "adminMerchant": {
     "title": "Demandes des restaurants",

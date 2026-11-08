@@ -174,7 +174,8 @@
     "refreshAccount": "Refresh account",
     "manageMenu": "Manage menu",
     "signInToViewStatus": "Sign in to view your restaurants and applications.",
-    "viewSetup": "View setup"
+    "viewSetup": "View setup",
+    "manageTeam": "Manage team"
   },
   "adminMerchant": {
     "title": "Restaurant applications",

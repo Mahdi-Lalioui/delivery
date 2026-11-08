@@ -174,7 +174,8 @@
     "refreshAccount": "تحديث الحساب",
     "manageMenu": "إدارة القائمة",
     "signInToViewStatus": "سجّل الدخول للاطلاع على مطاعمك وطلباتك.",
-    "viewSetup": "عرض الإعداد"
+    "viewSetup": "عرض الإعداد",
+    "manageTeam": "إدارة الفريق"
   },
   "adminMerchant": {
     "title": "طلبات تسجيل المطاعم",

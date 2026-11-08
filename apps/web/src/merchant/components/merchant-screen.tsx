@@ -56,6 +56,14 @@ function MembershipList({
                   <a className="merchant-secondary" href={`/${locale}/merchant/${merchantId}/menu`}>
                     {translate("manageMenu")}
                   </a>
+                  {role === "owner" && (
+                    <a
+                      className="merchant-secondary"
+                      href={`/${locale}/merchant/${merchantId}/staff`}
+                    >
+                      {translate("manageTeam")}
+                    </a>
+                  )}
                 </div>
               )}
             </li>

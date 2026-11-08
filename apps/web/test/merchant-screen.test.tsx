@@ -164,3 +164,32 @@ test("[MER-09:web] signed-out restaurant status links back to the list after ver
   expect(html).toContain('href="/ar/sign-in?continue=merchant-status"');
   expect(html).toContain(getMessages("ar").merchant.signInToViewStatus);
 });
+
+test("[MER-23:web] links only an approved owner membership to the team page", () => {
+  const ownerId = "019d6abc-1234-7234-8234-123456789abf";
+  const pendingId = "019d6abc-1234-7234-8234-123456789abe";
+  resource.mockReturnValueOnce({
+    view: {
+      kind: "ready",
+      data: {
+        sessionId: commune.id,
+        memberships: [
+          { merchantId: ownerId, restaurantName: "مطعم المالك", role: "owner", status: "active" },
+          { merchantId: commune.id, restaurantName: "مطعم", role: "manager", status: "approved" },
+          {
+            merchantId: pendingId,
+            restaurantName: "مطعم",
+            role: "owner",
+            status: "pending_review",
+          },
+        ],
+      },
+    },
+    retry,
+  });
+  const html = render("status");
+  expect(html).toContain(`href="/ar/merchant/${ownerId}/staff"`);
+  expect(html).toContain(getMessages("ar").merchant.manageTeam);
+  expect(html).not.toContain(`href="/ar/merchant/${commune.id}/staff"`);
+  expect(html).not.toContain(`href="/ar/merchant/${pendingId}/staff"`);
+});
