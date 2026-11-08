@@ -1,20 +1,31 @@
 # PLAN — living execution plan
 
-This is the execution plan Codex follows and keeps up to date. **Order matters:** finish a milestone's gate before starting the next one. A milestone is done only when `pnpm gate mN` exits 0 and its evidence sits in `docs/evidence/mN/`.
+This is the execution plan both builders keep up to date. Follow the two lane sequences in AGENTS.md §0 through 15 November. From 16 November run the gates in order. A milestone is done only when `pnpm gate mN` exits 0 and its evidence sits in `docs/evidence/mN/`.
 
 Refine each milestone's task list when you start it. Split tasks so each fits one work-loop cycle (AGENTS.md §3). Keep task IDs stable (`M4-7`).
 
-## Dates (Africa/Algiers) — targets; the gates matter more than the dates
+## November build and hardening schedule
 
-| What | Target |
-|---|---|
-| M0–M9: **web release candidate** | **Sun 10 Jan 2027** |
-| Pilot with 3–5 real restaurants (Mahdi) | 11–20 Jan |
-| Public soft launch in Algiers | 21–25 Jan |
-| Ramadan expected to start (±1 day) | **~8 Feb 2027**. The web app must be stable before then. |
+| Date              | Lane A target                                                         | Lane B sequence                                   |
+| ----------------- | --------------------------------------------------------------------- | ------------------------------------------------- |
+| Mon 9 Nov         | Finish M2 and M3                                                      | M7 first                                          |
+| Wed 11 Nov        | M4                                                                    | M6 after M7                                       |
+| Thu 12 Nov        | M5                                                                    | M8 after M6                                       |
+| Sat 14 Nov        | M11 partner app                                                       | M10 after M8                                      |
+| Sun 15 Nov        | Integrate both lanes and reach feature completion                     | Integrate both lanes and reach feature completion |
+| Mon 16–Sun 22 Nov | Gates M0–M11, fixes, audits, staging, restore drill and deployability | Same hardening and release checklist              |
+
+Start from green M0, M1 and M2 snapshots merged into `main` in order. Push both lanes from that baseline. Lane A publishes the admin/billing, ratings, promotions and scheduling contracts first. Merge lane A then lane B each evening, with full verification and end-to-end tests green on `main`. Rebase both lanes every morning. Resume from `docs/progress/lane-a.md` or `docs/progress/lane-b.md` after an account switch.
+
+## Pilot and launch dependencies (Africa/Algiers)
+
+| What                                                           | Target                                                                                                  |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Pilot with 3–5 real restaurants (Mahdi)                        | 11–20 Jan                                                                                               |
+| Public soft launch in Algiers                                  | 21–25 Jan                                                                                               |
+| Ramadan expected to start (±1 day)                             | **~8 Feb 2027**. The web app must be stable before then.                                                |
 | M10 customer app: TestFlight + Google Play closed test started | by **15 Jan** (a new personal Play account needs **12 testers opted in for 14 days** before production) |
-| M11 partner app | by mid-Feb (drivers use the courier PWA until then) |
-| M12 store release | February |
+| M12 store release                                              | February                                                                                                |
 
 The PWA is the Ramadan launch vehicle. The native apps follow as fast as store rules allow.
 
@@ -52,6 +63,7 @@ The PWA is the Ramadan launch vehicle. The native apps follow as fast as store r
 - [ ] M0-12 `docs/runbooks/README.md`, `.env.example`, `docs/PRIVACY.md` skeleton.
 
 **Gate m0:**
+
 - `pnpm verify` and `pnpm test:e2e --grep @smoke` (the style guide renders in ar/fr, light/dark, and axe is clean);
 - CI green on the PR;
 - contrast test passes.
@@ -88,6 +100,7 @@ The PWA is the Ramadan launch vehicle. The native apps follow as fast as store r
 - [ ] M2-12 Seed: 12 **fictional** demo restaurants in Algiers communes with realistic menus in ar/fr and realistic Algiers prices, marked `is_demo`.
 
 **Gate m2:**
+
 - e2e `@merchant-onboarding`: signup → admin approve → build a 10-item menu with options and photos → bulk price change → import CSV → shown correctly in the preview;
 - authz matrix covers the new routes;
 - design QA screenshots for the builder.
@@ -105,6 +118,7 @@ The PWA is the Ramadan launch vehicle. The native apps follow as fast as store r
 - [ ] M3-7 PWA basics (CUS-25), low-data mode (CUS-26, GEO-10), and route bundle budgets in CI (NFR-02).
 
 **Gate m3:**
+
 - e2e `@discovery` in ar and fr: set location → search `chawarma` and `شاورما` → open a restaurant → add items with options → cart persists after reload;
 - the search benchmark (SRCH-06) passes;
 - Lighthouse budgets (NFR-01/02) on home and restaurant pages.
@@ -125,6 +139,7 @@ The PWA is the Ramadan launch vehicle. The native apps follow as fast as store r
 - [ ] M4-10 Test order (MER-25).
 
 **Gate m4:**
+
 - e2e `@order-core` with customer + restaurant contexts: place cash order with change → board rings → accept → ready → (pickup) collect. Also reject, expire with fake clock, customer cancel, network cut on the board followed by replay;
 - the double-submit test proves one order;
 - the chaos test (JOB-04) passes.
@@ -143,6 +158,7 @@ The PWA is the Ramadan launch vehicle. The native apps follow as fast as store r
 - [ ] M5-8 Optional Nominatim reverse geocoding (GEO-09).
 
 **Gate m5:**
+
 - e2e `@delivery-golden-path` with all four actors: customer orders → restaurant accepts and assigns a driver → driver picks up → mocked geolocation moves along a real OSRM route → the customer sees the marker move and the ETA drop → driver enters the code → delivered → customer rates;
 - an RTL tracking screenshot passes;
 - k6 position-ingest test meets NFR-03.
@@ -187,6 +203,7 @@ The PWA is the Ramadan launch vehicle. The native apps follow as fast as store r
 - [ ] M8-6 Performance pass: budgets, image audit, font audit, bundle splitting.
 
 **Gate m8:**
+
 - `pnpm verify:full`;
 - Lighthouse budgets on landing, home, restaurant, checkout and tracking;
 - the hero at ≥ 50 fps in the Playwright perf probe (desktop) and correct fallback behaviour (low-end emulation shows the poster);
@@ -205,6 +222,7 @@ The PWA is the Ramadan launch vehicle. The native apps follow as fast as store r
 - [ ] M9-7 `docs/RELEASE_CHECKLIST.md` — every item checked with evidence.
 
 **Gate m9 = gate release-web:**
+
 - `pnpm verify:full`, k6 thresholds and the ZAP report with no high findings;
 - the restore drill passes;
 - staging smoke tests pass;
@@ -225,6 +243,7 @@ Tag `v1.0.0-rc.1`.
 - [ ] M10-7 Maestro flows for the main journeys, plus performance checks (MOB-08).
 
 **Gate m10:**
+
 - Maestro `@customer` suite green on the Android emulator (low-end profile), and on the iOS simulator if available;
 - Jest coverage ≥ 70%;
 - 60 fps scroll on the restaurant page in the performance profile;

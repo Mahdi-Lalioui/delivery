@@ -4,16 +4,45 @@ You are building **Zaafran** (working name — the real name lives only in `pack
 
 One human owns this project: **Mahdi**. Nobody else works on it. Work autonomously. Ask Mahdi only for what is listed under "Stop and ask".
 
+## 0. Parallel build week
+
+These rules override slower work-loop and milestone sequencing rules through Sunday 15 November 2026. The feature target is 15 November. The hardening week runs 16–22 November.
+
+| Lane | Builder and branch    | Order                                          | Owned paths                                                                                                                        |
+| ---- | --------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| A    | Codex, `lane-a`       | Finish M2, then M3, M4, M5 and M11 partner app | API core, `apps/worker`, `packages/{db,contracts,domain,geo,i18n}`, customer, merchant and courier web screens, and `apps/partner` |
+| B    | Claude Code, `lane-b` | M7, M6, M8, then M10 customer app              | `apps/web/src/{admin,marketing,retention}/`, new API modules in new files, `apps/mobile` and `packages/ui-native`                  |
+
+- Lane A alone edits `packages/contracts` and DB migrations. Lane B files requests at `docs/requests/lane-b-<topic>.md`. Lane A lands requested changes the same day and publishes admin/billing, ratings, promotions and scheduling contracts first.
+- Use separate i18n namespaces for the two lanes. Record each task in `docs/progress/lane-a.md` or `docs/progress/lane-b.md`. Keep entries to four lines or fewer with effort, change, proof and next step. Leave a reproducible checkpoint with the branch, commit, current task and pending checks before switching accounts. A fresh account can resume by reading those files and `docs/PLAN.md`.
+- Lane B sets `COMPOSE_PROJECT_NAME=lane-b` and uses host ports 100 higher than lane A, including test services.
+- Start by merging M0, M1 and the green M2 snapshot into `main` in order. Create and push both lane branches from that baseline. Every evening merge `lane-a` then `lane-b` into `main`. Require `pnpm verify` and end-to-end checks green on the integrated `main`. Both lanes rebase onto `main` each morning.
+
+Choose effort per task. The lead runs on medium and delegates important work with the effort set explicitly at spawn. Use at most two subagents at once.
+
+| Effort | Tasks                                                                                                                                                                                                                                                                                      |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Low    | Renames, formatting, documentation and progress, translations, moves and simple config                                                                                                                                                                                                     |
+| Medium | UI, forms, routing, styling, endpoint wiring, ordinary CRUD, fixtures, seeds and simple end-to-end flows                                                                                                                                                                                   |
+| High   | Search and ranking, hours and scheduling screens, maps UI, notification wiring, menu builder logic and admin screens                                                                                                                                                                       |
+| Ultra  | Order state and transitions, money, pricing, quotes, checkout, realtime board and replay, timers and jobs, concurrency and idempotency, auth and sessions, OTP/TOTP, authorization and tenant scoping, uploads, payments and billing, live tracking and position intake, and DB migrations |
+
+Use ultra for `reviewer` and `security_auditor` on high-risk features and at every milestone gate, and for diagnosing a bug or flaky test after the first fix attempt fails. Split ultra work into small, clearly scoped subagent tasks. If unsure, choose higher effort for money, permissions and orders, and lower effort for purely visual work.
+
+- During week 1, test first, then run the affected package tests, typecheck and lint. Run full `pnpm verify` about every five tasks and before every push. Review each finished feature once. Keep implementations as simple as the acceptance criteria allow. Collect screenshots and run auditors at the end of the week.
+- Each feature includes unit tests for logic, real Postgres integration tests for data, authorization matrix entries for routes and one end-to-end test per user flow.
+- From 16 November restore the full process below. Run gates M0–M11 in order, fix all findings, then run security, performance and design audits, k6, mutation tests, staging deployment and the restore drill. Complete `RELEASE_CHECKLIST`. Use high effort for fixes and ultra for audits.
+
 ## 1. Source of truth (NOT auto-loaded — open them)
 
-| File | Holds | Read it |
-|---|---|---|
-| `docs/SPEC.md` | product + technical spec, acceptance criteria IDs | before any feature; re-read the exact section you implement |
-| `docs/DESIGN.md` | tokens, type, motion, 3D, screens | before any UI work |
-| `docs/PLAN.md` | milestones, tasks, gates, dates (living plan) | at the start of every session and every task |
-| `docs/PROGRESS.md` | what is done, evidence, next step | at session start; update after every task |
-| `docs/DECISIONS.md` | decision log | before changing architecture or adding a dependency |
-| `docs/HUMAN_TODO.md` | things only Mahdi can do | append when blocked on a human |
+| File                 | Holds                                             | Read it                                                     |
+| -------------------- | ------------------------------------------------- | ----------------------------------------------------------- |
+| `docs/SPEC.md`       | product + technical spec, acceptance criteria IDs | before any feature; re-read the exact section you implement |
+| `docs/DESIGN.md`     | tokens, type, motion, 3D, screens                 | before any UI work                                          |
+| `docs/PLAN.md`       | milestones, tasks, gates, dates (living plan)     | at the start of every session and every task                |
+| `docs/PROGRESS.md`   | what is done, evidence, next step                 | at session start; update after every task                   |
+| `docs/DECISIONS.md`  | decision log                                      | before changing architecture or adding a dependency         |
+| `docs/HUMAN_TODO.md` | things only Mahdi can do                          | append when blocked on a human                              |
 
 Conflicts: SPEC wins on behaviour, DESIGN wins on look and motion, a newer DECISIONS entry that says "supersedes" wins over both. Fix the contradiction in the docs in the same commit.
 
@@ -50,27 +79,29 @@ Never call a task done because it "looks done". Done means proven by a command t
 
 You (the main thread) are the **lead**. You own PLAN, PROGRESS, merges and final decisions. Custom agents live in `.codex/agents/`:
 
-| Agent | Writes code? | Use for |
-|---|---|---|
-| `scout` | no | latest versions, official docs, API facts, mapping existing code |
-| `architect` | contracts/docs only | data model, API contracts (zod), state machines, ADRs for a milestone |
-| `test_author` | tests only | failing tests from acceptance criteria before implementation |
-| `backend_builder` | yes — `packages/{domain,db,contracts,geo,i18n,config}`, `apps/api`, `apps/worker` | server-side implementation |
-| `web_builder` | yes — `apps/web`, `packages/{ui,tokens}` | web implementation |
-| `mobile_builder` | yes — `apps/mobile`, `apps/partner`, `packages/ui-native` | native implementation (M10+) |
-| `qa_runner` | test infra only | run suites, triage failures to root cause, fix flaky infra |
-| `reviewer` | no | review diffs: correctness, security, tests, readability |
-| `design_critic` | no | screenshot matrix vs DESIGN.md, concrete visual fixes |
-| `security_auditor` | no | authz matrix, OWASP checks, secrets, headers, dependencies |
-| `perf_auditor` | no | Lighthouse, bundle size, query plans, k6 load |
+| Agent              | Writes code?                                                                      | Use for                                                               |
+| ------------------ | --------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `scout`            | no                                                                                | latest versions, official docs, API facts, mapping existing code      |
+| `architect`        | contracts/docs only                                                               | data model, API contracts (zod), state machines, ADRs for a milestone |
+| `test_author`      | tests only                                                                        | failing tests from acceptance criteria before implementation          |
+| `backend_builder`  | yes — `packages/{domain,db,contracts,geo,i18n,config}`, `apps/api`, `apps/worker` | server-side implementation                                            |
+| `web_builder`      | yes — `apps/web`, `packages/{ui,tokens}`                                          | web implementation                                                    |
+| `mobile_builder`   | yes — `apps/mobile`, `apps/partner`, `packages/ui-native`                         | native implementation (M10+)                                          |
+| `qa_runner`        | test infra only                                                                   | run suites, triage failures to root cause, fix flaky infra            |
+| `reviewer`         | no                                                                                | review diffs: correctness, security, tests, readability               |
+| `design_critic`    | no                                                                                | screenshot matrix vs DESIGN.md, concrete visual fixes                 |
+| `security_auditor` | no                                                                                | authz matrix, OWASP checks, secrets, headers, dependencies            |
+| `perf_auditor`     | no                                                                                | Lighthouse, bundle size, query plans, k6 load                         |
 
 Pattern for each milestone slice:
+
 1. **Parallel, read-only:** `scout` + `architect`. You approve the design and commit the contracts in `packages/contracts` first.
 2. **Write:** `test_author` writes the failing tests. Then `backend_builder` and `web_builder` may run **in parallel only because they own disjoint directories** and code against the committed contract. The web side uses MSW handlers built from the contracts until the API lands.
 3. **Parallel, read-only:** `qa_runner`, `reviewer`, and at gates `design_critic`, `security_auditor`, `perf_auditor`.
 4. You merge, rerun `pnpm verify`, commit, and update PROGRESS.
 
 Rules:
+
 - At most 6 agents at once. Tree depth at most 2 (lead → specialist → `scout`/`test_author`). If a subagent cannot spawn, it returns a request to the lead instead.
 - Two agents must never edit the same file at the same time. If parallel writers need separate branches, give each a git worktree under `.worktrees/<agent>` (gitignored) and merge sequentially.
 - Subagents do not commit. The lead commits after `pnpm verify` passes.
@@ -81,6 +112,7 @@ Rules:
 **Language and config.** TypeScript everywhere with `strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `noImplicitOverride`, `noFallthroughCasesInSwitch`, `verbatimModuleSyntax`. No `any`, no `as` casts except at validated boundaries (with a comment), no non-null `!`, and no `@ts-ignore`. `@ts-expect-error` is allowed only with a reason.
 
 **Architecture.**
+
 - Functional core, imperative shell. `packages/domain` is pure: no IO, no Date.now(), no randomness. It gets a clock and an id generator as arguments.
 - Handlers stay thin: parse (zod), authorize, call a service, map the result.
 - Services own transactions. Repositories in `packages/db` return domain types.
@@ -88,6 +120,7 @@ Rules:
 - Boundaries are enforced by dependency-cruiser.
 
 **Size and shape.**
+
 - Functions do one thing and are usually under 40 lines. Files are usually under 300 lines.
 - Complexity ≤ 10, nesting ≤ 3, at most 3 positional params (otherwise one object param).
 - Lines ≤ 100 chars (Prettier).
@@ -96,6 +129,7 @@ Rules:
 **Naming.** Files kebab-case. Components PascalCase. Functions are verbs. Booleans use `is/has/can/should`. Money variables end in `Dzd`. No abbreviations beyond `id`, `url`, `api`, `eta`, `otp`.
 
 **No dead weight.**
+
 - No unused exports, files or deps (knip must pass) and no commented-out code.
 - No TODO without a PLAN task id (`// TODO(M5-3): …`).
 - No speculative abstractions: build the second implementation before extracting the interface. The exceptions are the adapters SPEC requires: SMS, push, payments, storage, LLM.
@@ -107,12 +141,14 @@ Rules:
 **Config.** All env vars are zod-validated at startup and the app fails fast. `.env.example` documents every variable. No secret ever goes in git.
 
 **Dependencies.**
+
 - Before adding one, check the platform can't do it, then check size, maintenance and licence. Record it in DECISIONS (one line).
 - Pin exact versions. Get the latest stable with `npm view <pkg> version` or the official changelog — never from memory.
 - Banned: moment, lodash (full), axios (use fetch), UI kits that impose a look (MUI, Chakra, Ant), CSS-in-JS runtimes.
 - Use official agent docs when a framework ships them: keep the version-matched block Next.js writes into `apps/web/AGENTS.md`, and use Expo's agent skills for SDK work and upgrades.
 
 **Performance by default.**
+
 - Every query path has an index; check hot queries with `EXPLAIN ANALYZE` in integration tests.
 - No N+1 queries. Use keyset pagination.
 - Use ETags on menus. Lazy-load maps and 3D.
@@ -121,6 +157,7 @@ Rules:
 **Security by default.** See SPEC §17. Deny by default; every route declares its policy; ownership is checked in the query (`WHERE merchant_id = ANY($memberMerchantIds)`), never trusted from the client.
 
 **UI.**
+
 - Only DESIGN.md tokens: no hard-coded colours, sizes or durations.
 - Logical CSS properties only (`ms-`, `pe-`, `start`, `end`). Every string goes through i18n messages.
 - Every interactive element is keyboard reachable, has a visible focus ring and an accessible name.
@@ -129,6 +166,7 @@ Rules:
 ## 6. Testing rules
 
 **Pyramid.**
+
 - Many fast unit tests (Vitest; fast-check property tests for money, pricing, state machine, hours, search normalizer).
 - Integration tests on real Postgres (no DB mocks).
 - Contract tests for every endpoint.
@@ -136,12 +174,14 @@ Rules:
 - Mobile: Jest + React Native Testing Library, plus Maestro flows.
 
 **Thresholds** (CI fails below):
+
 - `packages/domain`: 95% lines / 90% branches, StrykerJS mutation score ≥ 85%.
 - API: 85% lines.
 - UI components: 70% lines.
 - Every acceptance ID in SPEC has at least one test (`pnpm trace` checks this).
 
 **Determinism.**
+
 - Inject the clock (`/__test__/clock` exists only in test builds). Seed randomness.
 - No real network in unit tests.
 - Fake adapters for SMS/push/LLM/payments with inspectable outboxes.
@@ -165,6 +205,7 @@ Rules:
 ## 8. Stop and ask (everything else: decide, log in DECISIONS, continue)
 
 Ask Mahdi only before:
+
 - spending money or creating paid accounts;
 - anything legal (terms, privacy, tax, company);
 - using real credentials, keys or personal data;
@@ -184,6 +225,7 @@ While you wait, add a precise HUMAN_TODO (what, why, exact steps), use the fake 
 ## 10. Review guidelines (used by Codex PR review and the `reviewer` agent)
 
 Report only real problems, with file:line and a concrete fix:
+
 - **P0:**
   - security hole (authz/BOLA, injection, secret, PII leak);
   - money computed wrong;
