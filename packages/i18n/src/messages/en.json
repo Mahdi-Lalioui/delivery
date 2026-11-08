@@ -466,5 +466,26 @@
     "failureForbidden": "You cannot change prices for this restaurant.",
     "failureRateLimited": "Too many attempts. Wait a moment and try again.",
     "failureError": "Something went wrong. Try again."
+  },
+  "merchantHours": {
+    "weekdays": {
+      "sunday": "Sunday",
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday"
+    },
+    "weeklyLegend": "Weekly hours",
+    "opensLabel": "Opens",
+    "closesLabel": "Closes",
+    "overnight": "Ends the next day",
+    "closedDay": "Closed",
+    "addRange": "Add hours",
+    "remove": "Remove",
+    "removeRange": "Remove {opens}–{closes} on {day}",
+    "errorTime": "Enter an opening and a closing time that differ.",
+    "errorOverlap": "These hours overlap. Change one range so they don't."
   }
 }

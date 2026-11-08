@@ -466,5 +466,26 @@
     "failureForbidden": "Vous ne pouvez pas modifier les prix de ce restaurant.",
     "failureRateLimited": "Trop de tentatives. Patientez un instant puis réessayez.",
     "failureError": "Une erreur est survenue. Réessayez."
+  },
+  "merchantHours": {
+    "weekdays": {
+      "sunday": "Dimanche",
+      "monday": "Lundi",
+      "tuesday": "Mardi",
+      "wednesday": "Mercredi",
+      "thursday": "Jeudi",
+      "friday": "Vendredi",
+      "saturday": "Samedi"
+    },
+    "weeklyLegend": "Horaires de la semaine",
+    "opensLabel": "Ouverture",
+    "closesLabel": "Fermeture",
+    "overnight": "Jusqu’au lendemain",
+    "closedDay": "Fermé",
+    "addRange": "Ajouter un créneau",
+    "remove": "Retirer",
+    "removeRange": "Retirer le créneau {opens}–{closes} ({day})",
+    "errorTime": "Saisissez une heure d’ouverture et une heure de fermeture différentes.",
+    "errorOverlap": "Ces créneaux se chevauchent. Modifiez-en un."
   }
 }

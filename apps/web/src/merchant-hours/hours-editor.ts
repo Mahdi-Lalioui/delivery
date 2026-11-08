@@ -12,7 +12,7 @@ export interface HoursDraft {
   /** Kept unchanged until the special-dates editor exists. */
   readonly specialDates: HoursInput["specialDates"];
 }
-type DayError = { weekday: number; reason: "time" | "overlap" };
+export type DayError = { weekday: number; reason: "time" | "overlap" };
 export type HoursValidation =
   { kind: "valid"; input: HoursInput } | { kind: "invalid"; errors: DayError[] };
 

@@ -466,5 +466,26 @@
     "failureForbidden": "لا يمكنك تعديل أسعار هذا المطعم.",
     "failureRateLimited": "محاولات كثيرة. انتظر قليلًا ثم أعد المحاولة.",
     "failureError": "حدث خطأ. أعد المحاولة."
+  },
+  "merchantHours": {
+    "weekdays": {
+      "sunday": "الأحد",
+      "monday": "الاثنين",
+      "tuesday": "الثلاثاء",
+      "wednesday": "الأربعاء",
+      "thursday": "الخميس",
+      "friday": "الجمعة",
+      "saturday": "السبت"
+    },
+    "weeklyLegend": "مواعيد العمل الأسبوعية",
+    "opensLabel": "يفتح",
+    "closesLabel": "يغلق",
+    "overnight": "حتى اليوم التالي",
+    "closedDay": "مغلق",
+    "addRange": "إضافة فترة",
+    "remove": "حذف",
+    "removeRange": "حذف الفترة {opens}–{closes} يوم {day}",
+    "errorTime": "أدخل وقت فتح ووقت إغلاق مختلفين.",
+    "errorOverlap": "هذه الفترات متداخلة. عدّل إحداها."
   }
 }

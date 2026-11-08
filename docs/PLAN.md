@@ -105,6 +105,12 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
   - [x] Add the Ramadan read/replace API routes (`/v1/merchants/:merchantId/hours/ramadan`) with contracts, matrix rows and OpenAPI.
   - [x] Prove every contract calculation method yields a Maghrib time where the schedule meets `calculateMaghrib`.
   - [ ] Render the seven-day preview through the M1 rules and build the Arabic/French hours editor with the overnight and Ramadan journeys.
+    - [x] Compute the pure seven-day preview in `@zaafran/domain` and prove it matches the M1 open-now rule.
+    - [x] Serve `GET /v1/merchants/:merchantId/hours/preview?schedule=regular|ramadan` with Maghrib at the stored location.
+    - [x] Add the typed web client and the pure weekly editor model, validated by the contract.
+    - [x] Add the presentational weekly hours fields with ar/fr/en messages.
+    - [ ] Add the hours page (hook, save, closed-now control, preview tabs, focus restoration, token CSS) and the Ramadan fields.
+    - [ ] Prove the production-build overnight and Ramadan journeys in Arabic and French, plus the screenshot matrix.
 - [ ] M2-10 Moderation (§17.3, ADM-04). Check prohibited goods on every menu write path and public preview. Prove flagged items stay hidden until the audited review outcome permits listing.
 - [ ] M2-11 Staff roles (MER-23). Implement owner-managed, single-use invitations tied to a verified phone. Prove every role against both its own and another merchant's resources.
 - [ ] M2-12 Seed twelve fictional bilingual Algiers restaurants with synthetic imagery and `is_demo`, then run production-built onboarding, the complete route matrix, and the design critic's theme/locale/viewport checks. Record local and PR evidence.
