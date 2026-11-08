@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 02:32 GMT — M2-9 Ramadan schedule API (Claude, covering while Codex was out)
+
+- **Changed** — Added `merchantRamadanCommandInput` and `merchantRamadanOutput` to the contracts. The output carries `schedule: null` until the first save. Added `GET` and `PUT /v1/merchants/:merchantId/hours/ramadan` to `merchant-hours-routes.ts`, with the same roles, session header, idempotency and failure mapping as the hours routes. The read re-parses the stored schedule through the contract, so a row that drifted from it becomes a logged 500 rather than an unchecked response. Added both routes to the `[AUTH-08]` matrix and the OpenAPI path list, and regenerated `docs/openapi.json`. Split the geo method proof into its own PLAN sub-task.
+- **Evidence** — Tests came first: 1 `[MER-16:contract]` case and 2 `[MER-16:http]` cases (a null versus a stored read, 404, an applied replace with the exact repository input, a 409 stale revision, and a 400 for method `Other` without a repository call). All 3 failed before the implementation, then 40/40 targeted tests passed. `pnpm verify` exited 0: 958 unit tests, 115 PostGIS integration tests, OpenAPI check, build, knip, depcruise, trace, and only the existing moderate advisory.
+- **Reviewer** — Self-reviewed against AGENTS.md §10. No P0/P1. P2: the Ramadan PUT handler repeats the hours PUT shape. Extract a shared helper if a third replace route arrives.
+- **Next** — No package depends on `@zaafran/geo` yet. The seven-day preview task introduces that dependency edge (check the depcruise rules, then record it in DECISIONS). In that task, add the test proving every `merchantRamadanInput` method yields a Maghrib time from `calculateMaghrib`. Before that, the "closed now" override needs a decision. Suggested: a nullable `merchants.closed_until timestamptz` set by an owner/manager `closed_now_set` command with an end time, cleared by passing null, and honoured by the M1 open-now rule. Then build the ar/fr hours editor and the overnight and Ramadan Playwright journeys.
+- **Needs Mahdi** — None.
+
 ### 2026-11-08 02:30 GMT — M2-9 persist the Ramadan schedule (Claude, covering while Codex was out)
 
 - **Changed** — Added migration `0013_merchant_ramadan_schedules`. It adds `ramadan_replace` to the receipt operations and creates one row per merchant. The row holds the seven-day ranges as a checked `jsonb` array, whose Maghrib/clock endpoint union is always read whole. Typed columns hold the suhoor window (both ends null or both set and different), the calculation method (the contract's list) and the ±30-minute adjustment. Added `packages/db/src/merchant-ramadan.ts` and the repository methods `readRamadan`, which returns `schedule: null` until one is saved, and `replaceRamadan`, which upserts through `runMenuCommand`. Split the routes and the geo method test into a new PLAN sub-task.
@@ -455,5 +463,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress)
 - `pnpm trace --through m2` on 2026-11-08 at 02:21 GMT covered 30 of 37 IDs. Pending: ADM-04, MER-01, MER-12, MER-14, MER-15, MER-16, MER-23. M2-7 (MER-11) is complete with a production-build journey.
-- Last green `pnpm verify`: 2026-11-08 02:29 GMT on Docker Desktop with 955 unit and 115 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 12/12 at 02:22 GMT.
+- Last green `pnpm verify`: 2026-11-08 02:31 GMT on Docker Desktop with 958 unit and 115 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 12/12 at 02:22 GMT.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
