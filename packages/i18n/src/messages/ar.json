@@ -704,7 +704,8 @@
     "kpiTransfers": "تحويلات للتحقق",
     "kpiOverdue": "متأخرة أو موقوفة",
     "closeToast": "إغلاق",
-    "periodRange": "{start} – {end}"
+    "periodRange": "{start} – {end}",
+    "sessionChanged": "تغيرت جلسة المشرف. أعد تحميل الصفحة قبل الحفظ."
   },
   "merchantBilling": {
     "title": "الفوترة",
@@ -888,7 +889,8 @@
     "activeTitle": "عروضك",
     "emptyBody": "أنشئ رمزًا أو عرضًا تلقائيًا لإعادة زبائنك.",
     "closeToast": "إغلاق",
-    "exampleSaving": "−{amount}"
+    "exampleSaving": "−{amount}",
+    "sessionChanged": "تغيرت جلستك. أعد تحميل الصفحة؛ تم الاحتفاظ بمسودتك."
   },
   "retentionScheduling": {
     "when": "متى",

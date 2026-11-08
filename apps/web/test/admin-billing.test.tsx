@@ -26,7 +26,13 @@ function render(overrides: Partial<AdminBillingState>, locale: "fr" | "en" = "fr
 }
 
 const { invoices, transferProofs } = billingMockData();
-const ready = { kind: "ready" as const, subscriptions: [], invoices, transferProofs };
+const ready = {
+  kind: "ready" as const,
+  sessionId: "019d6abc-0000-7000-8000-000000000001",
+  subscriptions: [],
+  invoices,
+  transferProofs,
+};
 
 test("[ADM-07:web] shows KPIs, status badges and the pending transfer with its amount", () => {
   const html = render({ view: ready });
@@ -47,7 +53,15 @@ test("[ADM-07:web] renders skeleton, sign-in, error and empty states", () => {
   expect(render({ view: { kind: "sign-in" } }, "en")).toContain(adminBilling.signInRequired);
   expect(render({ view: { kind: "error" } }, "en")).toContain(adminBilling.retry);
   const empty = render(
-    { view: { kind: "ready", subscriptions: [], invoices: [], transferProofs: [] } },
+    {
+      view: {
+        kind: "ready",
+        sessionId: "019d6abc-0000-7000-8000-000000000001",
+        subscriptions: [],
+        invoices: [],
+        transferProofs: [],
+      },
+    },
     "en",
   );
   expect(empty).toContain(adminBilling.emptyTransfers);

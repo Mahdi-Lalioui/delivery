@@ -704,7 +704,8 @@
     "kpiTransfers": "Virements à vérifier",
     "kpiOverdue": "En retard ou suspendus",
     "closeToast": "Fermer",
-    "periodRange": "{start} – {end}"
+    "periodRange": "{start} – {end}",
+    "sessionChanged": "Votre session admin a changé. Rechargez la page avant d’enregistrer."
   },
   "merchantBilling": {
     "title": "Facturation",
@@ -888,7 +889,8 @@
     "activeTitle": "Vos promotions",
     "emptyBody": "Créez un code ou une offre automatique pour faire revenir vos clients.",
     "closeToast": "Fermer",
-    "exampleSaving": "−{amount}"
+    "exampleSaving": "−{amount}",
+    "sessionChanged": "Votre session a changé. Rechargez la page ; votre brouillon est conservé."
   },
   "retentionScheduling": {
     "when": "Quand",

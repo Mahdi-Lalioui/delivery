@@ -85,6 +85,24 @@ const subscriptionPage = adminBillingSubscriptionListOutput.parse({
 
 const base = "*/v1/admin/billing";
 
+function sessionProblem() {
+  return HttpResponse.json(
+    {
+      type: "https://zaafran.invalid/problems/session_changed",
+      title: "Session changed",
+      status: 409,
+      code: "session_changed",
+      requestId: "mock",
+    },
+    { status: 409 },
+  );
+}
+
+/** Lane A binds billing writes to the admin session read with the lists. */
+function isCurrentSession(request: Request): boolean {
+  return request.headers.get("x-expected-session-id") === ids.sessionId;
+}
+
 /** Stateful handlers: voiding or paying an invoice is visible on the next list request. */
 export function adminBillingHandlers(data = billingMockData()) {
   return [
@@ -108,6 +126,7 @@ export function adminBillingHandlers(data = billingMockData()) {
       ),
     ),
     http.post(`${base}/invoices/:invoiceId/void`, async ({ request, params }) => {
+      if (!isCurrentSession(request)) return sessionProblem();
       const target = data.invoices.find((row) => row.invoiceId === params.invoiceId);
       const input = adminVoidInvoiceInput.safeParse(await request.json());
       if (!input.success) return HttpResponse.json({ code: "invalid_request" }, { status: 400 });
@@ -123,6 +142,7 @@ export function adminBillingHandlers(data = billingMockData()) {
       );
     }),
     http.post(`${base}/invoices/:invoiceId/payments`, async ({ request, params }) => {
+      if (!isCurrentSession(request)) return sessionProblem();
       const target = data.invoices.find((row) => row.invoiceId === params.invoiceId);
       const input = adminRecordPaymentInput.safeParse(await request.json());
       if (!input.success) return HttpResponse.json({ code: "invalid_request" }, { status: 400 });

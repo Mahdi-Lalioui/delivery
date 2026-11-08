@@ -42,12 +42,19 @@ function AdminBillingSample({ mode, locale }: { mode: Mode; locale: Locale }) {
     mode === "ready"
       ? {
           kind: "ready" as const,
+          sessionId: galleryMerchantId,
           subscriptions: gallerySubscription === null ? [] : [gallerySubscription],
           invoices: galleryInvoices,
           transferProofs: [galleryTransfer],
         }
       : mode === "empty"
-        ? { kind: "ready" as const, subscriptions: [], invoices: [], transferProofs: [] }
+        ? {
+            kind: "ready" as const,
+            sessionId: galleryMerchantId,
+            subscriptions: [],
+            invoices: [],
+            transferProofs: [],
+          }
         : { kind: mode };
   return (
     <AdminBillingView
@@ -116,7 +123,11 @@ function SettingsSample({ mode }: { mode: Mode }) {
 function PromotionsSample({ mode, locale }: { mode: Mode; locale: Locale }) {
   const view =
     mode === "ready" || mode === "empty"
-      ? { kind: "ready" as const, promotions: mode === "ready" ? galleryPromotions : [] }
+      ? {
+          kind: "ready" as const,
+          sessionId: galleryMerchantId,
+          promotions: mode === "ready" ? galleryPromotions : [],
+        }
       : { kind: mode };
   const draft =
     mode === "ready"

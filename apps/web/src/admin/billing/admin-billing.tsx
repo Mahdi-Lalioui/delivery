@@ -309,6 +309,7 @@ function Summary({ view, locale }: { view: Ready; locale: Locale }) {
 }
 
 const noticeTones = {
+  sessionChanged: "danger",
   recorded: "success",
   voided: "success",
   stale: "danger",

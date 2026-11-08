@@ -55,6 +55,7 @@ test("[ADM-07:web] confirming a pending transfer records the invoice total and m
     invoice: issued,
     reason: "Virement vérifié",
     key: crypto.randomUUID(),
+    expectedSessionId: ids.sessionId,
   });
   expect(result).toEqual({ kind: "recorded", amountDzd: 5000 });
 
@@ -65,10 +66,20 @@ test("[ADM-07:web] confirming a pending transfer records the invoice total and m
 });
 
 test("[ADM-07:web] voids an issued invoice only with a reason", async () => {
-  expect(prepareVoidInvoice({ invoiceId: ids.issuedInvoiceId, reason: "  " })).toEqual({
+  expect(
+    prepareVoidInvoice({
+      invoiceId: ids.issuedInvoiceId,
+      reason: "  ",
+      expectedSessionId: ids.sessionId,
+    }),
+  ).toEqual({
     kind: "invalid",
   });
-  const prepared = prepareVoidInvoice({ invoiceId: ids.issuedInvoiceId, reason: "Doublon" });
+  const prepared = prepareVoidInvoice({
+    invoiceId: ids.issuedInvoiceId,
+    reason: "Doublon",
+    expectedSessionId: ids.sessionId,
+  });
   if (prepared.kind !== "ready") throw new Error("expected ready");
   expect(await voidInvoice(prepared.attempt)).toEqual({ kind: "voided" });
   expect(await voidInvoice(prepared.attempt)).toEqual({ kind: "stale" });
@@ -95,6 +106,7 @@ test("[ADM-07:web] refuses to confirm a proof against a different invoice", asyn
       invoice: paid,
       reason: "Virement vérifié",
       key: crypto.randomUUID(),
+      expectedSessionId: ids.sessionId,
     }),
   ).toEqual({
     kind: "error",
@@ -122,6 +134,25 @@ test("[ADM-07:web][BIL-05] reports an error when the server records a different 
   );
   const key = crypto.randomUUID();
   expect(
-    await confirmTransferProof({ proof, invoice: issued, reason: "Virement vérifié", key }),
+    await confirmTransferProof({
+      proof,
+      invoice: issued,
+      reason: "Virement vérifié",
+      key,
+      expectedSessionId: ids.sessionId,
+    }),
   ).toEqual({ kind: "error" });
+});
+
+test("[ADM-07:web] sends the admin session with writes and reports a changed session", async () => {
+  const loaded = await loadAdminBilling();
+  if (loaded.kind !== "ready") throw new Error("expected ready");
+  expect(loaded.sessionId).toBe(ids.sessionId);
+  const prepared = prepareVoidInvoice({
+    invoiceId: ids.issuedInvoiceId,
+    reason: "Doublon",
+    expectedSessionId: ids.paymentId,
+  });
+  if (prepared.kind !== "ready") throw new Error("expected ready");
+  expect(await voidInvoice(prepared.attempt)).toEqual({ kind: "session-changed" });
 });

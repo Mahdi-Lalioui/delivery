@@ -1,5 +1,7 @@
 # Lane B request: promotions routes, list envelope and migration (M6-3, MER-19 / CUS-16)
 
+> **Status 2026-11-08:** delivered by lane A (`67ec76f`): list envelope `{ sessionId, promotions }`, session-bound writes, `promotion_code_taken`. Lane B client aligned. Still open: `/r/:merchantId` redirect.
+
 Requested 2026-11-08. `packages/contracts/src/promotions.ts` has the input/output shapes. Lane B's
 editor (`apps/web/src/retention/promotions-editor.tsx`) runs on MSW
 (`apps/web/test/mocks/promotions-handlers.ts`) until these land.

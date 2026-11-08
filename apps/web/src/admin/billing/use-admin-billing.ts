@@ -9,7 +9,7 @@ import {
   type AdminBillingResult,
 } from "./admin-billing-http";
 
-type Notice = "recorded" | "voided" | "stale" | "saveError" | "reasonError";
+type Notice = "recorded" | "voided" | "stale" | "sessionChanged" | "saveError" | "reasonError";
 export type AdminBillingState = {
   view: AdminBillingResult | { kind: "loading" };
   notice: Notice | undefined;
@@ -24,6 +24,7 @@ export type AdminBillingState = {
 function noticeFor(kind: string): Notice {
   if (kind === "recorded" || kind === "voided" || kind === "stale") return kind;
   if (kind === "invalid") return "reasonError";
+  if (kind === "session-changed") return "sessionChanged";
   return "saveError";
 }
 
@@ -81,7 +82,14 @@ export function useAdminBilling(): AdminBillingState {
       }
       const { key } = confirmKey.current;
       await run(async () => {
-        const result = await confirmTransferProof({ proof, invoice, reason, key });
+        const expectedSessionId = view.sessionId;
+        const result = await confirmTransferProof({
+          proof,
+          invoice,
+          reason,
+          key,
+          expectedSessionId,
+        });
         if (result.kind === "recorded") confirmKey.current = undefined;
         return result;
       });
@@ -91,14 +99,15 @@ export function useAdminBilling(): AdminBillingState {
 
   const voidOne = useCallback(
     async (invoiceId: string, reason: string) => {
-      const prepared = prepareVoidInvoice({ invoiceId, reason });
+      if (view.kind !== "ready") return;
+      const prepared = prepareVoidInvoice({ invoiceId, reason, expectedSessionId: view.sessionId });
       if (prepared.kind === "invalid") {
         setNotice("reasonError");
         return;
       }
       await run(() => voidInvoice(prepared.attempt));
     },
-    [run, setNotice],
+    [run, setNotice, view],
   );
 
   return { view, notice, noticeId, isSaving, refresh, confirmTransfer, voidInvoice: voidOne };

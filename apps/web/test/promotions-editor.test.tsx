@@ -30,7 +30,11 @@ function render(overrides: Partial<PromotionsState>, locale: Locale = "fr") {
   );
 }
 
-const ready = { kind: "ready" as const, promotions: promotionsMockState().promotions };
+const ready = {
+  kind: "ready" as const,
+  sessionId: "019d6abc-0000-7000-8000-000000000001",
+  promotions: promotionsMockState().promotions,
+};
 
 test("[MER-19] lists promotions as cards with code, type badge, uses and sales", () => {
   const html = render({ view: ready });
@@ -61,7 +65,7 @@ test("[MER-19] shows the code field only for code promotions, flags invalid fiel
   expect(html.match(/<input[^>]*name="code"[^>]*>/)?.[0]).toContain('aria-invalid="true"');
   expect(render({ view: ready }, "en")).not.toContain('name="code"');
   const { retentionPromotions } = getMessages("ar");
-  expect(render({ view: { kind: "ready", promotions: [] } }, "ar")).toContain(
+  expect(render({ view: { ...ready, promotions: [] } }, "ar")).toContain(
     retentionPromotions.emptyBody,
   );
   expect(render({}, "ar")).toContain('class="ui-skeleton"');

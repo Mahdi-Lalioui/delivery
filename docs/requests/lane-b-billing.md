@@ -1,5 +1,7 @@
 # Lane B request: billing migration and routes (M7-2)
 
+> **Status 2026-11-08:** billing migration and admin/merchant read + admin write routes delivered by lane A (`67ec76f`); lane B clients now send `X-Expected-Session-Id`. Still open on lane A: subscription activation and payment reactivation, scheduled invoicing, proof upload, PDF route, Chargily webhook.
+
 Updated 2026-11-08. The billing **contract is published** (`packages/contracts/src/billing.ts`,
 lane-a 9cbab96, cherry-picked unchanged into lane-b). This request now asks only for what is still
 missing. Lane B's admin billing screen (`apps/web/src/admin/billing/`) runs on MSW handlers built

@@ -10,7 +10,8 @@ import {
   type PromotionList,
 } from "./promotions-http";
 
-type Outcome = "saved" | "duplicate-code" | "sign-in" | "error" | { invalid: string };
+type Outcome =
+  "saved" | "duplicate-code" | "session-changed" | "sign-in" | "error" | { invalid: string };
 export type PromotionsState = {
   view: PromotionList | { kind: "loading" };
   draft: PromotionDraft;
@@ -93,6 +94,7 @@ export function usePromotions(merchantId: string): PromotionsState {
   );
 
   const save = useCallback(async () => {
+    if (view.kind !== "ready") return;
     const parsed = promotionDraftToInput(draft);
     if (parsed.kind === "invalid") {
       setOutcome({ invalid: parsed.field });
@@ -104,6 +106,7 @@ export function usePromotions(merchantId: string): PromotionsState {
     const { key } = attempt.current;
     setIsSaving(true);
     const result = await savePromotion({
+      expectedSessionId: view.sessionId,
       merchantId,
       promotionId: editingId,
       promotion: parsed.input,
@@ -116,7 +119,7 @@ export function usePromotions(merchantId: string): PromotionsState {
       setEditingId(result.promotion.promotionId);
       setGeneration((value) => value + 1);
     }
-  }, [draft, editingId, merchantId, setOutcome]);
+  }, [draft, editingId, merchantId, setOutcome, view]);
 
   return { view, draft, editingId, outcome, outcomeId, isSaving, change, edit, save };
 }

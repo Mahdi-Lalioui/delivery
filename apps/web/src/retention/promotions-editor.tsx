@@ -284,6 +284,7 @@ function outcomeMessage(outcome: NonNullable<PromotionsState["outcome"]>) {
     {
       saved: "saved",
       "duplicate-code": "duplicateCode",
+      "session-changed": "sessionChanged",
       "sign-in": "signInRequired",
       error: "saveError",
     } as const

@@ -7,9 +7,10 @@ import {
   adminVoidInvoiceOutput,
   billingInvoiceListOutput,
 } from "@zaafran/contracts/billing";
+import { problemResponseSchema } from "@zaafran/contracts/health";
 
-// ADM-07 admin billing client. Shapes come from lane A's contract; the routes are requested in
-// docs/requests/lane-b-billing.md and mocked with MSW in apps/web/test/mocks until they land.
+// ADM-07 admin billing client on lane A's routes (docs/requests/lane-a-backend-batch.md). Writes are
+// bound to the admin session read with the lists (X-Expected-Session-Id).
 
 type Subscriptions = ReturnType<typeof adminBillingSubscriptionListOutput.parse>;
 type Invoices = ReturnType<typeof billingInvoiceListOutput.parse>;
@@ -20,14 +21,20 @@ export type AdminTransferProof = Proofs["transferProofs"][number];
 export type AdminBillingResult =
   | {
       kind: "ready";
+      sessionId: string;
       subscriptions: AdminSubscription[];
       invoices: AdminInvoice[];
       transferProofs: AdminTransferProof[];
     }
   | { kind: "sign-in" }
   | { kind: "error" };
-type WriteFailure = { kind: "sign-in" | "stale" | "invalid" | "error" };
-export type VoidAttempt = Readonly<{ invoiceId: string; reason: string; key: string }>;
+type WriteFailure = { kind: "sign-in" | "session-changed" | "stale" | "invalid" | "error" };
+export type VoidAttempt = Readonly<{
+  invoiceId: string;
+  reason: string;
+  key: string;
+  expectedSessionId: string;
+}>;
 
 const endpoint = "/v1/admin/billing";
 const requestOptions = {
@@ -57,45 +64,68 @@ export async function loadAdminBilling(signal?: AbortSignal): Promise<AdminBilli
       getJson("invoices", signal),
       getJson("transfer-proofs", signal),
     ]);
+    const subscriptionPage = adminBillingSubscriptionListOutput.parse(subscriptions);
+    const invoicePage = billingInvoiceListOutput.parse(invoices);
+    const proofPage = adminBillingTransferProofListOutput.parse(proofs);
+    const { sessionId } = subscriptionPage;
+    // All three lists must come from the same admin session, or a write could target a stale tab.
+    if (invoicePage.sessionId !== sessionId || proofPage.sessionId !== sessionId)
+      return { kind: "error" };
     return {
       kind: "ready",
-      subscriptions: adminBillingSubscriptionListOutput.parse(subscriptions).subscriptions,
-      invoices: billingInvoiceListOutput.parse(invoices).invoices,
-      transferProofs: adminBillingTransferProofListOutput.parse(proofs).transferProofs,
+      sessionId,
+      subscriptions: subscriptionPage.subscriptions,
+      invoices: invoicePage.invoices,
+      transferProofs: proofPage.transferProofs,
     };
   } catch (error) {
     return { kind: error instanceof AuthError ? "sign-in" : "error" };
   }
 }
 
-async function postJson(path: string, key: string, body: unknown): Promise<Response> {
-  return fetch(`${endpoint}/${path}`, {
+async function postJson(input: {
+  path: string;
+  key: string;
+  expectedSessionId: string;
+  body: unknown;
+}): Promise<Response> {
+  return fetch(`${endpoint}/${input.path}`, {
     ...requestOptions,
     method: "POST",
-    headers: { "Content-Type": "application/json", "Idempotency-Key": key },
-    body: JSON.stringify(body),
+    headers: {
+      "Content-Type": "application/json",
+      "Idempotency-Key": input.key,
+      "X-Expected-Session-Id": input.expectedSessionId,
+    },
+    body: JSON.stringify(input.body),
   });
 }
 
-function writeFailure(response: Response): WriteFailure {
+async function writeFailure(response: Response): Promise<WriteFailure> {
   if (response.status === 401 || response.status === 403) return { kind: "sign-in" };
-  if (response.status === 404 || response.status === 409) return { kind: "stale" };
   if (response.status === 400 || response.status === 422) return { kind: "invalid" };
-  return { kind: "error" };
+  if (response.status === 404) return { kind: "stale" };
+  if (response.status !== 409) return { kind: "error" };
+  const problem = problemResponseSchema.safeParse(await response.json().catch(() => undefined));
+  return {
+    kind: problem.success && problem.data.code === "session_changed" ? "session-changed" : "stale",
+  };
 }
 
 export function prepareVoidInvoice({
   invoiceId,
   reason,
+  expectedSessionId,
 }: {
   invoiceId: string;
   reason: string;
+  expectedSessionId: string;
 }): { kind: "ready"; attempt: VoidAttempt } | { kind: "invalid" } {
   const input = adminVoidInvoiceInput.safeParse({ reason });
   if (!input.success) return { kind: "invalid" };
   return {
     kind: "ready",
-    attempt: { invoiceId, reason: input.data.reason, key: crypto.randomUUID() },
+    attempt: { invoiceId, reason: input.data.reason, key: crypto.randomUUID(), expectedSessionId },
   };
 }
 
@@ -104,8 +134,8 @@ export async function voidInvoice(
 ): Promise<{ kind: "voided" } | WriteFailure> {
   try {
     const path = `invoices/${encodeURIComponent(attempt.invoiceId)}/void`;
-    const response = await postJson(path, attempt.key, { reason: attempt.reason });
-    if (!response.ok) return writeFailure(response);
+    const response = await postJson({ ...attempt, path, body: { reason: attempt.reason } });
+    if (!response.ok) return await writeFailure(response);
     const output = adminVoidInvoiceOutput.safeParse(await response.json());
     return output.success && output.data.invoiceId === attempt.invoiceId
       ? { kind: "voided" }
@@ -121,11 +151,13 @@ export async function confirmTransferProof({
   invoice,
   reason,
   key,
+  expectedSessionId,
 }: {
   proof: AdminTransferProof;
   invoice: AdminInvoice;
   reason: string;
   key: string;
+  expectedSessionId: string;
 }): Promise<{ kind: "recorded"; amountDzd: number } | WriteFailure> {
   if (proof.invoiceId !== invoice.invoiceId || invoice.status !== "issued")
     return { kind: "error" };
@@ -138,8 +170,8 @@ export async function confirmTransferProof({
   if (!input.success) return { kind: "invalid" };
   try {
     const path = `invoices/${encodeURIComponent(invoice.invoiceId)}/payments`;
-    const response = await postJson(path, key, input.data);
-    if (!response.ok) return writeFailure(response);
+    const response = await postJson({ path, key, expectedSessionId, body: input.data });
+    if (!response.ok) return await writeFailure(response);
     const output = adminRecordPaymentOutput.safeParse(await response.json());
     const isEcho =
       output.success &&

@@ -1,10 +1,15 @@
-import { merchantPromotionInput, merchantPromotionOutput } from "@zaafran/contracts/promotions";
+import {
+  merchantPromotionInput,
+  merchantPromotionListOutput,
+  merchantPromotionOutput,
+} from "@zaafran/contracts/promotions";
 import { http, HttpResponse } from "msw";
 
 export const promotionMockIds = {
   merchantId: "019d6abc-0000-7000-8000-000000000002",
   promotionId: "019d6abc-0000-7000-8000-000000000201",
   createdId: "019d6abc-0000-7000-8000-000000000202",
+  sessionId: "019d6abc-0000-7000-8000-000000000001",
 } as const;
 
 const ids = promotionMockIds;
@@ -34,11 +39,24 @@ export function promotionsHandlers(state = promotionsMockState()) {
         row.activation.code === code &&
         row.promotionId !== exceptId,
     );
+  const problem = (code: string) =>
+    HttpResponse.json(
+      {
+        type: `https://zaafran.invalid/problems/${code}`,
+        title: code,
+        status: 409,
+        code,
+        requestId: "mock",
+      },
+      { status: 409 },
+    );
   async function upsert(request: Request, promotionId: string) {
+    if (request.headers.get("x-expected-session-id") !== ids.sessionId)
+      return problem("session_changed");
     const input = merchantPromotionInput.safeParse(await request.json());
     if (!input.success) return HttpResponse.json({ code: "invalid_request" }, { status: 400 });
     if (input.data.activation.kind === "code" && isTaken(input.data.activation.code, promotionId)) {
-      return HttpResponse.json({ code: "promotion_code_taken" }, { status: 409 });
+      return problem("promotion_code_taken");
     }
     const existing = state.promotions.find((row) => row.promotionId === promotionId);
     const promotion = merchantPromotionOutput.parse({
@@ -56,7 +74,12 @@ export function promotionsHandlers(state = promotionsMockState()) {
   return [
     http.get(base, ({ params }) =>
       params.merchantId === ids.merchantId
-        ? HttpResponse.json(state.promotions)
+        ? HttpResponse.json(
+            merchantPromotionListOutput.parse({
+              sessionId: ids.sessionId,
+              promotions: state.promotions,
+            }),
+          )
         : new HttpResponse(null, { status: 404 }),
     ),
     http.post(base, ({ request }) => upsert(request, ids.createdId)),

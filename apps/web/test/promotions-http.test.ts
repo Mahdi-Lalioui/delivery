@@ -44,7 +44,12 @@ test("[MER-19] lists promotions with their stats", async () => {
 });
 
 test("[MER-19] creates and updates promotions", async () => {
-  const created = await savePromotion({ merchantId: ids.merchantId, promotion: fixed, key: "k1" });
+  const created = await savePromotion({
+    merchantId: ids.merchantId,
+    promotion: fixed,
+    key: "k1",
+    expectedSessionId: ids.sessionId,
+  });
   expect(created).toMatchObject({
     kind: "saved",
     promotion: { promotionId: ids.createdId, stats: { uses: 0 } },
@@ -54,6 +59,7 @@ test("[MER-19] creates and updates promotions", async () => {
     promotionId: ids.promotionId,
     promotion: { ...fixed, activation: { kind: "code", code: "IFTAR" } },
     key: "k2",
+    expectedSessionId: ids.sessionId,
   });
   expect(updated).toMatchObject({ kind: "saved", promotion: { stats: { uses: 42 } } });
   expect(state.promotions).toHaveLength(2);
@@ -62,8 +68,24 @@ test("[MER-19] creates and updates promotions", async () => {
 test("[MER-19] reports a code already used by another promotion", async () => {
   const duplicate = { ...fixed, activation: { kind: "code" as const, code: "IFTAR" } };
   expect(
-    await savePromotion({ merchantId: ids.merchantId, promotion: duplicate, key: "k3" }),
+    await savePromotion({
+      merchantId: ids.merchantId,
+      promotion: duplicate,
+      key: "k3",
+      expectedSessionId: ids.sessionId,
+    }),
   ).toEqual({
     kind: "duplicate-code",
   });
+});
+
+test("[MER-19] reports a changed session separately from a taken code", async () => {
+  expect(
+    await savePromotion({
+      merchantId: ids.merchantId,
+      promotion: fixed,
+      key: "k4",
+      expectedSessionId: ids.createdId,
+    }),
+  ).toEqual({ kind: "session-changed" });
 });

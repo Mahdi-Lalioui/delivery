@@ -704,7 +704,8 @@
     "kpiTransfers": "Transfers to check",
     "kpiOverdue": "Past due or suspended",
     "closeToast": "Dismiss",
-    "periodRange": "{start} – {end}"
+    "periodRange": "{start} – {end}",
+    "sessionChanged": "Your admin session changed. Reload the page before saving."
   },
   "merchantBilling": {
     "title": "Billing",
@@ -888,7 +889,8 @@
     "activeTitle": "Your promotions",
     "emptyBody": "Create a code or an automatic offer to bring customers back.",
     "closeToast": "Dismiss",
-    "exampleSaving": "−{amount}"
+    "exampleSaving": "−{amount}",
+    "sessionChanged": "Your session changed. Reload the page; your draft is kept."
   },
   "retentionScheduling": {
     "when": "When",
