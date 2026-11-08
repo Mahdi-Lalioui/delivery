@@ -18,6 +18,14 @@ import {
   registerDiscoverySearchRoutes,
   type DiscoverySearchServices,
 } from "./discovery-search-routes.js";
+import {
+  registerPublicRestaurantRoutes,
+  type PublicRestaurantServices,
+} from "./public-restaurant-routes.js";
+import {
+  registerPublicItemPhotoRoutes,
+  type PublicItemPhotoServices,
+} from "./public-item-photo-routes.js";
 import { registerHealth } from "./health.js";
 import {
   registerMerchantProfilePhotosRoutes,
@@ -74,6 +82,8 @@ interface ApiOptions {
   readonly discovery?: DiscoveryServices;
   readonly discoverySearch?: DiscoverySearchServices;
   readonly publicFeed?: PublicFeedServices;
+  readonly publicRestaurant?: PublicRestaurantServices;
+  readonly publicRestaurantPhotos?: PublicItemPhotoServices;
   readonly merchantProfilePhotos?: MerchantProfilePhotosServices;
   readonly merchantPromotions?: MerchantPromotionsServices;
   readonly menuModeration?: MenuModerationServices;
@@ -151,6 +161,8 @@ export function createApi(options: ApiOptions): FastifyInstance {
     registerDiscoveryRoutes(api, options.discovery);
     registerDiscoverySearchRoutes(api, options.discoverySearch);
     registerPublicFeedRoutes(api, options.publicFeed);
+    registerPublicRestaurantRoutes(api, options.publicRestaurant);
+    registerPublicItemPhotoRoutes(api, options.publicRestaurantPhotos);
     registerMerchantProfilePhotosRoutes(api, options.merchantProfilePhotos);
     registerMerchantPromotionsRoutes(api, options.merchantPromotions);
     registerAdminModerationRoutes(api, options.menuModeration);

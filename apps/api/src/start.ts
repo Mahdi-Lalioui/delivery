@@ -20,6 +20,7 @@ import { createMerchantRepository } from "@zaafran/db/merchant";
 import { createMerchantStaffRepository } from "@zaafran/db/merchant-staff";
 import { createServiceAreaRepository } from "@zaafran/db/service-area";
 import { createPublicFeedRepository } from "@zaafran/db/public-feed";
+import { createPublicRestaurantRepository } from "@zaafran/db/public-restaurant";
 import { createLocalMediaStore } from "@zaafran/media";
 import type { FastifyInstance, FastifyListenOptions } from "fastify";
 import { createApi } from "./app.js";
@@ -50,6 +51,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
   });
   const merchantHours = createMerchantHoursRepository(database);
   const platform = createPlatformRepository(database);
+  const publicRestaurant = createPublicRestaurantRepository(database);
   const mediaStore = createLocalMediaStore({ root: environment.MEDIA_STORAGE_ROOT });
   const api = createApi({
     checkReadiness: () => checkReadiness(database),
@@ -62,6 +64,8 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     discovery: createServiceAreaRepository(database),
     discoverySearch: createDiscoverySearchRepository(database),
     publicFeed: { repository: createPublicFeedRepository(database), store: mediaStore, now },
+    publicRestaurant: { repository: publicRestaurant, now },
+    publicRestaurantPhotos: { readPhoto: publicRestaurant.readPhoto, store: mediaStore },
     ramadan: {
       isRamadanEnabled: async () => (await platform.readPublicFlags()).flags.ramadan_mode === true,
       findCoordinates: (communeId) => readCommuneCoordinates(database, communeId),

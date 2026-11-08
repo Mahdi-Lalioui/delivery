@@ -454,6 +454,30 @@ const matrix: readonly MatrixRoute[] = [
   },
   { method: "GET", url: "/v1/flags", expected: 503 },
   { method: "GET", url: "/v1/feed", expected: 503 },
+  {
+    method: "GET",
+    url: "/v1/merchants/:merchantId/items/:itemId/photos/:mediaId/variants/:format/:width",
+    requestUrl: `/v1/merchants/${challengeId}/items/${challengeId}/photos/${challengeId}/variants/webp/640`,
+    expected: 503,
+  },
+  {
+    method: "GET",
+    url: "/v1/merchants/:slug",
+    requestUrl: "/v1/merchants/table-fixture",
+    expected: 503,
+  },
+  {
+    method: "GET",
+    url: "/v1/merchants/:slug/categories/:categoryId/items",
+    requestUrl: `/v1/merchants/table-fixture/categories/${challengeId}/items`,
+    expected: 503,
+  },
+  {
+    method: "GET",
+    url: "/v1/merchants/:slug/items/:itemId",
+    requestUrl: `/v1/merchants/table-fixture/items/${challengeId}?expectedRevision=0`,
+    expected: 503,
+  },
   { method: "GET", url: "/v1/search", requestUrl: "/v1/search?q=chawarma", expected: 503 },
   {
     method: "GET",
