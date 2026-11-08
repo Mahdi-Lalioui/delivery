@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 04:11 GMT — M2-9 closed-now read client and pure pause model (Claude, covering while Codex was out)
+
+- **Changed** — Added `readHoursPause` to `hours-http.ts`. It reads `GET /v1/merchants/:merchantId/hours/pause` through `merchantHoursPauseOutput`. Added `hours-pause.ts`: `pauseInstant(nowMs, minutes)` takes the clock as an argument. `isPausedAt` mirrors the M1 rule, so the override ends exactly at the stored instant. `reducePause` and `preparePause` resend the exact held command (same key, same body) only after an uncertain failure for the same target, and use a fresh key otherwise. `hours-flow.ts` gains `revision-advanced`. Because pause and weekly hours share the D-011 menu revision, a successful pause moves the hours editor to the newer revision. It keeps the draft and drops any retry key, so the next hours save does not conflict and never reuses a key with a different body. Stale or lower revisions are ignored.
+- **Evidence** — Tests came first: 1 new `[MER-15]` client case, 2 new flow cases and 7 pause cases. They failed on the missing function and module and on the unknown event, then 18/18 flow and pause cases and 18/18 client cases passed. `pnpm verify` exited 0: 1074 unit tests, 118 PostGIS integration tests, build, knip, depcruise, trace, and only the existing moderate advisory.
+- **Reviewer** — Self-reviewed against AGENTS.md §10. No P0/P1. The API `PUT /pause` returns `{ revision }`, which matches the client's write schema. Only the GET returns the instant.
+- **Next (exact)** — Add `components/hours-pause-control.tsx`. When open, it offers "Close for 30 min / 1 h / 2 h". When paused, it shows "Closed until HH:MM" (`formatAlgiersTime`) and "Reopen now". After an uncertain failure it shows "Try again", which resends `state.retry`, and it maps `pause-in-past`, conflict and session failures. Add the ar/fr/en messages. In `use-hours-editor.ts`, read with `readHoursPause` on load, pass `Date.now()` into `pauseInstant` only in the hook, take `expectedRevision` from the hours state, send with `setHoursPause`, and dispatch `revision-advanced` on success. Disable the control while hours are saving. Render it in `merchant-hours-screen.tsx` and extend the screen test. Then do the Ramadan fields and tabs, the journeys and the screenshot matrix.
+- **Needs Mahdi** — None.
+
 ### 2026-11-08 04:08 GMT — M2-9 hours page and routes (Claude, covering while Codex was out)
 
 - **Changed** — Added `use-hours-editor.ts`. It drives `reduceHours`, loads with `readHours` and aborts on unmount. It saves through `prepareHoursSave` with `crypto.randomUUID` and `replaceHours`, and refreshes the regular seven-day preview whenever the revision changes. Focus moves to the new range's opening input after add, to the day's Add button (new `hours-<weekday>-add` id) after remove, and to the first invalid day after a rejected draft. After a save it moves to Save, or to Reload on a revision or session conflict. Added `merchant-hours-screen.tsx` (load gates, weekly fields, mapped save outcomes, preview with a single heading in every state), `merchant-hours-page.tsx`, the `/[locale]/merchant/:merchantId/hours` and `/ar/merchant/:merchantId/hours` routes, the `SiteShell` subpath, token-only logical `merchant-hours.css`, and 19 new `merchantHours` messages in ar, fr and en.
@@ -567,5 +575,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress)
 - `node scripts/trace.ts --through m2` on 2026-11-08 at 03:32 GMT covered 32 of 37 IDs. Pending: ADM-04, MER-01, MER-12, MER-14, MER-23. M2-9 has its API, preview, pure web models and the weekly hours page. The closed-now control, Ramadan fields, journeys and screenshots remain.
-- Last green `pnpm verify`: 2026-11-08 04:07 GMT on Docker Desktop with 1064 unit and 118 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 12/12 at 02:22 GMT.
+- Last green `pnpm verify`: 2026-11-08 04:10 GMT on Docker Desktop with 1074 unit and 118 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 12/12 at 02:22 GMT.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

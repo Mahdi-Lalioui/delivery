@@ -30,7 +30,9 @@ export type HoursEvent =
   | { readonly kind: "draft-changed"; readonly draft: HoursDraft }
   | { readonly kind: "validation-failed"; readonly errors: readonly DayError[] }
   | { readonly kind: "save-started"; readonly idempotencyKey: string }
-  | { readonly kind: "save-finished"; readonly result: HoursWrite };
+  | { readonly kind: "save-finished"; readonly result: HoursWrite }
+  /** Another command on the shared menu revision guard (D-011) succeeded, e.g. "closed now". */
+  | { readonly kind: "revision-advanced"; readonly revision: number };
 
 export type HoursSaveAttempt =
   | { kind: "ready"; idempotencyKey: string; input: HoursInput & { expectedRevision: number } }
@@ -72,6 +74,12 @@ function editDraft(state: HoursState, draft: HoursDraft): HoursState {
   return { kind: "editing", sessionId, revision, draft, errors: [] };
 }
 
+function advanceRevision(state: HoursState, revision: number): HoursState {
+  if (state.kind !== "editing" || revision <= state.revision) return state;
+  const { sessionId, draft, errors } = state;
+  return { kind: "editing", sessionId, revision, draft, errors };
+}
+
 function rejectDraft(state: HoursState, errors: readonly DayError[]): HoursState {
   return state.kind === "editing" ? { ...state, errors } : state;
 }
@@ -90,6 +98,8 @@ export function reduceHours(state: HoursState, event: HoursEvent): HoursState {
       return startSave(state, event.idempotencyKey);
     case "save-finished":
       return finishSave(state, event.result);
+    case "revision-advanced":
+      return advanceRevision(state, event.revision);
   }
 }
 

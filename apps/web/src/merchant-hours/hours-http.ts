@@ -4,6 +4,7 @@ import {
   type merchantHoursInput,
   merchantHoursOutput,
   type merchantHoursPauseInput,
+  merchantHoursPauseOutput,
   merchantHoursPreviewOutput,
   merchantHoursWriteOutput,
   type merchantRamadanCommandInput,
@@ -16,6 +17,7 @@ export type RamadanInput = ReturnType<typeof merchantRamadanInput.parse>;
 export type StoredHours = ReturnType<typeof merchantHoursOutput.parse>;
 export type StoredRamadan = ReturnType<typeof merchantRamadanOutput.parse>;
 export type HoursPreview = ReturnType<typeof merchantHoursPreviewOutput.parse>;
+export type StoredPause = ReturnType<typeof merchantHoursPauseOutput.parse>;
 type Revision = ReturnType<typeof merchantHoursWriteOutput.parse>;
 type PreviewSchedule = HoursPreview["schedule"];
 
@@ -123,6 +125,10 @@ export function readHours({ merchantId, signal }: ReadRequest): Promise<Read<Sto
 
 export function readRamadan({ merchantId, signal }: ReadRequest): Promise<Read<StoredRamadan>> {
   return read(endpoint(merchantId) + "/ramadan", signal, merchantRamadanOutput);
+}
+
+export function readHoursPause({ merchantId, signal }: ReadRequest): Promise<Read<StoredPause>> {
+  return read(endpoint(merchantId) + "/pause", signal, merchantHoursPauseOutput);
 }
 
 export async function readHoursPreview({

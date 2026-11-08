@@ -1,6 +1,7 @@
 import { afterEach, expect, test, vi } from "vitest";
 import {
   readHours,
+  readHoursPause,
   readHoursPreview,
   readRamadan,
   replaceHours,
@@ -113,6 +114,23 @@ test("[MER-15] sets the closed-now override and maps a past instant", async () =
   await expect(
     setHoursPause({ merchantId, sessionId, idempotencyKey: "key-2", input }),
   ).resolves.toEqual({ kind: "pause-in-past" });
+});
+
+test("[MER-15] reads the closed-now override and rejects a malformed instant", async () => {
+  const paused = { sessionId, revision: 6, pausedUntil: "2027-02-08T20:00:00.000Z" };
+  const fetch = vi
+    .fn()
+    .mockResolvedValueOnce(Response.json(paused))
+    .mockResolvedValueOnce(Response.json({ ...paused, pausedUntil: "tonight" }))
+    .mockResolvedValueOnce(new Response(null, { status: 404 }));
+  vi.stubGlobal("fetch", fetch);
+  await expect(readHoursPause({ merchantId, signal })).resolves.toEqual({
+    kind: "ready",
+    data: paused,
+  });
+  expect(fetch).toHaveBeenCalledWith(endpoint + "/pause", { signal, ...privateRequest });
+  await expect(readHoursPause({ merchantId, signal })).resolves.toEqual({ kind: "error" });
+  await expect(readHoursPause({ merchantId, signal })).resolves.toEqual({ kind: "forbidden" });
 });
 
 test("[MER-16] reads the seven-day preview for the requested schedule", async () => {

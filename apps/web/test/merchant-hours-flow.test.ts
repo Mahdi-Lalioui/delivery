@@ -112,3 +112,35 @@ test("[MER-15] ignores events that do not fit the current state", () => {
   );
   expect(prepareHoursSave(inFlight, nextKey)).toEqual({ kind: "unavailable" });
 });
+
+test("[MER-15] adopts a newer revision from the closed-now command without losing the draft", () => {
+  if (loaded.kind !== "editing") throw new Error("Expected editing");
+  const draft = updateHoursRange(loaded.draft, {
+    weekday: 1,
+    index: 0,
+    field: "opens",
+    value: "17:00",
+  });
+  const edited = reduceHours(loaded, { kind: "draft-changed", draft });
+  const advanced = reduceHours(edited, { kind: "revision-advanced", revision: 4 });
+  expect(advanced).toEqual({ kind: "editing", sessionId, revision: 4, draft, errors: [] });
+  expect(reduceHours(advanced, { kind: "revision-advanced", revision: 2 })).toBe(advanced);
+  expect(reduceHours(initialHoursState, { kind: "revision-advanced", revision: 9 })).toBe(
+    initialHoursState,
+  );
+});
+
+test("[MER-15] drops a held retry key once the revision advances", () => {
+  const uncertain = reduceHours(saving(loaded), {
+    kind: "save-finished",
+    result: { kind: "error", shouldReuseKey: true },
+  });
+  expect(uncertain).toMatchObject({ retryKey: "key-1" });
+  const advanced = reduceHours(uncertain, { kind: "revision-advanced", revision: 4 });
+  expect(advanced).not.toHaveProperty("retryKey");
+  expect(advanced).not.toHaveProperty("failure");
+  expect(prepareHoursSave(advanced, () => "key-7")).toMatchObject({
+    idempotencyKey: "key-7",
+    input: { expectedRevision: 4 },
+  });
+});
