@@ -80,7 +80,7 @@ async function readHours(sql: TransactionSql, scope: MenuScope) {
 async function replaceHours(
   sql: TransactionSql,
   { merchantId, input }: MerchantHoursReplace,
-): Promise<CommandChange<object>> {
+): Promise<CommandChange<object, never>> {
   await sql`DELETE FROM public.merchant_hours WHERE merchant_id = ${merchantId}`;
   await sql`DELETE FROM public.merchant_special_dates WHERE merchant_id = ${merchantId}`;
   const weekly = input.weekly.flatMap(({ weekday, ranges }) =>

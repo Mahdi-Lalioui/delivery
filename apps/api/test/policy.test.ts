@@ -333,6 +333,23 @@ const matrix: readonly MatrixRoute[] = [
     payload: { expectedRevision: 0 },
     expected: menuRoles,
   },
+  {
+    method: "GET",
+    url: "/v1/merchants/:merchantId/hours",
+    requestUrl: "/v1/merchants/" + challengeId + "/hours",
+    expected: menuRoles,
+  },
+  {
+    method: "PUT",
+    url: "/v1/merchants/:merchantId/hours",
+    requestUrl: "/v1/merchants/" + challengeId + "/hours",
+    payload: {
+      weekly: Array.from({ length: 7 }, (_, weekday) => ({ weekday, ranges: [] })),
+      specialDates: [],
+      expectedRevision: 0,
+    },
+    expected: menuRoles,
+  },
   { method: "GET", url: "/v1/admin/merchant-applications", expected: adminRole },
   {
     method: "POST",

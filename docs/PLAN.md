@@ -97,7 +97,8 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
 - [ ] M2-9 Hours and Ramadan (MER-15, MER-16). Persist weekly ranges, dated exceptions, Ramadan offsets and location. Render seven-day previews through the M1 rules and exercise overnight and Ramadan edits in Arabic and French.
   - [x] Define the weekly ranges and special-dates input contract (overnight ranges, no same-day overlap, bounded sizes).
   - [x] Persist weekly ranges and special dates with an owner/manager-scoped, idempotent replace command on the menu revision guard (D-011).
-  - [ ] Add the closed-now override, the authenticated hours read/replace API routes, the authorization matrix rows and the contract tests.
+  - [x] Add the authenticated `GET`/`PUT /v1/merchants/:merchantId/hours` routes with the command and read contracts, authorization-matrix rows and OpenAPI.
+  - [ ] Add the "closed now" override (column, decision, owner/manager command and route).
   - [x] Define the Ramadan input contract (Maghrib-relative or clock endpoints, suhoor window, method and ± minutes).
   - [ ] Persist the Ramadan schedule with the same owner-scoped command as weekly hours.
   - [ ] Render the seven-day preview through the M1 rules and build the Arabic/French hours editor with the overnight and Ramadan journeys.
