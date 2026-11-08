@@ -2,7 +2,12 @@ import type { TransactionSql } from "postgres";
 import type { DatabaseConnection } from "./database.js";
 import { lockReadyPhotos } from "./media-access.js";
 import { lockMerchantAdmin } from "./merchant-access.js";
-import { getOnboarding, listCommunes, listPendingApplications } from "./merchant-queries.js";
+import {
+  getOnboarding,
+  listCommunes,
+  listPendingApplications,
+  readApplicationNotice,
+} from "./merchant-queries.js";
 import {
   lockMerchantCommand,
   recordMerchantCommand,
@@ -205,6 +210,8 @@ export function createMerchantRepository({ sql }: DatabaseConnection) {
     listCommunes: (page: Parameters<typeof listCommunes>[1]) => listCommunes(sql, page),
     listPendingApplications: (page: Parameters<typeof listPendingApplications>[1]) =>
       sql.begin((tx) => listPendingApplications(tx, page)),
+    readApplicationNotice: (adminUserId: string) =>
+      sql.begin((tx) => readApplicationNotice(tx, adminUserId)),
     submitApplication: (request: SubmitApplication) =>
       sql.begin((tx) => submitApplication(tx, request)),
     reviewApplication: (request: ReviewApplication) =>

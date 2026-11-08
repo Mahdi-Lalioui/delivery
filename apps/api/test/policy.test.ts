@@ -440,6 +440,7 @@ const matrix: readonly MatrixRoute[] = [
     expected: menuRoles,
   },
   { method: "GET", url: "/v1/admin/merchant-applications", expected: adminRole },
+  { method: "GET", url: "/v1/admin/merchant-applications/notice", expected: adminRole },
   {
     method: "POST",
     url: "/v1/admin/merchant-applications/:merchantId/review",

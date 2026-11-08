@@ -1,4 +1,5 @@
 import {
+  adminMerchantNoticeOutput,
   adminMerchantReviewInput,
   adminMerchantReviewOutput,
   adminReviewQueueOutput,
@@ -195,6 +196,25 @@ function registerAdminQueue(api: FastifyInstance, services: MerchantServices | u
   );
 }
 
+function registerAdminNotice(api: FastifyInstance, services: MerchantServices | undefined): void {
+  api
+    .withTypeProvider<ZodTypeProvider>()
+    .get(
+      "/v1/admin/merchant-applications/notice",
+      { config: adminConfig, schema: { response: { 200: adminMerchantNoticeOutput, ...errors } } },
+      async (request, reply) => {
+        const actor = getRequestActor(request);
+        if (!actor) return sendProblem(reply, 401);
+        if (!services) return sendProblem(reply, 503);
+        reply.header("cache-control", "no-store");
+        const notice = await services.repository.readApplicationNotice(actor.accountId);
+        return notice
+          ? reply.send({ ...notice, sessionId: actor.sessionId })
+          : merchantProblem(reply, "forbidden");
+      },
+    );
+}
+
 function registerAdminReview(api: FastifyInstance, services: MerchantServices | undefined): void {
   api.withTypeProvider<ZodTypeProvider>().post(
     "/v1/admin/merchant-applications/:merchantId/review",
@@ -240,5 +260,6 @@ export function registerMerchantRoutes(
   registerMerchantReads(api, services);
   registerOnboarding(api, services);
   registerAdminQueue(api, services);
+  registerAdminNotice(api, services);
   registerAdminReview(api, services);
 }

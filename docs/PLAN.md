@@ -93,7 +93,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
 - [ ] M2-3 Signup and approval (MER-01, ADM-03 first slice).
   - [x] Verify the commune, pin and phone, create the pending merchant and owner membership atomically, enqueue the admin notice, and prove authorized approval and rejection in the admin queue.
   - [x] Define the session-bound pending notice read contract without changing the existing admin queue.
-  - [ ] Serve the notice from the signup transaction’s durable notice row. Prove exact replay, admin scope and retirement after review.
+  - [x] Serve the notice from the signup transaction’s durable notice row. Prove exact replay, admin scope and retirement after review.
   - [ ] Lane B displays the localized notice in the open admin console and proves arrival without a page reload.
 - [x] M2-4 Checklist (MER-02 first slice). Show profile, hours and five-item menu progress after approval. Prove that incomplete zone and test-order steps keep Go live unavailable until their later milestone flows can provide real evidence.
 - [x] M2-5 Menu builder (MER-09 first slice, MER-10). Create, duplicate, archive, reorder by pointer and keyboard, edit bilingual items and DZD prices, and reuse option groups. Show the active restaurant name. Prove focus restoration, integer prices, ordering and cross-tenant rejection.

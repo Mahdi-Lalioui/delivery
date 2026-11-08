@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { adminMerchantNoticeOutput } from "@zaafran/contracts/admin";
 import { problemResponseSchema } from "@zaafran/contracts/health";
 import { merchantOnboardingOutput } from "@zaafran/contracts/merchant";
 import type { createMerchantRepository } from "@zaafran/db/merchant";
@@ -20,6 +21,7 @@ const customer = { role: "customer", accountId, sessionId } as const;
 const admin = { role: "admin", accountId: adminUserId, sessionId } as const;
 const applicationsPath = "/v1/merchant-applications";
 const queuePath = "/v1/admin/merchant-applications";
+const noticePath = `${queuePath}/notice`;
 const reviewPath = `${queuePath}/${merchantId}/review`;
 const membershipsPath = "/v1/me/merchants";
 const onboardingPath = `/v1/merchants/${merchantId}/onboarding`;
@@ -66,6 +68,7 @@ function setup(actor?: Actor) {
   const repository = {
     listCommunes: vi.fn<MerchantRepository["listCommunes"]>(),
     listPendingApplications: vi.fn<MerchantRepository["listPendingApplications"]>(),
+    readApplicationNotice: vi.fn<MerchantRepository["readApplicationNotice"]>(),
     submitApplication: vi.fn<MerchantRepository["submitApplication"]>(),
     reviewApplication: vi.fn<MerchantRepository["reviewApplication"]>(),
     listMemberships: vi.fn<MerchantRepository["listMemberships"]>(),
@@ -82,6 +85,35 @@ function setup(actor?: Actor) {
   onTestFinished(() => api.close());
   return { api, repository, resolveActor };
 }
+
+test("[MER-01:notice] returns the authenticated admin's uncached pending notice", async () => {
+  const { api, repository } = setup(admin);
+  const notice = { pendingCount: 2, latestMerchantId: merchantId };
+  repository.readApplicationNotice.mockResolvedValue(notice);
+  const response = await api.inject(noticePath);
+  expect(response.statusCode).toBe(200);
+  expect(response.headers["cache-control"]).toBe("no-store");
+  expect(adminMerchantNoticeOutput.parse(response.json())).toEqual({ ...notice, sessionId });
+  expect(repository.readApplicationNotice).toHaveBeenCalledExactlyOnceWith(adminUserId);
+});
+
+test.each([
+  [undefined, 401, "unauthenticated"],
+  [customer, 403, "forbidden"],
+] as const)(
+  "[MER-01:notice] denies non-admin actor %s before querying notices",
+  async (actor, status, code) => {
+    const { api, repository } = setup(actor);
+    expectProblem(await api.inject(noticePath), status, code);
+    expect(repository.readApplicationNotice).not.toHaveBeenCalled();
+  },
+);
+
+test("[MER-01:notice] denies an admin whose repository authorization has been revoked", async () => {
+  const { api, repository } = setup(admin);
+  repository.readApplicationNotice.mockResolvedValue(undefined);
+  expectProblem(await api.inject(noticePath), 403, "forbidden");
+});
 
 test("[MER-01:http] the public commune list parses a bounded numeric page request", async () => {
   const { api, repository, resolveActor } = setup();

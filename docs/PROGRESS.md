@@ -13,6 +13,12 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 15:29 GMT — M2-3 durable admin notice read
+
+- **Effort and evidence** — Ultra. The admin-only endpoint reads pending signup notices and retires them after approval or rejection. `pnpm verify` passed 1,466 unit and 176 PostGIS tests. All 18 authenticated production browser journeys passed, including the notice and applicant denial.
+- **Review** — Reviewer and security auditor found no P0/P1 in replay, count consistency, caching or admin scope. [Lane B handoff](requests/lane-a-merchant-notice.md) records the remaining in-app browser proof.
+- **Next** — M2-10 moderated customer preview for the merchant builder.
+
 ### 2026-11-08 15:21 GMT — M2-8 deterministic ZIP checksum regression
 
 - **Effort and evidence** — Ultra. A fixed ZIP timestamp reproduced the wrong UTF-8 offset. A binary offset now changes valid XML whitespace, with a regenerated-checksum control. All 15 file tests passed, and review independently reproduced `Invalid CRC32` for the intended mutation.

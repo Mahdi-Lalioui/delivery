@@ -588,6 +588,77 @@ test("[ADM-03:db] paginates the review queue by time and ID for a current admin"
   expect(next?.applications.map(({ merchantId }) => merchantId)).toEqual([newest[1]]);
 });
 
+test("[MER-01:db] admin notices follow durable pending applications across signup, replay and review", async () => {
+  const owner = await account(1_500);
+  const admin = await administrator(1_501);
+  const repo = repository();
+  const baseline = await repo.readApplicationNotice(admin.id);
+  if (!baseline) throw new Error("Expected the existing admin notice summary.");
+
+  const firstAt = new Date(now.getTime() + 120_000);
+  const first = { ...submission(1_500, owner.id), now: firstAt };
+  const firstId = await createApplication(first);
+  const firstNotice = { pendingCount: baseline.pendingCount + 1, latestMerchantId: firstId };
+  expect(await repo.readApplicationNotice(admin.id)).toEqual(firstNotice);
+  expect(await repo.submitApplication(first)).toMatchObject({
+    kind: "replayed",
+    merchantId: firstId,
+  });
+  expect(await repo.readApplicationNotice(admin.id)).toEqual(firstNotice);
+
+  const secondAt = new Date(now.getTime() + 180_000);
+  const secondId = await createApplication({ ...submission(1_501, owner.id), now: secondAt });
+  const { sql } = database.get();
+  const withoutNotice = fixtureId(1_502);
+  await sql`
+    INSERT INTO merchants (id, slug, restaurant_name, owner_name, phone_e164,
+      commune_id, location, cuisines, status, created_at)
+    SELECT ${withoutNotice}, 'fixture-without-notice', restaurant_name, owner_name, phone_e164,
+      commune_id, location, cuisines, status, created_at + interval '1 second'
+    FROM merchants WHERE id = ${secondId}
+  `;
+  expect(await repo.readApplicationNotice(admin.id)).toEqual({
+    pendingCount: baseline.pendingCount + 2,
+    latestMerchantId: secondId,
+  });
+
+  const rejectSecond = review(1_501, {
+    adminUserId: admin.id,
+    merchantId: secondId,
+    decision: "reject",
+  });
+  const approveFirst = review(1_500, {
+    adminUserId: admin.id,
+    merchantId: firstId,
+    decision: "approve",
+  });
+  expect(await repo.reviewApplication({ ...rejectSecond, now: secondAt })).toMatchObject({
+    kind: "reviewed",
+  });
+  expect(await repo.readApplicationNotice(admin.id)).toEqual(firstNotice);
+  expect(await repo.reviewApplication({ ...approveFirst, now: firstAt })).toMatchObject({
+    kind: "reviewed",
+  });
+  expect(await repo.readApplicationNotice(admin.id)).toEqual(baseline);
+  expect(
+    await sql`SELECT FROM merchant_review_notices WHERE merchant_id IN (${firstId}, ${secondId})`,
+  ).toHaveLength(2);
+});
+
+test("[MER-01:db] notice summaries require a current unblocked admin enrollment", async () => {
+  const owner = await account(1_510);
+  const blocked = await administrator(1_511);
+  const deleted = await administrator(1_512);
+  const { sql } = database.get();
+  await sql`UPDATE users SET blocked_at = ${now.toISOString()} WHERE id = ${blocked.id}`;
+  await sql`UPDATE users SET deleted_at = ${now.toISOString()} WHERE id = ${deleted.id}`;
+
+  const repo = repository();
+  for (const adminUserId of [owner.id, blocked.id, deleted.id]) {
+    await expect(repo.readApplicationNotice(adminUserId)).resolves.toBeUndefined();
+  }
+});
+
 test("[MER-01:db] UUID spelling does not split the application replay lock", async () => {
   const owner = await account(1_400);
   const request = submission(1_400, owner.id);

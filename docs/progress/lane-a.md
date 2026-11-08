@@ -30,3 +30,6 @@
 - 2026-11-08 · Ultra · Fixed the M2-8 ZIP CRC fixture using a deterministic timestamp, byte offset and valid-XML control. All 15 file tests passed. Review confirmed truncation and overlap checks are unchanged.
 
 - 2026-11-08 · Ultra · Published the MER-01 in-app notice response contract in `@zaafran/contracts/admin`. The focused test failed before the schema and all eight admin contract tests passed afterward. D-021 records delivery scope and Lane B UI ownership.
+
+- 2026-11-08 · Ultra · MER-01 notice API passed `pnpm verify` with 1,466 unit and 176 PostGIS tests. Production signup and review proved pending notice, retirement and applicant denial. [Lane B handoff](../requests/lane-a-merchant-notice.md) covers the visible notice.
+- 2026-11-08 · High · Next implement the authenticated, read-only merchant menu preview. Filter archived, held and rejected items in the card, cursor and detail queries. Keep publication and anonymous customer pages in M3.

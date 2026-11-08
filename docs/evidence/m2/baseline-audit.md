@@ -17,7 +17,7 @@ The follow-up fixes re-screen approved source text when duplicating an item. The
 
 ## M2 gate work still open
 
-- [ ] **MER-01** The passing signup-to-approved browser journey now covers an application photo. Prove admin notice delivery before marking the bare ID covered. The review notice still needs a consumer.
+- [ ] **MER-01** The passing signup-to-approved browser journey now covers an application photo. The authenticated notice API reads and retires the durable record. Lane B still needs to prove the visible notice in an already-open admin console.
 - [x] **MER-12** Lane A added the bounded CSV/XLSX import screen, template and error report. The production browser journey starts with an empty menu and proves retry after a committed apply, refresh failure, and duplicate-free reimport.
 - [ ] **MER-14** The media worker, persisted ready variants, item crop workflow and attachment now have passing production browser evidence. Complete the cover and logo workflow and the design matrix before closing the bare ID.
 - [ ] **M2-2** Close the umbrella schema task. Tenant constraints and mixed-role tests exist. Settings and flags and the full media lifecycle are still open.

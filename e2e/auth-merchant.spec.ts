@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import type { AuthHarness } from "../apps/api/tools/e2e-auth-types.ts";
 import {
+  adminMerchantNoticeOutput,
   adminMerchantReviewOutput,
   adminReviewQueueOutput,
 } from "../packages/contracts/src/admin.ts";
@@ -23,6 +24,7 @@ const ownerName = "صاحب المطعم التجريبي";
 const reason = "Commune et identité vérifiées pour cette demande fictive.";
 const applicationEndpoint = "/v1/merchant-applications";
 const queueEndpoint = "/v1/admin/merchant-applications";
+const noticeEndpoint = queueEndpoint + "/notice";
 const membershipsEndpoint = "/v1/me/merchants";
 
 function waitForPost(page: Page, path: string) {
@@ -178,6 +180,15 @@ async function expectPhoneToFitAtDoubleText(page: Page, phone: string) {
   }
 }
 
+async function expectApplicationNotice(page: Page, origin: string, merchantId: string | null) {
+  const response = await page.request.get(origin + noticeEndpoint);
+  expect(response.status()).toBe(200);
+  expect(adminMerchantNoticeOutput.parse(await response.json())).toMatchObject({
+    pendingCount: merchantId === null ? 0 : 1,
+    latestMerchantId: merchantId,
+  });
+}
+
 async function approveApplication(page: Page, merchantId: string, communeName: string) {
   const { row, details } = await prepareReview(page, communeName);
   await expectPhoneToFitAtDoubleText(page, "0550 00 02 01");
@@ -238,7 +249,9 @@ test("[MER-01:browser] [ADM-03:browser] submits and reviews an Algiers merchant 
         await test.step("A separate French administrator approves the application", async () => {
           const adminPage = await adminContext.newPage();
           await enterAdminQueue(adminPage, auth);
+          await expectApplicationNotice(adminPage, auth.origin, merchantId);
           await approveApplication(adminPage, merchantId, communeName);
+          await expectApplicationNotice(adminPage, auth.origin, null);
           await expect(adminPage.locator('a[hreflang="ar-DZ"]')).toHaveCount(0);
         });
         await test.step("The applicant sees approval but cannot read the admin queue", async () => {
@@ -247,6 +260,7 @@ test("[MER-01:browser] [ADM-03:browser] submits and reviews an Algiers merchant 
           const denied = await page.request.get(auth.origin + queueEndpoint);
           expect(denied.status()).toBe(403);
           expect(problemResponseSchema.parse(await denied.json()).code).toBe("forbidden");
+          expect((await page.request.get(auth.origin + noticeEndpoint)).status()).toBe(403);
         });
       } finally {
         await adminContext.close();
