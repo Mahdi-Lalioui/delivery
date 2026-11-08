@@ -96,7 +96,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
 - [ ] M2-8 CSV/XLSX import (MER-12). Publish the template, bound parsing, report row and field errors, and use a merchant-scoped external key for atomic idempotent application after preview.
   - [x] Define the shared template columns, bounded row input, validation report and apply summary.
   - [x] Validate raw cells and sign the validated preview context. Cover field errors, duplicate keys and exact prices.
-  - [ ] Persist external keys and implement revision-bound preview and atomic apply with prohibited-goods screening.
+  - [x] Persist external keys and implement revision-bound preview and atomic apply with prohibited-goods screening.
   - [ ] Connect bounded CSV/XLSX parsing, template download and the localized import journey.
 - [x] M2-9 Hours and Ramadan (MER-15, MER-16). Persist weekly ranges, dated exceptions, Ramadan offsets and location. Render seven-day previews through the M1 rules and exercise overnight and Ramadan edits in Arabic and French.
   - [x] Define the weekly ranges and special-dates input contract (overnight ranges, no same-day overlap, bounded sizes).

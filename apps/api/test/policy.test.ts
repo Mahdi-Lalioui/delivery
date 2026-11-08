@@ -149,6 +149,21 @@ const itemPayload = {
   optionGroupIds: [],
 };
 
+const menuImportPath = "/v1/merchants/:merchantId/menu/import";
+const menuImportRequest = "/v1/merchants/" + challengeId + "/menu/import";
+const importPayload = {
+  expectedRevision: 0,
+  rows: [
+    {
+      external_key: "plate-001",
+      category_fr: "Plats",
+      name_fr: "Plat fictif",
+      description_fr: "Description fictive",
+      price_dzd: "450",
+    },
+  ],
+};
+
 const menuPricePath = "/v1/merchants/:merchantId/menu/prices";
 const menuPriceRequest = "/v1/merchants/" + challengeId + "/menu/prices";
 const pricePreviewPayload = {
@@ -293,6 +308,20 @@ const matrix: readonly MatrixRoute[] = [
     requestUrl: menuItemRequest + "/" + challengeId + "/availability",
     payload: { ...itemRevision, availability: "indefinite" },
     expected: { ...menuRoles, merchant_staff: 503 },
+  },
+  {
+    method: "POST",
+    url: menuImportPath + "/preview",
+    requestUrl: menuImportRequest + "/preview",
+    payload: importPayload,
+    expected: menuRoles,
+  },
+  {
+    method: "POST",
+    url: menuImportPath + "/apply",
+    requestUrl: menuImportRequest + "/apply",
+    payload: { ...importPayload, previewToken: "A".repeat(43) },
+    expected: menuRoles,
   },
   { method: "GET", url: menuGroupPath, requestUrl: menuGroupRequest, expected: menuRoles },
   {

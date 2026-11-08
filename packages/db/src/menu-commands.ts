@@ -1,4 +1,5 @@
 import type { TransactionSql } from "postgres";
+import type { MenuImportError } from "./menu-import-types.js";
 import { lockEditableMenu, type MenuScope } from "./menu-access.js";
 
 type Operation =
@@ -16,7 +17,8 @@ type Operation =
   | "bulk_price_undo"
   | "hours_replace"
   | "ramadan_replace"
-  | "hours_pause";
+  | "hours_pause"
+  | "menu_import";
 
 export interface CommandRequest<
   Input extends { readonly expectedRevision: number },
@@ -35,7 +37,8 @@ type WriteFailure =
   | "undo_window_expired"
   | "price_changed_since_apply"
   | "price_change_already_undone"
-  | "pause_not_in_future";
+  | "pause_not_in_future"
+  | "import_conflict";
 type CommandFailure = "not_found" | "idempotency_conflict" | "revision_conflict";
 
 export type CommandChange<Value, Failure extends WriteFailure = CategoryWriteFailure> =
@@ -45,6 +48,11 @@ type CommandResult<Value, Failure extends WriteFailure> =
   | ({ readonly kind: "applied"; readonly revision: number } & Value)
   | ({ readonly kind: "replayed"; readonly revision: number } & Value)
   | { readonly kind: CommandFailure | Failure };
+
+type ImportConflict = {
+  readonly kind: "import_conflict";
+  readonly errors: readonly MenuImportError[];
+};
 
 interface CommandReceipt<Value> {
   readonly matches: boolean;
@@ -93,6 +101,19 @@ async function recordChange(
   return menu.revision;
 }
 
+export function runMenuCommand<Value extends object>(
+  sql: TransactionSql,
+  request: CommandRequest<{ readonly expectedRevision: number }>,
+  command: {
+    readonly operation: "menu_import";
+    readonly apply: () => Promise<CommandChange<Value, never> | ImportConflict>;
+  },
+): Promise<CommandResult<Value, never> | ImportConflict>;
+export function runMenuCommand<Value extends object, Failure extends WriteFailure>(
+  sql: TransactionSql,
+  request: CommandRequest<{ readonly expectedRevision: number }>,
+  command: Command<Value, Failure>,
+): Promise<CommandResult<Value, Failure>>;
 export async function runMenuCommand<Value extends object, Failure extends WriteFailure>(
   sql: TransactionSql,
   request: CommandRequest<{ readonly expectedRevision: number }>,

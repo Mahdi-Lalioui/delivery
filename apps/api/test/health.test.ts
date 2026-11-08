@@ -166,6 +166,8 @@ test("[M0-6] the generated OpenAPI document describes the readiness problem resp
       "/v1/merchants/{merchantId}/menu/categories",
       "/v1/merchants/{merchantId}/menu/categories/order",
       "/v1/merchants/{merchantId}/menu/categories/{categoryId}",
+      "/v1/merchants/{merchantId}/menu/import/apply",
+      "/v1/merchants/{merchantId}/menu/import/preview",
       "/v1/merchants/{merchantId}/menu/items",
       "/v1/merchants/{merchantId}/menu/items/{itemId}",
       "/v1/merchants/{merchantId}/menu/items/{itemId}/archive",

@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 10:30 GMT — M2-8 atomic menu import repository and API
+
+- **Changed** — Added merchant-scoped external item keys, deterministic category matching, and authenticated preview/apply routes. Apply verifies the preview token and commits menu changes and the replay receipt together. It preserves fields outside the template and retains moderation holds.
+- **Evidence** — Ten new PostGIS repository cases and three production-wiring API journeys passed. `pnpm verify` exited 0 with 1,246 unit and 155 integration tests.
+- **Reviewer** — No P0/P1. Checked stale and altered previews, cross-session receipt fingerprints, archived keys, ambiguous categories, concurrent replay and rollback.
+- **Next** — Bounded CSV/XLSX parsing and the localized template, validation report and import screen.
+- **Needs Mahdi** — None.
+
 ### 2026-11-08 10:25 GMT — M2-8 import conflict report contract
 
 - **Changed** — Added stable report reasons for archived external keys, ambiguous categories and the category limit.

@@ -55,6 +55,10 @@
     "./migrate": {
       "types": "./src/migrate.ts",
       "default": "./dist/migrate.js"
+    },
+    "./menu-import": {
+      "types": "./src/menu-import.ts",
+      "default": "./dist/menu-import.js"
     }
   },
   "scripts": {

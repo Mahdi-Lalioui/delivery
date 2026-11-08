@@ -23,6 +23,7 @@ import {
 } from "./media-reservation-routes.js";
 import { createLogger } from "./logger.js";
 import { registerMenuCategoryRoutes, type MenuCategoryServices } from "./menu-category-routes.js";
+import { registerMenuImportRoutes, type MenuImportServices } from "./menu-import-routes.js";
 import { registerMenuItemRoutes, type MenuItemServices } from "./menu-item-routes.js";
 import {
   registerMenuOptionGroupRoutes,
@@ -51,6 +52,7 @@ interface ApiOptions {
   readonly media?: MediaReservationServices;
   readonly menuCategory?: MenuCategoryServices;
   readonly menuItem?: MenuItemServices;
+  readonly menuImport?: MenuImportServices;
   readonly menuOptionGroup?: MenuOptionGroupServices;
   readonly menuPrice?: MenuPriceServices;
   readonly merchantHours?: MerchantHoursServices;
@@ -117,6 +119,7 @@ export function createApi(options: ApiOptions): FastifyInstance {
     registerMediaReservationRoutes(api, options.media);
     registerMenuCategoryRoutes(api, options.menuCategory);
     registerMenuItemRoutes(api, options.menuItem);
+    registerMenuImportRoutes(api, options.menuImport);
     registerMenuOptionGroupRoutes(api, options.menuOptionGroup);
     registerMenuPriceRoutes(api, options.menuPrice);
     registerMerchantHoursRoutes(api, options.merchantHours);

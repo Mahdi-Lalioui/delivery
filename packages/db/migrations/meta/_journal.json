@@ -127,6 +127,13 @@
       "when": 1794114600000,
       "tag": "0017_menu_price_versions",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1794118200000,
+      "tag": "0018_menu_import",
+      "breakpoints": true
     }
   ]
 }
