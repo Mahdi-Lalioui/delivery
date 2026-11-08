@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 03:10 GMT — M2-9 every Ramadan method yields a Maghrib time (Claude, covering while Codex was out)
+
+- **Changed** — Added `packages/geo/test/maghrib-methods.test.ts`, which reads the method list from `merchantRamadanInput` and calls `calculateMaghrib` once per method for Algiers on 2027-02-15. `@zaafran/geo` now takes `@zaafran/contracts` as a dev dependency only. Recorded D-013, which also decides that the API computes the seven-day preview.
+- **Evidence** — The test first failed with `Cannot find package '@zaafran/contracts/merchant-hours'`. After adding the dependency, 14/14 cases passed. Measured offsets from `Algeria` ranged from −3 to +16 minutes (Tehran), inside the 20-minute bound. `pnpm verify` exited 0: 974 unit tests, 117 PostGIS integration tests, build, knip, depcruise, trace, and only the existing moderate advisory.
+- **Reviewer** — Self-reviewed against AGENTS.md §10. No P0/P1.
+- **Next** — Write the pure seven-day preview in `packages/domain`, with tests first.
+- **Needs Mahdi** — None.
+
 ### 2026-11-08 02:35 GMT — M2-9 closed-now override API (Claude, covering while Codex was out)
 
 - **Changed** — Added `merchantHoursPauseInput` and `merchantHoursPauseOutput` to the contracts. `pausedUntil` is an ISO datetime with an offset, or null. Added `GET` and `PUT /v1/merchants/:merchantId/hours/pause` to `merchant-hours-routes.ts`, mapping `pause_not_in_future` to 400. Added the routes to the `[AUTH-08]` matrix and the OpenAPI path list, and regenerated `docs/openapi.json`. This ends the takeover run.

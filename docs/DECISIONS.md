@@ -151,3 +151,7 @@ Opening hours, special dates and (next) the Ramadan schedule are written by the 
 
 MER-15's "closed now" override is stored as the nullable `merchants.hours_paused_until`, the instant the M1 `isOpenAt` rule already reads as `pausedUntil`. Owners and managers set it via the `hours_pause` command on the D-011 menu guard. The instant must be strictly after the server clock, or the command returns `pause_not_in_future`. Passing null reopens the restaurant on its regular hours. An end instant is always required, so a restaurant cannot stay closed indefinitely by forgetting a toggle. Indefinite closure is the merchant `paused` status, which admins and billing own.
 
+
+### D-013 — Geo tests read the contract's method list (2026-11-08)
+
+`@zaafran/geo` takes `@zaafran/contracts` as a dev dependency only, so `maghrib-methods.test.ts` can prove that every method `merchantRamadanInput` accepts yields a Maghrib time from `calculateMaghrib`. Its runtime code still does not import contracts. The seven-day preview is computed in the API: `apps/api` gains `@zaafran/geo` (Maghrib per day at the merchant's stored location) and `@zaafran/domain` (the pure M1 hours and Ramadan rules), keeping astronomy out of the browser bundle and the clock on the server.
