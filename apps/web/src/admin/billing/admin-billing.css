@@ -1,0 +1,243 @@
+/* Billing screens (ADM-07, MER-22, BIL-01) on top of @zaafran/ui. */
+
+.billing-page {
+  display: grid;
+  gap: var(--space-24);
+  padding-block: var(--space-24) var(--space-64);
+}
+
+.billing-layout {
+  display: grid;
+  gap: var(--space-24);
+}
+
+.billing-kpis {
+  display: grid;
+  gap: var(--space-12);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+}
+
+.billing-rows {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.billing-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-12) var(--space-16);
+  align-items: center;
+  padding-block: var(--space-16);
+  border-block-end: 1px solid var(--color-border-subtle);
+}
+
+.billing-row:last-child {
+  border-block-end: 0;
+}
+
+.billing-row-icon {
+  display: grid;
+  place-items: center;
+  inline-size: 44px;
+  block-size: 44px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
+  color: var(--color-text-2);
+}
+
+.billing-row-main {
+  display: grid;
+  flex: 1 1 10rem;
+  gap: var(--space-4);
+  min-inline-size: 0;
+}
+
+.billing-row-title {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-12);
+  align-items: baseline;
+  font-weight: var(--font-weight-label);
+}
+
+.billing-row-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  align-items: center;
+  font-size: var(--font-size-caption);
+  color: var(--color-text-2);
+}
+
+.billing-money {
+  font-family: var(--font-numbers);
+  font-variant-numeric: var(--font-variant-numeric-numbers);
+  white-space: nowrap;
+}
+
+.billing-id {
+  font-family: var(--font-numbers);
+  color: var(--color-text-2);
+}
+
+.billing-reason {
+  display: grid;
+  gap: var(--space-8);
+  inline-size: min(100%, 20rem);
+}
+
+.billing-reason-actions {
+  display: flex;
+  gap: var(--space-8);
+  justify-content: flex-end;
+}
+
+.billing-table-scroll {
+  overflow-x: auto;
+  margin-inline: calc(-1 * var(--space-20));
+  padding-inline: var(--space-20);
+}
+
+.billing-table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-body);
+}
+
+.billing-table th,
+.billing-table td {
+  padding: var(--space-12) var(--space-8);
+  border-block-end: 1px solid var(--color-border-subtle);
+  text-align: start;
+  vertical-align: middle;
+}
+
+.billing-table thead th {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-label);
+  color: var(--color-text-3);
+}
+
+.billing-table tbody tr:last-child > * {
+  border-block-end: 0;
+}
+
+.billing-cell-number {
+  text-align: end;
+}
+
+.billing-table td.billing-cell-number,
+.billing-table th.billing-cell-number {
+  text-align: end;
+}
+
+.billing-cell-action {
+  inline-size: 1%;
+  white-space: nowrap;
+}
+
+/* MER-22 status banner */
+.billing-banner {
+  display: flex;
+  gap: var(--space-12);
+  align-items: center;
+  padding: var(--space-16) var(--space-20);
+  border-radius: var(--radius-lg);
+  background: var(--color-info-bg);
+  color: var(--color-info);
+  font-weight: var(--font-weight-label);
+}
+
+.billing-banner[data-tone="warning"] {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.billing-banner[data-tone="danger"] {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.billing-banner-text {
+  flex: 1;
+}
+
+.billing-plan {
+  display: grid;
+  gap: var(--space-12);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+}
+
+.billing-two-columns {
+  display: grid;
+  gap: var(--space-24);
+  align-items: start;
+}
+
+@media (min-width: 64rem) {
+  .billing-two-columns {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  }
+}
+
+.billing-pay-form {
+  display: grid;
+  gap: var(--space-20);
+}
+
+.billing-dropzone {
+  display: grid;
+  gap: var(--space-4);
+  justify-items: center;
+  padding: var(--space-24) var(--space-16);
+  border: 2px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-2);
+  color: var(--color-text-2);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color var(--motion-fast) var(--ease-standard);
+}
+
+.billing-dropzone:hover,
+.billing-dropzone:focus-within {
+  border-color: var(--color-primary);
+}
+
+.billing-dropzone:focus-within {
+  outline: var(--focus-ring-width) solid var(--color-focus);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.billing-dropzone[data-filled] {
+  border-style: solid;
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
+.billing-dropzone[data-invalid] {
+  border-color: var(--color-danger);
+}
+
+.billing-dropzone-title {
+  font-weight: var(--font-weight-label);
+  color: var(--color-text);
+}
+
+.billing-dropzone-hint {
+  font-size: var(--font-size-caption);
+}
+
+/* ADM-08 platform console */
+.platform-flag {
+  display: grid;
+  gap: var(--space-12);
+  padding-block: var(--space-12);
+  border-block-end: 1px solid var(--color-border-subtle);
+}
+
+.platform-flag:last-child {
+  border-block-end: 0;
+}

@@ -13,6 +13,12 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 19:02 GMT — Evening Lane A and Lane B integration
+
+- **Effort and evidence** — High. Merged Lane A `233e62f` then Lane B `8171285`. Frozen install passed, `pnpm verify` passed 1,700 unit, 222 PostGIS and four mobile Jest tests, and both production browser suites passed 59 and 24 cases.
+- **Review** — Preserved both sets of dependency pins and locale copy. Fixed the French mobile landing overflow in Chromium and WebKit. Marketing stays at the locale root and opens the customer home at `/discover`. [Routing decision](DECISIONS.md#d-027--separate-marketing-from-customer-discovery-2026-11-08)
+- **Next** — Lane A search. M2 is still at 36/37 pending the visible admin notice.
+
 ### 2026-11-08 18:48 GMT — M3-2 anonymous feed
 
 - **Effort and evidence** — Ultra for migration and media authorization, high for the feed UI. `pnpm verify` passed 1,568 unit and 222 PostGIS tests. Authorization passed 224 and the two production browser journeys passed.

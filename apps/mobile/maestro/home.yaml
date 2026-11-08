@@ -1,0 +1,10 @@
+# M10 smoke flow: the app opens on the home screen and the start button responds.
+# Run: maestro test apps/mobile/maestro/home.yaml (needs a simulator build).
+appId: dz.zaafran.customer
+---
+- launchApp:
+    clearState: true
+- assertVisible:
+    id: ".*"
+- tapOn:
+    text: "Commander|ابدأ الطلب|Start ordering"

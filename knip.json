@@ -13,6 +13,10 @@
     },
     "apps/web": {
       "entry": ["src/app/**/page.design.tsx"]
+    },
+    "apps/mobile": {
+      "entry": ["app/**/*.tsx", "test/**/*.test.tsx"],
+      "ignoreDependencies": ["expo-updates"]
     }
   }
 }

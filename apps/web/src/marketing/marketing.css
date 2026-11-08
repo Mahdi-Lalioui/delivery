@@ -1,0 +1,319 @@
+.pitch {
+  display: grid;
+  gap: var(--space-40);
+}
+
+.pitch-hero h1 {
+  font-family: var(--font-display);
+  font-size: var(--font-size-display);
+  font-weight: var(--font-weight-display);
+  line-height: var(--line-height-display);
+}
+
+.pitch-points {
+  display: grid;
+  gap: var(--space-16);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  padding: 0;
+  list-style: none;
+}
+
+.pitch-points li {
+  padding: var(--space-20);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-e1);
+}
+
+.pitch-points h2,
+.pitch-calculator h2 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-h3);
+  line-height: var(--line-height-h3);
+}
+
+.pitch-calculator {
+  display: grid;
+  gap: var(--space-20);
+  padding: var(--space-24);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-2);
+}
+
+.pitch-slider {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-8);
+}
+
+.pitch-slider input {
+  grid-column: 1 / -1;
+  min-block-size: var(--touch-target-min);
+  accent-color: var(--color-primary);
+}
+
+.pitch-slider output {
+  font-family: var(--font-numbers);
+  font-variant-numeric: var(--font-variant-numeric-numbers);
+}
+
+.pitch-bars {
+  display: grid;
+  gap: var(--space-12);
+  padding: 0;
+  list-style: none;
+}
+
+.pitch-bar {
+  display: grid;
+  grid-template-columns: minmax(8rem, 14rem) 1fr auto;
+  gap: var(--space-12);
+  align-items: center;
+}
+
+.pitch-bar-track {
+  inline-size: 100%;
+  block-size: var(--space-16);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-3);
+}
+
+/* Bars grow from the reading start edge in both directions. */
+[dir="rtl"] .pitch-bar-track {
+  transform: scaleX(-1);
+}
+
+.pitch-bar-fill {
+  fill: var(--color-danger);
+  transition: width var(--motion-emphasis) var(--ease-decelerate);
+}
+
+.pitch-bar-flat .pitch-bar-fill {
+  fill: var(--color-primary);
+}
+
+.pitch-bar-amount,
+.pitch-savings {
+  font-family: var(--font-numbers);
+  font-variant-numeric: var(--font-variant-numeric-numbers);
+}
+
+.pitch-savings {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-h3);
+}
+
+.pitch-cta {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--touch-target-customer-primary);
+  padding-inline: var(--space-24);
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-weight: var(--font-weight-label);
+  text-decoration: none;
+  transition: background-color var(--motion-instant) var(--ease-standard);
+}
+
+.pitch-cta:hover {
+  background: var(--color-primary-hover);
+}
+
+.pitch-cta:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus);
+  outline-offset: var(--focus-ring-offset);
+}
+
+@media (max-width: 40rem) {
+  .pitch-bar {
+    grid-template-columns: 1fr auto;
+  }
+
+  .pitch-bar-track {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pitch-bar-fill {
+    transition: none;
+  }
+}
+
+.casbah-poster {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.casbah-trail {
+  fill: none;
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.landing {
+  display: grid;
+  gap: var(--space-64);
+}
+
+.landing-hero {
+  display: grid;
+  gap: var(--space-24);
+}
+
+.casbah-frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  max-block-size: 70vh;
+  inline-size: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-2);
+}
+
+/* The canvas fades in over the matching poster, so there is no jump when the scene starts. */
+.casbah-canvas {
+  position: absolute;
+  inset: 0;
+  animation: casbah-fade var(--motion-scene) var(--ease-standard) both;
+}
+
+@keyframes casbah-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+.landing-hero-copy h1 {
+  font-family: var(--font-display);
+  font-size: var(--font-size-display);
+  font-weight: var(--font-weight-display);
+  line-height: var(--line-height-display);
+}
+
+.landing-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-16);
+  align-items: center;
+}
+
+.landing-actions .ui-button {
+  padding-block: var(--space-8);
+  line-height: var(--line-height-label);
+  text-align: center;
+  white-space: normal;
+}
+
+@media (max-width: 40rem) {
+  .casbah-frame {
+    aspect-ratio: 4 / 5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .casbah-canvas {
+    animation-duration: var(--motion-instant);
+  }
+}
+
+.landing > section > h2 {
+  margin-block-end: var(--space-16);
+  font-family: var(--font-display);
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-h2);
+  line-height: var(--line-height-h2);
+}
+
+/* Landing sections on the ui kit */
+.landing-hero-copy {
+  display: grid;
+  gap: var(--space-16);
+  max-inline-size: 44rem;
+}
+
+.landing-intro {
+  font-size: var(--font-size-body-lg);
+  line-height: var(--line-height-body-lg);
+  color: var(--color-text-2);
+}
+
+.landing-section {
+  display: grid;
+  gap: var(--space-24);
+}
+
+.landing-steps {
+  display: grid;
+  gap: var(--space-16);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.landing-steps li {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: var(--space-8);
+  padding: var(--space-24);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.landing-steps h3 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-h3);
+}
+
+.landing-steps p {
+  color: var(--color-text-2);
+}
+
+.landing-step-icon {
+  display: grid;
+  place-items: center;
+  inline-size: 48px;
+  block-size: 48px;
+  margin-block-end: var(--space-8);
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.landing-step-number {
+  position: absolute;
+  inset-block-start: var(--space-20);
+  inset-inline-end: var(--space-24);
+  font-family: var(--font-display);
+  font-size: var(--font-size-h1);
+  color: var(--color-border-subtle);
+}
+
+.landing-restaurants {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-24);
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-32);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-2);
+}
+
+.landing-restaurants h2 {
+  font-family: var(--font-display);
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-h2);
+}
+
+.landing-restaurants p {
+  color: var(--color-text-2);
+}

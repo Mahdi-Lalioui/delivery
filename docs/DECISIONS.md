@@ -226,3 +226,25 @@ weekly hours, exceptions and temporary pauses determine the displayed open state
 photos resolve only a current, ready, same-merchant cover or logo. Every photo read rechecks
 publication and attachment and sends no-store. Storage keys stay server-side. Global open-first
 ordering and the geographic and commercial fields need their own data and cursor work.
+
+### D-B01 — Lane B mocks unbuilt APIs with MSW (2026-11-08)
+
+`msw` 3.0.3 (MIT, exact pin; 3.0.4 is younger than `min-release-age=3`) is a web devDependency. Handlers live in `apps/web/test/mocks/` and parse every payload with the published `packages/contracts` schemas, so mocks cannot drift from the contract. Production code never imports `msw`. Lane B ids use the `D-B` prefix to avoid number clashes with lane A.
+
+### D-B02 — QR codes with qrcode-generator (2026-11-08)
+
+MER-24 posters need QR codes. `qrcode-generator` 2.0.4 (MIT, no dependencies, published 2025) encodes the modules; lane B draws them as one SVG path, so nothing is rasterised. Writing Reed–Solomon by hand was not worth the risk.
+
+### D-B03 — three.js and React Three Fiber for the landing hero (2026-11-08)
+
+DESIGN §8 asks for React Three Fiber. `three` 0.187.0 and `@react-three/fiber` 9.8.2 (MIT, exact pins, both older than the 3-day release age) load only in a lazy chunk after LCP on capable devices; everyone else keeps the server-rendered SVG poster. The hero's colours are DESIGN §3.1/§3.4 constants in `apps/web/src/marketing/hero-palette.ts` because the illustration must not invert in dark theme.
+
+### D-B04 — Customer app on Expo SDK 58 with Jest in verify (2026-11-08)
+
+`apps/mobile` uses Expo SDK 58.0.23 with the exact versions from Expo's `bundledNativeModules.json` (React 19.3.0, React Native 0.88.1, Expo Router, Reanimated 4.7.1). Tests use jest-expo + React Native Testing Library 14 (async `render`, `userEvent`); root Vitest already excludes mobile, so `pnpm verify` gains `pnpm test:mobile`. `packages/ui-native` builds its theme from `@zaafran/tokens` `palettes.json`/`metrics.json`, newly exported for this. `expo-updates` is ignored in knip until M10-6 adds EAS Update.
+
+### D-027 — Separate marketing from customer discovery (2026-11-08)
+
+Keep the Casbah marketing landing at the locale root. Its primary action opens the anonymous
+customer home at the localized `/discover` path. The address picker and feed stay together on
+that page, and locale switching and alternate metadata retain the discovery path.
