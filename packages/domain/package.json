@@ -8,6 +8,10 @@
       "types": "./src/bulk-price-change.ts",
       "default": "./dist/bulk-price-change.js"
     },
+    "./cart": {
+      "types": "./src/cart.ts",
+      "default": "./dist/cart.js"
+    },
     "./eta": {
       "types": "./src/eta.ts",
       "default": "./dist/eta.js"
