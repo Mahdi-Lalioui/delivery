@@ -4,9 +4,10 @@ import {
   mediaUploadInput,
   photoUploadMaximumBytes,
   type mediaCropInput,
+  type photoRatios,
 } from "@zaafran/contracts/media";
 
-export type PhotoKind = "application" | "item";
+export type PhotoKind = keyof typeof photoRatios;
 export type Crop = ReturnType<typeof mediaCropInput.parse>;
 export type PhotoImage = { width: number; height: number; blob: Blob };
 export type SelectedPhoto = PhotoImage & { mediaId: string };

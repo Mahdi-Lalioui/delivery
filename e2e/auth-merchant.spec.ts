@@ -14,6 +14,7 @@ import ar from "../packages/i18n/src/messages/ar.json" with { type: "json" };
 import fr from "../packages/i18n/src/messages/fr.json" with { type: "json" };
 import { withAuthHarness } from "./auth-fixture.ts";
 import { attachPhoto } from "./media-photo-fixture.ts";
+import { completeOnboardingMenu } from "./merchant-onboarding-menu.ts";
 
 const applicant = { input: "٠٥٥٠٠٠٠٢٠١", phone: "+213550000201" };
 const reviewer = { input: "0660 00 02 02", phone: "+213660000202" };
@@ -205,12 +206,13 @@ async function approveApplication(page: Page, merchantId: string, communeName: s
   await expect(row).toHaveCount(0);
 }
 
-test("[MER-01:browser] [ADM-03:browser] submits and reviews an Algiers merchant application @merchant-application", async ({
+test("[MER-01:browser] [ADM-03:browser] submits and reviews an Algiers merchant application @merchant-application @merchant-onboarding", async ({
   baseURL,
   browser,
   ignoreHTTPSErrors,
   page,
 }) => {
+  test.setTimeout(60_000);
   await withAuthHarness(
     baseURL,
     async (auth) => {
@@ -265,6 +267,7 @@ test("[MER-01:browser] [ADM-03:browser] submits and reviews an Algiers merchant 
       } finally {
         await adminContext.close();
       }
+      await completeOnboardingMenu(page, auth.origin, merchantId);
     },
     true,
   );

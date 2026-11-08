@@ -141,7 +141,7 @@ test("[MER-09:browser] [MER-14:browser] an owner manages a bilingual item throug
         await test.step("Create a bilingual item priced in whole dinars", async () => {
           await fillItem(page);
           await rejectInvalidPhoto(page, fr.mediaPhoto);
-          const photoId = await attachPhoto(page, fr.mediaPhoto, save);
+          const photoId = await attachPhoto(page, fr.mediaPhoto, { save });
           const write = observeWrite(page, "POST", path);
           await save.click();
           const response = await write;

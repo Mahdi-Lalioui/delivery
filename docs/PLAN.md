@@ -100,7 +100,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
   - [x] Complete bilingual categories and item forms, reusable ordered option attachments, and authorized restaurant/category context. Verify the option library and attached-item screens in the design matrix.
   - [x] Add inline DZD price editing with keyboard save/cancel, focus restoration and preservation of the saved item fields.
   - [x] Add category navigation alongside the desktop item workspace. Keep the customer preview with the moderated M2-10/M2-12 flow.
-- [ ] M2-6 Media pipeline (MER-14, §16). Commit upload/variant contracts, decode real HEVC HEIC in CI, validate declared and actual image type and the 8 MB limit, crop to the required ratios, and publish metadata-free WebP/AVIF variants with thumbhash after worker processing.
+- [x] M2-6 Media pipeline (MER-14, §16). Commit upload/variant contracts, decode real HEVC HEIC in CI, validate declared and actual image type and the 8 MB limit, crop to the required ratios, and publish metadata-free WebP/AVIF variants with thumbhash after worker processing.
   - [x] Define the reservation, private preview, crop, and ready response contracts. Test exact upload bounds and all five output widths in both formats.
   - [x] Persist owner and restaurant scope, upload receipts and job state. Accept binary uploads into quarantine and enqueue work in the same transaction as each state change. Prove safe retries, cross-tenant denial and private application photos.
     - [x] Reserve photos and read private status through the authenticated API. Verify eligible membership, session revocation, first-digest adoption and transactional preparation enqueue in PostGIS.
@@ -110,7 +110,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Register the prepare job, persist the private preview and expose it to authorized owners.
     - [x] Bind crop to the original session, process crop jobs and publish the complete ready set.
   - [x] Connect optional application and item photos to the localized cropper. Verify valid and rejected uploads, keyboard crop, private previews, and saved item readback in the production browser.
-  - [ ] Connect restaurant cover and logo controls and complete the photo design matrix.
+  - [x] Connect restaurant cover and logo controls and complete the photo design matrix.
 - [x] M2-7 Bulk prices (MER-11). Bind preview to merchant and item revisions, apply rounded changes and history atomically, and prove ten-minute undo rejects expired or subsequently changed prices.
   - [x] Add the pure percent/fixed rounding calculation (nearest 1/5/10/50 DA, ties up, clamped to zero).
   - [x] Persist the per-item preview binding, apply rounded changes and price history atomically on the existing menu command/revision guard, and record an undo batch.
@@ -181,7 +181,8 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
 - [ ] M2-12 Seed twelve fictional bilingual Algiers restaurants with synthetic imagery and `is_demo`, then run production-built onboarding, the complete route matrix, and the design critic's theme/locale/viewport checks. Record local and PR evidence.
   - [x] Seed twelve fictional Algiers restaurants, bilingual menus and synthetic attached photos. Prove stable identities with two seed runs.
   - [x] Register the authenticated onboarding and design commands and complete the dedicated M2 authorization matrix.
-  - [ ] Build and pass the combined `@merchant-onboarding` browser journey. See `docs/evidence/m2/baseline-audit.md`.
+  - [x] Build and pass the combined `@merchant-onboarding` browser journey.
+  - [ ] Record the merged milestone gate and PR evidence once the Lane B admin notice is visible. See `docs/evidence/m2/gate-status.md`.
 
 **Gate m2:**
 

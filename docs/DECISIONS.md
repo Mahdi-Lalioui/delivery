@@ -208,3 +208,7 @@ Give authorized owners and managers a customer-style preview of the saved menu f
 ### D-023 — Moderation binds to the reviewed text and cycle (2026-11-08)
 
 Freeze names and descriptions while an item awaits review in both direct edits and spreadsheet imports. Price, category and other non-text edits remain available. The opt-in held queue includes a review token computed from the canonical text, item ID and count of prior committed reviews. A later hold requires its current token, and any supplied token must match under the merchant lock. Exact retries return the original receipt. The legacy queue can complete first holds during the Lane B UI rollout. Refresh held queues during deployment so first-hold reviewers see the current text.
+
+### D-024 — Attach restaurant cover and logo under the menu revision (2026-11-08)
+
+Save both profile photo slots with one session-bound menu command. Owners and managers can retain a ready attachment. New selections must be ready uploads of the correct kind, owned by the editor and scoped to the restaurant. Null removes the corresponding slot. Other eligible editors can read ready variants while the photo is attached. Upload and crop stay scoped to the uploader.

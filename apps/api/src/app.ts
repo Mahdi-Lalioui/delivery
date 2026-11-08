@@ -12,6 +12,10 @@ import {
 import { createAuthAccess } from "./auth-access.js";
 import { registerAuthRoutes } from "./auth-routes.js";
 import { registerHealth } from "./health.js";
+import {
+  registerMerchantProfilePhotosRoutes,
+  type MerchantProfilePhotosServices,
+} from "./merchant-profile-photos-routes.js";
 import { registerMerchantRoutes, type MerchantServices } from "./merchant-routes.js";
 import {
   registerAdminModerationRoutes,
@@ -49,6 +53,7 @@ import { sendProblem } from "./problems.js";
 interface ApiOptions {
   readonly checkReadiness: () => Promise<void>;
   readonly merchant?: MerchantServices;
+  readonly merchantProfilePhotos?: MerchantProfilePhotosServices;
   readonly menuModeration?: MenuModerationServices;
   readonly media?: MediaReservationServices;
   readonly menuCategory?: MenuCategoryServices;
@@ -117,6 +122,7 @@ export function createApi(options: ApiOptions): FastifyInstance {
     });
     registerAuthRoutes(api, access);
     registerMerchantRoutes(api, options.merchant);
+    registerMerchantProfilePhotosRoutes(api, options.merchantProfilePhotos);
     registerAdminModerationRoutes(api, options.menuModeration);
     registerMediaReservationRoutes(api, options.media);
     registerMenuCategoryRoutes(api, options.menuCategory);

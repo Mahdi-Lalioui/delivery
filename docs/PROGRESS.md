@@ -13,6 +13,12 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 16:17 GMT — M2 cover, logo and combined onboarding
+
+- **Effort and evidence** — Ultra for media persistence, high for the editor, medium for browser wiring. `pnpm verify` passed 1,518 unit and 187 PostGIS tests. All 19 authenticated browser cases and 203 authorization cases passed. The lead and design critic passed the final 390px and 1280px captures.
+- **Review** — Closed stalled-save and incomplete browser proof findings. `pnpm gate m2` exited 1 at 36/37, with MER-01 waiting for Lane B’s visible admin notice. [Gate evidence](evidence/m2/gate-status.md)
+- **Next** — Prepare Lane B’s requested backend batch while its admin UI handoffs are open. Then M3. [Profile and onboarding proof](evidence/m2/profile-photos.md)
+
 ### 2026-11-08 15:58 GMT — M2 preview, settings schema and demo seed
 
 - **Effort and evidence** — High for preview and seed, ultra for moderation and migration. `pnpm verify` passed 1,493 unit and 185 PostGIS tests. All 18 authenticated browser journeys passed. Two seed runs produced stable IDs for twelve fictional restaurants.

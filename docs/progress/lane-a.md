@@ -39,3 +39,6 @@
 - 2026-11-08 · High and ultra · M2 settings schema, moderated customer preview and demo seed passed `pnpm verify` with 1,493 unit and 185 PostGIS tests, plus all 18 authenticated production browser journeys.
 - 2026-11-08 · High · Inspected Arabic and French preview at phone and desktop sizes. The design critic passed. [Evidence](../evidence/m2/menu-preview.md)
 - 2026-11-08 · Medium · Mahdi prioritized closing M2, batching Lane B requests, then M3 by Monday night. Finish cover/logo and the combined onboarding browser gate. Track Lane B’s notice and review-token UI in `docs/requests/`. Existing Lane A screens need the premium design pass by 15 November.
+
+- 2026-11-08 · Ultra, high and medium · Cover/logo and combined onboarding passed with 1,518 unit, 187 PostGIS, 203 authorization and 19 authenticated browser cases. Phone and desktop captures passed the design review. [Evidence](../evidence/m2/profile-photos.md)
+- 2026-11-08 · High · The actual M2 gate remains at 36/37 because the visible admin notice belongs to Lane B. Two Lane B UI handoffs are open. Prepare the requested shared backend batch from `origin/lane-b` at `2be68d5` while waiting for integration, then M3.

@@ -53,7 +53,7 @@ test("[MER-14:web] labels repeated application photo fields with distinct input 
       <MediaPhotoField {...field} onChange={() => undefined} />
     </NextIntlClientProvider>,
   );
-  const labels = Array.from(markup.matchAll(/<label for="([^"]+)"/g), (match) => match[1]);
+  const labels = Array.from(markup.matchAll(/<label[^>]*for="([^"]+)"/g), (match) => match[1]);
   const inputs = Array.from(
     markup.matchAll(/<input id="([^"]+)"[^>]*type="file"/g),
     (match) => match[1],
@@ -61,4 +61,20 @@ test("[MER-14:web] labels repeated application photo fields with distinct input 
   expect(new Set(labels).size).toBe(2);
   expect(inputs).toEqual(labels);
   expect(markup).toContain(messages.mediaPhoto.guide);
+});
+
+test.each([
+  ["cover", 360],
+  ["logo", 640],
+] as const)("[MER-14] preserves the %s aspect ratio in its crop preview", (kind, height) => {
+  const markup = renderToStaticMarkup(
+    <NextIntlClientProvider locale="fr-DZ" timeZone="Africa/Algiers" messages={getMessages("fr")}>
+      <CropControls
+        kind={kind}
+        photo={{ width: 640, height: 480, blob: new Blob() }}
+        onApply={() => undefined}
+      />
+    </NextIntlClientProvider>,
+  );
+  expect(markup).toContain(`width="640" height="${String(height)}"`);
 });

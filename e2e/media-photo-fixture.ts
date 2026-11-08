@@ -25,30 +25,35 @@ export async function rejectInvalidPhoto(page: Page, labels: PhotoLabels) {
   await expect(page.getByText(labels.contentMismatch, { exact: true })).toBeVisible();
 }
 
-export async function attachPhoto(page: Page, labels: PhotoLabels, save?: Locator) {
-  await page.getByLabel(labels.choose, { exact: true }).setInputFiles({
+export async function attachPhoto(
+  page: Page,
+  labels: PhotoLabels,
+  { save, field, buffer = fixture }: { save?: Locator; field?: Locator; buffer?: Buffer } = {},
+) {
+  const target = field ?? page;
+  await target.getByLabel(labels.choose, { exact: true }).setInputFiles({
     name: "synthetic.png",
     mimeType: "image/png",
-    buffer: fixture,
+    buffer,
   });
-  await expect(page.getByRole("img", { name: labels.cropPreview, exact: true })).toBeVisible();
+  await expect(target.getByRole("img", { name: labels.cropPreview, exact: true })).toBeVisible();
   if (save) await expect(save).toBeDisabled();
-  const focal = page.getByRole("slider", { name: labels.focalX, exact: true });
+  const focal = target.getByRole("slider", { name: labels.focalX, exact: true });
   const initialFocal = await focal.inputValue();
   await focal.press("ArrowRight");
   await expect(focal).not.toHaveValue(initialFocal);
-  await page.getByRole("slider", { name: labels.zoom, exact: true }).press("ArrowRight");
+  await target.getByRole("slider", { name: labels.zoom, exact: true }).press("ArrowRight");
 
   const crop = page.waitForResponse(
     (response) =>
       response.request().method() === "POST" &&
       /^\/v1\/media\/[^/]+\/crop$/u.test(new URL(response.url()).pathname),
   );
-  await page.getByRole("button", { name: labels.applyCrop, exact: true }).click();
+  await target.getByRole("button", { name: labels.applyCrop, exact: true }).click();
   const response = await crop;
   expect(response.status()).toBe(202);
   const submitted = mediaOutput.parse(await response.json());
-  const ready = page.getByRole("img", { name: labels.selectedPreview, exact: true });
+  const ready = target.getByRole("img", { name: labels.selectedPreview, exact: true });
   await expect(ready).toBeVisible();
   await expect
     .poll(() => ready.evaluate((element: HTMLImageElement) => element.naturalWidth))

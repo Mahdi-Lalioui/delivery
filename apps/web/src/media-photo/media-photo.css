@@ -53,7 +53,7 @@
 }
 
 .media-photo-field button,
-.media-photo-field input[type="file"]::file-selector-button {
+.media-photo-picker {
   min-block-size: var(--touch-target-min);
   padding-inline: var(--space-12);
   border: 1px solid var(--color-border-strong);
@@ -63,16 +63,28 @@
   font-weight: var(--font-weight-label);
 }
 
-.media-photo-field input[type="file"] {
-  inline-size: 100%;
+.media-photo-picker {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  cursor: pointer;
 }
 
-.media-photo-field input[type="file"]::file-selector-button {
-  margin-inline-end: var(--space-8);
+.media-photo-picker input {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  clip-path: inset(50%);
+}
+
+.media-photo-picker:has(input:focus-visible) {
+  outline: var(--focus-ring-width) solid var(--color-focus);
+  outline-offset: var(--focus-ring-offset);
 }
 
 .media-photo-field button:not(:disabled):hover,
-.media-photo-field input[type="file"]:not(:disabled)::file-selector-button:hover {
+.media-photo-picker:has(input:enabled):hover {
   background: var(--color-surface-3);
 }
 
@@ -87,6 +99,16 @@
   background: var(--color-primary-hover);
 }
 
+.media-photo-field .media-photo-remove:not(:disabled) {
+  border-color: transparent;
+  background: transparent;
+  color: var(--color-danger);
+}
+
+.media-photo-field .media-photo-remove:not(:disabled):hover {
+  background: var(--color-danger-bg);
+}
+
 .media-photo-slider input {
   min-block-size: var(--touch-target-min);
   accent-color: var(--color-info);
@@ -98,8 +120,9 @@
 
 .media-photo-field :is(button, input):disabled,
 .media-photo-field .media-photo-apply:disabled,
-.media-photo-field input[type="file"]:disabled::file-selector-button {
+.media-photo-picker:has(input:disabled) {
   border-color: var(--color-border-subtle);
   background: var(--color-surface-2);
   color: var(--color-text-3);
+  cursor: default;
 }

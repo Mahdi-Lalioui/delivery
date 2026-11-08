@@ -48,6 +48,10 @@
       "types": "./src/merchant-hours.ts",
       "default": "./dist/merchant-hours.js"
     },
+    "./merchant-profile-photos": {
+      "types": "./src/merchant-profile-photos.ts",
+      "default": "./dist/merchant-profile-photos.js"
+    },
     "./merchant": {
       "types": "./src/merchant.ts",
       "default": "./dist/merchant.js"

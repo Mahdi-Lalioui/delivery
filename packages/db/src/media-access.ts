@@ -85,7 +85,7 @@ export async function lockMediaTarget(
 interface ReadyPhotoScope {
   readonly accountId: string;
   readonly merchantId: string | null;
-  readonly kind: "application" | "item";
+  readonly kind: MediaKind;
   readonly photoIds: readonly string[];
 }
 
@@ -107,7 +107,7 @@ export async function lockReadyPhotos(
 export async function readVisibleMedia(
   sql: ISql,
   scope: MediaScope,
-  access: "owner" | "owner_or_item_editor",
+  access: "owner" | "owner_or_attached_editor",
 ): Promise<VisibleMedia | undefined> {
   const [media] = await sql<VisibleMedia[]>`
     SELECT upload.id AS "mediaId", session.id AS "sessionId", upload.kind, upload.status,
@@ -127,11 +127,16 @@ export async function readVisibleMedia(
           AND member.user_id = account.id AND member.role IN ('owner', 'manager')
       ))
       AND (upload.owner_id = account.id OR (
-        ${access === "owner_or_item_editor"} AND upload.kind = 'item' AND upload.status = 'ready'
-        AND EXISTS (
-          SELECT FROM public.items AS item
-          WHERE item.merchant_id = upload.merchant_id AND item.photo_id = upload.id
-            AND item.archived_at IS NULL
+        ${access === "owner_or_attached_editor"} AND upload.status = 'ready' AND (
+          (upload.kind = 'item' AND EXISTS (
+            SELECT FROM public.items AS item
+            WHERE item.merchant_id = upload.merchant_id AND item.photo_id = upload.id
+              AND item.archived_at IS NULL
+          )) OR (upload.kind IN ('cover', 'logo') AND EXISTS (
+            SELECT FROM public.merchants AS profile WHERE profile.id = upload.merchant_id
+              AND ((upload.kind = 'cover' AND profile.cover_photo_id = upload.id)
+                OR (upload.kind = 'logo' AND profile.logo_photo_id = upload.id))
+          ))
         )
       ))
   `;

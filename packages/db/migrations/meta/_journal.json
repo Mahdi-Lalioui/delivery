@@ -169,6 +169,13 @@
       "when": 1794127200000,
       "tag": "0023_platform_settings_indexes",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1794127800000,
+      "tag": "0024_merchant_profile_photos",
+      "breakpoints": true
     }
   ]
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useId } from "react";
+import { useId, type ReactNode } from "react";
 import { CropControls } from "./crop-controls";
 import type { PhotoKind, PhotoScope } from "./media-photo-http";
 import { SelectedPhotoPreview } from "./selected-photo-preview";
@@ -16,36 +16,40 @@ interface MediaPhotoFieldProps {
   onChange: (mediaId: string | null) => void;
   onBusyChange?: ((busy: boolean) => void) | undefined;
   disabled?: boolean;
+  title?: string;
+  description?: string;
+  empty?: ReactNode;
 }
 
 const acceptedFiles = "image/jpeg,image/png,image/heic,image/webp,.jpg,.jpeg,.png,.heic,.webp";
 
 function PhotoPicker({
   replacing,
+  guideId,
   onChoose,
 }: {
   replacing: boolean;
+  guideId: string;
   onChoose: (file: File) => void;
 }) {
   const t = useTranslations("mediaPhoto");
   const id = useId();
   return (
     <>
-      <p className="media-photo-hint" id={`${id}-hint`}>
-        {t("guide")}
-      </p>
-      <label htmlFor={id}>{t(replacing ? "replace" : "choose")}</label>
-      <input
-        id={id}
-        type="file"
-        accept={acceptedFiles}
-        aria-describedby={`${id}-hint ${id}-formats`}
-        onChange={(event) => {
-          const file = event.currentTarget.files?.item(0);
-          event.currentTarget.value = "";
-          if (file) onChoose(file);
-        }}
-      />
+      <label className="media-photo-picker" htmlFor={id}>
+        {t(replacing ? "replace" : "choose")}
+        <input
+          id={id}
+          type="file"
+          accept={acceptedFiles}
+          aria-describedby={`${guideId} ${id}-formats`}
+          onChange={(event) => {
+            const file = event.currentTarget.files?.item(0);
+            event.currentTarget.value = "";
+            if (file) onChoose(file);
+          }}
+        />
+      </label>
       <p className="media-photo-hint" id={`${id}-formats`}>
         {t("formats")}
       </p>
@@ -104,7 +108,7 @@ function PhotoActions({ upload, hasSelected }: { upload: Upload; hasSelected: bo
         </button>
       )}
       {hasSelected && (
-        <button type="button" onClick={upload.remove}>
+        <button className="media-photo-remove" type="button" onClick={upload.remove}>
           {t("remove")}
         </button>
       )}
@@ -117,27 +121,33 @@ function getScope({
   merchantId,
   expectedSessionId,
 }: MediaPhotoFieldProps): PhotoScope | null {
-  if (!expectedSessionId || (kind === "item" && !merchantId)) return null;
+  if (!expectedSessionId || (kind !== "application" && !merchantId)) return null;
   return { kind, merchantId, sessionId: expectedSessionId };
 }
 
 function ScopedPhotoField(props: MediaPhotoFieldProps) {
   const t = useTranslations("mediaPhoto");
-  const { kind, mediaId, onChange, onBusyChange, disabled } = props;
+  const { kind, mediaId, onChange, onBusyChange, disabled, title, description, empty } = props;
+  const guideId = useId();
   const scope = getScope(props);
   const upload = usePhotoUpload({ scope, onChange, onBusyChange });
   return (
     <fieldset className="media-photo-field" disabled={disabled || !scope}>
-      <legend>{t("title")}</legend>
-      {mediaId && (
+      <legend>{title ?? t("title")}</legend>
+      <p className="media-photo-hint" id={guideId}>
+        {description ?? t("guide")}
+      </p>
+      {mediaId ? (
         <SelectedPhotoPreview
           key={mediaId}
           scope={scope}
           mediaId={mediaId}
           current={upload.selected}
         />
+      ) : (
+        empty
       )}
-      <PhotoPicker replacing={Boolean(mediaId)} onChoose={upload.choose} />
+      <PhotoPicker replacing={Boolean(mediaId)} guideId={guideId} onChoose={upload.choose} />
       <PhotoProgress kind={kind} upload={upload} />
       <PhotoActions upload={upload} hasSelected={Boolean(mediaId)} />
     </fieldset>

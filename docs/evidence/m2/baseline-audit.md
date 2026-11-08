@@ -19,12 +19,12 @@ The follow-up fixes re-screen approved source text when duplicating an item. The
 
 - [ ] **MER-01** The passing signup-to-approved browser journey now covers an application photo. The authenticated notice API reads and retires the durable record. Lane B still needs to prove the visible notice in an already-open admin console.
 - [x] **MER-12** Lane A added the bounded CSV/XLSX import screen, template and error report. The production browser journey starts with an empty menu and proves retry after a committed apply, refresh failure, and duplicate-free reimport.
-- [ ] **MER-14** The media worker, persisted ready variants, item crop workflow and attachment now have passing production browser evidence. Complete the cover and logo workflow and the design matrix before closing the bare ID.
+- [x] **MER-14** Production browser tests cover application, item, cover and logo photos. The Arabic/French profile matrix passed at 390px and 1280px in both themes. The worker and PostGIS tests cover private processing, variants and retries.
 - [x] **M2-2** Migration 0022 provisions settings and feature flags. PostGIS verified the schema and existing tenant constraints.
 - [x] **MER-15** The Arabic and French editor can create, edit and remove dated exceptions. The production stale-draft regression proves a sibling save cannot overwrite another tab’s exception.
 - [x] **M2-10 preview** Production browser and PostGIS prove held items are absent and direct detail returns 404. A reviewed false positive appears after approval. Lane B still owns the repeat-review token UI.
 - [x] **M2-12 seed** Two local seed runs produced twelve fictional Algiers restaurants with sixty bilingual items and twelve private synthetic photos.
-- [ ] **Gate wiring** The authenticated onboarding and design commands are registered, and the dedicated matrix includes import, hours, staff, media, moderation and preview. The combined onboarding scenario still needs its browser proof. The default CI trace remains scoped to the last closed milestone (M1).
+- [x] **Gate wiring** The combined production onboarding and design commands passed when invoked directly, and the dedicated authorization matrix passed all 203 cases. The default CI trace remains scoped to the last closed milestone (M1).
 
 - [ ] **MER-11** Handle whole-category price changes when a category has more than the 500 items allowed by the contract.
 

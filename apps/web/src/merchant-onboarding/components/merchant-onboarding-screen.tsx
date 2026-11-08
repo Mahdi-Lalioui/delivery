@@ -2,7 +2,7 @@
 
 import type { Locale } from "@zaafran/i18n/locales";
 import { useTranslations } from "next-intl";
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, type ReactNode } from "react";
 import { useMerchantResource } from "../../merchant/use-merchant-resource";
 import { loadMerchantOnboarding, type MerchantOnboarding } from "../merchant-onboarding-http";
 
@@ -18,7 +18,15 @@ function SetupBadge({ status }: { status: StepStatus }) {
   );
 }
 
-function SetupStep({ step, status }: { step: StepKey; status: StepStatus }) {
+function SetupStep({
+  step,
+  status,
+  children,
+}: {
+  step: StepKey;
+  status: StepStatus;
+  children?: ReactNode;
+}) {
   const translate = useTranslations("merchantOnboarding");
 
   return (
@@ -27,6 +35,7 @@ function SetupStep({ step, status }: { step: StepKey; status: StepStatus }) {
         <h3>{translate(step)}</h3>
         <SetupBadge status={status} />
       </div>
+      {children}
     </li>
   );
 }
@@ -70,6 +79,7 @@ function MenuStep({
 
 function SetupChecklist({ data, locale }: { data: MerchantOnboarding; locale: Locale }) {
   const translate = useTranslations("merchantOnboarding");
+  const photos = useTranslations("merchantProfilePhotos");
   const { steps, merchantId, restaurantName } = data;
 
   return (
@@ -80,7 +90,14 @@ function SetupChecklist({ data, locale }: { data: MerchantOnboarding; locale: Lo
         </p>
         <h2 id="setup-checklist-title">{translate("checklist")}</h2>
         <ul className="setup-list" role="list" aria-labelledby="setup-checklist-title">
-          <SetupStep step="profile" status={steps.profile} />
+          <SetupStep step="profile" status={steps.profile}>
+            <a
+              className="setup-profile-link"
+              href={`/${locale}/merchant/${merchantId}/profile/photos`}
+            >
+              {photos("manage")}
+            </a>
+          </SetupStep>
           <SetupStep step="hours" status={steps.hours} />
           <MenuStep progress={steps.menu} locale={locale} merchantId={merchantId} />
           <SetupStep step="deliveryZone" status={steps.deliveryZone} />

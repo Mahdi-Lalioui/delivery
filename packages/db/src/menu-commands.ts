@@ -18,6 +18,7 @@ type Operation =
   | "hours_replace"
   | "ramadan_replace"
   | "hours_pause"
+  | "profile_photos_replace"
   | "menu_import";
 
 export interface CommandRequest<

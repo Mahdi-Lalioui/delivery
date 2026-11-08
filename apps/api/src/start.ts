@@ -10,6 +10,7 @@ import { createMenuOptionGroupRepository } from "@zaafran/db/menu-option-group";
 import { createMenuPriceRepository } from "@zaafran/db/menu-price";
 import { createMerchantHoursRepository } from "@zaafran/db/merchant-hours";
 import { createMenuModerationRepository } from "@zaafran/db/menu-moderation";
+import { createMerchantProfilePhotosRepository } from "@zaafran/db/merchant-profile-photos";
 import { createMerchantRepository } from "@zaafran/db/merchant";
 import { createMerchantStaffRepository } from "@zaafran/db/merchant-staff";
 import { createLocalMediaStore } from "@zaafran/media";
@@ -46,6 +47,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     trustedProxy: environment.API_TRUSTED_PROXY,
     auth: { service, publicOrigin: environment.AUTH_PUBLIC_ORIGIN },
     merchant: { repository: createMerchantRepository(database), now },
+    merchantProfilePhotos: { repository: createMerchantProfilePhotosRepository(database), now },
     menuModeration: { repository: createMenuModerationRepository(database), now },
     media: {
       repository: createMediaRepository(database),

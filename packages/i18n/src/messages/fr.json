@@ -811,5 +811,30 @@
     "optionLimits": "Choisir de {minimum} à {maximum}",
     "priceDelta": "+{price}",
     "defaultOption": "Par défaut"
+  },
+  "merchantProfilePhotos": {
+    "title": "Couverture et logo",
+    "manage": "Gérer la couverture et le logo",
+    "back": "Retour à la configuration du restaurant",
+    "description": "Choisissez les photos que les clients verront sur la fiche de votre restaurant.",
+    "cover": "Photo de couverture",
+    "coverDescription": "Choisissez une photo panoramique de votre restaurant ou de votre plat signature.",
+    "logo": "Logo",
+    "logoDescription": "Utilisez une image carrée avec le logo centré.",
+    "emptyCover": "Aucune photo de couverture sélectionnée",
+    "emptyLogo": "Aucun logo sélectionné",
+    "save": "Enregistrer les photos du profil",
+    "saving": "Enregistrement des photos…",
+    "saved": "Les photos du profil ont été enregistrées.",
+    "loading": "Chargement des photos du profil…",
+    "reload": "Recharger les photos",
+    "loadError": "Impossible de charger les photos du profil.",
+    "saveError": "Les photos n’ont pas pu être enregistrées. Réessayez.",
+    "revisionConflict": "Le restaurant a été modifié entre-temps. Rechargez les photos enregistrées avant de reprendre.",
+    "photosUnavailable": "Une photo sélectionnée est indisponible. Choisissez-la de nouveau avant d’enregistrer.",
+    "sessionChanged": "Votre session a changé. Rechargez la page pour continuer.",
+    "forbidden": "Vous n’êtes pas autorisé à gérer ces photos.",
+    "signInRequired": "Connectez-vous pour gérer les photos du restaurant.",
+    "signIn": "Se connecter"
   }
 }

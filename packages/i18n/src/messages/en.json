@@ -811,5 +811,30 @@
     "optionLimits": "Choose {minimum} to {maximum}",
     "priceDelta": "+{price}",
     "defaultOption": "Default"
+  },
+  "merchantProfilePhotos": {
+    "title": "Cover and logo",
+    "manage": "Manage cover and logo",
+    "back": "Back to restaurant setup",
+    "description": "Choose the photos customers will see on your restaurant profile.",
+    "cover": "Cover photo",
+    "coverDescription": "Choose a wide photo of your restaurant or a signature dish.",
+    "logo": "Logo",
+    "logoDescription": "Use a square image with your logo centered.",
+    "emptyCover": "No cover photo selected",
+    "emptyLogo": "No logo selected",
+    "save": "Save profile photos",
+    "saving": "Saving photos…",
+    "saved": "Profile photos saved.",
+    "loading": "Loading profile photos…",
+    "reload": "Reload photos",
+    "loadError": "Profile photos could not be loaded.",
+    "saveError": "The photos could not be saved. Try again.",
+    "revisionConflict": "The restaurant changed while you were editing. Reload the saved photos before editing again.",
+    "photosUnavailable": "A selected photo is unavailable. Choose it again before saving.",
+    "sessionChanged": "Your session changed. Reload to continue.",
+    "forbidden": "You do not have permission to manage these photos.",
+    "signInRequired": "Sign in to manage restaurant photos.",
+    "signIn": "Sign in"
   }
 }
