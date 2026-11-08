@@ -523,6 +523,37 @@
     "pauseInPast": "Cette heure est déjà passée. Choisissez une nouvelle durée.",
     "pauseSaved": "Statut mis à jour.",
     "pauseLoading": "Chargement du statut…",
-    "pauseUnavailable": "Le statut « fermé maintenant » est indisponible pour le moment."
+    "pauseUnavailable": "Le statut « fermé maintenant » est indisponible pour le moment.",
+    "ramadanLegend": "Horaires du Ramadan",
+    "kindLabel": "Référence",
+    "kindMaghrib": "Maghrib ± minutes",
+    "kindClock": "Heure fixe",
+    "offsetLabel": "Minutes par rapport au Maghrib",
+    "offsetHint": "Négatif = avant le Maghrib",
+    "timeLabel": "Heure",
+    "endpointMaghrib": "Maghrib",
+    "endpointMaghribOffset": "Maghrib {offset}",
+    "suhoorToggle": "Ouvrir pour le suhour",
+    "suhoorLegend": "Fenêtre du suhour",
+    "methodLabel": "Méthode de calcul des horaires de prière",
+    "adjustmentLabel": "Ajustement manuel (minutes, de −30 à 30)",
+    "errorRamadanDay": "Vérifiez les créneaux de ce jour.",
+    "errorSuhoor": "Saisissez une fenêtre de suhour avec deux heures différentes.",
+    "errorAdjustment": "Saisissez un nombre entier entre −30 et 30.",
+    "methods": {
+      "Algeria": "Algérie (ministère des Affaires religieuses)",
+      "MuslimWorldLeague": "Ligue islamique mondiale",
+      "Egyptian": "Autorité égyptienne",
+      "Karachi": "Université de Karachi",
+      "UmmAlQura": "Umm al-Qura (La Mecque)",
+      "Dubai": "Dubaï",
+      "MoonsightingCommittee": "Moonsighting Committee",
+      "NorthAmerica": "Amérique du Nord (ISNA)",
+      "Kuwait": "Koweït",
+      "Qatar": "Qatar",
+      "Singapore": "Singapour",
+      "Tehran": "Téhéran",
+      "Turkey": "Turquie (Diyanet)"
+    }
   }
 }

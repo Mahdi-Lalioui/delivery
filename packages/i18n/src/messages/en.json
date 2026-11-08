@@ -523,6 +523,37 @@
     "pauseInPast": "That time has already passed. Choose a new duration.",
     "pauseSaved": "Status updated.",
     "pauseLoading": "Loading the status…",
-    "pauseUnavailable": "The closed-now status is not available right now."
+    "pauseUnavailable": "The closed-now status is not available right now.",
+    "ramadanLegend": "Ramadan hours",
+    "kindLabel": "Reference",
+    "kindMaghrib": "Maghrib ± minutes",
+    "kindClock": "Fixed time",
+    "offsetLabel": "Minutes from Maghrib",
+    "offsetHint": "Negative = before Maghrib",
+    "timeLabel": "Time",
+    "endpointMaghrib": "Maghrib",
+    "endpointMaghribOffset": "Maghrib {offset}",
+    "suhoorToggle": "Open for suhoor",
+    "suhoorLegend": "Suhoor window",
+    "methodLabel": "Prayer time calculation method",
+    "adjustmentLabel": "Manual adjustment (minutes, −30 to 30)",
+    "errorRamadanDay": "Check this day's ranges.",
+    "errorSuhoor": "Enter a suhoor window with two different times.",
+    "errorAdjustment": "Enter a whole number from −30 to 30.",
+    "methods": {
+      "Algeria": "Algeria (Ministry of Religious Affairs)",
+      "MuslimWorldLeague": "Muslim World League",
+      "Egyptian": "Egyptian General Authority",
+      "Karachi": "University of Karachi",
+      "UmmAlQura": "Umm al-Qura (Makkah)",
+      "Dubai": "Dubai",
+      "MoonsightingCommittee": "Moonsighting Committee",
+      "NorthAmerica": "North America (ISNA)",
+      "Kuwait": "Kuwait",
+      "Qatar": "Qatar",
+      "Singapore": "Singapore",
+      "Tehran": "Tehran",
+      "Turkey": "Turkey (Diyanet)"
+    }
   }
 }

@@ -3,6 +3,8 @@
 .hours-workspace,
 .hours-card,
 .hours-week,
+.hours-settings,
+.hours-endpoint,
 .hours-pause,
 .hours-pause-outcome,
 .hours-day,
@@ -55,6 +57,7 @@
 
 .hours-week,
 .hours-pause,
+.hours-endpoint,
 .hours-day {
   margin: 0;
   padding: 0;
@@ -96,7 +99,8 @@
   line-height: var(--line-height-label);
 }
 
-.hours-time input {
+.hours-time input,
+.hours-time select {
   min-block-size: var(--touch-target-min);
   padding-inline: var(--space-8);
   border: 1px solid var(--color-border-strong);
@@ -141,4 +145,17 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-8);
+}
+
+.hours-endpoint > legend {
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-label);
+  line-height: var(--line-height-label);
+}
+
+.hours-check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  min-block-size: var(--touch-target-min);
 }

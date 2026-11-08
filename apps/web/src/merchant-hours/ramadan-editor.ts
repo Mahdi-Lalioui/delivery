@@ -26,7 +26,7 @@ export interface RamadanDraft {
   readonly method: RamadanInput["method"];
   readonly adjustment: string;
 }
-type RamadanError = { field: "day"; weekday: number } | { field: "suhoor" | "adjustment" };
+export type RamadanError = { field: "day"; weekday: number } | { field: "suhoor" | "adjustment" };
 export type RamadanValidation =
   { kind: "valid"; input: RamadanInput } | { kind: "invalid"; errors: RamadanError[] };
 
@@ -194,4 +194,11 @@ export function switchEndpointKind(
 export function toggleRamadanSuhoor(draft: RamadanDraft, isOn: boolean): RamadanDraft {
   if (isOn === (draft.suhoor !== null)) return draft;
   return { ...draft, suhoor: isOn ? newSuhoor : null };
+}
+
+/** "−60" / "+15" for display, undefined for 0 or unreadable text. */
+export function formatMaghribOffset(offset: string): string | undefined {
+  const minutes = parseMinuteOffset(offset);
+  if (minutes === undefined || minutes === 0) return undefined;
+  return (minutes < 0 ? "−" : "+") + String(Math.abs(minutes));
 }

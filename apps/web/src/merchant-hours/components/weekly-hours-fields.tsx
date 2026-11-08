@@ -6,6 +6,7 @@ import {
   type HoursDraft,
   type RangeDraft,
 } from "../hours-editor";
+import { weekdayKeys } from "./weekday-keys";
 
 type RangeAddress = { weekday: number; index: number };
 export interface WeeklyHoursFieldsProps {
@@ -16,17 +17,6 @@ export interface WeeklyHoursFieldsProps {
   readonly onAdd: (weekday: number) => void;
   readonly onRemove: (range: RangeAddress) => void;
 }
-
-// Weekday 0 is Sunday, matching the M1 hours rules and the contract.
-const weekdayKeys = [
-  "sunday",
-  "monday",
-  "tuesday",
-  "wednesday",
-  "thursday",
-  "friday",
-  "saturday",
-] as const;
 
 const errorMessages = { time: "errorTime", overlap: "errorOverlap" } as const;
 

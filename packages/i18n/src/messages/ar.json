@@ -523,6 +523,37 @@
     "pauseInPast": "هذا الوقت قد مضى. اختر مدة جديدة.",
     "pauseSaved": "تم تحديث الحالة.",
     "pauseLoading": "جارٍ تحميل الحالة…",
-    "pauseUnavailable": "حالة «مغلق الآن» غير متاحة حاليًا."
+    "pauseUnavailable": "حالة «مغلق الآن» غير متاحة حاليًا.",
+    "ramadanLegend": "ساعات العمل في رمضان",
+    "kindLabel": "المرجع",
+    "kindMaghrib": "المغرب ± دقائق",
+    "kindClock": "وقت ثابت",
+    "offsetLabel": "الدقائق بالنسبة إلى المغرب",
+    "offsetHint": "القيمة السالبة = قبل المغرب",
+    "timeLabel": "الوقت",
+    "endpointMaghrib": "المغرب",
+    "endpointMaghribOffset": "المغرب {offset}",
+    "suhoorToggle": "الفتح وقت السحور",
+    "suhoorLegend": "فترة السحور",
+    "methodLabel": "طريقة حساب مواقيت الصلاة",
+    "adjustmentLabel": "تعديل يدوي (دقائق، من −30 إلى 30)",
+    "errorRamadanDay": "راجع فترات هذا اليوم.",
+    "errorSuhoor": "أدخل فترة سحور بوقتين مختلفين.",
+    "errorAdjustment": "أدخل عددًا صحيحًا من −30 إلى 30.",
+    "methods": {
+      "Algeria": "الجزائر (وزارة الشؤون الدينية)",
+      "MuslimWorldLeague": "رابطة العالم الإسلامي",
+      "Egyptian": "الهيئة المصرية العامة للمساحة",
+      "Karachi": "جامعة كراتشي",
+      "UmmAlQura": "أم القرى (مكة المكرمة)",
+      "Dubai": "دبي",
+      "MoonsightingCommittee": "لجنة رؤية الهلال",
+      "NorthAmerica": "أمريكا الشمالية (ISNA)",
+      "Kuwait": "الكويت",
+      "Qatar": "قطر",
+      "Singapore": "سنغافورة",
+      "Tehran": "طهران",
+      "Turkey": "تركيا (ديانت)"
+    }
   }
 }

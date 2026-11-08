@@ -2,18 +2,10 @@ import { formatAlgiersDate, formatAlgiersTime } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
 import { useTranslations } from "next-intl";
 import type { HoursPreview } from "../hours-http";
+import { weekdayKeys } from "./weekday-keys";
 
 type PreviewDay = HoursPreview["days"][number];
 
-const weekdayKeys = [
-  "sunday",
-  "monday",
-  "tuesday",
-  "wednesday",
-  "thursday",
-  "friday",
-  "saturday",
-] as const;
 const dayMs = 86_400_000;
 
 // Africa/Algiers is UTC+01:00 without DST, so local midnight of a civil date is fixed.

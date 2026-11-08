@@ -2,6 +2,7 @@ import { expect, test } from "vitest";
 import {
   addRamadanRange,
   canAddRamadanRange,
+  formatMaghribOffset,
   removeRamadanRange,
   switchEndpointKind,
   toggleRamadanSuhoor,
@@ -67,4 +68,11 @@ test("[MER-16] turns the suhoor window on with 03:00–04:30 and off again", () 
   expect(withSuhoor.suhoor).toEqual({ opens: "03:00", closes: "04:30" });
   expect(toggleRamadanSuhoor(withSuhoor, true)).toBe(withSuhoor);
   expect(toggleRamadanSuhoor(withSuhoor, false).suhoor).toBe(null);
+});
+
+test("[MER-16] describes a Maghrib offset with an explicit sign and hides zero", () => {
+  expect(formatMaghribOffset("-60")).toBe("−60");
+  expect(formatMaghribOffset("١٥")).toBe("+15");
+  expect(formatMaghribOffset("0")).toBe(undefined);
+  expect(formatMaghribOffset("soon")).toBe(undefined);
 });

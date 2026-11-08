@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 04:22 GMT — M2-9 presentational Ramadan fields (Claude, covering while Codex was out)
+
+- **Changed** — Added `components/ramadan-fields.tsx`. Each weekday from Sunday is a fieldset of ranges. Each opening or closing endpoint is its own fieldset with a labelled kind `<select>`: "Maghrib ± minutes" shows a signed `inputMode="numeric"` input with a "negative = before Maghrib" hint, and "fixed time" shows `<input type="time">`. Remove buttons are named with both endpoints and the day (e.g. "Retirer le créneau Maghrib −60–02:00 (Mardi)"), and each day has `ramadan-<weekday>-add`. Added `ramadan-settings.tsx`. It has the suhoor checkbox and window, the method `<select>` over the contract's own `merchantRamadanInput.shape.method.options` (13 methods, with localized names), and the ± adjustment. Day, suhoor and adjustment errors are linked through `aria-describedby`. Added `formatMaghribOffset`, exported `RamadanError`, and moved `weekdayKeys` into a shared `weekday-keys.ts` used by all three components. Added 17 messages plus the 13 method names in ar, fr and en, and token-only CSS for the endpoints, the select and the checkbox row.
+- **Evidence** — Tests came first: 4 `[MER-16]` render cases in fr/ar. They failed on the missing module, then 4/4 passed. A direct `formatMaghribOffset` case was added afterwards and passed at once, because the code already existed and had only been covered through the remove label. 104 hours and Ramadan tests passed. `pnpm verify` exited 0: 1091 unit tests, 118 PostGIS integration tests, build, knip, depcruise, trace, and only the existing moderate advisory.
+- **Reviewer** — Self-reviewed against AGENTS.md §10. No P0/P1. Signed-number inputs use `dir="ltr"` so the sign stays leading in Arabic.
+- **Next (exact)** — Add `ramadan-flow.ts`, mirroring `hours-flow.ts` with `toRamadanDraft`/`toRamadanInput` and `RamadanError[]`, plus a `revision-advanced` event. Test it first. Then add `use-ramadan-editor.ts`: load with `readRamadan`, save with `replaceRamadan`, and on success dispatch `revision-advanced` into both the hours and pause flows. The weekly hours save must also advance the Ramadan state. Focus goes to `#ramadan-<weekday>-<index>-opens-kind` after add and to `#ramadan-<weekday>-add` after remove. Render `RamadanFields` with its own Save on the hours page. Add regular/Ramadan preview tabs (`readHoursPreview({ schedule })`, refreshed on any revision change). Then the production-build overnight and Ramadan journeys in ar/fr, and the screenshot matrix.
+- **Needs Mahdi** — None.
+
 ### 2026-11-08 04:18 GMT — M2-9 pure Ramadan draft edit helpers (Claude, covering while Codex was out)
 
 - **Changed** — `ramadan-editor.ts` now exports `canAddRamadanRange`, `addRamadanRange`, `updateRamadanEndpoint`, `removeRamadanRange`, `switchEndpointKind` and `toggleRamadanSuhoor`, and exports `EndpointDraft` again for the fields. A new day range follows the SPEC example: it opens at Maghrib (offset 0) and closes at 02:00 the next day. The day limit is four ranges, now shared through the exported `maxRangesPerDay` in `hours-editor.ts`. Switching an endpoint to clock time starts empty, so the merchant must choose a time. Switching to Maghrib starts at offset 0. Turning on suhoor defaults to 03:00–04:30.
@@ -590,6 +598,6 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 ## Current status
 
 - Milestone: M1 (last passing gate, M2 in progress)
-- `node scripts/trace.ts --through m2` on 2026-11-08 at 03:32 GMT covered 32 of 37 IDs. Pending: ADM-04, MER-01, MER-12, MER-14, MER-23. M2-9 has its API, preview, pure web models, and the weekly hours page with the closed-now control. The Ramadan fields and tabs, journeys and screenshots remain.
-- Last green `pnpm verify`: 2026-11-08 04:17 GMT on Docker Desktop with 1086 unit and 118 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 12/12 at 02:22 GMT.
+- `node scripts/trace.ts --through m2` on 2026-11-08 at 03:32 GMT covered 32 of 37 IDs. Pending: ADM-04, MER-01, MER-12, MER-14, MER-23. M2-9 has its API, preview, pure web models, and the weekly hours page with the closed-now control. The Ramadan fields are rendered but not yet wired. The Ramadan save state, preview tabs, journeys and screenshots remain.
+- Last green `pnpm verify`: 2026-11-08 04:21 GMT on Docker Desktop with 1091 unit and 118 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 12/12 at 02:22 GMT.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
