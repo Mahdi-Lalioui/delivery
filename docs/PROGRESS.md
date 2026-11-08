@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 10:09 GMT — M2-10 merchant-first moderation locking
+
+- **Changed** — Admin review now acquires the merchant lock before updating the held item, matching merchant edits. The update still checks ownership, moderation state and archival.
+- **Evidence** — The concurrent regression reproduced a PostGIS deadlock before the fix. All 116 DB integration tests passed afterward. Full `pnpm verify` passed with 1,229 unit and 139 integration tests with the import validation changes present.
+- **Reviewer** — Verified the opposing lock paths and the repaired ordering. [Review checklist](reviews/2026-11-08-menu-moderation.md)
+- **Next** — Reject bulk undo after an intervening price change, then continue import persistence.
+- **Needs Mahdi** — None.
+
 ### 2026-11-08 10:04 GMT — M2-6 S3 upload integrity review
 
 - **Changed** — Verify the exact length, SHA-256 checksum and clean source end before releasing the last byte. Report success only after the outbound stream ends. Conditional-write replay still returns `exists`.

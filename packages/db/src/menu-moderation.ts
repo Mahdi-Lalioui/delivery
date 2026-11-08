@@ -42,17 +42,29 @@ async function applyDecision(
   request: ReviewItem & { readonly actorId: string },
 ): Promise<ReviewItemResult> {
   const { actorId, itemId, decision, reason, now } = request;
+  // Menu editors lock the merchant before taking item locks.
+  const [merchant] = await sql<{ merchantId: string }[]>`
+    SELECT merchant.id AS "merchantId"
+    FROM public.items AS item JOIN public.merchants AS merchant ON merchant.id = item.merchant_id
+    WHERE item.id = ${itemId}
+    FOR NO KEY UPDATE OF merchant
+  `;
+  if (!merchant) return { kind: "not_found" };
+
+  const { merchantId } = merchant;
   const status = decision === "approve" ? "approved" : "rejected";
-  const [item] = await sql<{ merchantId: string }[]>`
+  const [item] = await sql`
     UPDATE public.items SET moderation_status = ${status}
-    WHERE id = ${itemId} AND moderation_status = 'blocked_pending_review' AND archived_at IS NULL
-    RETURNING merchant_id AS "merchantId"
+    WHERE id = ${itemId} AND merchant_id = ${merchantId}
+      AND moderation_status = 'blocked_pending_review' AND archived_at IS NULL
+    RETURNING id
   `;
   if (!item) {
-    const [existing] = await sql`SELECT id FROM public.items WHERE id = ${itemId}`;
+    const [existing] = await sql`
+      SELECT id FROM public.items WHERE id = ${itemId} AND merchant_id = ${merchantId}
+    `;
     return { kind: existing ? "invalid_status" : "not_found" };
   }
-  const { merchantId } = item;
   const at = now.toISOString();
   // A listing change is a menu change, so cached menus and open editors see a new revision.
   await sql`UPDATE public.merchants SET menu_revision = menu_revision + 1 WHERE id = ${merchantId}`;

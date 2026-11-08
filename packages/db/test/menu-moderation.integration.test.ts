@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
-import { beforeAll, expect, test } from "vitest";
+import { beforeAll, expect, test, vi } from "vitest";
+import { openDatabase } from "../src/database.ts";
 import { createMenuModerationRepository } from "../src/menu-moderation.ts";
 import { createMerchantRepository } from "../src/merchant.ts";
 import { registerTestDatabase } from "./database.ts";
@@ -181,4 +182,62 @@ test("[ADM-04:db] admins page through held items by id on the partial index", as
     `;
   });
   expect(JSON.stringify(plan)).toContain("items_held_for_review_idx");
+});
+
+test("[ADM-04:db] an admin review lets an in-flight merchant edit finish first", async () => {
+  const repo = createMenuModerationRepository(database.get());
+  const { sql } = database.get();
+  const [, , itemId] = heldItems;
+  const request = review(itemId, "review-during-edit", { decision: "approve", reason: "Vérifié" });
+  const [before] = await sql<{ revision: number }[]>`
+    SELECT menu_revision::double precision AS revision FROM public.merchants WHERE id = ${merchantId}
+  `;
+  if (!before) throw new Error("Missing fixture merchant.");
+
+  const holder = openDatabase(database.url());
+  let pending: ReturnType<typeof repo.reviewItem> | undefined;
+  try {
+    await holder.sql.begin(async (tx) => {
+      const [editor] = await tx<{ pid: number }[]>`
+        SELECT pg_backend_pid() AS pid FROM public.merchants WHERE id = ${merchantId} FOR NO KEY UPDATE
+      `;
+      if (!editor) throw new Error("Missing fixture merchant lock.");
+
+      pending = repo.reviewItem(request);
+      void pending.catch(() => undefined);
+      await vi.waitFor(
+        async () => {
+          const [waiting] = await sql<{ blocked: boolean }[]>`
+            SELECT EXISTS (
+              SELECT FROM pg_stat_activity WHERE datname = current_database()
+                AND ${editor.pid} = ANY(pg_blocking_pids(pid))
+            ) AS blocked
+          `;
+          expect(waiting?.blocked).toBe(true);
+        },
+        { timeout: 2_000 },
+      );
+
+      await tx`UPDATE public.items SET price_dzd = 350 WHERE id = ${itemId} AND merchant_id = ${merchantId}`;
+      await tx`UPDATE public.merchants SET menu_revision = menu_revision + 1 WHERE id = ${merchantId}`;
+    });
+    const reviewed = { itemId, merchantId, status: "approved", reviewedAt: now };
+    expect(await pending).toEqual({ kind: "reviewed", ...reviewed });
+    expect(await repo.reviewItem(request)).toEqual({ kind: "replayed", ...reviewed });
+  } finally {
+    await pending?.catch(() => undefined);
+    await holder.close();
+  }
+
+  const [after] = await sql`
+    SELECT item.price_dzd AS price, item.moderation_status AS status,
+      merchant.menu_revision::double precision AS revision
+    FROM public.items AS item JOIN public.merchants AS merchant ON merchant.id = item.merchant_id
+    WHERE item.id = ${itemId}
+  `;
+  expect(after).toEqual({ price: 350, status: "approved", revision: before.revision + 2 });
+  const audit = await sql`
+    SELECT action, reason FROM public.audit_log WHERE merchant_id = ${merchantId} AND reason = ${request.reason}
+  `;
+  expect(audit).toEqual([{ action: "item_approved", reason: request.reason }]);
 });
