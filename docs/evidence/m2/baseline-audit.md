@@ -18,7 +18,7 @@ The follow-up fixes re-screen approved source text when duplicating an item. The
 ## M2 gate work still open
 
 - [ ] **MER-01** Extend the passing signup-to-approved browser journey to cover application photos and admin notice delivery before marking the bare ID covered. Application photos are rejected today, and the review notice has no consumer.
-- [ ] **MER-12** Finish the bounded CSV/XLSX import screen, template, error report and production browser journey.
+- [x] **MER-12** Lane A added the bounded CSV/XLSX import screen, template and error report. The production browser journey starts with an empty menu and proves retry after a committed apply, refresh failure, and duplicate-free reimport.
 - [ ] **MER-14** Register and prove the media worker, persisted ready variants, crop workflow and item attachment. The committed intake stops at preparing.
 - [ ] **M2-2** Close the umbrella schema task. Tenant constraints and mixed-role tests exist. Settings and flags and the full media lifecycle are still open.
 - [ ] **MER-15** Add the web editor and production test for dated hours exceptions. The API persists them and the UI currently preserves existing exceptions.

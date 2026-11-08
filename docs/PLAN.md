@@ -102,6 +102,8 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Reserve photos and read private status through the authenticated API. Verify eligible membership, session revocation, first-digest adoption and transactional preparation enqueue in PostGIS.
     - [x] Stream the authorized binary PUT into private storage and verify exact length, abort cleanup, storage replay, and 8 MiB enforcement.
   - [ ] Decode JPEG, PNG, WebP and real HEVC HEIC in the worker. Normalize orientation, bound decoded pixels, remove metadata, derive the requested crop and thumbhash, and publish only after all variants exist. Prove retries recover after a worker interruption.
+    - [ ] Prove bounded private preview preparation with the pinned decoder and a synthetic real-HEVC fixture on Linux amd64.
+    - [ ] Register the prepare job and persist the private preview and job state atomically. Then implement crop processing and publish the complete ready set.
   - [ ] Connect optional application photos and item photos to the localized cropper. Verify valid and rejected uploads, keyboard crop, private previews, saved item readback and the design matrix.
 - [x] M2-7 Bulk prices (MER-11). Bind preview to merchant and item revisions, apply rounded changes and history atomically, and prove ten-minute undo rejects expired or subsequently changed prices.
   - [x] Add the pure percent/fixed rounding calculation (nearest 1/5/10/50 DA, ties up, clamped to zero).
@@ -112,11 +114,11 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
   - [x] Add the pure preview → apply → undo state machine that keeps retry keys only after uncertain failures and closes undo after a terminal rejection.
   - [x] Add the presentational bulk price panel (item and whole-category choices, raise/lower, %/DA, rounding, preview table, apply, gated undo, mapped failures) with ar/fr/en messages.
   - [x] Drive the panel from a hook, place it in the menu item workspace with DESIGN-token logical CSS, and prove the production-build journey (preview, apply, undo, expired undo) plus the screenshot matrix.
-- [ ] M2-8 CSV/XLSX import (MER-12). Publish the template, bound parsing, report row and field errors, and use a merchant-scoped external key for atomic idempotent application after preview.
+- [x] M2-8 CSV/XLSX import (MER-12). Publish the template, bound parsing, report row and field errors, and use a merchant-scoped external key for atomic idempotent application after preview.
   - [x] Define the shared template columns, bounded row input, validation report and apply summary.
   - [x] Validate raw cells and sign the validated preview context. Cover field errors, duplicate keys and exact prices.
   - [x] Persist external keys and implement revision-bound preview and atomic apply with prohibited-goods screening.
-  - [ ] Connect bounded CSV/XLSX parsing, template download and the localized import journey.
+  - [x] Connect bounded CSV/XLSX parsing, template download and the localized import journey.
 - [ ] M2-9 Hours and Ramadan (MER-15, MER-16). Persist weekly ranges, dated exceptions, Ramadan offsets and location. Render seven-day previews through the M1 rules and exercise overnight and Ramadan edits in Arabic and French.
   - [x] Define the weekly ranges and special-dates input contract (overnight ranges, no same-day overlap, bounded sizes).
   - [x] Persist weekly ranges and special dates with an owner/manager-scoped, idempotent replace command on the menu revision guard (D-011).

@@ -27,7 +27,8 @@ const payload = { rows: [row], expectedRevision: 4 };
 const rows = validateMenuImportRows(payload.rows).rows;
 const summary = { categoriesCreated: 1, itemsCreated: 1, itemsUpdated: 0, itemsUnchanged: 0 };
 const emptySummary = { categoriesCreated: 0, itemsCreated: 0, itemsUpdated: 0, itemsUnchanged: 0 };
-const headers = { "idempotency-key": "fixture-import", "x-expected-session-id": sessionId };
+const previewHeaders = { "x-expected-session-id": sessionId };
+const headers = { "idempotency-key": "fixture-import", ...previewHeaders };
 const previewToken = createImportPreviewToken(previewKey, {
   accountId,
   merchantId,
@@ -53,7 +54,12 @@ function setup(actor: Actor | undefined) {
 test("[MER-12:http] previews canonical rows and binds a token to the current session", async () => {
   const { api, repository } = setup(owner);
   repository.preview.mockResolvedValue({ kind: "previewed", revision: 4, summary, errors: [] });
-  const response = await api.inject({ method: "POST", url: path + "/preview", payload });
+  const response = await api.inject({
+    method: "POST",
+    url: path + "/preview",
+    headers: previewHeaders,
+    payload,
+  });
   expect(response.statusCode).toBe(200);
   expect(response.headers["cache-control"]).toBe("no-store");
   expect(menuImportPreviewOutput.parse(response.json())).toEqual({
@@ -71,12 +77,44 @@ test("[MER-12:http] previews canonical rows and binds a token to the current ses
   });
 });
 
+test("[MER-12:http] rejects a changed session before previewing against a stale revision", async () => {
+  const { api, repository } = setup({ ...owner, sessionId: otherSessionId });
+  repository.preview.mockResolvedValue({ kind: "revision_conflict" });
+  const response = await api.inject({
+    method: "POST",
+    url: path + "/preview",
+    headers: previewHeaders,
+    payload,
+  });
+  expect(response.statusCode).toBe(409);
+  expect(response.json()).toMatchObject({ code: "session_changed" });
+  expect(repository.preview).not.toHaveBeenCalled();
+});
+
+test.each([{}, { "x-expected-session-id": "invalid" }])(
+  "[MER-12:http] requires a valid expected session ID for preview",
+  async (invalidHeaders) => {
+    const { api, repository } = setup(owner);
+    repository.preview.mockResolvedValue({ kind: "previewed", revision: 4, summary, errors: [] });
+    const response = await api.inject({
+      method: "POST",
+      url: path + "/preview",
+      headers: invalidHeaders,
+      payload,
+    });
+    expect(response.statusCode).toBe(400);
+    expect(response.json()).toMatchObject({ code: "invalid_request" });
+    expect(repository.preview).not.toHaveBeenCalled();
+  },
+);
+
 test("[MER-12:http] authenticates invalid rows and returns only their field report", async () => {
   const { api, repository } = setup(owner);
   repository.preview.mockResolvedValue({ kind: "previewed", revision: 4, summary, errors: [] });
   const response = await api.inject({
     method: "POST",
     url: path + "/preview",
+    headers: previewHeaders,
     payload: { ...payload, rows: [{ ...row, price_dzd: "bad" }] },
   });
   expect(response.statusCode).toBe(200);
@@ -97,6 +135,7 @@ test("[MER-12:http] authenticates invalid rows and returns only their field repo
   const foreign = await api.inject({
     method: "POST",
     url: path + "/preview",
+    headers: previewHeaders,
     payload: { ...payload, rows: [{}] },
   });
   expect(foreign.statusCode).toBe(404);
@@ -112,7 +151,12 @@ test("[MER-12:http] withholds the token and counts for database validation error
     summary,
     errors: [...errors],
   });
-  const response = await api.inject({ method: "POST", url: path + "/preview", payload });
+  const response = await api.inject({
+    method: "POST",
+    url: path + "/preview",
+    headers: previewHeaders,
+    payload,
+  });
   expect(response.statusCode).toBe(200);
   expect(menuImportPreviewOutput.parse(response.json())).toMatchObject({
     previewToken: null,
@@ -225,9 +269,14 @@ test("[MER-12:http] reports invalid rows, required headers and schema errors wit
 test("[MER-12:http] maps stale and idempotency conflicts to problem responses", async () => {
   const { api, repository } = setup(owner);
   repository.preview.mockResolvedValue({ kind: "revision_conflict" });
-  expect((await api.inject({ method: "POST", url: path + "/preview", payload })).statusCode).toBe(
-    409,
-  );
+  const previewConflict = await api.inject({
+    method: "POST",
+    url: path + "/preview",
+    headers: previewHeaders,
+    payload,
+  });
+  expect(previewConflict.statusCode).toBe(409);
+  expect(previewConflict.json()).toMatchObject({ code: "revision_conflict" });
   for (const kind of ["not_found", "revision_conflict", "idempotency_conflict"] as const) {
     repository.apply.mockResolvedValue({ kind });
     const response = await api.inject({
@@ -282,6 +331,7 @@ test("[MER-12:http] preserves the 256 KiB request body limit", async () => {
   const response = await api.inject({
     method: "POST",
     url: path + "/preview",
+    headers: previewHeaders,
     payload: {
       rows: Array.from({ length: 300 }, () => ({ ...row, description_fr: "x".repeat(1000) })),
       expectedRevision: 4,

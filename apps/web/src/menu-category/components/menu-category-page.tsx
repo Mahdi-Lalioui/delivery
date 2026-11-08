@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { SiteShell } from "../../components/site-shell";
+import "../../menu-item/components/menu-item.css";
 import { MenuCategoryScreen } from "./menu-category-screen";
 import "./menu-category.css";
 
@@ -27,11 +28,13 @@ export async function menuCategoryMetadata(locale: Locale): Promise<Metadata> {
 }
 
 export function MenuCategoryPage({ merchantId, locale }: { merchantId: string; locale: Locale }) {
+  const { menuCategory, menuImport } = getMessages(locale);
   return (
     <SiteShell locale={locale} subpath={`/merchant/${merchantId}/menu`}>
       <NextIntlClientProvider
         locale={localeDetails[locale].tag}
-        messages={{ menuCategory: getMessages(locale).menuCategory }}
+        timeZone="Africa/Algiers"
+        messages={{ menuCategory, menuImport }}
       >
         <MenuCategoryScreen key={merchantId} merchantId={merchantId} locale={locale} />
       </NextIntlClientProvider>

@@ -20,6 +20,7 @@ import {
 } from "./menu-category-http";
 
 type CategoryView = CategoryRead | { kind: "loading" };
+type AccessFailure = "sign-in" | "forbidden" | "session-changed";
 type CategoryNotice =
   | { kind: "created" | "updated" }
   | { kind: "moved"; categoryId: string; position: number; total: number };
@@ -96,14 +97,17 @@ export function useMenuCategoryEditor(merchantId: string) {
   const [fieldError, setFieldError] = useState<CategoryFieldError>();
   const [saveError, setSaveError] = useState<SaveError>();
   const [isSaving, setSaving] = useState(false);
+  const [isImportOpen, setImportOpen] = useState(false);
   const [revisionConflict, setRevisionConflict] = useState(false);
   const [notice, setNotice] = useState<CategoryNotice>();
   const [focus, setFocus] = useState<FocusRequest>();
   const attempt = useRef<Attempt | undefined>(undefined);
   const inFlight = useRef(false);
+  const request = useRef<AbortController | undefined>(undefined);
 
   useEffect(() => {
     const controller = new AbortController();
+    request.current = controller;
     void listMenuCategories({ merchantId, signal: controller.signal }).then((result) => {
       if (!controller.signal.aborted) setView(result);
     });
@@ -124,6 +128,7 @@ export function useMenuCategoryEditor(merchantId: string) {
   function reload() {
     if (inFlight.current) return;
     discardDraft();
+    setImportOpen(false);
     setRevisionConflict(false);
     setFocus(undefined);
     setView({ kind: "loading" });
@@ -131,7 +136,7 @@ export function useMenuCategoryEditor(merchantId: string) {
   }
 
   function edit(category?: MenuCategory) {
-    if (inFlight.current || revisionConflict) return;
+    if (inFlight.current || revisionConflict || isImportOpen) return;
     setSelectedId(category?.categoryId);
     setDraft(makeCategoryDraft(category));
     setFieldError(undefined);
@@ -143,6 +148,42 @@ export function useMenuCategoryEditor(merchantId: string) {
     setDraft((current) => ({ ...current, [field]: value }));
     setFieldError(undefined);
     setSaveError(undefined);
+  }
+
+  function showAccessFailure(kind: AccessFailure) {
+    discardDraft();
+    setImportOpen(false);
+    setView({ kind });
+    setFocus(kind === "session-changed" ? { kind: "reload" } : undefined);
+  }
+
+  function toggleImport() {
+    if (!inFlight.current && !revisionConflict) setImportOpen((open) => !open);
+  }
+
+  async function refreshAfterImport(minimumRevision: number) {
+    const controller = request.current;
+    if (!controller || view.kind !== "ready") throw new Error("No category snapshot to refresh");
+    const { signal } = controller;
+    const { sessionId, revision } = view.data;
+    const refreshed = await listMenuCategories({ merchantId, signal });
+    if (signal.aborted) throw new Error("Category refresh was cancelled");
+
+    if (refreshed.kind === "ready") {
+      if (refreshed.data.sessionId !== sessionId) showAccessFailure("session-changed");
+      else if (refreshed.data.revision >= Math.max(revision, minimumRevision)) {
+        setView(refreshed);
+        return;
+      }
+    } else if (
+      refreshed.kind === "sign-in" ||
+      refreshed.kind === "forbidden" ||
+      refreshed.kind === "session-changed"
+    ) {
+      showAccessFailure(refreshed.kind);
+    }
+
+    throw new Error("Could not refresh categories after import");
   }
 
   function handleFailure(result: WriteFailure) {
@@ -159,9 +200,7 @@ export function useMenuCategoryEditor(merchantId: string) {
       return;
     }
 
-    discardDraft();
-    setView({ kind: result.kind });
-    setFocus(result.kind === "session-changed" ? { kind: "reload" } : undefined);
+    showAccessFailure(result.kind);
   }
 
   function recordSavedCategory(
@@ -182,7 +221,7 @@ export function useMenuCategoryEditor(merchantId: string) {
   }
 
   async function run(command: CategoryCommand, movedId?: string) {
-    if (view.kind !== "ready" || inFlight.current || revisionConflict) return;
+    if (view.kind !== "ready" || inFlight.current || revisionConflict || isImportOpen) return;
     const snapshot = view.data;
     inFlight.current = true;
     setSaving(true);
@@ -222,7 +261,7 @@ export function useMenuCategoryEditor(merchantId: string) {
   }
 
   async function save() {
-    if (view.kind !== "ready") return;
+    if (view.kind !== "ready" || isImportOpen) return;
     const result = parseCategoryDraft(draft, view.data.revision);
     if (result.kind === "invalid") {
       setFieldError(result.field);
@@ -257,12 +296,16 @@ export function useMenuCategoryEditor(merchantId: string) {
     fieldError,
     saveError,
     isSaving,
+    isImportOpen,
     revisionConflict,
     notice,
     focus,
     edit,
     update,
     reload,
+    toggleImport,
+    refreshAfterImport,
+    showAccessFailure,
     save,
     move,
   };
