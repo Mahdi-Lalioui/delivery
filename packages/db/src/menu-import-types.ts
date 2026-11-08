@@ -16,7 +16,7 @@ export interface ValidatedMenuImportRow {
 export interface MenuImportError {
   readonly row: number;
   readonly field: "external_key" | "category_ar";
-  readonly reason: "archived_key" | "ambiguous_category" | "category_limit";
+  readonly reason: "archived_key" | "moderation_pending" | "ambiguous_category" | "category_limit";
 }
 
 export interface MenuImportSummary {

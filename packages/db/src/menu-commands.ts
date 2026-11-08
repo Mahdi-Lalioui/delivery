@@ -33,6 +33,7 @@ type CategoryWriteFailure = "not_found" | "category_limit" | "invalid_order";
 type WriteFailure =
   | CategoryWriteFailure
   | "photos_unavailable"
+  | "moderation_pending"
   | "invalid_bulk_price_change"
   | "undo_window_expired"
   | "price_changed_since_apply"

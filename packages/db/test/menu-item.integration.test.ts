@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { beforeAll, expect, test } from "vitest";
 import { createMediaRepository } from "../src/media.ts";
 import { createMenuItemRepository } from "../src/menu-item.ts";
+import { createMenuModerationRepository } from "../src/menu-moderation.ts";
 import { createMerchantRepository } from "../src/merchant.ts";
 import { registerTestDatabase } from "./database.ts";
 import { seedReadyPhoto } from "./ready-photo.ts";
@@ -543,21 +544,25 @@ test.each([
   [blocked, "blocked_pending_review"],
   [rejected, "rejected"],
 ] as const)(
-  "[ADM-04:db] edits and duplicates retain a held item status",
+  "[ADM-04:db] allowed edits and duplicates retain the moderation status",
   async (fixture, moderationStatus) => {
     const repo = repository();
     const checklist = createMerchantRepository(database.get());
-    const { merchantId, categoryId, firstItem: itemId } = fixture;
+    const { merchantId, firstItem: itemId } = fixture;
     await seedItem(fixture, { moderationStatus });
     const target = { merchantId, itemId };
 
     const edited = await repo.update(
       command(target, "edit-held-item", {
-        ...itemInput(categoryId, 0),
-        descriptions: { fr: "Description fictive mise à jour" },
+        ...itemInput(fixture.alternateCategoryId, 0),
+        priceDzd: 1300,
+        ...(moderationStatus === "rejected" && { descriptions: { fr: "Description mise à jour" } }),
       }),
     );
-    expect(edited).toMatchObject({ kind: "applied", item: { moderationStatus } });
+    expect(edited).toMatchObject({
+      kind: "applied",
+      item: { moderationStatus, priceDzd: 1300, categoryId: fixture.alternateCategoryId },
+    });
     const duplicate = await repo.duplicate(
       command(target, "copy-held-item", { expectedRevision: 1 }),
     );
@@ -598,10 +603,11 @@ test("[ADM-04:db] item writes with prohibited words are held for review in the s
 
   const clean = await repo.create(command({ merchantId }, "clean-item", itemInput(categoryId, 0)));
   expect(status(clean)).toBe("unreviewed");
+  const heldNames = { fr: "Bière sans alcool" };
   const beer = await repo.create(
     command({ merchantId }, "beer-item", {
       ...itemInput(categoryId, 1),
-      names: { ar: "بيرة", fr: "Bière pression" },
+      names: heldNames,
     }),
   );
   expect(status(beer)).toBe("blocked_pending_review");
@@ -617,8 +623,47 @@ test("[ADM-04:db] item writes with prohibited words are held for review in the s
   expect(status(describedTobacco)).toBe("blocked_pending_review");
 
   const beerTarget = { merchantId, itemId: beer.item.itemId };
-  const renamed = await repo.update(command(beerTarget, "rename-beer", itemInput(categoryId, 3)));
-  expect(status(renamed)).toBe("blocked_pending_review");
+  const { sql } = database.get();
+  await sql`INSERT INTO public.admins (user_id, totp_secret_encrypted) VALUES (${staffMerchantOwner}, ${hash("held-review")})`;
+  const admin = createMenuModerationRepository(database.get());
+  const adminUserId = staffMerchantOwner;
+  const queue = await admin.listHeldItems({ adminUserId, limit: 10 });
+  expect(queue?.items.find(({ itemId }) => itemId === beerTarget.itemId)).toMatchObject({
+    names: heldNames,
+  });
+  const attemptedText = [
+    { names: { fr: "Bière pression" }, descriptions: beer.item.descriptions },
+    { names: heldNames, descriptions: { fr: "Contient du rhum" } },
+  ];
+  for (const [index, text] of attemptedText.entries()) {
+    await expect(
+      repo.update(
+        command(beerTarget, `change-held-text-${String(index)}`, {
+          ...itemInput(categoryId, 3),
+          ...text,
+        }),
+      ),
+    ).resolves.toEqual({ kind: "moderation_pending" });
+  }
+  await expect(
+    admin.reviewItem({
+      adminUserId,
+      itemId: beerTarget.itemId,
+      decision: "approve",
+      reason: "Sans alcool",
+      now,
+      idempotencyKeyHash: hash("review-beer"),
+      requestHash: hash("approve-beer"),
+    }),
+  ).resolves.toMatchObject({ kind: "reviewed", status: "approved" });
+  const listed = await repo.list(page(screened));
+  if (listed.kind !== "listed") throw new Error("Expected the approved item in the list.");
+  expect(listed.revision).toBe(4);
+  expect(listed.items.find(({ itemId }) => itemId === beerTarget.itemId)).toMatchObject({
+    names: heldNames,
+    descriptions: beer.item.descriptions,
+    moderationStatus: "approved",
+  });
 
   const priceOnly = await repo.update(
     command(approved, "approved-price", { ...itemInput(categoryId, 4), priceDzd: 1_300 }),

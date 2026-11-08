@@ -69,6 +69,12 @@ function savedFocus(
     : { kind: "row", itemId };
 }
 
+const writeErrors = {
+  "rate-limited": "rateLimited",
+  "moderation-pending": "moderationPending",
+  error: "saveError",
+} as const;
+
 export function useMenuItemEditor({
   merchantId,
   categoryId,
@@ -83,7 +89,7 @@ export function useMenuItemEditor({
   const [attachmentVersion, setAttachmentVersion] = useState(0);
   const [archiveTarget, setArchiveTarget] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
-  const [error, setError] = useState<"saveError" | "rateLimited" | null>(null);
+  const [error, setError] = useState<(typeof writeErrors)[keyof typeof writeErrors] | null>(null);
   const [notice, setNotice] = useState<Notice | null>(null);
   const [focus, setFocus] = useState<Focus | null>(null);
   const [loadVersion, setLoadVersion] = useState(0);
@@ -386,7 +392,7 @@ export function useMenuItemEditor({
     controlId: string,
   ) {
     attempt.current = result.shouldReuseKey ? currentAttempt : undefined;
-    setError(result.kind === "rate-limited" ? "rateLimited" : "saveError");
+    setError(writeErrors[result.kind]);
     setFocus({ kind: "control", id: controlId });
   }
 

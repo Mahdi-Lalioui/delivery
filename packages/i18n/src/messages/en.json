@@ -388,6 +388,7 @@
     "save": "Save item",
     "saving": "Saving…",
     "saveError": "We couldn’t save the change. Try again.",
+    "moderationPending": "The item name and description are locked while the item is under review.",
     "rateLimited": "Too many requests. Try again later.",
     "created": "Item created.",
     "updated": "Item updated.",
@@ -716,6 +717,7 @@
       "duplicate_key": "This key appears twice.",
       "invalid_price": "Enter a whole-dinar price.",
       "archived_key": "This key belongs to an archived item.",
+      "moderation_pending": "The item name and description are locked while the item is under review.",
       "ambiguous_category": "Several categories share these names.",
       "category_limit": "The category limit has been reached."
     },
@@ -784,5 +786,30 @@
     "requestError": "The photo could not be saved. Choose a new photo.",
     "retryError": "The photo request was interrupted. Try again.",
     "sessionChanged": "Your session changed. Refresh the page before choosing a photo."
+  },
+  "menuPreview": {
+    "open": "Preview as customer",
+    "close": "Back to editor",
+    "title": "Customer preview",
+    "hint": "See the saved menu as customers would see it.",
+    "categories": "Menu categories",
+    "loadingCategories": "Loading menu categories…",
+    "categoriesError": "Menu categories could not be loaded.",
+    "loading": "Loading the customer menu…",
+    "loadError": "The customer menu could not be loaded.",
+    "empty": "There are no customer-visible items in this category.",
+    "loadMore": "Load more items",
+    "retry": "Try again",
+    "changed": "The saved menu changed while you were viewing it.",
+    "refresh": "Refresh saved menu",
+    "details": "View options for {name}",
+    "showDetails": "View options",
+    "loadingDetail": "Loading options…",
+    "detailError": "The options could not be loaded.",
+    "optionsTitle": "Options",
+    "noOptions": "This item has no options.",
+    "optionLimits": "Choose {minimum} to {maximum}",
+    "priceDelta": "+{price}",
+    "defaultOption": "Default"
   }
 }

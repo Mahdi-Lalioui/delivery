@@ -204,3 +204,7 @@ Deliver MER-01 notices inside the authenticated admin console. Signup already re
 ### D-022 — Merchant preview reads the saved menu draft (2026-11-08)
 
 Give authorized owners and managers a customer-style preview of the saved menu for approved, active and paused restaurants. Bind the category page and item detail to the authenticated session and menu revision. The read projection contains display fields and ready item photo IDs. Apply moderation and archival filters before emitting an item or its options. Anonymous publication, customer links and public photo delivery belong to M3.
+
+### D-023 — Moderation binds to the reviewed text and cycle (2026-11-08)
+
+Freeze names and descriptions while an item awaits review in both direct edits and spreadsheet imports. Price, category and other non-text edits remain available. The opt-in held queue includes a review token computed from the canonical text, item ID and count of prior committed reviews. A later hold requires its current token, and any supplied token must match under the merchant lock. Exact retries return the original receipt. The legacy queue can complete first holds during the Lane B UI rollout. Refresh held queues during deployment so first-hold reviewers see the current text.

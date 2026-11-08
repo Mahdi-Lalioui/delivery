@@ -388,6 +388,7 @@
     "save": "Enregistrer l’article",
     "saving": "Enregistrement…",
     "saveError": "Impossible d’enregistrer la modification. Réessayez.",
+    "moderationPending": "Le nom et la description de cet article sont verrouillés pendant l’examen.",
     "rateLimited": "Trop de demandes. Réessayez plus tard.",
     "created": "Article créé.",
     "updated": "Article modifié.",
@@ -716,6 +717,7 @@
       "duplicate_key": "Cette clé apparaît deux fois.",
       "invalid_price": "Saisissez un prix en dinars entiers.",
       "archived_key": "Cette clé appartient à un article archivé.",
+      "moderation_pending": "Le nom et la description de cet article sont verrouillés pendant l’examen.",
       "ambiguous_category": "Plusieurs catégories portent ces noms.",
       "category_limit": "La limite de catégories est atteinte."
     },
@@ -784,5 +786,30 @@
     "requestError": "La photo n’a pas pu être enregistrée. Choisissez une autre photo.",
     "retryError": "L’opération a été interrompue. Réessayez.",
     "sessionChanged": "Votre session a changé. Actualisez la page avant de choisir une photo."
+  },
+  "menuPreview": {
+    "open": "Voir comme un client",
+    "close": "Revenir à l’éditeur",
+    "title": "Aperçu client",
+    "hint": "Voyez le menu enregistré tel qu’il apparaît aux clients.",
+    "categories": "Catégories du menu",
+    "loadingCategories": "Chargement des catégories…",
+    "categoriesError": "Impossible de charger les catégories du menu.",
+    "loading": "Chargement du menu client…",
+    "loadError": "Impossible de charger le menu client.",
+    "empty": "Aucun article de cette catégorie n’est visible par les clients.",
+    "loadMore": "Charger plus d’articles",
+    "retry": "Réessayer",
+    "changed": "Le menu enregistré a changé pendant la consultation.",
+    "refresh": "Actualiser le menu enregistré",
+    "details": "Voir les options de {name}",
+    "showDetails": "Voir les options",
+    "loadingDetail": "Chargement des options…",
+    "detailError": "Impossible de charger les options.",
+    "optionsTitle": "Options",
+    "noOptions": "Cet article ne propose aucune option.",
+    "optionLimits": "Choisir de {minimum} à {maximum}",
+    "priceDelta": "+{price}",
+    "defaultOption": "Par défaut"
   }
 }

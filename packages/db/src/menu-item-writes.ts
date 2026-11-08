@@ -26,7 +26,7 @@ export type ItemAvailabilityWrite = CommandRequest<
 
 type ItemEditChange = CommandChange<
   { readonly item: MenuItem },
-  "not_found" | "photos_unavailable"
+  "not_found" | "photos_unavailable" | "moderation_pending"
 >;
 
 async function lockItemReferences(
@@ -48,9 +48,17 @@ async function lockItemReferences(
   return groups.length === optionGroupIds.length;
 }
 
-async function lockEditableItem(sql: TransactionSql, { merchantId, itemId }: ItemTarget) {
-  const [item] = await sql<{ photoId: string | null }[]>`
-    SELECT photo_id AS "photoId" FROM public.items
+async function lockEditableItem(
+  sql: TransactionSql,
+  { merchantId, itemId }: ItemTarget,
+  { names, descriptions }: { names: string; descriptions: string },
+) {
+  const [item] = await sql<{ photoId: string | null; heldTextChanged: boolean }[]>`
+    SELECT photo_id AS "photoId",
+      moderation_status = 'blocked_pending_review' AND
+      (names IS DISTINCT FROM ${names}::jsonb OR descriptions IS DISTINCT FROM ${descriptions}::jsonb)
+      AS "heldTextChanged"
+    FROM public.items
     WHERE merchant_id = ${merchantId} AND id = ${itemId} AND archived_at IS NULL
     FOR NO KEY UPDATE
   `;
@@ -114,15 +122,16 @@ export async function updateItem(
   request: ItemUpdate,
 ): Promise<ItemEditChange> {
   const { merchantId, itemId, input, now } = request;
-  const current = await lockEditableItem(sql, request);
+  const names = JSON.stringify(input.names);
+  const descriptions = JSON.stringify(input.descriptions);
+  const current = await lockEditableItem(sql, request, { names, descriptions });
   if (!current) return { kind: "not_found" };
+  if (current.heldTextChanged) return { kind: "moderation_pending" };
   if (!(await lockItemReferences(sql, request))) return { kind: "not_found" };
   if (!(await lockNewItemPhoto(sql, request, current.photoId)))
     return { kind: "photos_unavailable" };
 
   const photoId = input.removePhoto ? null : (input.photoId ?? current.photoId);
-  const names = JSON.stringify(input.names);
-  const descriptions = JSON.stringify(input.descriptions);
   const textStatus = screenItemText(input);
   await sql`
     UPDATE public.items SET category_id = ${input.categoryId},

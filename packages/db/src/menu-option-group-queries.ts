@@ -1,5 +1,6 @@
 import type { TransactionSql } from "postgres";
 import { readMenuContext, type MenuScope } from "./menu-access.js";
+import type { ItemTarget } from "./menu-item-queries.js";
 
 interface Translations {
   readonly ar?: string | undefined;
@@ -45,12 +46,8 @@ export interface OptionGroupPage extends MenuScope {
   readonly cursor?: GroupCursor | undefined;
 }
 
-export async function readOptionGroup(
-  sql: TransactionSql,
-  { merchantId, optionGroupId }: OptionGroupTarget,
-): Promise<OptionGroup | undefined> {
-  const [group] = await sql<OptionGroup[]>`
-    SELECT groups.id AS "optionGroupId", groups.names, groups.minimum, groups.maximum,
+function optionGroupColumns(sql: TransactionSql) {
+  return sql`groups.id AS "optionGroupId", groups.names, groups.minimum, groups.maximum,
       (
         SELECT jsonb_agg(jsonb_build_object(
           'optionId', option.id, 'names', option.names, 'priceDeltaDzd', option.price_delta_dzd,
@@ -59,10 +56,33 @@ export async function readOptionGroup(
         FROM public.options AS option
         WHERE option.merchant_id = groups.merchant_id AND option.group_id = groups.id
       ) AS options
+  `;
+}
+
+export async function readOptionGroup(
+  sql: TransactionSql,
+  { merchantId, optionGroupId }: OptionGroupTarget,
+): Promise<OptionGroup | undefined> {
+  const [group] = await sql<OptionGroup[]>`
+    SELECT ${optionGroupColumns(sql)}
     FROM public.option_groups AS groups
     WHERE groups.merchant_id = ${merchantId} AND groups.id = ${optionGroupId}
   `;
   return group;
+}
+
+export async function readItemOptionGroups(
+  sql: TransactionSql,
+  { merchantId, itemId }: ItemTarget,
+): Promise<OptionGroup[]> {
+  return sql<OptionGroup[]>`
+    SELECT ${optionGroupColumns(sql)}
+    FROM public.item_option_groups AS attachment
+    JOIN public.option_groups AS groups
+      ON groups.merchant_id = attachment.merchant_id AND groups.id = attachment.group_id
+    WHERE attachment.merchant_id = ${merchantId} AND attachment.item_id = ${itemId}
+    ORDER BY attachment.sort
+  `;
 }
 
 type GroupDetailResult =

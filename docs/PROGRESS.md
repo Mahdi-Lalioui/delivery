@@ -13,6 +13,12 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 15:58 GMT — M2 preview, settings schema and demo seed
+
+- **Effort and evidence** — High for preview and seed, ultra for moderation and migration. `pnpm verify` passed 1,493 unit and 185 PostGIS tests. All 18 authenticated browser journeys passed. Two seed runs produced stable IDs for twelve fictional restaurants.
+- **Review** — Fixed both stale moderation paths. The lead inspected phone and desktop preview captures, and the design critic passed them. [Evidence](evidence/m2/menu-preview.md) · [Lane B token handoff](requests/lane-a-moderation-token.md)
+- **Next** — Finish cover/logo controls and the combined onboarding gate, then batch Lane B’s open requests before M3. Lane B still owns the visible admin notice and repeat-review UI.
+
 ### 2026-11-08 15:29 GMT — M2-3 durable admin notice read
 
 - **Effort and evidence** — Ultra. The admin-only endpoint reads pending signup notices and retires them after approval or rejection. `pnpm verify` passed 1,466 unit and 176 PostGIS tests. All 18 authenticated production browser journeys passed, including the notice and applicant denial.

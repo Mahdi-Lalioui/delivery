@@ -3,13 +3,14 @@
 import { getLocalizedContent } from "@zaafran/i18n/content";
 import type { Locale } from "@zaafran/i18n/locales";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BulkPricePanel } from "../../menu-price/components/bulk-price-panel";
 import { useBulkPricePanel } from "../../menu-price/use-bulk-price-panel";
 import { useMenuItemEditor } from "../use-menu-item-editor";
 import { MenuItemCategoryRail } from "./menu-item-category-rail";
 import { MenuItemForm } from "./menu-item-form";
 import { MenuItemList } from "./menu-item-list";
+import { MenuPreview } from "./menu-preview";
 
 type Controls = ReturnType<typeof useMenuItemEditor>;
 type ItemSnapshot = Extract<Controls["view"], { kind: "ready" }>["data"];
@@ -132,6 +133,64 @@ function ItemWorkspace({
   );
 }
 
+function PreviewableWorkspace(props: WorkspaceProps & { snapshot: ItemSnapshot }) {
+  const t = useTranslations("menuPreview");
+  const { merchantId, categoryId, locale, snapshot, controls } = props;
+  const [preview, setPreview] = useState(false);
+  const toggle = useRef<HTMLButtonElement>(null);
+  const restoreFocus = useRef(false);
+
+  useEffect(() => {
+    if (!preview && restoreFocus.current) {
+      toggle.current?.focus();
+      restoreFocus.current = false;
+    }
+  }, [preview]);
+
+  function closePreview() {
+    restoreFocus.current = true;
+    setPreview(false);
+  }
+
+  return (
+    <>
+      <div hidden={preview}>
+        <button
+          ref={toggle}
+          className="menu-item-secondary"
+          type="button"
+          aria-expanded={preview}
+          aria-controls="menu-preview"
+          disabled={controls.pending}
+          onClick={() => {
+            setPreview(true);
+          }}
+        >
+          {t("open")}
+        </button>
+      </div>
+      <div className="menu-item-edit-pane" hidden={preview} inert={preview}>
+        <ItemWorkspace {...props} />
+      </div>
+      <div id="menu-preview" hidden={!preview}>
+        {preview && (
+          <MenuPreview
+            key={`${snapshot.sessionId}/${String(snapshot.revision)}`}
+            merchantId={merchantId}
+            categoryId={categoryId}
+            locale={locale}
+            expected={snapshot}
+            restaurantName={snapshot.context?.restaurantName}
+            onAccessChanged={controls.onRailAccessChanged}
+            onClose={closePreview}
+            onRefresh={() => controls.reloadAfter(snapshot.revision)}
+          />
+        )}
+      </div>
+    </>
+  );
+}
+
 function ItemContent(props: WorkspaceProps) {
   const { locale, controls } = props;
   const translate = useTranslations("menuItem");
@@ -163,7 +222,7 @@ function ItemContent(props: WorkspaceProps) {
     );
   }
 
-  return <ItemWorkspace {...props} snapshot={view.data} />;
+  return <PreviewableWorkspace {...props} snapshot={view.data} />;
 }
 
 export function MenuItemScreen({

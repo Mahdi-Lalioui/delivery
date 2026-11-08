@@ -35,3 +35,7 @@
 - 2026-11-08 · High · Next implement the authenticated, read-only merchant menu preview. Filter archived, held and rejected items in the card, cursor and detail queries. Keep publication and anonymous customer pages in M3.
 
 - 2026-11-08 · High · The shared menu preview contracts define a revision-bound category page and on-demand item detail. Two new contract cases failed before implementation. All five focused preview and item cases passed. See D-022.
+
+- 2026-11-08 · High and ultra · M2 settings schema, moderated customer preview and demo seed passed `pnpm verify` with 1,493 unit and 185 PostGIS tests, plus all 18 authenticated production browser journeys.
+- 2026-11-08 · High · Inspected Arabic and French preview at phone and desktop sizes. The design critic passed. [Evidence](../evidence/m2/menu-preview.md)
+- 2026-11-08 · Medium · Mahdi prioritized closing M2, batching Lane B requests, then M3 by Monday night. Finish cover/logo and the combined onboarding browser gate. Track Lane B’s notice and review-token UI in `docs/requests/`. Existing Lane A screens need the premium design pass by 15 November.

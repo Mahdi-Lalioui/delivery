@@ -25,6 +25,7 @@ import { createLogger } from "./logger.js";
 import { registerMenuCategoryRoutes, type MenuCategoryServices } from "./menu-category-routes.js";
 import { registerMenuImportRoutes, type MenuImportServices } from "./menu-import-routes.js";
 import { registerMenuItemRoutes, type MenuItemServices } from "./menu-item-routes.js";
+import { registerMenuPreviewRoutes, type MenuPreviewServices } from "./menu-preview-routes.js";
 import {
   registerMenuOptionGroupRoutes,
   type MenuOptionGroupServices,
@@ -52,6 +53,7 @@ interface ApiOptions {
   readonly media?: MediaReservationServices;
   readonly menuCategory?: MenuCategoryServices;
   readonly menuItem?: MenuItemServices;
+  readonly menuPreview?: MenuPreviewServices;
   readonly menuImport?: MenuImportServices;
   readonly menuOptionGroup?: MenuOptionGroupServices;
   readonly menuPrice?: MenuPriceServices;
@@ -119,6 +121,7 @@ export function createApi(options: ApiOptions): FastifyInstance {
     registerMediaReservationRoutes(api, options.media);
     registerMenuCategoryRoutes(api, options.menuCategory);
     registerMenuItemRoutes(api, options.menuItem);
+    registerMenuPreviewRoutes(api, options.menuPreview);
     registerMenuImportRoutes(api, options.menuImport);
     registerMenuOptionGroupRoutes(api, options.menuOptionGroup);
     registerMenuPriceRoutes(api, options.menuPrice);

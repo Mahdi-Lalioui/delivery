@@ -27,7 +27,7 @@ const item = {
   isAvailable: false,
   soldOutUntil: "2026-11-07T22:59:59.000Z",
 } satisfies MenuItem;
-const { menuItem, menuPrice, mediaPhoto } = getMessages("ar");
+const { menuItem, menuPrice, mediaPhoto, menuPreview } = getMessages("ar");
 const ready = {
   kind: "ready" as const,
   data: {
@@ -77,7 +77,7 @@ function render(state: Partial<ReturnType<typeof useMenuItemEditor>> = {}) {
     <NextIntlClientProvider
       locale="ar-DZ"
       timeZone="Africa/Algiers"
-      messages={{ menuItem, menuPrice, mediaPhoto }}
+      messages={{ menuItem, menuPrice, mediaPhoto, menuPreview }}
     >
       <MenuItemScreen merchantId={merchantId} categoryId={categoryId} locale="ar" />
     </NextIntlClientProvider>,
@@ -295,4 +295,11 @@ test("[MER-11] hides the bulk price panel when the category has no items", () =>
 test("[MER-11] locks the bulk price panel while an item form is open", () => {
   const html = render({ editor: editWithAttachments });
   expect(html).toMatch(/<fieldset class="bulk-price-fieldset" disabled/);
+});
+
+test("[ADM-04] exposes a closed customer preview while leaving the editor visible", () => {
+  const html = render();
+  expect(html).toContain(menuPreview.open);
+  expect(html).toContain('aria-expanded="false" aria-controls="menu-preview"');
+  expect(html).toContain('id="menu-item-list-title"');
 });

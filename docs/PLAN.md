@@ -89,7 +89,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
 **Goal:** a restaurant can sign up, get approved and build a beautiful menu in minutes.
 
 - [x] M2-1 Auth (AUTH-01…09, CUS-10). Commit strict OTP, TOTP and session schemas in `packages/contracts` first. Add forward auth migration and repositories in `packages/db`, then Fastify policies, cookie/Bearer sessions and fake SMS in `apps/api`. Prove rolling caps, single consumption under concurrency, idle and absolute expiry, device revocation, cookie CSRF, TOTP replay rejection, and localized OTP/resend UX. Add a protected device list, per-device revoke and sign out everywhere.
-- [ ] M2-2 Merchant schema. Commit the merchant, admin and menu contracts before migrating memberships, categories, items, option groups, media, price history, settings, flags and audit. Prove tenant-scoped foreign keys and SQL membership checks with the same account holding different roles at two merchants.
+- [x] M2-2 Merchant schema. Commit the merchant, admin and menu contracts before migrating memberships, categories, items, option groups, media, price history, settings, flags and audit. Prove tenant-scoped foreign keys and SQL membership checks with the same account holding different roles at two merchants.
 - [ ] M2-3 Signup and approval (MER-01, ADM-03 first slice).
   - [x] Verify the commune, pin and phone, create the pending merchant and owner membership atomically, enqueue the admin notice, and prove authorized approval and rejection in the admin queue.
   - [x] Define the session-bound pending notice read contract without changing the existing admin queue.
@@ -102,10 +102,10 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
   - [x] Add category navigation alongside the desktop item workspace. Keep the customer preview with the moderated M2-10/M2-12 flow.
 - [ ] M2-6 Media pipeline (MER-14, §16). Commit upload/variant contracts, decode real HEVC HEIC in CI, validate declared and actual image type and the 8 MB limit, crop to the required ratios, and publish metadata-free WebP/AVIF variants with thumbhash after worker processing.
   - [x] Define the reservation, private preview, crop, and ready response contracts. Test exact upload bounds and all five output widths in both formats.
-  - [ ] Persist owner and restaurant scope, upload receipts and job state. Accept binary uploads into quarantine and enqueue work in the same transaction as each state change. Prove safe retries, cross-tenant denial and private application photos.
+  - [x] Persist owner and restaurant scope, upload receipts and job state. Accept binary uploads into quarantine and enqueue work in the same transaction as each state change. Prove safe retries, cross-tenant denial and private application photos.
     - [x] Reserve photos and read private status through the authenticated API. Verify eligible membership, session revocation, first-digest adoption and transactional preparation enqueue in PostGIS.
     - [x] Stream the authorized binary PUT into private storage and verify exact length, abort cleanup, storage replay, and 8 MiB enforcement.
-  - [ ] Decode JPEG, PNG, WebP and real HEVC HEIC in the worker. Normalize orientation, bound decoded pixels, remove metadata, derive the requested crop and thumbhash, and publish only after all variants exist. Prove retries recover after a worker interruption.
+  - [x] Decode JPEG, PNG, WebP and real HEVC HEIC in the worker. Normalize orientation, bound decoded pixels, remove metadata, derive the requested crop and thumbhash, and publish only after all variants exist. Prove retries recover after a worker interruption.
     - [x] Prove bounded private preview preparation with the pinned decoder and a synthetic real-HEVC fixture on Linux amd64.
     - [x] Register the prepare job, persist the private preview and expose it to authorized owners.
     - [x] Bind crop to the original session, process crop jobs and publish the complete ready set.
@@ -159,14 +159,15 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Add the admin routes, authorization-matrix rows and OpenAPI.
     - [x] Prove both routes end to end against PostGIS through `startApi`, including the merchant onboarding count after each decision.
   - [x] Re-screen the text when duplicating an approved item and prove the copy stays out of the onboarding count.
-  - [ ] Prove the customer-facing preview excludes blocked items.
+  - [x] Prove the customer-facing preview excludes blocked items.
     - [x] Define the saved-menu preview page and item detail contracts.
-    - [ ] Scope the read projection, cursor and photo reference to visible items at the selected restaurant. Prove tenant and moderation boundaries in PostGIS and HTTP.
-    - [ ] Add the localized builder preview and prove held items are absent until approval.
+    - [x] Scope the read projection, cursor and photo reference to visible items at the selected restaurant. Prove tenant and moderation boundaries in PostGIS and HTTP.
+    - [x] Add the localized builder preview and prove held items are absent until approval.
   - [x] Show the held status to merchants and give admins a review screen (ar/fr/en).
     - [x] Explain the held status under the merchant item list badge.
     - [x] Add the typed web client for the held-item queue and review.
     - [x] Add the admin held-items screen with approve/reject and a required reason, and prove it in an auth e2e.
+    - [ ] Lane B wires the content-bound token into the admin client for repeat holds and proves a stale decision refresh.
 - [x] M2-11 Staff roles (MER-23). Implement owner-managed, single-use invitations tied to a verified phone. Prove every role against both its own and another merchant's resources.
   - [x] Commit the invitation, staff list, revoke and accept contracts (`@zaafran/contracts/merchant-staff`, D-015).
   - [x] Add the invitation migration and owner-only create/list/revoke repository commands in `packages/db`, with hashed tokens and idempotent create. The API sends the SMS after commit, like the OTP. An open replay rotates the token and resends (D-015).
@@ -178,13 +179,21 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Expose sent invitation tokens in the e2e auth harness and add the typed web client (`apps/web/src/merchant-staff/staff-http.ts`).
     - [x] Add the owner staff page, the accept page, ar/fr/en messages and `e2e/auth-merchant-staff.spec.ts` with the design matrix.
 - [ ] M2-12 Seed twelve fictional bilingual Algiers restaurants with synthetic imagery and `is_demo`, then run production-built onboarding, the complete route matrix, and the design critic's theme/locale/viewport checks. Record local and PR evidence.
-  - [ ] Wire the authenticated onboarding tag, complete the dedicated authorization matrix, and register the design screen gate check. See `docs/evidence/m2/baseline-audit.md`.
+  - [x] Seed twelve fictional Algiers restaurants, bilingual menus and synthetic attached photos. Prove stable identities with two seed runs.
+  - [x] Register the authenticated onboarding and design commands and complete the dedicated M2 authorization matrix.
+  - [ ] Build and pass the combined `@merchant-onboarding` browser journey. See `docs/evidence/m2/baseline-audit.md`.
 
 **Gate m2:**
 
 - e2e `@merchant-onboarding`: signup → admin approve → build a 10-item menu with options and photos → bulk price change → import CSV → shown correctly in the preview;
 - authz matrix covers the new routes;
 - design QA screenshots for the builder.
+
+### Lane A build-week handoff
+
+Close the remaining M2 acceptance checks and seed the demo restaurants. Then land the open Lane B billing, ratings, promotions, retention and admin requests as one batch. Resume M3 immediately after that batch. Target Monday night for M3.
+
+- [ ] Bring existing Lane A screens to the premium design bar by 15 November. Start with the merchant application map pin and cuisine chips, then menu item imagery and editor controls, hours, and the remaining customer and merchant screens. Inspect 390px and 1280px screenshots before ticking new UI work.
 
 ## M3 — Discovery, search and restaurant pages (customer web)
 

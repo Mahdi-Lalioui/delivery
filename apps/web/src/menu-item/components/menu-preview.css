@@ -1,0 +1,200 @@
+.menu-item-edit-pane:not([hidden]),
+.menu-preview,
+.menu-preview-layout,
+.menu-preview-category-page,
+.menu-preview-card-body,
+.menu-preview-feedback {
+  display: grid;
+  min-inline-size: 0;
+  gap: var(--space-16);
+}
+
+.menu-item-edit-pane:not([hidden]) {
+  gap: var(--space-24);
+}
+
+.menu-preview header {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.menu-preview-category-nav ul,
+.menu-preview-groups {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.menu-preview-category-nav ul {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.menu-preview-category-nav button {
+  justify-content: start;
+  text-align: start;
+}
+
+.menu-preview-category-nav button[aria-pressed="true"] {
+  border-color: var(--color-primary-pressed);
+  background: var(--color-surface-2);
+}
+
+.menu-preview-category-name {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-h3);
+  line-height: var(--line-height-h3);
+}
+
+.menu-preview-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(2 * var(--space-120))), 1fr));
+  align-items: start;
+  gap: var(--space-16);
+}
+
+.menu-preview-card {
+  min-inline-size: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.menu-preview-card-body {
+  gap: var(--space-8);
+  padding: var(--space-16);
+}
+
+.menu-preview-card-body h4 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-h3);
+  line-height: var(--line-height-h3);
+}
+
+.menu-preview-card-body h5 {
+  font-weight: var(--font-weight-label);
+}
+
+.menu-preview header button,
+.menu-preview-card-body button,
+.menu-preview-feedback button,
+.menu-preview-category-page > button {
+  justify-self: start;
+}
+
+.menu-preview-photo {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background: var(--color-surface-2);
+}
+
+.menu-preview-option-group {
+  margin-block-start: var(--space-8);
+  padding: var(--space-8);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-2);
+}
+
+.menu-preview-option {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-8);
+  padding-block-start: var(--space-8);
+}
+
+@media (min-width: 1200px) {
+  .menu-preview-layout {
+    grid-template-columns: calc(2 * var(--space-80)) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .menu-preview-category-nav ul {
+    display: grid;
+  }
+
+  .menu-preview-category-nav button {
+    inline-size: 100%;
+  }
+}
+
+.menu-item-panel:has(#menu-preview:not([hidden])) > .menu-item-heading {
+  display: none;
+}
+
+.menu-preview-hero {
+  padding: clamp(var(--space-20), 4vi, var(--space-40));
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  background: radial-gradient(
+    ellipse at top right,
+    color-mix(in srgb, var(--color-primary) 15%, var(--color-surface)),
+    var(--color-surface) 70%
+  );
+}
+
+.menu-preview-hero h2 {
+  color: var(--color-text-2);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-label);
+}
+
+.menu-preview-restaurant {
+  font-family: var(--font-display);
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-h1);
+  line-height: var(--line-height-h1);
+}
+
+.menu-item-secondary.menu-preview-quiet {
+  border-color: transparent;
+  background: transparent;
+  color: var(--color-text);
+}
+
+.menu-item-secondary.menu-preview-quiet:hover {
+  background: var(--color-surface-2);
+}
+
+.menu-preview-placeholder {
+  background: radial-gradient(
+    ellipse at 52% 42%,
+    color-mix(in srgb, var(--color-primary) 20%, var(--color-surface-2)),
+    var(--color-surface-3)
+  );
+}
+
+.menu-preview-plate-shadow {
+  fill: color-mix(in srgb, var(--color-text) 12%, transparent);
+}
+
+.menu-preview-plate {
+  fill: var(--color-surface);
+}
+
+.menu-preview-plate-rim {
+  fill: none;
+  stroke: var(--color-border-subtle);
+  stroke-width: 2;
+}
+
+.menu-preview-food {
+  fill: var(--color-primary-pressed);
+}
+
+.menu-preview-garnish {
+  fill: var(--color-success);
+}
+
+.menu-preview-spice {
+  fill: var(--color-surface);
+}
+
+.menu-preview-skeleton {
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
+}

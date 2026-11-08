@@ -296,6 +296,20 @@ test("[MER-09:browser] [MER-14:browser] an owner manages a bilingual item throug
         ]);
       });
 
+      await test.step("Load the ready photo through the customer-style preview", async () => {
+        const labels = fr.menuPreview;
+        await page.getByRole("button", { name: labels.open, exact: true }).click();
+        const preview = page.locator("#menu-preview");
+        const photoId = duplicate.item.photoId;
+        if (!photoId) throw new Error("Expected the duplicate to retain the ready photo.");
+        const image = preview.locator(`img[src$="/${photoId}/variants/webp/320"]`);
+        await expect(image).toBeVisible();
+        await expect
+          .poll(() => image.evaluate((element: HTMLImageElement) => element.naturalWidth))
+          .toBeGreaterThan(0);
+        await preview.getByRole("button", { name: labels.close, exact: true }).click();
+      });
+
       await test.step("Explicitly remove the surviving item's photo", async () => {
         await copied
           .getByRole("button", { name: itemAction(labels.editLabel), exact: true })

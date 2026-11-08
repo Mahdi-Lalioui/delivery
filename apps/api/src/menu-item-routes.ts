@@ -49,6 +49,7 @@ const failureStatus = {
   revision_conflict: 409,
   idempotency_conflict: 409,
   photos_unavailable: 409,
+  moderation_pending: 409,
 };
 
 function itemProblem(reply: FastifyReply, kind: keyof typeof failureStatus): FastifyReply {

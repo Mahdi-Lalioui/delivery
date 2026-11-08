@@ -342,6 +342,18 @@ const matrix: readonly MatrixRoute[] = [
     payload: { ...importPayload, previewToken: "A".repeat(43) },
     expected: menuRoles,
   },
+  {
+    method: "GET",
+    url: "/v1/merchants/:merchantId/menu/preview/items",
+    requestUrl: `/v1/merchants/${challengeId}/menu/preview/items?categoryId=${challengeId}`,
+    expected: menuRoles,
+  },
+  {
+    method: "GET",
+    url: "/v1/merchants/:merchantId/menu/preview/items/:itemId",
+    requestUrl: `/v1/merchants/${challengeId}/menu/preview/items/${challengeId}?expectedRevision=0`,
+    expected: menuRoles,
+  },
   { method: "GET", url: menuGroupPath, requestUrl: menuGroupRequest, expected: menuRoles },
   {
     method: "GET",

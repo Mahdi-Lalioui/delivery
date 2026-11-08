@@ -5,6 +5,7 @@ import { createMediaRepository } from "@zaafran/db/media";
 import { createMenuCategoryRepository } from "@zaafran/db/menu-category";
 import { createMenuImportRepository } from "@zaafran/db/menu-import";
 import { createMenuItemRepository } from "@zaafran/db/menu-item";
+import { createMenuPreviewRepository } from "@zaafran/db/menu-preview";
 import { createMenuOptionGroupRepository } from "@zaafran/db/menu-option-group";
 import { createMenuPriceRepository } from "@zaafran/db/menu-price";
 import { createMerchantHoursRepository } from "@zaafran/db/merchant-hours";
@@ -53,6 +54,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     },
     menuCategory: { repository: createMenuCategoryRepository(database), now },
     menuItem: { repository: createMenuItemRepository(database), now },
+    menuPreview: { repository: createMenuPreviewRepository(database), now },
     menuImport: {
       repository: createMenuImportRepository(database),
       now,

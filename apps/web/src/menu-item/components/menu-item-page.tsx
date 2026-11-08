@@ -9,6 +9,7 @@ import { getTranslations } from "next-intl/server";
 import { SiteShell } from "../../components/site-shell";
 import { MenuItemScreen } from "./menu-item-screen";
 import "./menu-item.css";
+import "./menu-preview.css";
 
 export interface MenuItemRouteProps {
   params: Promise<{ merchantId: string; categoryId: string }>;
@@ -45,6 +46,7 @@ export function MenuItemPage({
           menuItem: getMessages(locale).menuItem,
           menuPrice: getMessages(locale).menuPrice,
           mediaPhoto: getMessages(locale).mediaPhoto,
+          menuPreview: getMessages(locale).menuPreview,
         }}
       >
         <MenuItemScreen

@@ -172,6 +172,14 @@ test("[MER-14:http] distinguishes explicit removal from a legacy null photo", as
   expect(repository.update.mock.calls[0]?.[0].input).toEqual(payload);
 });
 
+test("[M2-10:moderation] reports that held item text is locked", async () => {
+  const { api, repository } = setup(owner);
+  repository.update.mockResolvedValue({ kind: "moderation_pending" });
+  const response = await api.inject(update);
+  expect(response.statusCode).toBe(409);
+  expect(response.json()).toMatchObject({ code: "moderation_pending" });
+});
+
 test("[MER-09:http] duplicates and archives items with their original revision receipts", async () => {
   const { api, repository } = setup(owner);
   repository.duplicate.mockResolvedValue({ kind: "replayed", revision: 5, item: itemView });

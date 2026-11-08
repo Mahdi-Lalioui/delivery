@@ -25,7 +25,8 @@ export type MenuItemCommand =
 
 type AccessFailure = "sign-in" | "forbidden" | "session-changed" | "revision-conflict";
 type RequestFailure =
-  { kind: AccessFailure } | { kind: "error" | "rate-limited"; shouldReuseKey: boolean };
+  | { kind: AccessFailure }
+  | { kind: "error" | "rate-limited" | "moderation-pending"; shouldReuseKey: boolean };
 
 export type ItemRead = { kind: "ready"; data: ItemSnapshot } | { kind: AccessFailure | "error" };
 export type ItemWrite =
@@ -48,22 +49,27 @@ async function readFailure(response: Response): Promise<RequestFailure> {
   if (response.status === 401) return { kind: "sign-in" };
   if (response.status === 403 || response.status === 404) return { kind: "forbidden" };
   if (response.status === 429) return { kind: "rate-limited", shouldReuseKey: true };
-  if (response.status === 409) {
-    const body: unknown = await response.json().catch(() => undefined);
-    const problem = problemResponseSchema.safeParse(body);
-    if (problem.success && problem.data.status === 409) {
-      if (problem.data.code === "session_changed") return { kind: "session-changed" };
-      if (problem.data.code === "revision_conflict") return { kind: "revision-conflict" };
-    }
-  }
+  if (response.status === 409) return readConflict(response);
   return { kind: "error", shouldReuseKey: response.status >= 500 };
+}
+
+async function readConflict(response: Response): Promise<RequestFailure> {
+  const body: unknown = await response.json().catch(() => undefined);
+  const problem = problemResponseSchema.safeParse(body);
+  if (problem.success && problem.data.status === 409) {
+    if (problem.data.code === "session_changed") return { kind: "session-changed" };
+    if (problem.data.code === "revision_conflict") return { kind: "revision-conflict" };
+    if (problem.data.code === "moderation_pending")
+      return { kind: "moderation-pending", shouldReuseKey: false };
+  }
+  return { kind: "error", shouldReuseKey: false };
 }
 
 interface ResultSchema<Data> {
   safeParse(value: unknown): { success: true; data: Data } | { success: false };
 }
 
-async function requestItemData<Kind extends string, Data>(
+export async function requestItemData<Kind extends string, Data>(
   path: string,
   options: RequestInit,
   { kind, schema }: { kind: Kind; schema: ResultSchema<Data> },

@@ -203,3 +203,24 @@ test("[MER-09:items] does not show partial lists when pagination repeats a curso
   );
   await expect(listMenuItems(request)).resolves.toEqual({ kind: "error" });
 });
+
+test("[M2-10:moderation] reports a held text edit as a non-retryable conflict", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn().mockResolvedValue(
+      Response.json(
+        {
+          type: "about:blank",
+          title: "Conflict",
+          status: 409,
+          code: "moderation_pending",
+          requestId: sessionId,
+        },
+        { status: 409 },
+      ),
+    ),
+  );
+  await expect(
+    writeMenuItem({ ...identity, command: { kind: "edit", itemId, input } }),
+  ).resolves.toEqual({ kind: "moderation-pending", shouldReuseKey: false });
+});

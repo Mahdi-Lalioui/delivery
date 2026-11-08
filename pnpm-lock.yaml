@@ -429,6 +429,9 @@ importers:
       '@zaafran/config':
         specifier: workspace:*
         version: link:../config
+      '@zaafran/media':
+        specifier: workspace:*
+        version: link:../media
       graphile-worker:
         specifier: 0.18.0
         version: 0.18.0(supports-color@7.2.0)(typescript@6.0.3)
