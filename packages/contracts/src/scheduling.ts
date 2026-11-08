@@ -20,3 +20,9 @@ export const customerSlotsOutput = z.discriminatedUnion("fulfilment", [
   z.strictObject({ fulfilment: z.literal("pickup"), slots: z.array(scheduledSlot) }),
   z.strictObject({ fulfilment: z.literal("delivery"), slots: z.array(selectedSlot) }),
 ]);
+
+export const ramadanTodayQuery = z.strictObject({ communeId: z.uuid() });
+export const ramadanTodayOutput = z.discriminatedUnion("isRamadan", [
+  z.strictObject({ isRamadan: z.literal(false), maghribAt: z.null() }),
+  z.strictObject({ isRamadan: z.literal(true), maghribAt: z.iso.datetime() }),
+]);
