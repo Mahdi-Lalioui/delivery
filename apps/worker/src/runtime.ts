@@ -1,9 +1,11 @@
 import type { DatabaseConnection } from "@zaafran/db/database";
+import { createDiscoverySearchRepository } from "@zaafran/db/discovery-search";
 import { createMediaRepository } from "@zaafran/db/media";
 import { createLocalMediaStore, type MediaStore } from "@zaafran/media";
 import type { RunnerOptions, TaskList } from "graphile-worker";
 import { z } from "zod";
 import { defaultMediaStorageRoot } from "./command.js";
+import { createSearchRefreshJob } from "./discovery-search.js";
 import { runJobEffectOnce } from "./effects.js";
 import { defineJob } from "./jobs.js";
 import { queueLogger } from "./logger.js";
@@ -29,6 +31,7 @@ export function createWorkerOptions(
     "media.process": defineJob(mediaPayload, (payload) =>
       payload.phase === "prepare" ? prepare(payload) : crop(payload),
     ),
+    search_refresh: createSearchRefreshJob(createDiscoverySearchRepository(database)),
     [watchdogIdentifier]: defineJob(watchdogPayload, async ({ checkId }) => {
       await runJobEffectOnce({
         database,
@@ -46,7 +49,7 @@ export function createWorkerOptions(
     taskList,
     schema: workerSchema,
     logger: queueLogger,
-    crontab: "",
+    crontab: "* * * * * search_refresh",
     // Graphile Worker drains these queues before closing its pool on shutdown.
     preset: { worker: { completeJobBatchDelay: 0, failJobBatchDelay: 0 } },
   } satisfies RunnerOptions;

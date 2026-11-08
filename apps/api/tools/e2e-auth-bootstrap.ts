@@ -89,6 +89,32 @@ async function seedMenuMemberships(database: DatabaseConnection, phone: string, 
   });
 }
 
+async function seedDiscoverySearch(database: DatabaseConnection) {
+  const commune = await seedAlgiersCommune(database);
+  await database.sql.begin(async (sql) => {
+    const [merchant] = await sql<{ id: string }[]>`
+      INSERT INTO public.merchants (slug, restaurant_name, owner_name, phone_e164, commune_id,
+        location, cuisines, status, created_at)
+      VALUES ('chawarma-fixture', 'Chawarma du Port', 'Synthetic owner', '+213500000000',
+        ${commune.id}, ST_SetSRID(ST_MakePoint(${commune.pin.longitude}, ${commune.pin.latitude}), 4326),
+        ARRAY['grill'], 'active', now()) RETURNING id
+    `;
+    if (!merchant) throw new Error("Expected a synthetic search merchant.");
+    const [category] = await sql<{ id: string }[]>`
+      INSERT INTO public.categories (merchant_id, names, sort)
+      VALUES (${merchant.id}, '{"fr":"Grillades"}', 0) RETURNING id
+    `;
+    if (!category) throw new Error("Expected a synthetic search category.");
+    await sql`
+      INSERT INTO public.items (merchant_id, category_id, names, descriptions, price_dzd, tags,
+        prep_extra_min, moderation_status)
+      VALUES (${merchant.id}, ${category.id}, '{"ar":"شاورما الدجاج","fr":"Chawarma poulet"}',
+        '{"fr":"Poulet et salade"}', 500, '{}', 0, 'approved')
+    `;
+    await sql`SELECT graphile_worker.add_job('search_refresh', '{}'::json)`;
+  });
+}
+
 async function seedOnboardingProgress(
   database: DatabaseConnection,
   merchantId: string,
@@ -191,6 +217,7 @@ export async function startAuthHarness(
     origin: proxy.origin,
     close: () => cleanup.disposeAsync(),
     seedAlgiersCommune: () => seedAlgiersCommune(database),
+    seedDiscoverySearch: () => seedDiscoverySearch(database),
     async seedDiscoveryFeed() {
       if (!mediaRoot) throw new Error("Start the test media worker for the discovery fixture.");
       return seedDiscoveryFeed(database, {

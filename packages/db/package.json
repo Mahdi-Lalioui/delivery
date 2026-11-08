@@ -28,6 +28,10 @@
       "types": "./src/geography.ts",
       "default": "./dist/geography.js"
     },
+    "./discovery-search": {
+      "types": "./src/discovery-search.ts",
+      "default": "./dist/discovery-search.js"
+    },
     "./public-feed": {
       "types": "./src/public-feed.ts",
       "default": "./dist/public-feed.js"

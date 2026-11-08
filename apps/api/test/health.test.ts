@@ -209,6 +209,7 @@ test("[M0-6] the generated OpenAPI document describes the readiness problem resp
       "/v1/merchants/{merchantId}/staff/invitations",
       "/v1/merchants/{merchantId}/staff/invitations/{invitationId}/revoke",
       "/v1/ramadan/today",
+      "/v1/search",
       "/v1/staff-invitations/accept",
     ]);
     expect(schema.paths?.["/v1/media/{mediaId}/preview"]?.get?.responses).toMatchObject({

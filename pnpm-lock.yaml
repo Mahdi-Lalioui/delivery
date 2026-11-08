@@ -232,6 +232,9 @@ importers:
       '@zaafran/geo':
         specifier: workspace:*
         version: link:../../packages/geo
+      '@zaafran/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
       '@zaafran/media':
         specifier: workspace:*
         version: link:../../packages/media

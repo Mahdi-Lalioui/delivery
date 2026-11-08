@@ -66,3 +66,39 @@ test("[M0-7] a graceful stop persists an in-progress watchdog job's completion",
   expect([...effects]).toEqual([{ effect_key: checkId }]);
   expect(await connection.sql`select id from graphile_worker.jobs`).toHaveLength(0);
 });
+
+test("[SRCH-04:job] Graphile refreshes a changed restaurant from the durable search queue", async () => {
+  const connection = database.get();
+  const databaseUrl = database.url();
+  await migrateWorker(databaseUrl);
+  await connection.sql`
+    INSERT INTO public.wilayas (code, name_ar, name_fr)
+    VALUES (16, 'الجزائر', 'Alger') ON CONFLICT DO NOTHING
+  `;
+  const [commune] = await connection.sql<{ id: string }[]>`
+    INSERT INTO public.communes (code, wilaya_code, name_ar, name_fr, centroid)
+    VALUES ('1699', 16, 'تجريبي', 'Test', ST_SetSRID(ST_MakePoint(3, 36), 4326))
+    RETURNING id
+  `;
+  if (!commune) throw new Error("Expected a synthetic commune.");
+  const [merchant] = await connection.sql<{ id: string }[]>`
+    INSERT INTO public.merchants (slug, restaurant_name, owner_name, phone_e164, commune_id,
+      location, cuisines, status, created_at)
+    VALUES ('test-casbah', 'Table de la Casbah', 'Synthetic owner', '+213500000000',
+      ${commune.id}, ST_SetSRID(ST_MakePoint(3, 36), 4326), ARRAY['algerian'], 'active', now())
+    RETURNING id
+  `;
+  if (!merchant) throw new Error("Expected a synthetic restaurant.");
+  await connection.sql`SELECT graphile_worker.add_job('search_refresh', '{}'::json)`;
+  const worker = createWorkerOptions(databaseUrl, connection);
+  expect(worker.crontab).toBe("* * * * * search_refresh");
+  await runOnce({ ...worker, noHandleSignals: true });
+  expect(
+    await connection.sql`SELECT merchant_id FROM public.search_document_refreshes`,
+  ).toHaveLength(0);
+  expect(
+    await connection.sql`
+    SELECT merchant_id FROM public.search_documents WHERE merchant_id = ${merchant.id}
+  `,
+  ).toEqual([{ merchant_id: merchant.id }]);
+});

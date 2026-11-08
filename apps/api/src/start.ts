@@ -4,6 +4,7 @@ import { createBillingRepository, createBillingWriteRepository } from "@zaafran/
 import { readCommuneCoordinates } from "@zaafran/db/geography";
 import { createPlatformRepository } from "@zaafran/db/platform";
 import { openDatabase } from "@zaafran/db/database";
+import { createDiscoverySearchRepository } from "@zaafran/db/discovery-search";
 import { createMediaRepository } from "@zaafran/db/media";
 import { createMenuCategoryRepository } from "@zaafran/db/menu-category";
 import { createMenuImportRepository } from "@zaafran/db/menu-import";
@@ -59,6 +60,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     billingWrites: { repository: createBillingWriteRepository(database), now },
     platform: { repository: platform, now },
     discovery: createServiceAreaRepository(database),
+    discoverySearch: createDiscoverySearchRepository(database),
     publicFeed: { repository: createPublicFeedRepository(database), store: mediaStore, now },
     ramadan: {
       isRamadanEnabled: async () => (await platform.readPublicFlags()).flags.ramadan_mode === true,

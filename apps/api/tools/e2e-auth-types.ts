@@ -20,6 +20,7 @@ export interface AuthHarness {
   phoneForSession(sessionId: string): Promise<string | undefined>;
   seedAdmin(phone: string): Promise<() => string>;
   seedAlgiersCommune(): Promise<AlgiersCommune>;
+  seedDiscoverySearch(): Promise<void>;
   seedDiscoveryFeed(): Promise<{ publishedName: string; hiddenName: string }>;
   seedMenuMemberships(phone: string): Promise<readonly MenuMembershipFixture[]>;
   seedOnboardingProgress(merchantId: string): Promise<void>;

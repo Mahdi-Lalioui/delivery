@@ -454,6 +454,7 @@ const matrix: readonly MatrixRoute[] = [
   },
   { method: "GET", url: "/v1/flags", expected: 503 },
   { method: "GET", url: "/v1/feed", expected: 503 },
+  { method: "GET", url: "/v1/search", requestUrl: "/v1/search?q=chawarma", expected: 503 },
   {
     method: "GET",
     url: "/v1/merchants/:merchantId/profile/photos/:mediaId/variants/:format/:width",

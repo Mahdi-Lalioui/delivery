@@ -218,6 +218,13 @@
       "when": 1794131400000,
       "tag": "0030_public_feed",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1794132000000,
+      "tag": "0031_discovery_search",
+      "breakpoints": true
     }
   ]
 }
