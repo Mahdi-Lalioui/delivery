@@ -15,7 +15,7 @@ These rules override slower work-loop and milestone sequencing rules through Sun
 
 - Lane A alone edits `packages/contracts` and DB migrations. Lane B files requests at `docs/requests/lane-b-<topic>.md`. Lane A lands requested changes the same day and publishes admin/billing, ratings, promotions and scheduling contracts first.
 - Use separate i18n namespaces for the two lanes. Record each task in `docs/progress/lane-a.md` or `docs/progress/lane-b.md`. Keep entries to four lines or fewer with effort, change, proof and next step. Leave a reproducible checkpoint with the branch, commit, current task and pending checks before switching accounts. A fresh account can resume by reading those files and `docs/PLAN.md`.
-- Lane B sets `COMPOSE_PROJECT_NAME=lane-b` and uses host ports 100 higher than lane A, including test services.
+- Lane B sets `COMPOSE_PROJECT_NAME=lane-b` and uses host ports 100 higher than lane A, including test services. From the repo root run `set -a; . infra/lane-b.env; set +a` before `pnpm dev`, Compose smoke checks, or tests in that lane.
 - Start by merging M0, M1 and the green M2 snapshot into `main` in order. Create and push both lane branches from that baseline. Every evening merge `lane-a` then `lane-b` into `main`. Require `pnpm verify` and end-to-end checks green on the integrated `main`. Both lanes rebase onto `main` each morning.
 
 Choose effort per task. The lead runs on medium and delegates important work with the effort set explicitly at spawn. Use at most two subagents at once.

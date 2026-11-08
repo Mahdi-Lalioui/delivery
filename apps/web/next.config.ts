@@ -20,7 +20,12 @@ export default function config(phase: string): NextConfig {
     poweredByHeader: false,
     ...(phase === PHASE_DEVELOPMENT_SERVER && {
       rewrites: () =>
-        Promise.resolve([{ source: "/v1/:path*", destination: "http://127.0.0.1:3002/v1/:path*" }]),
+        Promise.resolve([
+          {
+            source: "/v1/:path*",
+            destination: `http://127.0.0.1:${process.env.API_PORT ?? "3002"}/v1/:path*`,
+          },
+        ]),
     }),
     transpilePackages: ["@zaafran/config", "@zaafran/i18n"],
   });

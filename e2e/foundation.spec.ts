@@ -7,9 +7,10 @@ import {
   type Response,
   type TestInfo,
 } from "@playwright/test";
+import { loopbackOrigin, productionPort } from "./ports.ts";
 import { attachPageScreenshot } from "./visual.ts";
 
-const productionUrl = "http://127.0.0.1:3101";
+const productionUrl = loopbackOrigin(productionPort);
 const locales = [
   { prefix: "ar", lang: "ar-DZ", dir: "rtl" },
   { prefix: "fr", lang: "fr-DZ", dir: "ltr" },
