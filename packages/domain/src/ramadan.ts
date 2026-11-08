@@ -1,6 +1,6 @@
 import { dayMs, getAlgiersDayStart, isCalendarInstant, minuteMs } from "./hours.ts";
 
-type RamadanEndpoint =
+export type RamadanEndpoint =
   | { readonly kind: "maghrib"; readonly minutes: number }
   | { readonly kind: "clock"; readonly minuteOfDay: number };
 

@@ -1,9 +1,9 @@
-type OpeningRange = {
+export type OpeningRange = {
   readonly opensMinute: number;
   readonly closesMinute: number;
 };
 
-type BusinessHours = {
+export type BusinessHours = {
   /** Weekday 0 is Sunday. Each range is anchored to its opening date. */
   readonly weekly: Readonly<Partial<Record<number, readonly OpeningRange[]>>>;
   /** An empty entry closes the entire Algiers civil date, including overnight spill. */
@@ -11,7 +11,7 @@ type BusinessHours = {
   readonly pausedUntil?: number;
 };
 
-type Interval = { opensAt: number; closesAt: number };
+export type Interval = { opensAt: number; closesAt: number };
 
 export const minuteMs = 60_000;
 const dayMinutes = 1440;
@@ -30,14 +30,22 @@ export function getAlgiersDayStart(at: number): number {
   return Math.floor((at + algiersOffsetMs) / dayMs) * dayMs - algiersOffsetMs;
 }
 
-function getDaySchedule(dayStart: number, hours: BusinessHours) {
+/** The Algiers civil date (YYYY-MM-DD) and weekday (0 = Sunday) of a local day start. */
+export function getAlgiersDate(dayStart: number): { isoDate: string; weekday: number } {
   const localDate = new Date(dayStart + algiersOffsetMs);
   const localMidnight = localDate.toISOString();
-  const isoDate = localMidnight.slice(0, localMidnight.indexOf("T"));
+  return {
+    isoDate: localMidnight.slice(0, localMidnight.indexOf("T")),
+    weekday: localDate.getUTCDay(),
+  };
+}
+
+export function getDaySchedule(dayStart: number, hours: BusinessHours) {
+  const { isoDate, weekday } = getAlgiersDate(dayStart);
   const special = hours.special?.[isoDate];
   return {
     isSpecial: special !== undefined,
-    ranges: special ?? hours.weekly[localDate.getUTCDay()] ?? [],
+    ranges: special ?? hours.weekly[weekday] ?? [],
   };
 }
 
@@ -53,7 +61,7 @@ function isValidRange({ opensMinute, closesMinute }: OpeningRange): boolean {
   );
 }
 
-function toIntervals(dayStart: number, ranges: readonly OpeningRange[]): Interval[] {
+export function toIntervals(dayStart: number, ranges: readonly OpeningRange[]): Interval[] {
   return ranges.filter(isValidRange).map(({ opensMinute, closesMinute }) => {
     const closeDay = closesMinute < opensMinute ? dayStart + dayMs : dayStart;
     return {
