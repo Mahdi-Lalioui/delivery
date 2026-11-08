@@ -132,3 +132,53 @@ test("[ADM-04:db] a rejection keeps the item hidden and only held items can be r
   expect(await repo.reviewItem(byOwner)).toEqual({ kind: "forbidden" });
   expect(await visibleItemCount()).toBe(2);
 });
+
+test("[ADM-04:db] admins page through held items by id on the partial index", async () => {
+  const repo = createMenuModerationRepository(database.get());
+  const { sql } = database.get();
+  const [, , third] = heldItems;
+  const queued = [fixtureId(30), fixtureId(31), fixtureId(32)];
+  for (const itemId of [...queued, fixtureId(33)]) {
+    await sql`
+      insert into items (id, merchant_id, category_id, names, descriptions, price_dzd, tags,
+        prep_extra_min, moderation_status, archived_at)
+      values (${itemId}, ${merchantId}, ${categoryId}, '{"ar":"سجائر"}', '{"fr":"Tabac fictif"}',
+        300, '{}'::text[], 0, 'blocked_pending_review',
+        ${itemId === fixtureId(33) ? now.toISOString() : null}::timestamptz)
+    `;
+  }
+  const held = (itemId: string) => ({
+    itemId,
+    merchantId,
+    restaurantName: "Restaurant fictif de test",
+  });
+
+  const first = await repo.listHeldItems({ adminUserId: adminId, limit: 2 });
+  expect(first?.items).toMatchObject([held(third), held(fixtureId(30))]);
+  expect(first?.items[1]).toMatchObject({
+    names: { ar: "سجائر" },
+    descriptions: { fr: "Tabac fictif" },
+  });
+  expect(first?.nextCursor).toBe(fixtureId(30));
+  const second = await repo.listHeldItems({
+    adminUserId: adminId,
+    cursor: fixtureId(30),
+    limit: 2,
+  });
+  expect(second).toMatchObject({
+    items: [held(fixtureId(31)), held(fixtureId(32))],
+    nextCursor: null,
+  });
+  expect(await repo.listHeldItems({ adminUserId: ownerId, limit: 2 })).toBeUndefined();
+
+  const plan = await sql.begin(async (tx) => {
+    await tx`SET LOCAL enable_seqscan = off`;
+    return tx`
+      EXPLAIN (FORMAT JSON) SELECT id FROM items
+      WHERE moderation_status = 'blocked_pending_review' AND archived_at IS NULL
+        AND id > ${fixtureId(30)}::uuid
+      ORDER BY id LIMIT 3
+    `;
+  });
+  expect(JSON.stringify(plan)).toContain("items_held_for_review_idx");
+});

@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 07:47 GMT — M2-10 held-item queue read (Claude, covering while Codex was out)
+
+- **Changed** — `packages/db/src/menu-moderation.ts` gains `listHeldItems({ adminUserId, cursor?, limit })`. It checks for an admin (`undefined` otherwise), then reads unarchived `blocked_pending_review` items joined to the restaurant name, ordered by item id with an `id > cursor` keyset and `limit + 1` to compute `nextCursor`. It returns the localized names and descriptions for the contract's held-item shape.
+- **Evidence** — Tests came first: 1 `[ADM-04:db]` integration case failed with `repo.listHeldItems is not a function`, then 3/3 moderation integration tests passed. The case covers two pages of two items each (the archived held item is excluded) and the non-admin `undefined`. With `enable_seqscan = off`, `EXPLAIN (FORMAT JSON)` of the queue predicate uses `items_held_for_review_idx`. `pnpm verify` exited 0: 1110 unit tests, 122 PostGIS integration tests, build, knip, depcruise, trace, and only the existing moderate advisory.
+- **Reviewer** — Self-reviewed against AGENTS.md §10. No P0/P1. The query is admin-wide by design (ADM-04 is a platform queue), and the contract bounds the page size at 100.
+- **Next (exact)** — M2-10 API step. In `apps/api`, follow the admin merchant review routes in `apps/api/src/merchant-routes.ts`: same admin session and TOTP policy, idempotency-key hashing, request hash and problem mapping. Add `GET /v1/admin/menu-items/held` → `adminItemQueueOutput`, where `matches = findProhibitedGoods([...names, ...descriptions])`. Add `POST /v1/admin/menu-items/:itemId/review` → `adminItemReviewOutput`, mapping `invalid_status` → 409, `not_found` → 404, `idempotency_conflict` → 409 and `forbidden` → 403. Write the failing route tests first. Add authorization-matrix rows for both routes across every role, the generated OpenAPI, and a parity test that the contract's `prohibitedCategory` options equal the domain categories (export them from `@zaafran/domain/moderation`). Then the merchant-side blocked status and reason UI (sub-task 4), and the admin queue screen.
+- **Needs Mahdi** — None.
+
 ### 2026-11-08 07:46 GMT — M2-10 audited item review command (Claude, covering while Codex was out)
 
 - **Changed** — Added migration `0015_item_review_receipts` with a receipts table keyed by `(actor_id, key_hash)` and indexed by item and merchant, plus the partial index `items_held_for_review_idx` on `items(id) WHERE moderation_status = 'blocked_pending_review' AND archived_at IS NULL` for the coming queue read. Added `packages/db/src/menu-moderation.ts` (`@zaafran/db/menu-moderation`). `reviewItem` locks the admin with the existing `lockMerchantAdmin`, then the idempotency key with an advisory lock. Only a `blocked_pending_review`, unarchived item can become `approved`/`rejected`. The same transaction writes `audit_log` (`item_approved`/`item_rejected` with reason), increments `menu_revision` and stores the receipt. Results: `reviewed`, `replayed`, `idempotency_conflict`, `invalid_status`, `not_found`, `forbidden`. Recorded D-014.
@@ -662,6 +670,6 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 ## Current status
 
 - Milestone: M1 (last passing gate, M2 in progress)
-- `node scripts/trace.ts --through m2` on 2026-11-08 at 03:32 GMT covered 32 of 37 IDs. Pending: ADM-04, MER-01, MER-12, MER-14, MER-23. M2-9 has its API, preview, pure web models, and the weekly hours page with the closed-now control. M2-9 is done, with production-build ar/fr journeys and the screenshot matrix. M2-10 screens item writes and has the admin review contracts and the audited db review command; next is the held-item queue read, then the API routes.
-- Last green `pnpm verify`: 2026-11-08 07:45 GMT on Docker Desktop with 1110 unit and 121 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 14/14 at 07:35 GMT.
+- `node scripts/trace.ts --through m2` on 2026-11-08 at 03:32 GMT covered 32 of 37 IDs. Pending: ADM-04, MER-01, MER-12, MER-14, MER-23. M2-9 has its API, preview, pure web models, and the weekly hours page with the closed-now control. M2-9 is done, with production-build ar/fr journeys and the screenshot matrix. M2-10 screens item writes and has the admin review contracts the audited db review command and the held-item queue read; next is the API routes.
+- Last green `pnpm verify`: 2026-11-08 07:47 GMT on Docker Desktop with 1110 unit and 122 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 14/14 at 07:35 GMT.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

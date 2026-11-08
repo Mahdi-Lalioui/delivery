@@ -79,8 +79,45 @@ async function reviewItem(sql: TransactionSql, request: ReviewItem): Promise<Rev
   return requestMatches ? { kind: "replayed", ...reviewed } : { kind: "idempotency_conflict" };
 }
 
+interface HeldItemPage {
+  readonly adminUserId: string;
+  readonly cursor?: string | undefined;
+  readonly limit: number;
+}
+
+interface Translations {
+  readonly ar?: string;
+  readonly fr?: string;
+  readonly en?: string;
+}
+
+interface HeldItem {
+  readonly itemId: string;
+  readonly merchantId: string;
+  readonly restaurantName: string;
+  readonly names: Translations;
+  readonly descriptions: Translations;
+}
+
+/** Items held by the screen, oldest id first, on `items_held_for_review_idx`. */
+async function listHeldItems(sql: TransactionSql, { adminUserId, cursor, limit }: HeldItemPage) {
+  if (!(await lockMerchantAdmin(sql, adminUserId))) return undefined;
+  const rows = await sql<HeldItem[]>`
+    SELECT item.id AS "itemId", item.merchant_id AS "merchantId",
+      merchant.restaurant_name AS "restaurantName", item.names, item.descriptions
+    FROM public.items AS item JOIN public.merchants AS merchant ON merchant.id = item.merchant_id
+    WHERE item.moderation_status = 'blocked_pending_review' AND item.archived_at IS NULL
+      AND (${cursor ?? null}::uuid IS NULL OR item.id > ${cursor ?? null}::uuid)
+    ORDER BY item.id LIMIT ${limit + 1}
+  `;
+  const items = rows.slice(0, limit);
+  const last = items.at(-1);
+  return { items, nextCursor: rows.length > limit && last ? last.itemId : null };
+}
+
 export function createMenuModerationRepository({ sql }: DatabaseConnection) {
   return {
+    listHeldItems: (page: HeldItemPage) => sql.begin((tx) => listHeldItems(tx, page)),
     reviewItem: (request: ReviewItem) => sql.begin((tx) => reviewItem(tx, request)),
   };
 }
