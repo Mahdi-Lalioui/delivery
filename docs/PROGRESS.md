@@ -13,6 +13,13 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 10:25 GMT — M2-8 import conflict report contract
+
+- **Changed** — Added stable report reasons for archived external keys, ambiguous categories and the category limit.
+- **Evidence** — The new contract test failed before adding the reasons and all eight focused cases passed afterward. `pnpm verify` exited 0.
+- **Next** — Complete the PostGIS import planner and authenticated preview/apply endpoints against this contract.
+- **Needs Mahdi** — None.
+
 ### 2026-11-08 — M2-7 price undo after intervening edits
 
 - **Changed** — Migration 0017 tracks each item's price version. Bulk apply records that version and undo requires the same price and version under the existing locks. Legacy history without a verifiable version is rejected.

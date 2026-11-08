@@ -47,6 +47,9 @@ const menuImportErrorReason = z.enum([
   "invalid_key",
   "duplicate_key",
   "invalid_price",
+  "archived_key",
+  "ambiguous_category",
+  "category_limit",
 ]);
 
 const importError = z.strictObject({

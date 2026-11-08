@@ -101,6 +101,24 @@ test("[MER-12:contract] apply requires the server's preview token", () => {
   expect(menuImportApplyInput.safeParse({ ...batch, previewToken: "changed" }).success).toBe(false);
 });
 
+test("[MER-12:contract] preview reports persisted category and key conflicts", () => {
+  for (const [field, reason] of [
+    ["category_fr", "ambiguous_category"],
+    ["external_key", "archived_key"],
+    ["category_fr", "category_limit"],
+  ] as const) {
+    expect(
+      menuImportPreviewOutput.safeParse({
+        sessionId,
+        revision: 3,
+        errors: [{ row: 2, field, reason }],
+        summary: { categoriesCreated: 0, itemsCreated: 0, itemsUpdated: 0, itemsUnchanged: 0 },
+        previewToken: null,
+      }).success,
+    ).toBe(true);
+  }
+});
+
 test("[MER-12:contract] a row accepts exactly the template columns", () => {
   const full = Object.fromEntries(menuImportColumns.map((column) => [column, "x"]));
   expect(menuImportInput.safeParse({ rows: [full], expectedRevision: 0 }).success).toBe(true);
