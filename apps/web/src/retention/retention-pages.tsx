@@ -32,13 +32,14 @@ export async function ratingMetadata(
 }
 
 function Messages({ locale, children }: { locale: Locale; children: ReactNode }) {
+  const { retentionRatings } = getMessages(locale);
   return (
     <NextIntlClientProvider
       locale={localeDetails[locale].tag}
       timeZone="Africa/Algiers"
-      messages={{ retentionRatings: getMessages(locale).retentionRatings }}
+      messages={{ retentionRatings }}
     >
-      {children}
+      <ToastProvider closeLabel={retentionRatings.closeToast}>{children}</ToastProvider>
     </NextIntlClientProvider>
   );
 }

@@ -122,6 +122,17 @@
   background: var(--color-danger-bg);
 }
 
+/* A quiet destructive action that sits apart from the primary one (e.g. "Void invoice"). */
+.ui-button-danger-ghost {
+  padding-inline: var(--space-12);
+  background: transparent;
+  color: var(--color-danger);
+}
+
+.ui-button-danger-ghost:hover:not(:disabled) {
+  background: var(--color-danger-bg);
+}
+
 .ui-icon-button {
   display: inline-grid;
   place-items: center;

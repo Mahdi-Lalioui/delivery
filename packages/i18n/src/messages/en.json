@@ -832,7 +832,12 @@
     "replyClosed": "Replies can be edited for 24 hours only.",
     "noReviews": "No reviews yet.",
     "loadError": "Reviews could not be loaded.",
-    "loadMore": "Show more reviews"
+    "loadMore": "Show more reviews",
+    "intro": "Tell the restaurant how it went. You can change this for 24 hours.",
+    "reviewsIntro": "What customers say about your food and delivery.",
+    "noReviewsBody": "Reviews appear here after customers rate their orders.",
+    "cancel": "Cancel",
+    "closeToast": "Dismiss"
   },
   "retentionPromotions": {
     "title": "Promotions",

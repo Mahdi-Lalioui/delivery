@@ -1,6 +1,8 @@
 "use client";
 
+import { Button, Card, ErrorState, Icon, Skeleton, TextAreaField, useToast } from "@zaafran/ui";
 import { useTranslations } from "next-intl";
+import { useEffect } from "react";
 import { isEditable, type OrderRating as Rating, type RatingSave } from "./ratings-http";
 import { StarField } from "./star-field";
 import { useOrderRating, type OrderRatingState } from "./use-order-rating";
@@ -28,45 +30,48 @@ const outcomeKeys = {
   error: "saveError",
 } as const;
 
-function outcomeKey(outcome: RatingSave) {
-  if (outcome.kind !== "invalid") return outcomeKeys[outcome.kind];
-  if (outcome.field === "comment") return "commentError";
-  return outcome.field === "deliveryStars" ? "deliveryStarsError" : "foodStarsError";
+type ErrorKey = "commentError" | "deliveryStarsError" | "foodStarsError";
+
+function errorKey(outcome: RatingSave | undefined, field: string): ErrorKey | undefined {
+  if (outcome?.kind !== "invalid" || outcome.field !== field) return undefined;
+  if (field === "comment") return "commentError";
+  return field === "deliveryStars" ? "deliveryStarsError" : "foodStarsError";
 }
 
 function Reply({ rating }: { rating: Rating }) {
   const translate = useTranslations("retentionRatings");
   if (rating.reply === null) return null;
   return (
-    <blockquote className="rating-reply">
-      <p>{translate("restaurantReply")}</p>
+    <Card tone="sunken">
+      <p className="rating-reply-label">
+        <Icon name="reply" size={18} />
+        {translate("restaurantReply")}
+      </p>
       <p>{rating.reply.body}</p>
-    </blockquote>
+    </Card>
   );
 }
 
-function Outcome({ outcome }: { outcome: RatingSave | undefined }) {
+function FieldError({ messageKey }: { messageKey: ErrorKey | undefined }) {
   const translate = useTranslations("retentionRatings");
-  if (outcome === undefined) return null;
-  const isSaved = outcome.kind === "saved";
+  if (messageKey === undefined) return null;
   return (
-    <p
-      className={isSaved ? "admin-merchant-success" : "admin-merchant-error"}
-      role={isSaved ? "status" : "alert"}
-    >
-      {translate(outcomeKey(outcome))}
+    <p className="ui-field-error" role="alert">
+      {translate(messageKey)}
     </p>
   );
 }
 
-function RatingFields(props: {
+function RatingStars(props: {
   rating: Rating | null;
   isDelivery: boolean;
   isDisabled: boolean;
-  invalidField: string | undefined;
+  outcome: RatingSave | undefined;
 }) {
   const translate = useTranslations("retentionRatings");
-  const { rating, isDisabled, invalidField } = props;
+  const { rating, isDisabled } = props;
+  const foodError = errorKey(props.outcome, "foodStars");
+  const deliveryError = errorKey(props.outcome, "deliveryStars");
   return (
     <>
       <StarField
@@ -74,27 +79,21 @@ function RatingFields(props: {
         legend={translate("food")}
         defaultValue={rating?.foodStars}
         isDisabled={isDisabled}
-        isInvalid={invalidField === "foodStars"}
+        isInvalid={foodError !== undefined}
       />
+      <FieldError messageKey={foodError} />
       {props.isDelivery && (
-        <StarField
-          name="deliveryStars"
-          legend={translate("delivery")}
-          defaultValue={rating?.deliveryStars ?? undefined}
-          isDisabled={isDisabled}
-          isInvalid={invalidField === "deliveryStars"}
-        />
+        <>
+          <StarField
+            name="deliveryStars"
+            legend={translate("delivery")}
+            defaultValue={rating?.deliveryStars ?? undefined}
+            isDisabled={isDisabled}
+            isInvalid={deliveryError !== undefined}
+          />
+          <FieldError messageKey={deliveryError} />
+        </>
       )}
-      <label className="admin-merchant-field">
-        <span>{translate("comment")}</span>
-        <textarea
-          name="comment"
-          maxLength={500}
-          defaultValue={rating?.comment ?? ""}
-          disabled={isDisabled}
-          aria-invalid={invalidField === "comment" || undefined}
-        />
-      </label>
     </>
   );
 }
@@ -108,54 +107,93 @@ function RatingForm(props: {
   const { state, rating, isDelivery } = props;
   const isLocked = rating !== null && !isEditable(rating.editableUntil, Date.now());
   const isDisabled = state.isSaving || isLocked;
-  const invalidField = state.outcome?.kind === "invalid" ? state.outcome.field : undefined;
+  const commentError = errorKey(state.outcome, "comment");
   return (
     <form
-      className="admin-merchant-form"
+      className="rating-form"
       aria-busy={state.isSaving}
       onSubmit={(event) => {
         event.preventDefault();
         void state.save(readDraft(event.currentTarget));
       }}
     >
-      <RatingFields
+      <RatingStars
         rating={rating}
         isDelivery={isDelivery}
         isDisabled={isDisabled}
-        invalidField={invalidField}
+        outcome={state.outcome}
+      />
+      <TextAreaField
+        label={translate("comment")}
+        name="comment"
+        maxLength={500}
+        defaultValue={rating?.comment ?? ""}
+        disabled={isDisabled}
+        error={commentError === undefined ? undefined : translate(commentError)}
       />
       {isLocked ? (
-        <p>{translate("closed")}</p>
+        <p className="ui-field-hint">{translate("closed")}</p>
       ) : (
-        <button className="admin-merchant-button" type="submit" disabled={isDisabled}>
+        <Button type="submit" variant="primary" size="lg" isBlock isLoading={state.isSaving}>
           {translate(rating === null ? "submit" : "update")}
-        </button>
+        </Button>
       )}
-      <Outcome outcome={state.outcome} />
     </form>
+  );
+}
+
+function useOutcomeToast(state: OrderRatingState) {
+  const translate = useTranslations("retentionRatings");
+  const toast = useToast();
+  const { outcome } = state;
+  useEffect(() => {
+    if (outcome === undefined || outcome.kind === "invalid") return;
+    toast.show(
+      translate(outcomeKeys[outcome.kind]),
+      outcome.kind === "saved" ? "success" : "danger",
+    );
+  }, [outcome, toast, translate]);
+}
+
+/** CUS-22 view (page and design gallery). */
+export function OrderRatingView({
+  state,
+  isDelivery,
+}: {
+  state: OrderRatingState;
+  isDelivery: boolean;
+}) {
+  const translate = useTranslations("retentionRatings");
+  useOutcomeToast(state);
+  const { view } = state;
+  return (
+    <section className="rating-page" aria-labelledby="order-rating-title">
+      <header className="rating-hero">
+        <span className="rating-hero-icon" aria-hidden="true">
+          <Icon name="plate" size={32} />
+        </span>
+        <h1 id="order-rating-title" className="ui-page-title">
+          {translate("title")}
+        </h1>
+        <p className="ui-page-intro">{translate("intro")}</p>
+      </header>
+      {view.kind === "loading" && <Skeleton label={translate("loading")} lines={5} />}
+      {view.kind === "ready" && (
+        <>
+          <Card>
+            <RatingForm state={state} rating={view.rating} isDelivery={isDelivery} />
+          </Card>
+          {view.rating !== null && <Reply rating={view.rating} />}
+        </>
+      )}
+      {view.kind !== "loading" && view.kind !== "ready" && (
+        <ErrorState title={translate(outcomeKeys[view.kind])} />
+      )}
+    </section>
   );
 }
 
 /** CUS-22: rate one order; editable for 24 h; shows the restaurant's reply. */
 export function OrderRating({ orderId, isDelivery }: { orderId: string; isDelivery: boolean }) {
-  const translate = useTranslations("retentionRatings");
-  const state = useOrderRating(orderId, isDelivery);
-  const { view } = state;
-  return (
-    <section className="admin-merchant" aria-labelledby="order-rating-title">
-      <header className="admin-merchant-heading">
-        <h1 id="order-rating-title">{translate("title")}</h1>
-      </header>
-      {view.kind === "loading" && <p role="status">{translate("loading")}</p>}
-      {view.kind === "ready" && (
-        <>
-          <RatingForm state={state} rating={view.rating} isDelivery={isDelivery} />
-          {view.rating !== null && <Reply rating={view.rating} />}
-        </>
-      )}
-      {view.kind !== "loading" && view.kind !== "ready" && (
-        <p role="alert">{translate(outcomeKeys[view.kind])}</p>
-      )}
-    </section>
-  );
+  return <OrderRatingView state={useOrderRating(orderId, isDelivery)} isDelivery={isDelivery} />;
 }

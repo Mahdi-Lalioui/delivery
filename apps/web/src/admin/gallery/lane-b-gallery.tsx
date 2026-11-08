@@ -8,11 +8,14 @@ import { BillingSettingsView } from "../billing/billing-settings";
 import { settingsToDraft } from "../billing/billing-settings-http";
 import { MerchantBillingView } from "../billing/merchant-billing";
 import { emptyPromotionDraft } from "../../retention/promotion-draft";
+import { MerchantReviewsView } from "../../retention/merchant-reviews";
+import { OrderRatingView } from "../../retention/order-rating";
 import { PromotionsView } from "../../retention/promotions-editor";
 import { billingSettingsDefaults } from "@zaafran/contracts/billing";
 import {
   galleryInvoices,
   galleryPromotions,
+  galleryReviews,
   galleryMerchantId,
   gallerySubscription,
   galleryTransfer,
@@ -20,7 +23,8 @@ import {
 
 // Design-build page: every lane B screen in each state, for the 390/1280 screenshot review.
 
-type Screen = "admin-billing" | "merchant-billing" | "billing-settings" | "promotions";
+type Screen =
+  "admin-billing" | "merchant-billing" | "billing-settings" | "promotions" | "reviews" | "rating";
 type Mode = "ready" | "empty" | "loading" | "error";
 const noop = () => undefined;
 const noopAsync = () => Promise.resolve();
@@ -128,6 +132,45 @@ function PromotionsSample({ mode, locale }: { mode: Mode; locale: Locale }) {
   );
 }
 
+function ReviewsSample({ mode }: { mode: Mode }) {
+  const view =
+    mode === "ready" || mode === "empty"
+      ? {
+          kind: "ready" as const,
+          reviews: mode === "ready" ? galleryReviews : [],
+          nextCursor: null,
+        }
+      : { kind: mode };
+  return (
+    <MerchantReviewsView
+      state={{
+        view,
+        stars: undefined,
+        notice: undefined,
+        isSaving: false,
+        isPaging: false,
+        filter: noop,
+        loadMore: noopAsync,
+        reply: noopAsync,
+        report: noopAsync,
+      }}
+    />
+  );
+}
+
+function RatingSample({ mode }: { mode: Mode }) {
+  const view =
+    mode === "ready" || mode === "empty"
+      ? { kind: "ready" as const, rating: null }
+      : { kind: mode };
+  return (
+    <OrderRatingView
+      isDelivery
+      state={{ view, outcome: undefined, isSaving: false, save: noopAsync }}
+    />
+  );
+}
+
 export function LaneBGallery({
   locale,
   labels,
@@ -150,6 +193,8 @@ export function LaneBGallery({
             { value: "admin-billing", label: "ADM-07" },
             { value: "billing-settings", label: "BIL-01" },
             { value: "promotions", label: "MER-19" },
+            { value: "reviews", label: "MER-20" },
+            { value: "rating", label: "CUS-22" },
           ]}
         />
         <SegmentedControl
@@ -169,6 +214,8 @@ export function LaneBGallery({
       {screen === "merchant-billing" && <MerchantBillingSample mode={mode} locale={locale} />}
       {screen === "billing-settings" && <SettingsSample mode={mode} />}
       {screen === "promotions" && <PromotionsSample mode={mode} locale={locale} />}
+      {screen === "reviews" && <ReviewsSample mode={mode} />}
+      {screen === "rating" && <RatingSample mode={mode} />}
     </div>
   );
 }

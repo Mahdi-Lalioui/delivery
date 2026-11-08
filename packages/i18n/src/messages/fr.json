@@ -832,7 +832,12 @@
     "replyClosed": "La réponse peut être modifiée pendant 24 heures seulement.",
     "noReviews": "Aucun avis pour l’instant.",
     "loadError": "Les avis n’ont pas pu être chargés.",
-    "loadMore": "Afficher plus d’avis"
+    "loadMore": "Afficher plus d’avis",
+    "intro": "Dites au restaurant comment ça s’est passé. Vous pouvez modifier pendant 24 heures.",
+    "reviewsIntro": "Ce que les clients disent de votre cuisine et de la livraison.",
+    "noReviewsBody": "Les avis apparaissent ici quand les clients notent leurs commandes.",
+    "cancel": "Annuler",
+    "closeToast": "Fermer"
   },
   "retentionPromotions": {
     "title": "Promotions",

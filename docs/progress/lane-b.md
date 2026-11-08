@@ -37,3 +37,5 @@
   Proof: settings tests 6/6, billing 24/24, `pnpm verify` green; reviewed at 1280 fr light. Next: retention screens on the kit.
 - 2026-11-08 · Medium · Design bar: promotions editor on the kit (offer cards with code chip + type badge + stats, segmented activation/type with icons, money fields, first-order toggle, sticky worked-example receipt, toasts, empty/loading). Gallery gains MER-19.
   Proof: promotion tests 10/10, `pnpm verify` green; reviewed at 1280 fr light. Next: reviews, rating, share kit, slots, recipient on the kit.
+- 2026-11-08 · Medium · Design bar: customer rating (large tappable stars filling from the reading start, one primary button, reply card) and merchant reviews (star-filter chips, review cards with star rows, reply bubble, quiet red report) on the kit. Fixed `danger-ghost` CSS that never landed in db00086 and added a test that every button variant has styles. Gallery gains MER-20 and CUS-22.
+  Proof: rating tests 10/10, kit 6/6, `pnpm verify` green; reviewed 1280 fr light, 375 ar dark. Next: share kit, slot picker, recipient.

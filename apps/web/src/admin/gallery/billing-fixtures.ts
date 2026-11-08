@@ -3,6 +3,7 @@ import {
   merchantBillingSubscriptionOutput,
 } from "@zaafran/contracts/billing";
 import { merchantPromotionOutput } from "@zaafran/contracts/promotions";
+import { merchantReviewPageOutput } from "@zaafran/contracts/ratings";
 
 // Design-gallery fixtures. Parsed with the published contract, so the gallery never shows a shape
 // the API cannot send. Fictional data only.
@@ -79,3 +80,30 @@ export const galleryPromotions = [
     stats: { uses: 17, salesDzd: 61_200 },
   }),
 ];
+
+const reviewBase = { createdAt: "2027-02-08T20:00:00.000Z", reply: null };
+
+export const galleryReviews = merchantReviewPageOutput.parse({
+  nextCursor: null,
+  reviews: [
+    {
+      ...reviewBase,
+      ratingId: "019d6abc-0000-7000-8000-000000000301",
+      foodStars: 5,
+      deliveryStars: 4,
+      comment: "Couscous excellent, livré chaud. Le livreur était très aimable.",
+    },
+    {
+      ...reviewBase,
+      ratingId: "019d6abc-0000-7000-8000-000000000302",
+      foodStars: 3,
+      deliveryStars: null,
+      comment: "Bon mais un peu salé cette fois.",
+      reply: {
+        body: "Merci, nous avons ajusté la recette.",
+        createdAt: "2027-02-08T21:00:00.000Z",
+        editableUntil: "2026-01-01T00:00:00.000Z",
+      },
+    },
+  ],
+}).reviews;

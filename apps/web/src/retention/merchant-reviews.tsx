@@ -1,46 +1,167 @@
 "use client";
 
+import {
+  Badge,
+  Button,
+  Card,
+  ChipGroup,
+  EmptyState,
+  ErrorState,
+  Icon,
+  PageHeader,
+  Skeleton,
+  TextAreaField,
+  useToast,
+} from "@zaafran/ui";
 import { useFormatter, useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
 import { isEditable, type MerchantReview } from "./ratings-http";
+import { StarRow } from "./star-field";
 import { useMerchantReviews, type MerchantReviewsState } from "./use-merchant-reviews";
 
-const starFilters = [5, 4, 3, 2, 1] as const;
+type Filter = "all" | "5" | "4" | "3" | "2" | "1";
+const filterValues = ["all", "5", "4", "3", "2", "1"] as const satisfies readonly Filter[];
 
 function readText(form: HTMLFormElement, name: string): string {
   const value = new FormData(form).get(name);
   return typeof value === "string" ? value : "";
 }
 
+/** A disclosed text form: closed it is a quiet button; open it is a field with send/cancel. */
 function TextAction(props: {
   name: string;
+  open: string;
   label: string;
   submit: string;
   defaultValue?: string;
+  variant: "ghost" | "danger-ghost";
+  icon: "reply" | "flag";
   isDisabled: boolean;
   onText: (text: string) => void;
 }) {
+  const translate = useTranslations("retentionRatings");
+  const [isOpen, setIsOpen] = useState(false);
+  if (!isOpen) {
+    return (
+      <Button
+        variant={props.variant}
+        size="sm"
+        icon={props.icon}
+        disabled={props.isDisabled}
+        onClick={() => {
+          setIsOpen(true);
+        }}
+      >
+        {props.open}
+      </Button>
+    );
+  }
   return (
     <form
-      className="admin-billing-action"
+      className="review-action-form"
       onSubmit={(event) => {
         event.preventDefault();
         props.onText(readText(event.currentTarget, props.name));
+        setIsOpen(false);
       }}
     >
-      <label className="admin-merchant-field">
-        <span>{props.label}</span>
-        <textarea
-          name={props.name}
-          required
-          maxLength={500}
-          defaultValue={props.defaultValue}
-          disabled={props.isDisabled}
-        />
-      </label>
-      <button className="admin-merchant-button" type="submit" disabled={props.isDisabled}>
-        {props.submit}
-      </button>
+      <TextAreaField
+        label={props.label}
+        name={props.name}
+        required
+        maxLength={500}
+        defaultValue={props.defaultValue}
+        disabled={props.isDisabled}
+        autoFocus
+      />
+      <div className="billing-reason-actions">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            setIsOpen(false);
+          }}
+        >
+          {translate("cancel")}
+        </Button>
+        <Button type="submit" variant="primary" size="sm" isLoading={props.isDisabled}>
+          {props.submit}
+        </Button>
+      </div>
     </form>
+  );
+}
+
+function ReviewCard({ review, state }: { review: MerchantReview; state: MerchantReviewsState }) {
+  const translate = useTranslations("retentionRatings");
+  const format = useFormatter();
+  const { reply } = review;
+  const canReply = reply === null || isEditable(reply.editableUntil, Date.now());
+  return (
+    <li className="review-card">
+      <div className="review-card-head">
+        <StarRow
+          value={review.foodStars}
+          label={translate("foodScore", { count: review.foodStars })}
+        />
+        {review.deliveryStars !== null && (
+          <Badge tone="neutral">
+            <Icon name="bike" size={14} />
+            {translate("deliveryScore", { count: review.deliveryStars })}
+          </Badge>
+        )}
+        <time className="review-card-date" dateTime={review.createdAt}>
+          {format.dateTime(new Date(review.createdAt), {
+            day: "numeric",
+            month: "short",
+            timeZone: "Africa/Algiers",
+          })}
+        </time>
+      </div>
+      {review.comment === null ? (
+        <p className="ui-field-hint">{translate("noComment")}</p>
+      ) : (
+        <p className="review-card-comment">{review.comment}</p>
+      )}
+      {reply !== null && (
+        <div className="review-reply">
+          <p className="rating-reply-label">
+            <Icon name="reply" size={16} />
+            {translate("yourReply")}
+          </p>
+          <p>{reply.body}</p>
+        </div>
+      )}
+      <div className="review-card-actions">
+        {canReply && (
+          <TextAction
+            name="reply"
+            open={translate(reply === null ? "reply" : "editReply")}
+            label={translate("reply")}
+            submit={translate("sendReply")}
+            defaultValue={reply?.body ?? ""}
+            variant="ghost"
+            icon="reply"
+            isDisabled={state.isSaving}
+            onText={(text) => {
+              void state.reply(review.ratingId, text);
+            }}
+          />
+        )}
+        <TextAction
+          name="reason"
+          open={translate("report")}
+          label={translate("reportReason")}
+          submit={translate("sendReport")}
+          variant="danger-ghost"
+          icon="flag"
+          isDisabled={state.isSaving}
+          onText={(text) => {
+            void state.report(review.ratingId, text);
+          }}
+        />
+      </div>
+    </li>
   );
 }
 
@@ -51,105 +172,44 @@ function noticeKey(notice: NonNullable<MerchantReviewsState["notice"]>) {
   return notice.result.kind === "closed" ? "replyClosed" : "saveError";
 }
 
-function ReviewNotice({ notice }: { notice: MerchantReviewsState["notice"] }) {
+function useNoticeToast(state: MerchantReviewsState) {
   const translate = useTranslations("retentionRatings");
-  if (notice === undefined) return null;
-  const isSaved = notice.result.kind === "saved";
-  return (
-    <p
-      className={isSaved ? "admin-merchant-success" : "admin-merchant-error"}
-      role={isSaved ? "status" : "alert"}
-    >
-      {translate(noticeKey(notice))}
-    </p>
-  );
+  const toast = useToast();
+  const { notice } = state;
+  useEffect(() => {
+    if (notice !== undefined)
+      toast.show(
+        translate(noticeKey(notice)),
+        notice.result.kind === "saved" ? "success" : "danger",
+      );
+  }, [notice, toast, translate]);
 }
 
-function ReviewHeader({ review }: { review: MerchantReview }) {
+function Filters({ state }: { state: MerchantReviewsState }) {
   const translate = useTranslations("retentionRatings");
-  const format = useFormatter();
+  const options = filterValues.map((value) => ({
+    value,
+    label:
+      value === "all" ? (
+        translate("allStars")
+      ) : (
+        <>
+          <Icon name="star" size={14} />
+          {value}
+        </>
+      ),
+  }));
+  const current: Filter =
+    state.stars === undefined ? "all" : (filterValues[6 - state.stars] ?? "all");
   return (
-    <>
-      <p className="admin-billing-facts">
-        <span>{translate("foodScore", { count: review.foodStars })}</span>
-        {review.deliveryStars !== null && (
-          <span>{translate("deliveryScore", { count: review.deliveryStars })}</span>
-        )}
-        <time dateTime={review.createdAt}>
-          {format.dateTime(new Date(review.createdAt), {
-            dateStyle: "medium",
-            timeZone: "Africa/Algiers",
-          })}
-        </time>
-      </p>
-      <p>{review.comment ?? translate("noComment")}</p>
-      {review.reply !== null && (
-        <blockquote className="rating-reply">
-          <p>{translate("yourReply")}</p>
-          <p>{review.reply.body}</p>
-        </blockquote>
-      )}
-    </>
-  );
-}
-
-function ReviewItem({ review, state }: { review: MerchantReview; state: MerchantReviewsState }) {
-  const translate = useTranslations("retentionRatings");
-  const { reply } = review;
-  const canReply = reply === null || isEditable(reply.editableUntil, Date.now());
-  const notice = state.notice?.ratingId === review.ratingId ? state.notice : undefined;
-  return (
-    <li className="review-item">
-      <ReviewHeader review={review} />
-      {canReply && (
-        <TextAction
-          name="reply"
-          label={translate(reply === null ? "reply" : "editReply")}
-          submit={translate("sendReply")}
-          defaultValue={reply?.body ?? ""}
-          isDisabled={state.isSaving}
-          onText={(text) => {
-            void state.reply(review.ratingId, text);
-          }}
-        />
-      )}
-      <details>
-        <summary>{translate("report")}</summary>
-        <TextAction
-          name="reason"
-          label={translate("reportReason")}
-          submit={translate("sendReport")}
-          isDisabled={state.isSaving}
-          onText={(text) => {
-            void state.report(review.ratingId, text);
-          }}
-        />
-      </details>
-      <ReviewNotice notice={notice} />
-    </li>
-  );
-}
-
-function Filter({ state }: { state: MerchantReviewsState }) {
-  const translate = useTranslations("retentionRatings");
-  return (
-    <label className="admin-merchant-field">
-      <span>{translate("filter")}</span>
-      <select
-        value={state.stars === undefined ? "" : String(state.stars)}
-        onChange={(event) => {
-          const value = event.currentTarget.value;
-          state.filter(value === "" ? undefined : Number(value));
-        }}
-      >
-        <option value="">{translate("allStars")}</option>
-        {starFilters.map((value) => (
-          <option key={value} value={value}>
-            {translate("stars", { count: value })}
-          </option>
-        ))}
-      </select>
-    </label>
+    <ChipGroup
+      legend={translate("filter")}
+      options={options}
+      value={current}
+      onChange={(value) => {
+        state.filter(value === "all" ? undefined : Number(value));
+      }}
+    />
   );
 }
 
@@ -159,41 +219,55 @@ const failureKeys = {
   error: "loadError",
 } as const;
 
-/** MER-20: list and filter reviews, reply once (editable 24 h), report abuse. */
-export function MerchantReviews({ merchantId }: { merchantId: string }) {
+/** MER-20 view (page and design gallery). */
+export function MerchantReviewsView({ state }: { state: MerchantReviewsState }) {
   const translate = useTranslations("retentionRatings");
-  const state = useMerchantReviews(merchantId);
+  useNoticeToast(state);
   const { view } = state;
   return (
-    <section className="admin-merchant" aria-labelledby="merchant-reviews-title">
-      <header className="admin-merchant-heading">
-        <h1 id="merchant-reviews-title">{translate("reviewsTitle")}</h1>
-      </header>
-      <Filter state={state} />
-      {view.kind === "loading" && <p role="status">{translate("loading")}</p>}
-      {view.kind === "ready" && view.reviews.length === 0 && <p>{translate("noReviews")}</p>}
-      {view.kind === "ready" && (
-        <ul className="admin-billing-list">
+    <section className="billing-page" aria-labelledby="merchant-reviews-title">
+      <PageHeader
+        title={translate("reviewsTitle")}
+        intro={translate("reviewsIntro")}
+        titleId="merchant-reviews-title"
+      />
+      <Filters state={state} />
+      {view.kind === "loading" && <Skeleton label={translate("loading")} lines={6} />}
+      {view.kind === "ready" && view.reviews.length === 0 && (
+        <Card>
+          <EmptyState
+            icon="star"
+            title={translate("noReviews")}
+            body={translate("noReviewsBody")}
+          />
+        </Card>
+      )}
+      {view.kind === "ready" && view.reviews.length > 0 && (
+        <ul className="review-list">
           {view.reviews.map((review) => (
-            <ReviewItem key={review.ratingId} review={review} state={state} />
+            <ReviewCard key={review.ratingId} review={review} state={state} />
           ))}
         </ul>
       )}
       {view.kind === "ready" && view.nextCursor !== null && (
-        <button
-          className="admin-merchant-button"
-          type="button"
-          disabled={state.isPaging}
+        <Button
+          variant="secondary"
+          isLoading={state.isPaging}
           onClick={() => {
             void state.loadMore();
           }}
         >
           {translate("loadMore")}
-        </button>
+        </Button>
       )}
       {view.kind !== "loading" && view.kind !== "ready" && (
-        <p role="alert">{translate(failureKeys[view.kind])}</p>
+        <ErrorState title={translate(failureKeys[view.kind])} />
       )}
     </section>
   );
+}
+
+/** MER-20: list and filter reviews, reply once (editable 24 h), report abuse. */
+export function MerchantReviews({ merchantId }: { merchantId: string }) {
+  return <MerchantReviewsView state={useMerchantReviews(merchantId)} />;
 }

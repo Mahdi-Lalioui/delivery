@@ -1,10 +1,11 @@
 "use client";
 
+import { Icon } from "@zaafran/ui";
 import { useTranslations } from "next-intl";
 
 const starValues = [1, 2, 3, 4, 5] as const;
 
-/** A 1–5 star choice built from native radios, so it is keyboard and screen-reader friendly. */
+/** A 1–5 star choice from native radios (keyboard + forms); stars fill up to the chosen one. */
 export function StarField(props: {
   name: string;
   legend: string;
@@ -19,19 +20,35 @@ export function StarField(props: {
       disabled={props.isDisabled}
       aria-invalid={props.isInvalid || undefined}
     >
-      <legend>{props.legend}</legend>
-      {starValues.map((value) => (
-        <label key={value}>
-          <input
-            type="radio"
-            name={props.name}
-            value={value}
-            defaultChecked={props.defaultValue === value}
-          />
-          <span className="star-field-icon" aria-hidden="true" />
-          <span className="star-field-label">{translate("stars", { count: value })}</span>
-        </label>
-      ))}
+      <legend className="ui-field-label">{props.legend}</legend>
+      <div className="star-field-row">
+        {starValues.map((value) => (
+          <label key={value} className="star-field-star" data-value={value}>
+            <input
+              className="ui-visually-hidden"
+              type="radio"
+              name={props.name}
+              value={value}
+              defaultChecked={props.defaultValue === value}
+            />
+            <Icon name="star" size={36} />
+            <span className="ui-visually-hidden">{translate("stars", { count: value })}</span>
+          </label>
+        ))}
+      </div>
     </fieldset>
+  );
+}
+
+/** Read-only stars with a text equivalent for screen readers. */
+export function StarRow({ value, label }: { value: number; label: string }) {
+  return (
+    <span className="star-row" role="img" aria-label={label}>
+      {starValues.map((star) => (
+        <span key={star} className="star-row-star" data-filled={star <= value || undefined}>
+          <Icon name="star" size={16} />
+        </span>
+      ))}
+    </span>
   );
 }

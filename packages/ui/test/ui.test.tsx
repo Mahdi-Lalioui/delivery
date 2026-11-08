@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { renderToStaticMarkup } from "react-dom/server";
 import { expect, test } from "vitest";
 import {
@@ -123,4 +124,11 @@ test("[UI] layout pieces render their slots", () => {
   expect(page).toContain('id="t"');
   expect(page).toContain("ui-kpi-value");
   expect(page).toContain('aria-live="polite"');
+});
+
+test("[UI] every button variant has styles in ui.css", () => {
+  const css = readFileSync(new URL("../src/ui.css", import.meta.url), "utf8");
+  for (const variant of ["primary", "secondary", "ghost", "destructive", "danger-ghost"]) {
+    expect(css).toContain(`.ui-button-${variant} {`);
+  }
 });
