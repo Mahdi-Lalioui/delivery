@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 04:25 GMT — M2-9 regular/Ramadan preview toggle (Claude, covering while Codex was out)
+
+- **Changed** — The hours page now has a labelled button group ("Regular hours" / "Ramadan") above the seven-day preview. It uses `aria-pressed` and `data-preview`. `use-hours-editor.ts` keeps `previewSchedule` and `showPreview`, and re-reads `readHoursPreview({ schedule })` whenever the schedule or the shared revision changes, aborting the previous read. Before any Ramadan schedule is saved, the API's Ramadan preview falls back to the regular week (`apps/api/src/merchant-hours-preview.ts`), so the toggle is safe on its own. Added 3 messages in ar, fr and en.
+- **Evidence** — Tests came first: 1 `[MER-16]` screen case for the group label and the pressed state of each choice. It failed before the change, then 82/82 hours tests passed. `pnpm verify` exited 0: 1098 unit tests, 118 PostGIS integration tests, build, knip, depcruise, trace, and only the existing moderate advisory.
+- **Reviewer** — Self-reviewed against AGENTS.md §10. No P0/P1. Toggle buttons with `aria-pressed` were chosen over an ARIA tablist, which would need roving arrow-key focus for no gain with two choices.
+- **Next (exact)** — Wire the Ramadan editor. Add `use-ramadan-editor.ts`: load with `readRamadan` on the shared `version`, then save with `prepareRamadanSave`, `crypto.randomUUID` and `replaceRamadan`. After a success, dispatch `revision-advanced` into the hours flow. The pause already reads its revision from the hours state. After a weekly hours or pause success, also dispatch it into the Ramadan flow, and block each save while another is in flight. Focus goes to `#ramadan-<weekday>-<index>-opens-kind` after add, to `#ramadan-<weekday>-add` after remove, and to `[data-ramadan-save]` after a save. Render `RamadanFields` in its own form card with a Save and an outcome, reusing `SaveOutcome`'s message map, and extend the screen test. Then the production-build overnight and Ramadan journeys in ar/fr, and the screenshot matrix.
+- **Needs Mahdi** — None.
+
 ### 2026-11-08 04:23 GMT — M2-9 pure Ramadan load/save state machine (Claude, covering while Codex was out)
 
 - **Changed** — Added `apps/web/src/merchant-hours/ramadan-flow.ts`. `reduceRamadan` moves between `loading`, `load-failed`, `editing` and `saving`. A stored `schedule: null` loads as a week closed every day, through `toRamadanDraft`. Like the weekly flow, the retry key survives only an uncertain failure and is dropped on edit. `revision-advanced` moves to a newer shared D-011 revision, keeps the draft and drops the key. Stale revisions are ignored. `prepareRamadanSave` validates through the contract-backed `toRamadanInput` and attaches `expectedRevision`.
@@ -607,5 +615,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress)
 - `node scripts/trace.ts --through m2` on 2026-11-08 at 03:32 GMT covered 32 of 37 IDs. Pending: ADM-04, MER-01, MER-12, MER-14, MER-23. M2-9 has its API, preview, pure web models, and the weekly hours page with the closed-now control. The Ramadan fields are rendered but not yet wired. The Ramadan save state, preview tabs, journeys and screenshots remain.
-- Last green `pnpm verify`: 2026-11-08 04:23 GMT on Docker Desktop with 1097 unit and 118 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 12/12 at 02:22 GMT.
+- Last green `pnpm verify`: 2026-11-08 04:25 GMT on Docker Desktop with 1098 unit and 118 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 12/12 at 02:22 GMT.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

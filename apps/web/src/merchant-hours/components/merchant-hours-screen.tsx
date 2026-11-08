@@ -94,6 +94,33 @@ function SaveOutcome({ state, reload }: { state: Editable; reload: () => void })
   );
 }
 
+const previewSchedules = [
+  { schedule: "regular", label: "previewRegular" },
+  { schedule: "ramadan", label: "previewRamadan" },
+] as const;
+
+function PreviewChoice({ controls }: { controls: MerchantHoursEditor }) {
+  const translate = useTranslations("merchantHours");
+  return (
+    <div className="hours-pause-actions" role="group" aria-label={translate("previewChoice")}>
+      {previewSchedules.map(({ schedule, label }) => (
+        <button
+          key={schedule}
+          className="menu-item-secondary"
+          type="button"
+          aria-pressed={controls.previewSchedule === schedule}
+          data-preview={schedule}
+          onClick={() => {
+            controls.showPreview(schedule);
+          }}
+        >
+          {translate(label)}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function HoursPreviewPanel({
   preview,
   locale,
@@ -163,6 +190,7 @@ function HoursWorkspace({
         </button>
       </form>
       <div className="hours-card">
+        <PreviewChoice controls={controls} />
         <HoursPreviewPanel preview={controls.preview} locale={locale} />
       </div>
     </div>

@@ -15,6 +15,7 @@ import { useHoursPause } from "./use-hours-pause";
 type RangeAddress = { weekday: number; index: number };
 type PreviewRead = Awaited<ReturnType<typeof readHoursPreview>>;
 type PreviewView = PreviewRead | { kind: "loading" };
+type PreviewSchedule = Parameters<typeof readHoursPreview>[0]["schedule"];
 /** A CSS selector inside the hours panel that should receive focus after the last action. */
 type FocusRequest = { selector: string };
 
@@ -39,21 +40,23 @@ function useHoursLoad(merchantId: string, version: number, dispatch: Dispatch<Ho
   }, [merchantId, version, dispatch]);
 }
 
-function useHoursPreview(merchantId: string, revision: number | undefined): PreviewView {
+function useHoursPreview(
+  merchantId: string,
+  revision: number | undefined,
+  schedule: PreviewSchedule,
+): PreviewView {
   const [preview, setPreview] = useState<PreviewView>({ kind: "loading" });
   useEffect(() => {
     if (revision === undefined) return;
     const controller = new AbortController();
     setPreview({ kind: "loading" });
-    void readHoursPreview({ merchantId, schedule: "regular", signal: controller.signal }).then(
-      (result) => {
-        if (!controller.signal.aborted) setPreview(result);
-      },
-    );
+    void readHoursPreview({ merchantId, schedule, signal: controller.signal }).then((result) => {
+      if (!controller.signal.aborted) setPreview(result);
+    });
     return () => {
       controller.abort();
     };
-  }, [merchantId, revision]);
+  }, [merchantId, revision, schedule]);
   return preview;
 }
 
@@ -64,7 +67,8 @@ export function useHoursEditor(merchantId: string) {
   const inFlight = useRef(false);
   useHoursLoad(merchantId, version, dispatch);
   const revision = state.kind === "editing" || state.kind === "saving" ? state.revision : undefined;
-  const preview = useHoursPreview(merchantId, revision);
+  const [previewSchedule, showPreview] = useState<PreviewSchedule>("regular");
+  const preview = useHoursPreview(merchantId, revision, previewSchedule);
   const pause = useHoursPause({
     merchantId,
     version,
@@ -125,7 +129,19 @@ export function useHoursEditor(merchantId: string) {
     setVersion((current) => current + 1);
   }
 
-  return { state, preview, pause, focus, change, add, remove, save, reload };
+  return {
+    state,
+    preview,
+    previewSchedule,
+    showPreview,
+    pause,
+    focus,
+    change,
+    add,
+    remove,
+    save,
+    reload,
+  };
 }
 
 export type MerchantHoursEditor = ReturnType<typeof useHoursEditor>;

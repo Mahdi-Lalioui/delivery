@@ -25,6 +25,8 @@ const preview = {
 const controls: MerchantHoursEditor = {
   state: { kind: "editing", sessionId, revision: 2, draft, errors: [] },
   preview: { kind: "ready", data: preview },
+  previewSchedule: "regular",
+  showPreview: vi.fn(),
   pause: {
     state: { kind: "ready", pausedUntil: null },
     isPaused: false,
@@ -139,4 +141,15 @@ test("[MER-15] places the closed-now control beside the week and locks both whil
   expect(html).toMatch(/<fieldset disabled="" class="hours-week">/);
   expect(html).toMatch(/<fieldset disabled="" class="hours-pause">/);
   expect(html).toMatch(/<button[^>]*data-hours-save="true"[^>]*disabled=""/);
+});
+
+test("[MER-16] switches the seven-day preview between regular and Ramadan hours", () => {
+  const { merchantHours } = getMessages("ar");
+  const regular = render("ar");
+  expect(regular).toContain(`role="group" aria-label="${merchantHours.previewChoice}"`);
+  expect(regular).toMatch(/aria-pressed="true"[^>]*data-preview="regular"/);
+  expect(regular).toMatch(/aria-pressed="false"[^>]*data-preview="ramadan"/);
+  const ramadan = render("ar", { previewSchedule: "ramadan" });
+  expect(ramadan).toMatch(/aria-pressed="true"[^>]*data-preview="ramadan"/);
+  expect(ramadan).toContain(merchantHours.previewRamadan);
 });

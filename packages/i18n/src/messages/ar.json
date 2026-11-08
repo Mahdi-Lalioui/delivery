@@ -554,6 +554,9 @@
       "Singapore": "سنغافورة",
       "Tehran": "طهران",
       "Turkey": "تركيا (ديانت)"
-    }
+    },
+    "previewChoice": "الساعات المراد معاينتها",
+    "previewRegular": "الساعات المعتادة",
+    "previewRamadan": "رمضان"
   }
 }

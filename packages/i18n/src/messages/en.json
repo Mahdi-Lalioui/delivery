@@ -554,6 +554,9 @@
       "Singapore": "Singapore",
       "Tehran": "Tehran",
       "Turkey": "Turkey (Diyanet)"
-    }
+    },
+    "previewChoice": "Hours to preview",
+    "previewRegular": "Regular hours",
+    "previewRamadan": "Ramadan"
   }
 }
