@@ -28,26 +28,6 @@
   font-variant-numeric: var(--font-variant-numeric-numbers);
 }
 
-.slot-picker,
-.slot-day {
-  display: grid;
-  gap: var(--space-8);
-  min-inline-size: 0;
-}
-
-.slot-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-8);
-}
-
-.slot-option {
-  display: inline-flex;
-  gap: var(--space-4);
-  align-items: center;
-  min-block-size: var(--touch-target-min);
-}
-
 .share-qr {
   inline-size: 60%;
   max-inline-size: 320px;
@@ -350,4 +330,91 @@
   .star-field-star:active {
     transform: none;
   }
+}
+
+/* MER-24 share kit on the ui kit */
+.share-layout {
+  display: grid;
+  gap: var(--space-24);
+  align-items: start;
+}
+
+@media (min-width: 64rem) {
+  .share-layout {
+    grid-template-columns: minmax(18rem, 1fr) minmax(0, 1.4fr);
+  }
+}
+
+.share-link {
+  display: flex;
+  gap: var(--space-8);
+  align-items: end;
+}
+
+.share-link .ui-field {
+  flex: 1;
+}
+
+.share-poster {
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-e2);
+}
+
+/* CUS-13 slot picker on the ui kit */
+.slot-picker,
+.slot-day {
+  display: grid;
+  gap: var(--space-12);
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.slot-cards {
+  display: grid;
+  gap: var(--space-12);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+}
+
+.slot-card-face {
+  display: flex;
+  gap: var(--space-12);
+  align-items: center;
+  min-block-size: 64px;
+  padding: var(--space-12) var(--space-16);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  cursor: pointer;
+  transition: border-color var(--motion-fast) var(--ease-standard);
+}
+
+.slot-card[data-tone="iftar"] .slot-card-face {
+  background: var(--color-surface-2);
+}
+
+.slot-card input:checked + .slot-card-face {
+  border-color: var(--color-text);
+  box-shadow: inset 0 0 0 1px var(--color-text);
+}
+
+.slot-card input:focus-visible + .slot-card-face {
+  outline: var(--focus-ring-width) solid var(--color-focus);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.slot-card-text {
+  display: grid;
+}
+
+.slot-card-title {
+  font-weight: var(--font-weight-label);
+}
+
+.slot-card-detail,
+.slot-day-label {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-2);
 }

@@ -114,11 +114,13 @@ export function SharePage({ merchantId, locale }: { merchantId: string; locale: 
         locale={localeDetails[locale].tag}
         messages={{ retentionShare: getMessages(locale).retentionShare }}
       >
-        <ShareKit
-          key={merchantId}
-          merchantId={merchantId}
-          posters={{ ar: posterCopy("ar"), fr: posterCopy("fr") }}
-        />
+        <ToastProvider closeLabel={getMessages(locale).retentionShare.closeToast}>
+          <ShareKit
+            key={merchantId}
+            merchantId={merchantId}
+            posters={{ ar: posterCopy("ar"), fr: posterCopy("fr") }}
+          />
+        </ToastProvider>
       </NextIntlClientProvider>
     </SiteShell>
   );

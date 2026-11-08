@@ -23,6 +23,8 @@ export function GalleryPage({ locale }: { locale: Locale }) {
           adminBillingSettings: messages.adminBillingSettings,
           retentionPromotions: messages.retentionPromotions,
           retentionRatings: messages.retentionRatings,
+          retentionScheduling: messages.retentionScheduling,
+          retentionRecipient: messages.retentionRecipient,
         }}
       >
         <ToastProvider closeLabel={messages.merchantBilling.closeToast}>

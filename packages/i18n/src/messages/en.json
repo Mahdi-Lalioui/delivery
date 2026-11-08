@@ -893,12 +893,13 @@
   "retentionScheduling": {
     "when": "When",
     "asap": "As soon as possible",
-    "iftarSlot": "Iftar — arrives at {time}",
+    "iftarSlot": "Arrives at {time}",
     "noSlots": "No later slots are available.",
     "iftarAt": "Iftar today at {time}",
     "iftarNow": "Saha ftourkoum! It is time for Iftar.",
     "countdownTime": "{hours, number, ::00}:{minutes, number, ::00}:{seconds, number, ::00}",
-    "countdown": "Iftar in {time}"
+    "countdown": "Iftar in {time}",
+    "iftarTitle": "Iftar"
   },
   "retentionShare": {
     "title": "Share your restaurant",
@@ -913,7 +914,11 @@
     "print": "Print the poster",
     "loading": "Preparing your QR code…",
     "posterHeadline": "Order online and get it delivered",
-    "posterScan": "Scan to see our menu"
+    "posterScan": "Scan to see our menu",
+    "settingsTitle": "Poster and link",
+    "copy": "Copy the link",
+    "copied": "Link copied.",
+    "closeToast": "Dismiss"
   },
   "retentionRecipient": {
     "title": "Order for someone else",

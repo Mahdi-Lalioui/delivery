@@ -1,5 +1,15 @@
 "use client";
 
+import {
+  Button,
+  Card,
+  IconButton,
+  PageHeader,
+  SegmentedControl,
+  Skeleton,
+  TextField,
+  useToast,
+} from "@zaafran/ui";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { listMerchantMemberships } from "../merchant/merchant-http";
@@ -59,6 +69,72 @@ function Poster(props: { url: string; name: string; copy: PosterCopy; paper: Pap
   );
 }
 
+function ShareControls(props: {
+  url: string;
+  language: "ar" | "fr";
+  paper: PaperSize;
+  onLanguage: (value: "ar" | "fr") => void;
+  onPaper: (value: PaperSize) => void;
+}) {
+  const translate = useTranslations("retentionShare");
+  const toast = useToast();
+  return (
+    <Card title={translate("settingsTitle")} titleId="share-settings">
+      <div className="share-link">
+        <TextField
+          label={translate("link")}
+          readOnly
+          value={props.url}
+          dir="ltr"
+          onFocus={(event) => {
+            event.currentTarget.select();
+          }}
+        />
+        <IconButton
+          icon="copy"
+          label={translate("copy")}
+          onClick={() => {
+            void navigator.clipboard.writeText(props.url).then(() => {
+              toast.show(translate("copied"));
+            });
+          }}
+        />
+      </div>
+      <SegmentedControl
+        legend={translate("posterLanguage")}
+        name="poster-language"
+        value={props.language}
+        onChange={props.onLanguage}
+        options={[
+          { value: "ar", label: translate("arabic") },
+          { value: "fr", label: translate("french") },
+        ]}
+      />
+      <SegmentedControl
+        legend={translate("paper")}
+        name="poster-paper"
+        value={props.paper}
+        onChange={props.onPaper}
+        options={[
+          { value: "A5", label: translate("a5") },
+          { value: "A4", label: translate("a4") },
+        ]}
+      />
+      <Button
+        variant="primary"
+        size="lg"
+        icon="print"
+        isBlock
+        onClick={() => {
+          window.print();
+        }}
+      >
+        {translate("print")}
+      </Button>
+    </Card>
+  );
+}
+
 /** MER-24: QR code, short link and a printable A5/A4 poster in Arabic or French. */
 export function ShareKit(props: {
   merchantId: string;
@@ -72,61 +148,25 @@ export function ShareKit(props: {
   useEffect(() => {
     setOrigin(window.location.origin);
   }, []);
-  if (origin === undefined) return <p role="status">{translate("loading")}</p>;
+  if (origin === undefined) return <Skeleton label={translate("loading")} lines={4} />;
   const url = shareUrl(origin, props.merchantId);
   return (
-    <section className="admin-merchant" aria-labelledby="share-title">
-      <header className="admin-merchant-heading share-no-print">
-        <h1 id="share-title">{translate("title")}</h1>
-        <p>{translate("intro")}</p>
-      </header>
-      <div className="share-no-print admin-merchant-form">
-        <label className="admin-merchant-field">
-          <span>{translate("link")}</span>
-          <input
-            readOnly
-            value={url}
-            dir="ltr"
-            onFocus={(event) => {
-              event.currentTarget.select();
-            }}
-          />
-        </label>
-        <label className="admin-merchant-field">
-          <span>{translate("posterLanguage")}</span>
-          <select
-            value={language}
-            onChange={(event) => {
-              setLanguage(event.currentTarget.value === "fr" ? "fr" : "ar");
-            }}
-          >
-            <option value="ar">{translate("arabic")}</option>
-            <option value="fr">{translate("french")}</option>
-          </select>
-        </label>
-        <label className="admin-merchant-field">
-          <span>{translate("paper")}</span>
-          <select
-            value={paper}
-            onChange={(event) => {
-              setPaper(event.currentTarget.value === "A4" ? "A4" : "A5");
-            }}
-          >
-            <option value="A5">{translate("a5")}</option>
-            <option value="A4">{translate("a4")}</option>
-          </select>
-        </label>
-        <button
-          className="admin-merchant-button"
-          type="button"
-          onClick={() => {
-            window.print();
-          }}
-        >
-          {translate("print")}
-        </button>
+    <section className="billing-page" aria-labelledby="share-title">
+      <div className="share-no-print">
+        <PageHeader title={translate("title")} intro={translate("intro")} titleId="share-title" />
       </div>
-      <Poster url={url} name={name ?? ""} copy={props.posters[language]} paper={paper} />
+      <div className="share-layout">
+        <div className="share-no-print">
+          <ShareControls
+            url={url}
+            language={language}
+            paper={paper}
+            onLanguage={setLanguage}
+            onPaper={setPaper}
+          />
+        </div>
+        <Poster url={url} name={name ?? ""} copy={props.posters[language]} paper={paper} />
+      </div>
     </section>
   );
 }

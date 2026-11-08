@@ -10,6 +10,8 @@ import { MerchantBillingView } from "../billing/merchant-billing";
 import { emptyPromotionDraft } from "../../retention/promotion-draft";
 import { MerchantReviewsView } from "../../retention/merchant-reviews";
 import { OrderRatingView } from "../../retention/order-rating";
+import { RecipientFields, type RecipientDraft } from "../../retention/recipient";
+import { SlotPicker, type SlotChoice } from "../../retention/slot-picker";
 import { PromotionsView } from "../../retention/promotions-editor";
 import { billingSettingsDefaults } from "@zaafran/contracts/billing";
 import {
@@ -24,7 +26,13 @@ import {
 // Design-build page: every lane B screen in each state, for the 390/1280 screenshot review.
 
 type Screen =
-  "admin-billing" | "merchant-billing" | "billing-settings" | "promotions" | "reviews" | "rating";
+  | "admin-billing"
+  | "merchant-billing"
+  | "billing-settings"
+  | "promotions"
+  | "reviews"
+  | "rating"
+  | "checkout";
 type Mode = "ready" | "empty" | "loading" | "error";
 const noop = () => undefined;
 const noopAsync = () => Promise.resolve();
@@ -171,6 +179,33 @@ function RatingSample({ mode }: { mode: Mode }) {
   );
 }
 
+const gallerySlots = [
+  { kind: "iftar" as const, scheduledFor: "2027-02-10T18:05:00+01:00" },
+  ...["19:00", "19:15", "19:30", "19:45", "20:00", "20:15"].map((time) => ({
+    kind: "scheduled" as const,
+    scheduledFor: `2027-02-10T${time}:00+01:00`,
+  })),
+  ...["12:00", "12:15", "12:30"].map((time) => ({
+    kind: "scheduled" as const,
+    scheduledFor: `2027-02-11T${time}:00+01:00`,
+  })),
+];
+
+function CheckoutSample() {
+  const [slot, setSlot] = useState<SlotChoice>({ kind: "asap" });
+  const [recipient, setRecipient] = useState<RecipientDraft>({
+    name: "",
+    phone: "",
+    shareTracking: true,
+  });
+  return (
+    <div className="billing-layout">
+      <SlotPicker slots={gallerySlots} value={slot} onChange={setSlot} />
+      <RecipientFields value={recipient} invalidField={undefined} onChange={setRecipient} />
+    </div>
+  );
+}
+
 export function LaneBGallery({
   locale,
   labels,
@@ -195,6 +230,7 @@ export function LaneBGallery({
             { value: "promotions", label: "MER-19" },
             { value: "reviews", label: "MER-20" },
             { value: "rating", label: "CUS-22" },
+            { value: "checkout", label: "CUS-13/15" },
           ]}
         />
         <SegmentedControl
@@ -216,6 +252,7 @@ export function LaneBGallery({
       {screen === "promotions" && <PromotionsSample mode={mode} locale={locale} />}
       {screen === "reviews" && <ReviewsSample mode={mode} />}
       {screen === "rating" && <RatingSample mode={mode} />}
+      {screen === "checkout" && <CheckoutSample />}
     </div>
   );
 }

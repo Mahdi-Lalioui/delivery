@@ -11,6 +11,8 @@ const paths = {
   tag: "M3 12V4h8l9 9-8 8zM7.5 8h.01",
   qr: "M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h3M20 14v3M14 17v3h3M20 20h.01",
   plus: "M12 5v14M5 12h14",
+  copy: "M9 9h11v11H9zM5 15H4V4h11v1",
+  moon: "M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z",
   close: "M6 6l12 12M18 6L6 18",
   chevron: "M9 6l6 6-6 6",
   plate: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z",

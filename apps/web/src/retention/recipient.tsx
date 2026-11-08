@@ -1,6 +1,7 @@
 "use client";
 
 import { normalizeAlgerianPhone } from "@zaafran/i18n/phone";
+import { Card, FormGrid, TextField, Toggle } from "@zaafran/ui";
 import { useTranslations } from "next-intl";
 
 // CUS-15: order for someone else. The recipient gets the delivery code by SMS, and a tracking
@@ -11,6 +12,7 @@ export type Recipient = { name: string; phoneE164: string; shareTracking: boolea
 type Field = "name" | "phone";
 
 const maximumNameLength = 80;
+const phonePrefix = "+213";
 
 export function validateRecipient(
   draft: RecipientDraft,
@@ -30,50 +32,40 @@ export function RecipientFields(props: {
   const translate = useTranslations("retentionRecipient");
   const { value } = props;
   return (
-    <fieldset className="admin-merchant-form">
-      <legend>{translate("title")}</legend>
-      <label className="admin-merchant-field">
-        <span>{translate("name")}</span>
-        <input
+    <Card title={translate("title")} titleId="recipient-title">
+      <FormGrid>
+        <TextField
+          label={translate("name")}
           value={value.name}
           maxLength={maximumNameLength}
           autoComplete="off"
-          aria-invalid={props.invalidField === "name" || undefined}
+          error={props.invalidField === "name" ? translate("nameError") : undefined}
           onChange={(event) => {
             props.onChange({ ...value, name: event.currentTarget.value });
           }}
         />
-      </label>
-      <label className="admin-merchant-field">
-        <span>{translate("phone")}</span>
-        <input
+        <TextField
+          label={translate("phone")}
           type="tel"
           dir="ltr"
+          prefix={phonePrefix}
           value={value.phone}
           autoComplete="tel"
           inputMode="tel"
-          aria-invalid={props.invalidField === "phone" || undefined}
+          error={props.invalidField === "phone" ? translate("phoneError") : undefined}
           onChange={(event) => {
             props.onChange({ ...value, phone: event.currentTarget.value });
           }}
         />
-      </label>
-      {props.invalidField !== undefined && (
-        <p className="admin-merchant-error" role="alert">
-          {translate(props.invalidField === "name" ? "nameError" : "phoneError")}
-        </p>
-      )}
-      <label>
-        <input
-          type="checkbox"
-          checked={value.shareTracking}
-          onChange={(event) => {
-            props.onChange({ ...value, shareTracking: event.currentTarget.checked });
-          }}
-        />{" "}
-        {translate("shareTracking")}
-      </label>
-      <p>{translate("smsNotice")}</p>
-    </fieldset>
+      </FormGrid>
+      <Toggle
+        label={translate("shareTracking")}
+        description={translate("smsNotice")}
+        checked={value.shareTracking}
+        onChange={(checked) => {
+          props.onChange({ ...value, shareTracking: checked });
+        }}
+      />
+    </Card>
   );
 }

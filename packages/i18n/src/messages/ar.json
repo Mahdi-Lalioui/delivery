@@ -893,12 +893,13 @@
   "retentionScheduling": {
     "when": "متى",
     "asap": "في أقرب وقت",
-    "iftarSlot": "الإفطار — يصل على {time}",
+    "iftarSlot": "يصل على {time}",
     "noSlots": "لا توجد مواعيد لاحقة متاحة.",
     "iftarAt": "الإفطار اليوم على {time}",
     "iftarNow": "صحة فطوركم! حان وقت الإفطار.",
     "countdownTime": "{hours, number, ::00}:{minutes, number, ::00}:{seconds, number, ::00}",
-    "countdown": "الإفطار بعد {time}"
+    "countdown": "الإفطار بعد {time}",
+    "iftarTitle": "الإفطار"
   },
   "retentionShare": {
     "title": "شارك مطعمك",
@@ -913,7 +914,11 @@
     "print": "اطبع الملصق",
     "loading": "جارٍ تحضير رمز QR…",
     "posterHeadline": "اطلب عبر الإنترنت ويصلك الطلب",
-    "posterScan": "امسح لرؤية قائمتنا"
+    "posterScan": "امسح لرؤية قائمتنا",
+    "settingsTitle": "الملصق والرابط",
+    "copy": "انسخ الرابط",
+    "copied": "تم نسخ الرابط.",
+    "closeToast": "إغلاق"
   },
   "retentionRecipient": {
     "title": "اطلب لشخص آخر",

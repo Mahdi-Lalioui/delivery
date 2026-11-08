@@ -44,7 +44,8 @@ test("[CUS-15] renders labelled fields with the tracking opt-in", () => {
     </NextIntlClientProvider>,
   );
   expect(html).toContain(retentionRecipient.smsNotice);
-  expect(html).toContain('type="tel"');
-  expect(html).toContain('autoComplete="tel"');
+  expect(html).toContain('role="switch"');
+  expect(html).toContain(">+213<");
+  expect(html).toContain(retentionRecipient.phoneError);
   expect(html.match(/<input[^>]*type="tel"[^>]*>/)?.[0]).toContain('aria-invalid="true"');
 });

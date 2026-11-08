@@ -30,10 +30,12 @@ test("[CUS-13][HRS-03] offers ASAP, the Iftar quick slot and slots grouped by da
   const html = wrap(<SlotPicker slots={slots} value={{ kind: "asap" }} onChange={vi.fn()} />, "fr");
   const { retentionScheduling } = getMessages("fr");
   expect(html).toContain(retentionScheduling.asap);
-  expect(html).toContain("Iftar — arrivée à 18:05");
+  expect(html).toContain("Arrivée à 18:05");
+  expect(html).toContain(">19:00<");
+  expect(html).toContain('data-tone="iftar"');
   expect(html.match(/<fieldset class="slot-day"/g)).toHaveLength(2);
   expect(html.match(/type="radio"/g)).toHaveLength(4);
-  expect(html).toMatch(/<input type="radio" name="slot" checked=""/);
+  expect(html.match(/checked=""/g)).toHaveLength(1);
 });
 
 test("[CUS-13] marks the chosen scheduled slot", () => {

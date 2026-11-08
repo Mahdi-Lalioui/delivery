@@ -56,7 +56,8 @@ export function TextField({ label, hint, error, width, prefix, suffix, ...input 
   const id = useId();
   return (
     <Frame id={id} frame={{ label, hint, error, width }}>
-      <span className="ui-input-box">
+      {/* An LTR value (phone, reference) keeps its prefix/suffix in LTR order inside RTL pages. */}
+      <span className="ui-input-box" dir={input.dir}>
         {prefix !== undefined && (
           <span className="ui-input-affix" aria-hidden="true">
             {prefix}
