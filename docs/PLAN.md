@@ -113,7 +113,8 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Add the closed-now control to the hours page.
     - [x] Add the pure Ramadan draft edit helpers (ranges, endpoint kind, suhoor).
     - [x] Add the presentational Ramadan fields (endpoints, suhoor, method, adjustment).
-    - [ ] Add the Ramadan load/save state on the hours page and the regular/Ramadan preview tabs.
+    - [x] Add the pure Ramadan load/save state machine.
+    - [ ] Wire the Ramadan editor into the hours page and add the regular/Ramadan preview tabs.
     - [ ] Prove the production-build overnight and Ramadan journeys in Arabic and French, plus the screenshot matrix.
 - [ ] M2-10 Moderation (§17.3, ADM-04). Check prohibited goods on every menu write path and public preview. Prove flagged items stay hidden until the audited review outcome permits listing.
 - [ ] M2-11 Staff roles (MER-23). Implement owner-managed, single-use invitations tied to a verified phone. Prove every role against both its own and another merchant's resources.
