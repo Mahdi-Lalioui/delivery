@@ -868,5 +868,20 @@
     "iftarNow": "Saha ftourkoum! It is time for Iftar.",
     "countdownTime": "{hours, number, ::00}:{minutes, number, ::00}:{seconds, number, ::00}",
     "countdown": "Iftar in {time}"
+  },
+  "retentionShare": {
+    "title": "Share your restaurant",
+    "intro": "Print the poster for your counter or put the link in your social bio.",
+    "link": "Your link",
+    "posterLanguage": "Poster language",
+    "arabic": "Arabic",
+    "french": "French",
+    "paper": "Paper size",
+    "a5": "A5",
+    "a4": "A4",
+    "print": "Print the poster",
+    "loading": "Preparing your QR code…",
+    "posterHeadline": "Order online and get it delivered",
+    "posterScan": "Scan to see our menu"
   }
 }

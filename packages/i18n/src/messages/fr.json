@@ -868,5 +868,20 @@
     "iftarNow": "Saha ftourkoum ! C’est l’heure de l’Iftar.",
     "countdownTime": "{hours, number, ::00}:{minutes, number, ::00}:{seconds, number, ::00}",
     "countdown": "Iftar dans {time}"
+  },
+  "retentionShare": {
+    "title": "Partagez votre restaurant",
+    "intro": "Imprimez l’affiche pour votre comptoir ou mettez le lien dans votre bio.",
+    "link": "Votre lien",
+    "posterLanguage": "Langue de l’affiche",
+    "arabic": "Arabe",
+    "french": "Français",
+    "paper": "Format",
+    "a5": "A5",
+    "a4": "A4",
+    "print": "Imprimer l’affiche",
+    "loading": "Préparation du QR code…",
+    "posterHeadline": "Commandez en ligne, on vous livre",
+    "posterScan": "Scannez pour voir notre menu"
   }
 }

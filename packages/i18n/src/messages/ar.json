@@ -868,5 +868,20 @@
     "iftarNow": "صحة فطوركم! حان وقت الإفطار.",
     "countdownTime": "{hours, number, ::00}:{minutes, number, ::00}:{seconds, number, ::00}",
     "countdown": "الإفطار بعد {time}"
+  },
+  "retentionShare": {
+    "title": "شارك مطعمك",
+    "intro": "اطبع الملصق لواجهة المحل أو ضع الرابط في حساباتك.",
+    "link": "رابطك",
+    "posterLanguage": "لغة الملصق",
+    "arabic": "العربية",
+    "french": "الفرنسية",
+    "paper": "حجم الورق",
+    "a5": "A5",
+    "a4": "A4",
+    "print": "اطبع الملصق",
+    "loading": "جارٍ تحضير رمز QR…",
+    "posterHeadline": "اطلب عبر الإنترنت ويصلك الطلب",
+    "posterScan": "امسح لرؤية قائمتنا"
   }
 }

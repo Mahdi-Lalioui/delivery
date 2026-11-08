@@ -19,3 +19,5 @@
   Proof: `vitest run apps/web/test/promotion*` 10/10, `pnpm verify` green. Gap: weekly day/hour conditions. Next: M6-4 scheduling + iftar countdown.
 - 2026-11-08 · High · M6-4 scheduling: slot loader/grouping (Algiers days, Iftar slot first), `SlotPicker`, `IftarCountdown` (domain `getMaghribCountdownMs`, silent timer role). Request `docs/requests/lane-b-scheduling.md` (slots route, Maghrib endpoint, motion tokens).
   Proof: `vitest run apps/web/test/scheduling*` 7/7, `pnpm verify` green. Next: M6-5 order-for-someone-else, M6-6 busy mode, M6-7 QR posters.
+- 2026-11-08 · Medium · M6-7 shareables `/[locale]/merchant/[id]/share`: QR (qrcode-generator, D-B02) as SVG path, short link `/r/:id`, printable A5/A4 poster in ar/fr via named `@page`. M6-6 busy mode already exists in lane A's `merchant-hours/hours-pause*` — skipped.
+  Proof: `vitest run apps/web/test/{qr,share-kit}*` 3/3, `pnpm verify` green. Next: M6-5 recipient fields, M6-2 favourites/history/reorder.

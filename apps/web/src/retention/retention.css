@@ -79,3 +79,67 @@
   align-items: center;
   min-block-size: var(--touch-target-min);
 }
+
+.share-qr {
+  inline-size: 60%;
+  max-inline-size: 320px;
+  block-size: auto;
+}
+
+.share-qr-light {
+  fill: var(--color-surface);
+}
+
+.share-qr-dark {
+  fill: var(--color-text);
+}
+
+.share-poster {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-16);
+  padding: var(--space-32);
+  border: 1px solid var(--color-border-subtle);
+  text-align: center;
+}
+
+.share-poster h2 {
+  font-family: var(--font-display);
+  font-size: var(--font-size-display);
+}
+
+.share-poster-headline {
+  font-size: var(--font-size-h2);
+}
+
+@media print {
+  .share-no-print,
+  .masthead {
+    display: none;
+  }
+
+  .share-poster {
+    border: 0;
+    min-block-size: 100vh;
+    align-content: center;
+  }
+}
+
+/* Named pages pick the paper size from the poster's class (Chromium, Safari 18+, Firefox 110+). */
+@page poster-a5 {
+  size: A5;
+  margin: 0;
+}
+
+@page poster-a4 {
+  size: A4;
+  margin: 0;
+}
+
+.share-poster-a5 {
+  page: poster-a5;
+}
+
+.share-poster-a4 {
+  page: poster-a4;
+}

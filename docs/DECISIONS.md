@@ -174,3 +174,7 @@ CSV and XLSX use the same template and send up to 500 rows of raw text cells wit
 ### D-B01 — Lane B mocks unbuilt APIs with MSW (2026-11-08)
 
 `msw` 3.0.3 (MIT, exact pin; 3.0.4 is younger than `min-release-age=3`) is a web devDependency. Handlers live in `apps/web/test/mocks/` and parse every payload with the published `packages/contracts` schemas, so mocks cannot drift from the contract. Production code never imports `msw`. Lane B ids use the `D-B` prefix to avoid number clashes with lane A.
+
+### D-B02 — QR codes with qrcode-generator (2026-11-08)
+
+MER-24 posters need QR codes. `qrcode-generator` 2.0.4 (MIT, no dependencies, published 2025) encodes the modules; lane B draws them as one SVG path, so nothing is rasterised. Writing Reed–Solomon by hand was not worth the risk.

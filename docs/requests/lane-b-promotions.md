@@ -24,3 +24,8 @@ and conditions columns, `is_active`), `promotion_redemptions` (order_id unique, 
 ## Still to do in lane B
 Weekly days/hours conditions (`conditions.weekly`) are not in the editor yet; they will reuse the
 merchant-hours week editor.
+
+## Short link for shareables (MER-24)
+Lane B's QR posters (`apps/web/src/retention/share-kit.tsx`) print `/r/:merchantId`. Please add a
+public route that redirects `/r/:merchantId` to the restaurant page (and a `slug` in the merchant
+contract if you want prettier links; lane B will switch).
