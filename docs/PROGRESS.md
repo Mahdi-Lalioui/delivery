@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 03:32 GMT — M2-9 pure Ramadan editor model (Claude, covering while Codex was out)
+
+- **Changed** — Added `apps/web/src/merchant-hours/ramadan-editor.ts`. `parseMinuteOffset` reads signed whole minutes and accepts `+`, `-`, the Unicode minus and Arabic-Indic digits. `toRamadanDraft` starts an unsaved schedule closed every day, with `Algeria` and a 0 adjustment, or round-trips a stored schedule. Each endpoint is either a Maghrib offset or `HH:MM` clock text. The suhoor window and the adjustment are text too. `toRamadanInput` parses what it can locally, then lets `merchantRamadanInput` judge the rest, such as the ±720-minute offset, the ±30-minute adjustment and an empty suhoor. It returns sorted, de-duplicated `day`/`suhoor`/`adjustment` errors. `hours-editor.ts` now exports `normalizeDigits` so both editors share it.
+- **Evidence** — Tests came first: 13 `[MER-16]` cases in `apps/web/test/merchant-ramadan-editor.test.ts`. They failed on the missing module, then 13/13 passed. `pnpm verify` failed once at knip on an unused exported `EndpointDraft` type, which is now module-private. It then exited 0 again after the shared-normalizer refactor: 1048 unit tests, 118 PostGIS integration tests, build, knip, depcruise, trace, and only the existing moderate advisory. `node scripts/trace.ts --through m2` reported 32/37 IDs. MER-15 and MER-16 are now covered. Still missing: ADM-04, MER-01, MER-12, MER-14, MER-23.
+- **Reviewer** — Self-reviewed against AGENTS.md §10. No P0/P1. P2 fixed: the duplicated digit normalizer.
+- **Next (exact)** — Create `apps/web/src/merchant-hours/use-hours-editor.ts` ("use client"), modelled on `use-menu-category-editor.ts`, and drive it with `reduceHours`. On mount, call `readHours({ merchantId, signal })` and dispatch `loaded`/`load-failed`, aborting on unmount. Each editor helper (`addHoursRange`, `updateHoursRange`, `removeHoursRange`) dispatches `draft-changed`. On save, call `prepareHoursSave(state, () => crypto.randomUUID())`: dispatch `validation-failed` on `invalid`, otherwise `save-started`, then `replaceHours`, then `save-finished`. After add, move focus to `#hours-<weekday>-<index>-opens`. After remove, move it to that day's Add button. Then add `components/merchant-hours-page.tsx` and `merchant-hours-screen.tsx` (mirroring `menu-category-page.tsx`, rendering `WeeklyHoursFields` and `HoursPreviewList`), routes `app/[locale]/merchant/[merchantId]/hours/page.tsx` and `app/ar/merchant/[merchantId]/hours/page.tsx`, a route test like `menu-category-route.test.tsx`, and token-only logical CSS for the `hours-*` classes. After that, add the closed-now control, the Ramadan fields using `ramadan-editor.ts` with `replaceRamadan`, the production-build overnight and Ramadan journeys in ar/fr, and the screenshot matrix.
+- **Needs Mahdi** — None.
+
 ### 2026-11-08 03:29 GMT — M2-9 presentational seven-day preview list (Claude, covering while Codex was out)
 
 - **Changed** — Added `apps/web/src/merchant-hours/components/hours-preview-list.tsx`. It renders the seven preview days as an ordered list. Each day has a localized weekday and date heading, a "Special date" badge, "Maghrib at …" on Ramadan days, and "Closed" when a day has no intervals. Each range shows Africa/Algiers times with Latin digits through `formatAlgiersTime`. A range is marked "next day" only when it closes after that day's local midnight, so 18:00–00:00 stays unmarked. Every visible pattern, including the en dash and the parentheses, comes from new `merchantHours.preview*` messages in ar, fr and en.
@@ -550,6 +558,6 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 ## Current status
 
 - Milestone: M1 (last passing gate, M2 in progress)
-- `pnpm trace --through m2` on 2026-11-08 at 02:21 GMT covered 30 of 37 IDs. Pending: ADM-04, MER-01, MER-12, MER-14, MER-15, MER-16, MER-23. M2-7 (MER-11) is complete with a production-build journey.
-- Last green `pnpm verify`: 2026-11-08 02:35 GMT on Docker Desktop with 960 unit and 117 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 12/12 at 02:22 GMT.
+- `node scripts/trace.ts --through m2` on 2026-11-08 at 03:32 GMT covered 32 of 37 IDs. Pending: ADM-04, MER-01, MER-12, MER-14, MER-23. M2-9 has its API, preview and pure web models. Its page, Ramadan fields, journeys and screenshots remain.
+- Last green `pnpm verify`: 2026-11-08 03:32 GMT on Docker Desktop with 1048 unit and 118 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 12/12 at 02:22 GMT.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

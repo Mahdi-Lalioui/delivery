@@ -20,7 +20,8 @@ const dayMinutes = 1440;
 const maxRangesPerDay = 4;
 const newRange: RangeDraft = { opens: "12:00", closes: "15:00" };
 
-function normalizeDigits(input: string): string {
+/** Reads Arabic-Indic and Persian digits as Latin digits. */
+export function normalizeDigits(input: string): string {
   return input.trim().replace(/[٠-٩۰-۹]/g, (digit) => {
     const zero = digit <= "٩" ? "٠" : "۰";
     return String(digit.charCodeAt(0) - zero.charCodeAt(0));
