@@ -7,38 +7,12 @@ import type { HoursState } from "../hours-flow";
 import { useHoursEditor, type MerchantHoursEditor } from "../use-hours-editor";
 import { HoursPauseControl } from "./hours-pause-control";
 import { HoursPreviewList } from "./hours-preview-list";
+import { RamadanCard } from "./ramadan-card";
+import { ReloadHours, reloadMessages, SaveOutcome } from "./save-outcome";
 import { WeeklyHoursFields } from "./weekly-hours-fields";
 
 type Editable = Extract<HoursState, { kind: "editing" | "saving" }>;
 type LoadFailure = Extract<HoursState, { kind: "load-failed" }>["failure"];
-type SaveFailure = NonNullable<Extract<HoursState, { kind: "editing" }>["failure"]>;
-
-const reloadMessages = {
-  "session-changed": "sessionChanged",
-  "revision-conflict": "revisionConflict",
-} as const;
-const failureMessages = {
-  "rate-limited": "rateLimited",
-  "invalid-hours": "invalidHours",
-  "pause-in-past": "invalidHours",
-  "sign-in": "signInRequired",
-  forbidden: "forbidden",
-  error: "saveError",
-} as const;
-
-function ReloadHours({ message, reload }: { message: string; reload: () => void }) {
-  const translate = useTranslations("merchantHours");
-  return (
-    <div className="hours-card">
-      <p className="hours-error" role="alert">
-        {message}
-      </p>
-      <button className="menu-item-secondary" type="button" data-hours-reload onClick={reload}>
-        {translate("reload")}
-      </button>
-    </div>
-  );
-}
 
 function HoursGate({
   failure,
@@ -71,27 +45,6 @@ function HoursGate({
   const isStale = failure === "session-changed" || failure === "revision-conflict";
   const message = isStale ? reloadMessages[failure] : "loadError";
   return <ReloadHours message={translate(message)} reload={reload} />;
-}
-
-function SaveOutcome({ state, reload }: { state: Editable; reload: () => void }) {
-  const translate = useTranslations("merchantHours");
-  if (state.kind === "saving") return <p role="status">{translate("saving")}</p>;
-  const { failure, notice } = state;
-  if (failure === "revision-conflict" || failure === "session-changed") {
-    return <ReloadHours message={translate(reloadMessages[failure])} reload={reload} />;
-  }
-  if (failure) {
-    return (
-      <p className="hours-error" role="alert">
-        {translate(failureMessages[failure satisfies SaveFailure])}
-      </p>
-    );
-  }
-  return (
-    <p className="hours-announcement" role="status">
-      {notice === "saved" ? translate("saved") : null}
-    </p>
-  );
 }
 
 const previewSchedules = [
@@ -152,15 +105,16 @@ function HoursWorkspace({
   locale: Locale;
 }) {
   const translate = useTranslations("merchantHours");
-  const { pause } = controls;
-  const isSaving = state.kind === "saving" || pause.state.kind === "saving";
+  const { pause, ramadan } = controls;
+  const isRamadanSaving = ramadan.state.kind === "saving";
+  const isSaving = state.kind === "saving" || pause.state.kind === "saving" || isRamadanSaving;
   return (
     <div className="hours-workspace">
       <div className="hours-card">
         <HoursPauseControl
           state={pause.state}
           isPaused={pause.isPaused}
-          isDisabled={state.kind === "saving"}
+          isDisabled={state.kind === "saving" || isRamadanSaving}
           locale={locale}
           onClose={pause.close}
           onReopen={pause.reopen}
@@ -189,6 +143,10 @@ function HoursWorkspace({
           {translate("save")}
         </button>
       </form>
+      <RamadanCard
+        controls={controls}
+        isDisabled={state.kind === "saving" || pause.state.kind === "saving"}
+      />
       <div className="hours-card">
         <PreviewChoice controls={controls} />
         <HoursPreviewPanel preview={controls.preview} locale={locale} />

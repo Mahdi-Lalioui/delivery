@@ -557,6 +557,9 @@
     },
     "previewChoice": "Hours to preview",
     "previewRegular": "Regular hours",
-    "previewRamadan": "Ramadan"
+    "previewRamadan": "Ramadan",
+    "saveRamadan": "Save Ramadan hours",
+    "ramadanLoading": "Loading Ramadan hours…",
+    "ramadanUnavailable": "Ramadan hours are not available right now."
   }
 }

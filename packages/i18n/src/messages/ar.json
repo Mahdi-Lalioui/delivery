@@ -557,6 +557,9 @@
     },
     "previewChoice": "الساعات المراد معاينتها",
     "previewRegular": "الساعات المعتادة",
-    "previewRamadan": "رمضان"
+    "previewRamadan": "رمضان",
+    "saveRamadan": "حفظ ساعات رمضان",
+    "ramadanLoading": "جارٍ تحميل ساعات رمضان…",
+    "ramadanUnavailable": "ساعات رمضان غير متاحة حاليًا."
   }
 }

@@ -557,6 +557,9 @@
     },
     "previewChoice": "Horaires à prévisualiser",
     "previewRegular": "Horaires habituels",
-    "previewRamadan": "Ramadan"
+    "previewRamadan": "Ramadan",
+    "saveRamadan": "Enregistrer les horaires du Ramadan",
+    "ramadanLoading": "Chargement des horaires du Ramadan…",
+    "ramadanUnavailable": "Les horaires du Ramadan sont indisponibles pour le moment."
   }
 }

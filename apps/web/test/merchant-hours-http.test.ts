@@ -1,5 +1,6 @@
 import { afterEach, expect, test, vi } from "vitest";
 import {
+  isStale,
   readHours,
   readHoursPause,
   readHoursPreview,
@@ -181,4 +182,12 @@ test("[MER-15] keeps the retry key after a network failure and reports read erro
     replaceHours({ merchantId, sessionId, idempotencyKey: "key-1", input }),
   ).resolves.toEqual({ kind: "error", shouldReuseKey: true });
   await expect(readHours({ merchantId, signal })).resolves.toEqual({ kind: "error" });
+});
+
+test("[MER-15] asks for a reload only after a revision conflict or a changed session", () => {
+  expect(isStale({ kind: "revision-conflict" })).toBe(true);
+  expect(isStale({ kind: "session-changed" })).toBe(true);
+  expect(isStale({ kind: "forbidden" })).toBe(false);
+  expect(isStale({ kind: "error", shouldReuseKey: true })).toBe(false);
+  expect(isStale({ kind: "saved", data: { revision: 3 } })).toBe(false);
 });

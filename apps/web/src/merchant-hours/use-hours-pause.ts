@@ -42,12 +42,15 @@ export function useHoursPause({
   version,
   hours,
   dispatchHours,
+  isBlocked,
   onSettled,
 }: {
   merchantId: string;
   version: number;
   hours: HoursState;
   dispatchHours: Dispatch<HoursEvent>;
+  /** True while another command on the shared D-011 revision is in flight. */
+  isBlocked: () => boolean;
   /** Receives the selector to focus once the fieldset is enabled again. */
   onSettled: (selector: string | undefined) => void;
 }) {
@@ -71,7 +74,7 @@ export function useHoursPause({
   }, [merchantId, version]);
 
   async function send(pausedUntil: string | null) {
-    if (inFlight.current || hours.kind !== "editing") return;
+    if (inFlight.current || isBlocked() || hours.kind !== "editing") return;
     const target = { pausedUntil, revision: hours.revision };
     const command = preparePause(state, target, () => crypto.randomUUID());
     if (!command || state.kind !== "ready") return;

@@ -32,6 +32,11 @@ type Failure = { kind: Rejection } | { kind: "rate-limited" | "error"; shouldReu
 type Read<Data> = { kind: "ready"; data: Data } | { kind: Rejection | "error" };
 export type HoursWrite = { kind: "saved"; data: Revision } | Failure;
 
+/** True when the editor must reload before another save can succeed. */
+export function isStale(result: HoursWrite): boolean {
+  return result.kind === "revision-conflict" || result.kind === "session-changed";
+}
+
 const privateRequest = {
   cache: "no-store",
   credentials: "same-origin",

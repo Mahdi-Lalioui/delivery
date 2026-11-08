@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { expect, test, vi } from "vitest";
 import { MerchantHoursScreen } from "../src/merchant-hours/components/merchant-hours-screen";
 import { toHoursDraft } from "../src/merchant-hours/hours-editor";
+import { toRamadanDraft } from "../src/merchant-hours/ramadan-editor";
 import { useHoursEditor, type MerchantHoursEditor } from "../src/merchant-hours/use-hours-editor";
 
 vi.mock("../src/merchant-hours/use-hours-editor", () => ({ useHoursEditor: vi.fn() }));
@@ -27,6 +28,13 @@ const controls: MerchantHoursEditor = {
   preview: { kind: "ready", data: preview },
   previewSchedule: "regular",
   showPreview: vi.fn(),
+  ramadan: {
+    state: { kind: "editing", sessionId, revision: 2, draft: toRamadanDraft(null), errors: [] },
+    edit: vi.fn(),
+    add: vi.fn(),
+    remove: vi.fn(),
+    save: vi.fn(),
+  },
   pause: {
     state: { kind: "ready", pausedUntil: null },
     isPaused: false,
@@ -152,4 +160,47 @@ test("[MER-16] switches the seven-day preview between regular and Ramadan hours"
   const ramadan = render("ar", { previewSchedule: "ramadan" });
   expect(ramadan).toMatch(/aria-pressed="true"[^>]*data-preview="ramadan"/);
   expect(ramadan).toContain(merchantHours.previewRamadan);
+});
+
+test("[MER-16] edits the Ramadan schedule in its own form with its own save", () => {
+  const { merchantHours } = getMessages("fr");
+  const html = render("fr");
+  expect(html).toContain(merchantHours.ramadanLegend);
+  expect(html).toContain(merchantHours.saveRamadan);
+  expect(html).toMatch(/<button[^>]*data-ramadan-save="true"/);
+  const ramadanDraft = toRamadanDraft(null);
+  const saving = render("fr", {
+    ramadan: {
+      ...controls.ramadan,
+      state: {
+        kind: "saving",
+        sessionId,
+        revision: 2,
+        draft: ramadanDraft,
+        errors: [],
+        idempotencyKey: "key-1",
+      },
+    },
+  });
+  expect(saving).toMatch(/<button[^>]*data-ramadan-save="true"[^>]*disabled=""/);
+  expect(saving).toMatch(/<button[^>]*data-hours-save="true"[^>]*disabled=""/);
+  const failed = render("fr", {
+    ramadan: {
+      ...controls.ramadan,
+      state: {
+        kind: "editing",
+        sessionId,
+        revision: 2,
+        draft: ramadanDraft,
+        errors: [],
+        failure: "rate-limited",
+      },
+    },
+  });
+  expect(failed).toContain(merchantHours.rateLimited);
+  const unavailable = render("fr", {
+    ramadan: { ...controls.ramadan, state: { kind: "load-failed", failure: "error" } },
+  });
+  expect(unavailable).toContain(merchantHours.ramadanUnavailable);
+  expect(unavailable).toContain(merchantHours.weeklyLegend);
 });

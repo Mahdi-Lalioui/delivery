@@ -9,8 +9,9 @@ import {
   type RangeDraft,
 } from "./hours-editor";
 import { initialHoursState, prepareHoursSave, reduceHours, type HoursEvent } from "./hours-flow";
-import { readHours, readHoursPreview, replaceHours } from "./hours-http";
+import { isStale, readHours, readHoursPreview, replaceHours } from "./hours-http";
 import { useHoursPause } from "./use-hours-pause";
+import { useRamadanEditor } from "./use-ramadan-editor";
 
 type RangeAddress = { weekday: number; index: number };
 type PreviewRead = Awaited<ReturnType<typeof readHoursPreview>>;
@@ -69,11 +70,27 @@ export function useHoursEditor(merchantId: string) {
   const revision = state.kind === "editing" || state.kind === "saving" ? state.revision : undefined;
   const [previewSchedule, showPreview] = useState<PreviewSchedule>("regular");
   const preview = useHoursPreview(merchantId, revision, previewSchedule);
+  const ramadan = useRamadanEditor({
+    merchantId,
+    version,
+    isBlocked: () => state.kind === "saving" || pause.state.kind === "saving",
+    onSaved: (saved) => {
+      dispatch({ kind: "revision-advanced", revision: saved });
+    },
+    onFocus: (selector) => {
+      setFocus({ selector });
+    },
+  });
+  // Pause, weekly hours and Ramadan share one D-011 revision, so each success advances the others.
   const pause = useHoursPause({
     merchantId,
     version,
     hours: state,
-    dispatchHours: dispatch,
+    dispatchHours: (event) => {
+      dispatch(event);
+      if (event.kind === "revision-advanced") ramadan.advance(event.revision);
+    },
+    isBlocked: () => ramadan.state.kind === "saving",
     onSettled: (selector) => {
       if (selector) setFocus({ selector });
     },
@@ -103,7 +120,8 @@ export function useHoursEditor(merchantId: string) {
   }
 
   async function save() {
-    if (inFlight.current || state.kind !== "editing" || pause.state.kind === "saving") return;
+    const isOtherSaving = pause.state.kind === "saving" || ramadan.state.kind === "saving";
+    if (inFlight.current || isOtherSaving || state.kind !== "editing") return;
     const attempt = prepareHoursSave(state, () => crypto.randomUUID());
     if (attempt.kind === "unavailable") return;
     if (attempt.kind === "invalid") {
@@ -119,8 +137,8 @@ export function useHoursEditor(merchantId: string) {
     const result = await replaceHours({ merchantId, sessionId, idempotencyKey, input });
     inFlight.current = false;
     dispatch({ kind: "save-finished", result });
-    const mustReload = result.kind === "revision-conflict" || result.kind === "session-changed";
-    setFocus({ selector: mustReload ? "[data-hours-reload]" : "[data-hours-save]" });
+    if (result.kind === "saved") ramadan.advance(result.data.revision);
+    setFocus({ selector: isStale(result) ? "[data-hours-reload]" : "[data-hours-save]" });
   }
 
   function reload() {
@@ -135,6 +153,13 @@ export function useHoursEditor(merchantId: string) {
     previewSchedule,
     showPreview,
     pause,
+    ramadan: {
+      state: ramadan.state,
+      edit: ramadan.edit,
+      add: ramadan.add,
+      remove: ramadan.remove,
+      save: ramadan.save,
+    },
     focus,
     change,
     add,
