@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 04:18 GMT — M2-9 pure Ramadan draft edit helpers (Claude, covering while Codex was out)
+
+- **Changed** — `ramadan-editor.ts` now exports `canAddRamadanRange`, `addRamadanRange`, `updateRamadanEndpoint`, `removeRamadanRange`, `switchEndpointKind` and `toggleRamadanSuhoor`, and exports `EndpointDraft` again for the fields. A new day range follows the SPEC example: it opens at Maghrib (offset 0) and closes at 02:00 the next day. The day limit is four ranges, now shared through the exported `maxRangesPerDay` in `hours-editor.ts`. Switching an endpoint to clock time starts empty, so the merchant must choose a time. Switching to Maghrib starts at offset 0. Turning on suhoor defaults to 03:00–04:30.
+- **Evidence** — Tests came first: 5 `[MER-16]` cases in `apps/web/test/merchant-ramadan-edits.test.ts`. They failed on the missing exports, then 99/99 hours and Ramadan tests passed. A new default range validates through `toRamadanInput`. `pnpm verify` exited 0: 1086 unit tests, 118 PostGIS integration tests, build, knip, depcruise, trace, and only the existing moderate advisory.
+- **Reviewer** — Self-reviewed against AGENTS.md §10. No P0/P1.
+- **Next (exact)** — Add `components/ramadan-fields.tsx` (presentational, mirroring `weekly-hours-fields.tsx`). Each weekday gets a fieldset of ranges. Each endpoint has a labelled kind `<select>` (Maghrib ± minutes / clock time) and either a signed-minutes text input (`inputMode="numeric"`) or `<input type="time">`. Add the suhoor checkbox and its two time inputs, the method `<select>` over the contract's prayer methods, the ± adjustment input, and errors linked by `aria-describedby` for `day`/`suhoor`/`adjustment`. Add ar/fr/en messages and render tests in ar/fr. Then add the Ramadan load/save state and hook (dispatch `revision-advanced` into the hours reducer after a save), the regular/Ramadan preview tabs, the journeys and the screenshot matrix.
+- **Needs Mahdi** — None.
+
 ### 2026-11-08 04:16 GMT — M2-9 closed-now control on the hours page (Claude, covering while Codex was out)
 
 - **Changed** — Added `components/hours-pause-control.tsx`. When the restaurant is open it offers "Close for 30 min / 1 h / 2 h". When closed it shows "Closed until HH:MM" in Africa/Algiers and "Reopen now". It also has a mapped failure message, a "Try again" button only when an exact retry is held, and Reload after a conflict or session change. Added `use-hours-pause.ts`. It reads `GET …/hours/pause` on load and reload. `Date.now()` is read only in this hook, and a timer re-checks the clock when the override ends. It sends `setHoursPause` with `expectedRevision` from the hours state, then dispatches `revision-advanced` so the next weekly save does not conflict. A tested pure `pauseFocusSelector` restores focus to the control that fits the new state, because the fieldset is disabled while saving. Weekly saving and pause saving lock each other in both directions. Added 12 `merchantHours.pause*` messages in ar, fr and en, plus token-only logical CSS.
@@ -583,5 +591,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress)
 - `node scripts/trace.ts --through m2` on 2026-11-08 at 03:32 GMT covered 32 of 37 IDs. Pending: ADM-04, MER-01, MER-12, MER-14, MER-23. M2-9 has its API, preview, pure web models, and the weekly hours page with the closed-now control. The Ramadan fields and tabs, journeys and screenshots remain.
-- Last green `pnpm verify`: 2026-11-08 04:16 GMT on Docker Desktop with 1081 unit and 118 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 12/12 at 02:22 GMT.
+- Last green `pnpm verify`: 2026-11-08 04:17 GMT on Docker Desktop with 1086 unit and 118 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 12/12 at 02:22 GMT.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

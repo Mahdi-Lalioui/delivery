@@ -1,10 +1,16 @@
 import { merchantRamadanInput } from "@zaafran/contracts/merchant-hours";
-import { formatClock, normalizeDigits, parseClock, type RangeDraft } from "./hours-editor";
+import {
+  formatClock,
+  maxRangesPerDay,
+  normalizeDigits,
+  parseClock,
+  type RangeDraft,
+} from "./hours-editor";
 import type { RamadanInput } from "./hours-http";
 
 type StoredRange = RamadanInput["weekly"][number]["ranges"][number];
 type StoredEndpoint = StoredRange["opens"];
-type EndpointDraft =
+export type EndpointDraft =
   | { readonly kind: "maghrib"; readonly offset: string }
   | { readonly kind: "clock"; readonly time: string };
 interface RamadanRangeDraft {
@@ -128,4 +134,64 @@ export function toRamadanInput(draft: RamadanDraft): RamadanValidation {
   const order = (error: RamadanError) =>
     error.field === "day" ? error.weekday : 7 + Number(error.field === "adjustment");
   return { kind: "invalid", errors: [...unique.values()].sort((a, b) => order(a) - order(b)) };
+}
+
+type RangeAddress = { weekday: number; index: number };
+
+// The SPEC example: open at Maghrib, close at 02:00 after midnight.
+const newRamadanRange: RamadanRangeDraft = {
+  opens: { kind: "maghrib", offset: "0" },
+  closes: { kind: "clock", time: "02:00" },
+};
+const newSuhoor: RangeDraft = { opens: "03:00", closes: "04:30" };
+
+function mapRamadanDay(
+  draft: RamadanDraft,
+  weekday: number,
+  change: (ranges: readonly RamadanRangeDraft[]) => readonly RamadanRangeDraft[],
+): RamadanDraft {
+  return {
+    ...draft,
+    weekly: draft.weekly.map((day) =>
+      day.weekday === weekday ? { weekday, ranges: change(day.ranges) } : day,
+    ),
+  };
+}
+
+export function canAddRamadanRange(draft: RamadanDraft, weekday: number): boolean {
+  const day = draft.weekly.find((entry) => entry.weekday === weekday);
+  return day !== undefined && day.ranges.length < maxRangesPerDay;
+}
+
+export function addRamadanRange(draft: RamadanDraft, weekday: number): RamadanDraft {
+  if (!canAddRamadanRange(draft, weekday)) return draft;
+  return mapRamadanDay(draft, weekday, (ranges) => [...ranges, newRamadanRange]);
+}
+
+export function updateRamadanEndpoint(
+  draft: RamadanDraft,
+  change: RangeAddress & { end: keyof RamadanRangeDraft; endpoint: EndpointDraft },
+): RamadanDraft {
+  return mapRamadanDay(draft, change.weekday, (ranges) =>
+    ranges.map((range, index) =>
+      index === change.index ? { ...range, [change.end]: change.endpoint } : range,
+    ),
+  );
+}
+
+export function removeRamadanRange(draft: RamadanDraft, { weekday, index }: RangeAddress) {
+  return mapRamadanDay(draft, weekday, (ranges) => ranges.filter((_, at) => at !== index));
+}
+
+export function switchEndpointKind(
+  endpoint: EndpointDraft,
+  kind: EndpointDraft["kind"],
+): EndpointDraft {
+  if (endpoint.kind === kind) return endpoint;
+  return kind === "maghrib" ? { kind, offset: "0" } : { kind, time: "" };
+}
+
+export function toggleRamadanSuhoor(draft: RamadanDraft, isOn: boolean): RamadanDraft {
+  if (isOn === (draft.suhoor !== null)) return draft;
+  return { ...draft, suhoor: isOn ? newSuhoor : null };
 }

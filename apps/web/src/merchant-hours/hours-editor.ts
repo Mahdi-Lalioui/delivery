@@ -17,7 +17,7 @@ export type HoursValidation =
   { kind: "valid"; input: HoursInput } | { kind: "invalid"; errors: DayError[] };
 
 const dayMinutes = 1440;
-const maxRangesPerDay = 4;
+export const maxRangesPerDay = 4;
 const newRange: RangeDraft = { opens: "12:00", closes: "15:00" };
 
 /** Reads Arabic-Indic and Persian digits as Latin digits. */
