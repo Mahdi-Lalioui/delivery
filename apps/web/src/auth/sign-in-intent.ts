@@ -6,10 +6,15 @@ export interface SignInDestination {
   readonly href:
     | `/${Locale}/merchant`
     | `/${Locale}/merchant/apply`
+    | `/${Locale}/staff/accept`
     | `/${Exclude<Locale, "ar">}/admin/merchant-applications`
     | `/${Exclude<Locale, "ar">}/admin/menu-items`;
   readonly label:
-    "continueApplication" | "continueRestaurants" | "continueReview" | "continueModeration";
+    | "continueApplication"
+    | "continueRestaurants"
+    | "continueInvitation"
+    | "continueReview"
+    | "continueModeration";
 }
 
 interface SignInIntent {
@@ -19,6 +24,7 @@ interface SignInIntent {
     | "/sign-in?purpose=admin"
     | "/sign-in?continue=merchant-apply"
     | "/sign-in?continue=merchant-status"
+    | "/sign-in?continue=staff-accept"
     | "/sign-in?continue=admin-review"
     | "/sign-in?continue=admin-moderation";
   readonly destination?: SignInDestination;
@@ -40,6 +46,13 @@ export function readSignInIntent(
       purpose: "sign_in",
       subpath: "/sign-in?continue=merchant-status",
       destination: { href: `/${locale}/merchant`, label: "continueRestaurants" },
+    };
+  }
+  if (query.continue === "staff-accept") {
+    return {
+      purpose: "sign_in",
+      subpath: "/sign-in?continue=staff-accept",
+      destination: { href: `/${locale}/staff/accept`, label: "continueInvitation" },
     };
   }
   if (query.continue === "admin-review" && locale !== "ar") {

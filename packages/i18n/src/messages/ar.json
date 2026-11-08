@@ -81,7 +81,8 @@
     "continueApplication": "متابعة تسجيل المطعم",
     "continueReview": "فتح قائمة الطلبات",
     "continueRestaurants": "متابعة إلى مطاعمك",
-    "continueModeration": "فتح الأصناف المعلّقة"
+    "continueModeration": "فتح الأصناف المعلّقة",
+    "continueInvitation": "فتح الدعوة"
   },
   "sessions": {
     "title": "الأجهزة المسجّل دخولها",
@@ -644,6 +645,14 @@
     "alreadyInvited": "لهذا الرقم دعوة معلّقة بالفعل.",
     "deliveryUnavailable": "تعذّر إرسال الرسالة القصيرة. حاول بعد قليل.",
     "inviteError": "تعذّر إرسال الدعوة. حاول مرة أخرى.",
-    "revokeError": "تعذّر إلغاء الدعوة. حاول مرة أخرى."
+    "revokeError": "تعذّر إلغاء الدعوة. حاول مرة أخرى.",
+    "acceptTitle": "دعوة للانضمام إلى فريق",
+    "accepting": "جارٍ قبول الدعوة…",
+    "accepted": "انضممت إلى <restaurant>{name}</restaurant>. الدور: {role}.",
+    "acceptSignIn": "سجّل الدخول بالرقم الذي تلقّى الدعوة.",
+    "acceptMissing": "رابط الدعوة هذا ناقص. افتح رابط الرسالة القصيرة مرة أخرى.",
+    "acceptNotFound": "لم تعد هذه الدعوة صالحة أو لا تطابق رقمك. إن كنت قد قبلتها من قبل، افتح مطاعمك.",
+    "openRestaurants": "فتح مطاعمي",
+    "acceptError": "تعذّر قبول الدعوة. حاول مرة أخرى."
   }
 }

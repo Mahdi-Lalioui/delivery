@@ -12,11 +12,13 @@ interface SiteShellProps {
     | "/sign-in?purpose=admin"
     | "/sign-in?continue=merchant-apply"
     | "/sign-in?continue=merchant-status"
+    | "/sign-in?continue=staff-accept"
     | "/sign-in?continue=admin-review"
     | "/sign-in?continue=admin-moderation"
     | "/account/sessions"
     | "/merchant"
     | "/merchant/apply"
+    | "/staff/accept"
     | `/merchant/${string}/menu`
     | `/merchant/${string}/menu/options`
     | `/merchant/${string}/menu/${string}/items`

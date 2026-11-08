@@ -10,6 +10,13 @@ import ArabicMerchantStaff, {
   generateMetadata as arabicMetadata,
 } from "../src/app/ar/merchant/[merchantId]/staff/page";
 
+import LatinStaffAccept, {
+  generateMetadata as frenchAcceptMetadata,
+} from "../src/app/[locale]/staff/accept/page";
+import ArabicStaffAccept, {
+  generateMetadata as arabicAcceptMetadata,
+} from "../src/app/ar/staff/accept/page";
+
 vi.mock("next-intl/server", () => ({
   getTranslations({ locale, namespace }: { locale: Locale; namespace: keyof Messages }) {
     return Promise.resolve(createTranslator({ locale, namespace, messages: getMessages(locale) }));
@@ -48,3 +55,30 @@ test("[MER-23:web] invalid merchant route IDs are rejected before rendering the 
     ArabicMerchantStaff({ params: Promise.resolve({ merchantId: "not-a-merchant-id" }) }),
   ).rejects.toThrow();
 });
+
+test.each([
+  { locale: "ar", element: <ArabicStaffAccept />, metadata: arabicAcceptMetadata },
+  {
+    locale: "fr",
+    element: <LatinStaffAccept params={Promise.resolve({ locale: "fr" })} />,
+    metadata: () => frenchAcceptMetadata({ params: Promise.resolve({ locale: "fr" }) }),
+  },
+] as const)(
+  "[MER-23:web] the $locale accept route hides its referrer and keeps the language links",
+  async ({ locale, element, metadata }) => {
+    const stream = await renderToReadableStream(element);
+    await stream.allReady;
+    const html = await new Response(stream).text();
+    const { merchantStaff } = getMessages(locale);
+
+    expect(html).toContain(merchantStaff.acceptTitle);
+    expect(html).toContain(merchantStaff.accepting);
+    expect(html).toContain('href="/ar/staff/accept"');
+    expect(html).toContain('href="/fr/staff/accept"');
+    await expect(metadata()).resolves.toEqual({
+      title: merchantStaff.acceptTitle,
+      robots: { index: false, follow: false },
+      referrer: "no-referrer",
+    });
+  },
+);

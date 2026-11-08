@@ -81,7 +81,8 @@
     "continueApplication": "Poursuivre l’inscription du restaurant",
     "continueReview": "Ouvrir la liste des demandes",
     "continueRestaurants": "Accéder à vos restaurants",
-    "continueModeration": "Ouvrir les articles retenus"
+    "continueModeration": "Ouvrir les articles retenus",
+    "continueInvitation": "Ouvrir l’invitation"
   },
   "sessions": {
     "title": "Appareils connectés",
@@ -644,6 +645,14 @@
     "alreadyInvited": "Ce numéro a déjà une invitation en attente.",
     "deliveryUnavailable": "Le SMS n’a pas pu être envoyé. Réessayez dans un instant.",
     "inviteError": "Impossible d’envoyer l’invitation. Réessayez.",
-    "revokeError": "Impossible d’annuler l’invitation. Réessayez."
+    "revokeError": "Impossible d’annuler l’invitation. Réessayez.",
+    "acceptTitle": "Invitation à rejoindre une équipe",
+    "accepting": "Acceptation de l’invitation…",
+    "accepted": "Vous avez rejoint <restaurant>{name}</restaurant>. Rôle : {role}.",
+    "acceptSignIn": "Connectez-vous avec le numéro qui a reçu l’invitation.",
+    "acceptMissing": "Ce lien d’invitation est incomplet. Ouvrez à nouveau le lien reçu par SMS.",
+    "acceptNotFound": "Cette invitation n’est plus valable ou ne correspond pas à votre numéro. Si vous l’avez déjà acceptée, ouvrez vos restaurants.",
+    "openRestaurants": "Ouvrir mes restaurants",
+    "acceptError": "Impossible d’accepter l’invitation. Réessayez."
   }
 }

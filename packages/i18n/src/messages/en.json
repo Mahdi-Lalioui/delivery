@@ -81,7 +81,8 @@
     "continueApplication": "Continue to restaurant signup",
     "continueReview": "Open review queue",
     "continueRestaurants": "Continue to your restaurants",
-    "continueModeration": "Open held items"
+    "continueModeration": "Open held items",
+    "continueInvitation": "Open the invitation"
   },
   "sessions": {
     "title": "Signed-in devices",
@@ -644,6 +645,14 @@
     "alreadyInvited": "This number already has a pending invitation.",
     "deliveryUnavailable": "The SMS could not be sent. Try again in a moment.",
     "inviteError": "The invitation could not be sent. Try again.",
-    "revokeError": "The invitation could not be cancelled. Try again."
+    "revokeError": "The invitation could not be cancelled. Try again.",
+    "acceptTitle": "Team invitation",
+    "accepting": "Accepting the invitation…",
+    "accepted": "You joined <restaurant>{name}</restaurant>. Role: {role}.",
+    "acceptSignIn": "Sign in with the number that received the invitation.",
+    "acceptMissing": "This invitation link is incomplete. Open the SMS link again.",
+    "acceptNotFound": "This invitation is no longer valid or does not match your number. If you already accepted it, open your restaurants.",
+    "openRestaurants": "Open my restaurants",
+    "acceptError": "The invitation could not be accepted. Try again."
   }
 }

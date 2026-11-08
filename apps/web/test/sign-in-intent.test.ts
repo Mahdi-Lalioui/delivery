@@ -52,3 +52,11 @@ test("[MER-09:web] returns an authenticated restaurant editor to the localized r
     destination: { href: "/fr/merchant", label: "continueRestaurants" },
   });
 });
+
+test("[MER-23:web] returns an invitee to the localized staff invitation page", () => {
+  expect(readSignInIntent({ continue: "staff-accept", purpose: "admin" }, "ar")).toEqual({
+    purpose: "sign_in",
+    subpath: "/sign-in?continue=staff-accept",
+    destination: { href: "/ar/staff/accept", label: "continueInvitation" },
+  });
+});
