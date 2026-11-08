@@ -13,6 +13,13 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 10:09 GMT — M2-8 import row validation and preview signing
+
+- **Changed** — Validate spreadsheet cells in source row order, reuse the menu text and price bounds, and normalize Arabic and Persian digits. Sign the validated rows and merchant, account, session and revision with a domain-separated HMAC.
+- **Evidence** — The missing-validator and missing-token tests failed before implementation. The validator and contract tests passed 19/19, and the token test passed for altered price, merchant, account, session and revision. Full `pnpm verify` passed with 1,229 unit and 139 integration tests.
+- **Next** — Complete the price-undo review fix, then connect preview and apply to PostGIS and the HTTP API.
+- **Needs Mahdi** — None.
+
 ### 2026-11-08 10:09 GMT — M2-10 merchant-first moderation locking
 
 - **Changed** — Admin review now acquires the merchant lock before updating the held item, matching merchant edits. The update still checks ownership, moderation state and archival.
