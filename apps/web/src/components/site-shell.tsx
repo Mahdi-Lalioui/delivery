@@ -22,6 +22,7 @@ interface SiteShellProps {
     | `/merchant/${string}/menu/${string}/items`
     | `/merchant/${string}/setup`
     | `/merchant/${string}/hours`
+    | `/merchant/${string}/staff`
     | "/admin/merchant-applications"
     | "/admin/menu-items";
 }
