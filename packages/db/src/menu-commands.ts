@@ -14,7 +14,8 @@ type Operation =
   | "option_group_update"
   | "bulk_price_apply"
   | "bulk_price_undo"
-  | "hours_replace";
+  | "hours_replace"
+  | "ramadan_replace";
 
 export interface CommandRequest<
   Input extends { readonly expectedRevision: number },

@@ -24,6 +24,8 @@ function setup(actor?: Actor) {
   const repository = {
     read: vi.fn<Repository["read"]>(),
     replace: vi.fn<Repository["replace"]>(),
+    readRamadan: vi.fn<Repository["readRamadan"]>(),
+    replaceRamadan: vi.fn<Repository["replaceRamadan"]>(),
   } satisfies Repository;
   const api = createApi({
     checkReadiness: () => Promise.resolve(),

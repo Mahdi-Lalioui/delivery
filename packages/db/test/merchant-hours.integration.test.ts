@@ -4,6 +4,7 @@ import {
   createMerchantHoursRepository,
   type MerchantHours,
   type MerchantHoursReplace,
+  type RamadanSchedule,
 } from "../src/merchant-hours.ts";
 import { registerTestDatabase } from "./database.ts";
 
@@ -21,6 +22,7 @@ const replaying = fixtureId(20);
 const stale = fixtureId(30);
 const staffed = fixtureId(40);
 const foreign = fixtureId(50);
+const fasting = fixtureId(60);
 
 function emptyWeek(): MerchantHours["weekly"] {
   return [0, 1, 2, 3, 4, 5, 6].map((weekday) => ({ weekday, ranges: [] }));
@@ -77,7 +79,7 @@ beforeAll(async () => {
     insert into users (id, phone_e164, created_at)
     values (${ownerId}, '+213500000010', ${now.toISOString()}::timestamptz)
   `;
-  for (const merchantId of [replacing, replaying, stale, staffed, foreign]) {
+  for (const merchantId of [replacing, replaying, stale, staffed, foreign, fasting]) {
     await sql`
       insert into merchants
         (id, slug, restaurant_name, owner_name, phone_e164, commune_id, location, cuisines, status, created_at)
@@ -86,7 +88,7 @@ beforeAll(async () => {
         array['algerian'], 'approved', ${now.toISOString()}::timestamptz)
     `;
   }
-  for (const merchantId of [replacing, replaying, stale]) {
+  for (const merchantId of [replacing, replaying, stale, fasting]) {
     await sql`insert into merchant_members (merchant_id, user_id, role) values (${merchantId}, ${ownerId}, 'owner')`;
   }
   await sql`insert into merchant_members (merchant_id, user_id, role) values (${staffed}, ${ownerId}, 'staff')`;
@@ -159,4 +161,64 @@ test("[MER-15:authz] denies staff and non-members in the SQL membership check", 
     select merchant_id from merchant_hours where merchant_id in (${staffed}, ${foreign})
   `;
   expect(rows).toHaveLength(0);
+});
+
+const ramadan: RamadanSchedule = {
+  weekly: [0, 1, 2, 3, 4, 5, 6].map((weekday) => ({
+    weekday,
+    ranges: [
+      { opens: { kind: "maghrib", minutes: -60 }, closes: { kind: "clock", minuteOfDay: 120 } },
+    ],
+  })),
+  suhoor: { opensMinute: 0, closesMinute: 240 },
+  method: "Algeria",
+  adjustmentMinutes: 2,
+};
+
+function ramadanRequest(
+  merchantId: string,
+  { key = "ramadan-1", schedule = ramadan, expectedRevision = 0 } = {},
+) {
+  return {
+    accountId: ownerId,
+    merchantId,
+    input: { ...schedule, expectedRevision },
+    idempotencyKeyHash: hash(key),
+    requestHash: hash(JSON.stringify(schedule)),
+    now,
+  };
+}
+
+test("[MER-16:db] stores the Ramadan schedule with the hours guard and replaces it whole", async () => {
+  const hours = createMerchantHoursRepository(database.get());
+  const scope = { accountId: ownerId, merchantId: fasting };
+  expect(await hours.readRamadan(scope)).toEqual({ revision: 0, schedule: null });
+  expect(await hours.replaceRamadan(ramadanRequest(fasting))).toEqual({
+    kind: "applied",
+    revision: 1,
+  });
+  expect(await hours.replaceRamadan(ramadanRequest(fasting))).toEqual({
+    kind: "replayed",
+    revision: 1,
+  });
+  expect(await hours.readRamadan(scope)).toEqual({ revision: 1, schedule: ramadan });
+
+  const plain = { ...ramadan, suhoor: null, method: "UmmAlQura" as const, adjustmentMinutes: 0 };
+  expect(
+    await hours.replaceRamadan(
+      ramadanRequest(fasting, { key: "ramadan-2", schedule: plain, expectedRevision: 1 }),
+    ),
+  ).toEqual({ kind: "applied", revision: 2 });
+  expect(await hours.readRamadan(scope)).toEqual({ revision: 2, schedule: plain });
+  expect(
+    await hours.replaceRamadan(ramadanRequest(fasting, { key: "ramadan-3", expectedRevision: 1 })),
+  ).toEqual({ kind: "revision_conflict" });
+});
+
+test("[MER-16:authz] denies the Ramadan schedule to staff and non-members", async () => {
+  const hours = createMerchantHoursRepository(database.get());
+  for (const merchantId of [staffed, foreign]) {
+    expect(await hours.replaceRamadan(ramadanRequest(merchantId))).toEqual({ kind: "not_found" });
+    expect(await hours.readRamadan({ accountId: ownerId, merchantId })).toBeUndefined();
+  }
 });

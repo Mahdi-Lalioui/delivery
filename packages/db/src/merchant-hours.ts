@@ -2,6 +2,9 @@ import type { TransactionSql } from "postgres";
 import type { DatabaseConnection } from "./database.js";
 import { readMenuContext, type MenuScope } from "./menu-access.js";
 import { runMenuCommand, type CommandChange, type CommandRequest } from "./menu-commands.js";
+import { readRamadan, replaceRamadan, type RamadanReplace } from "./merchant-ramadan.js";
+
+export type { RamadanReplace, RamadanSchedule } from "./merchant-ramadan.js";
 
 interface HoursRange {
   readonly opensMinute: number;
@@ -118,6 +121,15 @@ export function createMerchantHoursRepository({ sql }: DatabaseConnection) {
         runMenuCommand(tx, request, {
           operation: "hours_replace",
           apply: () => replaceHours(tx, request),
+        }),
+      ),
+    readRamadan: (scope: MenuScope) =>
+      sql.begin("isolation level repeatable read read only", (tx) => readRamadan(tx, scope)),
+    replaceRamadan: (request: RamadanReplace) =>
+      sql.begin((tx) =>
+        runMenuCommand(tx, request, {
+          operation: "ramadan_replace",
+          apply: () => replaceRamadan(tx, request),
         }),
       ),
   };
