@@ -163,11 +163,74 @@ async function revokeInvitation(sql: TransactionSql, request: RevokeRequest) {
   return consumed ? ({ kind: "already_consumed" } as const) : ({ kind: "not_found" } as const);
 }
 
+interface AcceptRequest {
+  readonly accountId: string;
+  readonly tokenHash: Uint8Array;
+  readonly now: Date;
+}
+
+type AcceptResult =
+  | {
+      readonly kind: "accepted";
+      readonly merchantId: string;
+      readonly restaurantName: string;
+      readonly role: InvitedRole;
+    }
+  | { readonly kind: "not_found" | "already_member" };
+
+interface OpenInvitation {
+  readonly id: string;
+  readonly merchantId: string;
+  readonly restaurantName: string;
+  readonly role: InvitedRole;
+}
+
+/** D-015: one redemption, only by the invited phone, before expiry and revocation. */
+async function acceptInvitation(
+  sql: TransactionSql,
+  request: AcceptRequest,
+): Promise<AcceptResult> {
+  const { accountId, tokenHash, now } = request;
+  const [account] = await sql<{ phone: string }[]>`
+    SELECT phone_e164 AS phone FROM public.users
+    WHERE id = ${accountId} AND blocked_at IS NULL AND deleted_at IS NULL FOR SHARE
+  `;
+  if (!account) return { kind: "not_found" };
+  // A wrong phone looks like an unknown token, so the response reveals nothing about it.
+  const [invitation] = await sql<OpenInvitation[]>`
+    SELECT invitation.id, invitation.merchant_id AS "merchantId",
+      merchant.restaurant_name AS "restaurantName", invitation.role
+    FROM public.merchant_staff_invitations AS invitation
+    JOIN public.merchants AS merchant ON merchant.id = invitation.merchant_id
+    WHERE invitation.token_hash = ${tokenHash} AND invitation.phone_e164 = ${account.phone}
+      AND invitation.consumed_at IS NULL AND invitation.revoked_at IS NULL
+      AND invitation.expires_at > ${now.toISOString()}::timestamptz
+      AND merchant.status IN ('approved', 'active', 'paused')
+    FOR UPDATE OF invitation
+  `;
+  if (!invitation) return { kind: "not_found" };
+  const [member] = await sql`
+    INSERT INTO public.merchant_members (merchant_id, user_id, role)
+    VALUES (${invitation.merchantId}, ${accountId}, ${invitation.role})
+    ON CONFLICT (merchant_id, user_id) DO NOTHING
+    RETURNING user_id
+  `;
+  if (!member) return { kind: "already_member" };
+  await sql`
+    UPDATE public.merchant_staff_invitations
+    SET consumed_at = ${now.toISOString()}::timestamptz, consumed_by = ${accountId}
+    WHERE id = ${invitation.id}
+  `;
+  const { merchantId, restaurantName, role } = invitation;
+  return { kind: "accepted", merchantId, restaurantName, role };
+}
+
 export function createMerchantStaffRepository({ sql }: DatabaseConnection) {
   return {
     create: (request: StaffInvitationCreate) => sql.begin((tx) => createInvitation(tx, request)),
     list: (scope: OwnerScope & { readonly now: Date }) =>
       sql.begin("isolation level repeatable read read only", (tx) => listStaff(tx, scope)),
     revoke: (request: RevokeRequest) => sql.begin((tx) => revokeInvitation(tx, request)),
+    accept: (request: AcceptRequest) => sql.begin((tx) => acceptInvitation(tx, request)),
   };
 }

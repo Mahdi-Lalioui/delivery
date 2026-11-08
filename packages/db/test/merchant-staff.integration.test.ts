@@ -227,3 +227,88 @@ test("[MER-23:db] a consumed invitation cannot be revoked", async () => {
     kind: "not_found",
   });
 });
+
+async function addInvitee(serial: number, phone: string) {
+  const { sql } = database.get();
+  const id = fixtureId(serial);
+  await sql`insert into users (id, phone_e164, created_at) values (${id}, ${phone}, ${now.toISOString()}::timestamptz)`;
+  return id;
+}
+
+async function invitedToken(phone: string, role: "manager" | "staff" = "manager") {
+  const staff = createMerchantStaffRepository(database.get());
+  const tokenHash = hash(`accept-${phone}`);
+  const created = await staff.create(
+    invite({ phone, role, idempotencyKeyHash: hash(`k-${phone}`), tokenHash }),
+  );
+  if (created.kind !== "applied") throw new Error("Expected a new invitation.");
+  return { tokenHash, invitationId: created.invitation.invitationId };
+}
+
+test("[MER-23:db] the invited phone accepts once and becomes a member with the invited role", async () => {
+  const staff = createMerchantStaffRepository(database.get());
+  const phone = "+213550000330";
+  const accountId = await addInvitee(100, phone);
+  const { tokenHash } = await invitedToken(phone);
+
+  expect(await staff.accept({ accountId, tokenHash, now })).toEqual({
+    kind: "accepted",
+    merchantId: merchantA,
+    restaurantName: "Restaurant fictif",
+    role: "manager",
+  });
+  expect(await staff.accept({ accountId, tokenHash, now })).toEqual({ kind: "not_found" });
+  const list = await staff.list({ accountId: ownerId, merchantId: merchantA, now });
+  expect(list?.members).toContainEqual({
+    userId: accountId,
+    phoneE164: phone,
+    role: "manager",
+    isSelf: false,
+  });
+  expect(list?.invitations.map(({ phoneE164 }) => phoneE164)).not.toContain(phone);
+});
+
+test("[MER-23:db] two concurrent accepts of one token admit exactly one", async () => {
+  const staff = createMerchantStaffRepository(database.get());
+  const phone = "+213550000331";
+  const accountId = await addInvitee(101, phone);
+  const { tokenHash } = await invitedToken(phone, "staff");
+
+  const results = await Promise.all([
+    staff.accept({ accountId, tokenHash, now }),
+    staff.accept({ accountId, tokenHash, now }),
+  ]);
+  expect(results.map(({ kind }) => kind).sort()).toEqual(["accepted", "not_found"]);
+});
+
+test("[MER-23:db] another phone, an expired, a revoked or an unknown token is refused", async () => {
+  const staff = createMerchantStaffRepository(database.get());
+  const phone = "+213550000332";
+  const accountId = await addInvitee(102, phone);
+  const { tokenHash, invitationId } = await invitedToken(phone);
+
+  expect(await staff.accept({ accountId: otherOwnerId, tokenHash, now })).toEqual({
+    kind: "not_found",
+  });
+  expect(await staff.accept({ accountId, tokenHash, now: later })).toEqual({ kind: "not_found" });
+  expect(await staff.accept({ accountId, tokenHash: hash("unknown"), now })).toEqual({
+    kind: "not_found",
+  });
+  await staff.revoke({ accountId: ownerId, merchantId: merchantA, invitationId, now });
+  expect(await staff.accept({ accountId, tokenHash, now })).toEqual({ kind: "not_found" });
+});
+
+test("[MER-23:db] an account that joined meanwhile cannot accept a second role", async () => {
+  const staff = createMerchantStaffRepository(database.get());
+  const phone = "+213550000333";
+  const accountId = await addInvitee(103, phone);
+  const { tokenHash } = await invitedToken(phone);
+  const { sql } = database.get();
+  await sql`insert into merchant_members (merchant_id, user_id, role) values (${merchantA}, ${accountId}, 'staff')`;
+
+  expect(await staff.accept({ accountId, tokenHash, now })).toEqual({ kind: "already_member" });
+  const [member] = await sql<{ role: string }[]>`
+    select role from merchant_members where merchant_id = ${merchantA} and user_id = ${accountId}
+  `;
+  expect(member?.role).toBe("staff");
+});
