@@ -453,3 +453,343 @@ test("[MER-14:db] terminal preparation state requires complete valid metadata", 
   ).rejects.toMatchObject({ code: "23514" });
   expect(await repository.read(scope)).toMatchObject({ status: "preparing" });
 });
+
+const cropInput = { focalX: 1200, focalY: 8000, zoomPercent: 140 };
+
+function cropRequest(scope: Awaited<ReturnType<typeof reserve>>) {
+  return {
+    ...scope,
+    input: cropInput,
+    idempotencyKeyHash: hash("fixture-key"),
+    requestHash: hash(JSON.stringify({ mediaId: scope.mediaId, ...cropInput })),
+  };
+}
+
+async function prepareFixture(scope: Awaited<ReturnType<typeof reserve>>) {
+  const repository = repo();
+  const adoption = upload(scope, "crop-original");
+  const previewKey = `previews/${scope.mediaId}/crop-fixture`;
+  expect(await repository.acceptUpload(adoption)).toMatchObject({ kind: "accepted" });
+  expect(
+    await repository.completePreparation({
+      mediaId: scope.mediaId,
+      quarantineKey: adoption.quarantineKey,
+      result: { status: "awaiting_crop", previewKey, width: 1280, height: 960 },
+    }),
+  ).toBe(true);
+  return { previewKey, quarantineKey: adoption.quarantineKey };
+}
+
+test("[MER-14:db] concurrent exact crops accept once and preserve the private source objects", async () => {
+  const scope = await reserve(reserveRequest(await actor(1000)));
+  const { mediaId, sessionId } = scope;
+  const { previewKey, quarantineKey } = await prepareFixture(scope);
+  const request = cropRequest(scope);
+  const results = await concurrently(
+    (repository) => repository.submitCrop(request),
+    (repository) => repository.submitCrop(request),
+  );
+  const media = { mediaId, sessionId, kind: "application", status: "processing" };
+  expect(results).toEqual(
+    expect.arrayContaining([
+      { kind: "accepted", media },
+      { kind: "replayed", media },
+    ]),
+  );
+  expect(await repo().read(scope)).toEqual(media);
+  expect(await repo().findPreview(scope)).toBeUndefined();
+
+  const { sql } = database.get();
+  const [stored] = await sql`
+    SELECT reservation_session_id, crop_focal_x, crop_focal_y, crop_zoom_percent,
+      quarantine_key, preview_key
+    FROM public.media_uploads WHERE id = ${mediaId}
+  `;
+  expect(stored).toEqual({
+    reservation_session_id: sessionId,
+    crop_focal_x: 1200,
+    crop_focal_y: 8000,
+    crop_zoom_percent: 140,
+    quarantine_key: quarantineKey,
+    preview_key: previewKey,
+  });
+  expect((await jobsFor(mediaId)).filter((job) => job.key === `media:crop:${mediaId}`)).toEqual([
+    {
+      identifier: "media.process",
+      queue_name: "media",
+      key: `media:crop:${mediaId}`,
+      payload: { mediaId, phase: "crop" },
+    },
+  ]);
+});
+
+test("[MER-14:db] crop receipts bind key, target and crop values even after an upload progresses", async () => {
+  const owner = await actor(1001);
+  const scope = await reserve(reserveRequest(owner));
+  const request = cropRequest(scope);
+  expect(await repo().submitCrop(request)).toEqual({ kind: "crop_conflict" });
+  await prepareFixture(scope);
+  expect(await repo().submitCrop(request)).toMatchObject({ kind: "accepted" });
+  expect(
+    await repo().submitCrop({ ...request, input: { ...cropInput, zoomPercent: 141 } }),
+  ).toEqual({ kind: "idempotency_conflict" });
+  expect(await repo().submitCrop({ ...request, requestHash: hash("changed fingerprint") })).toEqual(
+    { kind: "idempotency_conflict" },
+  );
+  expect(await repo().submitCrop({ ...request, idempotencyKeyHash: hash("new crop key") })).toEqual(
+    { kind: "crop_conflict" },
+  );
+
+  const other = await reserve({
+    ...reserveRequest(owner),
+    idempotencyKeyHash: hash("second photo"),
+  });
+  await prepareFixture(other);
+  expect(await repo().submitCrop({ ...request, mediaId: other.mediaId })).toEqual({
+    kind: "idempotency_conflict",
+  });
+  expect(await repo().read(other)).toMatchObject({ status: "awaiting_crop" });
+  expect(await jobsFor(other.mediaId)).toHaveLength(1);
+});
+
+test("[MER-14:db] different concurrent crop keys leave a single receipt and job", async () => {
+  const scope = await reserve(reserveRequest(await actor(1002)));
+  await prepareFixture(scope);
+  const first = cropRequest(scope);
+  const second = {
+    ...first,
+    input: { ...cropInput, focalX: 9000 },
+    idempotencyKeyHash: hash("different key"),
+    requestHash: hash("different crop"),
+  };
+  const results = await concurrently(
+    (repository) => repository.submitCrop(first),
+    (repository) => repository.submitCrop(second),
+  );
+  expect(results.map(({ kind }) => kind).sort()).toEqual(["accepted", "crop_conflict"]);
+  const [winner, loser] = results[0].kind === "accepted" ? [first, second] : [second, first];
+  expect(await repo().submitCrop(winner)).toMatchObject({ kind: "replayed" });
+  expect(await repo().submitCrop(loser)).toEqual({ kind: "crop_conflict" });
+  expect(await jobsFor(scope.mediaId)).toHaveLength(2);
+
+  const { sql } = database.get();
+  const [stored] = await sql`
+    SELECT crop_focal_x FROM public.media_uploads WHERE id = ${scope.mediaId}
+  `;
+  expect(stored).toEqual({ crop_focal_x: winner.input.focalX });
+});
+
+test("[MER-14:db] only the owning original live session can crop eligible restaurant media", async () => {
+  const owner = await actor(1003);
+  const other = await actor(1004);
+  const merchantId = await restaurant(1005);
+  await membership(merchantId, owner.accountId, "manager");
+  await membership(merchantId, other.accountId, "owner");
+  const scope = await reserve(reserveRequest(owner, { ...png, kind: "item", merchantId }));
+  await prepareFixture(scope);
+  const replacement = await session(owner.accountId, 1006);
+  const request = cropRequest(scope);
+  const notFound = { kind: "not_found" };
+  expect(
+    await repo().reserve(reserveRequest(replacement, { ...png, kind: "item", merchantId })),
+  ).toMatchObject({
+    kind: "replayed",
+    media: { mediaId: scope.mediaId, sessionId: replacement.sessionId },
+  });
+  expect(await repo().submitCrop({ ...request, ...replacement })).toEqual(notFound);
+  expect(await repo().submitCrop({ ...request, ...other })).toEqual(notFound);
+  expect(await repo().submitCrop({ ...request, now: expiresAt })).toEqual(notFound);
+
+  const { sql } = database.get();
+  await sql`
+    UPDATE public.merchant_members SET role = 'staff'
+    WHERE merchant_id = ${merchantId} AND user_id = ${owner.accountId}
+  `;
+  expect(await repo().submitCrop(request)).toEqual(notFound);
+  await sql`
+    UPDATE public.merchant_members SET role = 'manager'
+    WHERE merchant_id = ${merchantId} AND user_id = ${owner.accountId}
+  `;
+  await sql`UPDATE public.merchants SET status = 'suspended' WHERE id = ${merchantId}`;
+  expect(await repo().submitCrop(request)).toEqual(notFound);
+  await sql`UPDATE public.merchants SET status = 'approved' WHERE id = ${merchantId}`;
+
+  expect(await repo().submitCrop(request)).toMatchObject({ kind: "accepted" });
+  await sql`
+    UPDATE public.sessions SET revoked_at = ${nextMinute.toISOString()} WHERE id = ${owner.sessionId}
+  `;
+  expect(await repo().submitCrop({ ...request, now: nextMinute })).toEqual(notFound);
+  expect(await repo().submitCrop({ ...request, ...replacement, now: nextMinute })).toEqual(
+    notFound,
+  );
+  expect(await jobsFor(scope.mediaId)).toHaveLength(2);
+});
+
+test("[MER-14:db] a legacy upload can be read but cannot acquire a crop session", async () => {
+  const owner = await actor(1007);
+  const { sql } = database.get();
+  const [legacy] = await sql<{ id: string }[]>`
+    INSERT INTO public.media_uploads (owner_id, kind, content_type, bytes, created_at)
+    VALUES (${owner.accountId}, 'application', 'image/png', 16, ${now.toISOString()})
+    RETURNING id
+  `;
+  if (!legacy) throw new Error("Expected legacy fixture upload");
+  const scope = { ...owner, mediaId: legacy.id };
+  await prepareFixture(scope);
+  expect(await repo().submitCrop(cropRequest(scope))).toEqual({ kind: "not_found" });
+  expect(await repo().read(scope)).toMatchObject({ status: "awaiting_crop" });
+  expect(await jobsFor(scope.mediaId)).toHaveLength(1);
+});
+
+test("[JOB-03:db] failed crop enqueue rolls back the crop coordinates, transition and receipt", async () => {
+  const scope = await reserve(reserveRequest(await actor(1008)));
+  await prepareFixture(scope);
+  const request = cropRequest(scope);
+  const { sql } = database.get();
+
+  await sql`ALTER SCHEMA graphile_worker RENAME TO fixture_unavailable_worker`;
+  try {
+    await expect(repo().submitCrop(request)).rejects.toMatchObject({ code: "3F000" });
+    expect(await repo().read(scope)).toMatchObject({ status: "awaiting_crop" });
+    const [stored] = await sql`
+      SELECT crop_focal_x, crop_focal_y, crop_zoom_percent
+      FROM public.media_uploads WHERE id = ${scope.mediaId}
+    `;
+    expect(stored).toEqual({ crop_focal_x: null, crop_focal_y: null, crop_zoom_percent: null });
+    expect(
+      await sql`
+      SELECT media_id FROM public.media_command_receipts
+      WHERE media_id = ${scope.mediaId} AND operation = 'crop'
+    `,
+    ).toHaveLength(0);
+  } finally {
+    await sql`ALTER SCHEMA fixture_unavailable_worker RENAME TO graphile_worker`;
+  }
+
+  expect(await jobsFor(scope.mediaId)).toHaveLength(1);
+  expect(await repo().submitCrop(request)).toMatchObject({ kind: "accepted" });
+  expect(await jobsFor(scope.mediaId)).toHaveLength(2);
+});
+
+function variantsFixture(mediaId: string, candidate: string) {
+  const widths = [160, 320, 640, 960, 1280] as const;
+  const formats = ["avif", "webp"] as const;
+  return widths.flatMap((width) =>
+    formats.map((format) => ({
+      key: `variants/${mediaId}/${candidate}/${width.toString()}.${format}`,
+      format,
+      width,
+      height: (width * 9) / 16,
+      bytes: 512,
+    })),
+  );
+}
+
+const fixtureThumbhash = "GYiCAYYY2YA5CIgICA==";
+
+test("[MER-14:db] publication atomically stores one manifest and exposes only public metadata", async () => {
+  const scope = await reserve(reserveRequest(await actor(1100)));
+  const { mediaId } = scope;
+  const { quarantineKey, previewKey } = await prepareFixture(scope);
+  const repository = repo();
+  expect(await repository.findCropWork(mediaId)).toBeUndefined();
+  expect(await repository.submitCrop(cropRequest(scope))).toMatchObject({ kind: "accepted" });
+
+  expect(await repository.findCropWork(mediaId)).toEqual({
+    status: "processing",
+    kind: "application",
+    crop: cropInput,
+    quarantineKey,
+    previewKey,
+    ...png,
+    digest: hash("photo"),
+  });
+
+  const first = {
+    status: "ready",
+    variants: variantsFixture(mediaId, "first"),
+    thumbhash: fixtureThumbhash,
+  } as const;
+  const second = {
+    status: "ready",
+    variants: variantsFixture(mediaId, "second"),
+    thumbhash: "KQiCAYYY2YA5CIgICA==",
+  } as const;
+  expect(
+    await repository.completeCrop({ mediaId, quarantineKey: "stale-original", result: first }),
+  ).toBe(false);
+  expect(await repository.read(scope)).toMatchObject({ status: "processing" });
+  const variant = { format: "webp", width: 640 } as const;
+  expect(await repository.findVariant({ ...scope, ...variant })).toBeUndefined();
+
+  const [left, right] = await concurrently(
+    (connection) => connection.completeCrop({ mediaId, quarantineKey, result: first }),
+    (connection) => connection.completeCrop({ mediaId, quarantineKey, result: second }),
+  );
+  expect([left, right].sort()).toEqual([false, true]);
+  const published = left ? first : second;
+  const [stored] = await database.get().sql`
+    SELECT ready_variants FROM public.media_uploads WHERE id = ${mediaId}
+  `;
+  expect(stored).toEqual({ ready_variants: published.variants });
+  const publicStatus = {
+    mediaId,
+    sessionId: scope.sessionId,
+    kind: "application",
+    status: "ready",
+    thumbhash: published.thumbhash,
+    variants: published.variants.map(({ format, width, height, bytes }) => ({
+      format,
+      width,
+      height,
+      bytes,
+    })),
+  };
+  expect(await repository.read(scope)).toEqual(publicStatus);
+  expect(await repository.findCropWork(mediaId)).toEqual({
+    status: "ready",
+    quarantineKey,
+    previewKey,
+  });
+  expect(await repository.findPreview(scope)).toBeUndefined();
+  expect(await repository.acceptUpload(upload(scope, "ready-replay"))).toEqual({
+    kind: "replayed",
+    media: publicStatus,
+  });
+
+  expect(await repository.findVariant({ ...scope, ...variant })).toEqual({
+    key: `variants/${mediaId}/${left ? "first" : "second"}/640.webp`,
+  });
+  const outsider = await actor(1101);
+  expect(await repository.read({ ...outsider, mediaId })).toBeUndefined();
+  expect(await repository.findVariant({ ...outsider, mediaId, ...variant })).toBeUndefined();
+  expect(await repository.findVariant({ ...scope, ...variant, now: expiresAt })).toBeUndefined();
+  expect(await repository.submitCrop(cropRequest(scope))).toMatchObject({
+    kind: "replayed",
+    media: { status: "processing" },
+  });
+});
+
+test("[MER-14:db] publication rejects incomplete, duplicate, or invalid metadata and stays processing", async () => {
+  const scope = await reserve(reserveRequest(await actor(1102)));
+  const { mediaId } = scope;
+  const { quarantineKey } = await prepareFixture(scope);
+  const repository = repo();
+  expect(await repository.submitCrop(cropRequest(scope))).toMatchObject({ kind: "accepted" });
+  const variants = variantsFixture(mediaId, "invalid");
+  const [first, ...rest] = variants;
+  if (!first) throw new Error("Expected a variant fixture");
+
+  for (const invalid of [
+    { variants: rest, thumbhash: fixtureThumbhash },
+    { variants: [...rest, ...rest.slice(0, 1)], thumbhash: fixtureThumbhash },
+    { variants: [{ ...first, height: first.width }, ...rest], thumbhash: fixtureThumbhash },
+    { variants: [{ ...first, bytes: 0 }, ...rest], thumbhash: fixtureThumbhash },
+    { variants, thumbhash: "not_base64" },
+  ]) {
+    await expect(
+      repository.completeCrop({ mediaId, quarantineKey, result: { status: "ready", ...invalid } }),
+    ).rejects.toMatchObject({ code: "23514" });
+    expect(await repository.read(scope)).toMatchObject({ status: "processing" });
+  }
+});

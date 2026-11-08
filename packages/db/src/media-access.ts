@@ -5,10 +5,12 @@ import type {
   MediaSessionScope,
   MediaState,
   MediaStatus,
+  MediaStoredVariant,
   MediaUploadDescriptor,
 } from "./media-types.js";
 
-type VisibleMedia = MediaStatus & MediaUploadDescriptor & { readonly previewKey: string | null };
+type VisibleMedia = MediaStatus<MediaStoredVariant> &
+  MediaUploadDescriptor & { readonly previewKey: string | null };
 
 export function mediaStatus(
   media: MediaState & { readonly mediaId: string; readonly kind: MediaKind },
@@ -20,6 +22,15 @@ export function mediaStatus(
     return { ...identity, status, width: media.width, height: media.height };
   }
   if (status === "rejected") return { ...identity, status, reason: media.reason };
+  if (status === "ready") {
+    const variants = media.variants.map(({ format, width, height, bytes }) => ({
+      format,
+      width,
+      height,
+      bytes,
+    }));
+    return { ...identity, status, variants, thumbhash: media.thumbhash };
+  }
   return { ...identity, status };
 }
 
@@ -78,7 +89,8 @@ export async function readVisibleMedia(
   const [media] = await sql<VisibleMedia[]>`
     SELECT upload.id AS "mediaId", session.id AS "sessionId", upload.kind, upload.status,
       upload.content_type AS "contentType", upload.bytes, upload.preview_key AS "previewKey",
-      upload.preview_width AS width, upload.preview_height AS height, upload.rejection_reason AS reason
+      upload.preview_width AS width, upload.preview_height AS height,
+      upload.rejection_reason AS reason, upload.ready_variants AS variants, upload.thumbhash
     FROM public.media_uploads AS upload
     JOIN public.users AS account ON account.id = upload.owner_id
     JOIN public.sessions AS session ON session.user_id = account.id

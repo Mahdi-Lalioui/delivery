@@ -26,6 +26,7 @@ async function lockOwnedUpload(
   const [upload] = await sql<LockedUpload[]>`
     SELECT id AS "mediaId", kind, status, content_type AS "contentType", bytes,
       preview_width AS width, preview_height AS height, rejection_reason AS reason,
+      ready_variants AS variants, thumbhash,
       content_digest = ${digest} AS "matchesDigest"
     FROM public.media_uploads
     WHERE id = ${mediaId} AND owner_id = ${accountId}

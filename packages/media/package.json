@@ -7,16 +7,22 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./dist/index.js"
+    },
+    "./s3-store": {
+      "types": "./src/s3-store.ts",
+      "default": "./dist/s3-store.js"
     }
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
-    "test:s3:conformance": "pnpm run build && sh ./test/s3-conformance.sh"
+    "test:s3:conformance": "pnpm --filter @zaafran/media... build && sh ./test/s3-conformance.sh"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1163.0",
-    "sharp": "0.35.5"
+    "@zaafran/contracts": "workspace:*",
+    "sharp": "0.35.5",
+    "thumbhash": "0.1.1"
   },
   "devDependencies": {
     "@types/node": "26.6.6",

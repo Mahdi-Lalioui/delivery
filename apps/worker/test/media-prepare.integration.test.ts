@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Readable } from "node:stream";
 import { buffer } from "node:stream/consumers";
+import { mediaOutput } from "@zaafran/contracts/media";
 import { createMediaRepository } from "@zaafran/db/media";
 import { createLocalMediaStore } from "@zaafran/media";
 import { runOnce } from "graphile-worker";
@@ -16,7 +17,7 @@ import { testPng } from "./media-fixture.ts";
 const database = registerTestDatabase();
 const hash = (bytes: Buffer | string) => createHash("sha256").update(bytes).digest();
 
-test("[MER-14:worker] the queued preparation saves a private preview and retains the original for cropping", async () => {
+test("[MER-14:worker] queued preparation and crop publish one complete variant set before removing the original", async () => {
   const connection = database.get();
   const databaseUrl = database.url();
   const { sql } = connection;
@@ -75,12 +76,46 @@ test("[MER-14:worker] the queued preparation saves a private preview and retains
     const [stored] = await sql<{ previewKey: string }[]>`
       SELECT preview_key AS "previewKey" FROM public.media_uploads WHERE id = ${mediaId}
     `;
-    const preview = stored && (await store.get(stored.previewKey));
+    if (!stored) throw new Error("Missing stored preview key");
+    const preview = await store.get(stored.previewKey);
     if (!preview) throw new Error("Missing private preview");
     expect((await buffer(preview.body)).toString("ascii", 8, 12)).toBe("WEBP");
     const original = await store.get(quarantineKey);
     if (!original) throw new Error("Missing quarantined original");
     expect(await buffer(original.body)).toEqual(testPng);
+    expect(await sql`SELECT id FROM graphile_worker.jobs`).toHaveLength(0);
+
+    const input = { focalX: 5000, focalY: 5000, zoomPercent: 100 };
+    const request = {
+      ...scope,
+      mediaId,
+      input,
+      idempotencyKeyHash: hash("crop-media"),
+      requestHash: hash(JSON.stringify({ mediaId, ...input })),
+    };
+    await expect(repository.submitCrop(request)).resolves.toMatchObject({
+      kind: "accepted",
+      media: { status: "processing" },
+    });
+    await runOnce({ ...options, noHandleSignals: true });
+
+    const ready = mediaOutput.parse(await repository.read({ ...scope, mediaId }));
+    if (ready.status !== "ready") throw new Error("Expected all crop variants to be published.");
+    expect(ready.variants).toHaveLength(10);
+    expect(ready.variants.every((variant) => !("key" in variant))).toBe(true);
+    for (const { format, width, bytes } of ready.variants) {
+      const published = await repository.findVariant({ ...scope, mediaId, format, width });
+      const object = published && (await store.get(published.key));
+      if (!object) throw new Error("Published variant is missing.");
+      expect(await buffer(object.body)).toHaveLength(bytes);
+    }
+
+    expect(await store.get(quarantineKey)).toBeUndefined();
+    expect(await store.get(stored.previewKey)).toBeUndefined();
+    await expect(repository.submitCrop(request)).resolves.toMatchObject({
+      kind: "replayed",
+      media: { status: "processing" },
+    });
     expect(await sql`SELECT id FROM graphile_worker.jobs`).toHaveLength(0);
   } finally {
     await rm(root, { recursive: true, force: true });

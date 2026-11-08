@@ -180,3 +180,11 @@ Use `read-excel-file` 9.3.14 for XLSX and `csv-parse` 7.0.3 for CSV. Load both o
 Apply migration 0019 before starting the updated API. Replace every API instance before enabling the updated worker. The older API can read pending rows after the migration, but its responses omit preview dimensions and rejection reasons on the new states. For rollback, stop the prepare worker and keep the compatible API serving existing rows. Revert to the older API only with a compatible data restore or a backport of the new response projection.
 
 The worker checks the adopted byte count and digest before decoding. It writes the preview to a private, content-addressed key before atomically advancing the upload. Retrying with the same output reuses the object. If competing encoders produce different bytes, the losing object stays private and needs a future orphan sweep. Keep the quarantined original available for crop and remove it only after a durable rejection or completed publication.
+
+### D-019 — Original-session crop and atomic variant publication (2026-11-08)
+
+Record the session when a reservation is first created. A crop requires that session to still be live and the owner to retain access to the restaurant. Reservations created before migration 0020 have no trustworthy session provenance. An owner who needs to crop a legacy reservation or resume under a replacement session must create a reservation with a fresh idempotency key and re-upload. A reserve replay returns its original media ID without changing provenance.
+
+Store crop settings and enqueue the crop job in the same transaction. The worker encodes the quarantined original and stores each variant under a private, content-addressed key. Publish the complete set in one state change. Only then remove the original and preview. The ready status exposes dimensions, sizes and ThumbHash. Fetch variant bytes through the authenticated owner route. Public menu serving belongs with item attachment and listing.
+
+For rollout, apply migration 0020 and replace every media worker with a crop-capable build before exposing the new API. Pause uploads during the API switch so old instances cannot create sessionless reservations. Once ready rows exist, keep a compatible API during rollback, since earlier builds cannot serialize ready metadata.

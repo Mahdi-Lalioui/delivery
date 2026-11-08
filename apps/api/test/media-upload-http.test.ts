@@ -24,6 +24,8 @@ function setup(authenticated: Actor | undefined = actor) {
   const repository = {
     reserve: vi.fn<Repository["reserve"]>(),
     read: vi.fn<Repository["read"]>(),
+    submitCrop: vi.fn<Repository["submitCrop"]>(),
+    findVariant: vi.fn<Repository["findVariant"]>(),
     findPreview: vi.fn<Repository["findPreview"]>(),
     findUpload: vi.fn<Repository["findUpload"]>().mockResolvedValue(descriptor),
     acceptUpload: vi

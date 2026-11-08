@@ -26,8 +26,10 @@ function setup(authenticated?: Actor) {
   const repository = {
     reserve: vi.fn<Repository["reserve"]>(),
     read: vi.fn<Repository["read"]>(),
+    findVariant: vi.fn<Repository["findVariant"]>(),
     findPreview: vi.fn<Repository["findPreview"]>(),
     findUpload: vi.fn<Repository["findUpload"]>(),
+    submitCrop: vi.fn<Repository["submitCrop"]>(),
     acceptUpload: vi.fn<Repository["acceptUpload"]>(),
   } satisfies Repository;
   const store = {
@@ -149,4 +151,84 @@ test("[MER-14:http] streams only a scoped private WebP preview", async () => {
   expect(repository.findPreview).toHaveBeenLastCalledWith({ accountId, mediaId, sessionId, now });
 
   expect((await api.inject(read + "/preview")).statusCode).toBe(503);
+});
+
+test("[MER-14:http] submits a validated crop once under the expected session", async () => {
+  const { api, repository } = setup(actor);
+  const crop = { focalX: 2500, focalY: 7500, zoomPercent: 150 };
+  const request = { method: "POST", url: read + "/crop", headers, payload: crop } as const;
+  const media = { ...reservation, status: "processing" } as const;
+  repository.submitCrop
+    .mockResolvedValueOnce({ kind: "accepted", media })
+    .mockResolvedValueOnce({ kind: "replayed", media })
+    .mockResolvedValueOnce({ kind: "crop_conflict" })
+    .mockResolvedValueOnce({ kind: "idempotency_conflict" })
+    .mockResolvedValueOnce({ kind: "not_found" });
+
+  const stale = await api.inject({
+    ...request,
+    headers: { ...headers, "x-expected-session-id": mediaId },
+  });
+  expect(stale.statusCode).toBe(409);
+  expect(stale.json()).toMatchObject({ code: "session_changed" });
+  for (const payload of [
+    { ...crop, focalX: -1 },
+    { ...crop, zoomPercent: 401 },
+    { ...crop, key },
+  ]) {
+    expect((await api.inject({ ...request, payload })).statusCode).toBe(400);
+  }
+  expect(repository.submitCrop).not.toHaveBeenCalled();
+
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const response = await api.inject(request);
+    expect(response.statusCode).toBe(202);
+    expect(response.headers["cache-control"]).toBe("no-store");
+    expect(mediaOutput.parse(response.json())).toEqual(media);
+  }
+  expect(repository.submitCrop).toHaveBeenNthCalledWith(1, {
+    accountId,
+    sessionId,
+    mediaId,
+    now,
+    input: crop,
+    idempotencyKeyHash: createHash("sha256").update(key).digest(),
+    requestHash: createHash("sha256")
+      .update(JSON.stringify({ mediaId, ...crop }))
+      .digest(),
+  });
+  for (const code of ["crop_conflict", "idempotency_conflict"]) {
+    const response = await api.inject(request);
+    expect(response.statusCode).toBe(409);
+    expect(response.json()).toMatchObject({ code });
+  }
+  expect((await api.inject(request)).statusCode).toBe(404);
+});
+
+test("[MER-14:http] streams only published variants visible to the owner", async () => {
+  const { api, repository, store } = setup(actor);
+  const bytes = Buffer.from("synthetic avif");
+  repository.findVariant.mockResolvedValueOnce(undefined).mockResolvedValueOnce({ key });
+  store.get.mockResolvedValueOnce({ body: Readable.from([bytes]), bytes: bytes.length });
+  expect((await api.inject(read + "/variants/svg/160")).statusCode).toBe(400);
+  expect((await api.inject(read + "/variants/avif/159")).statusCode).toBe(400);
+  expect(repository.findVariant).not.toHaveBeenCalled();
+  expect((await api.inject(read + "/variants/avif/160")).statusCode).toBe(404);
+  expect(store.get).not.toHaveBeenCalled();
+  const result = await api.inject(read + "/variants/avif/160");
+  expect(result.statusCode).toBe(200);
+  expect(result.headers).toMatchObject({
+    "cache-control": "private, no-store",
+    "content-type": "image/avif",
+    "x-content-type-options": "nosniff",
+  });
+  expect(result.rawPayload).toEqual(bytes);
+  expect(repository.findVariant).toHaveBeenLastCalledWith({
+    accountId,
+    sessionId,
+    mediaId,
+    now,
+    format: "avif",
+    width: 160,
+  });
 });
