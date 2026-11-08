@@ -4,7 +4,7 @@ import { menuItemInput } from "./menu.js";
 import { pageLimit } from "./pagination.js";
 
 /** SPEC §17.3 categories, matching `findProhibitedGoods` in `@zaafran/domain/moderation`. */
-const prohibitedCategory = z.enum(["alcohol", "tobacco", "medicine", "gambling"]);
+export const prohibitedCategory = z.enum(["alcohol", "tobacco", "medicine", "gambling"]);
 
 /** ADM-04: an admin approves or rejects a held item with an audited reason. */
 export const adminItemReviewInput = adminMerchantReviewInput;

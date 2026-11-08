@@ -1,7 +1,7 @@
 import { normalize } from "./search.ts";
 
 /** Goods that may not be sold online under Law 18-05 Art. 3 (SPEC §17.3), in report order. */
-const prohibitedCategories = ["alcohol", "tobacco", "medicine", "gambling"] as const;
+export const prohibitedCategories = ["alcohol", "tobacco", "medicine", "gambling"] as const;
 export type ProhibitedCategory = (typeof prohibitedCategories)[number];
 
 // Whole words or phrases in fr/en, Arabic and Algerian Arabizi. Entries are normalized like input.
