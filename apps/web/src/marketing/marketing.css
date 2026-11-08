@@ -1,0 +1,157 @@
+/*
+ * Motion values from DESIGN §7. They move to packages/tokens once that package takes motion
+ * tokens (docs/requests/lane-b-scheduling.md §4); until then marketing screens read these.
+ */
+:root {
+  --motion-instant: 80ms;
+  --motion-base: 220ms;
+  --motion-emphasis: 480ms;
+  --motion-scene: 1200ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+}
+
+.pitch {
+  display: grid;
+  gap: var(--space-40);
+}
+
+.pitch-hero h1 {
+  font-family: var(--font-display);
+  font-size: var(--font-size-display);
+  font-weight: var(--font-weight-display);
+  line-height: var(--line-height-display);
+}
+
+.pitch-points {
+  display: grid;
+  gap: var(--space-16);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  padding: 0;
+  list-style: none;
+}
+
+.pitch-points li {
+  padding: var(--space-20);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-e1);
+}
+
+.pitch-points h2,
+.pitch-calculator h2 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-h3);
+  line-height: var(--line-height-h3);
+}
+
+.pitch-calculator {
+  display: grid;
+  gap: var(--space-20);
+  padding: var(--space-24);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-2);
+}
+
+.pitch-slider {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-8);
+}
+
+.pitch-slider input {
+  grid-column: 1 / -1;
+  min-block-size: var(--touch-target-min);
+  accent-color: var(--color-primary);
+}
+
+.pitch-slider output {
+  font-family: var(--font-numbers);
+  font-variant-numeric: var(--font-variant-numeric-numbers);
+}
+
+.pitch-bars {
+  display: grid;
+  gap: var(--space-12);
+  padding: 0;
+  list-style: none;
+}
+
+.pitch-bar {
+  display: grid;
+  grid-template-columns: minmax(8rem, 14rem) 1fr auto;
+  gap: var(--space-12);
+  align-items: center;
+}
+
+.pitch-bar-track {
+  inline-size: 100%;
+  block-size: var(--space-16);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-3);
+}
+
+/* Bars grow from the reading start edge in both directions. */
+[dir="rtl"] .pitch-bar-track {
+  transform: scaleX(-1);
+}
+
+.pitch-bar-fill {
+  fill: var(--color-danger);
+  transition: width var(--motion-emphasis) var(--ease-decelerate);
+}
+
+.pitch-bar-flat .pitch-bar-fill {
+  fill: var(--color-primary);
+}
+
+.pitch-bar-amount,
+.pitch-savings {
+  font-family: var(--font-numbers);
+  font-variant-numeric: var(--font-variant-numeric-numbers);
+}
+
+.pitch-savings {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-h3);
+}
+
+.pitch-cta {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--touch-target-customer-primary);
+  padding-inline: var(--space-24);
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-weight: var(--font-weight-label);
+  text-decoration: none;
+  transition: background-color var(--motion-instant) var(--ease-standard);
+}
+
+.pitch-cta:hover {
+  background: var(--color-primary-hover);
+}
+
+.pitch-cta:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus);
+  outline-offset: var(--focus-ring-offset);
+}
+
+@media (max-width: 40rem) {
+  .pitch-bar {
+    grid-template-columns: 1fr auto;
+  }
+
+  .pitch-bar-track {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pitch-bar-fill {
+    transition: none;
+  }
+}

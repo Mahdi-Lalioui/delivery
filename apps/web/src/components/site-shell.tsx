@@ -29,6 +29,7 @@ interface SiteShellProps {
     | `/merchant/${string}/reviews`
     | `/merchant/${string}/promotions`
     | `/merchant/${string}/share`
+    | "/restaurants"
     | `/orders/${string}/rating`
     | "/admin/merchant-applications"
     | "/admin/menu-items"

@@ -892,5 +892,25 @@
     "phoneError": "Enter an Algerian mobile number starting with 05, 06 or 07.",
     "shareTracking": "Also send them the tracking link",
     "smsNotice": "The recipient gets the delivery code by SMS."
+  },
+  "marketingPitch": {
+    "metaTitle": "{brand} for restaurants",
+    "title": "Keep what you earn",
+    "intro": "One flat monthly fee. No commission on your orders. Your own drivers, your own customers.",
+    "pointFlatTitle": "A flat 5 000 DA a month",
+    "pointFlatBody": "No percentage on any order, however busy the month. The first 30 days are free.",
+    "pointDriversTitle": "Your drivers, your service",
+    "pointDriversBody": "Deliver with your own team. We give them a simple app with maps and cash change.",
+    "pointArabicTitle": "Built for Algiers",
+    "pointArabicBody": "Arabic and French, cash at the door, Iftar slots in Ramadan.",
+    "calculatorTitle": "How much would commission cost you?",
+    "ordersPerDay": "Orders per day",
+    "ordersValue": "{count, plural, one {# order} other {# orders}}",
+    "averageTicket": "Average ticket",
+    "commissionHigh": "Typical app at 30%",
+    "commissionLow": "Typical app at 20%",
+    "flatBar": "Our flat fee",
+    "savings": "You keep at least {amount} more each month.",
+    "cta": "Apply for your restaurant"
   }
 }

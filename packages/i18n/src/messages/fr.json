@@ -892,5 +892,25 @@
     "phoneError": "Saisissez un mobile algérien commençant par 05, 06 ou 07.",
     "shareTracking": "Lui envoyer aussi le lien de suivi",
     "smsNotice": "Le destinataire reçoit le code de livraison par SMS."
+  },
+  "marketingPitch": {
+    "metaTitle": "{brand} pour les restaurants",
+    "title": "Gardez ce que vous gagnez",
+    "intro": "Un abonnement mensuel fixe. Aucune commission sur vos commandes. Vos livreurs, vos clients.",
+    "pointFlatTitle": "5 000 DA par mois, fixe",
+    "pointFlatBody": "Aucun pourcentage sur les commandes, même les mois chargés. Les 30 premiers jours sont offerts.",
+    "pointDriversTitle": "Vos livreurs, votre service",
+    "pointDriversBody": "Livrez avec votre équipe. Nous lui donnons une appli simple avec carte et rendu de monnaie.",
+    "pointArabicTitle": "Pensé pour Alger",
+    "pointArabicBody": "Arabe et français, paiement à la livraison, créneaux Iftar pendant le Ramadan.",
+    "calculatorTitle": "Combien vous coûterait la commission ?",
+    "ordersPerDay": "Commandes par jour",
+    "ordersValue": "{count, plural, one {# commande} other {# commandes}}",
+    "averageTicket": "Panier moyen",
+    "commissionHigh": "Appli classique à 30 %",
+    "commissionLow": "Appli classique à 20 %",
+    "flatBar": "Notre abonnement fixe",
+    "savings": "Vous gardez au moins {amount} de plus par mois.",
+    "cta": "Inscrire mon restaurant"
   }
 }

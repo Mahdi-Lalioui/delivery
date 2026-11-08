@@ -23,3 +23,5 @@
   Proof: `vitest run apps/web/test/{qr,share-kit}*` 3/3, `pnpm verify` green. Next: M6-5 recipient fields, M6-2 favourites/history/reorder.
 - 2026-11-08 · Medium · M6-5 `RecipientFields` + `validateRecipient` (CUS-15, Algerian mobile normalisation). Filed `docs/requests/lane-b-retention-admin.md` for the contract-less M6/M7 items (favourites, history/reorder, analytics, photo import, dashboard).
   Proof: `vitest run apps/web/test/recipient*` 3/3, `pnpm verify` green. Next: M8 landing + Casbah hero (no contracts needed).
+- 2026-11-08 · Medium · M8-2 pitch page `/[locale]/restaurants` + `/ar/restaurants`: value points, calculator (orders/day × ticket, 20/30% commission vs 5 000 DA flat), SVG bars (strict CSP blocks inline styles), CTA to apply. Motion values from DESIGN §7 in `marketing.css` until tokens land.
+  Proof: `vitest run apps/web/test/pitch*` 3/3; checked in browser ar/fr at 1280 and 375 px (no overflow, RTL bars grow from start). Next: M8-1 landing + Casbah hero.
