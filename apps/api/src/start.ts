@@ -1,5 +1,8 @@
 import { randomBytes } from "node:crypto";
 import { createAuthRepository } from "@zaafran/db/auth";
+import { createBillingRepository, createBillingWriteRepository } from "@zaafran/db/billing";
+import { readCommuneCoordinates } from "@zaafran/db/geography";
+import { createPlatformRepository } from "@zaafran/db/platform";
 import { openDatabase } from "@zaafran/db/database";
 import { createMediaRepository } from "@zaafran/db/media";
 import { createMenuCategoryRepository } from "@zaafran/db/menu-category";
@@ -10,6 +13,7 @@ import { createMenuOptionGroupRepository } from "@zaafran/db/menu-option-group";
 import { createMenuPriceRepository } from "@zaafran/db/menu-price";
 import { createMerchantHoursRepository } from "@zaafran/db/merchant-hours";
 import { createMenuModerationRepository } from "@zaafran/db/menu-moderation";
+import { createMerchantPromotionsRepository } from "@zaafran/db/promotions";
 import { createMerchantProfilePhotosRepository } from "@zaafran/db/merchant-profile-photos";
 import { createMerchantRepository } from "@zaafran/db/merchant";
 import { createMerchantStaffRepository } from "@zaafran/db/merchant-staff";
@@ -42,12 +46,22 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     sendSms: options.sendSms ?? unavailableSms,
   });
   const merchantHours = createMerchantHoursRepository(database);
+  const platform = createPlatformRepository(database);
   const api = createApi({
     checkReadiness: () => checkReadiness(database),
     trustedProxy: environment.API_TRUSTED_PROXY,
     auth: { service, publicOrigin: environment.AUTH_PUBLIC_ORIGIN },
     merchant: { repository: createMerchantRepository(database), now },
+    billing: createBillingRepository(database),
+    billingWrites: { repository: createBillingWriteRepository(database), now },
+    platform: { repository: platform, now },
+    ramadan: {
+      isRamadanEnabled: async () => (await platform.readPublicFlags()).flags.ramadan_mode === true,
+      findCoordinates: (communeId) => readCommuneCoordinates(database, communeId),
+      now,
+    },
     merchantProfilePhotos: { repository: createMerchantProfilePhotosRepository(database), now },
+    merchantPromotions: { repository: createMerchantPromotionsRepository(database), now },
     menuModeration: { repository: createMenuModerationRepository(database), now },
     media: {
       repository: createMediaRepository(database),

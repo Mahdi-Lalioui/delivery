@@ -13,6 +13,12 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 16:48 GMT — Lane B billing, promotions, platform and Ramadan backend
+
+- **Effort and evidence** — Ultra. `pnpm verify` passed 1,539 unit and 210 PostGIS tests. Authorization passed 218 cases and the authenticated production browser regression passed 19.
+- **Review** — Fixed overlapping invoice periods and a mixed-case actor UUID replay race. Both regressions failed before the fix in PostGIS and passed afterward. [Review record](reviews/2026-11-08-lane-b-backend.md)
+- **Next** — M3-1 service areas and location discovery. The handoff lists pending client wiring, billing lifecycle, ratings and retention dependencies. [Batch handoff](requests/lane-a-backend-batch.md)
+
 ### 2026-11-08 16:17 GMT — M2 cover, logo and combined onboarding
 
 - **Effort and evidence** — Ultra for media persistence, high for the editor, medium for browser wiring. `pnpm verify` passed 1,518 unit and 187 PostGIS tests. All 19 authenticated browser cases and 203 authorization cases passed. The lead and design critic passed the final 390px and 1280px captures.
@@ -906,6 +912,7 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 ## Current status
 
 - Milestone: M1 (last passing gate, M2 in progress)
-- Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import is traced at row validation and its browser UI is still in progress. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
-- Last green baseline `pnpm verify`: 2026-11-08 12:42 GMT on Docker Desktop with 1,246 unit and 155 PostGIS integration tests. Both production browser suites passed, 59 foundation and 16 authenticated cases.
-- Open HUMAN_TODO items: see docs/HUMAN_TODO.md
+- M2 is at 36 of 37 IDs, with the live Lane B admin notice still open. See [M2 gate evidence](evidence/m2/gate-status.md).
+- Lane A backend slice passed `pnpm verify` with 1,539 unit and 210 PostGIS tests, `pnpm test:authz` with 218 tests, and `pnpm test:e2e:auth` with 19 production browser regressions. The new Lane B screens still need live backend integration.
+- Billing period overlap and platform replay reviews are closed. Pending billing lifecycle, ratings and retention dependencies are in the [batch handoff](requests/lane-a-backend-batch.md). Resume from [Lane A progress](progress/lane-a.md).
+- See [HUMAN_TODO](HUMAN_TODO.md) for outstanding production dependencies.

@@ -176,6 +176,34 @@
       "when": 1794127800000,
       "tag": "0024_merchant_profile_photos",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1794128400000,
+      "tag": "0025_billing",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1794129000000,
+      "tag": "0026_promotions",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1794129600000,
+      "tag": "0027_billing_commands",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1794130200000,
+      "tag": "0028_platform_ops",
+      "breakpoints": true
     }
   ]
 }

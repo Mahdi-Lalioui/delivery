@@ -19,11 +19,12 @@ test("[MER-19:contract] serves an explicit bounded promotion list envelope", () 
     conditions: {},
     stats: { uses: 0, salesDzd: 0 },
   };
-  const response = { promotions: [promotion] };
+  const response = { sessionId: id, promotions: [promotion] };
   expect(merchantPromotionListOutput.parse(response)).toEqual(response);
   expect(merchantPromotionListOutput.safeParse([promotion]).success).toBe(false);
   expect(
-    merchantPromotionListOutput.safeParse({ promotions: Array(101).fill(promotion) }).success,
+    merchantPromotionListOutput.safeParse({ sessionId: id, promotions: Array(101).fill(promotion) })
+      .success,
   ).toBe(false);
 });
 

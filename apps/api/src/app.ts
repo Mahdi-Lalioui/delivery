@@ -10,12 +10,18 @@ import {
   validatorCompiler,
 } from "fastify-type-provider-zod";
 import { createAuthAccess } from "./auth-access.js";
+import { registerBillingReadRoutes, type BillingRepository } from "./billing-read-routes.js";
+import { registerBillingWriteRoutes, type BillingWriteServices } from "./billing-write-routes.js";
 import { registerAuthRoutes } from "./auth-routes.js";
 import { registerHealth } from "./health.js";
 import {
   registerMerchantProfilePhotosRoutes,
   type MerchantProfilePhotosServices,
 } from "./merchant-profile-photos-routes.js";
+import {
+  registerMerchantPromotionsRoutes,
+  type MerchantPromotionsServices,
+} from "./merchant-promotions-routes.js";
 import { registerMerchantRoutes, type MerchantServices } from "./merchant-routes.js";
 import {
   registerAdminModerationRoutes,
@@ -48,12 +54,19 @@ import {
   type MerchantStaffServices,
 } from "./merchant-staff-routes.js";
 import { enforceRoutePolicies, recordRoutePolicies, type ResolveActor } from "./policy.js";
+import { registerPlatformRoutes, type PlatformServices } from "./platform-routes.js";
+import { registerRamadanRoutes, type RamadanServices } from "./ramadan-routes.js";
 import { sendProblem } from "./problems.js";
 
 interface ApiOptions {
   readonly checkReadiness: () => Promise<void>;
   readonly merchant?: MerchantServices;
+  readonly billing?: BillingRepository;
+  readonly billingWrites?: BillingWriteServices;
+  readonly platform?: PlatformServices;
+  readonly ramadan?: RamadanServices;
   readonly merchantProfilePhotos?: MerchantProfilePhotosServices;
+  readonly merchantPromotions?: MerchantPromotionsServices;
   readonly menuModeration?: MenuModerationServices;
   readonly media?: MediaReservationServices;
   readonly menuCategory?: MenuCategoryServices;
@@ -122,7 +135,12 @@ export function createApi(options: ApiOptions): FastifyInstance {
     });
     registerAuthRoutes(api, access);
     registerMerchantRoutes(api, options.merchant);
+    registerBillingReadRoutes(api, options.billing);
+    registerBillingWriteRoutes(api, options.billingWrites);
+    registerPlatformRoutes(api, options.platform);
+    registerRamadanRoutes(api, options.ramadan);
     registerMerchantProfilePhotosRoutes(api, options.merchantProfilePhotos);
+    registerMerchantPromotionsRoutes(api, options.merchantPromotions);
     registerAdminModerationRoutes(api, options.menuModeration);
     registerMediaReservationRoutes(api, options.media);
     registerMenuCategoryRoutes(api, options.menuCategory);

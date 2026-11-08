@@ -8,6 +8,18 @@
       "types": "./src/auth.ts",
       "default": "./dist/auth.js"
     },
+    "./platform": {
+      "types": "./src/platform/repository.ts",
+      "default": "./dist/platform/repository.js"
+    },
+    "./promotions": {
+      "types": "./src/promotions/repository.ts",
+      "default": "./dist/promotions/repository.js"
+    },
+    "./billing": {
+      "types": "./src/billing.ts",
+      "default": "./dist/billing.js"
+    },
     "./database": {
       "types": "./src/database.ts",
       "default": "./dist/database.js"
@@ -77,6 +89,7 @@
     "db:reset": "node --env-file-if-exists=../../.env src/cli.ts reset"
   },
   "dependencies": {
+    "@zaafran/contracts": "workspace:*",
     "@zaafran/domain": "workspace:*",
     "drizzle-orm": "0.45.4",
     "postgres": "4.1.0",

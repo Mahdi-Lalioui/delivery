@@ -410,6 +410,9 @@ importers:
 
   packages/db:
     dependencies:
+      '@zaafran/contracts':
+        specifier: workspace:*
+        version: link:../contracts
       '@zaafran/domain':
         specifier: workspace:*
         version: link:../domain

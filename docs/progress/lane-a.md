@@ -43,3 +43,7 @@
 - 2026-11-08 · Ultra, high and medium · Cover/logo and combined onboarding passed with 1,518 unit, 187 PostGIS, 203 authorization and 19 authenticated browser cases. Phone and desktop captures passed the design review. [Evidence](../evidence/m2/profile-photos.md)
 - 2026-11-08 · High · The actual M2 gate remains at 36/37 because the visible admin notice belongs to Lane B. Two Lane B UI handoffs are open. Prepare the requested shared backend batch from `origin/lane-b` at `2be68d5` while waiting for integration, then M3.
 - 2026-11-08 · High · Shared Lane B batch contracts cover settings, public flags, audit, support, favourites, history, receipt, reorder, recipient, analytics, photo-import drafts, privacy, promo lists and Ramadan timing. Six focused cases passed. Published billing and rating schemas remain the API contract.
+
+- 2026-11-08 · Ultra · Lane B batch in the Lane A worktree. Promotion DB scope passed 169 PostGIS tests, including five promotion cases. Seven focused API suites passed 25 tests across billing, promotions, platform settings, Ramadan and the route authorization matrix.
+- 2026-11-08 · Ultra · Billing overlap and mixed-case admin replay regressions passed under their respective locks. `pnpm verify` passed with 1,539 unit and 210 PostGIS cases, authz with 218, and the production browser regressions with 19.
+- 2026-11-08 · Low · See the [batch handoff](../requests/lane-a-backend-batch.md) for API bindings and pending order, ratings and billing lifecycle dependencies. M3 starts with the service-area data and location contract.

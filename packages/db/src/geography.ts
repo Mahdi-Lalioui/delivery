@@ -45,3 +45,12 @@ export async function seedGeography({ sql }: DatabaseConnection): Promise<void> 
     `;
   });
 }
+
+export async function readCommuneCoordinates({ sql }: DatabaseConnection, communeId: string) {
+  const [row] = await sql<{ latitude: number; longitude: number }[]>`
+    SELECT ST_Y(centroid::geometry) AS latitude, ST_X(centroid::geometry) AS longitude
+    FROM public.communes
+    WHERE id = ${communeId}::uuid
+  `;
+  return row;
+}
