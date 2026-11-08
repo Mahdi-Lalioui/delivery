@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 10:04 GMT — M2-6 S3 upload integrity review
+
+- **Changed** — Verify the exact length, SHA-256 checksum and clean source end before releasing the last byte. Report success only after the outbound stream ends. Conditional-write replay still returns `exists`.
+- **Evidence** — Fifteen focused media tests and the Docker SeaweedFS conformance test passed. `pnpm verify` exited 0 with 1,216 unit and 138 PostGIS integration tests.
+- **Reviewer** — Added a regression for early success when the transport has consumed only a prefix. [Review checklist](reviews/2026-11-08-media-store.md)
+- **Next** — Implement menu import row validation and preview/apply.
+- **Needs Mahdi** — None.
+
 ### 2026-11-08 09:55 GMT — M2-8 revision-bound import contract
 
 - **Changed** — Resumed the CSV/XLSX draft and added a required preview token to apply. Invalid previews carry field errors and no token. D-016 records the required merchant, account, session, revision and row binding.

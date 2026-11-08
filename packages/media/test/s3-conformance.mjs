@@ -66,7 +66,7 @@ test("private SeaweedFS storage preserves immutable, checksum-verified object by
   const bad = `quarantine/${randomUUID()}/body`;
   await assert.rejects(
     store.put(input(bad, original, checksum(Buffer.from("wrong")))),
-    hasStatus(400),
+    /checksum mismatch/i,
   );
   assert.equal(await store.get(bad), undefined);
 
