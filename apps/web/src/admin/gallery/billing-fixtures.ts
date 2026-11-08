@@ -2,6 +2,7 @@ import {
   billingInvoiceListOutput,
   merchantBillingSubscriptionOutput,
 } from "@zaafran/contracts/billing";
+import { merchantPromotionOutput } from "@zaafran/contracts/promotions";
 
 // Design-gallery fixtures. Parsed with the published contract, so the gallery never shows a shape
 // the API cannot send. Fictional data only.
@@ -59,3 +60,22 @@ export const galleryTransfer = {
 };
 
 export const galleryMerchantId = merchantId;
+
+export const galleryPromotions = [
+  merchantPromotionOutput.parse({
+    promotionId: "019d6abc-0000-7000-8000-000000000201",
+    merchantId,
+    activation: { kind: "code", code: "IFTAR10" },
+    discount: { kind: "percent", basisPoints: 1000, capDzd: 300 },
+    conditions: { minimumSubtotalDzd: 1500 },
+    stats: { uses: 42, salesDzd: 98_500 },
+  }),
+  merchantPromotionOutput.parse({
+    promotionId: "019d6abc-0000-7000-8000-000000000202",
+    merchantId,
+    activation: { kind: "automatic" },
+    discount: { kind: "free_delivery" },
+    conditions: { minimumSubtotalDzd: 3000 },
+    stats: { uses: 17, salesDzd: 61_200 },
+  }),
+];

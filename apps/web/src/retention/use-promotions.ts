@@ -16,6 +16,7 @@ export type PromotionsState = {
   draft: PromotionDraft;
   editingId: string | undefined;
   outcome: Outcome | undefined;
+  outcomeId: number;
   isSaving: boolean;
   change: <Field extends keyof PromotionDraft>(field: Field, value: PromotionDraft[Field]) => void;
   edit: (promotion: Promotion | undefined) => void;
@@ -55,7 +56,12 @@ export function usePromotions(merchantId: string): PromotionsState {
   const [view, setView] = useState<PromotionsState["view"]>({ kind: "loading" });
   const [draft, setDraft] = useState<PromotionDraft>(emptyPromotionDraft);
   const [editingId, setEditingId] = useState<string>();
-  const [outcome, setOutcome] = useState<Outcome>();
+  const [outcome, setOutcomeValue] = useState<Outcome>();
+  const [outcomeId, setOutcomeId] = useState(0);
+  const setOutcome = useCallback((next: Outcome | undefined) => {
+    setOutcomeValue(next);
+    setOutcomeId((value) => value + 1);
+  }, []);
   const [isSaving, setIsSaving] = useState(false);
   const [generation, setGeneration] = useState(0);
   const attempt = useRef<{ draft: PromotionDraft; key: string }>(undefined);
@@ -77,11 +83,14 @@ export function usePromotions(merchantId: string): PromotionsState {
     [],
   );
 
-  const edit = useCallback((promotion: Promotion | undefined) => {
-    setOutcome(undefined);
-    setEditingId(promotion?.promotionId);
-    setDraft(promotion === undefined ? emptyPromotionDraft : promotionToDraft(promotion));
-  }, []);
+  const edit = useCallback(
+    (promotion: Promotion | undefined) => {
+      setOutcome(undefined);
+      setEditingId(promotion?.promotionId);
+      setDraft(promotion === undefined ? emptyPromotionDraft : promotionToDraft(promotion));
+    },
+    [setOutcome],
+  );
 
   const save = useCallback(async () => {
     const parsed = promotionDraftToInput(draft);
@@ -107,7 +116,7 @@ export function usePromotions(merchantId: string): PromotionsState {
       setEditingId(result.promotion.promotionId);
       setGeneration((value) => value + 1);
     }
-  }, [draft, editingId, merchantId]);
+  }, [draft, editingId, merchantId, setOutcome]);
 
-  return { view, draft, editingId, outcome, isSaving, change, edit, save };
+  return { view, draft, editingId, outcome, outcomeId, isSaving, change, edit, save };
 }

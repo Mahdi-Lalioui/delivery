@@ -143,3 +143,67 @@
 .share-poster-a4 {
   page: poster-a4;
 }
+
+/* MER-19 promotions on the ui kit */
+.promotion-editor {
+  display: grid;
+  gap: var(--space-24);
+  align-items: start;
+}
+
+@media (min-width: 64rem) {
+  .promotion-editor {
+    grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr);
+  }
+
+  .promotion-aside {
+    position: sticky;
+    inset-block-start: var(--space-24);
+  }
+}
+
+.promotion-card {
+  display: flex;
+  gap: var(--space-16);
+  align-items: center;
+  padding-block: var(--space-16);
+  border-block-end: 1px solid var(--color-border-subtle);
+}
+
+.promotion-card:last-child {
+  border-block-end: 0;
+}
+
+.promotion-card[data-active] .billing-row-icon {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.promotion-code {
+  padding-inline: var(--space-8);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-numbers);
+  letter-spacing: var(--letter-spacing-micro);
+}
+
+.promotion-receipt {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-12) var(--space-16);
+}
+
+.promotion-receipt dd {
+  text-align: end;
+}
+
+.promotion-receipt-saving {
+  color: var(--color-success);
+}
+
+.promotion-receipt-total {
+  padding-block-start: var(--space-12);
+  border-block-start: 1px solid var(--color-border-subtle);
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-h3);
+}

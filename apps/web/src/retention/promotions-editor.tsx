@@ -1,6 +1,26 @@
 "use client";
 
-import { useFormatter, useTranslations } from "next-intl";
+import { formatDzd } from "@zaafran/i18n/formats";
+import type { Locale } from "@zaafran/i18n/locales";
+import {
+  ActionBar,
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  ErrorState,
+  FormGrid,
+  Icon,
+  MoneyField,
+  PageHeader,
+  SegmentedControl,
+  Skeleton,
+  TextField,
+  Toggle,
+  useToast,
+} from "@zaafran/ui";
+import { useTranslations } from "next-intl";
+import { useEffect, type ChangeEvent } from "react";
 import {
   promotionDraftToInput,
   promotionWorkedExample,
@@ -9,7 +29,7 @@ import {
 import type { Promotion } from "./promotions-http";
 import { usePromotions, type PromotionsState } from "./use-promotions";
 
-type TextField =
+type TextKey =
   | "code"
   | "percent"
   | "capDzd"
@@ -19,156 +39,247 @@ type TextField =
   | "endsOn"
   | "maxUsesTotal"
   | "maxUsesPerCustomer";
-const discountKinds = ["percent", "fixed", "free_delivery"] as const;
+type Kind = PromotionDraft["discountKind"];
 const discountKeys = {
   percent: "kindPercent",
   fixed: "kindFixed",
   free_delivery: "kindFreeDelivery",
-} as const;
+} as const satisfies Readonly<Record<Kind, string>>;
+const discountIcons = { percent: "tag", fixed: "card", free_delivery: "bike" } as const;
+const moneyKeys: ReadonlySet<TextKey> = new Set(["capDzd", "amountDzd", "minimumSubtotalDzd"]);
+const dateKeys: ReadonlySet<TextKey> = new Set(["startsOn", "endsOn"]);
+const percentUnit = "%";
 
-function useMoney() {
-  const format = useFormatter();
-  return (amountDzd: number) =>
-    format.number(amountDzd, { style: "currency", currency: "DZD", maximumFractionDigits: 0 });
-}
-
-function Field(props: { field: TextField; state: PromotionsState; type?: "date" }) {
+function useInputProps(key: TextKey, state: PromotionsState) {
   const translate = useTranslations("retentionPromotions");
-  const { field, state } = props;
-  const isInvalid = typeof state.outcome === "object" && state.outcome.invalid === field;
-  return (
-    <label className="admin-merchant-field">
-      <span>{translate(field)}</span>
-      <input
-        name={field}
-        type={props.type ?? "text"}
-        value={state.draft[field]}
-        inputMode={props.type === undefined && field !== "code" ? "numeric" : undefined}
-        dir="ltr"
-        aria-invalid={isInvalid || undefined}
-        disabled={state.isSaving}
-        onChange={(event) => {
-          state.change(field, event.currentTarget.value);
-        }}
-      />
-    </label>
-  );
+  const isInvalid = typeof state.outcome === "object" && state.outcome.invalid === key;
+  return {
+    label: translate(key),
+    name: key,
+    value: state.draft[key],
+    disabled: state.isSaving,
+    error: isInvalid ? translate("invalid") : undefined,
+    onChange: (event: ChangeEvent<HTMLInputElement>) => {
+      state.change(key, event.currentTarget.value);
+    },
+  };
 }
 
-function DiscountFields({ state }: { state: PromotionsState }) {
+function DraftField({
+  field,
+  state,
+  locale,
+}: {
+  field: TextKey;
+  state: PromotionsState;
+  locale: Locale;
+}) {
+  const props = useInputProps(field, state);
+  if (moneyKeys.has(field)) return <MoneyField {...props} unit={locale === "ar" ? "دج" : "DA"} />;
+  if (dateKeys.has(field)) return <TextField {...props} type="date" width="short" />;
+  if (field === "percent")
+    return (
+      <TextField {...props} width="short" suffix={percentUnit} inputMode="decimal" dir="ltr" />
+    );
+  if (field === "code")
+    return <TextField {...props} width="short" dir="ltr" autoCapitalize="characters" />;
+  return <TextField {...props} width="short" inputMode="numeric" dir="ltr" />;
+}
+
+function DiscountCard({ state, locale }: { state: PromotionsState; locale: Locale }) {
   const translate = useTranslations("retentionPromotions");
   const { draft } = state;
+  const options = (["percent", "fixed", "free_delivery"] as const).map((kind) => ({
+    value: kind,
+    label: translate(discountKeys[kind]),
+    icon: discountIcons[kind],
+  }));
+  const activations = [
+    { value: "automatic" as const, label: translate("automatic") },
+    { value: "code" as const, label: translate("withCode") },
+  ];
   return (
-    <fieldset disabled={state.isSaving}>
-      <legend>{translate("discount")}</legend>
-      {discountKinds.map((kind) => (
-        <label key={kind}>
-          <input
-            type="radio"
-            name="discountKind"
-            checked={draft.discountKind === kind}
-            onChange={() => {
-              state.change("discountKind", kind);
-            }}
-          />{" "}
-          {translate(discountKeys[kind])}
-        </label>
-      ))}
-      {draft.discountKind === "percent" && (
-        <>
-          <Field field="percent" state={state} />
-          <Field field="capDzd" state={state} />
-        </>
-      )}
-      {draft.discountKind === "fixed" && <Field field="amountDzd" state={state} />}
-    </fieldset>
+    <Card title={translate("discount")} titleId="promotion-discount">
+      <SegmentedControl
+        legend={translate("activation")}
+        name="activation"
+        value={draft.activation}
+        options={activations}
+        disabled={state.isSaving}
+        onChange={(value) => {
+          state.change("activation", value);
+        }}
+      />
+      {draft.activation === "code" && <DraftField field="code" state={state} locale={locale} />}
+      <SegmentedControl
+        legend={translate("discountType")}
+        name="discountKind"
+        value={draft.discountKind}
+        options={options}
+        disabled={state.isSaving}
+        onChange={(value) => {
+          state.change("discountKind", value);
+        }}
+      />
+      <FormGrid>
+        {draft.discountKind === "percent" && (
+          <>
+            <DraftField field="percent" state={state} locale={locale} />
+            <DraftField field="capDzd" state={state} locale={locale} />
+          </>
+        )}
+        {draft.discountKind === "fixed" && (
+          <DraftField field="amountDzd" state={state} locale={locale} />
+        )}
+      </FormGrid>
+    </Card>
   );
 }
 
-function ActivationFields({ state }: { state: PromotionsState }) {
+function ConditionsCard({ state, locale }: { state: PromotionsState; locale: Locale }) {
   const translate = useTranslations("retentionPromotions");
-  const choose = (activation: PromotionDraft["activation"]) => () => {
-    state.change("activation", activation);
-  };
   return (
-    <fieldset disabled={state.isSaving}>
-      <legend>{translate("activation")}</legend>
-      <label>
-        <input
-          type="radio"
-          name="activation"
-          checked={state.draft.activation === "automatic"}
-          onChange={choose("automatic")}
-        />{" "}
-        {translate("automatic")}
-      </label>
-      <label>
-        <input
-          type="radio"
-          name="activation"
-          checked={state.draft.activation === "code"}
-          onChange={choose("code")}
-        />{" "}
-        {translate("withCode")}
-      </label>
-      {state.draft.activation === "code" && <Field field="code" state={state} />}
-    </fieldset>
+    <Card title={translate("conditions")} titleId="promotion-conditions">
+      <FormGrid>
+        <DraftField field="minimumSubtotalDzd" state={state} locale={locale} />
+        <DraftField field="startsOn" state={state} locale={locale} />
+        <DraftField field="endsOn" state={state} locale={locale} />
+        <DraftField field="maxUsesTotal" state={state} locale={locale} />
+        <DraftField field="maxUsesPerCustomer" state={state} locale={locale} />
+      </FormGrid>
+      <Toggle
+        label={translate("firstOrderOnly")}
+        description={translate("firstOrderOnlyHint")}
+        checked={state.draft.isFirstOrderOnly}
+        disabled={state.isSaving}
+        onChange={(checked) => {
+          state.change("isFirstOrderOnly", checked);
+        }}
+      />
+    </Card>
   );
 }
 
-function ConditionFields({ state }: { state: PromotionsState }) {
+function WorkedExample({ draft, locale }: { draft: PromotionDraft; locale: Locale }) {
   const translate = useTranslations("retentionPromotions");
-  return (
-    <fieldset disabled={state.isSaving}>
-      <legend>{translate("conditions")}</legend>
-      <Field field="minimumSubtotalDzd" state={state} />
-      <Field field="startsOn" state={state} type="date" />
-      <Field field="endsOn" state={state} type="date" />
-      <label>
-        <input
-          type="checkbox"
-          checked={state.draft.isFirstOrderOnly}
-          onChange={(event) => {
-            state.change("isFirstOrderOnly", event.currentTarget.checked);
-          }}
-        />{" "}
-        {translate("firstOrderOnly")}
-      </label>
-      <Field field="maxUsesTotal" state={state} />
-      <Field field="maxUsesPerCustomer" state={state} />
-    </fieldset>
-  );
-}
-
-function WorkedExample({ draft }: { draft: PromotionDraft }) {
-  const translate = useTranslations("retentionPromotions");
-  const money = useMoney();
   const parsed = promotionDraftToInput(draft);
   const example =
     parsed.kind === "ready" ? promotionWorkedExample(parsed.input.discount) : undefined;
+  const money = (amountDzd: number) => (
+    <bdi className="billing-money">{formatDzd(amountDzd, locale)}</bdi>
+  );
   return (
-    <aside className="promotion-example" aria-live="polite">
-      <h2>{translate("exampleTitle")}</h2>
-      {example === undefined ? (
-        <p>{translate("exampleIncomplete")}</p>
-      ) : (
-        <dl className="merchant-billing-plan">
-          <dt>{translate("exampleSubtotal")}</dt>
-          <dd>{money(example.subtotalDzd)}</dd>
-          <dt>{translate("exampleDiscount")}</dt>
-          <dd>{money(example.discountDzd)}</dd>
-          <dt>{translate("exampleDelivery")}</dt>
-          <dd>{money(example.deliveryFeeDzd)}</dd>
-          <dt>{translate("exampleTotal")}</dt>
-          <dd>{money(example.totalDzd)}</dd>
-        </dl>
-      )}
-    </aside>
+    <Card title={translate("exampleTitle")} titleId="promotion-example" tone="sunken">
+      <div aria-live="polite">
+        {example === undefined ? (
+          <p className="ui-field-hint">{translate("exampleIncomplete")}</p>
+        ) : (
+          <dl className="promotion-receipt">
+            <dt>{translate("exampleSubtotal")}</dt>
+            <dd>{money(example.subtotalDzd)}</dd>
+            <dt>{translate("exampleDiscount")}</dt>
+            <dd className="promotion-receipt-saving">
+              {translate("exampleSaving", { amount: formatDzd(example.discountDzd, locale) })}
+            </dd>
+            <dt>{translate("exampleDelivery")}</dt>
+            <dd>{money(example.deliveryFeeDzd)}</dd>
+            <dt className="promotion-receipt-total">{translate("exampleTotal")}</dt>
+            <dd className="promotion-receipt-total">{money(example.totalDzd)}</dd>
+          </dl>
+        )}
+      </div>
+    </Card>
   );
 }
 
-function outcomeKey(outcome: NonNullable<PromotionsState["outcome"]>) {
-  if (typeof outcome === "object") return "invalid";
+function Editor({ state, locale }: { state: PromotionsState; locale: Locale }) {
+  const translate = useTranslations("retentionPromotions");
+  return (
+    <form
+      className="promotion-editor"
+      aria-busy={state.isSaving}
+      onSubmit={(event) => {
+        event.preventDefault();
+        void state.save();
+      }}
+    >
+      <div className="billing-layout">
+        <h2 className="ui-card-title">
+          {translate(state.editingId === undefined ? "newPromotion" : "editPromotion")}
+        </h2>
+        <DiscountCard state={state} locale={locale} />
+        <ConditionsCard state={state} locale={locale} />
+        <ActionBar>
+          <Button
+            variant="ghost"
+            onClick={() => {
+              state.edit(undefined);
+            }}
+          >
+            {translate("reset")}
+          </Button>
+          <Button type="submit" variant="primary" size="lg" isLoading={state.isSaving}>
+            {translate(state.isSaving ? "saving" : "save")}
+          </Button>
+        </ActionBar>
+      </div>
+      <div className="promotion-aside">
+        <WorkedExample draft={state.draft} locale={locale} />
+      </div>
+    </form>
+  );
+}
+
+function PromotionCard({
+  promotion,
+  state,
+  locale,
+}: {
+  promotion: Promotion;
+  state: PromotionsState;
+  locale: Locale;
+}) {
+  const translate = useTranslations("retentionPromotions");
+  const { activation, discount, stats } = promotion;
+  const isEditing = state.editingId === promotion.promotionId;
+  return (
+    <li className="promotion-card" data-active={isEditing || undefined}>
+      <span className="billing-row-icon" aria-hidden="true">
+        <Icon name={discountIcons[discount.kind]} />
+      </span>
+      <div className="billing-row-main">
+        <p className="billing-row-title">
+          {activation.kind === "code" ? (
+            <bdi dir="ltr" className="promotion-code">
+              {activation.code}
+            </bdi>
+          ) : (
+            translate("automatic")
+          )}
+          <Badge tone="primary">{translate(discountKeys[discount.kind])}</Badge>
+        </p>
+        <p className="billing-row-meta">
+          <span>{translate("uses", { count: stats.uses })}</span>
+          <span>{translate("sales", { amount: formatDzd(stats.salesDzd, locale) })}</span>
+        </p>
+      </div>
+      <Button
+        variant="ghost"
+        size="sm"
+        icon="settings"
+        onClick={() => {
+          state.edit(promotion);
+        }}
+        aria-pressed={isEditing}
+      >
+        {translate("edit")}
+      </Button>
+    </li>
+  );
+}
+
+function outcomeMessage(outcome: NonNullable<PromotionsState["outcome"]>) {
+  if (typeof outcome === "object") return undefined;
   return (
     {
       saved: "saved",
@@ -179,59 +290,15 @@ function outcomeKey(outcome: NonNullable<PromotionsState["outcome"]>) {
   )[outcome];
 }
 
-function Editor({ state }: { state: PromotionsState }) {
+function useOutcomeToast(state: PromotionsState) {
   const translate = useTranslations("retentionPromotions");
-  const { outcome } = state;
-  return (
-    <form
-      className="admin-merchant-form"
-      aria-busy={state.isSaving}
-      onSubmit={(event) => {
-        event.preventDefault();
-        void state.save();
-      }}
-    >
-      <h2>{translate(state.editingId === undefined ? "newPromotion" : "editPromotion")}</h2>
-      <ActivationFields state={state} />
-      <DiscountFields state={state} />
-      <ConditionFields state={state} />
-      <WorkedExample draft={state.draft} />
-      <button className="admin-merchant-button" type="submit" disabled={state.isSaving}>
-        {translate(state.isSaving ? "saving" : "save")}
-      </button>
-      {outcome !== undefined && (
-        <p
-          className={outcome === "saved" ? "admin-merchant-success" : "admin-merchant-error"}
-          role={outcome === "saved" ? "status" : "alert"}
-        >
-          {translate(outcomeKey(outcome))}
-        </p>
-      )}
-    </form>
-  );
-}
-
-function PromotionRow({ promotion, state }: { promotion: Promotion; state: PromotionsState }) {
-  const translate = useTranslations("retentionPromotions");
-  const money = useMoney();
-  const { activation, discount, stats } = promotion;
-  return (
-    <li className="admin-billing-facts">
-      <bdi>{activation.kind === "code" ? activation.code : translate("automatic")}</bdi>
-      <span>{translate(discountKeys[discount.kind])}</span>
-      <span>{translate("uses", { count: stats.uses })}</span>
-      <span>{translate("sales", { amount: money(stats.salesDzd) })}</span>
-      <button
-        className="admin-merchant-button"
-        type="button"
-        onClick={() => {
-          state.edit(promotion);
-        }}
-      >
-        {translate("edit")}
-      </button>
-    </li>
-  );
+  const toast = useToast();
+  const { outcome, outcomeId } = state;
+  useEffect(() => {
+    if (outcome === undefined) return;
+    const key = outcomeMessage(outcome);
+    if (key !== undefined) toast.show(translate(key), outcome === "saved" ? "success" : "danger");
+  }, [outcome, outcomeId, toast, translate]);
 }
 
 const failureKeys = {
@@ -240,44 +307,49 @@ const failureKeys = {
   error: "loadError",
 } as const;
 
-/** MER-19: promotions list with stats and an editor with a worked example. */
-export function PromotionsEditor({ merchantId }: { merchantId: string }) {
+/** MER-19 view (page and design gallery). */
+export function PromotionsView({ state, locale }: { state: PromotionsState; locale: Locale }) {
   const translate = useTranslations("retentionPromotions");
-  const state = usePromotions(merchantId);
+  useOutcomeToast(state);
   const { view } = state;
   return (
-    <section className="admin-merchant" aria-labelledby="promotions-title">
-      <header className="admin-merchant-heading">
-        <h1 id="promotions-title">{translate("title")}</h1>
-        <p>{translate("intro")}</p>
-      </header>
-      {view.kind === "loading" && <p role="status">{translate("loading")}</p>}
+    <section className="billing-page" aria-labelledby="promotions-title">
+      <PageHeader
+        title={translate("title")}
+        intro={translate("intro")}
+        titleId="promotions-title"
+      />
+      {view.kind === "loading" && <Skeleton label={translate("loading")} lines={6} />}
       {view.kind === "ready" && (
-        <>
-          {view.promotions.length === 0 ? (
-            <p>{translate("empty")}</p>
-          ) : (
-            <ul className="admin-billing-list">
-              {view.promotions.map((promotion) => (
-                <PromotionRow key={promotion.promotionId} promotion={promotion} state={state} />
-              ))}
-            </ul>
-          )}
-          <button
-            className="admin-merchant-button"
-            type="button"
-            onClick={() => {
-              state.edit(undefined);
-            }}
-          >
-            {translate("newPromotion")}
-          </button>
-          <Editor state={state} />
-        </>
+        <div className="billing-layout">
+          <Card title={translate("activeTitle")} titleId="promotions-active">
+            {view.promotions.length === 0 ? (
+              <EmptyState icon="tag" title={translate("empty")} body={translate("emptyBody")} />
+            ) : (
+              <ul className="billing-rows">
+                {view.promotions.map((promotion) => (
+                  <PromotionCard
+                    key={promotion.promotionId}
+                    promotion={promotion}
+                    state={state}
+                    locale={locale}
+                  />
+                ))}
+              </ul>
+            )}
+          </Card>
+          <Editor state={state} locale={locale} />
+        </div>
       )}
-      {view.kind !== "loading" && view.kind !== "ready" && (
-        <p role="alert">{translate(failureKeys[view.kind])}</p>
+      {view.kind === "error" && <ErrorState title={translate("loadError")} />}
+      {(view.kind === "sign-in" || view.kind === "not-found") && (
+        <ErrorState title={translate(failureKeys[view.kind])} />
       )}
     </section>
   );
+}
+
+/** MER-19: promotions list with stats and an editor with a worked example. */
+export function PromotionsEditor({ merchantId, locale }: { merchantId: string; locale: Locale }) {
+  return <PromotionsView state={usePromotions(merchantId)} locale={locale} />;
 }

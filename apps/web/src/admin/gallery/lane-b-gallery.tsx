@@ -7,9 +7,12 @@ import { AdminBillingView } from "../billing/admin-billing";
 import { BillingSettingsView } from "../billing/billing-settings";
 import { settingsToDraft } from "../billing/billing-settings-http";
 import { MerchantBillingView } from "../billing/merchant-billing";
+import { emptyPromotionDraft } from "../../retention/promotion-draft";
+import { PromotionsView } from "../../retention/promotions-editor";
 import { billingSettingsDefaults } from "@zaafran/contracts/billing";
 import {
   galleryInvoices,
+  galleryPromotions,
   galleryMerchantId,
   gallerySubscription,
   galleryTransfer,
@@ -17,7 +20,7 @@ import {
 
 // Design-build page: every lane B screen in each state, for the 390/1280 screenshot review.
 
-type Screen = "admin-billing" | "merchant-billing" | "billing-settings";
+type Screen = "admin-billing" | "merchant-billing" | "billing-settings" | "promotions";
 type Mode = "ready" | "empty" | "loading" | "error";
 const noop = () => undefined;
 const noopAsync = () => Promise.resolve();
@@ -98,6 +101,33 @@ function SettingsSample({ mode }: { mode: Mode }) {
   );
 }
 
+function PromotionsSample({ mode, locale }: { mode: Mode; locale: Locale }) {
+  const view =
+    mode === "ready" || mode === "empty"
+      ? { kind: "ready" as const, promotions: mode === "ready" ? galleryPromotions : [] }
+      : { kind: mode };
+  const draft =
+    mode === "ready"
+      ? { ...emptyPromotionDraft, percent: "10", capDzd: "300", minimumSubtotalDzd: "1500" }
+      : emptyPromotionDraft;
+  return (
+    <PromotionsView
+      locale={locale}
+      state={{
+        view,
+        draft,
+        editingId: undefined,
+        outcome: undefined,
+        outcomeId: 0,
+        isSaving: false,
+        change: noop,
+        edit: noop,
+        save: noopAsync,
+      }}
+    />
+  );
+}
+
 export function LaneBGallery({
   locale,
   labels,
@@ -119,6 +149,7 @@ export function LaneBGallery({
             { value: "merchant-billing", label: "MER-22" },
             { value: "admin-billing", label: "ADM-07" },
             { value: "billing-settings", label: "BIL-01" },
+            { value: "promotions", label: "MER-19" },
           ]}
         />
         <SegmentedControl
@@ -137,6 +168,7 @@ export function LaneBGallery({
       {screen === "admin-billing" && <AdminBillingSample mode={mode} locale={locale} />}
       {screen === "merchant-billing" && <MerchantBillingSample mode={mode} locale={locale} />}
       {screen === "billing-settings" && <SettingsSample mode={mode} />}
+      {screen === "promotions" && <PromotionsSample mode={mode} locale={locale} />}
     </div>
   );
 }

@@ -2,6 +2,8 @@ import { localeDetails, type Locale } from "@zaafran/i18n/locales";
 import { getMessages } from "@zaafran/i18n/messages";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { ToastProvider } from "@zaafran/ui";
+import "@zaafran/ui/ui.css";
 import { NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -81,7 +83,9 @@ export function PromotionsPage({ merchantId, locale }: { merchantId: string; loc
         timeZone="Africa/Algiers"
         messages={{ retentionPromotions: getMessages(locale).retentionPromotions }}
       >
-        <PromotionsEditor key={merchantId} merchantId={merchantId} />
+        <ToastProvider closeLabel={getMessages(locale).retentionPromotions.closeToast}>
+          <PromotionsEditor key={merchantId} merchantId={merchantId} locale={locale} />
+        </ToastProvider>
       </NextIntlClientProvider>
     </SiteShell>
   );

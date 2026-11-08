@@ -5,6 +5,7 @@ import "@zaafran/ui/ui.css";
 import { NextIntlClientProvider } from "next-intl";
 import { SiteShell } from "../../components/site-shell";
 import "../billing/admin-billing.css";
+import "../../retention/retention.css";
 import { LaneBGallery } from "./lane-b-gallery";
 
 export const galleryMetadata = { robots: { index: false, follow: false } };
@@ -20,6 +21,7 @@ export function GalleryPage({ locale }: { locale: Locale }) {
           adminBilling: messages.adminBilling,
           merchantBilling: messages.merchantBilling,
           adminBillingSettings: messages.adminBillingSettings,
+          retentionPromotions: messages.retentionPromotions,
         }}
       >
         <ToastProvider closeLabel={messages.merchantBilling.closeToast}>
