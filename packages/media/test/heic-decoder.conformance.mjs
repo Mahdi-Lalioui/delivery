@@ -1,0 +1,21 @@
+import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import { isAbsolute } from "node:path";
+import process from "node:process";
+import { URL } from "node:url";
+import sharp from "sharp";
+import { preparePhoto } from "../dist/index.js";
+
+const heicDecoderPath = process.env.HEIC_DECODER_PATH;
+assert(heicDecoderPath && isAbsolute(heicDecoderPath), "Set HEIC_DECODER_PATH to the decoder.");
+const bytes = await readFile(new URL("./fixtures/synthetic.heic", import.meta.url));
+const result = await preparePhoto({ bytes, contentType: "image/heic", heicDecoderPath });
+assert.equal(result.status, "prepared");
+const { preview } = result;
+assert.equal(preview.contentType, "image/webp");
+assert.deepEqual([preview.width, preview.height], [96, 64]);
+const metadata = await sharp(preview.bytes).metadata();
+assert.equal(metadata.format, "webp");
+assert.deepEqual([metadata.width, metadata.height], [96, 64]);
+assert(!metadata.exif && !metadata.iptc && !metadata.xmp && !metadata.icc);
+process.stdout.write("Real HEVC photo prepared as a 96×64 metadata-free WebP preview.\n");

@@ -102,7 +102,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Reserve photos and read private status through the authenticated API. Verify eligible membership, session revocation, first-digest adoption and transactional preparation enqueue in PostGIS.
     - [x] Stream the authorized binary PUT into private storage and verify exact length, abort cleanup, storage replay, and 8 MiB enforcement.
   - [ ] Decode JPEG, PNG, WebP and real HEVC HEIC in the worker. Normalize orientation, bound decoded pixels, remove metadata, derive the requested crop and thumbhash, and publish only after all variants exist. Prove retries recover after a worker interruption.
-    - [ ] Prove bounded private preview preparation with the pinned decoder and a synthetic real-HEVC fixture on Linux amd64.
+    - [x] Prove bounded private preview preparation with the pinned decoder and a synthetic real-HEVC fixture on Linux amd64.
     - [ ] Register the prepare job and persist the private preview and job state atomically. Then implement crop processing and publish the complete ready set.
   - [ ] Connect optional application photos and item photos to the localized cropper. Verify valid and rejected uploads, keyboard crop, private previews, saved item readback and the design matrix.
 - [x] M2-7 Bulk prices (MER-11). Bind preview to merchant and item revisions, apply rounded changes and history atomically, and prove ten-minute undo rejects expired or subsequently changed prices.
