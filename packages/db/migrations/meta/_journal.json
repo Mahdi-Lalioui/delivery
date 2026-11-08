@@ -85,6 +85,13 @@
       "when": 1794093600000,
       "tag": "0011_menu_price_undo",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1794096600000,
+      "tag": "0012_merchant_special_hours",
+      "breakpoints": true
     }
   ]
 }

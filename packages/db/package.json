@@ -36,6 +36,10 @@
       "types": "./src/menu-price.ts",
       "default": "./dist/menu-price.js"
     },
+    "./merchant-hours": {
+      "types": "./src/merchant-hours.ts",
+      "default": "./dist/merchant-hours.js"
+    },
     "./merchant": {
       "types": "./src/merchant.ts",
       "default": "./dist/merchant.js"
