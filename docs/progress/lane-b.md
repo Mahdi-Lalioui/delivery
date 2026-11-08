@@ -7,3 +7,6 @@
 - 2026-11-08 · High · External review: billing contract already published (lane-a 9cbab96, cherry-picked unchanged). Admin billing screen `/[locale]/admin/billing` on MSW mocks of that contract (invoice issued/paid/void, transfer `pending_confirmation`).
   Request `docs/requests/lane-b-billing.md` rewritten to ask only for the migration and routes. msw 3.0.3 logged as D-B01. Added `/admin/billing` to the admin list in shared `components/site-shell.tsx` (2 lines).
   Proof: `vitest run apps/web/test/admin-billing*` 7/7; full `pnpm verify` before push. Next: merchant billing (MER-22) screen, invoice PDF, settings screen.
+- 2026-11-08 · High · MER-22 merchant billing `/[locale]/merchant/[id]/billing` + `/ar/…`: plan, due/past-due/suspended banners, invoice PDF links, CCP/BaridiMob proof upload → `pending_confirmation`, on MSW.
+  Lives in `apps/web/src/admin/billing/` (lane B path); added `/merchant/${id}/billing` to shared `site-shell.tsx`. Proof-media paths updated in the request.
+  Reviewer P1s fixed (stable idempotency keys, amount + tenant echo, upload expiry). Proof: billing web tests 24/24, `pnpm verify` green. Next: invoice PDF generator (API), billing settings screen, `@admin-billing` e2e once routes land.

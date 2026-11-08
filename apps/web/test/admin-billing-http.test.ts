@@ -100,3 +100,28 @@ test("[ADM-07:web] refuses to confirm a proof against a different invoice", asyn
     kind: "error",
   });
 });
+
+test("[ADM-07:web][BIL-05] reports an error when the server records a different amount", async () => {
+  const before = await loadAdminBilling();
+  if (before.kind !== "ready") throw new Error("expected ready");
+  const [proof] = before.transferProofs;
+  const [issued] = before.invoices;
+  if (proof === undefined || issued === undefined) throw new Error("fixture missing");
+  server.use(
+    http.post("*/v1/admin/billing/invoices/:invoiceId/payments", ({ params }) =>
+      HttpResponse.json({
+        paymentId: ids.paymentId,
+        invoiceId: params.invoiceId,
+        method: "baridimob",
+        reference: "BM-2027-0042",
+        proofMediaId: ids.proofMediaId,
+        amountDzd: 4000,
+        confirmedAt: "2027-02-08T09:00:00.000Z",
+      }),
+    ),
+  );
+  const key = crypto.randomUUID();
+  expect(
+    await confirmTransferProof({ proof, invoice: issued, reason: "Virement vérifié", key }),
+  ).toEqual({ kind: "error" });
+});

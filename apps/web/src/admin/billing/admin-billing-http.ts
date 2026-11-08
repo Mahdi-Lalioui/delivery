@@ -141,8 +141,12 @@ export async function confirmTransferProof({
     const response = await postJson(path, key, input.data);
     if (!response.ok) return writeFailure(response);
     const output = adminRecordPaymentOutput.safeParse(await response.json());
-    if (!output.success || output.data.invoiceId !== invoice.invoiceId) return { kind: "error" };
-    return { kind: "recorded", amountDzd: output.data.amountDzd };
+    const isEcho =
+      output.success &&
+      output.data.invoiceId === invoice.invoiceId &&
+      output.data.amountDzd === invoice.totalDzd;
+    if (!isEcho) return { kind: "error" };
+    return { kind: "recorded", amountDzd: invoice.totalDzd };
   } catch {
     return { kind: "error" };
   }

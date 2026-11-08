@@ -37,7 +37,9 @@ Shapes must serialise to the contract's `billingSubscription`, `billingInvoice`
 | GET | `/v1/merchants/:merchantId/billing` | `merchantBillingSubscriptionOutput` |
 | GET | `/v1/merchants/:merchantId/invoices` | `merchantBillingInvoiceListQuery` → `billingInvoiceListOutput` |
 | GET | `/v1/merchants/:merchantId/invoices/:invoiceId/pdf` | `application/pdf` |
-| POST | `/v1/invoices/:invoiceId/proof-media` (+ GET `/:proofMediaId`) | `billingProofUpload*`, `billingProofMediaOutput` |
+| POST | `/v1/merchants/:merchantId/invoices/:invoiceId/proof-media` | `billingProofUploadInput/Output` |
+| PUT | `…/proof-media/:proofMediaId/content` (raw image body, 202) | `billingProofMediaOutput` |
+| GET | `…/proof-media/:proofMediaId` | `billingProofMediaOutput` |
 | POST | `/v1/merchants/:merchantId/invoices/:invoiceId/transfer-proofs` | `merchantTransferProofInput/Output` |
 | POST | `/v1/webhooks/chargily` | signature verified, idempotent by provider event id |
 

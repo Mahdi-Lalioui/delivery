@@ -17,3 +17,26 @@
   flex-wrap: wrap;
   gap: var(--space-12);
 }
+
+.merchant-billing-plan {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--space-8) var(--space-16);
+}
+
+.merchant-billing-banner {
+  padding: var(--space-12) var(--space-16);
+  border-inline-start: var(--space-4) solid var(--color-info);
+  background: var(--color-info-bg);
+}
+
+.merchant-billing-banner-due,
+.merchant-billing-banner-past_due {
+  border-inline-start-color: var(--color-warning);
+  background: var(--color-warning-bg);
+}
+
+.merchant-billing-banner-suspended {
+  border-inline-start-color: var(--color-danger);
+  background: var(--color-danger-bg);
+}

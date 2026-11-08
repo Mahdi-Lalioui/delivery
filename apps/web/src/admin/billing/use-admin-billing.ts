@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   confirmTransferProof,
   loadAdminBilling,
@@ -30,6 +30,9 @@ export function useAdminBilling(): AdminBillingState {
   const [notice, setNotice] = useState<Notice>();
   const [isSaving, setIsSaving] = useState(false);
   const [generation, setGeneration] = useState(0);
+  // Reuse one Idempotency-Key per (proof, reason) until it succeeds, so a retry after a lost
+  // response cannot record a second payment.
+  const confirmKey = useRef<{ identity: string; key: string }>(undefined);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -65,7 +68,16 @@ export function useAdminBilling(): AdminBillingState {
         setNotice("stale");
         return;
       }
-      await run(() => confirmTransferProof({ proof, invoice, reason, key: crypto.randomUUID() }));
+      const identity = `${proof.transferProofId}\u0000${reason}`;
+      if (confirmKey.current?.identity !== identity) {
+        confirmKey.current = { identity, key: crypto.randomUUID() };
+      }
+      const { key } = confirmKey.current;
+      await run(async () => {
+        const result = await confirmTransferProof({ proof, invoice, reason, key });
+        if (result.kind === "recorded") confirmKey.current = undefined;
+        return result;
+      });
     },
     [run, view],
   );
