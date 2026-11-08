@@ -13,6 +13,25 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 09:38 GMT — M2-11 role-split acceptance test (Claude, covering while Codex was out)
+
+- **Changed** — Added `apps/api/test/merchant-roles.integration.test.ts` with `[MER-23]`. It runs through `startApi` on PostGIS with an owner, a manager and a staff member of one restaurant, plus another restaurant's owner. Staff management is owner-only. Menu writes are allowed for owners and managers. The sold-out toggle is allowed for all three roles. Every role is denied at the other restaurant, and the other owner is denied at the first. SPEC MER-23 also gives staff the live board, which does not exist yet, so PLAN M4-6 now says to extend this test with the board rights.
+- **Evidence** — The test first failed with 400 for 201 because its own item payload had empty `descriptions`; after that fix it passed. With the staff menu write temporarily expected as 201, it failed (`expected 404 to be 201`), and the expectation was then restored. `pnpm verify` → exit 0: 1203 unit and 138 PostGIS integration tests, build, knip, depcruise, trace, and only the existing moderate advisory. `node scripts/trace.ts --through m2` → 34/37 (missing MER-01, MER-12, MER-14).
+- **Reviewer** — Self-reviewed against AGENTS.md §10. No P0/P1.
+- **Next** — See the current status below.
+- **Needs Mahdi** — None.
+
+### 2026-11-08 09:36 GMT — M2-11 owner staff page, accept page and e2e (Claude, covering while Codex was out)
+
+- **Changed** — This completes M2-11 (ticked in PLAN).
+  - **Owner team page** (`abc702a`): `/{locale}/merchant/:id/staff`, linked as **Gérer l’équipe** from the owner's restaurant list (`2145447`). The pure `staff-flow.ts` allows one invite or revoke at a time and keeps the notice across the re-read after an invitation. `use-merchant-staff.ts` keeps a retry key only after an uncertain failure. The page lists members and open invitations with phones in `<bdi dir="ltr">`. The invite form has manager/staff radios, and the field error is tied to its input with focus. There is a revoke button per invitation.
+  - **Invitee accept page** (`a7e78ba`): `/{locale}/staff/accept` reads `#token=` and clears the fragment. Signed out, it keeps the token in `sessionStorage` across `/sign-in?continue=staff-accept` (new continuation, label **Ouvrir l’invitation**). It sends the single-use accept once even if the effect re-runs. Metadata adds `referrer: no-referrer`.
+  - **Messages and decisions:** the `merchantStaff` messages in ar/fr/en. The phone hint uses `05XX XX XX XX`, so no number in the catalogue could be real. D-015 gains a Web line.
+- **Evidence** — Flow (13), screen (14), route (5), accept (11), sign-in intent and merchant screen tests were written before the code. The flow, accept, intent and team-link tests failed on the missing module or behaviour first. The screen and route tests passed on their first run, because the components were written before I ran them. The first `pnpm verify` failed on reducer complexity (13 > 10) and then on test typings; both were fixed. Final `pnpm verify` → exit 0 with 1203 unit and 137 PostGIS tests. `pnpm exec playwright test --config e2e/auth.config.ts --grep @merchant-staff` first failed at the replay step: a hash-only `goto` in the same tab does not reload the page. The replay now opens a fresh tab and the run passed. The full auth suite passed 16/16. [Staff evidence](evidence/m2/merchant-staff.md) has 8 lossless WebP captures with zero axe violations and no overflow.
+- **Reviewer** — Self-reviewed against AGENTS.md §10. No P0/P1. P2 design notes for the M2-12 critic are in the evidence file: hint weight, inline role hints, radio spacing.
+- **Next** — See the current status below.
+- **Needs Mahdi** — None.
+
 ### 2026-11-08 08:52 GMT — M2-11 typed staff web client and e2e invitation outbox (Claude, covering while Codex was out)
 
 - **Changed** — The e2e auth harness (`apps/api/tools/e2e-auth-bootstrap.ts`, `e2e-auth-types.ts`) now passes `sendInvitation` to `startApi` and exposes `latestInvitation(phone)`. Added `apps/web/src/merchant-staff/staff-http.ts`:
@@ -788,6 +807,6 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 ## Current status
 
 - Milestone: M1 (last passing gate, M2 in progress)
-- `node scripts/trace.ts --through m2` on 2026-11-08 at 03:32 GMT covered 32 of 37 IDs (pending then: ADM-04, MER-01, MER-12, MER-14, MER-23; ADM-04 now has db, http, contract, web and ui tests). M2-9 is done, with production-build ar/fr journeys and the screenshot matrix. M2-10 has the screen on item writes, the audited admin review command, the queue, the admin API routes, an end-to-end PostGIS API test, the merchant explanation and the typed admin web client. The admin held-items screen and its auth e2e landed at 08:34, so M2-10 is done. M2-11 has its contracts (08:36), the invitation schema with owner-only create/list/revoke (08:40), the single-use accept (08:42), the API routes (08:47) the `startApi` wiring with per-role PostGIS proof (08:50) and the typed web client (08:52). Next: the owner staff page, the accept page and their e2e (see the 08:52 entry).
-- Last green `pnpm verify`: 2026-11-08 08:52 GMT on Docker Desktop with 1161 unit and 137 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 15/15 at 08:49 GMT.
+- `node scripts/trace.ts --through m2` on 2026-11-08 at 09:38 GMT covered 34 of 37 IDs (missing MER-01, MER-12, MER-14). M2-9, M2-10 and M2-11 are done. M2-11 has the owner team page, the invitee accept page, the production-build e2e with the design matrix, and the `[MER-23]` role-split test. Remaining in M2: M2-2 (umbrella schema task, still unticked), M2-6 (worker decode and cropper UI), M2-8 (CSV/XLSX import), M2-12 (demo seed and gate run), and a bare `[MER-01]` acceptance test.
+- Last green `pnpm verify`: 2026-11-08 09:38 GMT on Docker Desktop with 1203 unit and 138 PostGIS integration tests. Last green auth e2e suite: 16/16 at 09:36 GMT.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
