@@ -116,3 +116,13 @@ export const merchantRamadanInput = z.strictObject({
   method: z.enum(prayerMethods),
   adjustmentMinutes: z.int().min(-maxPrayerAdjustmentMinutes).max(maxPrayerAdjustmentMinutes),
 });
+
+export const merchantRamadanCommandInput = merchantRamadanInput.extend({
+  expectedRevision: menuRevision,
+});
+/** `schedule` is null until the restaurant saves its first Ramadan hours. */
+export const merchantRamadanOutput = z.strictObject({
+  sessionId: z.uuid(),
+  revision: menuRevision,
+  schedule: merchantRamadanInput.nullable(),
+});

@@ -4,7 +4,9 @@ import {
   merchantHoursInput,
   merchantHoursOutput,
   merchantHoursWriteOutput,
+  merchantRamadanCommandInput,
   merchantRamadanInput,
+  merchantRamadanOutput,
 } from "../src/merchant-hours.ts";
 
 const lunch = { opensMinute: 690, closesMinute: 900 };
@@ -135,4 +137,32 @@ test("[MER-15:contract] binds a hours replace to a menu revision and reads back 
   });
   expect(merchantHoursWriteOutput.parse({ revision: 4 })).toEqual({ revision: 4 });
   expect(merchantHoursWriteOutput.safeParse({ revision: 4, extra: true }).success).toBe(false);
+});
+
+test("[MER-16:contract] binds a Ramadan replace to a revision and reads a missing schedule as null", () => {
+  const schedule = {
+    weekly: week().map((day) => ({
+      weekday: day.weekday,
+      ranges: [
+        { opens: { kind: "maghrib", minutes: -60 }, closes: { kind: "clock", minuteOfDay: 120 } },
+      ],
+    })),
+    suhoor: null,
+    method: "Algeria",
+    adjustmentMinutes: 0,
+  };
+  const sessionId = "01932f18-3150-7c33-8a7a-53acfd343002";
+  expect(merchantRamadanCommandInput.parse({ ...schedule, expectedRevision: 2 })).toEqual({
+    ...schedule,
+    expectedRevision: 2,
+  });
+  expect(merchantRamadanCommandInput.safeParse(schedule).success).toBe(false);
+  expect(merchantRamadanOutput.parse({ sessionId, revision: 0, schedule: null })).toEqual({
+    sessionId,
+    revision: 0,
+    schedule: null,
+  });
+  expect(merchantRamadanOutput.parse({ sessionId, revision: 2, schedule }).schedule).toEqual(
+    schedule,
+  );
 });
