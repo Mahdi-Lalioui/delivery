@@ -60,3 +60,8 @@ export const quotePromotionRejectionCode = z.enum([
   "promotion_used_up",
   "promotion_wrong_restaurant",
 ]);
+
+export const merchantPromotionListOutput = z.strictObject({
+  sessionId: z.uuid(),
+  promotions: z.array(merchantPromotionOutput).max(100),
+});
