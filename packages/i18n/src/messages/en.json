@@ -748,5 +748,32 @@
     "downloadInvoice": "Download invoice {number} (PDF)",
     "invoiceOption": "{number} — {total}",
     "uploadExpired": "The upload took too long. Send the proof again."
+  },
+  "adminBillingSettings": {
+    "title": "Billing settings",
+    "intro": "Subscription price, trial and payment deadlines, tax and the legal details printed on invoices.",
+    "pricing": "Subscription",
+    "legal": "Legal details on invoices",
+    "priceDzd": "Monthly price (DZD)",
+    "trialDays": "Trial days",
+    "dueDays": "Days until due",
+    "graceDays": "Grace days before suspension",
+    "taxRatePercent": "Tax rate (%)",
+    "companyName": "Company name",
+    "companyAddress": "Company address",
+    "registrationNumber": "Trade register number",
+    "taxId": "Tax ID (NIF)",
+    "onlinePayment": "Allow online subscription payment (Chargily)",
+    "reason": "Reason for the change",
+    "save": "Save settings",
+    "saving": "Saving…",
+    "saved": "Settings saved.",
+    "invalid": "Check the highlighted field.",
+    "sessionChanged": "Your admin session changed. Reload the page.",
+    "signInRequired": "Sign in with an admin account to change billing settings.",
+    "saveError": "The settings could not be saved. Try again.",
+    "loading": "Loading settings…",
+    "loadError": "Settings could not be loaded.",
+    "retry": "Try again"
   }
 }

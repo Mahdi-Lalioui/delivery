@@ -10,3 +10,6 @@
 - 2026-11-08 · High · MER-22 merchant billing `/[locale]/merchant/[id]/billing` + `/ar/…`: plan, due/past-due/suspended banners, invoice PDF links, CCP/BaridiMob proof upload → `pending_confirmation`, on MSW.
   Lives in `apps/web/src/admin/billing/` (lane B path); added `/merchant/${id}/billing` to shared `site-shell.tsx`. Proof-media paths updated in the request.
   Reviewer P1s fixed (stable idempotency keys, amount + tenant echo, upload expiry). Proof: billing web tests 24/24, `pnpm verify` green. Next: invoice PDF generator (API), billing settings screen, `@admin-billing` e2e once routes land.
+- 2026-11-08 · Ultra · BIL-04 dependency-free invoice PDF writer `apps/api/src/invoice-pdf.ts` (escaping, xref offsets, amount guard). BIL-01/ADM-08 settings screen `/[locale]/admin/billing/settings` on MSW.
+  Proof: `vitest run apps/api/test/invoice-pdf.test.ts` 6/6, `apps/web/test/billing-settings*` 6/6, `pnpm verify` green.
+  Next: M6 screens on lane A's ratings/promotions/scheduling contracts; wire PDF + planner into API routes when lane A lands the billing migration.

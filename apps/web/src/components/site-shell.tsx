@@ -28,13 +28,15 @@ interface SiteShellProps {
     | `/merchant/${string}/billing`
     | "/admin/merchant-applications"
     | "/admin/menu-items"
-    | "/admin/billing";
+    | "/admin/billing"
+    | "/admin/billing/settings";
 }
 
 const adminSubpaths: ReadonlySet<string> = new Set([
   "/admin/merchant-applications",
   "/admin/menu-items",
   "/admin/billing",
+  "/admin/billing/settings",
   "/sign-in?continue=admin-review",
   "/sign-in?continue=admin-moderation",
 ]);
