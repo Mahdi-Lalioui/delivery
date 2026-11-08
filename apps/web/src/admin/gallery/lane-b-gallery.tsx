@@ -10,6 +10,7 @@ import { MerchantBillingView } from "../billing/merchant-billing";
 import { PlatformConsoleView } from "../platform/platform-console";
 import { emptyPromotionDraft } from "../../retention/promotion-draft";
 import { MerchantReviewsView } from "../../retention/merchant-reviews";
+import { MyOrdersView } from "../../retention/my-orders";
 import { OrderRatingView } from "../../retention/order-rating";
 import { RecipientFields, type RecipientDraft } from "../../retention/recipient";
 import { SlotPicker, type SlotChoice } from "../../retention/slot-picker";
@@ -34,7 +35,8 @@ type Screen =
   | "reviews"
   | "rating"
   | "checkout"
-  | "platform";
+  | "platform"
+  | "orders";
 type Mode = "ready" | "empty" | "loading" | "error";
 const noop = () => undefined;
 const noopAsync = () => Promise.resolve();
@@ -252,6 +254,68 @@ function PlatformSample({ mode }: { mode: Mode }) {
   );
 }
 
+const galleryOrders = [
+  {
+    orderId: "019d6abc-0000-7000-8000-000000000601",
+    merchantId: galleryMerchantId,
+    restaurantName: "Dar El Couscous",
+    shortCode: "K7Q2",
+    status: "delivered" as const,
+    fulfilment: "delivery" as const,
+    totalDzd: 2350,
+    placedAt: "2027-02-10T18:40:00.000Z",
+  },
+  {
+    orderId: "019d6abc-0000-7000-8000-000000000602",
+    merchantId: galleryMerchantId,
+    restaurantName: "Pizzeria Bab El Oued",
+    shortCode: "M3X9",
+    status: "out_for_delivery" as const,
+    fulfilment: "delivery" as const,
+    totalDzd: 1200,
+    placedAt: "2027-02-11T12:10:00.000Z",
+  },
+];
+
+function OrdersSample({ mode, locale }: { mode: Mode; locale: Locale }) {
+  const history =
+    mode === "ready" || mode === "empty"
+      ? { kind: "ready" as const, orders: mode === "ready" ? galleryOrders : [], nextCursor: null }
+      : { kind: mode };
+  const favourites = {
+    kind: "ready" as const,
+    restaurants:
+      mode === "ready"
+        ? [
+            {
+              merchantId: galleryMerchantId,
+              name: "Dar El Couscous",
+              slug: "dar",
+              coverMediaId: null,
+              isOpen: true,
+            },
+          ]
+        : [],
+  };
+  return (
+    <MyOrdersView
+      locale={locale}
+      state={{
+        history,
+        favourites,
+        receipt: undefined,
+        reorderResult: undefined,
+        isPaging: false,
+        showReceipt: noop,
+        orderAgain: noopAsync,
+        toggleFavourite: () => Promise.resolve(true),
+        loadMore: noopAsync,
+        refresh: noop,
+      }}
+    />
+  );
+}
+
 function CheckoutSample() {
   const [slot, setSlot] = useState<SlotChoice>({ kind: "asap" });
   const [recipient, setRecipient] = useState<RecipientDraft>({
@@ -293,6 +357,7 @@ export function LaneBGallery({
             { value: "rating", label: "CUS-22" },
             { value: "checkout", label: "CUS-13/15" },
             { value: "platform", label: "ADM-08" },
+            { value: "orders", label: "CUS-21" },
           ]}
         />
         <SegmentedControl
@@ -316,6 +381,7 @@ export function LaneBGallery({
       {screen === "rating" && <RatingSample mode={mode} />}
       {screen === "checkout" && <CheckoutSample />}
       {screen === "platform" && <PlatformSample mode={mode} />}
+      {screen === "orders" && <OrdersSample mode={mode} locale={locale} />}
     </div>
   );
 }

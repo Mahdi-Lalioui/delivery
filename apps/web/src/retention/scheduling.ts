@@ -1,5 +1,10 @@
 import { getMaghribCountdownMs } from "@zaafran/domain/ramadan";
-import { customerSlotsOutput, customerSlotsQuery } from "@zaafran/contracts/scheduling";
+import {
+  customerSlotsOutput,
+  customerSlotsQuery,
+  ramadanTodayOutput,
+  ramadanTodayQuery,
+} from "@zaafran/contracts/scheduling";
 
 // CUS-13 / HRS-02 / HRS-03 slot loading and grouping, plus the Maghrib countdown.
 
@@ -65,4 +70,34 @@ export function countdownParts(input: { now: number; maghribAt: number }) {
     minutes: Math.floor((totalSeconds % 3600) / 60),
     seconds: totalSeconds % 60,
   };
+}
+
+export type RamadanToday =
+  { kind: "ramadan"; maghribAt: string } | { kind: "not-ramadan" } | { kind: "error" };
+
+/** HRS-03: today's Maghrib for the customer's commune while `ramadan_mode` is on. */
+export async function loadRamadanToday(
+  communeId: string,
+  signal?: AbortSignal,
+): Promise<RamadanToday> {
+  const query = ramadanTodayQuery.safeParse({ communeId });
+  if (!query.success) return { kind: "error" };
+  try {
+    const response = await fetch(
+      `/v1/ramadan/today?${new URLSearchParams(query.data).toString()}`,
+      {
+        credentials: "same-origin",
+        redirect: "error",
+        ...(signal && { signal }),
+      },
+    );
+    if (!response.ok) return { kind: "error" };
+    const output = ramadanTodayOutput.safeParse(await response.json());
+    if (!output.success) return { kind: "error" };
+    return output.data.isRamadan
+      ? { kind: "ramadan", maghribAt: output.data.maghribAt }
+      : { kind: "not-ramadan" };
+  } catch {
+    return { kind: "error" };
+  }
 }

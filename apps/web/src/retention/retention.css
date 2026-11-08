@@ -418,3 +418,112 @@
   font-size: var(--font-size-caption);
   color: var(--color-text-2);
 }
+
+/* CUS-21 / CUS-23 my orders */
+.orders-cover {
+  display: grid;
+  flex: none;
+  place-items: center;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--color-primary-hover), var(--color-harissa));
+  color: var(--color-on-harissa);
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-display);
+}
+
+.orders-cover-md {
+  inline-size: 56px;
+  block-size: 56px;
+  font-size: var(--font-size-h2);
+}
+
+.orders-cover-lg {
+  inline-size: 100%;
+  aspect-ratio: 16 / 9;
+  font-size: var(--font-size-display);
+}
+
+.orders-favourites {
+  display: grid;
+  gap: var(--space-16);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.orders-favourite {
+  position: relative;
+  display: grid;
+  gap: var(--space-8);
+}
+
+.orders-favourite-text {
+  display: flex;
+  gap: var(--space-8);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.orders-heart {
+  position: absolute;
+  inset-block-start: var(--space-8);
+  inset-inline-end: var(--space-8);
+  background: var(--color-surface);
+  color: var(--color-harissa);
+  box-shadow: var(--shadow-e1);
+}
+
+.orders-heart .ui-icon {
+  fill: currentcolor;
+}
+
+.orders-card {
+  display: grid;
+  gap: var(--space-12);
+  padding: var(--space-16);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.orders-card-head {
+  display: flex;
+  gap: var(--space-16);
+  align-items: center;
+}
+
+.orders-receipt {
+  display: grid;
+  gap: var(--space-16);
+  padding: var(--space-16);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
+}
+
+.orders-receipt-lines {
+  display: grid;
+  gap: var(--space-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.orders-receipt-lines li {
+  display: flex;
+  gap: var(--space-12);
+  justify-content: space-between;
+}
+
+.orders-receipt-option {
+  display: block;
+  font-size: var(--font-size-caption);
+  color: var(--color-text-2);
+}
+
+.orders-price-changes {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+  padding-inline-start: var(--space-20);
+}

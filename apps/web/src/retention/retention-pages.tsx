@@ -12,6 +12,7 @@ import { SiteShell } from "../components/site-shell";
 import "../admin/admin-merchant.css";
 import "../admin/billing/admin-billing.css";
 import { MerchantReviews } from "./merchant-reviews";
+import { MyOrders } from "./my-orders";
 import { OrderRating } from "./order-rating";
 import { PromotionsEditor } from "./promotions-editor";
 import { ShareKit, type PosterCopy } from "./share-kit";
@@ -121,6 +122,25 @@ export function SharePage({ merchantId, locale }: { merchantId: string; locale: 
             posters={{ ar: posterCopy("ar"), fr: posterCopy("fr") }}
           />
         </ToastProvider>
+      </NextIntlClientProvider>
+    </SiteShell>
+  );
+}
+
+export async function ordersMetadata(locale: Locale): Promise<Metadata> {
+  const translate = await getTranslations({ locale, namespace: "retentionOrders" });
+  return { title: translate("title"), robots: { index: false, follow: false } };
+}
+
+export function MyOrdersPage({ locale }: { locale: Locale }) {
+  return (
+    <SiteShell locale={locale} subpath="/orders">
+      <NextIntlClientProvider
+        locale={localeDetails[locale].tag}
+        timeZone="Africa/Algiers"
+        messages={{ retentionOrders: getMessages(locale).retentionOrders }}
+      >
+        <MyOrders locale={locale} />
       </NextIntlClientProvider>
     </SiteShell>
   );
