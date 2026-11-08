@@ -12,6 +12,7 @@ import { SiteShell } from "../components/site-shell";
 import "../admin/admin-merchant.css";
 import "../admin/billing/admin-billing.css";
 import { MerchantReviews } from "./merchant-reviews";
+import { MerchantAnalytics } from "./analytics/analytics-views";
 import { MyOrders } from "./my-orders";
 import { OrderRating } from "./order-rating";
 import { PromotionsEditor } from "./promotions-editor";
@@ -141,6 +142,25 @@ export function MyOrdersPage({ locale }: { locale: Locale }) {
         messages={{ retentionOrders: getMessages(locale).retentionOrders }}
       >
         <MyOrders locale={locale} />
+      </NextIntlClientProvider>
+    </SiteShell>
+  );
+}
+
+export async function analyticsMetadata(locale: Locale): Promise<Metadata> {
+  const translate = await getTranslations({ locale, namespace: "retentionAnalytics" });
+  return { title: translate("title"), robots: { index: false, follow: false } };
+}
+
+export function AnalyticsPage({ merchantId, locale }: { merchantId: string; locale: Locale }) {
+  return (
+    <SiteShell locale={locale} subpath={`/merchant/${merchantId}/analytics`}>
+      <NextIntlClientProvider
+        locale={localeDetails[locale].tag}
+        timeZone="Africa/Algiers"
+        messages={{ retentionAnalytics: getMessages(locale).retentionAnalytics }}
+      >
+        <MerchantAnalytics key={merchantId} merchantId={merchantId} locale={locale} />
       </NextIntlClientProvider>
     </SiteShell>
   );

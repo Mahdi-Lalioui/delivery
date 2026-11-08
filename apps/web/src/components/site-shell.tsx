@@ -29,6 +29,7 @@ interface SiteShellProps {
     | `/merchant/${string}/reviews`
     | `/merchant/${string}/promotions`
     | `/merchant/${string}/share`
+    | `/merchant/${string}/analytics`
     | "/restaurants"
     | `/orders/${string}/rating`
     | "/orders"
@@ -36,7 +37,8 @@ interface SiteShellProps {
     | "/admin/menu-items"
     | "/admin/billing"
     | "/admin/billing/settings"
-    | "/admin/platform";
+    | "/admin/platform"
+    | "/admin/dashboard";
 }
 
 const adminSubpaths: ReadonlySet<string> = new Set([
@@ -45,6 +47,7 @@ const adminSubpaths: ReadonlySet<string> = new Set([
   "/admin/billing",
   "/admin/billing/settings",
   "/admin/platform",
+  "/admin/dashboard",
   "/sign-in?continue=admin-review",
   "/sign-in?continue=admin-moderation",
 ]);

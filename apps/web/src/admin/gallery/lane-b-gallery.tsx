@@ -2,7 +2,7 @@
 
 import type { Locale } from "@zaafran/i18n/locales";
 import { SegmentedControl } from "@zaafran/ui";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { AdminBillingView } from "../billing/admin-billing";
 import { BillingSettingsView } from "../billing/billing-settings";
 import { settingsToDraft } from "../billing/billing-settings-http";
@@ -11,6 +11,7 @@ import { PlatformConsoleView } from "../platform/platform-console";
 import { emptyPromotionDraft } from "../../retention/promotion-draft";
 import { MerchantReviewsView } from "../../retention/merchant-reviews";
 import { MyOrdersView } from "../../retention/my-orders";
+import { MerchantAnalyticsView } from "../../retention/analytics/analytics-views";
 import { OrderRatingView } from "../../retention/order-rating";
 import { RecipientFields, type RecipientDraft } from "../../retention/recipient";
 import { SlotPicker, type SlotChoice } from "../../retention/slot-picker";
@@ -36,7 +37,8 @@ type Screen =
   | "rating"
   | "checkout"
   | "platform"
-  | "orders";
+  | "orders"
+  | "analytics";
 type Mode = "ready" | "empty" | "loading" | "error";
 const noop = () => undefined;
 const noopAsync = () => Promise.resolve();
@@ -316,6 +318,60 @@ function OrdersSample({ mode, locale }: { mode: Mode; locale: Locale }) {
   );
 }
 
+const galleryAnalytics = {
+  totals: {
+    orders: 412,
+    salesDzd: 968_400,
+    averageTicketDzd: 2350,
+    acceptanceRate: 9650,
+    avgPrepSeconds: 1140,
+    avgDeliverySeconds: 1560,
+  },
+  cancellations: [
+    { reason: "customer_changed_mind", orders: 6 },
+    { reason: "restaurant_busy", orders: 3 },
+  ],
+  topItems: [
+    {
+      itemId: "019d6abc-0000-7000-8000-000000000701",
+      names: { fr: "Couscous royal", ar: "كسكس ملكي" },
+      quantity: 120,
+      salesDzd: 180_000,
+    },
+    {
+      itemId: "019d6abc-0000-7000-8000-000000000702",
+      names: { fr: "Chorba", ar: "شوربة" },
+      quantity: 95,
+      salesDzd: 42_750,
+    },
+  ],
+  heatmap: Array.from({ length: 7 }, (_, day) =>
+    Array.from({ length: 24 }, (_, hour) =>
+      hour >= 19 && hour <= 21
+        ? 8 + day * 2
+        : hour >= 12 && hour <= 14
+          ? 4 + day
+          : hour >= 11 && hour <= 23
+            ? 1
+            : 0,
+    ),
+  ),
+  repeatCustomerRate: 4100,
+};
+
+function AnalyticsSample({ mode, locale }: { mode: Mode; locale: Locale }) {
+  const view =
+    mode === "ready" || mode === "empty"
+      ? { kind: "ready" as const, analytics: galleryAnalytics }
+      : { kind: mode };
+  return (
+    <MerchantAnalyticsView
+      locale={locale}
+      state={{ view, range: "30", setRange: noop, retry: noop }}
+    />
+  );
+}
+
 function CheckoutSample() {
   const [slot, setSlot] = useState<SlotChoice>({ kind: "asap" });
   const [recipient, setRecipient] = useState<RecipientDraft>({
@@ -330,6 +386,20 @@ function CheckoutSample() {
     </div>
   );
 }
+
+type SampleProps = { mode: Mode; locale: Locale };
+const samples: Readonly<Record<Screen, (props: SampleProps) => ReactNode>> = {
+  "admin-billing": (props) => <AdminBillingSample {...props} />,
+  "merchant-billing": (props) => <MerchantBillingSample {...props} />,
+  "billing-settings": ({ mode }) => <SettingsSample mode={mode} />,
+  promotions: (props) => <PromotionsSample {...props} />,
+  reviews: ({ mode }) => <ReviewsSample mode={mode} />,
+  rating: ({ mode }) => <RatingSample mode={mode} />,
+  checkout: () => <CheckoutSample />,
+  platform: ({ mode }) => <PlatformSample mode={mode} />,
+  orders: (props) => <OrdersSample {...props} />,
+  analytics: (props) => <AnalyticsSample {...props} />,
+};
 
 export function LaneBGallery({
   locale,
@@ -358,6 +428,7 @@ export function LaneBGallery({
             { value: "checkout", label: "CUS-13/15" },
             { value: "platform", label: "ADM-08" },
             { value: "orders", label: "CUS-21" },
+            { value: "analytics", label: "MER-21" },
           ]}
         />
         <SegmentedControl
@@ -373,15 +444,7 @@ export function LaneBGallery({
           ]}
         />
       </div>
-      {screen === "admin-billing" && <AdminBillingSample mode={mode} locale={locale} />}
-      {screen === "merchant-billing" && <MerchantBillingSample mode={mode} locale={locale} />}
-      {screen === "billing-settings" && <SettingsSample mode={mode} />}
-      {screen === "promotions" && <PromotionsSample mode={mode} locale={locale} />}
-      {screen === "reviews" && <ReviewsSample mode={mode} />}
-      {screen === "rating" && <RatingSample mode={mode} />}
-      {screen === "checkout" && <CheckoutSample />}
-      {screen === "platform" && <PlatformSample mode={mode} />}
-      {screen === "orders" && <OrdersSample mode={mode} locale={locale} />}
+      {samples[screen]({ mode, locale })}
     </div>
   );
 }
