@@ -52,6 +52,14 @@
       "types": "./src/menu-import.ts",
       "default": "./dist/menu-import.js"
     },
+    "./admin-ops": {
+      "types": "./src/admin-ops.ts",
+      "default": "./dist/admin-ops.js"
+    },
+    "./retention": {
+      "types": "./src/retention.ts",
+      "default": "./dist/retention.js"
+    },
     "./promotions": {
       "types": "./src/promotions.ts",
       "default": "./dist/promotions.js"
