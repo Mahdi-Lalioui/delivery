@@ -3,6 +3,8 @@ import {
   merchantHoursCommandInput,
   merchantHoursInput,
   merchantHoursOutput,
+  merchantHoursPauseInput,
+  merchantHoursPauseOutput,
   merchantHoursWriteOutput,
   merchantRamadanCommandInput,
   merchantRamadanInput,
@@ -165,4 +167,25 @@ test("[MER-16:contract] binds a Ramadan replace to a revision and reads a missin
   expect(merchantRamadanOutput.parse({ sessionId, revision: 2, schedule }).schedule).toEqual(
     schedule,
   );
+});
+
+test("[MER-15:contract] closes until an exact instant or reopens with null", () => {
+  const sessionId = "01932f18-3150-7c33-8a7a-53acfd343002";
+  const until = "2026-11-08T05:00:00.000Z";
+  expect(merchantHoursPauseInput.parse({ pausedUntil: until, expectedRevision: 1 })).toEqual({
+    pausedUntil: until,
+    expectedRevision: 1,
+  });
+  expect(
+    merchantHoursPauseInput.parse({ pausedUntil: null, expectedRevision: 1 }).pausedUntil,
+  ).toBe(null);
+  expect(
+    merchantHoursPauseInput.safeParse({ pausedUntil: "2026-11-08", expectedRevision: 1 }).success,
+  ).toBe(false);
+  expect(merchantHoursPauseInput.safeParse({ expectedRevision: 1 }).success).toBe(false);
+  expect(merchantHoursPauseOutput.parse({ sessionId, revision: 1, pausedUntil: null })).toEqual({
+    sessionId,
+    revision: 1,
+    pausedUntil: null,
+  });
 });

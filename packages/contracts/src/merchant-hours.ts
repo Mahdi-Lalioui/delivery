@@ -126,3 +126,15 @@ export const merchantRamadanOutput = z.strictObject({
   revision: menuRevision,
   schedule: merchantRamadanInput.nullable(),
 });
+
+/** "Closed now" until an exact instant; null reopens on the regular hours (D-012). */
+const pausedUntil = z.iso.datetime({ offset: true }).nullable();
+export const merchantHoursPauseInput = z.strictObject({
+  pausedUntil,
+  expectedRevision: menuRevision,
+});
+export const merchantHoursPauseOutput = z.strictObject({
+  sessionId: z.uuid(),
+  revision: menuRevision,
+  pausedUntil,
+});
