@@ -15,7 +15,7 @@ import {
 } from "./platform-http";
 
 type Banner = { ar: string; fr: string; en: string } | null;
-export type PlatformNotice = { id: number; result: PlatformWrite["kind"] };
+type PlatformNotice = { id: number; result: PlatformWrite["kind"] };
 export type PlatformState = {
   view: PlatformLoad | { kind: "loading" };
   audit: AuditPage | { kind: "loading" };

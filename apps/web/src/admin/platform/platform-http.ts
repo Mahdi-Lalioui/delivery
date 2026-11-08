@@ -13,7 +13,7 @@ import { problemResponseSchema } from "@zaafran/contracts/health";
 
 type Settings = ReturnType<typeof adminPlatformSettingsOutput.parse>["settings"];
 type PublicFlags = ReturnType<typeof publicFlagsOutput.parse>;
-export type AuditEvent = ReturnType<typeof adminAuditOutput.parse>["events"][number];
+type AuditEvent = ReturnType<typeof adminAuditOutput.parse>["events"][number];
 export type AuditEntity = AuditEvent["entity"];
 export type GlobalFlag = "menu_photo_import" | "online_payments" | "ramadan_mode";
 export type SettingKey = Exclude<
