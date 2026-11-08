@@ -928,5 +928,19 @@
     "stepTrackBody": "See your order move on the map, right to your door. In Ramadan, pick the Iftar slot.",
     "restaurantsTitle": "For restaurants",
     "restaurantsBody": "One flat monthly fee, no commission, your own drivers."
+  },
+  "marketingMoments": {
+    "title": "Signature moments",
+    "item": "Couscous",
+    "addToCart": "Add to cart",
+    "cart": "Cart: {count}",
+    "live": "Live",
+    "timeLeft": "40 seconds left to accept",
+    "newOrder": "New order #4821",
+    "acknowledge": "Acknowledge",
+    "confirmOrder": "Confirm order",
+    "confirmed": "Order confirmed",
+    "dropPin": "Drop the pin",
+    "pin": "Here"
   }
 }

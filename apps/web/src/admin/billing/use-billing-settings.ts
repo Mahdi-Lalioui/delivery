@@ -51,7 +51,12 @@ export function useBillingSettings(): BillingSettingsState {
 
   const save = useCallback(async () => {
     if (draft === undefined || view.kind !== "ready") return;
-    if (attempt.current?.draft !== draft) attempt.current = { draft, key: crypto.randomUUID() };
+    if (
+      attempt.current === undefined ||
+      JSON.stringify(attempt.current.draft) !== JSON.stringify(draft)
+    ) {
+      attempt.current = { draft, key: crypto.randomUUID() };
+    }
     const { key } = attempt.current;
     setIsSaving(true);
     const result = await saveBillingSettings({ draft, expectedSessionId: view.sessionId, key });

@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useLayoutEffect, useMemo, useRef } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import {
   CatmullRomCurve3,
   Color,
@@ -102,6 +102,13 @@ function Trail({ scene, palette }: { scene: CasbahScene; palette: HeroPalette })
     return new TubeGeometry(curve, 120, 0.12, 8, false);
   }, [scene]);
   const indexCount = geometry.index?.count ?? 0;
+  // R3F does not dispose geometry passed as a prop; free the GPU buffers ourselves.
+  useEffect(
+    () => () => {
+      geometry.dispose();
+    },
+    [geometry],
+  );
 
   useFrame(({ clock }) => {
     // The saffron light travels kitchen → home, then rests a beat before the next delivery.

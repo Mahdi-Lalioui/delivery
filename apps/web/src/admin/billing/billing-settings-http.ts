@@ -1,5 +1,6 @@
 import { adminBillingSettingsInput, adminBillingSettingsOutput } from "@zaafran/contracts/billing";
 import { problemResponseSchema } from "@zaafran/contracts/health";
+import { basisPointsToPercent, percentToBasisPoints } from "../../retention/basis-points";
 
 // BIL-01 / ADM-08 billing settings. Route requested in docs/requests/lane-b-billing.md.
 
@@ -54,7 +55,7 @@ export function settingsToDraft(settings: BillingSettings): SettingsDraft {
     trialDays: String(settings.trialDays),
     dueDays: String(settings.dueDays),
     graceDays: String(settings.graceDays),
-    taxRatePercent: String(settings.taxRateBasisPoints / 100),
+    taxRatePercent: basisPointsToPercent(settings.taxRateBasisPoints),
     companyName: legal?.companyName ?? "",
     companyAddress: legal?.companyAddress ?? "",
     registrationNumber: legal?.registrationNumber ?? "",
@@ -64,10 +65,10 @@ export function settingsToDraft(settings: BillingSettings): SettingsDraft {
   };
 }
 
-/** Parses a plain decimal; anything else (exponents, spaces, empty) becomes NaN for zod. */
+/** Whole numbers only; anything else (decimals, exponents, empty) becomes NaN for zod. */
 function toNumber(value: string): number {
-  const trimmed = value.trim().replace(",", ".");
-  return /^\d+(\.\d+)?$/.test(trimmed) ? Number(trimmed) : Number.NaN;
+  const trimmed = value.trim();
+  return /^\d+$/.test(trimmed) ? Number(trimmed) : Number.NaN;
 }
 
 function optional(value: string): string | null {
@@ -90,9 +91,8 @@ function legalDetails(draft: SettingsDraft) {
   };
 }
 
-/** Converts the form draft into the contract input; percent → basis points without float drift. */
+/** Converts the form draft into the contract input; tax percent → basis points (two decimals max). */
 export function draftToInput(draft: SettingsDraft) {
-  const taxPercent = toNumber(draft.taxRatePercent);
   return adminBillingSettingsInput.safeParse({
     reason: draft.reason,
     settings: {
@@ -100,7 +100,7 @@ export function draftToInput(draft: SettingsDraft) {
       trialDays: toNumber(draft.trialDays),
       dueDays: toNumber(draft.dueDays),
       graceDays: toNumber(draft.graceDays),
-      taxRateBasisPoints: Number.isNaN(taxPercent) ? taxPercent : Math.round(taxPercent * 100),
+      taxRateBasisPoints: percentToBasisPoints(draft.taxRatePercent),
       legalDetails: legalDetails(draft),
       subscriptionOnlinePaymentEnabled: draft.isOnlinePaymentEnabled,
     },

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { emptyPromotionDraft, promotionDraftToInput, type PromotionDraft } from "./promotion-draft";
+import { basisPointsToPercent } from "./basis-points";
 import {
   listPromotions,
   savePromotion,
@@ -33,7 +34,7 @@ function promotionToDraft(promotion: Promotion): PromotionDraft {
     activation: activation.kind,
     code: activation.kind === "code" ? activation.code : "",
     discountKind: discount.kind,
-    percent: discount.kind === "percent" ? String(discount.basisPoints / 100) : "",
+    percent: discount.kind === "percent" ? basisPointsToPercent(discount.basisPoints) : "",
     capDzd: discount.kind === "percent" ? String(discount.capDzd) : "",
     amountDzd: discount.kind === "fixed" ? String(discount.amountDzd) : "",
     minimumSubtotalDzd: toText(conditions.minimumSubtotalDzd),
@@ -43,6 +44,11 @@ function promotionToDraft(promotion: Promotion): PromotionDraft {
     maxUsesTotal: toText(conditions.maxUsesTotal),
     maxUsesPerCustomer: toText(conditions.maxUsesPerCustomer),
   };
+}
+
+/** Value comparison, so a rebuilt but equal draft reuses its idempotency key on retry. */
+function isSameDraft(left: PromotionDraft, right: PromotionDraft): boolean {
+  return JSON.stringify(left) === JSON.stringify(right);
 }
 
 export function usePromotions(merchantId: string): PromotionsState {
@@ -83,7 +89,9 @@ export function usePromotions(merchantId: string): PromotionsState {
       setOutcome({ invalid: parsed.field });
       return;
     }
-    if (attempt.current?.draft !== draft) attempt.current = { draft, key: crypto.randomUUID() };
+    if (attempt.current === undefined || !isSameDraft(attempt.current.draft, draft)) {
+      attempt.current = { draft, key: crypto.randomUUID() };
+    }
     const { key } = attempt.current;
     setIsSaving(true);
     const result = await savePromotion({

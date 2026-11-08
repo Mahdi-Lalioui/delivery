@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { SiteShell } from "../components/site-shell";
 import { CasbahHero } from "./casbah-hero";
 import { CasbahPoster, heroSeed } from "./casbah-poster";
+import "./moments/motion.css";
 import "./marketing.css";
 
 const stepKeys = ["stepChoose", "stepPay", "stepTrack"] as const;

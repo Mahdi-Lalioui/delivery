@@ -928,5 +928,19 @@
     "stepTrackBody": "Voyez votre commande avancer sur la carte jusqu’à votre porte. Pendant le Ramadan, choisissez le créneau Iftar.",
     "restaurantsTitle": "Pour les restaurants",
     "restaurantsBody": "Un abonnement mensuel fixe, sans commission, avec vos propres livreurs."
+  },
+  "marketingMoments": {
+    "title": "Moments signature",
+    "item": "Couscous",
+    "addToCart": "Ajouter au panier",
+    "cart": "Panier : {count}",
+    "live": "En direct",
+    "timeLeft": "40 secondes pour accepter",
+    "newOrder": "Nouvelle commande n° 4821",
+    "acknowledge": "Vu",
+    "confirmOrder": "Confirmer la commande",
+    "confirmed": "Commande confirmée",
+    "dropPin": "Placer l’épingle",
+    "pin": "Ici"
   }
 }

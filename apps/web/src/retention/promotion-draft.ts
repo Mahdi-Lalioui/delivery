@@ -1,6 +1,7 @@
 import { dzd } from "@zaafran/domain/money";
 import { priceOrder } from "@zaafran/domain/pricing";
 import { merchantPromotionInput } from "@zaafran/contracts/promotions";
+import { percentToBasisPoints } from "./basis-points";
 
 // MER-19 promotion editor logic: form draft → contract input, plus the worked example.
 
@@ -54,17 +55,14 @@ function whole(value: string): number | undefined {
   return /^\d+$/.test(trimmed) ? Number(trimmed) : Number.NaN;
 }
 
-/** Percent with up to two decimals → basis points, without float drift. */
-function basisPoints(value: string): number {
-  const match = /^(\d{1,3})(?:[.,](\d{1,2}))?$/.exec(value.trim());
-  if (match === null) return Number.NaN;
-  return Number(match[1]) * 100 + Number((match[2] ?? "").padEnd(2, "0"));
-}
-
 function discountOf(draft: PromotionDraft): unknown {
   if (draft.discountKind === "free_delivery") return { kind: "free_delivery" };
   if (draft.discountKind === "fixed") return { kind: "fixed", amountDzd: whole(draft.amountDzd) };
-  return { kind: "percent", basisPoints: basisPoints(draft.percent), capDzd: whole(draft.capDzd) };
+  return {
+    kind: "percent",
+    basisPoints: percentToBasisPoints(draft.percent),
+    capDzd: whole(draft.capDzd),
+  };
 }
 
 function conditionsOf(draft: PromotionDraft): Record<string, unknown> {

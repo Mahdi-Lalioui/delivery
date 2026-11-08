@@ -928,5 +928,19 @@
     "stepTrackBody": "شاهد طلبك يتحرك على الخريطة حتى بابك. في رمضان، اختر موعد الإفطار.",
     "restaurantsTitle": "للمطاعم",
     "restaurantsBody": "اشتراك شهري ثابت، بدون عمولة، مع موصّليك."
+  },
+  "marketingMoments": {
+    "title": "اللحظات المميزة",
+    "item": "كسكس",
+    "addToCart": "أضف إلى السلة",
+    "cart": "السلة: {count}",
+    "live": "مباشر",
+    "timeLeft": "40 ثانية متبقية للقبول",
+    "newOrder": "طلب جديد رقم 4821",
+    "acknowledge": "تم",
+    "confirmOrder": "تأكيد الطلب",
+    "confirmed": "تم تأكيد الطلب",
+    "dropPin": "ضع الدبوس",
+    "pin": "هنا"
   }
 }

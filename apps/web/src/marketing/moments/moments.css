@@ -1,0 +1,267 @@
+/* DESIGN §7.1 signature moments. Every animation has a reduced-motion version at the end. */
+
+.fly-to-cart-ghost {
+  position: fixed;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.cart-count-spring {
+  animation: cart-spring var(--motion-base) var(--ease-spring-snappy);
+}
+
+@keyframes cart-spring {
+  40% {
+    transform: scale(1.25);
+  }
+}
+
+.countdown-ring {
+  inline-size: var(--space-40);
+  block-size: var(--space-40);
+}
+
+.countdown-ring-track,
+.countdown-ring-value {
+  fill: none;
+  stroke-width: 4;
+}
+
+.countdown-ring-track {
+  stroke: var(--color-surface-3);
+}
+
+.countdown-ring-value {
+  stroke: var(--color-primary);
+  stroke-linecap: round;
+  transition: stroke-dashoffset var(--motion-base) linear;
+}
+
+.live-pill {
+  display: inline-flex;
+  align-self: center;
+  gap: var(--space-4);
+  align-items: center;
+  padding-inline: var(--space-8);
+  border-radius: var(--radius-pill);
+  background: var(--color-harissa);
+  color: var(--color-on-harissa);
+  font-size: var(--font-size-micro);
+  font-weight: var(--font-weight-micro);
+  letter-spacing: var(--letter-spacing-micro);
+  text-transform: var(--text-transform-micro);
+}
+
+.live-pill-dot {
+  inline-size: var(--space-8);
+  block-size: var(--space-8);
+  border-radius: var(--radius-pill);
+  background: currentcolor;
+  animation: live-pulse 1.6s var(--ease-standard) infinite;
+}
+
+@keyframes live-pulse {
+  50% {
+    opacity: 0.35;
+    transform: scale(0.7);
+  }
+}
+
+.odometer {
+  display: inline-flex;
+  unicode-bidi: isolate;
+  font-family: var(--font-numbers);
+  font-variant-numeric: var(--font-variant-numeric-numbers);
+}
+
+.odometer-digit {
+  display: inline-block;
+  block-size: 1lh;
+  overflow: hidden;
+}
+
+.odometer-strip {
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--motion-slow) var(--ease-decelerate);
+}
+
+.odometer-digit[data-digit="1"] .odometer-strip {
+  transform: translateY(-10%);
+}
+.odometer-digit[data-digit="2"] .odometer-strip {
+  transform: translateY(-20%);
+}
+.odometer-digit[data-digit="3"] .odometer-strip {
+  transform: translateY(-30%);
+}
+.odometer-digit[data-digit="4"] .odometer-strip {
+  transform: translateY(-40%);
+}
+.odometer-digit[data-digit="5"] .odometer-strip {
+  transform: translateY(-50%);
+}
+.odometer-digit[data-digit="6"] .odometer-strip {
+  transform: translateY(-60%);
+}
+.odometer-digit[data-digit="7"] .odometer-strip {
+  transform: translateY(-70%);
+}
+.odometer-digit[data-digit="8"] .odometer-strip {
+  transform: translateY(-80%);
+}
+.odometer-digit[data-digit="9"] .odometer-strip {
+  transform: translateY(-90%);
+}
+
+.tagine-moment {
+  inline-size: min(60vw, 16rem);
+  block-size: auto;
+}
+
+.tagine-plate {
+  fill: var(--color-surface-3);
+}
+
+.tagine-base,
+.tagine-lid-body {
+  fill: var(--color-harissa);
+}
+
+.tagine-lid-knob {
+  fill: var(--color-primary);
+}
+
+.tagine-lid {
+  transform-origin: 100px 128px;
+  animation: tagine-lift var(--motion-emphasis) var(--ease-spring-bouncy) 200ms both;
+}
+
+@keyframes tagine-lift {
+  to {
+    transform: translate(18px, -46px) rotate(14deg);
+  }
+}
+
+.tagine-steam {
+  fill: var(--color-primary);
+  opacity: 0;
+  animation: tagine-steam var(--motion-scene) var(--ease-decelerate) both;
+}
+
+.tagine-steam[data-index="1"],
+.tagine-steam[data-index="5"] {
+  animation-delay: 120ms;
+}
+.tagine-steam[data-index="2"],
+.tagine-steam[data-index="6"] {
+  animation-delay: 240ms;
+}
+.tagine-steam[data-index="3"],
+.tagine-steam[data-index="7"] {
+  animation-delay: 360ms;
+}
+
+@keyframes tagine-steam {
+  20% {
+    opacity: 0.7;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-90px) scale(1.8);
+  }
+}
+
+/* §7.1-6 new order on the board: drop in, then a saffron glow until acknowledged. */
+.moment-new-order {
+  animation: order-drop var(--motion-base) var(--ease-spring-snappy);
+}
+
+.moment-new-order[data-acknowledged="false"] {
+  animation:
+    order-drop var(--motion-base) var(--ease-spring-snappy),
+    order-glow 1.8s var(--ease-standard) var(--motion-base) infinite;
+}
+
+@keyframes order-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+}
+
+@keyframes order-glow {
+  50% {
+    box-shadow: 0 0 0 var(--space-4) var(--color-primary);
+  }
+}
+
+/* §7.1-2 address pin drop: the pin lands with a gentle spring and a saffron ripple. */
+.moment-pin-drop {
+  animation: pin-land var(--motion-slow) var(--ease-spring-gentle) both;
+}
+
+.moment-pin-drop::after {
+  content: "";
+  position: absolute;
+  inset-block-end: calc(-1 * var(--space-4));
+  inset-inline-start: 50%;
+  inline-size: var(--space-24);
+  block-size: var(--space-8);
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-pill);
+  translate: -50% 0;
+  animation: pin-ripple var(--motion-emphasis) var(--ease-decelerate) var(--motion-slow) both;
+}
+
+@keyframes pin-land {
+  from {
+    transform: translateY(-40px);
+    opacity: 0;
+  }
+}
+
+@keyframes pin-ripple {
+  from {
+    opacity: 1;
+    scale: 0.4;
+  }
+  to {
+    opacity: 0;
+    scale: 2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cart-count-spring,
+  .live-pill-dot,
+  .tagine-lid,
+  .moment-pin-drop,
+  .moment-pin-drop::after,
+  .moment-new-order,
+  .moment-new-order[data-acknowledged="false"] {
+    animation: none;
+  }
+
+  .tagine-steam {
+    animation: none;
+    opacity: 0;
+  }
+
+  .odometer-strip,
+  .countdown-ring-value {
+    transition: opacity var(--motion-instant) linear;
+  }
+
+  /* The unacknowledged order keeps a static glow: information, not motion. */
+  .moment-new-order[data-acknowledged="false"] {
+    box-shadow: 0 0 0 var(--space-4) var(--color-primary);
+  }
+}
+
+.moments-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-16);
+  align-items: center;
+}

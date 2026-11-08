@@ -1,16 +1,3 @@
-/*
- * Motion values from DESIGN §7. They move to packages/tokens once that package takes motion
- * tokens (docs/requests/lane-b-scheduling.md §4); until then marketing screens read these.
- */
-:root {
-  --motion-instant: 80ms;
-  --motion-base: 220ms;
-  --motion-emphasis: 480ms;
-  --motion-scene: 1200ms;
-  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
-  --ease-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
-}
-
 .pitch {
   display: grid;
   gap: var(--space-40);
