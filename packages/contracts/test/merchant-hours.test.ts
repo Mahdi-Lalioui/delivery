@@ -1,5 +1,11 @@
 import { expect, test } from "vitest";
-import { merchantHoursInput, merchantRamadanInput } from "../src/merchant-hours.ts";
+import {
+  merchantHoursCommandInput,
+  merchantHoursInput,
+  merchantHoursOutput,
+  merchantHoursWriteOutput,
+  merchantRamadanInput,
+} from "../src/merchant-hours.ts";
 
 const lunch = { opensMinute: 690, closesMinute: 900 };
 const dinner = { opensMinute: 1080, closesMinute: 1410 };
@@ -109,4 +115,24 @@ test.each([
 ])("[MER-16:contract] rejects %s", (_reason, override) => {
   const base = { weekly: ramadanWeek(), suhoor: null, method: "Algeria", adjustmentMinutes: 0 };
   expect(merchantRamadanInput.safeParse({ ...base, ...override }).success).toBe(false);
+});
+
+test("[MER-15:contract] binds a hours replace to a menu revision and reads back the session", () => {
+  const hours = { weekly: week([[lunch, dinner]]), specialDates: [] };
+  const sessionId = "01932f18-3150-7c33-8a7a-53acfd343002";
+  expect(merchantHoursCommandInput.parse({ ...hours, expectedRevision: 3 })).toEqual({
+    ...hours,
+    expectedRevision: 3,
+  });
+  expect(merchantHoursCommandInput.safeParse(hours).success).toBe(false);
+  expect(merchantHoursCommandInput.safeParse({ ...hours, expectedRevision: -1 }).success).toBe(
+    false,
+  );
+  expect(merchantHoursOutput.parse({ ...hours, sessionId, revision: 3 })).toEqual({
+    ...hours,
+    sessionId,
+    revision: 3,
+  });
+  expect(merchantHoursWriteOutput.parse({ revision: 4 })).toEqual({ revision: 4 });
+  expect(merchantHoursWriteOutput.safeParse({ revision: 4, extra: true }).success).toBe(false);
 });

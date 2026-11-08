@@ -61,6 +61,18 @@ const specialDates = z
 
 export const merchantHoursInput = z.strictObject({ weekly, specialDates });
 
+const menuRevision = z.int().nonnegative();
+
+/** Hours share the menu revision guard (D-011). */
+export const merchantHoursCommandInput = merchantHoursInput.extend({
+  expectedRevision: menuRevision,
+});
+export const merchantHoursOutput = merchantHoursInput.extend({
+  sessionId: z.uuid(),
+  revision: menuRevision,
+});
+export const merchantHoursWriteOutput = z.strictObject({ revision: menuRevision });
+
 const maxMaghribOffsetMinutes = 12 * 60;
 const maxPrayerAdjustmentMinutes = 30;
 
