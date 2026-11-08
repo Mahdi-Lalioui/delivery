@@ -87,3 +87,23 @@ export const merchantOnboardingOutput = z.strictObject({
   }),
   canGoLive: z.literal(false),
 });
+
+const merchantProfilePhotoIds = {
+  coverPhotoId: uuid.nullable(),
+  logoPhotoId: uuid.nullable(),
+};
+
+export const merchantProfilePhotosInput = z
+  .strictObject({ ...merchantProfilePhotoIds, expectedRevision: z.int().nonnegative() })
+  .refine(
+    ({ coverPhotoId, logoPhotoId }) =>
+      coverPhotoId === null || coverPhotoId.toLowerCase() !== logoPhotoId?.toLowerCase(),
+    "Use distinct cover and logo photos.",
+  );
+
+export const merchantProfilePhotosOutput = z.strictObject({
+  ...merchantProfilePhotoIds,
+  sessionId: uuid,
+  revision: z.int().nonnegative(),
+  restaurantName: displayName,
+});
