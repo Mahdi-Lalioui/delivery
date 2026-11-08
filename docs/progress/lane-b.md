@@ -49,3 +49,4 @@
   Proof: billing 9/9, promotions 11/11, `pnpm verify` green. Next: wire Ramadan `/v1/ramadan/today`, flags/settings/audit screens on `admin-ops` contract, retention screens on `retention` contract.
 - 2026-11-08 · High · ADM-08/ADM-09 platform console `/[locale]/admin/platform` on lane A's `admin-ops` routes: kill-switch toggles that require a reason before applying (flag echo verified), first-order cash cap + accept timeout, maintenance banner ar/fr/en, audit log with entity chips. Session-bound writes, one idempotency key per identical retry.
   Proof: platform tests 6/6 (+ MSW mocks enforcing session), `pnpm verify` green; reviewed 1280 fr light. Next: Ramadan `/v1/ramadan/today` client for the Iftar banner; retention-contract screens (favourites, history) on MSW.
+- 2026-11-08 · Low · Process slip: `c68c455` was pushed while `pnpm verify` failed on knip (two unused type exports); fixed in `bb4c18a` with verify green. Commits are now gated on verify's exit code.
