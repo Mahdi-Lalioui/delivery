@@ -595,7 +595,7 @@ The generated OpenAPI spec is committed. CI runs `oasdiff` and fails on breaking
 |---|---|
 | Auth | `POST /v1/auth/otp/request`, `POST /v1/auth/otp/verify`, `POST /v1/auth/logout`, `GET /v1/me/sessions`, `DELETE /v1/me/sessions/:id` |
 | Me | `GET/PATCH/DELETE /v1/me`, `GET /v1/me/export`, addresses CRUD, favourites, `POST /v1/me/push-subscriptions`, `GET /v1/me/orders` |
-| Discovery | `GET /v1/feed`, `GET /v1/search`, `GET /v1/merchants/:slug`, `GET /v1/merchants/:id/reviews`, `GET /v1/geo/serviceability`, `GET /v1/geo/reverse`, `GET /v1/geo/places`, `GET /v1/communes` |
+| Discovery | `GET /v1/feed`, `GET /v1/search`, `GET /v1/merchants/:slug`, `GET /v1/merchants/:id/reviews`, `POST /v1/geo/serviceability`, `GET /v1/geo/reverse`, `GET /v1/geo/places`, `GET /v1/communes` |
 | Ordering | `POST /v1/quotes`, `POST /v1/orders`, `GET /v1/orders/:id`, `POST /v1/orders/:id/{cancel,accept,reject,ready,assign,pick-up,collect,deliver,fail}`, `POST /v1/orders/:id/rating`, `GET /v1/orders/:id/reorder`, `GET /v1/track/:token` (public, read-only) |
 | Merchant | `POST /v1/merchant-applications`, profile, hours, ramadan rules, zones, categories, items, option groups, `POST /v1/merchants/:id/menu/bulk-price/{preview,apply,undo}`, `POST /v1/merchants/:id/menu/import/{preview,apply}`, `POST /v1/merchants/:id/menu/photo-import` (flag), staff, couriers, promotions, reviews reply, `POST /v1/merchants/:id/pause`, analytics, billing, `POST /v1/merchants/:id/test-order` |
 | Courier | `GET /v1/courier/jobs`, `POST /v1/courier/presence`, `POST /v1/courier/positions` (batch ≤ 50) |

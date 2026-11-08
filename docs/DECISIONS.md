@@ -212,3 +212,9 @@ Freeze names and descriptions while an item awaits review in both direct edits a
 ### D-024 — Attach restaurant cover and logo under the menu revision (2026-11-08)
 
 Save both profile photo slots with one session-bound menu command. Owners and managers can retain a ready attachment. New selections must be ready uploads of the correct kind, owned by the editor and scoped to the restaurant. Null removes the corresponding slot. Other eligible editors can read ready variants while the photo is attached. Upload and crop stay scoped to the uploader.
+
+### D-025 — Keep discovery coordinates in the request body (2026-11-08)
+
+This supersedes the GET method for serviceability in SPEC §13. Use a public POST with a strict point
+or commune body and a no-store response. Exact coordinates stay out of URLs and their access logs.
+The lookup makes no writes. Geographic coverage does not imply that ordering is enabled.
