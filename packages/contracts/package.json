@@ -4,6 +4,10 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./admin-moderation": {
+      "types": "./src/admin-moderation.ts",
+      "default": "./dist/admin-moderation.js"
+    },
     "./admin": {
       "types": "./src/admin.ts",
       "default": "./dist/admin.js"

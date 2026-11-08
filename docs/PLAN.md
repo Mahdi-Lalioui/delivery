@@ -121,6 +121,9 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
   - [x] Add the pure prohibited-goods matcher in `@zaafran/domain` (ar/fr/en/Arabizi keywords, whole words, property tests).
   - [x] Apply the matcher in the item create/update repository commands, setting `blocked_pending_review` in the same transaction, with integration tests per write path.
   - [ ] Add the audited admin review command and route (approve/reject) with matrix rows, and prove the public preview hides blocked items until approval.
+    - [x] Commit the held-item queue and review contracts (`@zaafran/contracts/admin-moderation`).
+    - [ ] Add the idempotent, audited review command and the keyset queue read in `packages/db`.
+    - [ ] Add the admin routes, authorization-matrix rows and OpenAPI, and prove the public preview after each decision.
   - [ ] Show the blocked status and the reason in the merchant item list and editor (ar/fr/en).
 - [ ] M2-11 Staff roles (MER-23). Implement owner-managed, single-use invitations tied to a verified phone. Prove every role against both its own and another merchant's resources.
 - [ ] M2-12 Seed twelve fictional bilingual Algiers restaurants with synthetic imagery and `is_demo`, then run production-built onboarding, the complete route matrix, and the design critic's theme/locale/viewport checks. Record local and PR evidence.
