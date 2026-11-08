@@ -13,6 +13,12 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 15:20 GMT — M2-9 dated hours exceptions
+
+- **Effort and evidence** — High for the editor and ultra for revision safety. `pnpm verify` passed 1,461 unit and 174 PostGIS tests. Three production browser journeys passed, including 12 accessible theme, language and viewport checks with a saved exception.
+- **Review** — Fixed the stale-draft overwrite and retained OpenAPI date format. The browser went from HTTP 200 to 409 and confirmed the other tab’s exception survived. See [hours evidence](evidence/m2/hours.md) and [closed findings](reviews/2026-11-08-hours-revisions.md).
+- **Next** — Stabilize the import ZIP CRC fixture, then add the in-app admin notice backend and the moderated menu preview.
+
 ### 2026-11-08 15:07 GMT — M2-6 application and item photo attachment
 
 - **Effort and evidence** — Ultra. Ready application photos are ordered and private. Menu photos are tenant-scoped and the cropper ships in Arabic, French and English. `pnpm verify` passed 1,449 unit and 174 PostGIS tests. Production Playwright passed 17 auth and 59 foundation cases.

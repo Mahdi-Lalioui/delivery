@@ -75,6 +75,9 @@ test("[MER-15] a saved week moves to the new revision and shows the notice", () 
   });
   expect(saved).toMatchObject({ kind: "editing", revision: 4, notice: "saved", errors: [] });
   expect(saved).not.toHaveProperty("retryKey");
+  expect(
+    reduceHours(saved, { kind: "revision-advanced", sessionId, expectedRevision: 4, revision: 5 }),
+  ).toMatchObject({ revision: 5, notice: "saved" });
 });
 
 test("[MER-15] keeps the key only after an uncertain failure and drops it on edit", () => {
@@ -122,13 +125,31 @@ test("[MER-15] adopts a newer revision from the closed-now command without losin
     value: "17:00",
   });
   const edited = reduceHours(loaded, { kind: "draft-changed", draft });
-  const advanced = reduceHours(edited, { kind: "revision-advanced", revision: 4 });
+  const event = { kind: "revision-advanced", sessionId, expectedRevision: 3, revision: 4 } as const;
+  const advanced = reduceHours(edited, event);
   expect(advanced).toEqual({ kind: "editing", sessionId, revision: 4, draft, errors: [] });
-  expect(reduceHours(advanced, { kind: "revision-advanced", revision: 2 })).toBe(advanced);
-  expect(reduceHours(initialHoursState, { kind: "revision-advanced", revision: 9 })).toBe(
-    initialHoursState,
-  );
+  expect(reduceHours(advanced, event)).toBe(advanced);
+  expect(reduceHours(initialHoursState, event)).toBe(initialHoursState);
 });
+
+test.each([
+  { sessionId, expectedRevision: 4, revision: 5 },
+  { sessionId: "different-session", expectedRevision: 3, revision: 4 },
+])(
+  "[MER-15] keeps a dated-exception draft on its own revision after an unrelated save",
+  (change) => {
+    if (loaded.kind !== "editing") throw new Error("Expected editing");
+    const specialDates = [{ id: "fixture", date: "2027-01-01", ranges: [] }];
+    const edited = reduceHours(loaded, {
+      kind: "draft-changed",
+      draft: { ...loaded.draft, specialDates },
+    });
+    const afterSave = reduceHours(edited, { kind: "revision-advanced", ...change });
+    expect(prepareHoursSave(afterSave, () => "draft-key")).toMatchObject({
+      input: { expectedRevision: 3, specialDates: [{ date: "2027-01-01", ranges: [] }] },
+    });
+  },
+);
 
 test("[MER-15] drops a held retry key once the revision advances", () => {
   const uncertain = reduceHours(saving(loaded), {
@@ -136,11 +157,45 @@ test("[MER-15] drops a held retry key once the revision advances", () => {
     result: { kind: "error", shouldReuseKey: true },
   });
   expect(uncertain).toMatchObject({ retryKey: "key-1" });
-  const advanced = reduceHours(uncertain, { kind: "revision-advanced", revision: 4 });
+  const advanced = reduceHours(uncertain, {
+    kind: "revision-advanced",
+    sessionId,
+    expectedRevision: 3,
+    revision: 4,
+  });
   expect(advanced).not.toHaveProperty("retryKey");
   expect(advanced).not.toHaveProperty("failure");
   expect(prepareHoursSave(advanced, () => "key-7")).toMatchObject({
     idempotencyKey: "key-7",
     input: { expectedRevision: 4 },
+  });
+});
+
+test("[MER-15] saves dated exceptions with the week and retries only an unchanged draft", () => {
+  if (loaded.kind !== "editing") throw new Error("Expected editing");
+  const draft = {
+    ...loaded.draft,
+    specialDates: [{ id: "fixture", date: "2027-01-01", ranges: [] }],
+  };
+  const edited = reduceHours(loaded, { kind: "draft-changed", draft });
+  const attempt = prepareHoursSave(edited, () => "first-attempt");
+  expect(attempt).toEqual({
+    kind: "ready",
+    idempotencyKey: "first-attempt",
+    input: { expectedRevision: 3, weekly, specialDates: [{ date: "2027-01-01", ranges: [] }] },
+  });
+  const uncertain = reduceHours(saving(edited, "first-attempt"), {
+    kind: "save-finished",
+    result: { kind: "error", shouldReuseKey: true },
+  });
+  expect(prepareHoursSave(uncertain, () => "new-key")).toEqual(attempt);
+  const reopened = reduceHours(uncertain, {
+    kind: "draft-changed",
+    draft: { ...draft, specialDates: [] },
+  });
+  expect(prepareHoursSave(reopened, () => "new-key")).toEqual({
+    kind: "ready",
+    idempotencyKey: "new-key",
+    input: { expectedRevision: 3, weekly, specialDates: [] },
   });
 });

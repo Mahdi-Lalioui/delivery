@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useReducer, useRef, useState, type Dispatch } from "react";
-import type { HoursEvent, HoursState } from "./hours-flow";
+import { useEffect, useReducer, useRef, useState } from "react";
+import type { HoursState, RevisionAdvanced } from "./hours-flow";
 import { readHoursPause, setHoursPause } from "./hours-http";
 import {
   initialPauseState,
@@ -41,14 +41,14 @@ export function useHoursPause({
   merchantId,
   version,
   hours,
-  dispatchHours,
+  onSaved,
   isBlocked,
   onSettled,
 }: {
   merchantId: string;
   version: number;
   hours: HoursState;
-  dispatchHours: Dispatch<HoursEvent>;
+  onSaved: (event: RevisionAdvanced) => void;
   /** True while another command on the shared D-011 revision is in flight. */
   isBlocked: () => boolean;
   /** Receives the selector to focus once the fieldset is enabled again. */
@@ -90,7 +90,12 @@ export function useHoursPause({
     dispatch(event);
     onSettled(pauseFocusSelector(reducePause(saving, event)));
     if (result.kind === "saved") {
-      dispatchHours({ kind: "revision-advanced", revision: result.data.revision });
+      onSaved({
+        kind: "revision-advanced",
+        sessionId,
+        expectedRevision: command.input.expectedRevision,
+        revision: result.data.revision,
+      });
     }
   }
 

@@ -21,7 +21,7 @@ The follow-up fixes re-screen approved source text when duplicating an item. The
 - [x] **MER-12** Lane A added the bounded CSV/XLSX import screen, template and error report. The production browser journey starts with an empty menu and proves retry after a committed apply, refresh failure, and duplicate-free reimport.
 - [ ] **MER-14** The media worker, persisted ready variants, item crop workflow and attachment now have passing production browser evidence. Complete the cover and logo workflow and the design matrix before closing the bare ID.
 - [ ] **M2-2** Close the umbrella schema task. Tenant constraints and mixed-role tests exist. Settings and flags and the full media lifecycle are still open.
-- [ ] **MER-15** Add the web editor and production test for dated hours exceptions. The API persists them and the UI currently preserves existing exceptions.
+- [x] **MER-15** The Arabic and French editor can create, edit and remove dated exceptions. The production stale-draft regression proves a sibling save cannot overwrite another tab’s exception.
 - [ ] **M2-10** Prove the customer-facing preview. The committed test verifies the moderated item count in the authenticated onboarding checklist.
 - [ ] **M2-12** Seed twelve fictional bilingual Algiers restaurants with synthetic imagery and `is_demo`.
 - [ ] **Gate wiring** Run the tagged onboarding journey using the authenticated Playwright config. Register a real design-screen check and cover the missing import, hours, staff and moderation routes in the dedicated authorization-matrix command. Complete missing 768px and pseudo-locale design evidence. The default CI trace remains scoped to the last closed milestone (M1).

@@ -1,11 +1,19 @@
 import { expect, test } from "vitest";
 import {
   addHoursRange,
+  addSpecialDate,
+  addSpecialDateRange,
   canAddHoursRange,
+  canAddSpecialDate,
+  canAddSpecialDateRange,
+  changeSpecialDate,
+  changeSpecialDateRange,
   formatClock,
   isOvernightRange,
   parseClock,
   removeHoursRange,
+  removeSpecialDate,
+  removeSpecialDateRange,
   toHoursDraft,
   toHoursInput,
   updateHoursRange,
@@ -115,9 +123,105 @@ test("[MER-15] adds up to four ranges a day, updates and removes them", () => {
   expect(draft.weekly[1]?.ranges).toEqual([]);
 });
 
-test("[MER-15] never blames a weekday for a problem in the special dates", () => {
-  const closed = { date: "2026-12-30", ranges: [] };
-  const empty = { date: "2026-12-31", ranges: [{ opensMinute: 600, closesMinute: 600 }] };
-  const draft = { ...draftWith([]), specialDates: [closed, empty] };
-  expect(toHoursInput(draft)).toEqual({ kind: "invalid", errors: [] });
+test("[MER-15] reports invalid dates, duplicates, times and overlaps against the affected rows", () => {
+  const draft: HoursDraft = {
+    ...draftWith([]),
+    specialDates: [
+      { id: "blank", date: "", ranges: [] },
+      { id: "invalid", date: "2026-02-29", ranges: [] },
+      { id: "original", date: "2026-12-30", ranges: [] },
+      { id: "duplicate", date: "2026-12-30", ranges: [] },
+      { id: "bad-time", date: "2026-12-31", ranges: [{ opens: "18:00", closes: "" }] },
+      { id: "empty-range", date: "2027-01-01", ranges: [{ opens: "18:00", closes: "18:00" }] },
+      {
+        id: "overlap",
+        date: "2027-01-02",
+        ranges: [
+          { opens: "18:00", closes: "02:00" },
+          { opens: "23:00", closes: "00:00" },
+        ],
+      },
+    ],
+  };
+  expect(toHoursInput(draft)).toEqual({
+    kind: "invalid",
+    errors: [
+      { dateId: "blank", reason: "date" },
+      { dateId: "invalid", reason: "date" },
+      { dateId: "duplicate", reason: "duplicate" },
+      { dateId: "bad-time", reason: "time", index: 0, field: "closes" },
+      { dateId: "empty-range", reason: "time", index: 0, field: "closes" },
+      { dateId: "overlap", reason: "overlap" },
+    ],
+  });
+});
+
+test("[MER-15] converts special dates to clock drafts and serializes their ranges without draft IDs", () => {
+  const hours = {
+    ...stored,
+    specialDates: [
+      { date: "2024-02-29", ranges: [] },
+      {
+        date: "2026-12-31",
+        ranges: [
+          { opensMinute: 900, closesMinute: 1080 },
+          { opensMinute: 1080, closesMinute: 120 },
+        ],
+      },
+      { date: "2027-01-01", ranges: [{ opensMinute: 1080, closesMinute: 1440 }] },
+    ],
+  };
+  const draft = toHoursDraft(hours);
+  expect(draft.specialDates.map(({ ranges }) => ranges)).toEqual([
+    [],
+    [
+      { opens: "15:00", closes: "18:00" },
+      { opens: "18:00", closes: "02:00" },
+    ],
+    [{ opens: "18:00", closes: "00:00" }],
+  ]);
+  expect(new Set(draft.specialDates.map(({ id }) => id)).size).toBe(3);
+  expect(toHoursInput(draft)).toEqual({ kind: "valid", input: hours });
+});
+
+test("[MER-15] edits a dated exception by stable ID and distinguishes closing from deleting it", () => {
+  const original = draftWith([]);
+  const dateId = "new-exception";
+  let draft = addSpecialDate(original, dateId);
+  expect(draft.specialDates).toEqual([{ id: dateId, date: "", ranges: [] }]);
+  draft = changeSpecialDate(draft, { dateId, value: "2026-12-31" });
+  draft = addSpecialDateRange(draft, dateId);
+  draft = changeSpecialDateRange(draft, { dateId, index: 0, field: "opens", value: "18:00" });
+  draft = changeSpecialDateRange(draft, { dateId, index: 0, field: "closes", value: "٠٢:٠٠" });
+  expect(toHoursInput(draft)).toMatchObject({
+    kind: "valid",
+    input: {
+      specialDates: [{ date: "2026-12-31", ranges: [{ opensMinute: 1080, closesMinute: 120 }] }],
+    },
+  });
+  draft = removeSpecialDateRange(draft, { dateId, index: 0 });
+  expect(toHoursInput(draft)).toMatchObject({
+    kind: "valid",
+    input: { specialDates: [{ date: "2026-12-31", ranges: [] }] },
+  });
+  expect(removeSpecialDate(draft, dateId)).toEqual(original);
+});
+
+test("[MER-15] caps additions at sixty exceptions and four ranges per date", () => {
+  let draft = draftWith([]);
+  for (let index = 0; index < 60; index += 1) {
+    expect(canAddSpecialDate(draft)).toBe(true);
+    draft = addSpecialDate(draft, `date-${String(index)}`);
+  }
+  expect(canAddSpecialDate(draft)).toBe(false);
+  expect(addSpecialDate(draft, "extra-date")).toBe(draft);
+
+  const dateId = "date-0";
+  for (let count = 0; count < 4; count += 1) {
+    expect(canAddSpecialDateRange(draft, dateId)).toBe(true);
+    draft = addSpecialDateRange(draft, dateId);
+  }
+  expect(canAddSpecialDateRange(draft, dateId)).toBe(false);
+  expect(addSpecialDateRange(draft, dateId)).toBe(draft);
+  expect(canAddSpecialDateRange(draft, "date-1")).toBe(true);
 });

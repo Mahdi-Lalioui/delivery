@@ -23,3 +23,6 @@
 
 - 2026-11-08 · Ultra · M2-6 application and item photo attachment passed `pnpm verify` with 1,449 unit and 174 PostGIS cases, plus 17 auth and 59 foundation browser cases. Review closed both P1s. See [evidence](../evidence/m2/photo-prepare.md).
 - 2026-11-08 · High · Resume M2-9 dated exceptions. Reuse the existing revision-bound hours command and preview. Close admin notice delivery, cover/logo controls, moderated preview, seed and gate wiring before closing M2.
+
+- 2026-11-08 · High and ultra · M2-9 dated exceptions passed `pnpm verify` with 1,461 unit and 174 PostGIS tests, plus three production browser cases. A sibling schedule save cannot let a stale draft overwrite another tab’s exception. See [hours evidence](../evidence/m2/hours.md).
+- 2026-11-08 · Ultra · Next stabilize the import CRC test, whose UTF-8 string offset can differ from the ZIP byte offset. Then add the MER-01 notice read for Lane B’s admin UI and the moderated customer preview for Lane A.
