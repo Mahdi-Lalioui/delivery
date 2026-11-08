@@ -138,6 +138,8 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Add the list, invite, revoke and accept routes with injected token and SMS services, matrix rows and OpenAPI.
     - [x] Wire the routes in `startApi` with a real token generator and an invitation SMS adapter. Prove owner, manager, staff and merchant-B owner against PostGIS through `startApi`.
   - [ ] Add the owner staff screen and the invitee accept page (ar/fr/en) with an auth e2e and the design matrix.
+    - [x] Expose sent invitation tokens in the e2e auth harness and add the typed web client (`apps/web/src/merchant-staff/staff-http.ts`).
+    - [ ] Add the owner staff page, the accept page, ar/fr/en messages and `e2e/auth-merchant-staff.spec.ts` with the design matrix.
 - [ ] M2-12 Seed twelve fictional bilingual Algiers restaurants with synthetic imagery and `is_demo`, then run production-built onboarding, the complete route matrix, and the design critic's theme/locale/viewport checks. Record local and PR evidence.
 
 **Gate m2:**

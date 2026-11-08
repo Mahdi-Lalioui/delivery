@@ -13,6 +13,25 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 08:52 GMT — M2-11 typed staff web client and e2e invitation outbox (Claude, covering while Codex was out)
+
+- **Changed** — The e2e auth harness (`apps/api/tools/e2e-auth-bootstrap.ts`, `e2e-auth-types.ts`) now passes `sendInvitation` to `startApi` and exposes `latestInvitation(phone)`. Added `apps/web/src/merchant-staff/staff-http.ts`:
+  - `listStaff`: 401/403 → sign-in, 404 → not-found, and a malformed body → error.
+  - `prepareStaffInvitation`: normalizes the local phone through `normalizeAlgerianPhone`, validates through `staffInvitationInput`, and reuses the key only for an identical retry.
+  - `sendStaffInvitation`: session-bound; classifies already-member, already-invited, session-changed, delivery-unavailable, sign-in, not-found and error.
+  - `revokeStaffInvitation`: `already_consumed` → stale, and only an echo of the same id counts as revoked.
+  - `acceptStaffInvitation`: validates the token locally before any request.
+
+  Bodyless commands omit `Content-Type: application/json`, because Fastify rejects an empty JSON body.
+- **Evidence** — `apps/web/test/merchant-staff-http.test.ts` (5 `[MER-23:web]` cases) failed on the missing module, then passed 5/5. `pnpm verify` → exit 0: 1161 unit and 137 PostGIS integration tests, build, knip, depcruise, trace, and only the existing moderate advisory.
+- **Reviewer** — Self-reviewed against AGENTS.md §10. No P0/P1.
+- **Next (exact)** — Finish M2-11's last subtask.
+  1. Add a `merchantStaff` message namespace (ar/fr/en): title, members, roles, invite form, errors per client result, revoke, accept states.
+  2. Add `apps/web/src/merchant-staff/use-merchant-staff.ts` (load → ready/sign-in/not-found/error, invite and revoke with retry keys) and the presentational `merchant-staff-page.tsx`: member list with `formatAlgerianPhone` in `<bdi dir="ltr">`, invite form with manager/staff radios and `aria-describedby` errors, and a revoke button per invitation. Add the route `apps/web/src/app/[locale]/merchant/[merchantId]/staff/page.tsx` (plus the `ar` twin, as the hours page has), and add the `/merchant/${string}/staff` shell subpath.
+  3. Add `apps/web/src/app/[locale]/staff/accept/page.tsx`, which reads `#token=` from `location.hash`, clears the hash, accepts, and links to `/{locale}/merchant`.
+  4. Add `e2e/auth-merchant-staff.spec.ts`: owner `+213550000281` invites `0550 00 02 82` as staff. A second context signs in with that phone and opens `/fr/staff/accept#token=${auth.latestInvitation(...)}`. The owner reloads and sees the member. Include the ar/fr × light/dark × 390/1280 matrix with axe and overflow checks.
+- **Needs Mahdi** — None.
+
 ### 2026-11-08 08:50 GMT — M2-11 staff routes wired in startApi and proven per role (Claude, covering while Codex was out)
 
 - **Changed** — `startApi` now builds `merchantStaff` from `createMerchantStaffRepository`, with `createToken: () => randomBytes(32).toString("base64url")` and a new `sendInvitation` start option. Without that option, the same throwing `unavailableSms` is used, so the route answers `503 invitation_delivery_unavailable`. `dev-server.ts` puts the invitation token in the fake SMS outbox. `merchant-api-fixture.ts`'s `openApi` takes an optional `sendInvitation`.
@@ -769,6 +788,6 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 ## Current status
 
 - Milestone: M1 (last passing gate, M2 in progress)
-- `node scripts/trace.ts --through m2` on 2026-11-08 at 03:32 GMT covered 32 of 37 IDs (pending then: ADM-04, MER-01, MER-12, MER-14, MER-23; ADM-04 now has db, http, contract, web and ui tests). M2-9 is done, with production-build ar/fr journeys and the screenshot matrix. M2-10 has the screen on item writes, the audited admin review command, the queue, the admin API routes, an end-to-end PostGIS API test, the merchant explanation and the typed admin web client. The admin held-items screen and its auth e2e landed at 08:34, so M2-10 is done. M2-11 has its contracts (08:36), the invitation schema with owner-only create/list/revoke (08:40), the single-use accept (08:42), the API routes (08:47) and the `startApi` wiring with per-role PostGIS proof (08:50). Next: the owner staff screen and the invitee accept page (see the 08:50 entry).
-- Last green `pnpm verify`: 2026-11-08 08:49 GMT on Docker Desktop with 1156 unit and 137 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 15/15 at 08:49 GMT.
+- `node scripts/trace.ts --through m2` on 2026-11-08 at 03:32 GMT covered 32 of 37 IDs (pending then: ADM-04, MER-01, MER-12, MER-14, MER-23; ADM-04 now has db, http, contract, web and ui tests). M2-9 is done, with production-build ar/fr journeys and the screenshot matrix. M2-10 has the screen on item writes, the audited admin review command, the queue, the admin API routes, an end-to-end PostGIS API test, the merchant explanation and the typed admin web client. The admin held-items screen and its auth e2e landed at 08:34, so M2-10 is done. M2-11 has its contracts (08:36), the invitation schema with owner-only create/list/revoke (08:40), the single-use accept (08:42), the API routes (08:47) the `startApi` wiring with per-role PostGIS proof (08:50) and the typed web client (08:52). Next: the owner staff page, the accept page and their e2e (see the 08:52 entry).
+- Last green `pnpm verify`: 2026-11-08 08:52 GMT on Docker Desktop with 1161 unit and 137 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 15/15 at 08:49 GMT.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

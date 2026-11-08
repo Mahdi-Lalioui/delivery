@@ -124,6 +124,7 @@ export async function startAuthHarness(webOrigin: string): Promise<AuthHarness> 
   resources.defer(proxy.close);
   const totpKey = randomBytes(32);
   const sms = new Map<string, string>();
+  const invitations = new Map<string, string>();
   let time = Date.now();
   const api = await compiled.startApi({
     environment: {
@@ -137,6 +138,9 @@ export async function startAuthHarness(webOrigin: string): Promise<AuthHarness> 
     now: () => new Date(time),
     sendSms({ phone, code }) {
       sms.set(phone, code);
+    },
+    sendInvitation({ phone, token }) {
+      invitations.set(phone, token);
     },
   });
   resources.defer(() => api.close());
@@ -161,6 +165,11 @@ export async function startAuthHarness(webOrigin: string): Promise<AuthHarness> 
       const code = sms.get(phone);
       if (code === undefined) throw new Error("No SMS was sent to the synthetic test number.");
       return code;
+    },
+    latestInvitation(phone: string) {
+      const token = invitations.get(phone);
+      if (token === undefined) throw new Error("No invitation was sent to the synthetic number.");
+      return token;
     },
     async phoneForSession(sessionId: string) {
       const [user] = await database.sql<{ phone: string }[]>`
