@@ -455,6 +455,7 @@
     "applied": "New prices applied.",
     "undo": "Undo price change",
     "undone": "Previous prices restored.",
+    "newChange": "New change",
     "failureUndoExpired": "The ten-minute undo window has closed.",
     "failurePriceChanged": "A price was edited after this change, so it can no longer be undone.",
     "failureAlreadyUndone": "This change was already undone.",

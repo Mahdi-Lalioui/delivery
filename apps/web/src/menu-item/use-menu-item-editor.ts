@@ -364,6 +364,22 @@ export function useMenuItemEditor({
     setFocus(savedFocus(result, refreshed.data.items, successNotice));
   }
 
+  // Another panel saved a menu change: refresh the snapshot in place, keeping focus where it is.
+  async function reloadAfter(minimumRevision: number) {
+    const signal = request.current?.signal;
+    if (!signal || view.kind !== "ready") return;
+    const refreshed = await refreshMenuItems({
+      merchantId,
+      categoryId,
+      signal,
+      sessionId: view.data.sessionId,
+      minimumRevision,
+    });
+    if (signal.aborted) return;
+    if (refreshed.kind === "ready") setView(refreshed);
+    else showUnavailable(refreshed);
+  }
+
   function retryWrite(
     result: Extract<ItemWrite, { shouldReuseKey: boolean }>,
     currentAttempt: ItemAttempt,
@@ -434,5 +450,6 @@ export function useMenuItemEditor({
     askArchive,
     cancelArchive,
     confirmArchive,
+    reloadAfter,
   };
 }

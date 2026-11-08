@@ -27,7 +27,7 @@ const item = {
   isAvailable: false,
   soldOutUntil: "2026-11-07T22:59:59.000Z",
 } satisfies MenuItem;
-const { menuItem } = getMessages("ar");
+const { menuItem, menuPrice } = getMessages("ar");
 const ready = {
   kind: "ready" as const,
   data: {
@@ -68,12 +68,17 @@ const defaults = {
   askArchive: vi.fn(),
   cancelArchive: vi.fn(),
   confirmArchive: vi.fn(),
+  reloadAfter: vi.fn(),
 };
 
 function render(state: Partial<ReturnType<typeof useMenuItemEditor>> = {}) {
   editor.mockReturnValueOnce({ ...defaults, ...state });
   return renderToStaticMarkup(
-    <NextIntlClientProvider locale="ar-DZ" timeZone="Africa/Algiers" messages={{ menuItem }}>
+    <NextIntlClientProvider
+      locale="ar-DZ"
+      timeZone="Africa/Algiers"
+      messages={{ menuItem, menuPrice }}
+    >
       <MenuItemScreen merchantId={merchantId} categoryId={categoryId} locale="ar" />
     </NextIntlClientProvider>,
   );
@@ -270,3 +275,21 @@ test.each([{ editor: editWithAttachments }, { archiveTarget: itemId }])(
     );
   },
 );
+
+test("[MER-11] places the bulk price panel in the item workspace with localized items", () => {
+  const html = render();
+  expect(html).toContain(`id="bulk-price-title">${menuPrice.title}`);
+  expect(html).toContain(`id="bulk-price-item-${itemId}"`);
+  expect(html).toMatch(/<bdi>طبق مشوي<\/bdi><bdi class="bulk-price-current">/);
+  expect(html).not.toMatch(/<fieldset class="bulk-price-fieldset" disabled/);
+});
+
+test("[MER-11] hides the bulk price panel when the category has no items", () => {
+  const html = render({ view: { ...ready, data: { ...ready.data, items: [] } } });
+  expect(html).not.toContain("bulk-price-title");
+});
+
+test("[MER-11] locks the bulk price panel while an item form is open", () => {
+  const html = render({ editor: editWithAttachments });
+  expect(html).toMatch(/<fieldset class="bulk-price-fieldset" disabled/);
+});

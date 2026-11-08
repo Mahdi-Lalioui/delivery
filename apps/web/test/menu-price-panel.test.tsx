@@ -128,3 +128,20 @@ test("[MER-11] reports an empty selection apart from the amount field", () => {
   expect(html).not.toContain(`aria-invalid="true"`);
   expect(html).toMatch(/<fieldset[^>]*aria-describedby="bulk-price-selection-error"/);
 });
+
+test("[MER-11] lets the merchant start another change after apply or undo", () => {
+  const undone = reduceBulkPrice(
+    reduceBulkPrice(applied, { kind: "undo-started", idempotencyKey: "u" }),
+    {
+      kind: "undo-finished",
+      result: {
+        kind: "saved",
+        data: { batchId, revision: 6, items: [{ itemId, oldPriceDzd: 550, newPriceDzd: 500 }] },
+      },
+    },
+  );
+  expect(render({ state: applied, isUndoOffered: true })).toContain(menuPrice.newChange);
+  expect(render({ state: undone })).toContain(menuPrice.newChange);
+  expect(render()).not.toContain(menuPrice.newChange);
+  expect(render({ state: previewed })).not.toContain(menuPrice.newChange);
+});

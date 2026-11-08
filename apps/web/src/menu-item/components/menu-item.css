@@ -327,3 +327,83 @@
   border-radius: var(--radius-sm);
   background: var(--color-bg);
 }
+
+.bulk-price-panel {
+  gap: var(--space-16);
+}
+
+.bulk-price-fieldset {
+  display: grid;
+  min-inline-size: 0;
+  gap: var(--space-8);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.bulk-price-fieldset legend {
+  margin-block-end: var(--space-4);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-label);
+  line-height: var(--line-height-label);
+}
+
+.bulk-price-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8) var(--space-16);
+}
+
+.bulk-price-choice {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  min-block-size: var(--touch-target-min);
+  overflow-wrap: anywhere;
+}
+
+.bulk-price-current {
+  margin-inline-start: auto;
+  color: var(--color-text-2);
+}
+
+.bulk-price-current,
+.bulk-price-table td {
+  font-family: var(--font-numbers);
+  font-variant-numeric: var(--font-variant-numeric-numbers);
+  white-space: nowrap;
+}
+
+.bulk-price-amount {
+  display: grid;
+  gap: var(--space-12);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(2 * var(--space-80))), 1fr));
+}
+
+.bulk-price-table {
+  inline-size: 100%;
+  border-collapse: collapse;
+}
+
+.bulk-price-table caption {
+  margin-block-end: var(--space-8);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+  text-align: start;
+  color: var(--color-text-2);
+}
+
+.bulk-price-table th,
+.bulk-price-table td {
+  padding-block: var(--space-8);
+  padding-inline: var(--space-8);
+  border-block-end: 1px solid var(--color-border-subtle);
+  text-align: start;
+}
+
+.bulk-price-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-12);
+}

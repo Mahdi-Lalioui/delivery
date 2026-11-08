@@ -41,7 +41,10 @@ export function MenuItemPage({
       <NextIntlClientProvider
         locale={localeDetails[locale].tag}
         timeZone="Africa/Algiers"
-        messages={{ menuItem: getMessages(locale).menuItem }}
+        messages={{
+          menuItem: getMessages(locale).menuItem,
+          menuPrice: getMessages(locale).menuPrice,
+        }}
       >
         <MenuItemScreen
           key={`${merchantId}/${categoryId}`}

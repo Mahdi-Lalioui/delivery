@@ -455,6 +455,7 @@
     "applied": "Nouveaux prix appliqués.",
     "undo": "Annuler la modification",
     "undone": "Anciens prix rétablis.",
+    "newChange": "Nouvelle modification",
     "failureUndoExpired": "Le délai d’annulation de dix minutes est écoulé.",
     "failurePriceChanged": "Un prix a été modifié depuis, la modification ne peut plus être annulée.",
     "failureAlreadyUndone": "Cette modification a déjà été annulée.",

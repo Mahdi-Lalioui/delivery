@@ -4,6 +4,8 @@ import { getLocalizedContent } from "@zaafran/i18n/content";
 import type { Locale } from "@zaafran/i18n/locales";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef } from "react";
+import { BulkPricePanel } from "../../menu-price/components/bulk-price-panel";
+import { useBulkPricePanel } from "../../menu-price/use-bulk-price-panel";
 import { useMenuItemEditor } from "../use-menu-item-editor";
 import { MenuItemCategoryRail } from "./menu-item-category-rail";
 import { MenuItemForm } from "./menu-item-form";
@@ -52,6 +54,27 @@ interface WorkspaceProps {
   controls: Controls;
 }
 
+function BulkPriceSection({
+  merchantId,
+  locale,
+  controls,
+  snapshot,
+  isBlocked,
+}: Omit<WorkspaceProps, "categoryId"> & { snapshot: ItemSnapshot; isBlocked: boolean }) {
+  const bulkControls = useBulkPricePanel({
+    merchantId,
+    snapshot,
+    isBlocked,
+    onSaved: controls.reloadAfter,
+  });
+  const items = snapshot.items.map((item) => ({
+    itemId: item.itemId,
+    name: getLocalizedContent(item.names, locale) ?? "",
+    priceDzd: item.priceDzd,
+  }));
+  return <BulkPricePanel items={items} locale={locale} controls={bulkControls} />;
+}
+
 function ItemWorkspace({
   merchantId,
   categoryId,
@@ -87,6 +110,15 @@ function ItemWorkspace({
         />
         {editor && <MenuItemForm {...controls} editor={editor} locale={locale} />}
       </div>
+      {snapshot.items.length > 0 && (
+        <BulkPriceSection
+          merchantId={merchantId}
+          locale={locale}
+          controls={controls}
+          snapshot={snapshot}
+          isBlocked={blocked}
+        />
+      )}
     </>
   );
 }

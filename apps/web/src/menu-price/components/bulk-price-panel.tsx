@@ -97,6 +97,20 @@ function PreviewTable({ items, locale, controls }: PanelProps) {
   );
 }
 
+function NewChange({ controls }: Pick<PanelProps, "controls">) {
+  const translate = useTranslations("menuPrice");
+  return (
+    <button
+      className="menu-item-secondary"
+      type="button"
+      disabled={controls.pending}
+      onClick={controls.reset}
+    >
+      {translate("newChange")}
+    </button>
+  );
+}
+
 function Actions({ controls }: Pick<PanelProps, "controls">) {
   const translate = useTranslations("menuPrice");
   const { state, pending, isUndoOffered } = controls;
@@ -114,10 +128,18 @@ function Actions({ controls }: Pick<PanelProps, "controls">) {
             {translate("undo")}
           </button>
         )}
+        <NewChange controls={controls} />
       </div>
     );
   }
-  if (state.kind === "undone") return <p role="status">{translate("undone")}</p>;
+  if (state.kind === "undone") {
+    return (
+      <div className="bulk-price-actions">
+        <p role="status">{translate("undone")}</p>
+        <NewChange controls={controls} />
+      </div>
+    );
+  }
   const hasPreview = state.kind === "previewed" || state.kind === "applying";
   return (
     <div className="bulk-price-actions">

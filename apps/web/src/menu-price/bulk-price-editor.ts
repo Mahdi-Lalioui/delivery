@@ -45,6 +45,11 @@ export function parseBulkAdjustment({
   return parsed.success ? parsed.data : undefined;
 }
 
+// The first instant at which isUndoOffered turns false, so a timer can re-render the panel then.
+export function undoClosesAtMs(appliedAtMs: number): number {
+  return appliedAtMs + UNDO_WINDOW_MS + 1;
+}
+
 export function isUndoOffered({ appliedAtMs, nowMs }: { appliedAtMs: number; nowMs: number }) {
   const elapsedMs = nowMs - appliedAtMs;
   return elapsedMs >= 0 && elapsedMs <= UNDO_WINDOW_MS;

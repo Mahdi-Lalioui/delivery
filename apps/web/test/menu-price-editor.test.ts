@@ -1,5 +1,9 @@
 import { expect, test } from "vitest";
-import { isUndoOffered, parseBulkAdjustment } from "../src/menu-price/bulk-price-editor";
+import {
+  isUndoOffered,
+  parseBulkAdjustment,
+  undoClosesAtMs,
+} from "../src/menu-price/bulk-price-editor";
 
 test.each([
   ["10", "raise", { kind: "percent", basisPoints: 1_000 }],
@@ -39,4 +43,11 @@ test("[MER-11] offers undo for ten minutes after the apply on the local clock", 
   expect(isUndoOffered({ appliedAtMs, nowMs: appliedAtMs })).toBe(true);
   expect(isUndoOffered({ appliedAtMs, nowMs: appliedAtMs + 600_000 })).toBe(true);
   expect(isUndoOffered({ appliedAtMs, nowMs: appliedAtMs + 600_001 })).toBe(false);
+});
+
+test("[MER-11] hides undo at the first millisecond after the ten-minute window", () => {
+  const appliedAtMs = Date.UTC(2026, 10, 8, 2);
+  const closesAtMs = undoClosesAtMs(appliedAtMs);
+  expect(isUndoOffered({ appliedAtMs, nowMs: closesAtMs - 1 })).toBe(true);
+  expect(isUndoOffered({ appliedAtMs, nowMs: closesAtMs })).toBe(false);
 });
