@@ -93,6 +93,7 @@ function DayFields({ weekday, props }: { weekday: number; props: WeeklyHoursFiel
         </p>
       ) : null}
       <button
+        id={`hours-${String(weekday)}-add`}
         className="menu-item-secondary"
         type="button"
         disabled={!canAddHoursRange(props.draft, weekday)}

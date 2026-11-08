@@ -1,0 +1,133 @@
+.hours-panel,
+.hours-heading,
+.hours-workspace,
+.hours-card,
+.hours-week,
+.hours-day,
+.hours-ranges,
+.hours-preview,
+.hours-preview-days,
+.hours-preview-day {
+  display: grid;
+  min-inline-size: 0;
+  gap: var(--space-12);
+}
+
+.hours-panel,
+.hours-workspace {
+  gap: var(--space-24);
+}
+
+.hours-heading h1 {
+  font-family: var(--font-display);
+  font-size: var(--font-size-display);
+  font-weight: var(--font-weight-display);
+  line-height: var(--line-height-display);
+}
+
+.hours-heading p {
+  color: var(--color-text-2);
+}
+
+.hours-workspace {
+  align-items: start;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(4 * var(--space-80))), 1fr));
+}
+
+.hours-card {
+  align-content: start;
+  padding: clamp(var(--space-16), 5vi, var(--space-24));
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-e1);
+}
+
+.hours-card h2,
+.hours-week > legend {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-h2);
+  line-height: var(--line-height-h2);
+}
+
+.hours-week,
+.hours-day {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.hours-day {
+  padding-block: var(--space-12);
+  border-block-start: 1px solid var(--color-border-subtle);
+}
+
+.hours-day > legend,
+.hours-preview-day h3 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-h3);
+  line-height: var(--line-height-h3);
+}
+
+.hours-ranges,
+.hours-preview-days,
+.hours-preview-ranges {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hours-range {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--space-8);
+}
+
+.hours-time {
+  display: grid;
+  gap: var(--space-4);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-label);
+  line-height: var(--line-height-label);
+}
+
+.hours-time input {
+  min-block-size: var(--touch-target-min);
+  padding-inline: var(--space-8);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-numbers);
+  font-variant-numeric: var(--font-variant-numeric-numbers);
+}
+
+.hours-badge {
+  align-self: center;
+  padding-inline: var(--space-8);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-2);
+  color: var(--color-info);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+}
+
+.hours-closed,
+.hours-preview-day p {
+  color: var(--color-text-2);
+}
+
+.hours-error {
+  color: var(--color-danger);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+}
+
+.hours-announcement {
+  color: var(--color-info);
+}
+
+.hours-announcement:empty {
+  position: absolute;
+}

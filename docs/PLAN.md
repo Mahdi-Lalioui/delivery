@@ -109,7 +109,9 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Serve `GET /v1/merchants/:merchantId/hours/preview?schedule=regular|ramadan` with Maghrib at the stored location.
     - [x] Add the typed web client and the pure weekly editor model, validated by the contract.
     - [x] Add the presentational weekly hours fields with ar/fr/en messages.
-    - [ ] Add the hours page (hook, save, closed-now control, preview tabs, focus restoration, token CSS) and the Ramadan fields.
+    - [x] Add the hours page and routes (hook, weekly save, regular preview, focus restoration, token CSS).
+    - [ ] Add the closed-now control to the hours page.
+    - [ ] Add the Ramadan fields and the regular/Ramadan preview tabs.
     - [ ] Prove the production-build overnight and Ramadan journeys in Arabic and French, plus the screenshot matrix.
 - [ ] M2-10 Moderation (§17.3, ADM-04). Check prohibited goods on every menu write path and public preview. Prove flagged items stay hidden until the audited review outcome permits listing.
 - [ ] M2-11 Staff roles (MER-23). Implement owner-managed, single-use invitations tied to a verified phone. Prove every role against both its own and another merchant's resources.

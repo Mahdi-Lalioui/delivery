@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 04:08 GMT — M2-9 hours page and routes (Claude, covering while Codex was out)
+
+- **Changed** — Added `use-hours-editor.ts`. It drives `reduceHours`, loads with `readHours` and aborts on unmount. It saves through `prepareHoursSave` with `crypto.randomUUID` and `replaceHours`, and refreshes the regular seven-day preview whenever the revision changes. Focus moves to the new range's opening input after add, to the day's Add button (new `hours-<weekday>-add` id) after remove, and to the first invalid day after a rejected draft. After a save it moves to Save, or to Reload on a revision or session conflict. Added `merchant-hours-screen.tsx` (load gates, weekly fields, mapped save outcomes, preview with a single heading in every state), `merchant-hours-page.tsx`, the `/[locale]/merchant/:merchantId/hours` and `/ar/merchant/:merchantId/hours` routes, the `SiteShell` subpath, token-only logical `merchant-hours.css`, and 19 new `merchantHours` messages in ar, fr and en.
+- **Evidence** — Tests came first: 13 `[MER-15]` screen cases and 3 route cases. They failed on the missing modules. A later duplicate `hours-preview-title` assertion failed before its fix, and the new `hours-2-add` assertion in the fields test failed before the id was added. 64/64 hours tests then passed. `tsc` and ESLint on the touched files were clean. `pnpm verify` exited 0: 1064 unit tests, 118 PostGIS integration tests, build, knip, depcruise, trace, and only the existing moderate advisory.
+- **Reviewer** — Self-reviewed against AGENTS.md §10. No P0/P1. The page reuses the `menu-item-*` button classes by importing `menu-item.css`. Reload keeps the current draft visible until the fresh read lands.
+- **Next (exact)** — Add the closed-now control: a `pause` section in `merchant-hours-screen.tsx` that calls `setHoursPause` (session-bound, retry key kept only after uncertain failures) and shows `pause-in-past`. `StoredHours` must expose the current pause first, so check `merchantHoursOutput` in `packages/contracts/src/merchant-hours.ts`. Then add the Ramadan fields with `ramadan-editor.ts`, `readRamadan` and `replaceRamadan`, and regular/Ramadan preview tabs. Then the production-build overnight and Ramadan journeys in ar/fr, and the screenshot matrix.
+- **Needs Mahdi** — None.
+
 ### 2026-11-08 03:32 GMT — M2-9 pure Ramadan editor model (Claude, covering while Codex was out)
 
 - **Changed** — Added `apps/web/src/merchant-hours/ramadan-editor.ts`. `parseMinuteOffset` reads signed whole minutes and accepts `+`, `-`, the Unicode minus and Arabic-Indic digits. `toRamadanDraft` starts an unsaved schedule closed every day, with `Algeria` and a 0 adjustment, or round-trips a stored schedule. Each endpoint is either a Maghrib offset or `HH:MM` clock text. The suhoor window and the adjustment are text too. `toRamadanInput` parses what it can locally, then lets `merchantRamadanInput` judge the rest, such as the ±720-minute offset, the ±30-minute adjustment and an empty suhoor. It returns sorted, de-duplicated `day`/`suhoor`/`adjustment` errors. `hours-editor.ts` now exports `normalizeDigits` so both editors share it.
@@ -558,6 +566,6 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 ## Current status
 
 - Milestone: M1 (last passing gate, M2 in progress)
-- `node scripts/trace.ts --through m2` on 2026-11-08 at 03:32 GMT covered 32 of 37 IDs. Pending: ADM-04, MER-01, MER-12, MER-14, MER-23. M2-9 has its API, preview and pure web models. Its page, Ramadan fields, journeys and screenshots remain.
-- Last green `pnpm verify`: 2026-11-08 03:32 GMT on Docker Desktop with 1048 unit and 118 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 12/12 at 02:22 GMT.
+- `node scripts/trace.ts --through m2` on 2026-11-08 at 03:32 GMT covered 32 of 37 IDs. Pending: ADM-04, MER-01, MER-12, MER-14, MER-23. M2-9 has its API, preview, pure web models and the weekly hours page. The closed-now control, Ramadan fields, journeys and screenshots remain.
+- Last green `pnpm verify`: 2026-11-08 04:07 GMT on Docker Desktop with 1064 unit and 118 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 12/12 at 02:22 GMT.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

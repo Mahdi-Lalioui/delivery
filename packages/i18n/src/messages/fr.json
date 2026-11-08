@@ -492,6 +492,25 @@
     "previewSpecial": "Date spéciale",
     "previewMaghrib": "Maghrib à {time}",
     "previewRange": "{opens}–{closes}",
-    "previewRangeNextDay": "{opens}–{closes} (lendemain)"
+    "previewRangeNextDay": "{opens}–{closes} (lendemain)",
+    "title": "Horaires d’ouverture",
+    "description": "Indiquez vos créneaux de chaque jour. Un créneau qui ferme après minuit continue le lendemain.",
+    "backToRestaurants": "Mes restaurants",
+    "loading": "Chargement des horaires…",
+    "signInRequired": "Connectez-vous pour modifier les horaires.",
+    "signIn": "Se connecter",
+    "forbidden": "Vous ne pouvez pas modifier les horaires de ce restaurant.",
+    "loadError": "Impossible de charger les horaires. Réessayez.",
+    "sessionChanged": "Votre session a changé. Rechargez les horaires avant de continuer.",
+    "revisionConflict": "Les horaires ont été modifiés ailleurs. Rechargez-les avant de continuer.",
+    "reload": "Recharger",
+    "save": "Enregistrer les horaires",
+    "saving": "Enregistrement…",
+    "saved": "Horaires enregistrés.",
+    "saveError": "L’enregistrement a échoué. Réessayez.",
+    "rateLimited": "Trop de tentatives. Patientez un instant puis réessayez.",
+    "invalidHours": "Ces horaires ne sont pas valides. Vérifiez chaque jour.",
+    "previewLoading": "Calcul de l’aperçu…",
+    "previewError": "Impossible d’afficher l’aperçu pour le moment."
   }
 }

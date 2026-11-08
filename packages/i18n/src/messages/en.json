@@ -492,6 +492,25 @@
     "previewSpecial": "Special date",
     "previewMaghrib": "Maghrib at {time}",
     "previewRange": "{opens}–{closes}",
-    "previewRangeNextDay": "{opens}–{closes} (next day)"
+    "previewRangeNextDay": "{opens}–{closes} (next day)",
+    "title": "Opening hours",
+    "description": "Set your time ranges for each day. A range that closes after midnight continues into the next day.",
+    "backToRestaurants": "My restaurants",
+    "loading": "Loading hours…",
+    "signInRequired": "Sign in to edit opening hours.",
+    "signIn": "Sign in",
+    "forbidden": "You cannot edit this restaurant's opening hours.",
+    "loadError": "The opening hours could not load. Try again.",
+    "sessionChanged": "Your session changed. Reload the hours before continuing.",
+    "revisionConflict": "The hours were changed elsewhere. Reload them before continuing.",
+    "reload": "Reload",
+    "save": "Save hours",
+    "saving": "Saving…",
+    "saved": "Hours saved.",
+    "saveError": "Saving failed. Try again.",
+    "rateLimited": "Too many attempts. Wait a moment and try again.",
+    "invalidHours": "These hours are not valid. Check each day.",
+    "previewLoading": "Building the preview…",
+    "previewError": "The preview is not available right now."
   }
 }

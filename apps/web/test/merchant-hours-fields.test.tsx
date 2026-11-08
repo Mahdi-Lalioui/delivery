@@ -81,6 +81,7 @@ test("[MER-15] shows the weekday error and disables add at four ranges", () => {
   expect(html).toContain(`id="hours-2-error" role="alert">${merchantHours.errorOverlap}</p>`);
   expect(html).toContain('aria-describedby="hours-2-error"');
   expect(html).toMatch(/<button[^>]*disabled=""[^>]*>[^<]*<\/button>/);
+  expect(html).toMatch(/<button[^>]*id="hours-2-add"[^>]*disabled=""/);
 });
 
 test("[MER-15] disables every control while saving", () => {
