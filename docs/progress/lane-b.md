@@ -4,3 +4,6 @@
 - 2026-11-08 · Ultra · M7-2 pure billing planner `apps/api/src/billing-schedule.ts` (BIL-02/03/04/06) + request `docs/requests/lane-b-billing.md`.
   Proof: `vitest run apps/api/test/billing-schedule.test.ts` 14/14, eslint, api typecheck, knip clean. `pnpm verify` green (lane-b db :5532).
   Next: admin billing screens on MSW, then settings/flags request.
+- 2026-11-08 · High · External review: billing contract already published (lane-a 9cbab96, cherry-picked unchanged). Admin billing screen `/[locale]/admin/billing` on MSW mocks of that contract (invoice issued/paid/void, transfer `pending_confirmation`).
+  Request `docs/requests/lane-b-billing.md` rewritten to ask only for the migration and routes. msw 3.0.3 logged as D-B01. Added `/admin/billing` to the admin list in shared `components/site-shell.tsx` (2 lines).
+  Proof: `vitest run apps/web/test/admin-billing*` 7/7; full `pnpm verify` before push. Next: merchant billing (MER-22) screen, invoice PDF, settings screen.

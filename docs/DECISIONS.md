@@ -170,3 +170,7 @@ MER-23 invitations live in `@zaafran/contracts/merchant-staff`. Only an owner cr
 ### D-016 — Menu import validates raw cells on the server (2026-11-08)
 
 CSV and XLSX use the same template and send up to 500 rows of raw text cells within the API body limit. Preserve interior blank rows so errors use the original spreadsheet row numbers. Only a valid preview returns a token. Bind the token to the merchant, account, session, menu revision and canonical validated rows. Apply must verify the token and revalidate inside the owner/manager write path. Merchant-scoped external item keys prevent duplicates on repeated imports. Imported text must pass the same prohibited-goods screening as other menu edits.
+
+### D-B01 — Lane B mocks unbuilt APIs with MSW (2026-11-08)
+
+`msw` 3.0.3 (MIT, exact pin; 3.0.4 is younger than `min-release-age=3`) is a web devDependency. Handlers live in `apps/web/test/mocks/` and parse every payload with the published `packages/contracts` schemas, so mocks cannot drift from the contract. Production code never imports `msw`. Lane B ids use the `D-B` prefix to avoid number clashes with lane A.
