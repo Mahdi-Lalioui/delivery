@@ -36,13 +36,17 @@ const application: MerchantApplicationState = {
   submitted: false,
   sessionChanged: false,
   update: vi.fn(),
+  updatePhoto: vi.fn(),
   submit: vi.fn(),
 };
 
 function render(state: Partial<MerchantApplicationState> = {}) {
   vi.mocked(useMerchantApplication).mockReturnValue({ ...application, ...state });
   return renderToStaticMarkup(
-    <NextIntlClientProvider locale="fr-DZ" messages={{ merchant: getMessages("fr").merchant }}>
+    <NextIntlClientProvider
+      locale="fr-DZ"
+      messages={{ merchant: getMessages("fr").merchant, mediaPhoto: getMessages("fr").mediaPhoto }}
+    >
       <MerchantApplicationForm locale="fr" sessionId={commune.id} onRefreshAccount={retry} />
     </NextIntlClientProvider>,
   );

@@ -20,3 +20,6 @@
 - 2026-11-08 · Ultra · Next bind crop to the original reservation session and publish all variants from the quarantined original. See [photo preparation evidence](../evidence/m2/photo-prepare.md).
 - 2026-11-08 · Ultra · M2-6 crop binds to the original live session, enqueues once, and publishes ten private variants plus ThumbHash before cleanup. `pnpm verify` passed 1,432 unit and 169 PostGIS tests. Real HEVC and SeaweedFS conformance passed. Review closed P0/P1 with rollout and legacy behavior in D-019.
 - 2026-11-08 · Ultra · Next wire ready photos into merchant applications and menu items, then add the localized crop UI and browser journey. See [media evidence](../evidence/m2/photo-prepare.md).
+
+- 2026-11-08 · Ultra · M2-6 application and item photo attachment passed `pnpm verify` with 1,449 unit and 174 PostGIS cases, plus 17 auth and 59 foundation browser cases. Review closed both P1s. See [evidence](../evidence/m2/photo-prepare.md).
+- 2026-11-08 · High · Resume M2-9 dated exceptions. Reuse the existing revision-bound hours command and preview. Close admin notice delivery, cover/logo controls, moderated preview, seed and gate wiring before closing M2.

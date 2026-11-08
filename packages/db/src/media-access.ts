@@ -82,9 +82,32 @@ export async function lockMediaTarget(
   return member !== undefined;
 }
 
+interface ReadyPhotoScope {
+  readonly accountId: string;
+  readonly merchantId: string | null;
+  readonly kind: "application" | "item";
+  readonly photoIds: readonly string[];
+}
+
+export async function lockReadyPhotos(
+  sql: TransactionSql,
+  { accountId, merchantId, kind, photoIds }: ReadyPhotoScope,
+): Promise<boolean> {
+  if (photoIds.length === 0) return true;
+  const photos = await sql`
+    SELECT id FROM public.media_uploads
+    WHERE id = ANY(${[...photoIds]}::uuid[]) AND owner_id = ${accountId}
+      AND merchant_id IS NOT DISTINCT FROM ${merchantId}::uuid
+      AND kind = ${kind} AND status = 'ready'
+    ORDER BY id FOR SHARE
+  `;
+  return photos.length === photoIds.length;
+}
+
 export async function readVisibleMedia(
   sql: ISql,
   scope: MediaScope,
+  access: "owner" | "owner_or_item_editor",
 ): Promise<VisibleMedia | undefined> {
   const [media] = await sql<VisibleMedia[]>`
     SELECT upload.id AS "mediaId", session.id AS "sessionId", upload.kind, upload.status,
@@ -92,9 +115,9 @@ export async function readVisibleMedia(
       upload.preview_width AS width, upload.preview_height AS height,
       upload.rejection_reason AS reason, upload.ready_variants AS variants, upload.thumbhash
     FROM public.media_uploads AS upload
-    JOIN public.users AS account ON account.id = upload.owner_id
+    JOIN public.users AS account ON account.id = ${scope.accountId}
     JOIN public.sessions AS session ON session.user_id = account.id
-    WHERE upload.id = ${scope.mediaId} AND account.id = ${scope.accountId}
+    WHERE upload.id = ${scope.mediaId}
       AND account.blocked_at IS NULL AND account.deleted_at IS NULL
       AND ${standardSession(sql, scope)}
       AND (upload.merchant_id IS NULL OR EXISTS (
@@ -102,6 +125,14 @@ export async function readVisibleMedia(
         JOIN public.merchants AS merchant ON merchant.id = member.merchant_id
         WHERE merchant.id = upload.merchant_id AND merchant.status IN ('approved', 'active', 'paused')
           AND member.user_id = account.id AND member.role IN ('owner', 'manager')
+      ))
+      AND (upload.owner_id = account.id OR (
+        ${access === "owner_or_item_editor"} AND upload.kind = 'item' AND upload.status = 'ready'
+        AND EXISTS (
+          SELECT FROM public.items AS item
+          WHERE item.merchant_id = upload.merchant_id AND item.photo_id = upload.id
+            AND item.archived_at IS NULL
+        )
       ))
   `;
   return media;

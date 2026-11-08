@@ -1,8 +1,10 @@
 import { createHash } from "node:crypto";
 import { beforeAll, expect, test } from "vitest";
+import { createMediaRepository } from "../src/media.ts";
 import { createMenuItemRepository } from "../src/menu-item.ts";
 import { createMerchantRepository } from "../src/merchant.ts";
 import { registerTestDatabase } from "./database.ts";
+import { seedReadyPhoto } from "./ready-photo.ts";
 
 const database = registerTestDatabase();
 const now = new Date("2026-11-07T12:00:00.000Z");
@@ -37,6 +39,9 @@ const blocked = merchantFixture(60);
 const rejected = merchantFixture(70);
 const screened = merchantFixture(80);
 const approved = merchantFixture(90);
+const withPhotos = merchantFixture(100);
+const withoutPhotos = merchantFixture(110);
+const sharedPhoto = merchantFixture(130);
 
 beforeAll(async () => {
   const { sql } = database.get();
@@ -65,6 +70,9 @@ beforeAll(async () => {
     rejected,
     screened,
     approved,
+    withPhotos,
+    withoutPhotos,
+    sharedPhoto,
   ]) {
     await sql`
       insert into merchants
@@ -85,7 +93,8 @@ beforeAll(async () => {
   }
   await sql`
     insert into merchant_members (merchant_id, user_id, role)
-    values (${staffed.merchantId}, ${staffMerchantOwner}, 'owner')
+    values (${staffed.merchantId}, ${staffMerchantOwner}, 'owner'),
+      (${withPhotos.merchantId}, ${staffMerchantOwner}, 'manager')
   `;
 });
 
@@ -352,6 +361,182 @@ test("[MER-09:db] a duplicate starts available and unreviewed and an archive rem
       from items where id = ${lifecycle.firstItem}
     `,
   ).toEqual([{ archived_at_command_time: true }]);
+});
+
+test("[MER-09:db] ready item photos survive readback, shared edits, duplication and replay", async () => {
+  const repo = repository();
+  const { merchantId, categoryId } = withPhotos;
+  const { sql } = database.get();
+  const photoId = fixtureId(120);
+  const replacement = fixtureId(121);
+  await seedReadyPhoto(sql, { mediaId: photoId, accountId, merchantId, kind: "item", now });
+  await seedReadyPhoto(sql, { mediaId: replacement, accountId, merchantId, kind: "item", now });
+
+  const create = command({ merchantId }, "create-photo-item", {
+    ...itemInput(categoryId, 0),
+    photoId,
+  });
+  const created = await repo.create(create);
+  expect(created).toMatchObject({ kind: "applied", revision: 1, item: { photoId } });
+  if (created.kind !== "applied") throw new Error("Expected an item with a photo.");
+  const target = { merchantId, itemId: created.item.itemId };
+  const edit = { ...itemInput(categoryId, 1), priceDzd: 1300, photoId };
+
+  expect(await repo.list(page(withPhotos))).toMatchObject({ items: [created.item] });
+  await expect(
+    repo.update({
+      ...command(target, "edit-another-photo", { ...edit, photoId: replacement }),
+      accountId: staffMerchantOwner,
+    }),
+  ).resolves.toEqual({ kind: "photos_unavailable" });
+  await expect(
+    repo.update({ ...command(target, "keep-existing-photo", edit), accountId: staffMerchantOwner }),
+  ).resolves.toMatchObject({ kind: "applied", revision: 2, item: { photoId, priceDzd: 1300 } });
+  await expect(
+    repo.update({
+      ...command(target, "keep-photo-legacy-edit", { ...edit, expectedRevision: 2, photoId: null }),
+      accountId: staffMerchantOwner,
+    }),
+  ).resolves.toMatchObject({ kind: "applied", revision: 3, item: { photoId } });
+
+  await expect(
+    repo.update(
+      command(target, "replace-existing-photo", {
+        ...edit,
+        expectedRevision: 3,
+        photoId: replacement,
+      }),
+    ),
+  ).resolves.toMatchObject({ kind: "applied", revision: 4, item: { photoId: replacement } });
+  await expect(
+    repo.duplicate({
+      ...command(target, "duplicate-photo-item", { expectedRevision: 4 }),
+      accountId: staffMerchantOwner,
+    }),
+  ).resolves.toMatchObject({ kind: "applied", revision: 5, item: { photoId: replacement } });
+  await expect(
+    repo.update(
+      command(target, "remove-item-photo", {
+        ...itemInput(categoryId, 5),
+        removePhoto: true as const,
+      }),
+    ),
+  ).resolves.toMatchObject({ kind: "applied", revision: 6, item: { photoId: null } });
+  await expect(repo.create(create)).resolves.toEqual({ ...created, kind: "replayed" });
+  await expect(
+    repo.create(
+      command({ merchantId }, "create-photo-item", { ...create.input, photoId: replacement }),
+    ),
+  ).resolves.toEqual({ kind: "idempotency_conflict" });
+});
+
+test("[MER-09:db] same-merchant managers can read a ready photo while an active item references it", async () => {
+  const repo = repository();
+  const connection = database.get();
+  const media = createMediaRepository(connection);
+  const { sql } = connection;
+  const { merchantId, categoryId } = sharedPhoto;
+  const photoId = fixtureId(140);
+  const replacement = fixtureId(141);
+  for (const mediaId of [photoId, replacement]) {
+    await seedReadyPhoto(sql, { mediaId, accountId, merchantId, kind: "item", now });
+  }
+
+  const sessionId = fixtureId(142);
+  await sql`
+    insert into public.sessions
+      (id, user_id, token_hash, transport, kind, request_ip, created_at, last_seen_at, expires_at)
+    values (${sessionId}, ${staffMerchantOwner}, ${hash(sessionId)}, 'web', 'standard', '192.0.2.1',
+      ${now.toISOString()}, ${now.toISOString()}, ${now.toISOString()}::timestamptz + interval '1 hour')
+  `;
+  const photo = { accountId: staffMerchantOwner, sessionId, mediaId: photoId, now };
+  const variant = { format: "webp", width: 160 } as const;
+  const assertHidden = async (scope: typeof photo) => {
+    await expect(media.read(scope)).resolves.toBeUndefined();
+    await expect(media.findVariant({ ...scope, ...variant })).resolves.toBeUndefined();
+  };
+
+  const created = await repo.create(
+    command({ merchantId }, "create-shared-photo", { ...itemInput(categoryId, 0), photoId }),
+  );
+  if (created.kind !== "applied") throw new Error("Expected an item with a photo.");
+  const target = { merchantId, itemId: created.item.itemId };
+  await assertHidden(photo);
+  await sql`
+    insert into public.merchant_members (merchant_id, user_id, role)
+    values (${merchantId}, ${staffMerchantOwner}, 'staff')
+  `;
+  await assertHidden(photo);
+  await sql`
+    update public.merchant_members set role = 'manager'
+    where merchant_id = ${merchantId} and user_id = ${staffMerchantOwner}
+  `;
+
+  const replacementPhoto = { ...photo, mediaId: replacement };
+  await assertHidden(replacementPhoto);
+  await expect(media.read(photo)).resolves.toMatchObject({
+    mediaId: photoId,
+    sessionId,
+    status: "ready",
+  });
+  await expect(media.findVariant({ ...photo, ...variant })).resolves.toEqual({
+    key: `variants/${photoId}/160.webp`,
+  });
+  await expect(media.findUpload(photo)).resolves.toBeUndefined();
+  await expect(media.findPreview(photo)).resolves.toBeUndefined();
+  await expect(
+    media.submitCrop({
+      ...photo,
+      input: { focalX: 5000, focalY: 5000, zoomPercent: 100 },
+      idempotencyKeyHash: hash("foreign-crop"),
+      requestHash: hash("foreign-crop"),
+    }),
+  ).resolves.toEqual({ kind: "not_found" });
+
+  await expect(
+    repo.update(
+      command(target, "replace-shared-photo", {
+        ...itemInput(categoryId, 1),
+        photoId: replacement,
+      }),
+    ),
+  ).resolves.toMatchObject({ kind: "applied", revision: 2 });
+  await assertHidden(photo);
+  await expect(media.read(replacementPhoto)).resolves.toMatchObject({ status: "ready" });
+  await expect(
+    repo.archive(command(target, "archive-shared-photo", { expectedRevision: 2 })),
+  ).resolves.toMatchObject({ kind: "applied", revision: 3 });
+  await assertHidden(replacementPhoto);
+});
+
+test("[MER-09:db] item photo attachment requires the editor, target merchant, item kind and ready state", async () => {
+  const repo = repository();
+  const { merchantId, categoryId } = withoutPhotos;
+  const { sql } = database.get();
+  const foreign = fixtureId(122);
+  const otherKind = fixtureId(123);
+  const pending = fixtureId(124);
+  const otherOwner = fixtureId(125);
+  const fixture = { accountId, merchantId, kind: "item", now } as const;
+  await seedReadyPhoto(sql, { ...fixture, mediaId: foreign, merchantId: editing.merchantId });
+  await seedReadyPhoto(sql, { ...fixture, mediaId: otherKind, kind: "cover" });
+  await seedReadyPhoto(sql, { ...fixture, mediaId: otherOwner, accountId: staffMerchantOwner });
+  await sql`
+    insert into media_uploads (id, owner_id, merchant_id, kind, content_type, bytes, created_at)
+    values (${pending}, ${accountId}, ${merchantId}, 'item', 'image/png', 16, ${now.toISOString()})
+  `;
+
+  const target = { merchantId };
+  for (const photoId of [foreign, otherKind, pending, otherOwner]) {
+    const input = { ...itemInput(categoryId, 0), photoId };
+    await expect(repo.create(command(target, "unavailable-photo", input))).resolves.toEqual({
+      kind: "photos_unavailable",
+    });
+  }
+  await expect(repo.list(page(withoutPhotos))).resolves.toMatchObject({ revision: 0, items: [] });
+  await expect(
+    repo.create(command(target, "unavailable-photo", itemInput(categoryId, 0))),
+  ).resolves.toMatchObject({ kind: "applied", revision: 1, item: { photoId: null } });
 });
 
 test.each([

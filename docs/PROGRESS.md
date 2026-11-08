@@ -13,6 +13,12 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 15:07 GMT — M2-6 application and item photo attachment
+
+- **Effort and evidence** — Ultra. Ready application photos are ordered and private. Menu photos are tenant-scoped and the cropper ships in Arabic, French and English. `pnpm verify` passed 1,449 unit and 174 PostGIS tests. Production Playwright passed 17 auth and 59 foundation cases.
+- **Review** — Fixed shared manager preview and cached-editor photo loss. Regression coverage proves attachment scope, legacy preservation and explicit removal. See [closed findings](reviews/2026-11-08-photo-attachment.md) and [browser evidence](evidence/m2/photo-prepare.md).
+- **Next** — M2-9 dated exceptions. The M2 trace remains 35/37 while admin notice delivery and the complete photo workflow are open.
+
 ### 2026-11-08 12:48 GMT — M2 CodeQL follow-up
 
 - **Effort and evidence** — Ultra. Declared OTP/TOTP route throttling explicitly and proved the existing shared API budget still counts once per request. Standalone regressions failed before the declaration, then passed. All 235 API unit tests and the 13 menu-item HTTP tests passed.

@@ -40,6 +40,19 @@ export function useMerchantApplication(expectedSessionId: string) {
     setError(undefined);
   }
 
+  function updatePhoto(slot: number, mediaId: string | null) {
+    setDraft((current) => {
+      const previous = current.photoIds ?? [];
+      if (mediaId === null && slot >= previous.length) return current;
+      const photoIds = Array.from({ length: Math.max(previous.length, slot + 1) }, (_, index) =>
+        index === slot ? mediaId : (previous[index] ?? null),
+      );
+      return { ...current, photoIds };
+    });
+    setFields((invalid) => invalid.filter((field) => field !== "photoIds"));
+    setError(undefined);
+  }
+
   async function submit(): Promise<DraftField | undefined> {
     if (inFlight.current || sessionChanged) return undefined;
     const parsed = parseMerchantDraft(draft);
@@ -75,7 +88,7 @@ export function useMerchantApplication(expectedSessionId: string) {
     return result.error === "invalidCommune" ? "communeId" : undefined;
   }
 
-  return { draft, fields, error, pending, submitted, sessionChanged, update, submit };
+  return { draft, fields, error, pending, submitted, sessionChanged, update, updatePhoto, submit };
 }
 
 export type MerchantApplicationState = ReturnType<typeof useMerchantApplication>;

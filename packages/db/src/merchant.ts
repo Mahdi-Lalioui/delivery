@@ -1,5 +1,6 @@
 import type { TransactionSql } from "postgres";
 import type { DatabaseConnection } from "./database.js";
+import { lockReadyPhotos } from "./media-access.js";
 import { lockMerchantAdmin } from "./merchant-access.js";
 import { getOnboarding, listCommunes, listPendingApplications } from "./merchant-queries.js";
 import {
@@ -16,6 +17,7 @@ interface MerchantApplication {
   readonly pin: { readonly latitude: number; readonly longitude: number };
   readonly cuisines: readonly string[];
   readonly rcNumber?: string | undefined;
+  readonly photoIds?: readonly string[] | undefined;
 }
 
 interface SubmitApplication extends MerchantCommand {
@@ -32,7 +34,11 @@ type ApplicationResult =
     }
   | {
       readonly kind:
-        "account_unavailable" | "invalid_commune" | "outside_commune" | "idempotency_conflict";
+        | "account_unavailable"
+        | "invalid_commune"
+        | "outside_commune"
+        | "idempotency_conflict"
+        | "photos_unavailable";
     };
 
 interface ReviewApplication extends MerchantCommand {
@@ -72,6 +78,19 @@ async function findEligibleCommune(sql: TransactionSql, input: MerchantApplicati
   return commune;
 }
 
+async function attachApplicationPhotos(
+  sql: TransactionSql,
+  merchantId: string,
+  photoIds: readonly string[] = [],
+): Promise<void> {
+  if (photoIds.length === 0) return;
+  await sql`
+    INSERT INTO public.merchant_application_photos (merchant_id, media_id, sort)
+    SELECT ${merchantId}, attachment.id, (attachment.position - 1)::smallint
+    FROM unnest(${[...photoIds]}::uuid[]) WITH ORDINALITY AS attachment(id, position)
+  `;
+}
+
 async function insertApplication(
   sql: TransactionSql,
   request: SubmitApplication,
@@ -96,6 +115,7 @@ async function insertApplication(
     INSERT INTO public.merchant_members (merchant_id, user_id, role)
     VALUES (${merchant.id}, ${accountId}, 'owner')
   `;
+  await attachApplicationPhotos(sql, merchant.id, input.photoIds);
   await sql`
     INSERT INTO public.merchant_review_notices (merchant_id, created_at)
     VALUES (${merchant.id}, ${createdAt}::timestamptz)
@@ -126,6 +146,14 @@ async function submitApplication(
   const commune = await findEligibleCommune(sql, input);
   if (!commune) return { kind: "invalid_commune" };
   if (!commune.covers) return { kind: "outside_commune" };
+
+  const photoIds = input.photoIds ?? [];
+  if (
+    photoIds.length > 5 ||
+    !(await lockReadyPhotos(sql, { accountId, merchantId: null, kind: "application", photoIds }))
+  ) {
+    return { kind: "photos_unavailable" };
+  }
 
   const merchantId = await insertApplication(sql, request, account.phone);
   await recordMerchantCommand(sql, identity, { merchantId, status, at: now });

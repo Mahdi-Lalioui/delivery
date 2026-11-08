@@ -148,6 +148,13 @@
       "when": 1794125400000,
       "tag": "0020_media_crop",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1794126000000,
+      "tag": "0021_photo_attachments",
+      "breakpoints": true
     }
   ]
 }

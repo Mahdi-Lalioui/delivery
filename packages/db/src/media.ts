@@ -39,24 +39,24 @@ export function createMediaRepository({ sql }: DatabaseConnection) {
     reserve: (request: MediaReservationRequest) =>
       sql.begin(writeIsolation, (tx) => reserveMedia(tx, request)),
     read: async (scope: MediaScope) => {
-      const media = await readVisibleMedia(sql, scope);
+      const media = await readVisibleMedia(sql, scope, "owner_or_item_editor");
       if (!media) return undefined;
       return mediaStatus(media, media.sessionId);
     },
     findUpload: async (scope: MediaScope) => {
-      const media = await readVisibleMedia(sql, scope);
+      const media = await readVisibleMedia(sql, scope, "owner");
       if (!media) return undefined;
       const { contentType, bytes } = media;
       return { contentType, bytes };
     },
     findPreview: async (scope: MediaScope) => {
-      const media = await readVisibleMedia(sql, scope);
+      const media = await readVisibleMedia(sql, scope, "owner");
       return media?.status === "awaiting_crop" && media.previewKey !== null
         ? { key: media.previewKey }
         : undefined;
     },
     findVariant: async (scope: MediaVariantScope) => {
-      const media = await readVisibleMedia(sql, scope);
+      const media = await readVisibleMedia(sql, scope, "owner_or_item_editor");
       if (media?.status !== "ready") return undefined;
       const variant = media.variants.find(
         ({ format, width }) => format === scope.format && width === scope.width,

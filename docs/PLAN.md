@@ -105,7 +105,8 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Prove bounded private preview preparation with the pinned decoder and a synthetic real-HEVC fixture on Linux amd64.
     - [x] Register the prepare job, persist the private preview and expose it to authorized owners.
     - [x] Bind crop to the original session, process crop jobs and publish the complete ready set.
-  - [ ] Connect optional application photos and item photos to the localized cropper. Verify valid and rejected uploads, keyboard crop, private previews, saved item readback and the design matrix.
+  - [x] Connect optional application and item photos to the localized cropper. Verify valid and rejected uploads, keyboard crop, private previews, and saved item readback in the production browser.
+  - [ ] Connect restaurant cover and logo controls and complete the photo design matrix.
 - [x] M2-7 Bulk prices (MER-11). Bind preview to merchant and item revisions, apply rounded changes and history atomically, and prove ten-minute undo rejects expired or subsequently changed prices.
   - [x] Add the pure percent/fixed rounding calculation (nearest 1/5/10/50 DA, ties up, clamped to zero).
   - [x] Persist the per-item preview binding, apply rounded changes and price history atomically on the existing menu command/revision guard, and record an undo batch.

@@ -19,3 +19,9 @@
 - Worker fault injection passed for a partial variant write and for a cleanup interruption after publication. The complete manifest remains the only externally visible ready result.
 - The real HEVC conformance check passed both preparation and crop. It checks both output formats, exact dimensions, metadata stripping and ThumbHash. The isolated SeaweedFS adapter conformance also passed.
 - See D-019 for legacy reservation behavior, rollout, and private variant serving.
+
+## Application and item attachments
+
+The authenticated production build exercised both photo forms through the real Graphile worker, local private storage and a fresh PostGIS database per browser case. The Arabic application uploaded a synthetic PNG, adjusted the focal point and zoom with the keyboard, cropped, loaded the ready WebP and submitted its photo ID for admin review. The French item editor rejected a file with a mismatched signature, blocked save during crop, created the item, loaded its saved image after reopening and preserved the attachment on edit and duplication.
+
+`pnpm test:e2e:auth --grep 'submits and reviews|an owner manages a bilingual item' --fail-on-flaky-tests` passed both cases. The photo controls' design matrix is queued for the end-of-week screen review.

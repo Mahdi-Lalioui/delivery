@@ -188,3 +188,9 @@ Record the session when a reservation is first created. A crop requires that ses
 Store crop settings and enqueue the crop job in the same transaction. The worker encodes the quarantined original and stores each variant under a private, content-addressed key. Publish the complete set in one state change. Only then remove the original and preview. The ready status exposes dimensions, sizes and ThumbHash. Fetch variant bytes through the authenticated owner route. Public menu serving belongs with item attachment and listing.
 
 For rollout, apply migration 0020 and replace every media worker with a crop-capable build before exposing the new API. Pause uploads during the API switch so old instances cannot create sessionless reservations. Once ready rows exist, keep a compatible API during rollback, since earlier builds cannot serialize ready metadata.
+
+### D-020 — Photo attachment and explicit removal (2026-11-08)
+
+Store application photo IDs in submission order in the same transaction as the application. The upload owner retains private read access. Attach item photos only when a ready upload belongs to the acting editor and the target restaurant. The restaurant's other owners and managers may read ready variants while a live item references the photo. Raw upload and crop access stay with the uploader.
+
+A menu item edit with `photoId: null` keeps the saved photo so cached editors can still edit text or price safely. Removing a saved photo requires `removePhoto: true` with a null photo ID. A non-null replacement keeps the existing ownership and readiness checks. Apply migration 0021 before rolling out the attachment API and editor.

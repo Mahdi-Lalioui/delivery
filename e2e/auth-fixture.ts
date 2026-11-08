@@ -1,6 +1,8 @@
 import type { AuthHarness } from "../apps/api/tools/e2e-auth-types.ts";
 
-type Bootstrap = { startAuthHarness(webOrigin: string): Promise<AuthHarness> };
+type Bootstrap = {
+  startAuthHarness(webOrigin: string, withMediaWorker?: boolean): Promise<AuthHarness>;
+};
 
 function isBootstrap(module: unknown): module is Bootstrap {
   return (
@@ -17,11 +19,12 @@ const bootstrapUrl = new URL("../apps/api/tools/e2e-auth-bootstrap.ts", import.m
 export async function withAuthHarness(
   baseURL: string | undefined,
   use: (harness: AuthHarness) => Promise<void>,
+  withMediaWorker = false,
 ): Promise<void> {
   if (baseURL === undefined) throw new Error("Run browser authentication with e2e/auth.config.ts.");
   const bootstrap: unknown = await import(bootstrapUrl.href);
   if (!isBootstrap(bootstrap)) throw new Error("Missing authentication test bootstrap.");
-  const harness = await bootstrap.startAuthHarness(baseURL);
+  const harness = await bootstrap.startAuthHarness(baseURL, withMediaWorker);
   try {
     await use(harness);
   } finally {

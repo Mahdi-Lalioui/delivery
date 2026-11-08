@@ -157,6 +157,20 @@ test.each(["customer", "merchant_owner", "merchant_manager", "merchant_staff"] a
   },
 );
 
+test("[MER-14:http] preserves ready photo IDs in merchant application commands", async () => {
+  const { api, repository } = setup(customer);
+  repository.submitApplication
+    .mockResolvedValueOnce({ kind: "created", merchantId, status: "pending_review" })
+    .mockResolvedValueOnce({ kind: "photos_unavailable" });
+  const photoIds = [merchantId];
+  const request = { ...applicationRequest, payload: { ...application, photoIds } };
+  expect((await api.inject(request)).statusCode).toBe(201);
+  expect(repository.submitApplication.mock.calls[0]?.[0].input.photoIds).toEqual(photoIds);
+  const rejected = await api.inject(request);
+  expect(rejected.statusCode).toBe(409);
+  expect(rejected.json()).toMatchObject({ code: "photos_unavailable" });
+});
+
 test.each([
   { actor: customer, request: applicationRequest },
   { actor: admin, request: reviewRequest },

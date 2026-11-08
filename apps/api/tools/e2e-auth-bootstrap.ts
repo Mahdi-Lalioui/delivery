@@ -1,3 +1,10 @@
+import { execFile, spawn } from "node:child_process";
+import { once } from "node:events";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { promisify } from "node:util";
 import { createHmac, randomBytes, randomUUIDv7 } from "node:crypto";
 import { openDatabase, type DatabaseConnection } from "@zaafran/db/database";
 import { seedGeography } from "@zaafran/db/geography";
@@ -110,7 +117,35 @@ async function seedOnboardingProgress(
   });
 }
 
-export async function startAuthHarness(webOrigin: string): Promise<AuthHarness> {
+async function startTestMediaWorker(resources: AsyncDisposableStack, databaseUrl: string) {
+  const root = await mkdtemp(join(tmpdir(), "zaafran-e2e-media-"));
+  resources.defer(() => rm(root, { recursive: true, force: true }));
+  const workerDist = new URL("../../worker/dist/", import.meta.url);
+  const environment = { DATABASE_URL: databaseUrl, MEDIA_STORAGE_ROOT: root };
+  await promisify(execFile)(process.execPath, [fileURLToPath(new URL("migrate.js", workerDist))], {
+    env: environment,
+  });
+  const child = spawn(process.execPath, [fileURLToPath(new URL("worker.js", workerDist))], {
+    env: environment,
+    stdio: "ignore",
+  });
+  const closed = new Promise<void>((resolve) => {
+    child.once("close", () => {
+      resolve();
+    });
+  });
+  resources.defer(async () => {
+    child.kill("SIGTERM");
+    await closed;
+  });
+  await once(child, "spawn");
+  return root;
+}
+
+export async function startAuthHarness(
+  webOrigin: string,
+  withMediaWorker = false,
+): Promise<AuthHarness> {
   const compiled: unknown = await import(new URL("../dist/start.js", import.meta.url).href);
   if (!isCompiledApi(compiled)) throw new Error("Build the API before running browser auth tests.");
   await using resources = new AsyncDisposableStack();
@@ -119,6 +154,7 @@ export async function startAuthHarness(webOrigin: string): Promise<AuthHarness> 
   const database = openDatabase(clone.url);
   resources.defer(() => database.close());
   await migrateDatabase(database);
+  const mediaRoot = withMediaWorker ? await startTestMediaWorker(resources, clone.url) : undefined;
 
   const proxy = await startAuthProxy(webOrigin);
   resources.defer(proxy.close);
@@ -129,6 +165,7 @@ export async function startAuthHarness(webOrigin: string): Promise<AuthHarness> 
   const api = await compiled.startApi({
     environment: {
       DATABASE_URL: clone.url,
+      ...(mediaRoot === undefined ? {} : { MEDIA_STORAGE_ROOT: mediaRoot }),
       API_HOST: "127.0.0.1",
       API_PORT: "0",
       AUTH_PUBLIC_ORIGIN: proxy.origin,

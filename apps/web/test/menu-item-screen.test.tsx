@@ -27,7 +27,7 @@ const item = {
   isAvailable: false,
   soldOutUntil: "2026-11-07T22:59:59.000Z",
 } satisfies MenuItem;
-const { menuItem, menuPrice } = getMessages("ar");
+const { menuItem, menuPrice, mediaPhoto } = getMessages("ar");
 const ready = {
   kind: "ready" as const,
   data: {
@@ -77,7 +77,7 @@ function render(state: Partial<ReturnType<typeof useMenuItemEditor>> = {}) {
     <NextIntlClientProvider
       locale="ar-DZ"
       timeZone="Africa/Algiers"
-      messages={{ menuItem, menuPrice }}
+      messages={{ menuItem, menuPrice, mediaPhoto }}
     >
       <MenuItemScreen merchantId={merchantId} categoryId={categoryId} locale="ar" />
     </NextIntlClientProvider>,
@@ -129,7 +129,8 @@ test("[MER-09:items] renders all language fields, numeric controls and attached-
   expect(html).toContain(menuItem.rateLimited);
   expect(html).toContain('inputMode="numeric"');
   expect(html).toContain('aria-invalid="true"');
-  expect(html).not.toContain('type="file"');
+  expect(html).toContain('type="file"');
+  expect(html).toContain(mediaPhoto.choose);
 });
 
 test.each([

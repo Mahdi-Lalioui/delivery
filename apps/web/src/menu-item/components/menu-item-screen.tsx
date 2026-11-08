@@ -108,7 +108,16 @@ function ItemWorkspace({
           controls={controls}
           blocked={blocked}
         />
-        {editor && <MenuItemForm {...controls} editor={editor} locale={locale} />}
+        {editor && (
+          <MenuItemForm
+            key={editor.kind === "edit" ? editor.itemId : "create"}
+            {...controls}
+            editor={editor}
+            merchantId={merchantId}
+            sessionId={snapshot.sessionId}
+            locale={locale}
+          />
+        )}
       </div>
       {snapshot.items.length > 0 && (
         <BulkPriceSection

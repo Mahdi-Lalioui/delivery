@@ -112,7 +112,9 @@ test("[MER-09:http] reads a private category-scoped item page and decodes the re
 
 test("[MER-09:http] creates and updates an integer-priced item without silently dropping photos", async () => {
   const { api, repository } = setup(owner);
-  repository.create.mockResolvedValue({ kind: "applied", revision: 5, item: itemView });
+  repository.create
+    .mockResolvedValueOnce({ kind: "photos_unavailable" })
+    .mockResolvedValue({ kind: "applied", revision: 5, item: itemView });
   repository.update.mockResolvedValue({ kind: "replayed", revision: 5, item: itemView });
 
   const unready = await api.inject({
@@ -124,12 +126,13 @@ test("[MER-09:http] creates and updates an integer-priced item without silently 
   expect(
     (await api.inject({ ...create, payload: { ...create.payload, priceDzd: 49.5 } })).statusCode,
   ).toBe(400);
-  expect(repository.create).not.toHaveBeenCalled();
+  expect(repository.create).toHaveBeenCalledTimes(1);
 
   const created = await api.inject(create);
   expect(created.statusCode).toBe(201);
   expect(menuItemWriteOutput.parse(created.json())).toEqual({ revision: 5, item: itemView });
-  expect(repository.create).toHaveBeenCalledExactlyOnceWith(
+  expect(repository.create).toHaveBeenNthCalledWith(
+    2,
     expect.objectContaining({ accountId, merchantId, input: create.payload, now }),
   );
   const updated = await api.inject(update);
@@ -138,6 +141,35 @@ test("[MER-09:http] creates and updates an integer-priced item without silently 
   expect(repository.update).toHaveBeenCalledExactlyOnceWith(
     expect.objectContaining({ accountId, merchantId, itemId, input: update.payload, now }),
   );
+});
+
+test("[MER-14:http] sends a ready photo ID to the item update repository", async () => {
+  const { api, repository } = setup(owner);
+  const photoId = optionGroupId;
+  repository.update.mockResolvedValue({
+    kind: "applied",
+    revision: 5,
+    item: { ...itemView, photoId },
+  });
+  const response = await api.inject({
+    ...update,
+    payload: { ...update.payload, photoId: photoId.toUpperCase() },
+  });
+  expect(response.statusCode).toBe(200);
+  expect(menuItemWriteOutput.parse(response.json()).item.photoId).toBe(photoId);
+  expect(repository.update.mock.calls[0]?.[0].input.photoId).toBe(photoId);
+});
+
+test("[MER-14:http] distinguishes explicit removal from a legacy null photo", async () => {
+  const { api, repository } = setup(owner);
+  repository.update.mockResolvedValue({ kind: "applied", revision: 5, item: itemView });
+  const payload = { ...update.payload, removePhoto: true };
+  const conflict = await api.inject({ ...update, payload: { ...payload, photoId: optionGroupId } });
+  expect(conflict.statusCode).toBe(400);
+  expect(repository.update).not.toHaveBeenCalled();
+  const removed = await api.inject({ ...update, payload });
+  expect(removed.statusCode).toBe(200);
+  expect(repository.update.mock.calls[0]?.[0].input).toEqual(payload);
 });
 
 test("[MER-09:http] duplicates and archives items with their original revision receipts", async () => {
