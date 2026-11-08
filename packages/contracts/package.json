@@ -76,6 +76,10 @@
       "types": "./src/ratings.ts",
       "default": "./dist/ratings.js"
     },
+    "./search": {
+      "types": "./src/search.ts",
+      "default": "./dist/search.js"
+    },
     "./scheduling": {
       "types": "./src/scheduling.ts",
       "default": "./dist/scheduling.js"
