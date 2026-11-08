@@ -14,6 +14,7 @@ export type BillingSettingsState = {
   view: SettingsLoad | { kind: "loading" };
   draft: SettingsDraft | undefined;
   outcome: SettingsSave | undefined;
+  outcomeId: number;
   isSaving: boolean;
   change: (field: keyof SettingsDraft, value: string | boolean) => void;
   save: () => Promise<void>;
@@ -23,7 +24,12 @@ export type BillingSettingsState = {
 export function useBillingSettings(): BillingSettingsState {
   const [view, setView] = useState<BillingSettingsState["view"]>({ kind: "loading" });
   const [draft, setDraft] = useState<SettingsDraft>();
-  const [outcome, setOutcome] = useState<SettingsSave>();
+  const [outcome, setOutcomeValue] = useState<SettingsSave>();
+  const [outcomeId, setOutcomeId] = useState(0);
+  const setOutcome = useCallback((next: SettingsSave) => {
+    setOutcomeValue(next);
+    setOutcomeId((value) => value + 1);
+  }, []);
   const [isSaving, setIsSaving] = useState(false);
   const [generation, setGeneration] = useState(0);
   // One key per unchanged draft, so a retried save is deduplicated by the server.
@@ -66,7 +72,7 @@ export function useBillingSettings(): BillingSettingsState {
       attempt.current = undefined;
       setDraft(settingsToDraft(result.settings));
     }
-  }, [draft, view]);
+  }, [draft, view, setOutcome]);
 
-  return { view, draft, outcome, isSaving, change, save, refresh };
+  return { view, draft, outcome, outcomeId, isSaving, change, save, refresh };
 }

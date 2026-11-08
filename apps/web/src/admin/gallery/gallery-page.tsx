@@ -19,6 +19,7 @@ export function GalleryPage({ locale }: { locale: Locale }) {
         messages={{
           adminBilling: messages.adminBilling,
           merchantBilling: messages.merchantBilling,
+          adminBillingSettings: messages.adminBillingSettings,
         }}
       >
         <ToastProvider closeLabel={messages.merchantBilling.closeToast}>

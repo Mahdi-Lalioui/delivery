@@ -703,7 +703,8 @@
     "kpiOpenCount": "{count, plural, zero {لا فواتير مفتوحة} one {فاتورة مفتوحة واحدة} two {فاتورتان مفتوحتان} few {# فواتير مفتوحة} other {# فاتورة مفتوحة}}",
     "kpiTransfers": "تحويلات للتحقق",
     "kpiOverdue": "متأخرة أو موقوفة",
-    "closeToast": "إغلاق"
+    "closeToast": "إغلاق",
+    "periodRange": "{start} – {end}"
   },
   "merchantBilling": {
     "title": "الفوترة",
@@ -760,18 +761,19 @@
     "payNow": "ادفع الآن",
     "noInvoicesBody": "تصدر فاتورتك الأولى عند نهاية التجربة.",
     "proofHint": "JPEG أو PNG أو HEIC أو WebP، حتى 8 ميغابايت",
-    "closeToast": "إغلاق"
+    "closeToast": "إغلاق",
+    "periodRange": "{start} – {end}"
   },
   "adminBillingSettings": {
     "title": "إعدادات الفوترة",
     "intro": "سعر الاشتراك ومدة التجربة وآجال الدفع والضريبة والبيانات القانونية على الفواتير.",
     "pricing": "الاشتراك",
     "legal": "البيانات القانونية على الفواتير",
-    "priceDzd": "السعر الشهري (دج)",
+    "priceDzd": "السعر الشهري",
     "trialDays": "أيام التجربة",
     "dueDays": "أيام حتى الاستحقاق",
     "graceDays": "أيام المهلة قبل التوقيف",
-    "taxRatePercent": "نسبة الضريبة (%)",
+    "taxRatePercent": "نسبة الضريبة",
     "companyName": "اسم الشركة",
     "companyAddress": "عنوان الشركة",
     "registrationNumber": "رقم السجل التجاري",
@@ -787,7 +789,11 @@
     "saveError": "تعذر حفظ الإعدادات. أعد المحاولة.",
     "loading": "جارٍ تحميل الإعدادات…",
     "loadError": "تعذر تحميل الإعدادات.",
-    "retry": "أعد المحاولة"
+    "retry": "أعد المحاولة",
+    "unit": "دج",
+    "daysUnit": "أيام",
+    "onlinePaymentHint": "يمكن للمطاعم دفع اشتراكها عبر Chargily.",
+    "closeToast": "إغلاق"
   },
   "retentionRatings": {
     "title": "قيّم طلبك",

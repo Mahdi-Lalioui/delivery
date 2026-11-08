@@ -703,7 +703,8 @@
     "kpiOpenCount": "{count, plural, one {# facture ouverte} other {# factures ouvertes}}",
     "kpiTransfers": "Virements à vérifier",
     "kpiOverdue": "En retard ou suspendus",
-    "closeToast": "Fermer"
+    "closeToast": "Fermer",
+    "periodRange": "{start} – {end}"
   },
   "merchantBilling": {
     "title": "Facturation",
@@ -760,18 +761,19 @@
     "payNow": "Payer maintenant",
     "noInvoicesBody": "Votre première facture est émise à la fin de l’essai.",
     "proofHint": "JPEG, PNG, HEIC ou WebP, 8 Mo au plus",
-    "closeToast": "Fermer"
+    "closeToast": "Fermer",
+    "periodRange": "{start} – {end}"
   },
   "adminBillingSettings": {
     "title": "Paramètres de facturation",
     "intro": "Prix de l’abonnement, essai et délais de paiement, taxe et mentions légales des factures.",
     "pricing": "Abonnement",
     "legal": "Mentions légales des factures",
-    "priceDzd": "Prix mensuel (DZD)",
+    "priceDzd": "Prix mensuel",
     "trialDays": "Jours d’essai",
     "dueDays": "Jours avant échéance",
     "graceDays": "Jours de grâce avant suspension",
-    "taxRatePercent": "Taux de taxe (%)",
+    "taxRatePercent": "Taux de taxe",
     "companyName": "Raison sociale",
     "companyAddress": "Adresse de la société",
     "registrationNumber": "Numéro de registre du commerce",
@@ -787,7 +789,11 @@
     "saveError": "Les paramètres n’ont pas pu être enregistrés. Réessayez.",
     "loading": "Chargement des paramètres…",
     "loadError": "Les paramètres n’ont pas pu être chargés.",
-    "retry": "Réessayer"
+    "retry": "Réessayer",
+    "unit": "DA",
+    "daysUnit": "jours",
+    "onlinePaymentHint": "Les restaurants peuvent payer leur abonnement avec Chargily.",
+    "closeToast": "Fermer"
   },
   "retentionRatings": {
     "title": "Notez votre commande",

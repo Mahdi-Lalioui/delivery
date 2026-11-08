@@ -4,7 +4,10 @@ import type { Locale } from "@zaafran/i18n/locales";
 import { SegmentedControl } from "@zaafran/ui";
 import { useState } from "react";
 import { AdminBillingView } from "../billing/admin-billing";
+import { BillingSettingsView } from "../billing/billing-settings";
+import { settingsToDraft } from "../billing/billing-settings-http";
 import { MerchantBillingView } from "../billing/merchant-billing";
+import { billingSettingsDefaults } from "@zaafran/contracts/billing";
 import {
   galleryInvoices,
   galleryMerchantId,
@@ -14,7 +17,7 @@ import {
 
 // Design-build page: every lane B screen in each state, for the 390/1280 screenshot review.
 
-type Screen = "admin-billing" | "merchant-billing";
+type Screen = "admin-billing" | "merchant-billing" | "billing-settings";
 type Mode = "ready" | "empty" | "loading" | "error";
 const noop = () => undefined;
 const noopAsync = () => Promise.resolve();
@@ -73,6 +76,28 @@ function MerchantBillingSample({ mode, locale }: { mode: Mode; locale: Locale })
   );
 }
 
+function SettingsSample({ mode }: { mode: Mode }) {
+  const settings = billingSettingsDefaults;
+  const view =
+    mode === "ready" || mode === "empty"
+      ? { kind: "ready" as const, sessionId: galleryMerchantId, settings }
+      : { kind: mode };
+  return (
+    <BillingSettingsView
+      state={{
+        view,
+        draft: settingsToDraft(settings),
+        outcome: undefined,
+        outcomeId: 0,
+        isSaving: false,
+        change: noop,
+        save: noopAsync,
+        refresh: noop,
+      }}
+    />
+  );
+}
+
 export function LaneBGallery({
   locale,
   labels,
@@ -93,6 +118,7 @@ export function LaneBGallery({
           options={[
             { value: "merchant-billing", label: "MER-22" },
             { value: "admin-billing", label: "ADM-07" },
+            { value: "billing-settings", label: "BIL-01" },
           ]}
         />
         <SegmentedControl
@@ -108,11 +134,9 @@ export function LaneBGallery({
           ]}
         />
       </div>
-      {screen === "admin-billing" ? (
-        <AdminBillingSample mode={mode} locale={locale} />
-      ) : (
-        <MerchantBillingSample mode={mode} locale={locale} />
-      )}
+      {screen === "admin-billing" && <AdminBillingSample mode={mode} locale={locale} />}
+      {screen === "merchant-billing" && <MerchantBillingSample mode={mode} locale={locale} />}
+      {screen === "billing-settings" && <SettingsSample mode={mode} />}
     </div>
   );
 }

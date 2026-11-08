@@ -180,7 +180,11 @@ function InvoiceRow({
         <bdi>{invoice.number}</bdi>
       </th>
       <td>
-        <Period startsAt={invoice.period.startsAt} endsAt={invoice.period.endsAt} />
+        <Period
+          startsAt={invoice.period.startsAt}
+          endsAt={invoice.period.endsAt}
+          namespace="adminBilling"
+        />
       </td>
       <td className="billing-cell-number">
         <Money amountDzd={invoice.totalDzd} locale={locale} />

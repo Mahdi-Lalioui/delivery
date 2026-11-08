@@ -703,7 +703,8 @@
     "kpiOpenCount": "{count, plural, one {# open invoice} other {# open invoices}}",
     "kpiTransfers": "Transfers to check",
     "kpiOverdue": "Past due or suspended",
-    "closeToast": "Dismiss"
+    "closeToast": "Dismiss",
+    "periodRange": "{start} – {end}"
   },
   "merchantBilling": {
     "title": "Billing",
@@ -760,18 +761,19 @@
     "payNow": "Pay now",
     "noInvoicesBody": "Your first invoice is issued when the trial ends.",
     "proofHint": "JPEG, PNG, HEIC or WebP, up to 8 MB",
-    "closeToast": "Dismiss"
+    "closeToast": "Dismiss",
+    "periodRange": "{start} – {end}"
   },
   "adminBillingSettings": {
     "title": "Billing settings",
     "intro": "Subscription price, trial and payment deadlines, tax and the legal details printed on invoices.",
     "pricing": "Subscription",
     "legal": "Legal details on invoices",
-    "priceDzd": "Monthly price (DZD)",
+    "priceDzd": "Monthly price",
     "trialDays": "Trial days",
     "dueDays": "Days until due",
     "graceDays": "Grace days before suspension",
-    "taxRatePercent": "Tax rate (%)",
+    "taxRatePercent": "Tax rate",
     "companyName": "Company name",
     "companyAddress": "Company address",
     "registrationNumber": "Trade register number",
@@ -787,7 +789,11 @@
     "saveError": "The settings could not be saved. Try again.",
     "loading": "Loading settings…",
     "loadError": "Settings could not be loaded.",
-    "retry": "Try again"
+    "retry": "Try again",
+    "unit": "DA",
+    "daysUnit": "days",
+    "onlinePaymentHint": "Restaurants can pay their subscription with Chargily.",
+    "closeToast": "Dismiss"
   },
   "retentionRatings": {
     "title": "Rate your order",

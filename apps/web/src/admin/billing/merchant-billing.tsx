@@ -97,7 +97,11 @@ function InvoiceItem(props: { merchantId: string; invoice: MerchantInvoice; loca
           <Money amountDzd={invoice.totalDzd} locale={locale} />
         </p>
         <p className="billing-row-meta">
-          <Period startsAt={invoice.period.startsAt} endsAt={invoice.period.endsAt} />
+          <Period
+            startsAt={invoice.period.startsAt}
+            endsAt={invoice.period.endsAt}
+            namespace="merchantBilling"
+          />
           <InvoiceBadge status={invoice.status} namespace="merchantBilling" />
         </p>
       </div>

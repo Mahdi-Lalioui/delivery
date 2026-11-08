@@ -53,15 +53,22 @@ export function Money({ amountDzd, locale }: { amountDzd: number; locale: Locale
   return <bdi className="billing-money">{formatDzd(amountDzd, locale)}</bdi>;
 }
 
-export function Period({ startsAt, endsAt }: { startsAt: string; endsAt: string }) {
+/**
+ * Formats each date on its own: `formatRange` separators differ between Node and browser ICU,
+ * which breaks hydration.
+ */
+export function Period(props: {
+  startsAt: string;
+  endsAt: string;
+  namespace: "adminBilling" | "merchantBilling";
+}) {
+  const translate = useTranslations(props.namespace);
   const format = useFormatter();
-  return (
-    <>
-      {format.dateTimeRange(new Date(startsAt), new Date(endsAt), {
-        day: "numeric",
-        month: "short",
-        timeZone: "Africa/Algiers",
-      })}
-    </>
-  );
+  const day = (value: string) =>
+    format.dateTime(new Date(value), {
+      day: "numeric",
+      month: "short",
+      timeZone: "Africa/Algiers",
+    });
+  return <>{translate("periodRange", { start: day(props.startsAt), end: day(props.endsAt) })}</>;
 }
