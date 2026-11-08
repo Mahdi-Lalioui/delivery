@@ -20,6 +20,10 @@
       "types": "./src/hours-preview.ts",
       "default": "./dist/hours-preview.js"
     },
+    "./moderation": {
+      "types": "./src/moderation.ts",
+      "default": "./dist/moderation.js"
+    },
     "./money": {
       "types": "./src/money.ts",
       "default": "./dist/money.js"

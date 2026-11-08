@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 07:39 GMT — M2-10 pure prohibited-goods matcher (Claude, covering while Codex was out)
+
+- **Changed** — Added `packages/domain/src/moderation.ts`, exported as `@zaafran/domain/moderation`. `findProhibitedGoods(texts)` returns the matched categories (`alcohol`, `tobacco`, `medicine`, `gambling`), each once and in a fixed order. Keywords cover fr/en, Arabic and Algerian Arabizi (SPEC §17.3). Input goes through the search `normalize`, then is split into whole words. Arabic clitic prefixes (و/ال/بال/لل…) and a Latin plural "s" are folded on both sides. Phrases match on word boundaries, so "vinaigrette", "cigares au miel" and "Pizza Paris" stay clean. Split M2-10 into four sub-tasks in PLAN.
+- **Evidence** — Tests came first: 7 `[ADM-04]` cases in `packages/domain/test/moderation.test.ts`, including 2 fast-check properties: safe dish words never flag, and a prohibited word flags at any position and in any letter case. They failed on the missing module, then 7/7 passed. `pnpm verify` first failed on ESLint `max-params` and then on a test-only literal type, both fixed in the test. It then exited 0: 1107 unit tests, 118 PostGIS integration tests, domain coverage thresholds, build, knip, depcruise, trace, and only the existing moderate advisory.
+- **Reviewer** — Self-reviewed against AGENTS.md §10. No P0/P1. Keyword matching is a first line of defence: false positives only send an item to review (e.g. "baba au rhum" is held for review), and the admin review step decides.
+- **Next (exact)** — M2-10 sub-task 2. In `packages/db/src/menu-item-writes.ts`, the create/update SQL currently keeps `blocked_pending_review`/`rejected` or resets to `unreviewed`. Write integration tests first: an item named "Bière" or "سجائر", or with a prohibited description, is stored as `blocked_pending_review` on both create and update, and an edit that removes the word keeps the block until an admin decides. Then compute `findProhibitedGoods([...names, ...descriptions])` in the service (`apps/api`), pass `isFlagged` into the repository, and set `blocked_pending_review` in the same transaction. Then do the same for option-group and option names if SPEC §17.3 applies to them.
+- **Needs Mahdi** — None.
+
 ### 2026-11-08 07:36 GMT — M2-9 production-build hours journeys and screenshot matrix (Claude, covering while Codex was out)
 
 - **Changed** — Added `e2e/auth-merchant-hours.spec.ts` with `[MER-15:browser] [MER-16:browser]` in ar and fr. An owner saves an overnight Thursday 18:00–02:00 range and sees the next-day preview. They save a Ramadan range from Maghrib −30 to 02:00, switch the preview to Ramadan, and reload to read both schedules back. Each journey then checks light/dark × 390/1280 with axe and overflow. Added [hours evidence](evidence/m2/hours.md) with 8 lossless WebP captures. M2-9 is ticked.
@@ -630,6 +638,6 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 ## Current status
 
 - Milestone: M1 (last passing gate, M2 in progress)
-- `node scripts/trace.ts --through m2` on 2026-11-08 at 03:32 GMT covered 32 of 37 IDs. Pending: ADM-04, MER-01, MER-12, MER-14, MER-23. M2-9 has its API, preview, pure web models, and the weekly hours page with the closed-now control. M2-9 is done, with production-build ar/fr journeys and the screenshot matrix. Next is M2-10.
-- Last green `pnpm verify`: 2026-11-08 07:35 GMT on Docker Desktop with 1100 unit and 118 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 14/14 at 07:35 GMT.
+- `node scripts/trace.ts --through m2` on 2026-11-08 at 03:32 GMT covered 32 of 37 IDs. Pending: ADM-04, MER-01, MER-12, MER-14, MER-23. M2-9 has its API, preview, pure web models, and the weekly hours page with the closed-now control. M2-9 is done, with production-build ar/fr journeys and the screenshot matrix. M2-10 has the pure matcher; next is applying it on menu writes.
+- Last green `pnpm verify`: 2026-11-08 07:39 GMT on Docker Desktop with 1107 unit and 118 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 14/14 at 07:35 GMT.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
