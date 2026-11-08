@@ -1,37 +1,10 @@
 import { formatDzd } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
 import { useTranslations } from "next-intl";
-import type { BulkPriceState } from "../bulk-price-flow";
-import type { BulkPriceSelection } from "../bulk-price-http";
+import type { BulkPriceControls } from "../bulk-price-controls";
+import { AdjustmentFields } from "./bulk-price-adjustment-fields";
 
-type Mode = BulkPriceSelection["adjustment"]["kind"];
-type RoundingUnit = BulkPriceSelection["roundingUnit"];
-type Direction = "raise" | "lower";
-
-interface BulkPriceForm {
-  readonly selectedIds: ReadonlySet<string>;
-  readonly direction: Direction;
-  readonly mode: Mode;
-  readonly amount: string;
-  readonly roundingUnit: RoundingUnit;
-  readonly formError: "invalidAmount" | "noSelection" | null;
-}
-
-export interface BulkPriceControls {
-  readonly form: BulkPriceForm;
-  readonly state: BulkPriceState;
-  readonly isUndoOffered: boolean;
-  readonly pending: boolean;
-  readonly changeForm: (
-    patch: Partial<Pick<BulkPriceForm, "direction" | "mode" | "amount" | "roundingUnit">>,
-  ) => void;
-  readonly toggleItem: (itemId: string) => void;
-  readonly toggleAll: () => void;
-  readonly preview: () => void;
-  readonly apply: () => void;
-  readonly undo: () => void;
-  readonly reset: () => void;
-}
+export type { BulkPriceControls } from "../bulk-price-controls";
 
 interface PanelItem {
   readonly itemId: string;
@@ -39,7 +12,10 @@ interface PanelItem {
   readonly priceDzd: number;
 }
 
-const roundingUnits: readonly RoundingUnit[] = [1, 5, 10, 50];
+const errorIds = {
+  invalidAmount: "bulk-price-amount-error",
+  noSelection: "bulk-price-selection-error",
+} as const;
 
 const failureMessages = {
   "undo-expired": "failureUndoExpired",
@@ -58,8 +34,12 @@ function ItemChoices({ items, locale, controls }: PanelProps) {
   const translate = useTranslations("menuPrice");
   const { form, toggleItem, toggleAll } = controls;
   const isAllSelected = items.every((item) => form.selectedIds.has(item.itemId));
+  const isEmpty = form.formError === "noSelection";
   return (
-    <fieldset className="bulk-price-fieldset">
+    <fieldset
+      className="bulk-price-fieldset"
+      aria-describedby={isEmpty ? "bulk-price-selection-error" : undefined}
+    >
       <legend>{translate("itemsLegend")}</legend>
       <label className="bulk-price-choice">
         <input type="checkbox" checked={isAllSelected} onChange={toggleAll} />
@@ -80,118 +60,6 @@ function ItemChoices({ items, locale, controls }: PanelProps) {
         </label>
       ))}
     </fieldset>
-  );
-}
-
-function RadioPair<Value extends string>({
-  legend,
-  name,
-  value,
-  options,
-  onChange,
-}: {
-  legend: string;
-  name: string;
-  value: Value;
-  options: readonly { value: Value; label: string }[];
-  onChange: (value: Value) => void;
-}) {
-  return (
-    <fieldset className="bulk-price-fieldset bulk-price-inline">
-      <legend>{legend}</legend>
-      {options.map((option) => (
-        <label className="bulk-price-choice" key={option.value}>
-          <input
-            type="radio"
-            name={name}
-            checked={value === option.value}
-            onChange={() => {
-              onChange(option.value);
-            }}
-          />
-          {option.label}
-        </label>
-      ))}
-    </fieldset>
-  );
-}
-
-function AmountFields({ controls }: Pick<PanelProps, "controls">) {
-  const translate = useTranslations("menuPrice");
-  const { form, changeForm } = controls;
-  const isInvalid = form.formError === "invalidAmount";
-  return (
-    <div className="bulk-price-amount">
-      <div className="menu-item-field">
-        <label htmlFor="bulk-price-amount">{translate("amountLabel")}</label>
-        <div className="menu-item-money">
-          <input
-            id="bulk-price-amount"
-            type="text"
-            dir="ltr"
-            inputMode={form.mode === "percent" ? "decimal" : "numeric"}
-            value={form.amount}
-            aria-invalid={isInvalid || undefined}
-            aria-describedby={isInvalid ? "bulk-price-amount-error" : undefined}
-            onChange={(event) => {
-              changeForm({ amount: event.target.value });
-            }}
-          />
-          <span>{translate(form.mode === "percent" ? "percentSuffix" : "dinarSuffix")}</span>
-        </div>
-      </div>
-      <div className="menu-item-field">
-        <label htmlFor="bulk-price-rounding">{translate("roundingLabel")}</label>
-        <select
-          id="bulk-price-rounding"
-          value={form.roundingUnit}
-          onChange={(event) => {
-            const unit = roundingUnits.find((value) => String(value) === event.target.value);
-            if (unit) changeForm({ roundingUnit: unit });
-          }}
-        >
-          {roundingUnits.map((unit) => (
-            <option key={unit} value={unit}>
-              {translate("roundingOption", { unit })}
-            </option>
-          ))}
-        </select>
-      </div>
-    </div>
-  );
-}
-
-function AdjustmentFields({ controls }: Pick<PanelProps, "controls">) {
-  const translate = useTranslations("menuPrice");
-  const { form, changeForm } = controls;
-  return (
-    <>
-      <RadioPair
-        legend={translate("directionLegend")}
-        name="bulk-price-direction"
-        value={form.direction}
-        options={[
-          { value: "raise", label: translate("raise") },
-          { value: "lower", label: translate("lower") },
-        ]}
-        onChange={(direction) => {
-          changeForm({ direction });
-        }}
-      />
-      <RadioPair
-        legend={translate("modeLegend")}
-        name="bulk-price-mode"
-        value={form.mode}
-        options={[
-          { value: "percent", label: translate("percent") },
-          { value: "fixed", label: translate("fixed") },
-        ]}
-        onChange={(mode) => {
-          changeForm({ mode });
-        }}
-      />
-      <AmountFields controls={controls} />
-    </>
   );
 }
 
@@ -282,7 +150,7 @@ function Problems({ controls }: Pick<PanelProps, "controls">) {
   return (
     <>
       {form.formError && (
-        <p id="bulk-price-amount-error" className="menu-item-error" role="alert">
+        <p id={errorIds[form.formError]} className="menu-item-error" role="alert">
           {translate(form.formError)}
         </p>
       )}

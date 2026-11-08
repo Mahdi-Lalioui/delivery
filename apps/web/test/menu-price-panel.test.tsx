@@ -117,3 +117,14 @@ test("[MER-11] explains a rejected undo and an invalid amount", () => {
   expect(invalid).toContain(`aria-invalid="true"`);
   expect(invalid).toContain(menuPrice.invalidAmount);
 });
+
+test("[MER-11] reports an empty selection apart from the amount field", () => {
+  const html = render({
+    form: { ...controls().form, selectedIds: new Set(), formError: "noSelection" },
+  });
+  expect(html).toContain(`id="bulk-price-selection-error"`);
+  expect(html).toContain(menuPrice.noSelection);
+  expect(html).not.toContain(`id="bulk-price-amount-error"`);
+  expect(html).not.toContain(`aria-invalid="true"`);
+  expect(html).toMatch(/<fieldset[^>]*aria-describedby="bulk-price-selection-error"/);
+});
