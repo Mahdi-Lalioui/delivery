@@ -710,6 +710,6 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 ## Current status
 
 - Milestone: M1 (last passing gate, M2 in progress)
-- `node scripts/trace.ts --through m2` on 2026-11-08 at 03:32 GMT covered 32 of 37 IDs. Pending: ADM-04, MER-01, MER-12, MER-14, MER-23. M2-9 has its API, preview, pure web models, and the weekly hours page with the closed-now control. M2-9 is done, with production-build ar/fr journeys and the screenshot matrix. M2-10 screens item writes and has the admin review contracts the audited review command, queue, admin API routes and an end-to-end PostGIS API test. Merchants now see why an item is held, and the typed admin web client exists. Next is the admin held-items screen and its auth e2e.
+- `node scripts/trace.ts --through m2` on 2026-11-08 at 03:32 GMT covered 32 of 37 IDs (pending then: ADM-04, MER-01, MER-12, MER-14, MER-23; ADM-04 now has db, http, contract, web and ui tests). M2-9 is done, with production-build ar/fr journeys and the screenshot matrix. M2-10 has the screen on item writes, the audited admin review command, the queue, the admin API routes, an end-to-end PostGIS API test, the merchant explanation and the typed admin web client. Next: the admin held-items screen and its auth e2e (see the 07:56 entry).
 - Last green `pnpm verify`: 2026-11-08 07:56 GMT on Docker Desktop with 1132 unit and 123 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 14/14 at 07:52 GMT.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
