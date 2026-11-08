@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 02:30 GMT — M2-9 persist the Ramadan schedule (Claude, covering while Codex was out)
+
+- **Changed** — Added migration `0013_merchant_ramadan_schedules`. It adds `ramadan_replace` to the receipt operations and creates one row per merchant. The row holds the seven-day ranges as a checked `jsonb` array, whose Maghrib/clock endpoint union is always read whole. Typed columns hold the suhoor window (both ends null or both set and different), the calculation method (the contract's list) and the ±30-minute adjustment. Added `packages/db/src/merchant-ramadan.ts` and the repository methods `readRamadan`, which returns `schedule: null` until one is saved, and `replaceRamadan`, which upserts through `runMenuCommand`. Split the routes and the geo method test into a new PLAN sub-task.
+- **Evidence** — Added 1 `[MER-16:db]` case and 1 `[MER-16:authz]` case to `merchant-hours.integration.test.ts` first. They cover an empty read, apply, same-key replay, read-back, whole replacement with a null suhoor and `UmmAlQura`, a stale revision, and staff and non-member denial. They failed with `readRamadan is not a function`, then all 6 cases passed. `pnpm verify` exited 0: 955 unit tests, 115 PostGIS integration tests, OpenAPI check, build, knip, depcruise, trace, and only the existing moderate advisory.
+- **Reviewer** — Self-reviewed against AGENTS.md §10. No P0/P1. The DB does not check the inner shape of the `jsonb` ranges, so the future PUT route must parse `merchantRamadanInput` before calling the repository. It will be the only writer.
+- **Next** — Add `GET`/`PUT /v1/merchants/:merchantId/hours/ramadan` in `merchant-hours-routes.ts`. Mirror the hours routes and their HTTP tests. Add a `merchantRamadanCommandInput`/`merchantRamadanOutput` contract with a nullable schedule, plus matrix rows and an OpenAPI regeneration. Run `pnpm turbo run build --filter=@zaafran/contracts` before the API tests, because the API resolves contracts from `dist`. Then add the closed-now override, the seven-day preview, and the ar/fr hours editor with its overnight and Ramadan journeys.
+- **Needs Mahdi** — None.
+
 ### 2026-11-08 02:28 GMT — M2-9 hours read/replace API (Claude, covering while Codex was out)
 
 - **Changed** — Added `merchantHoursCommandInput` (hours plus `expectedRevision`), `merchantHoursOutput` (plus `sessionId` and `revision`) and `merchantHoursWriteOutput` to `@zaafran/contracts/merchant-hours`. Added `apps/api/src/merchant-hours-routes.ts`. `GET /v1/merchants/:merchantId/hours` is `no-store` and returns 404 for anyone who is not an owner or manager. `PUT` takes the `x-expected-session-id` and `Idempotency-Key` headers and maps `revision_conflict` and `idempotency_conflict` to 409 and `not_found` to 404. Wired it into `app.ts` and `start.ts`, added both routes to the `[AUTH-08]` matrix and the OpenAPI path list, and regenerated `docs/openapi.json`. Narrowed the hours command failure type so only runner failures can surface.
@@ -447,5 +455,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress)
 - `pnpm trace --through m2` on 2026-11-08 at 02:21 GMT covered 30 of 37 IDs. Pending: ADM-04, MER-01, MER-12, MER-14, MER-15, MER-16, MER-23. M2-7 (MER-11) is complete with a production-build journey.
-- Last green `pnpm verify`: 2026-11-08 02:27 GMT on Docker Desktop with 955 unit and 113 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 12/12 at 02:22 GMT.
+- Last green `pnpm verify`: 2026-11-08 02:29 GMT on Docker Desktop with 955 unit and 115 PostGIS integration tests. Last green `pnpm test:e2e:auth`: 12/12 at 02:22 GMT.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
