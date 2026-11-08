@@ -15,6 +15,13 @@ Refine each milestone's task list when you start it. Split tasks so each fits on
 | Sun 15 Nov        | Integrate both lanes and reach feature completion                     | Integrate both lanes and reach feature completion |
 | Mon 16–Sun 22 Nov | Gates M0–M11, fixes, audits, staging, restore drill and deployability | Same hardening and release checklist              |
 
+Lane A publishes these shared schemas before feature wiring in either lane:
+
+- [x] Admin billing and merchant subscriptions, invoices and transfer proofs (ADM-07, ADM-08, BIL-01…06, MER-22).
+- [x] Customer ratings and merchant review actions (CUS-22, MER-20).
+- [x] Merchant promotions and quote rejection codes (MER-19, CUS-16).
+- [x] Scheduled delivery and pickup slot discovery, including Iftar (CUS-13, HRS-03).
+
 Start from green M0, M1 and M2 snapshots merged into `main` in order. Push both lanes from that baseline. Lane A publishes the admin/billing, ratings, promotions and scheduling contracts first. Merge lane A then lane B each evening, with full verification and end-to-end tests green on `main`. Rebase both lanes every morning. Resume from `docs/progress/lane-a.md` or `docs/progress/lane-b.md` after an account switch.
 
 ## Pilot and launch dependencies (Africa/Algiers)

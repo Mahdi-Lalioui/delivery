@@ -16,6 +16,10 @@
       "types": "./src/auth.ts",
       "default": "./dist/auth.js"
     },
+    "./billing": {
+      "types": "./src/billing.ts",
+      "default": "./dist/billing.js"
+    },
     "./health": {
       "types": "./src/health.ts",
       "default": "./dist/health.js"
@@ -47,6 +51,18 @@
     "./menu-import": {
       "types": "./src/menu-import.ts",
       "default": "./dist/menu-import.js"
+    },
+    "./promotions": {
+      "types": "./src/promotions.ts",
+      "default": "./dist/promotions.js"
+    },
+    "./ratings": {
+      "types": "./src/ratings.ts",
+      "default": "./dist/ratings.js"
+    },
+    "./scheduling": {
+      "types": "./src/scheduling.ts",
+      "default": "./dist/scheduling.js"
     }
   },
   "scripts": {

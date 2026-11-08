@@ -2,7 +2,7 @@
 
 You are building **Zaafran** (working name — the real name lives only in `packages/config/src/brand.ts`), a food-delivery marketplace for Algeria, starting in Algiers. Customers order from local restaurants. Restaurants pay a flat monthly fee (no commission) and, in v1, deliver with their own drivers. We ship the **web app first** (customer PWA, restaurant dashboard, courier PWA, admin), then the **native apps** (customer app, partner app) straight after.
 
-One human owns this project: **Mahdi**. Nobody else works on it. Work autonomously. Ask Mahdi only for what is listed under "Stop and ask".
+**Mahdi** is the project owner and the only human on the project. Codex and Claude Code work in the lanes below. Work autonomously. Ask Mahdi only for what is listed under "Stop and ask".
 
 ## 0. Parallel build week
 
