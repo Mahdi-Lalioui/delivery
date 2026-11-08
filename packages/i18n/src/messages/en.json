@@ -883,5 +883,14 @@
     "loading": "Preparing your QR code…",
     "posterHeadline": "Order online and get it delivered",
     "posterScan": "Scan to see our menu"
+  },
+  "retentionRecipient": {
+    "title": "Order for someone else",
+    "name": "Recipient's name",
+    "phone": "Recipient's mobile",
+    "nameError": "Enter the recipient's name (up to 80 characters).",
+    "phoneError": "Enter an Algerian mobile number starting with 05, 06 or 07.",
+    "shareTracking": "Also send them the tracking link",
+    "smsNotice": "The recipient gets the delivery code by SMS."
   }
 }

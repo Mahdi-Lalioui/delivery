@@ -21,3 +21,5 @@
   Proof: `vitest run apps/web/test/scheduling*` 7/7, `pnpm verify` green. Next: M6-5 order-for-someone-else, M6-6 busy mode, M6-7 QR posters.
 - 2026-11-08 · Medium · M6-7 shareables `/[locale]/merchant/[id]/share`: QR (qrcode-generator, D-B02) as SVG path, short link `/r/:id`, printable A5/A4 poster in ar/fr via named `@page`. M6-6 busy mode already exists in lane A's `merchant-hours/hours-pause*` — skipped.
   Proof: `vitest run apps/web/test/{qr,share-kit}*` 3/3, `pnpm verify` green. Next: M6-5 recipient fields, M6-2 favourites/history/reorder.
+- 2026-11-08 · Medium · M6-5 `RecipientFields` + `validateRecipient` (CUS-15, Algerian mobile normalisation). Filed `docs/requests/lane-b-retention-admin.md` for the contract-less M6/M7 items (favourites, history/reorder, analytics, photo import, dashboard).
+  Proof: `vitest run apps/web/test/recipient*` 3/3, `pnpm verify` green. Next: M8 landing + Casbah hero (no contracts needed).

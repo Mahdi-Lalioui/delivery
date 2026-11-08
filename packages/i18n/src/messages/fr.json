@@ -883,5 +883,14 @@
     "loading": "Préparation du QR code…",
     "posterHeadline": "Commandez en ligne, on vous livre",
     "posterScan": "Scannez pour voir notre menu"
+  },
+  "retentionRecipient": {
+    "title": "Commander pour quelqu’un d’autre",
+    "name": "Nom du destinataire",
+    "phone": "Mobile du destinataire",
+    "nameError": "Saisissez le nom du destinataire (80 caractères au plus).",
+    "phoneError": "Saisissez un mobile algérien commençant par 05, 06 ou 07.",
+    "shareTracking": "Lui envoyer aussi le lien de suivi",
+    "smsNotice": "Le destinataire reçoit le code de livraison par SMS."
   }
 }
