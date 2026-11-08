@@ -226,6 +226,12 @@ importers:
       '@zaafran/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@zaafran/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
+      '@zaafran/geo':
+        specifier: workspace:*
+        version: link:../../packages/geo
       '@zaafran/media':
         specifier: workspace:*
         version: link:../../packages/media

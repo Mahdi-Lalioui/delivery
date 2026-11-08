@@ -5,6 +5,8 @@ import {
   merchantHoursOutput,
   merchantHoursPauseInput,
   merchantHoursPauseOutput,
+  merchantHoursPreviewOutput,
+  merchantHoursPreviewQuery,
   merchantHoursWriteOutput,
   merchantRamadanCommandInput,
   merchantRamadanInput,
@@ -188,4 +190,22 @@ test("[MER-15:contract] closes until an exact instant or reopens with null", () 
     revision: 1,
     pausedUntil: null,
   });
+});
+
+test("[MER-16:contract] previews seven dated days of instants for either schedule", () => {
+  expect(merchantHoursPreviewQuery.parse({ schedule: "ramadan" })).toEqual({ schedule: "ramadan" });
+  expect(merchantHoursPreviewQuery.safeParse({ schedule: "summer" }).success).toBe(false);
+  expect(merchantHoursPreviewQuery.safeParse({}).success).toBe(false);
+
+  const day = {
+    date: "2027-02-08",
+    source: "ramadan",
+    maghribAt: "2027-02-08T17:23:00.000Z",
+    intervals: [{ opensAt: "2027-02-08T16:23:00.000Z", closesAt: "2027-02-09T01:00:00.000Z" }],
+  };
+  const output = { schedule: "ramadan", days: Array.from({ length: 7 }, () => day) };
+  expect(merchantHoursPreviewOutput.parse(output)).toEqual(output);
+  expect(merchantHoursPreviewOutput.safeParse({ ...output, days: [day] }).success).toBe(false);
+  const unknownSource = { ...output, days: output.days.map((d) => ({ ...d, source: "busy" })) };
+  expect(merchantHoursPreviewOutput.safeParse(unknownSource).success).toBe(false);
 });

@@ -33,6 +33,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     now,
     sendSms: options.sendSms ?? unavailableSms,
   });
+  const merchantHours = createMerchantHoursRepository(database);
   const api = createApi({
     checkReadiness: () => checkReadiness(database),
     trustedProxy: environment.API_TRUSTED_PROXY,
@@ -47,7 +48,8 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     menuItem: { repository: createMenuItemRepository(database), now },
     menuOptionGroup: { repository: createMenuOptionGroupRepository(database), now },
     menuPrice: { repository: createMenuPriceRepository(database), now },
-    merchantHours: { repository: createMerchantHoursRepository(database), now },
+    merchantHours: { repository: merchantHours, now },
+    merchantHoursPreview: { repository: merchantHours, now },
   });
   api.addHook("onClose", () => database.close());
   try {

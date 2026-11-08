@@ -138,3 +138,23 @@ export const merchantHoursPauseOutput = z.strictObject({
   revision: menuRevision,
   pausedUntil,
 });
+
+/** `regular` previews the stored week; `ramadan` resolves every day from Maghrib (MER-16). */
+export const merchantHoursPreviewQuery = z.strictObject({
+  schedule: z.enum(["regular", "ramadan"]),
+});
+const instant = z.iso.datetime({ offset: true });
+// Four ranges a day, plus the suhoor window on a Ramadan day.
+const maxPreviewIntervals = maxRangesPerDay + 1;
+const previewDay = z.strictObject({
+  date: z.iso.date(),
+  source: z.enum(["weekly", "special", "ramadan"]),
+  maghribAt: instant.nullable(),
+  intervals: z
+    .array(z.strictObject({ opensAt: instant, closesAt: instant }))
+    .max(maxPreviewIntervals),
+});
+export const merchantHoursPreviewOutput = z.strictObject({
+  schedule: merchantHoursPreviewQuery.shape.schedule,
+  days: z.array(previewDay).length(7),
+});
