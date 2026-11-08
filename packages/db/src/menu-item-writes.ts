@@ -1,3 +1,4 @@
+import { findProhibitedGoods } from "@zaafran/domain/moderation";
 import type { TransactionSql } from "postgres";
 import type { CommandChange, CommandRequest } from "./menu-commands.js";
 import {
@@ -70,6 +71,14 @@ async function insertItemGroups(
   `;
 }
 
+type TextStatus = "unreviewed" | "blocked_pending_review";
+
+/** SPEC §17.3: names or descriptions with prohibited goods wait for an admin review. */
+function screenItemText({ names, descriptions }: ItemData): TextStatus {
+  const texts = [names, descriptions].flatMap(({ ar, fr, en }) => [ar ?? "", fr ?? "", en ?? ""]);
+  return findProhibitedGoods(texts).length > 0 ? "blocked_pending_review" : "unreviewed";
+}
+
 export async function createItem(sql: TransactionSql, request: ItemWrite): Promise<ItemEditChange> {
   const { merchantId, input, now } = request;
   if (input.photoId !== null) return { kind: "photos_unavailable" };
@@ -77,10 +86,10 @@ export async function createItem(sql: TransactionSql, request: ItemWrite): Promi
 
   const [created] = await sql<{ itemId: string }[]>`
     INSERT INTO public.items
-      (merchant_id, category_id, names, descriptions, price_dzd, tags, prep_extra_min)
+      (merchant_id, category_id, names, descriptions, price_dzd, tags, prep_extra_min, moderation_status)
     VALUES (${merchantId}, ${input.categoryId}, ${JSON.stringify(input.names)}::jsonb,
       ${JSON.stringify(input.descriptions)}::jsonb, ${input.priceDzd}, ${[...input.tags]}::text[],
-      ${input.extraPrepMinutes})
+      ${input.extraPrepMinutes}, ${screenItemText(input)})
     RETURNING id AS "itemId"
   `;
   if (!created) throw new Error("Menu item insert returned no row.");
@@ -101,6 +110,7 @@ export async function updateItem(
 
   const names = JSON.stringify(input.names);
   const descriptions = JSON.stringify(input.descriptions);
+  const textStatus = screenItemText(input);
   await sql`
     UPDATE public.items SET category_id = ${input.categoryId},
       names = ${names}::jsonb, descriptions = ${descriptions}::jsonb, price_dzd = ${input.priceDzd},
@@ -108,7 +118,8 @@ export async function updateItem(
       moderation_status = CASE
         WHEN moderation_status IN ('blocked_pending_review', 'rejected') THEN moderation_status
         WHEN names IS DISTINCT FROM ${names}::jsonb OR descriptions IS DISTINCT FROM ${descriptions}::jsonb
-        THEN 'unreviewed' ELSE moderation_status END
+          OR moderation_status = 'unreviewed'
+        THEN ${textStatus} ELSE moderation_status END
     WHERE merchant_id = ${merchantId} AND id = ${itemId} AND archived_at IS NULL
   `;
   await sql`DELETE FROM public.item_option_groups WHERE merchant_id = ${merchantId} AND item_id = ${itemId}`;

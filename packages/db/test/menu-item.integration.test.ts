@@ -35,6 +35,7 @@ const availability = merchantFixture(40);
 const paged = merchantFixture(50);
 const blocked = merchantFixture(60);
 const rejected = merchantFixture(70);
+const screened = merchantFixture(80);
 
 beforeAll(async () => {
   const { sql } = database.get();
@@ -61,6 +62,7 @@ beforeAll(async () => {
     paged,
     blocked,
     rejected,
+    screened,
   ]) {
     await sql`
       insert into merchants
@@ -376,6 +378,51 @@ test.each([
     });
   },
 );
+
+test("[ADM-04:db] item writes with prohibited words are held for review in the same command", async () => {
+  const repo = repository();
+  const { merchantId, categoryId, firstItem } = screened;
+  await seedItem(screened, { moderationStatus: "approved" });
+  const approved = { merchantId, itemId: firstItem };
+  const status = (result: Awaited<ReturnType<typeof repo.create>>) =>
+    result.kind === "applied" ? result.item.moderationStatus : result.kind;
+
+  const clean = await repo.create(command({ merchantId }, "clean-item", itemInput(categoryId, 0)));
+  expect(status(clean)).toBe("unreviewed");
+  const beer = await repo.create(
+    command({ merchantId }, "beer-item", {
+      ...itemInput(categoryId, 1),
+      names: { ar: "بيرة", fr: "Bière pression" },
+    }),
+  );
+  expect(status(beer)).toBe("blocked_pending_review");
+  if (clean.kind !== "applied" || beer.kind !== "applied") throw new Error("Expected two items.");
+
+  const cleanTarget = { merchantId, itemId: clean.item.itemId };
+  const describedTobacco = await repo.update(
+    command(cleanTarget, "tobacco-description", {
+      ...itemInput(categoryId, 2),
+      descriptions: { ar: "مع سجائر" },
+    }),
+  );
+  expect(status(describedTobacco)).toBe("blocked_pending_review");
+
+  const beerTarget = { merchantId, itemId: beer.item.itemId };
+  const renamed = await repo.update(command(beerTarget, "rename-beer", itemInput(categoryId, 3)));
+  expect(status(renamed)).toBe("blocked_pending_review");
+
+  const priceOnly = await repo.update(
+    command(approved, "approved-price", { ...itemInput(categoryId, 4), priceDzd: 1_300 }),
+  );
+  expect(status(priceOnly)).toBe("approved");
+  const flagged = await repo.update(
+    command(approved, "approved-casino", {
+      ...itemInput(categoryId, 5),
+      names: { fr: "Menu casino" },
+    }),
+  );
+  expect(status(flagged)).toBe("blocked_pending_review");
+});
 
 test("[MER-23:db] staff can toggle availability only for an item at their own merchant", async () => {
   const repo = repository();
