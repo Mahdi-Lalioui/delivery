@@ -62,7 +62,7 @@ test("[MER-09:items] loads the selected category's entire revision-bound item li
   });
   expect(fetch).toHaveBeenNthCalledWith(
     2,
-    `${endpoint}?categoryId=${categoryId}&limit=100&cursor=${encodeURIComponent(cursor).replace("~", "%7E")}`,
+    `${endpoint}?categoryId=${categoryId}&limit=100&cursor=${String(revision)}%7E${itemId}`,
     expect.objectContaining({ method: "GET", signal: request.signal }),
   );
 });

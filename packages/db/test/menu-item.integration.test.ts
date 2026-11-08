@@ -36,6 +36,7 @@ const paged = merchantFixture(50);
 const blocked = merchantFixture(60);
 const rejected = merchantFixture(70);
 const screened = merchantFixture(80);
+const approved = merchantFixture(90);
 
 beforeAll(async () => {
   const { sql } = database.get();
@@ -63,6 +64,7 @@ beforeAll(async () => {
     blocked,
     rejected,
     screened,
+    approved,
   ]) {
     await sql`
       insert into merchants
@@ -155,11 +157,13 @@ async function seedItem(
     categoryId = fixture.categoryId,
     soldOutUntil = null,
     moderationStatus = "unreviewed",
+    descriptions,
   }: {
     itemId?: string;
     categoryId?: string;
     soldOutUntil?: Date | null;
     moderationStatus?: string;
+    descriptions?: ReturnType<typeof itemData>["descriptions"];
   } = {},
 ) {
   const { sql } = database.get();
@@ -169,7 +173,7 @@ async function seedItem(
       (id, merchant_id, category_id, names, descriptions, price_dzd, tags, prep_extra_min,
         is_available, sold_out_until, moderation_status)
     values (${itemId}, ${fixture.merchantId}, ${categoryId}, ${JSON.stringify(item.names)}::jsonb,
-      ${JSON.stringify(item.descriptions)}::jsonb, ${item.priceDzd}, ${item.tags}::text[],
+      ${JSON.stringify(descriptions ?? item.descriptions)}::jsonb, ${item.priceDzd}, ${item.tags}::text[],
       ${item.extraPrepMinutes}, ${soldOutUntil === null}, ${soldOutUntil?.toISOString() ?? null}::timestamptz,
       ${moderationStatus})
   `;
@@ -378,6 +382,26 @@ test.each([
     });
   },
 );
+
+test("[ADM-04:db] duplicates of approved items with prohibited text require their own review", async () => {
+  const repo = repository();
+  const checklist = createMerchantRepository(database.get());
+  const { merchantId, firstItem: itemId } = approved;
+  const descriptions = { fr: "Dessert fictif au rhum" };
+  await seedItem(approved, { moderationStatus: "approved", descriptions });
+
+  const copy = command({ merchantId, itemId }, "copy-approved-item", { expectedRevision: 0 });
+  const duplicate = await repo.duplicate(copy);
+  expect(duplicate).toMatchObject({
+    kind: "applied",
+    revision: 1,
+    item: { descriptions, moderationStatus: "blocked_pending_review" },
+  });
+  expect(await repo.duplicate(copy)).toEqual({ ...duplicate, kind: "replayed" });
+  await expect(checklist.getOnboarding({ merchantId, accountId })).resolves.toMatchObject({
+    itemsTowardMinimum: 1,
+  });
+});
 
 test("[ADM-04:db] item writes with prohibited words are held for review in the same command", async () => {
   const repo = repository();

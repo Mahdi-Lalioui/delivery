@@ -13,6 +13,16 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 12:48 GMT — M2 CodeQL follow-up
+
+- **Effort and evidence** — Ultra. Declared OTP/TOTP route throttling explicitly and proved the existing shared API budget still counts once per request. Standalone regressions failed before the declaration, then passed. All 235 API unit tests and the 13 menu-item HTTP tests passed.
+- **Next** — Recheck CodeQL on the updated integration PR.
+
+### 2026-11-08 12:47 GMT — M2 baseline audit and moderation follow-up
+
+- **Effort and evidence** — High for the baseline audit and ultra for the duplication fix. The new PostGIS test first showed a flagged duplicate as unreviewed. After the fix, both menu moderation suites passed, 13/13.
+- **Next** — Close the remaining feature and gate gaps in `docs/evidence/m2/baseline-audit.md`.
+
 ### 2026-11-08 10:30 GMT — M2-8 atomic menu import repository and API
 
 - **Changed** — Added merchant-scoped external item keys, deterministic category matching, and authenticated preview/apply routes. Apply verifies the preview token and commits menu changes and the replay receipt together. It preserves fields outside the template and retains moderation holds.
@@ -861,6 +871,6 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 ## Current status
 
 - Milestone: M1 (last passing gate, M2 in progress)
-- `node scripts/trace.ts --through m2` on 2026-11-08 at 09:38 GMT covered 34 of 37 IDs (missing MER-01, MER-12, MER-14). M2-9, M2-10 and M2-11 are done. M2-11 has the owner team page, the invitee accept page, the production-build e2e with the design matrix, and the `[MER-23]` role-split test. Remaining in M2: M2-2 (umbrella schema task, still unticked), M2-6 (worker decode and cropper UI), M2-8 (CSV/XLSX import), M2-12 (demo seed and gate run), and a bare `[MER-01]` acceptance test.
-- Last green `pnpm verify`: 2026-11-08 09:38 GMT on Docker Desktop with 1203 unit and 138 PostGIS integration tests. Last green auth e2e suite: 16/16 at 09:36 GMT.
+- Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import is traced at row validation and its browser UI is still in progress. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
+- Last green baseline `pnpm verify`: 2026-11-08 12:42 GMT on Docker Desktop with 1,246 unit and 155 PostGIS integration tests. Both production browser suites passed, 59 foundation and 16 authenticated cases.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

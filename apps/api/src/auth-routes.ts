@@ -27,7 +27,7 @@ import { sendProblem } from "./problems.js";
 type VerificationResult = Awaited<ReturnType<AuthService["verifyOtp"]>>;
 type AuthFailure = Extract<VerificationResult, { ok: false }>;
 
-const publicConfig = { policy: { kind: "public" as const } };
+const publicPolicy = { kind: "public" } as const;
 const sessionConfig = {
   policy: {
     kind: "roles",
@@ -88,11 +88,12 @@ function deviceMetadata(request: FastifyRequest) {
   return { requestIp: request.ip, deviceName };
 }
 
+// Public auth route limiters inherit the plugin defaults and skip requests counted by the API hook.
 function registerOtpRequest(api: FastifyInstance, { auth }: AuthAccess): void {
   api.withTypeProvider<ZodTypeProvider>().post(
     "/v1/auth/otp/request",
     {
-      config: publicConfig,
+      config: { policy: publicPolicy, rateLimit: {} },
       schema: {
         headers: commandHeaders,
         body: requestOtpInput,
@@ -123,7 +124,7 @@ function registerVerification(
   api.withTypeProvider<ZodTypeProvider>().post(
     "/v1/auth/" + factor + "/verify",
     {
-      config: publicConfig,
+      config: { policy: publicPolicy, rateLimit: {} },
       schema: {
         headers: commandHeaders,
         body: isTotp ? verifyTotpInput : verifyOtpInput,

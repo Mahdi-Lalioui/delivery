@@ -1,8 +1,13 @@
+import rateLimit from "@fastify/rate-limit";
 import { problemResponseSchema } from "@zaafran/contracts/health";
-import type { LightMyRequestResponse } from "fastify";
+import fastify, { type FastifyError, type LightMyRequestResponse } from "fastify";
+import { serializerCompiler, validatorCompiler } from "fastify-type-provider-zod";
 import { expect, onTestFinished, test, vi } from "vitest";
 import { createApi } from "../src/app.ts";
+import { createAuthAccess } from "../src/auth-access.ts";
+import { registerAuthRoutes } from "../src/auth-routes.ts";
 import type { AuthService } from "../src/auth-service.ts";
+import { sendProblem } from "../src/problems.ts";
 
 const publicOrigin = "https://zaafran.test";
 const challengeId = "01932f18-3150-7c33-8a7a-53acfd343001";
@@ -58,7 +63,7 @@ function expectWebCookie(response: LightMyRequestResponse, value: string, maxAge
   expect(fields.some((field) => /^domain=/i.test(field))).toBe(false);
 }
 
-function setup() {
+function setup(options?: Pick<Parameters<typeof createApi>[0], "rateLimit">) {
   const service = {
     requestOtp: vi.fn<AuthService["requestOtp"]>(),
     verifyOtp: vi.fn<AuthService["verifyOtp"]>(),
@@ -67,8 +72,11 @@ function setup() {
     listSessions: vi.fn<AuthService["listSessions"]>(),
     revokeSessions: vi.fn<AuthService["revokeSessions"]>(),
   } satisfies AuthService;
-  const options = { checkReadiness: () => Promise.resolve(), auth: { service, publicOrigin } };
-  const api = createApi(options);
+  const api = createApi({
+    ...options,
+    checkReadiness: () => Promise.resolve(),
+    auth: { service, publicOrigin },
+  });
   onTestFinished(() => api.close());
   return { api, service };
 }
@@ -122,6 +130,53 @@ const publicPosts = [
   { url: verifyPath, method: "verifyOtp", payload: verifyOtp },
   { url: totpPath, method: "verifyTotp", payload: verifyOtp },
 ] as const;
+
+test.each(publicPosts)(
+  "[AUTH-02:http] POST $url is throttled with route-level rate limiting",
+  async ({ url, payload }) => {
+    const api = fastify();
+    onTestFinished(() => api.close());
+    api.setValidatorCompiler(validatorCompiler);
+    api.setSerializerCompiler(serializerCompiler);
+    api.setErrorHandler<FastifyError>((error, _request, reply) =>
+      sendProblem(reply, error.statusCode ?? 500),
+    );
+    await api.register(rateLimit, { global: false, max: 1, timeWindow: 60_000 });
+    registerAuthRoutes(api, createAuthAccess(undefined));
+    const request = { method: "POST", url, headers: postHeaders, payload } as const;
+
+    expect((await api.inject(request)).statusCode).toBe(503);
+    const limited = await api.inject(request);
+    expect(limited.statusCode).toBe(429);
+    expect(limited.headers["retry-after"]).toMatch(/^\d+$/);
+  },
+);
+
+test("[AUTH-02:http] public auth routes share the API rate limit and count requests once", async () => {
+  const { api, service } = setup({ rateLimit: { max: 2, timeWindow: 60_000 } });
+  service.requestOtp.mockResolvedValue({
+    ok: true,
+    value: {
+      challengeId,
+      expiresAt: "2026-11-07T12:05:00.000Z",
+      resendAt: "2026-11-07T12:00:45.000Z",
+    },
+  });
+  service.verifyOtp.mockResolvedValue({ ok: false, code: "otp_invalid" });
+  const remoteAddress = "192.0.2.1";
+  const request = { method: "POST", headers: postHeaders, remoteAddress } as const;
+
+  const accepted = await api.inject({ ...request, url: requestPath, payload: requestOtp });
+  expect(accepted.statusCode).toBe(202);
+  expect(accepted.headers["x-ratelimit-remaining"]).toBe("1");
+  const attempted = await api.inject({ ...request, url: verifyPath, payload: verifyOtp });
+  expectProblem(attempted, 401, "otp_invalid");
+  expect(attempted.headers["x-ratelimit-remaining"]).toBe("0");
+  const limited = await api.inject({ ...request, url: totpPath, payload: verifyOtp });
+  expectProblem(limited, 429, "rate_limited");
+  expect(limited.headers["retry-after"]).toMatch(/^\d+$/);
+  expect(service.verifyTotp).not.toHaveBeenCalled();
+});
 
 test.each([
   ...publicPosts,

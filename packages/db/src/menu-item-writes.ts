@@ -72,9 +72,10 @@ async function insertItemGroups(
 }
 
 type TextStatus = "unreviewed" | "blocked_pending_review";
+type ItemText = Pick<ItemData, "names" | "descriptions">;
 
 /** SPEC §17.3: names or descriptions with prohibited goods wait for an admin review. */
-function screenItemText({ names, descriptions }: ItemData): TextStatus {
+function screenItemText({ names, descriptions }: ItemText): TextStatus {
   const texts = [names, descriptions].flatMap(({ ar, fr, en }) => [ar ?? "", fr ?? "", en ?? ""]);
   return findProhibitedGoods(texts).length > 0 ? "blocked_pending_review" : "unreviewed";
 }
@@ -132,12 +133,19 @@ export async function duplicateItem(
   sql: TransactionSql,
   { merchantId, itemId, now }: ItemRevision,
 ): Promise<CommandChange<{ readonly item: MenuItem }, "not_found">> {
+  const [source] = await sql<ItemText[]>`
+    SELECT names, descriptions FROM public.items
+    WHERE merchant_id = ${merchantId} AND id = ${itemId} AND archived_at IS NULL
+    FOR SHARE
+  `;
+  if (!source) return { kind: "not_found" };
+
   const [duplicate] = await sql<{ itemId: string }[]>`
     INSERT INTO public.items
       (merchant_id, category_id, names, descriptions, price_dzd, tags, prep_extra_min, moderation_status)
     SELECT merchant_id, category_id, names, descriptions, price_dzd, tags, prep_extra_min,
       CASE WHEN moderation_status IN ('blocked_pending_review', 'rejected')
-        THEN moderation_status ELSE 'unreviewed' END
+        THEN moderation_status ELSE ${screenItemText(source)} END
     FROM public.items WHERE merchant_id = ${merchantId} AND id = ${itemId} AND archived_at IS NULL
     RETURNING id AS "itemId"
   `;

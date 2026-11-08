@@ -98,7 +98,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
   - [x] Validate raw cells and sign the validated preview context. Cover field errors, duplicate keys and exact prices.
   - [x] Persist external keys and implement revision-bound preview and atomic apply with prohibited-goods screening.
   - [ ] Connect bounded CSV/XLSX parsing, template download and the localized import journey.
-- [x] M2-9 Hours and Ramadan (MER-15, MER-16). Persist weekly ranges, dated exceptions, Ramadan offsets and location. Render seven-day previews through the M1 rules and exercise overnight and Ramadan edits in Arabic and French.
+- [ ] M2-9 Hours and Ramadan (MER-15, MER-16). Persist weekly ranges, dated exceptions, Ramadan offsets and location. Render seven-day previews through the M1 rules and exercise overnight and Ramadan edits in Arabic and French.
   - [x] Define the weekly ranges and special-dates input contract (overnight ranges, no same-day overlap, bounded sizes).
   - [x] Persist weekly ranges and special dates with an owner/manager-scoped, idempotent replace command on the menu revision guard (D-011).
   - [x] Add the authenticated `GET`/`PUT /v1/merchants/:merchantId/hours` routes with the command and read contracts, authorization-matrix rows and OpenAPI.
@@ -121,15 +121,18 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Add the regular/Ramadan preview toggle to the hours page.
     - [x] Wire the Ramadan editor into the hours page.
     - [x] Prove the production-build overnight and Ramadan journeys in Arabic and French, plus the screenshot matrix.
-- [x] M2-10 Moderation (§17.3, ADM-04). Check prohibited goods on every menu write path and public preview. Prove flagged items stay hidden until the audited review outcome permits listing.
+  - [ ] Add dated exceptions to the web editor and prove create, edit and delete in the production browser journey.
+- [ ] M2-10 Moderation (§17.3, ADM-04). Check prohibited goods on every menu write path and public preview. Prove flagged items stay hidden until the audited review outcome permits listing.
   - [x] Add the pure prohibited-goods matcher in `@zaafran/domain` (ar/fr/en/Arabizi keywords, whole words, property tests).
   - [x] Apply the matcher in the item create/update repository commands, setting `blocked_pending_review` in the same transaction, with integration tests per write path.
-  - [x] Add the audited admin review command and route (approve/reject) with matrix rows, and prove the public preview hides blocked items until approval.
+  - [x] Add the audited admin review command and route (approve/reject) with matrix rows, and prove the onboarding checklist excludes blocked items.
     - [x] Commit the held-item queue and review contracts (`@zaafran/contracts/admin-moderation`).
     - [x] Add the idempotent, audited review command in `packages/db` (D-014).
     - [x] Add the keyset held-item queue read in `packages/db`.
     - [x] Add the admin routes, authorization-matrix rows and OpenAPI.
-    - [x] Prove both routes end to end against PostGIS through `startApi`, including the merchant's visible items after each decision.
+    - [x] Prove both routes end to end against PostGIS through `startApi`, including the merchant onboarding count after each decision.
+  - [x] Re-screen the text when duplicating an approved item and prove the copy stays out of the onboarding count.
+  - [ ] Prove the customer-facing preview excludes blocked items.
   - [x] Show the held status to merchants and give admins a review screen (ar/fr/en).
     - [x] Explain the held status under the merchant item list badge.
     - [x] Add the typed web client for the held-item queue and review.
@@ -145,6 +148,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Expose sent invitation tokens in the e2e auth harness and add the typed web client (`apps/web/src/merchant-staff/staff-http.ts`).
     - [x] Add the owner staff page, the accept page, ar/fr/en messages and `e2e/auth-merchant-staff.spec.ts` with the design matrix.
 - [ ] M2-12 Seed twelve fictional bilingual Algiers restaurants with synthetic imagery and `is_demo`, then run production-built onboarding, the complete route matrix, and the design critic's theme/locale/viewport checks. Record local and PR evidence.
+  - [ ] Wire the authenticated onboarding tag, complete the dedicated authorization matrix, and register the design screen gate check. See `docs/evidence/m2/baseline-audit.md`.
 
 **Gate m2:**
 - e2e `@merchant-onboarding`: signup → admin approve → build a 10-item menu with options and photos → bulk price change → import CSV → shown correctly in the preview;
