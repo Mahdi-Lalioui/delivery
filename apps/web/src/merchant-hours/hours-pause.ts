@@ -7,7 +7,8 @@ export interface PauseCommand {
 }
 
 export type PauseState =
-  | { readonly kind: "loading" | "unavailable" }
+  | { readonly kind: "loading" }
+  | { readonly kind: "unavailable" }
   | {
       readonly kind: "ready";
       readonly pausedUntil: string | null;
@@ -81,4 +82,14 @@ export function preparePause(
   if (state.retry && state.retry.input.pausedUntil === target.pausedUntil) return state.retry;
   const input = { pausedUntil: target.pausedUntil, expectedRevision: target.revision };
   return { idempotencyKey: createKey(), input };
+}
+
+/** After a command settles; a just-saved instant is in the future, so `pausedUntil` decides. */
+export function pauseFocusSelector(state: PauseState): string | undefined {
+  if (state.kind !== "ready") return undefined;
+  if (state.retry) return "[data-pause-retry]";
+  if (state.failure === "revision-conflict" || state.failure === "session-changed") {
+    return "[data-hours-reload]";
+  }
+  return state.pausedUntil === null ? '[data-pause-close="30"]' : "[data-pause-reopen]";
 }

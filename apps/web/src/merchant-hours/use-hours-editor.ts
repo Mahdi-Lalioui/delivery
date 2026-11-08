@@ -10,6 +10,7 @@ import {
 } from "./hours-editor";
 import { initialHoursState, prepareHoursSave, reduceHours, type HoursEvent } from "./hours-flow";
 import { readHours, readHoursPreview, replaceHours } from "./hours-http";
+import { useHoursPause } from "./use-hours-pause";
 
 type RangeAddress = { weekday: number; index: number };
 type PreviewRead = Awaited<ReturnType<typeof readHoursPreview>>;
@@ -64,6 +65,15 @@ export function useHoursEditor(merchantId: string) {
   useHoursLoad(merchantId, version, dispatch);
   const revision = state.kind === "editing" || state.kind === "saving" ? state.revision : undefined;
   const preview = useHoursPreview(merchantId, revision);
+  const pause = useHoursPause({
+    merchantId,
+    version,
+    hours: state,
+    dispatchHours: dispatch,
+    onSettled: (selector) => {
+      if (selector) setFocus({ selector });
+    },
+  });
 
   function editDraft(change: (draft: HoursDraft) => HoursDraft) {
     if (state.kind !== "editing") return undefined;
@@ -89,7 +99,7 @@ export function useHoursEditor(merchantId: string) {
   }
 
   async function save() {
-    if (inFlight.current || state.kind !== "editing") return;
+    if (inFlight.current || state.kind !== "editing" || pause.state.kind === "saving") return;
     const attempt = prepareHoursSave(state, () => crypto.randomUUID());
     if (attempt.kind === "unavailable") return;
     if (attempt.kind === "invalid") {
@@ -115,7 +125,7 @@ export function useHoursEditor(merchantId: string) {
     setVersion((current) => current + 1);
   }
 
-  return { state, preview, focus, change, add, remove, save, reload };
+  return { state, preview, pause, focus, change, add, remove, save, reload };
 }
 
 export type MerchantHoursEditor = ReturnType<typeof useHoursEditor>;

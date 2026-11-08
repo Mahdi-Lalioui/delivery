@@ -25,6 +25,13 @@ const preview = {
 const controls: MerchantHoursEditor = {
   state: { kind: "editing", sessionId, revision: 2, draft, errors: [] },
   preview: { kind: "ready", data: preview },
+  pause: {
+    state: { kind: "ready", pausedUntil: null },
+    isPaused: false,
+    close: vi.fn(),
+    reopen: vi.fn(),
+    retry: vi.fn(),
+  },
   focus: undefined,
   change: vi.fn(),
   add: vi.fn(),
@@ -120,4 +127,16 @@ test("[MER-15] reports a preview that could not load without hiding the editor",
   expect(html).toContain(merchantHours.previewError);
   expect(html.match(/id="hours-preview-title"/g)).toHaveLength(1);
   expect(html).toContain(merchantHours.weeklyLegend);
+});
+
+test("[MER-15] places the closed-now control beside the week and locks both while it saves", () => {
+  const { merchantHours } = getMessages("fr");
+  expect(render("fr")).toContain(merchantHours.pauseFor30);
+  const command = { idempotencyKey: "key-1", input: { pausedUntil: null, expectedRevision: 2 } };
+  const html = render("fr", {
+    pause: { ...controls.pause, state: { kind: "saving", pausedUntil: null, command } },
+  });
+  expect(html).toMatch(/<fieldset disabled="" class="hours-week">/);
+  expect(html).toMatch(/<fieldset disabled="" class="hours-pause">/);
+  expect(html).toMatch(/<button[^>]*data-hours-save="true"[^>]*disabled=""/);
 });

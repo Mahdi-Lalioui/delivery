@@ -511,6 +511,18 @@
     "rateLimited": "Too many attempts. Wait a moment and try again.",
     "invalidHours": "These hours are not valid. Check each day.",
     "previewLoading": "Building the preview…",
-    "previewError": "The preview is not available right now."
+    "previewError": "The preview is not available right now.",
+    "pauseTitle": "Closed now",
+    "pauseDescription": "Close for a while without changing your hours. The restaurant reopens automatically.",
+    "pauseFor30": "Close for 30 min",
+    "pauseFor60": "Close for 1 h",
+    "pauseFor120": "Close for 2 h",
+    "pausedUntil": "Closed until {time}",
+    "reopen": "Reopen now",
+    "pauseRetry": "Try again",
+    "pauseInPast": "That time has already passed. Choose a new duration.",
+    "pauseSaved": "Status updated.",
+    "pauseLoading": "Loading the status…",
+    "pauseUnavailable": "The closed-now status is not available right now."
   }
 }

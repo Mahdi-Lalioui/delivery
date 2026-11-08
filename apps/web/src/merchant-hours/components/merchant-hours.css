@@ -3,6 +3,8 @@
 .hours-workspace,
 .hours-card,
 .hours-week,
+.hours-pause,
+.hours-pause-outcome,
 .hours-day,
 .hours-ranges,
 .hours-preview,
@@ -44,13 +46,15 @@
 }
 
 .hours-card h2,
-.hours-week > legend {
+.hours-week > legend,
+.hours-pause > legend {
   font-size: var(--font-size-h2);
   font-weight: var(--font-weight-h2);
   line-height: var(--line-height-h2);
 }
 
 .hours-week,
+.hours-pause,
 .hours-day {
   margin: 0;
   padding: 0;
@@ -130,4 +134,11 @@
 
 .hours-announcement:empty {
   position: absolute;
+}
+
+.hours-pause-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-8);
 }

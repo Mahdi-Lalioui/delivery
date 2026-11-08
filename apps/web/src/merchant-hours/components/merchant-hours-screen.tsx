@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useRef } from "react";
 import type { HoursState } from "../hours-flow";
 import { useHoursEditor, type MerchantHoursEditor } from "../use-hours-editor";
+import { HoursPauseControl } from "./hours-pause-control";
 import { HoursPreviewList } from "./hours-preview-list";
 import { WeeklyHoursFields } from "./weekly-hours-fields";
 
@@ -124,9 +125,22 @@ function HoursWorkspace({
   locale: Locale;
 }) {
   const translate = useTranslations("merchantHours");
-  const isSaving = state.kind === "saving";
+  const { pause } = controls;
+  const isSaving = state.kind === "saving" || pause.state.kind === "saving";
   return (
     <div className="hours-workspace">
+      <div className="hours-card">
+        <HoursPauseControl
+          state={pause.state}
+          isPaused={pause.isPaused}
+          isDisabled={state.kind === "saving"}
+          locale={locale}
+          onClose={pause.close}
+          onReopen={pause.reopen}
+          onRetry={pause.retry}
+          onReload={controls.reload}
+        />
+      </div>
       <form
         className="hours-card"
         noValidate

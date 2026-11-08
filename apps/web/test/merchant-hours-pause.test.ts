@@ -2,6 +2,7 @@ import { expect, test } from "vitest";
 import {
   initialPauseState,
   isPausedAt,
+  pauseFocusSelector,
   pauseInstant,
   preparePause,
   reducePause,
@@ -90,4 +91,15 @@ test("[MER-15] ignores events that do not fit the current state", () => {
   expect(reducePause(paused, { kind: "save-finished", result })).toBe(paused);
   const command = { idempotencyKey: "k1", input: { pausedUntil: null, expectedRevision: 4 } };
   expect(reducePause(initialPauseState, { kind: "save-started", command })).toBe(initialPauseState);
+});
+
+test("[MER-15] restores focus to the control that fits the settled closed-now state", () => {
+  const command = { idempotencyKey: "k1", input: { pausedUntil: null, expectedRevision: 4 } };
+  expect(pauseFocusSelector({ kind: "ready", pausedUntil: null })).toBe('[data-pause-close="30"]');
+  expect(pauseFocusSelector(paused)).toBe("[data-pause-reopen]");
+  expect(pauseFocusSelector({ ...paused, failure: "error", retry: command })).toBe(
+    "[data-pause-retry]",
+  );
+  expect(pauseFocusSelector({ ...paused, failure: "session-changed" })).toBe("[data-hours-reload]");
+  expect(pauseFocusSelector({ kind: "unavailable" })).toBe(undefined);
 });

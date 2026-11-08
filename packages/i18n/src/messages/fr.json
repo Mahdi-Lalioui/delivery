@@ -511,6 +511,18 @@
     "rateLimited": "Trop de tentatives. Patientez un instant puis réessayez.",
     "invalidHours": "Ces horaires ne sont pas valides. Vérifiez chaque jour.",
     "previewLoading": "Calcul de l’aperçu…",
-    "previewError": "Impossible d’afficher l’aperçu pour le moment."
+    "previewError": "Impossible d’afficher l’aperçu pour le moment.",
+    "pauseTitle": "Fermé maintenant",
+    "pauseDescription": "Fermez temporairement sans modifier vos horaires. Le restaurant rouvre automatiquement.",
+    "pauseFor30": "Fermer 30 min",
+    "pauseFor60": "Fermer 1 h",
+    "pauseFor120": "Fermer 2 h",
+    "pausedUntil": "Fermé jusqu’à {time}",
+    "reopen": "Rouvrir maintenant",
+    "pauseRetry": "Réessayer",
+    "pauseInPast": "Cette heure est déjà passée. Choisissez une nouvelle durée.",
+    "pauseSaved": "Statut mis à jour.",
+    "pauseLoading": "Chargement du statut…",
+    "pauseUnavailable": "Le statut « fermé maintenant » est indisponible pour le moment."
   }
 }

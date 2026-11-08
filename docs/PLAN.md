@@ -110,7 +110,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Add the typed web client and the pure weekly editor model, validated by the contract.
     - [x] Add the presentational weekly hours fields with ar/fr/en messages.
     - [x] Add the hours page and routes (hook, weekly save, regular preview, focus restoration, token CSS).
-    - [ ] Add the closed-now control to the hours page.
+    - [x] Add the closed-now control to the hours page.
     - [ ] Add the Ramadan fields and the regular/Ramadan preview tabs.
     - [ ] Prove the production-build overnight and Ramadan journeys in Arabic and French, plus the screenshot matrix.
 - [ ] M2-10 Moderation (§17.3, ADM-04). Check prohibited goods on every menu write path and public preview. Prove flagged items stay hidden until the audited review outcome permits listing.
