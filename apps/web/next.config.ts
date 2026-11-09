@@ -15,6 +15,27 @@ function apiDestination(development: boolean, demo: boolean) {
   );
 }
 
+const localFixturePaths = [
+  "/me/orders",
+  "/me/orders/:path*",
+  "/me/favourites",
+  "/me/favourites/:path*",
+  "/orders/:orderId/rating",
+  "/merchants/:merchantId/analytics",
+  "/merchants/:merchantId/reviews",
+  "/merchants/:merchantId/reviews/:path*",
+  "/admin/dashboard/today",
+];
+
+function apiRewrites(development: boolean, demo: boolean) {
+  const destination = apiDestination(development, demo);
+  const rewrites = localFixturePaths
+    .filter(() => development && process.env.ZAAFRAN_LOCAL_DEMO === "1")
+    .map((path) => ({ source: "/v1" + path, destination: "/local-demo-api" + path }));
+  if (destination) rewrites.push({ source: "/v1/:path*", destination });
+  return rewrites;
+}
+
 export default function config(phase: string): NextConfig {
   const designBuild = process.env.ZAAFRAN_DESIGN_BUILD;
   if (designBuild !== undefined && designBuild !== "1") {
@@ -24,16 +45,14 @@ export default function config(phase: string): NextConfig {
   const demo = isPreviewDemo(process.env);
   const development = phase === PHASE_DEVELOPMENT_SERVER;
   const includeDesign = development || designBuild === "1" || demo;
-  const destination = apiDestination(development, demo);
+  const beforeFiles = apiRewrites(development, demo);
 
   return withNextIntl({
     distDir: designBuild ? ".next-design" : ".next",
     env: { ZAAFRAN_DESIGN_ENABLED: includeDesign ? "1" : "0" },
     pageExtensions: includeDesign ? ["design.tsx", "tsx", "ts"] : ["tsx", "ts"],
     poweredByHeader: false,
-    ...(destination && {
-      rewrites: () => Promise.resolve({ beforeFiles: [{ source: "/v1/:path*", destination }] }),
-    }),
+    rewrites: () => Promise.resolve({ beforeFiles }),
     transpilePackages: ["@zaafran/config", "@zaafran/i18n", "@zaafran/ui"],
   });
 }
