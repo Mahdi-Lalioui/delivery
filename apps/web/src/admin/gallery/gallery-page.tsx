@@ -10,7 +10,13 @@ import { LaneBGallery } from "./lane-b-gallery";
 
 export const galleryMetadata = { robots: { index: false, follow: false } };
 
-export function GalleryPage({ locale }: { locale: Locale }) {
+export function GalleryPage({
+  locale,
+  initialScreen,
+}: {
+  locale: Locale;
+  initialScreen?: string | string[] | undefined;
+}) {
   const messages = getMessages(locale);
   return (
     <SiteShell locale={locale}>
@@ -33,6 +39,7 @@ export function GalleryPage({ locale }: { locale: Locale }) {
         <ToastProvider closeLabel={messages.merchantBilling.closeToast}>
           <LaneBGallery
             locale={locale}
+            initialScreen={initialScreen}
             labels={{
               screen: messages.marketingMoments.title,
               state: messages.adminBilling.status,

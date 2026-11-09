@@ -3,7 +3,13 @@
   "ignoreBinaries": ["pmtiles"],
   "workspaces": {
     ".": {
-      "entry": ["scripts/check-pr.ts", "scripts/*.test.ts", "tooling/*.test.ts"]
+      "entry": [
+        "scripts/check-pr.ts",
+        "scripts/*.test.ts",
+        "tooling/*.test.ts",
+        "e2e/preview.config.ts",
+        "e2e/team-preview.preview.ts"
+      ]
     },
     "apps/api": {
       "entry": ["src/server.ts", "test/**/*.test.ts"]

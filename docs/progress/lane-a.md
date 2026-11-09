@@ -124,3 +124,7 @@
 - 2026-11-09 · Ultra · Closed Lane B privacy request and merged `8757454`. Account-bound
   OTP, rate limits, audit, anonymization, media erasure, and exact deletion replay are wired.
   Full verify passed (1,808 unit, 269 PostGIS), with 234 authz and two production privacy cases.
+
+- 2026-11-09 · Medium/high · Added the team preview with synthetic restaurant discovery, cart,
+  Arabic RTL, partner/admin examples, and 3D/motion studies. Three Node 24 browser cases passed.
+  Eight visual captures are in `docs/evidence/team-preview`; Vercel setup is in `docs/TEAM_PREVIEW.md`.

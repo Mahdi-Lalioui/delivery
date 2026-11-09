@@ -1,10 +1,12 @@
 import { brand } from "@zaafran/config/brand";
-import { localeDetails, publicLocales, type Locale } from "@zaafran/i18n/locales";
+import { isPublicLocale, localeDetails, publicLocales, type Locale } from "@zaafran/i18n/locales";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Icon } from "@zaafran/ui";
 import "@zaafran/ui/ui.css";
 import { SiteShell } from "../components/site-shell";
+import { isPreviewDemo } from "../preview-settings";
+import { previewMessages } from "../preview/preview-messages";
 import { CasbahHero } from "./casbah-hero";
 import { CasbahPoster, heroSeed } from "./casbah-poster";
 import "./marketing.css";
@@ -21,6 +23,7 @@ export async function landingMetadata(locale: Locale): Promise<Metadata> {
   return {
     title: locale === "ar" ? brand.arabicName : brand.name,
     description: translate("intro"),
+    ...(isPreviewDemo(process.env) && { robots: { index: false, follow: false } }),
     alternates: {
       languages: Object.fromEntries(
         publicLocales.map((item) => [localeDetails[item].tag, `/${item}`]),
@@ -36,6 +39,8 @@ export async function Landing({ locale }: { locale: Locale }) {
     getTranslations({ locale, namespace: "merchant" }),
   ]);
   const name = locale === "ar" ? brand.arabicName : brand.name;
+  const preview =
+    isPublicLocale(locale) && isPreviewDemo(process.env) ? previewMessages[locale] : undefined;
   return (
     <SiteShell locale={locale}>
       <article className="landing">
@@ -49,6 +54,14 @@ export async function Landing({ locale }: { locale: Locale }) {
             <h1 id="landing-title">{translate("title", { brand: name })}</h1>
             <p className="landing-intro">{translate("intro")}</p>
             <div className="landing-actions">
+              {preview && (
+                <a
+                  className="ui-button ui-button-secondary ui-button-lg"
+                  href={`/${locale}/preview`}
+                >
+                  <span>{preview.badge}</span>
+                </a>
+              )}
               <a
                 id={startId}
                 className="ui-button ui-button-primary ui-button-lg"

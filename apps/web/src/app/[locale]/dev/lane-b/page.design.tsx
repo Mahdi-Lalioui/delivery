@@ -3,6 +3,13 @@ import { requireLatinLocale, type LatinPageProps } from "../../../../i18n/latin-
 
 export const metadata = galleryMetadata;
 
-export default async function LatinLaneBGallery(props: LatinPageProps) {
-  return <GalleryPage locale={await requireLatinLocale(props)} />;
+export default async function LatinLaneBGallery(
+  props: LatinPageProps & { searchParams: Promise<{ screen?: string | string[] }> },
+) {
+  return (
+    <GalleryPage
+      locale={await requireLatinLocale(props)}
+      initialScreen={(await props.searchParams).screen}
+    />
+  );
 }

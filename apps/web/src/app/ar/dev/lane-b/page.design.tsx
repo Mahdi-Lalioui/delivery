@@ -2,6 +2,10 @@ import { GalleryPage, galleryMetadata } from "../../../../admin/gallery/gallery-
 
 export const metadata = galleryMetadata;
 
-export default function ArabicLaneBGallery() {
-  return <GalleryPage locale="ar" />;
+export default async function ArabicLaneBGallery({
+  searchParams,
+}: {
+  searchParams: Promise<{ screen?: string | string[] }>;
+}) {
+  return <GalleryPage locale="ar" initialScreen={(await searchParams).screen} />;
 }

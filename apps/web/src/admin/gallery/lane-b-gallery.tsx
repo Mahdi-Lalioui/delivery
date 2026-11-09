@@ -401,14 +401,22 @@ const samples: Readonly<Record<Screen, (props: SampleProps) => ReactNode>> = {
   analytics: (props) => <AnalyticsSample {...props} />,
 };
 
+function isScreen(value: string | string[] | undefined): value is Screen {
+  return typeof value === "string" && Object.hasOwn(samples, value);
+}
+
 export function LaneBGallery({
   locale,
+  initialScreen,
   labels,
 }: {
   locale: Locale;
+  initialScreen?: string | string[] | undefined;
   labels: { screen: string; state: string };
 }) {
-  const [screen, setScreen] = useState<Screen>("merchant-billing");
+  const [screen, setScreen] = useState<Screen>(
+    isScreen(initialScreen) ? initialScreen : "merchant-billing",
+  );
   const [mode, setMode] = useState<Mode>("ready");
   return (
     <div className="billing-layout">
