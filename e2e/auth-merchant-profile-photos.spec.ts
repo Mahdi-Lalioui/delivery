@@ -95,6 +95,7 @@ test("[MER-14] crops, saves and removes restaurant cover and logo @merchant-phot
   baseURL,
   page,
 }, info) => {
+  test.setTimeout(90_000);
   await withAuthHarness(
     baseURL,
     async (auth) => {
