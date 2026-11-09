@@ -140,3 +140,16 @@ void test("[M2-12] runs authenticated merchant onboarding and builder design che
   assert.equal(gateCommand("m6", "design:screens"), undefined);
   assert.deepEqual(gateCommand("m0", "e2e:@smoke"), ["test:e2e", "--grep", "@smoke"]);
 });
+
+void test("[SRCH-06] runs discovery journeys and the search benchmark from the M3 gate", () => {
+  assert.deepEqual(gateCommand("m3", "e2e:@discovery"), [
+    "test:e2e:auth",
+    "--grep",
+    "@discovery",
+    "--fail-on-flaky-tests",
+  ]);
+  assert.deepEqual(gateCommand("m3", "bench:search"), [
+    "test:int",
+    "packages/db/test/discovery-search-scale.integration.test.ts",
+  ]);
+});

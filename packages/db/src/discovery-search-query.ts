@@ -34,24 +34,30 @@ export function searchResultsQuery(
   terms: readonly SearchTerm[],
   limit: number,
 ) {
+  // Give the planner the term count and compute the index operands once per alias.
+  const termRows = terms.map(({ text, skeleton, prefix }) => [text, skeleton, prefix]);
   return sql<SearchResults[]>`
-    WITH matches AS (
+    WITH terms AS MATERIALIZED (
+      SELECT text, skeleton, to_tsquery('simple', prefix) AS prefix_query,
+        CASE WHEN length(skeleton) >= 2 THEN skeleton END AS exact_skeleton,
+        CASE WHEN length(skeleton) >= 3 THEN skeleton END AS fuzzy_skeleton
+      FROM (VALUES ${sql(termRows)}) AS term(text, skeleton, prefix)
+    ), matches AS (
       SELECT candidate.*
-      FROM jsonb_to_recordset(${JSON.stringify(terms)}::jsonb) AS term(text text, skeleton text, prefix text)
+      FROM terms AS term
       CROSS JOIN LATERAL (
         SELECT doc.*, greatest(
           CASE WHEN doc.normalized_text = term.text THEN 1 ELSE 0 END,
-          CASE WHEN doc.search_vector @@ to_tsquery('simple', term.prefix) THEN 0.85 ELSE 0 END,
+          CASE WHEN doc.search_vector @@ term.prefix_query THEN 0.85 ELSE 0 END,
           CASE WHEN doc.skeleton <> '' AND doc.skeleton = term.skeleton THEN 0.8 ELSE 0 END,
           similarity(doc.normalized_text, term.text),
           word_similarity(term.text, doc.normalized_text) * 0.75,
           similarity(doc.skeleton, term.skeleton) * 0.7
         ) AS score
         FROM public.search_documents AS doc
-        WHERE doc.search_vector @@ to_tsquery('simple', term.prefix)
+        WHERE doc.search_vector @@ term.prefix_query
           OR doc.normalized_text % term.text OR doc.normalized_text %> term.text
-          OR (length(term.skeleton) >= 2 AND doc.skeleton = term.skeleton)
-          OR (length(term.skeleton) >= 3 AND doc.skeleton % term.skeleton)
+          OR doc.skeleton = term.exact_skeleton OR doc.skeleton % term.fuzzy_skeleton
         OFFSET 0
       ) AS candidate
     ), restaurants AS (

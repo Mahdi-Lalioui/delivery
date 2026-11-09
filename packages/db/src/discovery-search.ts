@@ -33,6 +33,8 @@ async function readResults(
   limit: number,
 ): Promise<SearchResults> {
   await sql`SET LOCAL statement_timeout = '500ms'`;
+  // A fresh reindex can make the GIN pending lists look more expensive than a catalog scan.
+  await sql`SET LOCAL enable_seqscan = off`;
   await sql`SET LOCAL pg_trgm.similarity_threshold = 0.3`;
   await sql`SET LOCAL pg_trgm.word_similarity_threshold = 0.3`;
   const [results] = await searchResultsQuery(sql, terms, limit);
