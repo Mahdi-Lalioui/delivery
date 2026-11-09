@@ -22,9 +22,10 @@ export const idempotencyKeySchema = z
   .min(1)
   .max(128)
   .regex(/^[A-Za-z0-9._:-]+$/);
+export const otpPurpose = z.enum(["sign_in", "admin_sign_in", "account_delete"]);
 export const requestOtpInput = z.strictObject({
   phone: algerianMobilePhone,
-  purpose: z.enum(["sign_in", "admin_sign_in"]),
+  purpose: otpPurpose.exclude(["account_delete"]),
 });
 export const requestOtpOutput = z.strictObject({
   challengeId,

@@ -167,6 +167,11 @@ export const merchantMenuPhotoImportOutput = z.discriminatedUnion("status", [
   z.strictObject({ importId: uuid, status: z.literal("failed") }),
 ]);
 
+export const customerPrivacyChallengeOutput = z.strictObject({
+  challengeId: uuid,
+  expiresAt: instant,
+});
+export const customerPrivacyDeleteOutput = z.void();
 export const customerPrivacyDeleteInput = z.strictObject({
   challengeId: uuid,
   code: z.string().regex(/^[0-9]{6}$/),
