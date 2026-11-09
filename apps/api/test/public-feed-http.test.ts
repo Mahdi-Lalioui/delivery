@@ -25,7 +25,7 @@ test("[CUS-01:http] anonymously lists a bounded page without location parameters
   const { api, list } = setup();
   const response = await api.inject("/v1/feed?limit=2&cursor=" + id.toUpperCase());
   expect(response.statusCode).toBe(200);
-  expect(response.headers["cache-control"]).toBe("no-store");
+  expect(response.headers["cache-control"]).toBe("private, no-cache");
   expect(response.json()).toEqual(emptyPage);
   expect(list).toHaveBeenCalledExactlyOnceWith({ limit: 2, cursor: id, now });
   expect((await api.inject("/v1/feed?longitude=3.05")).statusCode).toBe(400);

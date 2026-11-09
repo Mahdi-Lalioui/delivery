@@ -93,3 +93,7 @@
 - 2026-11-08 · High · Design critic approved the 48 restaurant/item/cart captures at
   390×844, 768×1024 and 1280×800, ar/fr and light/dark. The item CTA stays visible in its
   own footer. M3-4 and M3-5 remain open for ETag, restaurant information and cart merchandising.
+
+- 2026-11-09 · High · Feed and menu now revalidate serialized public JSON with ETags.
+  Fresh reads preserve availability, moderation and revision errors. Full verify passed
+  (1,787 unit and 253 PostGIS), and all three focused production journeys passed.

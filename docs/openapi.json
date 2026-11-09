@@ -13302,6 +13302,14 @@
               }
             }
           },
+          "304": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
           "400": {
             "description": "Default Response",
             "content": {
@@ -13979,6 +13987,14 @@
               }
             }
           },
+          "304": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
           "400": {
             "description": "Default Response",
             "content": {
@@ -14369,6 +14385,14 @@
                   ],
                   "additionalProperties": false
                 }
+              }
+            }
+          },
+          "304": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {}
               }
             }
           },
@@ -14852,6 +14876,14 @@
                   ],
                   "additionalProperties": false
                 }
+              }
+            }
+          },
+          "304": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {}
               }
             }
           },

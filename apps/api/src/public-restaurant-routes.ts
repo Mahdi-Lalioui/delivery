@@ -12,8 +12,9 @@ import { readMenuItemCursor } from "@zaafran/contracts/menu";
 import { problemResponseSchema } from "@zaafran/contracts/health";
 import type { FastifyInstance, FastifyReply } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
-import type { z } from "zod";
+import { z } from "zod";
 import { sendProblem } from "./problems.js";
+import { revalidatePublicJson } from "./public-json-cache.js";
 
 type Failure = { kind: "not_found" | "revision_conflict" | "invalid_cursor" };
 export interface PublicRestaurantServices {
@@ -39,6 +40,7 @@ export interface PublicRestaurantServices {
   now: () => Date;
 }
 const config = { policy: { kind: "public" } } as const;
+const notModified = { 304: z.void() };
 const errors = {
   400: problemResponseSchema,
   404: problemResponseSchema,
@@ -60,13 +62,13 @@ export function registerPublicRestaurantRoutes(
     "/v1/merchants/:slug",
     {
       config,
+      onSend: revalidatePublicJson,
       schema: {
         params: publicRestaurantParams,
-        response: { 200: publicRestaurantOutput, ...errors },
+        response: { 200: publicRestaurantOutput, ...notModified, ...errors },
       },
     },
     async (request, reply) => {
-      reply.header("cache-control", "no-store");
       if (!services) return sendProblem(reply, 503);
       return present(
         reply,
@@ -78,14 +80,14 @@ export function registerPublicRestaurantRoutes(
     "/v1/merchants/:slug/categories/:categoryId/items",
     {
       config,
+      onSend: revalidatePublicJson,
       schema: {
         params: publicRestaurantCategoryParams,
         querystring: publicRestaurantItemsQuery,
-        response: { 200: publicRestaurantItemsOutput, ...errors },
+        response: { 200: publicRestaurantItemsOutput, ...notModified, ...errors },
       },
     },
     async (request, reply) => {
-      reply.header("cache-control", "no-store");
       if (!services) return sendProblem(reply, 503);
       const { cursor, limit } = request.query;
       const parsed = cursor ? readMenuItemCursor(cursor) : undefined;
@@ -105,14 +107,14 @@ export function registerPublicRestaurantRoutes(
     "/v1/merchants/:slug/items/:itemId",
     {
       config,
+      onSend: revalidatePublicJson,
       schema: {
         params: publicRestaurantItemParams,
         querystring: publicRestaurantItemQuery,
-        response: { 200: publicRestaurantItemOutput, ...errors },
+        response: { 200: publicRestaurantItemOutput, ...notModified, ...errors },
       },
     },
     async (request, reply) => {
-      reply.header("cache-control", "no-store");
       if (!services) return sendProblem(reply, 503);
       return present(
         reply,

@@ -21,7 +21,7 @@ test("[CUS-07:http] rejects a malformed public response without exposing an edit
     "/v1/merchants/table-fictive",
     expect.objectContaining({
       credentials: "omit",
-      cache: "no-store",
+      cache: "no-cache",
     }),
   );
 });

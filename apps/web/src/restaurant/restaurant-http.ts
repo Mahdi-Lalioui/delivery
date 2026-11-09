@@ -14,7 +14,7 @@ async function readPublic<Value>(
   try {
     const response = await fetcher(path, {
       credentials: "omit",
-      cache: "no-store",
+      cache: "no-cache",
       redirect: "error",
       signal: AbortSignal.any([signal, AbortSignal.timeout(15_000)]),
     });
