@@ -26,12 +26,13 @@ import { createLocalMediaStore } from "@zaafran/media";
 import type { FastifyInstance, FastifyListenOptions } from "fastify";
 import { createApi } from "./app.js";
 import { createPrivacyService } from "./privacy-service.js";
-import { createAuthService } from "./auth-service.js";
+import { createAuthService, type AuthCodeAdapters } from "./auth-service.js";
 import type { MerchantStaffServices } from "./merchant-staff-routes.js";
 import { readApiEnvironment } from "./environment.js";
 import { checkReadiness } from "./readiness.js";
 
 export interface StartOptions {
+  readonly codes?: AuthCodeAdapters;
   readonly now?: () => Date;
   readonly sendSms?: Parameters<typeof createAuthService>[0]["sendSms"];
   readonly sendInvitation?: MerchantStaffServices["sendInvitation"];
@@ -48,6 +49,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
   const sendSms = options.sendSms ?? unavailableSms;
   const service = createAuthService({
     repository: createAuthRepository(database),
+    ...(options.codes === undefined ? {} : { codes: options.codes }),
     otpKey,
     totpKey: Buffer.from(environment.AUTH_TOTP_KEY, "hex"),
     now,

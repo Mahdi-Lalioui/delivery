@@ -18,7 +18,13 @@ import {
 } from "./auth-crypto.js";
 import { matchTotp, openTotpSecret } from "./auth-totp.js";
 
+export interface AuthCodeAdapters {
+  readonly otp?: (phone: string) => string | undefined;
+  readonly totp?: (input: { userId: string; code: string; now: Date }) => number | undefined;
+}
+
 interface AuthOptions {
+  readonly codes?: AuthCodeAdapters;
   readonly repository: AuthRepository;
   readonly otpKey: Uint8Array;
   readonly totpKey: Uint8Array;
@@ -130,6 +136,10 @@ async function startAdminVerification(
     : fail("otp_invalid");
 }
 
+function otpCode(options: AuthOptions, phone: string, challengeId: string): string {
+  return options.codes?.otp?.(phone) ?? createOtpCode({ key: options.otpKey, challengeId });
+}
+
 async function deliverOtp(
   options: AuthOptions,
   { phone, challengeId, now }: { phone: string; challengeId: string; now: Date },
@@ -141,7 +151,7 @@ async function deliverOtp(
       send: () =>
         options.sendSms({
           phone,
-          code: createOtpCode({ key: options.otpKey, challengeId }),
+          code: otpCode(options, phone, challengeId),
           deliveryKey: challengeId,
         }),
     });
@@ -157,8 +167,8 @@ export function createAuthService(options: AuthOptions) {
     async requestOtp(input: OtpRequest) {
       const now = options.now();
       const id = randomUUIDv7();
-      const code = createOtpCode({ key: options.otpKey, challengeId: id });
       const { phone, purpose, requestIp, idempotencyKey } = input;
+      const code = otpCode(options, phone, id);
       const reservation = await repository.transaction((tx) =>
         tx.reserveOtpChallenge({
           id,
@@ -222,6 +232,8 @@ export function createAuthService(options: AuthOptions) {
           now,
           attempt: verificationAttempt(options.otpKey, input),
           matchTotp(sealed, userId) {
+            const override = options.codes?.totp?.({ userId, code, now });
+            if (override !== undefined) return override;
             const secret = openTotpSecret({ key: options.totpKey, userId, sealed });
             return secret === undefined ? undefined : matchTotp({ secret, code, now });
           },
