@@ -97,3 +97,15 @@
 - 2026-11-09 · High · Feed and menu now revalidate serialized public JSON with ETags.
   Fresh reads preserve availability, moderation and revision errors. Full verify passed
   (1,787 unit and 253 PostGIS), and all three focused production journeys passed.
+
+- 2026-11-09 · Medium · Arabic, French and English discovery now advertise the customer
+  manifest and saffron app icons. Production Chromium reproduced the missing manifest and
+  passed after wiring it. Offline, push and low-data behavior remain open.
+
+- 2026-11-09 · Medium review · Fixed the PWA launch P1 with localized discovery URLs
+  and one stable app ID. Four production Chromium checks passed. The M3 gate now
+  dispatches discovery and the scale benchmark, with 17 gate tests passing.
+
+- 2026-11-09 · Ultra · Search at 500 restaurants and 30,000 items timed out before the
+  SQL planner fix. Fresh-index p95 is now 65.5 ms over 22 golden queries with synonyms.
+  All 12 focused PostGIS tests passed. Evidence is in `docs/evidence/m3/search-scale.md`.

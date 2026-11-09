@@ -10,6 +10,8 @@ import { SiteShell } from "./site-shell";
 export function homeMetadata(locale: Locale, subpath = ""): Metadata {
   return {
     title: locale === "ar" ? brand.arabicName : brand.name,
+    manifest: `/pwa/${locale}/app.webmanifest`,
+    icons: { apple: "/pwa/icon-192.png" },
     alternates: {
       languages: Object.fromEntries(
         publicLocales.map((item) => [localeDetails[item].tag, `/${item}${subpath}`]),
