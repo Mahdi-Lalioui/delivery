@@ -1,3 +1,4 @@
+import { LocalSimulationLink } from "../../../../local-demo/simulation-link";
 import { CustomerData } from "../../../../discovery/customer-data";
 import { SiteShell } from "../../../../components/site-shell";
 import { RestaurantScreen } from "../../../../restaurant/restaurant-screen";
@@ -7,7 +8,11 @@ export default async function ArabicRestaurant({ params }: { params: Promise<{ s
   return (
     <CustomerData>
       <SiteShell locale="ar" subpath={`/restaurants/${slug}`}>
-        <RestaurantScreen locale="ar" slug={slug} />
+        <RestaurantScreen
+          locale="ar"
+          slug={slug}
+          cartAction={<LocalSimulationLink locale={"ar"} />}
+        />
       </SiteShell>
     </CustomerData>
   );

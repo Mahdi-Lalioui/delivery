@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { getCartSummary, removeCartLine, setCartQuantity } from "@zaafran/domain/cart";
 import { formatDzd } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
@@ -11,9 +11,11 @@ import type { useBrowserCart } from "./use-browser-cart";
 export function CartControls({
   basket,
   locale,
+  action,
 }: {
   basket: ReturnType<typeof useBrowserCart>;
   locale: Locale;
+  action?: ReactNode;
 }) {
   const [cartVisible, setCartVisible] = useState(false);
   const [cartError, setCartError] = useState(false);
@@ -74,6 +76,7 @@ export function CartControls({
         >
           <CartContents cart={activeCart} locale={locale} onQuantity={edit} onRemove={remove} />
           {cartError && <p role="alert">{messages.cartError}</p>}
+          {action}
         </RestaurantDialog>
       )}
     </>

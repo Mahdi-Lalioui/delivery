@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { addCartLine, type CartLine } from "@zaafran/domain/cart";
 import type { Locale } from "@zaafran/i18n/locales";
 import { Button, EmptyState, ErrorState, Skeleton } from "@zaafran/ui";
@@ -18,19 +18,37 @@ import "./restaurant.css";
 
 type State = { phase: "loading" } | { phase: "error" } | { phase: "ready"; data: Restaurant };
 
-export function RestaurantScreen({ slug, locale }: { slug: string; locale: Locale }) {
+export function RestaurantScreen({
+  slug,
+  locale,
+  cartAction,
+}: {
+  slug: string;
+  locale: Locale;
+  cartAction?: ReactNode;
+}) {
   const basket = useBrowserCart();
-  return <RestaurantLoader key={slug} slug={slug} locale={locale} basket={basket} />;
+  return (
+    <RestaurantLoader
+      key={slug}
+      slug={slug}
+      locale={locale}
+      basket={basket}
+      cartAction={cartAction}
+    />
+  );
 }
 
 function RestaurantLoader({
   slug,
   locale,
   basket,
+  cartAction,
 }: {
   slug: string;
   locale: Locale;
   basket: ReturnType<typeof useBrowserCart>;
+  cartAction?: ReactNode;
 }) {
   const [state, setState] = useState<State>({ phase: "loading" });
   const [attempt, setAttempt] = useState(0);
@@ -78,6 +96,7 @@ function RestaurantLoader({
           locale={locale}
           data={state.data}
           basket={basket}
+          cartAction={cartAction}
           refreshedCategory={refreshedCategory}
           onStale={refresh}
         />
@@ -91,6 +110,7 @@ function RestaurantLoaded({
   locale,
   data,
   basket,
+  cartAction,
   refreshedCategory,
   onStale,
 }: {
@@ -98,6 +118,7 @@ function RestaurantLoaded({
   locale: Locale;
   data: Restaurant;
   basket: ReturnType<typeof useBrowserCart>;
+  cartAction?: ReactNode;
   refreshedCategory: string | null;
   onStale: (categoryId: string) => void;
 }) {
@@ -150,7 +171,7 @@ function RestaurantLoaded({
       </p>
       {cartError && <p role="alert">{messages.cartError}</p>}
       {basket.storageFailed && <p role="alert">{messages.storageError}</p>}
-      <CartControls basket={basket} locale={locale} />
+      <CartControls basket={basket} locale={locale} action={cartAction} />
       {selected !== null && (
         <ItemDialog
           key={selected.dish.itemId}

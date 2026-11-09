@@ -91,6 +91,11 @@ export const tourGroups: readonly Group[] = [
         ar: ["السلة", "أضف طبقًا ثم افتح السلة."],
       },
       {
+        path: "/dev/simulation",
+        fr: ["Simulation de commande", "Suivez une livraison simulée depuis votre panier."],
+        ar: ["محاكاة الطلب", "تابع رحلة توصيل تجريبية من سلّتك."],
+      },
+      {
         path: "/orders",
         fr: ["Mes commandes", "Retrouvez l’historique et les favoris."],
         ar: ["طلباتي", "راجع الطلبات السابقة والمفضّلة."],
