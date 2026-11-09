@@ -7,9 +7,9 @@ import {
   type PrivacyScope,
 } from "./privacy-account.js";
 import { queueErasureMedia } from "./privacy-media.js";
-import { timestampParsers } from "./timestamp-parsers.js";
 
 const attemptLimit = 5;
+const replayLifetimeMs = 300_000;
 
 interface DeletionInput {
   readonly challengeId: string;
@@ -107,8 +107,8 @@ async function clearPersonalData(
 async function recordDeletion(
   sql: TransactionSql,
   { userId, challengeId, sessionId, codeHmac, now }: ConfirmDeletion,
-  expiresAt: Date,
 ): Promise<void> {
+  const expiresAt = new Date(now.getTime() + replayLifetimeMs);
   await sql`
     INSERT INTO public.account_deletion_proofs (challenge_id, session_id, code_hmac, deleted_at, expires_at)
     VALUES (${challengeId}, ${sessionId}, ${codeHmac}, ${now.toISOString()}, ${expiresAt.toISOString()})
@@ -122,18 +122,18 @@ async function recordDeletion(
 async function confirmChallenge(
   sql: TransactionSql,
   { userId, challengeId, codeHmac, now }: ConfirmDeletion,
-): Promise<Date | "invalid_code" | "challenge_expired"> {
+): Promise<"verified" | "invalid_code" | "challenge_expired"> {
   const timestamp = now.toISOString();
-  const [challenge] = await sql<{ codeHmac: Uint8Array; attempts: number; expiresAt: Date }[]>`
-    SELECT code_hmac AS "codeHmac", attempts, expires_at AS "expiresAt"
+  const [challenge] = await sql<{ codeHmac: Uint8Array; attempts: number }[]>`
+    SELECT code_hmac AS "codeHmac", attempts
     FROM public.account_deletion_challenges
     WHERE id = ${challengeId} AND user_id = ${userId} AND code_hmac IS NOT NULL
       AND delivered_at <= ${timestamp} AND expires_at > ${timestamp}
       AND attempts < ${attemptLimit}
     FOR UPDATE
-  `.parsers(timestampParsers);
+  `;
   if (!challenge) return "challenge_expired";
-  if (matchesDeletionDigest(challenge.codeHmac, codeHmac)) return challenge.expiresAt;
+  if (matchesDeletionDigest(challenge.codeHmac, codeHmac)) return "verified";
 
   await sql`UPDATE public.account_deletion_challenges SET attempts = attempts + 1 WHERE id = ${challengeId}`;
   return challenge.attempts + 1 === attemptLimit ? "challenge_expired" : "invalid_code";
@@ -151,11 +151,11 @@ export async function deleteAccount(
       : "unauthorized";
   }
 
-  const expiresAt = await confirmChallenge(sql, input);
-  if (typeof expiresAt === "string") return expiresAt;
+  const verdict = await confirmChallenge(sql, input);
+  if (verdict !== "verified") return verdict;
 
   await clearPersonalData(sql, input, phone);
-  await recordDeletion(sql, input, expiresAt);
+  await recordDeletion(sql, input);
   await queueErasureMedia(sql, input.userId);
   return "deleted";
 }

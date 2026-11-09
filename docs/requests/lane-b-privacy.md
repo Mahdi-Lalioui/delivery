@@ -24,3 +24,9 @@ without further API calls.
   is bound to the session's account.
 - **On success:** write an audit entry, revoke every session, refresh token and push token, then
   anonymise per `docs/PRIVACY.md`.
+
+## Done — 2026-11-09
+
+Lane A landed the contracts, migration, routes, authorization checks, and privacy worker.
+The merged client uses the challenge contract and only shows success after HTTP 204.
+Both production privacy journeys passed, including late replay and revoked sessions.

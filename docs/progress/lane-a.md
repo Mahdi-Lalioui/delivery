@@ -120,3 +120,7 @@
 - 2026-11-09 · Medium · Customer photos use smaller variants when Save-Data is sent
   or the browser requests it. Both production browser cases passed. Merged the green
   merchant-photo CI repair into main at `c39cfc2` and brought it into lane-a.
+
+- 2026-11-09 · Ultra · Closed Lane B privacy request and merged `8757454`. Account-bound
+  OTP, rate limits, audit, anonymization, media erasure, and exact deletion replay are wired.
+  Full verify passed (1,808 unit, 269 PostGIS), with 234 authz and two production privacy cases.

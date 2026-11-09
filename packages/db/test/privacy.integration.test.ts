@@ -215,7 +215,10 @@ test("[CUS-24] deletes once, revokes all sessions, and permits only the original
   expect(
     await repo.replayDeletion({ ...account, ...confirmation, codeHmac: digest("wrong") }),
   ).toBe(false);
-  expect(await repo.replayDeletion({ ...account, ...confirmation, now: at(300) })).toBe(false);
+  await repo.pruneDeletionState(at(300));
+  expect(await repo.replayDeletion({ ...account, ...confirmation, now: at(300) })).toBe(true);
+  expect(await repo.replayDeletion({ ...account, ...confirmation, now: at(598) })).toBe(true);
+  expect(await repo.replayDeletion({ ...account, ...confirmation, now: at(599) })).toBe(false);
   expect(await repo.exportAccount({ ...account, now })).toBeUndefined();
   expect(await auth.resolveSession({ ...account, now })).toBeUndefined();
   expect(await auth.resolveSession({ ...secondSession, now })).toBeUndefined();

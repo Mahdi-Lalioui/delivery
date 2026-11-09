@@ -18,7 +18,8 @@ Record each processor, the fields it receives, access controls, deletion behavio
 The customer requests a fresh OTP for the phone already on the account. The challenge and
 its send receipt expire together. The server caps incorrect attempts and rate-limits sends
 by account and keyed IP digest. A completed request can be replayed only with the original
-session credential, challenge and OTP, within the challenge lifetime.
+session credential, challenge and OTP for five minutes after deletion. This proof is
+separate from the challenge issuance key, which expires with the OTP.
 
 Successful deletion removes the account phone and revokes every stored web and bearer
 session. Deletion removes redeemable sign-in challenges while their keyed rate history
