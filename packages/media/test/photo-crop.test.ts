@@ -49,22 +49,23 @@ describe("photo crop encoding", () => {
     },
   );
 
-  it("[MER-14:codec] applies a right-edge focal point and zoom to the crop and ThumbHash", async () => {
-    const red = await sharp({
-      create: { width: 56, height: 120, channels: 3, background: "red" },
-    })
-      .png()
-      .toBuffer();
-    const bytes = await sharp({
-      create: { width: 320, height: 120, channels: 3, background: "blue" },
-    })
-      .composite([{ input: red, top: 0, left: 264 }])
-      .png()
-      .toBuffer();
-    for (const [zoomPercent, channel] of [
-      [100, 2],
-      [400, 0],
-    ] as const) {
+  it.each([
+    [100, 2],
+    [400, 0],
+  ] as const)(
+    "[MER-14:codec] applies a right-edge focal point at %i%% zoom to the crop and ThumbHash",
+    async (zoomPercent, channel) => {
+      const red = await sharp({
+        create: { width: 56, height: 120, channels: 3, background: "red" },
+      })
+        .png()
+        .toBuffer();
+      const bytes = await sharp({
+        create: { width: 320, height: 120, channels: 3, background: "blue" },
+      })
+        .composite([{ input: red, top: 0, left: 264 }])
+        .png()
+        .toBuffer();
       const result = await cropPhoto({
         bytes,
         contentType: "image/png",
@@ -87,8 +88,8 @@ describe("photo crop encoding", () => {
       const placeholder = thumbHashToRGBA(hash);
       expect(placeholder.w).toBe(placeholder.h);
       if (zoomPercent === 400) expect(placeholder.rgba.at(channel)).toBeGreaterThan(200);
-    }
-  });
+    },
+  );
 
   it("[MER-14:codec] interprets the focal point in EXIF-oriented coordinates", async () => {
     const red = await sharp({ create: { width: 96, height: 96, channels: 3, background: "red" } })

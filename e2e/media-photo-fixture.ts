@@ -25,6 +25,23 @@ export async function rejectInvalidPhoto(page: Page, labels: PhotoLabels) {
   await expect(page.getByText(labels.contentMismatch, { exact: true })).toBeVisible();
 }
 
+function waitForReadyMedia(page: Page, submittedId: Promise<string>) {
+  return page.waitForResponse(
+    async (response) => {
+      if (
+        response.request().method() !== "GET" ||
+        !response.ok() ||
+        new URL(response.url()).pathname !== `/v1/media/${await submittedId}`
+      ) {
+        return false;
+      }
+      return mediaOutput.parse(await response.json()).status === "ready";
+    },
+    // Allow the browser's 33-second processing window before checking rendering.
+    { timeout: 35_000 },
+  );
+}
+
 export async function attachPhoto(
   page: Page,
   labels: PhotoLabels,
@@ -44,19 +61,25 @@ export async function attachPhoto(
   await expect(focal).not.toHaveValue(initialFocal);
   await target.getByRole("slider", { name: labels.zoom, exact: true }).press("ArrowRight");
 
-  const crop = page.waitForResponse(
-    (response) =>
-      response.request().method() === "POST" &&
-      /^\/v1\/media\/[^/]+\/crop$/u.test(new URL(response.url()).pathname),
-  );
-  await target.getByRole("button", { name: labels.applyCrop, exact: true }).click();
-  const response = await crop;
-  expect(response.status()).toBe(202);
-  const submitted = mediaOutput.parse(await response.json());
+  const submittedId = page
+    .waitForResponse(
+      (response) =>
+        response.request().method() === "POST" &&
+        /^\/v1\/media\/[^/]+\/crop$/u.test(new URL(response.url()).pathname),
+    )
+    .then(async (response) => {
+      expect(response.status()).toBe(202);
+      return mediaOutput.parse(await response.json()).mediaId;
+    });
+  const [mediaId] = await Promise.all([
+    submittedId,
+    waitForReadyMedia(page, submittedId),
+    target.getByRole("button", { name: labels.applyCrop, exact: true }).click(),
+  ]);
   const ready = target.getByRole("img", { name: labels.selectedPreview, exact: true });
   await expect(ready).toBeVisible();
   await expect
     .poll(() => ready.evaluate((element: HTMLImageElement) => element.naturalWidth))
     .toBeGreaterThan(0);
-  return submitted.mediaId;
+  return mediaId;
 }

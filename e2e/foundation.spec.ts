@@ -43,10 +43,10 @@ async function expectNoOverflow(page: Page) {
   expect(used, `${page.url()} must fit its viewport`).toBeLessThanOrEqual(available);
 }
 
-test("[I18N-01] public locale routes expose language, direction and alternates @smoke", async ({
-  page,
-}) => {
-  for (const { prefix, lang, dir } of locales) {
+for (const { prefix, lang, dir } of locales) {
+  test(`[I18N-01] public locale routes expose language, direction and alternates for ${prefix} @smoke`, async ({
+    page,
+  }) => {
     const response = await page.goto(`/${prefix}`);
     expect(response?.status()).toBe(200);
     await expect(page.locator("html")).toHaveAttribute("lang", lang);
@@ -60,10 +60,10 @@ test("[I18N-01] public locale routes expose language, direction and alternates @
       const link = navigationLink(page, `/${alternate.prefix}`);
       await expect(link).toBeVisible();
       await expect(link).toHaveAccessibleName(/\S/);
-      expect(await link.evaluate((node) => node.tabIndex)).toBeGreaterThanOrEqual(0);
+      await expect(link).toHaveJSProperty("tabIndex", 0);
     }
-  }
-});
+  });
+}
 
 test("[I18N-01] locale cookie takes precedence over Accept-Language @smoke", async ({
   request,
