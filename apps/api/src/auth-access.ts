@@ -32,15 +32,20 @@ function authorizationCount(raw: {
   return raw.headersDistinct?.authorization?.length;
 }
 
+export function readRequestCredential(request: FastifyRequest) {
+  const credential = readSessionCredential(request.headers, authorizationCount(request.raw));
+  if (credential?.transport === "bearer" && !isNativeTransport(request.headers)) return undefined;
+  return credential;
+}
+
 export function createAuthAccess(auth: Authentication | undefined) {
   const sessions = new WeakMap<FastifyRequest, ResolvedSession>();
   const webSessions = new WeakMap<FastifyRequest, WebSession>();
 
   const resolveActor: ResolveActor = async (request) => {
     if (!auth) return undefined;
-    const credential = readSessionCredential(request.headers, authorizationCount(request.raw));
+    const credential = readRequestCredential(request);
     if (!credential) return undefined;
-    if (credential.transport === "bearer" && !isNativeTransport(request.headers)) return undefined;
     const session = await auth.service.resolveSession(credential);
     if (!session) return undefined;
     sessions.set(request, session);

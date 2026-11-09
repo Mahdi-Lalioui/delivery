@@ -8,6 +8,10 @@
       "types": "./src/auth.ts",
       "default": "./dist/auth.js"
     },
+    "./privacy": {
+      "types": "./src/privacy.ts",
+      "default": "./dist/privacy.js"
+    },
     "./platform": {
       "types": "./src/platform/repository.ts",
       "default": "./dist/platform/repository.js"

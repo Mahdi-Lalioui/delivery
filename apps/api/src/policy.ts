@@ -11,7 +11,12 @@ export interface Actor {
 }
 
 type Policy =
-  { readonly kind: "public" } | { readonly kind: "roles"; readonly roles: readonly Role[] };
+  | { readonly kind: "public" }
+  | {
+      readonly kind: "roles";
+      readonly roles: readonly Role[];
+      readonly allowDeletionReplay?: true;
+    };
 
 export type ResolveActor = (request: FastifyRequest) => Promise<Actor | undefined>;
 
@@ -59,7 +64,15 @@ export function enforceRoutePolicies(api: FastifyInstance, resolveActor?: Resolv
     if (!policy) return sendProblem(reply, 403);
     if (policy.kind === "public") return;
     const actor = await resolveActor?.(request);
-    if (!actor) return sendProblem(reply, 401);
+    if (!actor) {
+      if (
+        policy.allowDeletionReplay === true &&
+        request.method === "DELETE" &&
+        request.routeOptions.url === "/v1/me"
+      )
+        return;
+      return sendProblem(reply, 401);
+    }
     if (!policy.roles.includes(actor.role)) return sendProblem(reply, 403);
     requestActors.set(request, actor);
   });

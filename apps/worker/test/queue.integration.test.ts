@@ -91,7 +91,7 @@ test("[SRCH-04:job] Graphile refreshes a changed restaurant from the durable sea
   if (!merchant) throw new Error("Expected a synthetic restaurant.");
   await connection.sql`SELECT graphile_worker.add_job('search_refresh', '{}'::json)`;
   const worker = createWorkerOptions(databaseUrl, connection);
-  expect(worker.crontab).toBe("* * * * * search_refresh");
+  expect(worker.crontab).toContain("* * * * * search_refresh");
   await runOnce({ ...worker, noHandleSignals: true });
   expect(
     await connection.sql`SELECT merchant_id FROM public.search_document_refreshes`,
@@ -101,4 +101,30 @@ test("[SRCH-04:job] Graphile refreshes a changed restaurant from the durable sea
     SELECT merchant_id FROM public.search_documents WHERE merchant_id = ${merchant.id}
   `,
   ).toEqual([{ merchant_id: merchant.id }]);
+});
+
+test("[CUS-24:job] the retention worker clears expired deletion secrets without customer traffic", async () => {
+  const connection = database.get();
+  const { sql } = connection;
+  const databaseUrl = database.url();
+  await migrateWorker(databaseUrl);
+  const [account] = await sql<{ id: string }[]>`
+    INSERT INTO users (phone_e164, created_at)
+    VALUES ('+213500000256', now() - interval '2 days') RETURNING id
+  `;
+  if (!account) throw new Error("Missing synthetic account");
+  const challengeId = "01932f18-3150-7c33-8a7a-53acfd343010";
+  const hash = Buffer.alloc(32, 7);
+  await sql`
+    INSERT INTO account_deletion_challenges (id, user_id, ip_hash, key_hash, code_hmac, requested_at, expires_at)
+    VALUES (${challengeId}, ${account.id}, ${hash}, ${hash}, ${hash}, now() - interval '1 hour', now() - interval '55 minutes')
+  `;
+  const worker = createWorkerOptions(databaseUrl, connection);
+  expect(worker.crontab).toContain("*/5 * * * * privacy_cleanup");
+  await sql`SELECT graphile_worker.add_job('privacy_cleanup',
+    json_build_object('_cron', json_build_object('ts', ${new Date().toISOString()}::text, 'backfilled', false)))`;
+  await runOnce({ ...worker, noHandleSignals: true });
+  expect(
+    await sql`SELECT key_hash, code_hmac FROM account_deletion_challenges WHERE id = ${challengeId}`,
+  ).toEqual([{ key_hash: null, code_hmac: null }]);
 });

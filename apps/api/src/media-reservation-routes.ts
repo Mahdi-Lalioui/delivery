@@ -160,7 +160,11 @@ async function quarantineAndAdopt(
     return { kind: "adoption_failed" };
   }
 
-  if (result.kind === "replayed" || isKnownAdoptionFailure(result.kind)) {
+  if (
+    result.kind === "replayed" ||
+    result.kind === "not_found" ||
+    isKnownAdoptionFailure(result.kind)
+  ) {
     await services.store.delete(quarantineKey);
   }
   return result;

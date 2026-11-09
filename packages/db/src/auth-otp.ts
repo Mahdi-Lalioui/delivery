@@ -1,4 +1,5 @@
 import type { TransactionSql } from "postgres";
+import { lockOtpPhone, normalizeOtpIp } from "./auth-otp-lock.js";
 import {
   readVerificationReceipt,
   writeVerificationReceipt,
@@ -77,20 +78,6 @@ function replayOtp(receipt: OtpReceipt, purpose: AuthPurpose): ReservationResult
   };
 }
 
-async function lockOtpIp(sql: TransactionSql, requestIp: string): Promise<string> {
-  const [address] = await sql<{ ip: string }[]>`
-    SELECT host(
-      CASE WHEN ${requestIp}::inet <<= '::ffff:0:0/96'::inet
-        THEN '0.0.0.0'::inet + (${requestIp}::inet - '::ffff:0:0'::inet)
-        ELSE ${requestIp}::inet
-      END
-    ) AS ip
-  `;
-  if (!address) throw new Error("Could not resolve the OTP source address.");
-  await sql`SELECT pg_advisory_xact_lock(63841, hashtext(${address.ip}))`;
-  return address.ip;
-}
-
 async function findRetryAt(
   sql: TransactionSql,
   input: Pick<OtpReservation, "phoneE164" | "requestIp" | "now">,
@@ -98,13 +85,25 @@ async function findRetryAt(
   const { now, phoneE164, requestIp } = input;
   const [limits] = await sql<{ retryAt: Date | null }[]>`
     WITH phone_requests AS (
-      SELECT requested_at FROM public.otp_challenges
-      WHERE phone_e164 = ${phoneE164} AND requested_at > ${now.toISOString()}::timestamptz - interval '24 hours'
+      SELECT requested_at FROM (
+        SELECT requested_at FROM public.otp_challenges
+        WHERE phone_e164 = ${phoneE164}
+        UNION ALL
+        SELECT requested_at FROM public.auth_otp_rate_history
+        WHERE phone_hash = public.auth_otp_rate_digest('phone', ${phoneE164})
+      ) AS history
+      WHERE requested_at > ${now.toISOString()}::timestamptz - interval '24 hours'
       ORDER BY requested_at DESC LIMIT 10
     ),
     ip_requests AS (
-      SELECT requested_at FROM public.otp_challenges
-      WHERE request_ip = ${requestIp}::inet AND requested_at > ${now.toISOString()}::timestamptz - interval '1 hour'
+      SELECT requested_at FROM (
+        SELECT requested_at FROM public.otp_challenges
+        WHERE request_ip = ${requestIp}::inet
+        UNION ALL
+        SELECT requested_at FROM public.auth_otp_rate_history
+        WHERE ip_hash = public.auth_otp_rate_digest('ip', ${requestIp})
+      ) AS history
+      WHERE requested_at > ${now.toISOString()}::timestamptz - interval '1 hour'
       ORDER BY requested_at DESC LIMIT 20
     )
     SELECT greatest(
@@ -124,7 +123,7 @@ export async function reserveOtpChallenge(
 ): Promise<ReservationResult> {
   const { id, phoneE164, requestIp, purpose, codeHmac, idempotencyKeyHash, now } = input;
   // Every reservation acquires the phone namespace before the IP namespace.
-  await sql`SELECT pg_advisory_xact_lock(63840, hashtext(${phoneE164}))`;
+  await lockOtpPhone(sql, phoneE164);
   const [receipt] = await sql<OtpReceipt[]>`
     SELECT id, purpose, requested_at AS "requestedAt", expires_at AS "expiresAt"
     FROM public.otp_challenges
@@ -132,7 +131,8 @@ export async function reserveOtpChallenge(
   `.parsers(timestampParsers);
   if (receipt) return replayOtp(receipt, purpose);
 
-  const ip = await lockOtpIp(sql, requestIp);
+  const ip = await normalizeOtpIp(sql, requestIp);
+  await sql`SELECT pg_advisory_xact_lock(63841, hashtext(${ip}))`;
   const retryAt = await findRetryAt(sql, { phoneE164, requestIp: ip, now });
   if (retryAt) return { kind: "rate_limited", retryAt };
 
@@ -194,6 +194,13 @@ export async function redeemOtp(
   input: OtpVerification,
 ): Promise<OtpChallengeResult> {
   const { challengeId, attempt, now } = input;
+  // Deletion clears sign-in challenges while holding the same phone lock.
+  const [unlocked] = await sql<{ phoneE164: string }[]>`
+    SELECT phone_e164 AS "phoneE164" FROM public.otp_challenges WHERE id = ${challengeId}
+  `;
+  if (!unlocked) return { kind: "invalid" };
+  await lockOtpPhone(sql, unlocked.phoneE164);
+
   const [challenge] = await sql<StoredOtp[]>`
     SELECT phone_e164 AS "phoneE164", purpose, code_hmac AS "codeHmac",
       requested_at AS "requestedAt", expires_at AS "expiresAt", consumed_at AS "consumedAt", attempts
