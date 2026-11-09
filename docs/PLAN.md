@@ -220,7 +220,8 @@ Close the remaining M2 acceptance checks and seed the demo restaurants. Then lan
 - [ ] M3-7 PWA basics (CUS-25), low-data mode (CUS-26, GEO-10), and route bundle budgets in CI (NFR-02).
   - [x] Publish a customer manifest with standalone mode and normal, maskable and Apple touch icons.
   - [x] Show a localized offline fallback and keep private routes outside its cache.
-  - [ ] Cache recent public menus, add push setup, low-data mode and bundle checks.
+  - [x] Use smaller customer photo variants for the Save-Data header and browser preference.
+  - [ ] Cache recent public menus, add push setup, gate maps and motion in low-data mode, and add bundle checks.
 
 **Gate m3:**
 

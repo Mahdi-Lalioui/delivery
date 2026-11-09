@@ -3,6 +3,7 @@ import { getLocalizedContent } from "@zaafran/i18n/content";
 import { formatDzd } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
 import { useState } from "react";
+import { useLowData } from "./low-data";
 import { FeedPlate } from "./feed-card";
 import type { SearchPage } from "./search-http";
 import { getSearchMessages } from "./search-messages";
@@ -17,11 +18,12 @@ function SearchCover({
   merchantId: string;
   coverMediaId: string | null;
 }) {
+  const lowData = useLowData();
   const [hasError, setHasError] = useState(false);
   if (!coverMediaId || hasError) return null;
 
   const variants = `/v1/merchants/${merchantId}/profile/photos/${coverMediaId}/variants`;
-  const width = 320;
+  const width = lowData ? 160 : 320;
   const { cover } = photoRatios;
   return (
     <picture>

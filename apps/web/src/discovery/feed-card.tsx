@@ -2,6 +2,7 @@ import { photoRatios, type photoVariantWidths } from "@zaafran/contracts/media";
 import { formatAlgiersDate, formatAlgiersTime } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
 import { useState } from "react";
+import { useLowData } from "./low-data";
 import type { FeedRestaurant } from "./feed-http";
 import { getFeedCuisineLabel, getFeedMessages } from "./feed-messages";
 
@@ -17,16 +18,17 @@ function FeedPhoto({
   mediaId: string;
   kind: "cover" | "logo";
 }) {
+  const lowData = useLowData();
   const [hasError, setHasError] = useState(false);
   if (hasError) return null;
 
   const isCover = kind === "cover";
-  const width = isCover ? 640 : 160;
+  const width = isCover ? (lowData ? 320 : 640) : 160;
   const ratio = photoRatios[kind];
   const path = `/v1/merchants/${merchantId}/profile/photos/${mediaId}/variants`;
   const photoUrl = (format: PhotoFormat, variantWidth: VariantWidth) =>
     `${path}/${format}/${variantWidth.toString()}`;
-  const widths: readonly VariantWidth[] = isCover ? [320, 640, 960] : [160];
+  const widths: readonly VariantWidth[] = isCover && !lowData ? [320, 640, 960] : [width];
   const srcSet = (format: PhotoFormat) =>
     widths.map((item) => `${photoUrl(format, item)} ${item.toString()}w`).join(", ");
   const sizes = isCover

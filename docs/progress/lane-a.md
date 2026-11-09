@@ -116,3 +116,7 @@
 - 2026-11-09 · High · The M3 gate and CI now run the search benchmark in isolation.
   This keeps the unchanged 120 ms budget independent of parallel codecs and database fixtures.
   The dedicated command passed at 67.4 ms p95.
+
+- 2026-11-09 · Medium · Customer photos use smaller variants when Save-Data is sent
+  or the browser requests it. Both production browser cases passed. Merged the green
+  merchant-photo CI repair into main at `c39cfc2` and brought it into lane-a.

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Badge, Icon } from "@zaafran/ui";
 import { localeDetails, type Locale } from "@zaafran/i18n/locales";
 import { formatAlgiersDate } from "@zaafran/i18n/formats";
+import { useLowData } from "../discovery/low-data";
 import { getFeedCuisineLabel } from "../discovery/feed-messages";
 import { getRestaurantMessages } from "./restaurant-messages";
 import type { Restaurant } from "./restaurant-types";
@@ -13,6 +14,7 @@ function minute(value: number): string {
 }
 
 export function RestaurantHeader({ data, locale }: { data: Restaurant; locale: Locale }) {
+  const width = useLowData() ? 320 : 960;
   const { restaurant } = data;
   const messages = getRestaurantMessages(locale);
   const [photoFailed, setPhotoFailed] = useState(false);
@@ -48,7 +50,7 @@ export function RestaurantHeader({ data, locale }: { data: Restaurant; locale: L
             height="720"
             alt=""
             decoding="async"
-            src={`/v1/merchants/${restaurant.merchantId}/profile/photos/${restaurant.coverMediaId}/variants/webp/960`}
+            src={`/v1/merchants/${restaurant.merchantId}/profile/photos/${restaurant.coverMediaId}/variants/webp/${String(width)}`}
             onError={() => {
               setPhotoFailed(true);
             }}

@@ -2,6 +2,7 @@ import { Button, Badge, Icon } from "@zaafran/ui";
 import { formatDzd } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
 import { useState } from "react";
+import { useLowData } from "../discovery/low-data";
 import { getRestaurantMessages } from "./restaurant-messages";
 import { localizeRestaurantText, type RestaurantDish } from "./restaurant-types";
 
@@ -14,6 +15,7 @@ export function DishPhoto({
   dish: RestaurantDish;
   locale: Locale;
 }) {
+  const width = useLowData() ? 320 : 640;
   const [failed, setFailed] = useState(false);
   return (
     <div className="restaurant-dish-photo" aria-hidden="true">
@@ -28,7 +30,7 @@ export function DishPhoto({
           height="480"
           loading="lazy"
           decoding="async"
-          src={`/v1/merchants/${merchantId}/items/${dish.itemId}/photos/${dish.photoId}/variants/webp/640`}
+          src={`/v1/merchants/${merchantId}/items/${dish.itemId}/photos/${dish.photoId}/variants/webp/${String(width)}`}
           onError={() => {
             setFailed(true);
           }}
