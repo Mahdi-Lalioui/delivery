@@ -12,7 +12,7 @@
       "entry": ["src/migrate.ts", "test/**/*.test.ts"]
     },
     "apps/web": {
-      "entry": ["src/app/**/page.design.tsx"]
+      "entry": ["src/app/**/page.design.tsx", "public/pwa-worker.js", "public/pwa/offline.css"]
     },
     "apps/mobile": {
       "entry": ["app/**/*.tsx", "test/**/*.test.tsx"],

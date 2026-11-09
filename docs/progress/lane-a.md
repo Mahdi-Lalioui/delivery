@@ -109,3 +109,10 @@
 - 2026-11-09 · Ultra · Search at 500 restaurants and 30,000 items timed out before the
   SQL planner fix. Fresh-index p95 is now 65.5 ms over 22 golden queries with synonyms.
   All 12 focused PostGIS tests passed. Evidence is in `docs/evidence/m3/search-scale.md`.
+
+- 2026-11-09 · High · The customer offline fallback caches only localized public pages and CSS.
+  Three production tests proved disconnect, locale, private-route bypass and recovery.
+  Twelve captures are in `docs/evidence/m3/offline/`. Recent menus and push remain open.
+- 2026-11-09 · High · The M3 gate and CI now run the search benchmark in isolation.
+  This keeps the unchanged 120 ms budget independent of parallel codecs and database fixtures.
+  The dedicated command passed at 67.4 ms p95.

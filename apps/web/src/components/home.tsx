@@ -2,6 +2,7 @@ import { brand } from "@zaafran/config/brand";
 import { localeDetails, publicLocales, type Locale } from "@zaafran/i18n/locales";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { CustomerWorker } from "../discovery/customer-worker";
 import { DiscoveryLocationSelector } from "../discovery/discovery-location-selector";
 import { DiscoveryFeed } from "../discovery/feed";
 import { DiscoverySearch } from "../discovery/search";
@@ -29,6 +30,7 @@ export async function Home({ locale }: { locale: Locale }) {
 
   return (
     <SiteShell locale={locale} subpath="/discover">
+      <CustomerWorker />
       <section className="hero">
         <p className="eyebrow">{translate("eyebrow")}</p>
         <h1>{locale === "ar" ? brand.arabicName : brand.name}</h1>

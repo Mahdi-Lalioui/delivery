@@ -219,7 +219,8 @@ Close the remaining M2 acceptance checks and seed the demo restaurants. Then lan
 - [ ] M3-6 Link-in-bio pages with OG images (CUS-27). SEO: metadata, `hreflang`, sitemap, schema.org Restaurant/Menu.
 - [ ] M3-7 PWA basics (CUS-25), low-data mode (CUS-26, GEO-10), and route bundle budgets in CI (NFR-02).
   - [x] Publish a customer manifest with standalone mode and normal, maskable and Apple touch icons.
-  - [ ] Add the offline shell, recent menus, push setup, low-data mode and bundle checks.
+  - [x] Show a localized offline fallback and keep private routes outside its cache.
+  - [ ] Cache recent public menus, add push setup, low-data mode and bundle checks.
 
 **Gate m3:**
 

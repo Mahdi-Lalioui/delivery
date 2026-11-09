@@ -1,0 +1,51 @@
+:root {
+  color-scheme: light dark;
+  color: #16130f;
+  background: #fbf8f3;
+  font:
+    1rem/1.5 system-ui,
+    sans-serif;
+}
+body {
+  min-block-size: 100dvb;
+  margin: 0;
+  display: grid;
+  place-items: center;
+}
+main {
+  max-inline-size: 30rem;
+  padding: 2rem;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+}
+.brand span {
+  inline-size: 1rem;
+  block-size: 1rem;
+  border-radius: 100% 0.25rem;
+  background: #f29e1f;
+}
+h1 {
+  margin-block: 1rem 0.5rem;
+  font-size: 2rem;
+  line-height: 1.2;
+}
+a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 3.25rem;
+  padding-inline: 1rem;
+  border-radius: 99rem;
+  background: #f29e1f;
+  color: #16130f;
+  font-weight: 650;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color: #f6f0e7;
+    background: #0e0c0a;
+  }
+}
