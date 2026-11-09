@@ -148,8 +148,5 @@ void test("[SRCH-06] runs discovery journeys and the search benchmark from the M
     "@discovery",
     "--fail-on-flaky-tests",
   ]);
-  assert.deepEqual(gateCommand("m3", "bench:search"), [
-    "test:int",
-    "packages/db/test/discovery-search-scale.integration.test.ts",
-  ]);
+  assert.deepEqual(gateCommand("m3", "bench:search"), ["bench:search"]);
 });

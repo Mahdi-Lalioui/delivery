@@ -12,6 +12,7 @@
     "vitest.domain.config.ts",
     "packages/config/vitest.ts",
     "vitest.integration.config.ts",
+    "vitest.search.config.ts",
     "e2e/**/*.ts",
     "packages/config/src/brand.ts"
   ]

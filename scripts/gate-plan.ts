@@ -70,7 +70,7 @@ const commands: ReadonlyMap<string, readonly string[]> = new Map([
   ["mutation:domain", ["test:mutation"]],
   ["property:1000", ["test:properties"]],
   ["authz:matrix", ["test:authz"]],
-  ["bench:search", ["test:int", "packages/db/test/discovery-search-scale.integration.test.ts"]],
+  ["bench:search", ["bench:search"]],
 ]);
 
 const merchantCheckTags: ReadonlyMap<string, string> = new Map([
