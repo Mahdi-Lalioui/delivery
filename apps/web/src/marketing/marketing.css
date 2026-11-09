@@ -317,3 +317,27 @@
 .landing-restaurants p {
   color: var(--color-text-2);
 }
+
+.landing-hero[data-local-demo] {
+  align-items: center;
+}
+
+.landing-hero[data-local-demo] .casbah-frame {
+  aspect-ratio: 8 / 5;
+}
+
+.landing-hero[data-local-demo] .casbah-poster {
+  object-fit: cover;
+}
+
+@media (min-width: 56rem) {
+  .landing-hero[data-local-demo] {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+    gap: var(--space-40);
+  }
+
+  .landing-hero[data-local-demo] .landing-hero-copy {
+    grid-column: 1;
+    grid-row: 1;
+  }
+}

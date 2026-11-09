@@ -38,17 +38,36 @@ export async function Landing({ locale }: { locale: Locale }) {
     getTranslations({ locale, namespace: "marketingLanding" }),
     getTranslations({ locale, namespace: "merchant" }),
   ]);
+  const localDemo =
+    process.env.NODE_ENV === "development" && process.env.ZAAFRAN_LOCAL_DEMO === "1";
   const name = locale === "ar" ? brand.arabicName : brand.name;
   const preview =
     isPublicLocale(locale) && isPreviewDemo(process.env) ? previewMessages[locale] : undefined;
   return (
     <SiteShell locale={locale}>
       <article className="landing">
-        <section className="landing-hero" aria-labelledby="landing-title">
+        <section
+          className="landing-hero"
+          data-local-demo={localDemo || undefined}
+          aria-labelledby="landing-title"
+        >
           <CasbahHero
             seed={heroSeed}
             homeTargetId={startId}
-            poster={<CasbahPoster label={translate("heroImage")} />}
+            poster={
+              localDemo ? (
+                <img
+                  className="casbah-poster"
+                  src="/preview-catalog/casbah.webp"
+                  alt={translate("heroImage")}
+                  width={1600}
+                  height={1000}
+                  fetchPriority="high"
+                />
+              ) : (
+                <CasbahPoster label={translate("heroImage")} />
+              )
+            }
           />
           <div className="landing-hero-copy">
             <h1 id="landing-title">{translate("title", { brand: name })}</h1>

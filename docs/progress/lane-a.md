@@ -130,4 +130,4 @@
   Eight visual captures are in `docs/evidence/team-preview`; Vercel setup is in `docs/TEAM_PREVIEW.md`.
 
 - 2026-11-09 · Medium · Local team demo on the standalone `demo` branch. Launcher, synthetic logins, seed, fixtures and tour are in `docs/DEMO.md`.
-  Resume with the tour smoke check on `demo`; production milestones resume from `lane-a`.
+  The 128-visit smoke passed; simulated checkout to rating passed at 390px Arabic and 1280px French. Production work resumes from `lane-a`.

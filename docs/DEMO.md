@@ -35,7 +35,7 @@ profiles to keep role sessions independent.
 2. **1:30–2:30 · Motion and design.** Try the tagine and fly-to-cart studies.
    Open the design system and switch the tour between Arabic and French.
 3. **2:30–5:30 · Customer.** Choose a commune, search for couscous, open Lune de
-   Semoule, choose a portion, and open the cart. Show a saved order, its receipt,
+   Semoule, choose a portion, and open the cart. Choose **Simuler la commande** to show the timed delivery and rating. Then show a saved order, its receipt,
    the rating form, and the privacy page. Order history and ratings use fixtures.
 4. **5:30–8:00 · Restaurant.** In the owner profile, open setup and the menu,
    then show CSV import, photos, Ramadan hours and the SAFRAN15 promotion.
