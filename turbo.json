@@ -12,6 +12,8 @@
       "dependsOn": ["^build"],
       "passThroughEnv": [
         "DATABASE_URL",
+        "NODE_ENV",
+        "ZAAFRAN_LOCAL_DEMO",
         "PORT",
         "API_HOST",
         "API_PORT",

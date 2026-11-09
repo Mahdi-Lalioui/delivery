@@ -1,0 +1,10 @@
+/fr
+/ar
+/fr/dev/tour
+/ar/dev/tour
+/fr/dev/moments
+/ar/dev/moments
+/fr/dev/design
+/ar/dev/design
+/fr/discover
+/ar/discover
