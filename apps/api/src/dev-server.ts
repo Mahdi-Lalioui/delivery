@@ -6,7 +6,7 @@ import { serveApi } from "./serve.js";
 const outbox = createOutbox();
 const codes = await loadLocalDemoAuth(process.env);
 await serveApi({
-  ...(codes === undefined ? {} : { codes }),
+  ...(codes === undefined ? {} : { codes, rateLimit: { max: 2500, timeWindow: 60_000 } }),
   configure: (api) => {
     registerDevOutbox(api, outbox);
   },

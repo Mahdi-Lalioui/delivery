@@ -33,6 +33,7 @@ import { checkReadiness } from "./readiness.js";
 
 export interface StartOptions {
   readonly codes?: AuthCodeAdapters;
+  readonly rateLimit?: { readonly max: number; readonly timeWindow: number };
   readonly now?: () => Date;
   readonly sendSms?: Parameters<typeof createAuthService>[0]["sendSms"];
   readonly sendInvitation?: MerchantStaffServices["sendInvitation"];
@@ -62,6 +63,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
   const api = createApi({
     checkReadiness: () => checkReadiness(database),
     trustedProxy: environment.API_TRUSTED_PROXY,
+    rateLimit: options.rateLimit,
     auth: { service, publicOrigin: environment.AUTH_PUBLIC_ORIGIN },
     privacy: createPrivacyService({
       repository: createPrivacyRepository(database),

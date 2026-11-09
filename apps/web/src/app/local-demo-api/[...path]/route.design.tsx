@@ -33,6 +33,7 @@ async function fixtureResponse(response: Response, url: URL): Promise<Response> 
   const headers = new Headers(response.headers);
   headers.set("Cache-Control", "no-store");
   if (url.pathname === "/v1/me/favourites" && response.ok) {
+    headers.delete("Content-Length");
     const data = customerFavouritesOutput.parse(await response.json());
     const restaurants = data.restaurants.map((row) =>
       row.merchantId === orderMockIds.merchantId ? { ...row, ...featured } : row,

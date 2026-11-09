@@ -120,7 +120,7 @@ SELECT pg_temp.demo_uuid('local-tour:invoice:' || demo.slug || ':' || month.mont
   5000, 0, 0, 5000
 FROM demo_restaurants AS demo
 JOIN public.subscriptions AS subscription ON subscription.merchant_id = demo.id
-CROSS JOIN (VALUES (1), (2)) AS month.month_index)
+CROSS JOIN (VALUES (1), (2)) AS month(month_index)
 WHERE subscription.status <> 'trialing'
 ON CONFLICT DO NOTHING;
 

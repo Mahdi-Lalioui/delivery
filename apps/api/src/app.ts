@@ -102,7 +102,7 @@ interface ApiOptions {
   readonly privacy?: PrivacyServices;
   readonly auth?: Parameters<typeof createAuthAccess>[0];
   readonly resolveActor?: ResolveActor;
-  readonly rateLimit?: { readonly max: number; readonly timeWindow: number };
+  readonly rateLimit?: { readonly max: number; readonly timeWindow: number } | undefined;
   readonly logStream?: Writable;
 }
 

@@ -64,9 +64,9 @@ export async function loadLocalDemoAuth(
   const database = new URL(api.DATABASE_URL);
   if (
     api.API_HOST !== "127.0.0.1" ||
-    api.API_PORT !== 3102 ||
+    api.API_PORT !== 3312 ||
     api.API_TRUSTED_PROXY !== undefined ||
-    api.AUTH_PUBLIC_ORIGIN !== "http://127.0.0.1:3100" ||
+    api.AUTH_PUBLIC_ORIGIN !== "http://127.0.0.1:3310" ||
     database.host !== "127.0.0.1:55432" ||
     database.pathname !== "/zaafran_dev"
   ) {

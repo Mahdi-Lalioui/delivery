@@ -1,10 +1,20 @@
 # Local team demo
 
-From the `demo` branch, start Docker Desktop, install dependencies with
-`pnpm install --frozen-lockfile`, then run `pnpm demo`. Keep that terminal open.
+From the `demo` branch, start Docker Desktop and use Node **26.13.0** and
+pnpm **12.18.0**. Install dependencies with `pnpm install --frozen-lockfile`,
+then run `pnpm demo` and keep that terminal open.
+
+On Mahdi’s existing checkout, the pinned tools are also available in the ignored
+`infra/data/demo-toolchain/bin` directory. Run
+`PATH="$PWD/infra/data/demo-toolchain/bin:$PATH" pnpm demo` from the repository root.
 The launcher prints the French and Arabic tour links after warming the pages.
 Press Ctrl+C to stop the apps. The demo Compose stack uses its own local database
-volume and loopback ports.
+volume and loopback ports. Open `http://127.0.0.1:3310/fr/dev/tour` or
+`http://127.0.0.1:3310/ar/dev/tour`.
+
+For a rehearsal in another terminal, install Chromium once with
+`pnpm exec playwright install chromium`, then run `pnpm demo:smoke` with the
+same Node and pnpm versions while the demo is running.
 
 ## Demo logins
 
