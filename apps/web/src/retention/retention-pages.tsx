@@ -14,6 +14,7 @@ import "../admin/billing/admin-billing.css";
 import { MerchantReviews } from "./merchant-reviews";
 import { MerchantAnalytics } from "./analytics/analytics-views";
 import { MyOrders } from "./my-orders";
+import { PrivacyScreen } from "./privacy/privacy-screen";
 import { OrderRating } from "./order-rating";
 import { PromotionsEditor } from "./promotions-editor";
 import { ShareKit, type PosterCopy } from "./share-kit";
@@ -161,6 +162,22 @@ export function AnalyticsPage({ merchantId, locale }: { merchantId: string; loca
         messages={{ retentionAnalytics: getMessages(locale).retentionAnalytics }}
       >
         <MerchantAnalytics key={merchantId} merchantId={merchantId} locale={locale} />
+      </NextIntlClientProvider>
+    </SiteShell>
+  );
+}
+
+export async function privacyMetadata(locale: Locale): Promise<Metadata> {
+  const translate = await getTranslations({ locale, namespace: "retentionPrivacy" });
+  return { title: translate("title"), robots: { index: false, follow: false } };
+}
+
+export function PrivacyPage({ locale }: { locale: Locale }) {
+  const { retentionPrivacy } = getMessages(locale);
+  return (
+    <SiteShell locale={locale} subpath="/account/privacy">
+      <NextIntlClientProvider locale={localeDetails[locale].tag} messages={{ retentionPrivacy }}>
+        <PrivacyScreen homeHref={`/${locale}`} fileName={retentionPrivacy.exportFile} />
       </NextIntlClientProvider>
     </SiteShell>
   );

@@ -634,3 +634,30 @@
     grid-row: 2;
   }
 }
+
+/* CUS-24 privacy */
+.privacy-page {
+  max-inline-size: 44rem;
+}
+
+.privacy-danger {
+  display: grid;
+  gap: var(--space-12);
+  padding: var(--space-20);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-lg);
+  background: var(--color-danger-bg);
+}
+
+.privacy-consequences {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+  padding-inline-start: var(--space-20);
+  color: var(--color-text-2);
+}
+
+.privacy-confirm {
+  display: grid;
+  gap: var(--space-12);
+}
