@@ -17,3 +17,18 @@ volume and loopback ports.
 Use the normal sign-in page for the customer and owner. Start the admin session at
 `/fr/sign-in?purpose=admin` or `/ar/sign-in?purpose=admin`. Open separate browser
 profiles to keep role sessions independent.
+
+## Ten-minute presenter script
+
+1. **0:00–1:30 · Landing.** Open the Casbah, move the pointer over the scene,
+   then open the restaurant pitch and adjust the monthly order volume.
+2. **1:30–2:30 · Motion and design.** Try the tagine and fly-to-cart studies.
+   Open the design system and switch the tour between Arabic and French.
+3. **2:30–5:30 · Customer.** Choose a commune, search for couscous, open Lune de
+   Semoule, choose a portion, and open the cart. Show a saved order, its receipt,
+   the rating form, and the privacy page. Order history and ratings use fixtures.
+4. **5:30–8:00 · Restaurant.** In the owner profile, open setup and the menu,
+   then show CSV import, photos, Ramadan hours and the SAFRAN15 promotion.
+   Continue through analytics, reviews and replies, billing, the share kit, and staff.
+5. **8:00–10:00 · Administration.** In the admin profile, start at the dashboard
+   and open applications, held items, billing, and the platform console.

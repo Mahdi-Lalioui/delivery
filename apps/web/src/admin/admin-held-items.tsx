@@ -6,7 +6,7 @@ import { AdminHeldItemReview } from "./admin-held-item-review";
 import type { HeldItem } from "./admin-moderation-http";
 import { useAdminHeldItems, type AdminHeldItemsState } from "./use-admin-held-items";
 
-type AdminLocale = "fr" | "en";
+type AdminLocale = "ar" | "fr" | "en";
 
 const categoryKeys = {
   alcohol: "categoryAlcohol",

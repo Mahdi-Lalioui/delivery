@@ -33,8 +33,16 @@ wait_for() {
 
 wait_for "http://127.0.0.1:$API_PORT/healthz"
 wait_for "$AUTH_PUBLIC_ORIGIN/fr/dev/tour"
+warm_paths="$(node --input-type=module -e '
+  import { tourGroups, tourLocales } from "./apps/web/src/local-demo/tour-stops.ts";
+  for (const locale of tourLocales) {
+    const paths = new Set(["/dev/tour", "/sign-in", "/sign-in?purpose=admin",
+      ...tourGroups.flatMap(({ stops }) => stops.map(({ path }) => path))]);
+    for (const path of paths) process.stdout.write(`/${locale}${path}\n`);
+  }
+')"
 while IFS= read -r path; do
   curl --fail --silent --show-error --location --max-time 60 --output /dev/null "$AUTH_PUBLIC_ORIGIN$path"
-done < scripts/demo-pages.txt
+done <<< "$warm_paths"
 printf '\nZaafran tour: %s/fr/dev/tour\nArabic: %s/ar/dev/tour\nLeave this terminal running. Ctrl+C stops the apps.\n\n' "$AUTH_PUBLIC_ORIGIN" "$AUTH_PUBLIC_ORIGIN"
 wait "$app_pid"

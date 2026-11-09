@@ -1,0 +1,98 @@
+.demo-tour {
+  display: grid;
+  gap: var(--space-40);
+  padding-block: var(--space-32) var(--space-64);
+}
+
+.demo-tour-head {
+  display: grid;
+  gap: var(--space-16);
+  padding: clamp(var(--space-24), 5vw, var(--space-64));
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-2);
+}
+
+.demo-tour-head h1 {
+  max-inline-size: 16ch;
+  font-family: var(--font-heading);
+  font-size: clamp(var(--font-size-h1), 7vw, var(--font-size-display));
+  line-height: var(--line-height-h1);
+}
+
+.demo-tour-head p,
+.demo-tour-chapter p {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.demo-tour-tools,
+.demo-tour-switch,
+.demo-tour-chapter > header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-12);
+}
+
+.demo-tour-tools {
+  justify-content: space-between;
+}
+
+.demo-tour-switch button {
+  min-block-size: var(--touch-target-min);
+  padding-inline: var(--space-12);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.demo-tour-switch button[aria-pressed="true"],
+.demo-tour-index {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.demo-tour-index {
+  display: grid;
+  inline-size: var(--space-40);
+  block-size: var(--space-40);
+  place-items: center;
+  border-radius: var(--radius-pill);
+}
+
+.demo-tour-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: var(--space-12);
+  padding: 0;
+  list-style: none;
+}
+
+.demo-tour-grid a {
+  display: flex;
+  gap: var(--space-12);
+  align-items: center;
+  justify-content: space-between;
+  block-size: 100%;
+  padding: var(--space-16);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.demo-tour-grid a:hover {
+  border-color: var(--color-primary);
+}
+
+.demo-tour-grid a:active {
+  background: var(--color-surface-2);
+}
+
+[dir="rtl"] .demo-tour-grid svg {
+  transform: scaleX(-1);
+}

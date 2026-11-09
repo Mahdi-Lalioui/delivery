@@ -6,7 +6,7 @@ import { useEffect, useRef } from "react";
 import { AdminMerchantReview } from "./admin-merchant-review";
 import { useAdminMerchantQueue, type AdminMerchantQueueState } from "./use-admin-merchant-queue";
 
-type AdminLocale = "fr" | "en";
+type AdminLocale = "ar" | "fr" | "en";
 
 function QueueNotice({ state }: { state: AdminMerchantQueueState }) {
   const translate = useTranslations("adminMerchant");

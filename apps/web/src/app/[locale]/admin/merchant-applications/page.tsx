@@ -9,7 +9,13 @@ import { SiteShell } from "../../../../components/site-shell";
 import { requireLatinLocale, type LatinPageProps } from "../../../../i18n/latin-locale";
 import "../../../../admin/admin-merchant.css";
 
-async function requireAdminLocale(props: LatinPageProps): Promise<"en" | "fr"> {
+async function requireAdminLocale(props: LatinPageProps): Promise<"en" | "fr" | "ar"> {
+  if (
+    process.env.NODE_ENV === "development" &&
+    process.env.ZAAFRAN_LOCAL_DEMO === "1" &&
+    (await props.params).locale === "ar"
+  )
+    return "ar";
   const locale = await requireLatinLocale(props);
   if (locale === "en" || locale === "fr") return locale;
   notFound();
