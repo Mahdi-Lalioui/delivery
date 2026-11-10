@@ -36,6 +36,10 @@ function apiRewrites(development: boolean, demo: boolean) {
   return rewrites;
 }
 
+function localDemoIndicator(development: boolean): false | undefined {
+  return development && process.env.ZAAFRAN_LOCAL_DEMO === "1" ? false : undefined;
+}
+
 export default function config(phase: string): NextConfig {
   const designBuild = process.env.ZAAFRAN_DESIGN_BUILD;
   if (designBuild !== undefined && designBuild !== "1") {
@@ -52,6 +56,7 @@ export default function config(phase: string): NextConfig {
     env: { ZAAFRAN_DESIGN_ENABLED: includeDesign ? "1" : "0" },
     pageExtensions: includeDesign ? ["design.tsx", "tsx", "ts"] : ["tsx", "ts"],
     poweredByHeader: false,
+    ...(localDemoIndicator(development) === false && { devIndicators: false as const }),
     rewrites: () => Promise.resolve({ beforeFiles }),
     transpilePackages: ["@zaafran/config", "@zaafran/i18n", "@zaafran/ui"],
   });

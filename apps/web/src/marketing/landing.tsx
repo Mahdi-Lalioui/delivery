@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Icon } from "@zaafran/ui";
 import "@zaafran/ui/ui.css";
-import { DiscoverySearch } from "../discovery/search";
+import { DemoCasbah, DemoLandingHero } from "./demo-landing";
 import { SiteShell } from "../components/site-shell";
 import { isPreviewDemo } from "../preview-settings";
 import { previewMessages } from "../preview/preview-messages";
@@ -40,61 +40,55 @@ export async function Landing({ locale }: { locale: Locale }) {
     getTranslations({ locale, namespace: "merchant" }),
   ]);
   const localDemo =
-    process.env.NODE_ENV === "development" && process.env.ZAAFRAN_LOCAL_DEMO === "1";
+    process.env.NODE_ENV === "development" &&
+    process.env.ZAAFRAN_LOCAL_DEMO === "1" &&
+    isPublicLocale(locale)
+      ? locale
+      : undefined;
   const name = locale === "ar" ? brand.arabicName : brand.name;
   const preview =
     isPublicLocale(locale) && isPreviewDemo(process.env) ? previewMessages[locale] : undefined;
   return (
     <SiteShell locale={locale}>
       <article className="landing">
-        <section
-          className="landing-hero"
-          data-local-demo={localDemo || undefined}
-          aria-labelledby="landing-title"
-        >
-          {localDemo ? (
-            <div className="demo-photo-backdrop" aria-hidden="true">
-              <img src="/preview-catalog/casbah.webp" alt="" fetchPriority="high" />
-            </div>
-          ) : (
+        {localDemo ? (
+          <DemoLandingHero locale={localDemo} startId={startId} />
+        ) : (
+          <section className="landing-hero" aria-labelledby="landing-title">
             <CasbahHero
               seed={heroSeed}
               homeTargetId={startId}
               poster={<CasbahPoster label={translate("heroImage")} />}
             />
-          )}
-          <div className="landing-hero-copy">
-            <h1 id="landing-title">{translate("title", { brand: name })}</h1>
-            <p className="landing-intro">{translate("intro")}</p>
-            {localDemo && <DiscoverySearch locale={locale} />}
-            <div className="landing-actions">
-              {preview && (
+            <div className="landing-hero-copy">
+              <h1 id="landing-title">{translate("title", { brand: name })}</h1>
+              <p className="landing-intro">{translate("intro")}</p>
+              <div className="landing-actions">
+                {preview && (
+                  <a
+                    className="ui-button ui-button-secondary ui-button-lg"
+                    href={`/${locale}/preview`}
+                  >
+                    <span>{preview.badge}</span>
+                  </a>
+                )}
                 <a
-                  className="ui-button ui-button-secondary ui-button-lg"
-                  href={`/${locale}/preview`}
+                  id={startId}
+                  className="ui-button ui-button-primary ui-button-lg"
+                  href={`/${locale}/discover`}
                 >
-                  <span>{preview.badge}</span>
+                  <span>{translate("start")}</span>
                 </a>
-              )}
-              <a
-                id={startId}
-                className="ui-button ui-button-primary ui-button-lg"
-                href={`/${locale}/discover`}
-              >
-                <span>{translate("start")}</span>
-              </a>
-              <a className="ui-button ui-button-ghost ui-button-lg" href={`/${locale}/restaurants`}>
-                <span>{translate("forRestaurantsShort")}</span>
-              </a>
+                <a
+                  className="ui-button ui-button-ghost ui-button-lg"
+                  href={`/${locale}/restaurants`}
+                >
+                  <span>{translate("forRestaurantsShort")}</span>
+                </a>
+              </div>
             </div>
-          </div>
-          {localDemo && (
-            <a className="demo-photo-scroll" href="#landing-casbah">
-              {translate("heroImage")}
-            </a>
-          )}
-        </section>
-        <DemoCasbah visible={localDemo} label={translate("heroImage")} />
+          </section>
+        )}
         <section aria-labelledby="landing-steps" className="landing-section">
           <h2 id="landing-steps">{translate("stepsTitle")}</h2>
           <ol className="landing-steps">
@@ -112,6 +106,7 @@ export async function Landing({ locale }: { locale: Locale }) {
             ))}
           </ol>
         </section>
+        {localDemo && <DemoCasbah locale={localDemo} startId={startId} />}
         <section aria-labelledby="landing-restaurants" className="landing-restaurants">
           <div>
             <h2 id="landing-restaurants">{translate("restaurantsTitle")}</h2>
@@ -134,15 +129,5 @@ export async function Landing({ locale }: { locale: Locale }) {
         </section>
       </article>
     </SiteShell>
-  );
-}
-
-function DemoCasbah({ visible, label }: { visible: boolean; label: string }) {
-  if (!visible) return null;
-  return (
-    <section className="landing-section" id="landing-casbah">
-      <h2>{label}</h2>
-      <CasbahHero seed={heroSeed} homeTargetId={startId} poster={<CasbahPoster label={label} />} />
-    </section>
   );
 }

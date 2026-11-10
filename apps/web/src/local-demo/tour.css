@@ -107,3 +107,13 @@
 [dir="rtl"] .demo-tour-grid svg {
   transform: scaleX(-1);
 }
+
+.demo-tour-intro h1 {
+  line-height: var(--line-height-display);
+}
+
+.demo-tour-intro .demo-tour-start {
+  justify-self: start;
+  background: #83e6ba;
+  color: #13271f;
+}

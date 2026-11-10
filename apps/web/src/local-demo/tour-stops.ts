@@ -31,8 +31,8 @@ export const tourGroups: readonly Group[] = [
     stops: [
       {
         path: "",
-        fr: ["La Casbah", "Survolez Alger dans le décor en 3D."],
-        ar: ["القصبة", "تجوّل فوق الجزائر العاصمة في مشهد ثلاثي الأبعاد."],
+        fr: ["Accueil et Casbah", "Découvrez la recherche puis lancez la scène 3D."],
+        ar: ["الصفحة الرئيسية والقصبة", "جرّب البحث ثم شغّل المشهد ثلاثي الأبعاد."],
       },
       {
         path: "/restaurants",

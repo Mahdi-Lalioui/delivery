@@ -30,8 +30,9 @@ profiles to keep role sessions independent.
 
 ## Ten-minute presenter script
 
-1. **0:00–1:30 · Landing.** Open the Casbah, move the pointer over the scene,
-   then open the restaurant pitch and adjust the monthly order volume.
+1. **0:00–1:30 · Landing.** Start on `/fr` or `/ar` and show the search.
+   Scroll to the Casbah and click **Lancer la scène 3D**, then move the pointer
+   across the scene. Open the restaurant pitch and adjust the monthly order volume.
 2. **1:30–2:30 · Motion and design.** Try the tagine and fly-to-cart studies.
    Open the design system and switch the tour between Arabic and French.
 3. **2:30–5:30 · Customer.** Choose a commune, search for couscous, open Lune de

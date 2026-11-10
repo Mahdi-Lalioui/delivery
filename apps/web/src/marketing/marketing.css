@@ -318,14 +318,19 @@
   color: var(--color-text-2);
 }
 
-.landing-hero[data-local-demo] {
+.demo-landing-hero,
+.demo-casbah {
+  --demo-mint: #83e6ba;
+  --demo-ink: #13271f;
+}
+
+.demo-landing-hero {
   position: relative;
   isolation: isolate;
-  min-block-size: 100svh;
+  display: grid;
+  min-block-size: calc(100svh - 3.75rem);
   margin-inline: calc((100% - 100vw) / 2);
   margin-block-start: calc(-1 * var(--space-32));
-  padding: var(--space-64) max(var(--space-24), calc((100vw - 1160px) / 2));
-  align-content: end;
   color: white;
 }
 
@@ -341,37 +346,153 @@
   position: absolute;
   inset: 0;
   content: "";
-  background: linear-gradient(180deg, transparent 20%, #15110e55 45%, #15110ef5 100%);
+  background: linear-gradient(0deg, #15110efa 0%, #15110ec9 40%, #15110e14 100%);
 }
 
 .demo-photo-backdrop img {
   inline-size: 100%;
   block-size: 100%;
   object-fit: cover;
+  object-position: 55% center;
   animation: demo-photo-drift 20s ease-in-out infinite alternate;
 }
 
 @keyframes demo-photo-drift {
   from {
-    transform: scale(1.02);
+    transform: scale(1.04);
   }
   to {
-    transform: scale(1.15) translate(-2%, 2%);
+    transform: scale(1.16) translate(-2%, 2%);
   }
 }
 
-.landing-hero[data-local-demo] .landing-intro,
-.landing-hero[data-local-demo] .ui-button-ghost,
-.demo-photo-scroll {
+.demo-landing-inner {
+  display: grid;
+  align-content: end;
+  gap: var(--space-32);
+  padding-block: var(--space-64) var(--space-24);
+}
+
+.demo-landing-copy {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-16);
+  max-inline-size: 42rem;
+}
+
+.demo-landing-copy h1 {
+  max-inline-size: 17ch;
   color: white;
+  font-family: var(--font-display);
+  font-size: var(--font-size-display-xl);
+  line-height: var(--line-height-display-xl);
+  font-weight: var(--font-weight-display);
+  text-wrap: balance;
+}
+
+.demo-landing-intro {
+  max-inline-size: 37ch;
+  color: #fff8ee;
+  font-size: var(--font-size-body-lg);
+}
+
+.demo-city-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding: var(--space-4) var(--space-12);
+  border: 1px solid currentColor;
+  border-radius: var(--radius-pill);
+  background: #13271f;
+  color: var(--demo-mint);
+  font-size: var(--font-size-caption);
+}
+
+.demo-city-label::before {
+  inline-size: 0.5rem;
+  block-size: 0.5rem;
+  border-radius: 50%;
+  background: currentColor;
+  content: "";
+}
+
+.demo-landing-copy .discovery-search-trigger {
+  max-inline-size: 32rem;
+}
+
+.demo-landing-copy .discovery-search-trigger-icon,
+.demo-casbah .casbah-controls button {
+  background: var(--demo-mint);
+  color: var(--demo-ink);
+}
+
+.demo-landing-browse,
+.demo-photo-scroll {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: var(--space-8);
+  min-block-size: var(--touch-target-min);
+  color: white;
+  text-decoration-color: var(--demo-mint);
 }
 
 .demo-photo-scroll {
-  justify-self: start;
+  font-size: var(--font-size-caption);
 }
 
-.demo-photo-scroll::after {
-  content: " ↓";
+.demo-photo-scroll span {
+  inline-size: 0.45rem;
+  block-size: 0.45rem;
+  border-block-end: 1px solid var(--demo-mint);
+  border-inline-end: 1px solid var(--demo-mint);
+  transform: rotate(45deg);
+}
+
+[dir="rtl"] .demo-landing-browse svg {
+  transform: scaleX(-1);
+}
+
+.demo-casbah {
+  display: grid;
+  gap: var(--space-16);
+  scroll-margin-block-start: var(--space-24);
+}
+
+.demo-casbah-copy h2 {
+  font-family: var(--font-display);
+  font-size: var(--font-size-display);
+  font-weight: var(--font-weight-display);
+  line-height: var(--line-height-display);
+  margin-block-end: var(--space-4);
+}
+
+.demo-casbah-copy p,
+.casbah-controls p {
+  color: var(--color-text-2);
+}
+
+.demo-casbah .casbah-frame {
+  aspect-ratio: 16 / 9;
+  max-block-size: 34rem;
+}
+
+.demo-casbah .casbah-poster {
+  object-fit: cover;
+}
+
+.casbah-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-8) var(--space-16);
+  margin-block-start: var(--space-12);
+}
+
+@media (max-width: 40rem) {
+  .demo-casbah .casbah-frame {
+    aspect-ratio: 4 / 3;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

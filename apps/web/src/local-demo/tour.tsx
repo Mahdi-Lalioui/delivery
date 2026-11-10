@@ -7,8 +7,10 @@ import "./tour.css";
 const copy = {
   fr: {
     badge: "Démo locale · Alger",
-    title: "Une table à Alger",
-    intro: "Suivez un repas, de sa découverte à la gestion du restaurant et de la plateforme.",
+    title: "Visite guidée de Zaafran",
+    start: "Ouvrir l’accueil",
+    intro:
+      "Commencez par l’accueil, puis suivez le parcours du client, du restaurant et de l’administration.",
     roles: {
       public: "Visite libre",
       customer: "Compte client",
@@ -18,8 +20,9 @@ const copy = {
   },
   ar: {
     badge: "عرض محلي · الجزائر العاصمة",
-    title: "مائدة في الجزائر العاصمة",
-    intro: "تتبّع رحلة الوجبة من اكتشافها إلى إدارة المطعم والمنصّة.",
+    title: "جولة في زعفران",
+    start: "افتح الصفحة الرئيسية",
+    intro: "ابدأ بالصفحة الرئيسية، ثم تابع جولة الزبون والمطعم وإدارة المنصّة.",
     roles: {
       public: "جولة مفتوحة",
       customer: "حساب الزبون",
@@ -35,7 +38,7 @@ export function DemoTour({ locale }: { locale: TourLocale }) {
   const other = locale === "fr" ? "ar" : "fr";
   return (
     <main className="container demo-tour">
-      <header className="demo-tour-head">
+      <header className="demo-tour-head demo-tour-intro">
         <div className="demo-tour-tools">
           <a href={`/${other}/dev/tour`} hrefLang={other} lang={other}>
             {language[other]}
@@ -45,6 +48,9 @@ export function DemoTour({ locale }: { locale: TourLocale }) {
         <p className="eyebrow">{messages.badge}</p>
         <h1>{messages.title}</h1>
         <p>{messages.intro}</p>
+        <a className="ui-button ui-button-primary ui-button-lg demo-tour-start" href={`/${locale}`}>
+          {messages.start}
+        </a>
       </header>
       {tourGroups.map((group, index) => (
         <section

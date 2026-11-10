@@ -137,3 +137,6 @@
 
 - 2026-11-10 · Medium · Demo featured menu expanded to 20 dishes. Discovery now shows synthetic ratings, ETAs, fees, and collections with a mint accent. Scoped typechecks passed.
   Pending demo work: source photos and credits, restaurant popular/reviews, URL filters, and cart motion. Restart `pnpm demo` to reseed.
+
+- 2026-11-10 · Medium · Reworked demo landing and tour around search and a clear starting action, with mint in both. Moved the live Casbah to a separate opt-in diorama.
+  Web typecheck passed. Viewed the French desktop and Arabic mobile layouts and opened the live scene on loopback. Attached photo files are still unavailable.

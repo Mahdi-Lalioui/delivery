@@ -53,6 +53,12 @@ function hillHeight(x: number, z: number, phase: number): number {
   return Math.max(0, Math.round((slope + bumps + ridge) * 2) / 2);
 }
 
+/** Matches the terrain heights used to place the buildings. */
+export function terrainSampler(seed: number) {
+  const phase = seededRandom(seed)() * Math.PI * 2;
+  return (x: number, z: number) => hillHeight(x, z, phase);
+}
+
 function buildHouses(random: () => number, phase: number): House[] {
   const houses: House[] = [];
   for (let row = 0; row < houseRows; row += 1) {

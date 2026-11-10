@@ -6,13 +6,14 @@ import {
   CatmullRomCurve3,
   Color,
   Object3D,
+  PlaneGeometry,
   TubeGeometry,
   Vector3,
   type Group,
   type InstancedMesh,
   type Mesh,
 } from "three";
-import { buildCasbahScene, sceneTime, type CasbahScene } from "./casbah-scene";
+import { buildCasbahScene, sceneTime, terrainSampler, type CasbahScene } from "./casbah-scene";
 import { heroPalette } from "./hero-palette";
 
 // DESIGN §8.1 live hero. Loaded only after LCP and only on capable devices (see casbah-hero.tsx).
@@ -26,6 +27,7 @@ export type CasbahHero3dProps = {
   dpr: number;
   hasShadows: boolean;
   isRunning: boolean;
+  diorama: boolean;
   onHomeSelect: () => void;
 };
 
@@ -93,7 +95,7 @@ function Houses({
   );
 }
 
-function Trail({ scene, palette }: { scene: CasbahScene; palette: HeroPalette }) {
+function Trail({ scene, color }: { scene: CasbahScene; color: string }) {
   const tube = useRef<Mesh>(null);
   const geometry = useMemo(() => {
     const curve = new CatmullRomCurve3(
@@ -118,7 +120,7 @@ function Trail({ scene, palette }: { scene: CasbahScene; palette: HeroPalette })
 
   return (
     <mesh ref={tube} geometry={geometry}>
-      <meshBasicMaterial color={palette.saffron} toneMapped={false} />
+      <meshBasicMaterial color={color} toneMapped={false} />
     </mesh>
   );
 }
@@ -153,51 +155,98 @@ function Landmarks({
   );
 }
 
+function Terrain({ seed }: { seed: number }) {
+  const geometry = useMemo(() => {
+    const plane = new PlaneGeometry(78, 37, 78, 37);
+    plane.rotateX(-Math.PI / 2);
+    plane.translate(0, 0, 17);
+    const positions = plane.attributes.position;
+    if (positions !== undefined) {
+      const elevation = terrainSampler(seed);
+      for (let index = 0; index < positions.count; index += 1) {
+        const x = positions.getX(index);
+        const z = positions.getZ(index);
+        const edge = Math.min(1, Math.max(0, z / 3));
+        positions.setY(index, elevation(x, z) * edge - 0.4);
+      }
+      plane.computeVertexNormals();
+    }
+    return plane;
+  }, [seed]);
+  useEffect(
+    () => () => {
+      geometry.dispose();
+    },
+    [geometry],
+  );
+  return (
+    <mesh geometry={geometry}>
+      <meshStandardMaterial color="#a17b59" flatShading roughness={0.96} />
+    </mesh>
+  );
+}
+
+function Sea({ palette, wide }: { palette: HeroPalette; wide: boolean }) {
+  return (
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.05, -20]} receiveShadow>
+      <planeGeometry args={[400, wide ? 350 : 60]} />
+      <meshStandardMaterial
+        color={palette.sea}
+        emissive={palette.sea}
+        emissiveIntensity={0.45}
+        roughness={0.35}
+        metalness={0.15}
+      />
+    </mesh>
+  );
+}
+
 function World(input: Omit<CasbahHero3dProps, "dpr" | "isRunning">) {
   const props = { ...input, palette: heroPalette };
   const scene = useMemo(() => buildCasbahScene(props.seed), [props.seed]);
   const rig = useRef<Group>(null);
   const { dusk, litShare } = sceneTime(props.scroll);
-  const sky = useMemo(
-    () => new Color(props.palette.goldenSky).lerp(new Color(props.palette.nightSky), dusk),
-    [props.palette, dusk],
-  );
+  const sky = useMemo(() => {
+    const day = props.diorama ? "#d7b49d" : props.palette.goldenSky;
+    const night = props.diorama ? "#28394c" : props.palette.nightSky;
+    return new Color(day).lerp(new Color(night), dusk);
+  }, [props.palette, props.diorama, dusk]);
 
   useFrame(({ clock }) => {
     const group = rig.current;
     if (group === null) return;
     // Pointer parallax (±3°) plus a slow idle drift.
-    const drift = Math.sin(clock.elapsedTime * 0.1) * parallaxRadians * 0.3;
-    group.rotation.y += (props.pointer.x * parallaxRadians + drift - group.rotation.y) * 0.05;
-    group.rotation.x += (props.pointer.y * parallaxRadians * 0.5 - group.rotation.x) * 0.05;
+    const angle = props.diorama ? parallaxRadians * 2.5 : parallaxRadians;
+    const drift = Math.sin(clock.elapsedTime * 0.18) * angle * 0.4;
+    group.rotation.y += (props.pointer.x * angle + drift - group.rotation.y) * 0.05;
+    group.rotation.x += (props.pointer.y * angle * 0.5 - group.rotation.x) * 0.05;
   });
 
   return (
     <>
       <color attach="background" args={[sky]} />
       <fog attach="fog" args={[sky, 55, 140]} />
-      <hemisphereLight args={[props.palette.goldenSky, props.palette.sea, 1.1 - dusk * 0.6]} />
+      <hemisphereLight
+        args={[
+          props.diorama ? "#e1edff" : props.palette.goldenSky,
+          props.palette.sea,
+          1.1 - dusk * 0.6,
+        ]}
+      />
       <directionalLight
         position={[-40, 22 - dusk * 16, -30]}
-        color={props.palette.saffron}
+        color={props.diorama ? "#fff1d8" : props.palette.saffron}
         intensity={2.6 - dusk * 1.9}
         castShadow={props.hasShadows}
         shadow-mapSize={[1024, 1024]}
       />
+      {props.diorama && <Sea palette={props.palette} wide />}
       <group ref={rig}>
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.05, -20]} receiveShadow>
-          <planeGeometry args={[400, 60]} />
-          <meshStandardMaterial
-            color={props.palette.sea}
-            emissive={props.palette.sea}
-            emissiveIntensity={0.45}
-            roughness={0.35}
-            metalness={0.15}
-          />
-        </mesh>
+        {props.diorama && <Terrain seed={props.seed} />}
+        {!props.diorama && <Sea palette={props.palette} wide={false} />}
         <Houses scene={scene} palette={props.palette} litShare={litShare} />
         <Landmarks scene={scene} palette={props.palette} onHomeSelect={props.onHomeSelect} />
-        <Trail scene={scene} palette={props.palette} />
+        <Trail scene={scene} color={props.diorama ? "#83e6ba" : props.palette.saffron} />
       </group>
     </>
   );
@@ -211,9 +260,14 @@ export default function CasbahHero3d(props: CasbahHero3dProps) {
         dpr={dpr}
         shadows={props.hasShadows}
         frameloop={isRunning ? "always" : "never"}
-        camera={{ position: [0, 16, -26], fov: 40, near: 0.5, far: 200 }}
+        camera={{
+          position: props.diorama ? [-26, 33, -47] : [0, 16, -26],
+          fov: props.diorama ? 43 : 40,
+          near: 0.5,
+          far: 200,
+        }}
         onCreated={({ camera }) => {
-          camera.lookAt(0, 6, 14);
+          camera.lookAt(0, props.diorama ? 8 : 6, 14);
         }}
       >
         <World {...world} />
