@@ -117,7 +117,10 @@ export function FeedCard({ restaurant, locale }: { restaurant: FeedRestaurant; l
   const { name, merchantId, coverMediaId, logoMediaId, cuisines, isOpen, nextOpensAt } = restaurant;
   const cuisineLabels = new Set(cuisines.map((cuisine) => getFeedCuisineLabel(locale, cuisine)));
   return (
-    <article className="restaurant-feed-card">
+    <article
+      className="restaurant-feed-card"
+      data-demo-card={restaurant.details !== undefined || undefined}
+    >
       <div className="restaurant-feed-cover" data-cuisine={cuisines[0]}>
         <FeedPlate />
         {coverMediaId && (

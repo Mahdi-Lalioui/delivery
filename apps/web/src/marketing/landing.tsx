@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Icon } from "@zaafran/ui";
 import "@zaafran/ui/ui.css";
+import { DemoPhotoCredits } from "./demo-photos";
 import { DemoCasbah, DemoLandingHero } from "./demo-landing";
 import { SiteShell } from "../components/site-shell";
 import { isPreviewDemo } from "../preview-settings";
@@ -33,18 +34,18 @@ export async function landingMetadata(locale: Locale): Promise<Metadata> {
   };
 }
 
+function demoLocale(locale: Locale) {
+  const demo = process.env.NODE_ENV === "development" && process.env.ZAAFRAN_LOCAL_DEMO === "1";
+  return demo && isPublicLocale(locale) ? locale : undefined;
+}
+
 /** M8-1 landing: the Casbah hero, how ordering works, and the restaurant pitch link. */
 export async function Landing({ locale }: { locale: Locale }) {
   const [translate, translateMerchant] = await Promise.all([
     getTranslations({ locale, namespace: "marketingLanding" }),
     getTranslations({ locale, namespace: "merchant" }),
   ]);
-  const localDemo =
-    process.env.NODE_ENV === "development" &&
-    process.env.ZAAFRAN_LOCAL_DEMO === "1" &&
-    isPublicLocale(locale)
-      ? locale
-      : undefined;
+  const localDemo = demoLocale(locale);
   const name = locale === "ar" ? brand.arabicName : brand.name;
   const preview =
     isPublicLocale(locale) && isPreviewDemo(process.env) ? previewMessages[locale] : undefined;
@@ -127,6 +128,7 @@ export async function Landing({ locale }: { locale: Locale }) {
             </a>
           </div>
         </section>
+        {localDemo && <DemoPhotoCredits locale={localDemo} />}
       </article>
     </SiteShell>
   );

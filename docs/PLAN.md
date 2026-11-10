@@ -194,7 +194,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
 
 Close the remaining M2 acceptance checks and seed the demo restaurants. Then land the open Lane B billing, ratings, promotions, retention and admin requests as one batch. Resume M3 immediately after that batch. Target Monday night for M3.
 
-- [ ] Bring existing Lane A screens to the premium design bar by 15 November. Start with the merchant application map pin and cuisine chips, then menu item imagery and editor controls, hours, and the remaining customer and merchant screens. Inspect 390px and 1280px screenshots before ticking new UI work.
+- [ ] Bring existing Lane A screens to the warm and alive design direction (DESIGN §1 and D-028) by 15 November. Start with the merchant application map pin and cuisine chips, then menu item imagery and editor controls, hours, and the remaining customer and merchant screens. Audit existing lists for meaningful sections, filters and rich cards, then apply larger food imagery, harissa accents and reduced-motion-safe feedback. Inspect 390px and 1280px screenshots before ticking new UI work.
 
 ## M3 — Discovery, search and restaurant pages (customer web)
 
@@ -299,12 +299,12 @@ Close the remaining M2 acceptance checks and seed the demo restaurants. Then lan
 
 ## M8 — Signature design and polish
 
-**Goal:** the "wow". Every screen meets DESIGN.md, and the signature moments exist.
+**Goal:** make Zaafran feel warm and alive across landing, discovery and the key actions on each screen.
 
-- [ ] M8-1 Landing `/[locale]` with the "Casbah at golden hour" hero (DESIGN §8.1), poster fallback generated in CI, capability gating.
+- [ ] M8-1 Landing `/[locale]` opens with credited full-bleed Algiers photography, a 20-second pan and zoom with crossfades, search, a pause control and static reduced-motion fallback. The optional Casbah is a secondary section with a generated poster fallback and capability gating.
 - [ ] M8-2 Restaurant pitch page `/[locale]/restaurants` with the calculator (DESIGN §7.1-8) and signup CTA.
 - [ ] M8-3 Signature moments 2–7 (DESIGN §7.1), each with reduced-motion versions.
-- [ ] M8-4 Full design QA pass (DESIGN §14) on every screen, with all fixes applied.
+- [ ] M8-4 Full design QA pass (DESIGN §14) on every screen. Apply larger food imagery, bolder harissa and key-action feedback. Verify every list has useful sections, filters and rich cards, including rating, ETA and fee on restaurant cards.
 - [ ] M8-5 Accessibility pass: keyboard-only and screen-reader runs of the order path (CUS-28, NFR-05), with fixes.
 - [ ] M8-6 Performance pass: budgets, image audit, font audit, bundle splitting.
 
@@ -312,7 +312,7 @@ Close the remaining M2 acceptance checks and seed the demo restaurants. Then lan
 
 - `pnpm verify:full`;
 - Lighthouse budgets on landing, home, restaurant, checkout and tracking;
-- the hero at ≥ 50 fps in the Playwright perf probe (desktop) and correct fallback behaviour (low-end emulation shows the poster);
+- the secondary Casbah scene at ≥ 50 fps in the desktop probe, a poster on low-end emulation, and a static landing photo with reduced motion;
 - design-critic report with zero open items.
 
 ## M9 — Hardening and production readiness → web release candidate

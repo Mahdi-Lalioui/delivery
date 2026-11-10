@@ -28,10 +28,11 @@ export async function Home({ locale }: { locale: Locale }) {
     getTranslations({ locale, namespace: "merchant" }),
   ]);
 
+  const demo = process.env.NODE_ENV === "development" && process.env.ZAAFRAN_LOCAL_DEMO === "1";
   return (
     <SiteShell locale={locale} subpath="/discover">
       <CustomerWorker />
-      <section className="hero">
+      <section className="hero" data-demo-discover={demo || undefined}>
         <p className="eyebrow">{translate("eyebrow")}</p>
         <h1>{locale === "ar" ? brand.arabicName : brand.name}</h1>
         <p className="intro">{translate("description")}</p>

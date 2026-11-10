@@ -10,13 +10,16 @@ interface Props {
 
 export default async function LatinRestaurant(props: Props) {
   const [locale, { slug }] = await Promise.all([requireLatinLocale(props), props.params]);
+  const demo = process.env.NODE_ENV === "development" && process.env.ZAAFRAN_LOCAL_DEMO === "1";
   return (
     <CustomerData>
       <SiteShell locale={locale} subpath={`/restaurants/${slug}`}>
         <RestaurantScreen
           locale={locale === "en-XA" ? "en" : locale}
           slug={slug}
-          cartAction={<LocalSimulationLink locale={locale === "en-XA" ? "en" : locale} />}
+          cartAction={
+            demo ? <LocalSimulationLink locale={locale === "en-XA" ? "en" : locale} /> : undefined
+          }
         />
       </SiteShell>
     </CustomerData>

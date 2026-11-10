@@ -458,3 +458,30 @@
     transform: scale(0.98);
   }
 }
+
+.restaurant-screen[data-demo-menu] .restaurant-dish {
+  grid-template-columns: minmax(7rem, 38%) minmax(0, 1fr);
+}
+
+.restaurant-screen[data-demo-menu] .restaurant-category h2 {
+  color: var(--color-harissa-text);
+}
+
+.restaurant-screen[data-demo-menu] .restaurant-item-scroll > .restaurant-dish-photo {
+  max-block-size: calc(var(--space-120) * 2.5);
+}
+
+.demo-cart-flight {
+  position: fixed;
+  z-index: 50;
+  inline-size: 56px;
+  block-size: 56px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.demo-cart-flight.fly-to-cart-ghost {
+  opacity: 1;
+}

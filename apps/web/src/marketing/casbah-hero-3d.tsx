@@ -246,7 +246,7 @@ function World(input: Omit<CasbahHero3dProps, "dpr" | "isRunning">) {
         {!props.diorama && <Sea palette={props.palette} wide={false} />}
         <Houses scene={scene} palette={props.palette} litShare={litShare} />
         <Landmarks scene={scene} palette={props.palette} onHomeSelect={props.onHomeSelect} />
-        <Trail scene={scene} color={props.diorama ? "#83e6ba" : props.palette.saffron} />
+        <Trail scene={scene} color={props.diorama ? "#FF7A3D" : props.palette.saffron} />
       </group>
     </>
   );

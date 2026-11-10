@@ -140,3 +140,6 @@
 
 - 2026-11-10 · Medium · Reworked demo landing and tour around search and a clear starting action, with mint in both. Moved the live Casbah to a separate opt-in diorama.
   Web typecheck passed. Viewed the French desktop and Arabic mobile layouts and opened the live scene on loopback. Attached photo files are still unavailable.
+
+- 2026-11-10 · Medium · D-028 supersedes the old design direction. Updated M8 and applied the new direction to the demo landing, discovery and restaurant menu/cart.
+  Web typecheck passed. New screenshots cover the photo-led landing, 3D, the discovery filters and the current customer, restaurant and admin demo. Production-wide design QA remains in M8.

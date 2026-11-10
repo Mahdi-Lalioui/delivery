@@ -1,14 +1,15 @@
 # DESIGN — "Casbah Saffron"
 
-The product should feel like a beautiful, calm, expensive restaurant menu that happens to be the fastest app on the phone. The reference is not "another delivery app". It is editorial food magazines, premium hospitality brands, and the light of Algiers at golden hour: white Casbah walls, the Mediterranean, saffron and harissa.
+Zaafran feels warm and alive. It pairs editorial food photography with the pace of a great neighbourhood restaurant and the light of Algiers at golden hour. The experience stays quick on a low-end phone.
 
 ## 1. Principles
 
-1. **Let the food be the colour.** The UI is warm ivory and ink; photos bring the colour. One saffron accent marks the next action.
-2. **Calm luxury.** Generous space, big editorial headlines, few borders, soft depth. No clutter, no shouting badges, no rainbow categories.
-3. **Fast is a feature.** Every animation explains a change or confirms an action, and never blocks input. Low-end Android over 4G is our default device.
+1. **Food leads.** Give food photography the largest visual share on discovery cards, restaurant pages and item sheets. Ivory and ink support the photos. Saffron marks the primary action.
+2. **Warm and alive.** Keep generous spacing and editorial type. Use harissa boldly for meaningful accents such as featured sections, promotions and live activity. Use labels and icons alongside colour.
+3. **Fast is a feature.** Give every key action visible motion or feedback. Keep it brief, make its purpose clear, and keep input available. Low-end Android over 4G is our default device.
 4. **Local, not generic.** Arabic is a first-class layout, not a mirrored afterthought. Prices look like Algerian prices (`1 450 DA`). Ramadan and iftar are part of the product.
-5. **One hand, one thumb.** Primary actions sit in the bottom third on mobile. Restaurant and driver screens use big targets for busy, greasy or gloved hands.
+5. **Useful at a glance.** Every list has named sections, relevant filters and rich cards or rows. Restaurant cards show rating and review count, delivery ETA and fee. Operational lists show role-appropriate status, time and totals. Empty states explain how to find or add results.
+6. **One hand, one thumb.** Primary actions sit in the bottom third on mobile. Restaurant and driver screens use big targets for busy, greasy or gloved hands.
 
 ## 2. Why these colours (research summary)
 
@@ -37,7 +38,7 @@ Names are semantic in code (`--color-primary`), brand names are for humans.
 | `primary-hover` | `#F6AE3E` | 80.1% 0.148 74.1 | — | hover |
 | `primary-pressed` | `#DD8A0C` | 70.4% 0.153 67.5 | — | pressed |
 | `on-primary` | `#16130F` | — | Ink | text and icons on saffron (8.5:1) |
-| `harissa` | `#C2410C` | 55.3% 0.174 38.4 | Harissa | LIVE, promo and "new order" accents (sparingly) |
+| `harissa` | `#C2410C` | 55.3% 0.174 38.4 | Harissa | LIVE, promo, featured-section and new-order accents |
 | `on-harissa` | `#FFFFFF` | — | — | text on harissa (5.2:1) |
 | `harissa-text` | `#B93E0B` | 53.5% 0.167 38.5 | — | harissa-coloured text (5.3:1) |
 | `info` / `info-bg` | `#1C5D85` / `#E6F0F6` | 45.8% 0.091 240.5 | Mediterranean | info, focus ring, map water accents |
@@ -91,10 +92,10 @@ Names are semantic in code (`--color-primary`), brand names are for humans.
 ### 3.4 Rules
 
 - Saffron is never used for text on light backgrounds (only 2:1). Links are ink with a saffron underline.
-- Harissa is an accent, not a second brand colour: max one harissa element per screen region (LIVE pill, promo tag, new-order glow).
+- Use harissa for prominent accents such as LIVE, promo tags, active filter outlines and section eyebrows. Keep saffron for primary actions and use the contrast pairs above.
 - Status is never colour alone: always icon + text.
 - Theme follows the system by default, and users can override it. Both themes are designed screens, not inverted ones.
-- Gradients: the "golden hour" gradient `#F6AE3E → #C2410C → #2A1E14` appears only in the landing hero and the 3D sky. The route line is `primary → harissa`.
+- Place an ink gradient over landing photography for text contrast. The golden-hour gradient is available in the secondary 3D scene. The route line is `primary → harissa`.
 
 ## 4. Typography
 
@@ -159,12 +160,12 @@ Arabic adjustments:
 - **Restaurant photo guide** (shown in the uploader):
   - natural light, 45° or top-down, no text on the image, no stock photos they don't own;
   - the cropper enforces the ratio and a focal point.
-- **Demo data:** placeholder images are generated (gradient + dish icon + name). Never use web photos.
+- **Demo imagery:** use original or generated food assets for fictional menus. Use appropriately licensed real photography of Algiers for the landing, with visible source, photographer and licence credits.
 - **Logo (working):** wordmark "Zaafran / زعفران" in the display font with a saffron dot. Original, replaceable via `brand.ts`.
 
 ## 7. Motion system
 
-Motion must feel physical, quick and quiet. Library: `motion/react` on web, Reanimated 4 on native, with the same tokens.
+Motion should be visible, physical and quick. Library: `motion/react` on web, Reanimated 4 on native, with the same tokens.
 
 | Token | Value | Use |
 |---|---|---|
@@ -192,7 +193,7 @@ Rules:
 
 ### 7.1 Signature moments (the "wow")
 
-1. **Landing hero — "Casbah at golden hour"** (§8.1).
+1. **Landing photography and secondary Casbah scene** (§8.1).
 2. **Address pin drop:**
    - the map tilts gently into 3D;
    - the pin "lands" with `spring-gentle` and a saffron ripple;
@@ -222,7 +223,11 @@ Rules:
 
 ## 8. 3D (three.js via React Three Fiber; lazy and optional)
 
-### 8.1 Hero — "Casbah at golden hour"
+### 8.1 Landing photography and the secondary Casbah scene
+
+- Open with full-bleed real photography of Algiers. Place the headline and discovery search on an ink gradient and give readers a clear scroll cue.
+- Pan and zoom slowly across three credited photos in 20-second segments with gentle crossfades. Offer a pause control. Show a single static image when reduced motion is requested.
+- Give the procedural Casbah a titled section below the main landing content, with an explicit launch control and a static poster fallback.
 
 - **Scene (fully procedural; no downloaded models):**
   - a terraced hillside from seeded noise;
@@ -308,7 +313,7 @@ A living style guide at `/[locale]/dev/design` (dev and test builds only) render
 - **Item sheet:** large photo, title, description, option groups, quantity, note, and a sticky "Add · total" button.
 - **Cart → Checkout** (3 steps, CUS-12): a step indicator, editable summary cards, payment-at-door options, and "Paying with" quick amounts (exact, 2 000, 5 000, other).
 - **Tracking:** the map takes the top 55%; a bottom sheet holds the timeline, ETA, delivery code (large monospaced digits), call buttons, help and a cancel button when allowed.
-- **Orders, Profile, Addresses, Help, Legal:** simple, calm lists.
+- **Orders, Profile, Addresses, Help, Legal:** use clearly named groups and relevant filters. Order cards show restaurant, status, date and total. Addresses distinguish delivery area and default selection.
 
 ### Restaurant (tablet-first, also works on phones)
 
@@ -375,11 +380,12 @@ A living style guide at `/[locale]/dev/design` (dev and test builds only) render
    - there is a clear visual hierarchy (one primary action per view);
    - empty, loading and error states exist;
    - photos have no layout shift;
-   - motion follows the tokens and respects reduced motion.
+   - key actions have visible feedback and respect reduced motion;
+   - lists have useful groups, meaningful filters and enough card detail to compare options;
+   - restaurant cards show rating and count, ETA and delivery fee.
 3. **Taste check against §1:**
-   - Does it look calm and expensive?
+   - Does it feel warm and alive?
    - Does the food dominate?
-   - Is there anything a premium brand would remove?
+   - Can someone scan the choices and see what happens after each action?
 
-   Remove it.
 4. **Output:** a numbered list of concrete fixes (file, element, change). No vague advice.

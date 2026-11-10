@@ -304,3 +304,99 @@
   font-family: var(--font-display);
   font-size: var(--font-size-h2);
 }
+
+.demo-feed-filters {
+  display: grid;
+  gap: var(--space-12);
+  min-inline-size: 0;
+  padding: var(--space-16);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.demo-feed-filters legend,
+.demo-feed-collections h2 {
+  color: var(--color-harissa-text);
+}
+
+.demo-feed-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.demo-feed-chips button,
+.demo-feed-chips select {
+  min-block-size: var(--touch-target-min);
+  padding-inline: var(--space-12);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.demo-feed-chips button {
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast),
+    border-color var(--motion-fast);
+}
+
+.demo-feed-chips button[aria-pressed="true"] {
+  border-color: var(--color-harissa);
+  background: var(--color-harissa);
+  color: var(--color-on-harissa);
+}
+
+.demo-feed-chips label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  margin-inline-start: auto;
+}
+
+.restaurant-feed-card[data-demo-card] .restaurant-feed-cover {
+  aspect-ratio: 5 / 4;
+}
+
+.restaurant-feed-card[data-demo-card] .restaurant-feed-cover img {
+  transition: transform var(--motion-base) var(--ease-standard);
+}
+
+.restaurant-feed-card[data-demo-card]:is(:hover, :focus-within) .restaurant-feed-cover img {
+  transform: scale(1.04);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .demo-feed-chips button,
+  .restaurant-feed-card[data-demo-card] .restaurant-feed-cover img {
+    transition: none;
+  }
+  .restaurant-feed-card[data-demo-card]:is(:hover, :focus-within) .restaurant-feed-cover img {
+    transform: none;
+  }
+}
+
+.hero[data-demo-discover] {
+  gap: var(--space-8);
+  padding: var(--space-20);
+}
+
+.hero[data-demo-discover] .eyebrow,
+.hero[data-demo-discover] + .restaurant-feed .eyebrow {
+  color: var(--color-harissa-text);
+}
+
+@media (min-width: 64rem) {
+  .hero[data-demo-discover] {
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+    align-items: center;
+    column-gap: var(--space-24);
+  }
+
+  .hero[data-demo-discover] :is(.eyebrow, h1, .intro, .home-actions) {
+    grid-column: 1 / -1;
+  }
+}

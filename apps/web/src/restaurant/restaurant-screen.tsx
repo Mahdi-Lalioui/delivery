@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { addCartLine, type CartLine } from "@zaafran/domain/cart";
 import type { Locale } from "@zaafran/i18n/locales";
 import { Button, EmptyState, ErrorState, Skeleton } from "@zaafran/ui";
+import { captureCartPhoto, playCartPhoto } from "./demo-cart-motion";
 import { CartControls } from "./cart-controls";
 import { ItemDialog } from "./item-dialog";
 import { MenuCategory } from "./menu-category";
@@ -75,7 +76,7 @@ function RestaurantLoader({
   }, [slug, attempt]);
 
   return (
-    <div className="restaurant-screen">
+    <div className="restaurant-screen" data-demo-menu={cartAction ? true : undefined}>
       {refreshedCategory !== null && state.phase === "ready" && (
         <p role="status">{messages.updated}</p>
       )}
@@ -148,7 +149,9 @@ function RestaurantLoaded({
       else setCartError(true);
       return;
     }
+    const thumbnail = cartAction ? captureCartPhoto() : undefined;
     basket.save(result.value);
+    if (thumbnail) playCartPhoto(thumbnail);
     setPending(null);
     setSelected(null);
     setCartError(false);

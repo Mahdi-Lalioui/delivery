@@ -248,3 +248,14 @@ DESIGN §8 asks for React Three Fiber. `three` 0.187.0 and `@react-three/fiber` 
 Keep the Casbah marketing landing at the locale root. Its primary action opens the anonymous
 customer home at the localized `/discover` path. The address picker and feed stay together on
 that page, and locale switching and alternate metadata retain the discovery path.
+
+
+### D-028 — Warm and alive design direction (2026-11-10)
+
+Supersedes DESIGN §1’s calm luxury principle, the harissa usage cap, D-B03’s placement
+of the Casbah at the top of the landing, and D-027’s Casbah-first opening. The locale root
+leads with licensed, full-bleed Algiers photography and slow motion. The optional 3D Casbah
+moves below the main content. Keep the anonymous discovery route and the existing contrast
+requirements. Saffron remains the primary action colour. Use larger food images, bolder
+harissa accents, visible feedback on key actions, and structured, filterable lists with
+rich cards. Apply this to M8 and the design pass on existing screens.

@@ -3,6 +3,8 @@ import { getCartSummary, removeCartLine, setCartQuantity } from "@zaafran/domain
 import { formatDzd } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
 import { Icon } from "@zaafran/ui";
+import { OdometerNumber } from "../marketing/moments/odometer-number";
+import "../marketing/moments/moments.css";
 import { CartContents } from "./cart-contents";
 import { RestaurantDialog } from "./restaurant-dialog";
 import { getRestaurantMessages } from "./restaurant-messages";
@@ -25,6 +27,7 @@ export function CartControls({
   const summary = getCartSummary(cart);
   if (!summary.ok) return null;
   const activeCart = cart;
+  const total = formatDzd(summary.value.subtotalDzd, locale);
 
   function edit(lineId: string, quantity: number) {
     const result = setCartQuantity({ cart: activeCart, lineId, quantity, now: Date.now() });
@@ -62,7 +65,7 @@ export function CartControls({
             <Icon name="bag" />
             <bdi>{summary.value.itemCount}</bdi> {messages.viewCart}
           </span>
-          <bdi>{formatDzd(summary.value.subtotalDzd, locale)}</bdi>
+          <bdi>{action ? <OdometerNumber value={total} /> : total}</bdi>
         </button>
       </div>
 

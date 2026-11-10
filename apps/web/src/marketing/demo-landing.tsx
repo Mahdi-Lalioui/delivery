@@ -2,6 +2,7 @@ import type { PublicLocale } from "@zaafran/i18n/locales";
 import { Icon } from "@zaafran/ui";
 import { DiscoverySearch } from "../discovery/search";
 import { CasbahHero } from "./casbah-hero";
+import { DemoPhotos } from "./demo-photos";
 import { heroSeed } from "./casbah-poster";
 
 const copy = {
@@ -54,9 +55,7 @@ export function DemoLandingHero({ locale, startId }: { locale: PublicLocale; sta
   const labels = copy[locale];
   return (
     <section className="demo-landing-hero" aria-labelledby="landing-title">
-      <div className="demo-photo-backdrop" aria-hidden="true">
-        <img src="/preview-catalog/casbah.webp" alt="" fetchPriority="high" />
-      </div>
+      <DemoPhotos locale={locale} />
       <div className="demo-landing-inner container">
         <div className="demo-landing-copy">
           <p className="demo-city-label">{labels.city}</p>

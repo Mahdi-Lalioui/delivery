@@ -1,8 +1,9 @@
 import type { Locale } from "@zaafran/i18n/locales";
 import type { MouseEventHandler } from "react";
+import { DemoFeed } from "./demo-feed";
 import { FeedCard, FeedPlate } from "./feed-card";
 import type { FeedState } from "./feed-http";
-import { getFeedCuisineLabel, getFeedMessages } from "./feed-messages";
+import { getFeedMessages } from "./feed-messages";
 
 function FeedSkeleton() {
   return (
@@ -61,18 +62,7 @@ export function FeedContent({ locale, state, onLoad }: ContentProps) {
       <p className="restaurant-feed-announcement" role="status">
         {isLoading && (hasRestaurants ? messages.loadingMore : messages.loading)}
       </p>
-      {hasRestaurants && (
-        <ul className="restaurant-feed-grid" role="list">
-          {restaurants.map((restaurant) => (
-            <li key={restaurant.merchantId} data-feed-restaurant={restaurant.merchantId}>
-              <FeedCard restaurant={restaurant} locale={locale} />
-            </li>
-          ))}
-        </ul>
-      )}
-      {restaurants.some(({ details }) => details !== undefined) && (
-        <DemoCollections locale={locale} restaurants={restaurants} />
-      )}
+      {hasRestaurants && <FeedResults locale={locale} restaurants={restaurants} />}
       {!hasRestaurants && isLoading && <FeedSkeleton />}
       {!hasRestaurants && phase === "ready" && (
         <div className="restaurant-feed-empty">
@@ -85,46 +75,22 @@ export function FeedContent({ locale, state, onLoad }: ContentProps) {
   );
 }
 
-const collections = {
-  ar: { cuisines: "المطابخ", top: "الأعلى تقييمًا", recent: "جديد على زعفران" },
-  fr: { cuisines: "Explorer par cuisine", top: "Les mieux notés", recent: "Nouveautés" },
-  en: { cuisines: "Explore by cuisine", top: "Top rated", recent: "New on Zaafran" },
-};
-
-function DemoCollections({
+function FeedResults({
   locale,
   restaurants,
 }: {
   locale: Locale;
   restaurants: FeedState["restaurants"];
 }) {
-  const copy = collections[locale === "en-XA" ? "en" : locale];
-  const cuisines = new Set(restaurants.flatMap(({ cuisines }) => cuisines));
-  const top = restaurants.toSorted((a, b) => (b.details?.rating ?? 0) - (a.details?.rating ?? 0));
-  const recent = restaurants.toReversed();
+  if (restaurants.some(({ details }) => details !== undefined))
+    return <DemoFeed locale={locale} restaurants={restaurants} />;
   return (
-    <div className="demo-feed-collections">
-      <h2>{copy.cuisines}</h2>
-      <ul className="restaurant-feed-cuisines" role="list">
-        {[...cuisines].map((cuisine) => (
-          <li key={cuisine}>{getFeedCuisineLabel(locale, cuisine)}</li>
-        ))}
-      </ul>
-      {[
-        { title: copy.top, rows: top },
-        { title: copy.recent, rows: recent },
-      ].map(({ title, rows }) => (
-        <section key={title}>
-          <h2>{title}</h2>
-          <ul className="restaurant-feed-grid" role="list">
-            {rows.slice(0, 3).map((restaurant) => (
-              <li key={restaurant.merchantId}>
-                <FeedCard restaurant={restaurant} locale={locale} />
-              </li>
-            ))}
-          </ul>
-        </section>
+    <ul className="restaurant-feed-grid" role="list">
+      {restaurants.map((restaurant) => (
+        <li key={restaurant.merchantId} data-feed-restaurant={restaurant.merchantId}>
+          <FeedCard restaurant={restaurant} locale={locale} />
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }
