@@ -145,3 +145,49 @@ SELECT pg_temp.demo_uuid('local-tour:pending:' || demo.slug), demo.id, category.
 FROM demo_restaurants AS demo JOIN public.categories AS category ON category.merchant_id = demo.id
 WHERE category.sort = 0 AND demo.slug IN ('demo-lune-de-semoule', 'demo-ficelle-du-four')
 ON CONFLICT (id) DO NOTHING;
+
+-- Complete the featured restaurant's public menu without changing existing dish IDs.
+INSERT INTO public.categories (id, merchant_id, names, sort)
+SELECT pg_temp.demo_uuid('local-tour:featured:' || category.sort), demo.id,
+  jsonb_build_object('fr', category.fr, 'ar', category.ar), category.sort
+FROM demo_restaurants AS demo
+CROSS JOIN (VALUES (2, 'À partager', 'للمشاركة'), (3, 'Boissons maison', 'مشروبات الدار'))
+  AS category(sort, fr, ar)
+WHERE demo.slug = 'demo-lune-de-semoule'
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO public.items
+  (id, merchant_id, category_id, names, descriptions, price_dzd, tags, prep_extra_min,
+   is_available, moderation_status, photo_id)
+SELECT pg_temp.demo_uuid('local-tour:featured:' || dish.fr), demo.id, category.id,
+  jsonb_build_object('fr', dish.fr, 'ar', dish.ar),
+  jsonb_build_object('fr', dish.detail_fr, 'ar', dish.detail_ar),
+  dish.price, CASE WHEN dish.popular THEN ARRAY['popular'] ELSE ARRAY[]::text[] END,
+  5, dish.available, 'approved', pg_temp.demo_uuid('local-tour:item:' || demo.slug)
+FROM demo_restaurants AS demo
+JOIN public.categories AS category ON category.merchant_id = demo.id
+JOIN (VALUES
+  (0, 'Tajine de poulet', 'طاجين الدجاج', 'Citron confit et olives', 'ليمون مصبّر وزيتون', 1150, true, true),
+  (0, 'Rechta de la Casbah', 'رشتة القصبة', 'Nouilles fraîches et sauce blanche', 'رشتة طازجة وصلصة بيضاء', 1050, false, true),
+  (1, 'Kalb el louz', 'قلب اللوز', 'Semoule et fleur d’oranger', 'سميد وزهر البرتقال', 280, true, true),
+  (1, 'Mhalbi à la cannelle', 'محلبي بالقرفة', 'Crème de riz et cannelle', 'كريمة الأرز والقرفة', 320, false, true),
+  (1, 'Makrout aux dattes', 'مقروط بالتمر', 'Semoule dorée et pâte de dattes', 'سميد ذهبي وعجينة تمر', 280, false, false),
+  (2, 'Salade méchouia', 'سلطة مشوية', 'Poivrons grillés et huile d’olive', 'فلفل مشوي وزيت الزيتون', 490, true, true),
+  (2, 'Maakouda maison', 'معقودة الدار', 'Galettes de pommes de terre', 'أقراص بطاطا', 360, false, true),
+  (2, 'Houmous au cumin', 'حمص بالكمون', 'Pois chiches et cumin torréfié', 'حمص وكمون محمّص', 420, false, true),
+  (2, 'Poivrons farcis', 'فلفل محشي', 'Farce aux herbes et au riz', 'حشوة الأعشاب والأرز', 590, false, false),
+  (2, 'Pain matlouh', 'مطلوع الدار', 'Pain de semoule à la poêle', 'خبز السميد على الطاجين', 220, false, true),
+  (3, 'Citronnade au gingembre', 'ليمونادة بالزنجبيل', 'Citron pressé et gingembre frais', 'ليمون معصور وزنجبيل طازج', 320, true, true),
+  (3, 'Thé glacé à la menthe', 'شاي مثلّج بالنعناع', 'Thé vert et menthe fraîche', 'شاي أخضر ونعناع طازج', 290, false, true),
+  (3, 'Jus d’orange pressé', 'عصير برتقال طازج', 'Oranges pressées à la commande', 'برتقال يُعصر عند الطلب', 350, false, true),
+  (3, 'Lait aux dattes', 'حليب بالتمر', 'Dattes et lait frais', 'تمر وحليب طازج', 380, false, false),
+  (3, 'Infusion à la verveine', 'تيزانة اللويزة', 'Verveine et zeste de citron', 'لويزة وقشر الليمون', 260, false, true)
+) AS dish(sort, fr, ar, detail_fr, detail_ar, price, popular, available) ON dish.sort = category.sort
+WHERE demo.slug = 'demo-lune-de-semoule'
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO public.item_option_groups (merchant_id, item_id, group_id, sort)
+SELECT demo.id, item.id, pg_temp.demo_uuid('local-tour:size:' || demo.slug), 0
+FROM demo_restaurants AS demo JOIN public.items AS item ON item.merchant_id = demo.id
+WHERE demo.slug = 'demo-lune-de-semoule' AND item.moderation_status = 'approved'
+ON CONFLICT (merchant_id, item_id, group_id) DO NOTHING;
