@@ -1,5 +1,5 @@
 import { photoRatios, type photoVariantWidths } from "@zaafran/contracts/media";
-import { formatAlgiersDate, formatAlgiersTime } from "@zaafran/i18n/formats";
+import { formatAlgiersDate, formatAlgiersTime, formatDzd } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
 import { useState } from "react";
 import { useLowData } from "./low-data";
@@ -162,8 +162,34 @@ export function FeedCard({ restaurant, locale }: { restaurant: FeedRestaurant; l
             </li>
           ))}
         </ul>
+        {restaurant.details && <FeedDetails details={restaurant.details} locale={locale} />}
         {!isOpen && nextOpensAt && <FeedOpening opensAt={nextOpensAt} locale={locale} />}
       </div>
     </article>
+  );
+}
+
+const deliveryLabels = {
+  ar: { free: "توصيل مجاني", minute: "د" },
+  fr: { free: "Livraison gratuite", minute: "min" },
+  en: { free: "Free delivery", minute: "min" },
+};
+
+function FeedDetails({
+  details,
+  locale,
+}: {
+  details: NonNullable<FeedRestaurant["details"]>;
+  locale: Locale;
+}) {
+  const labels = deliveryLabels[locale === "en-XA" ? "en" : locale];
+  const rating = `★ ${details.rating.toFixed(1)} (${String(details.reviewCount)})`;
+  const eta = `${String(details.etaMin)}–${String(details.etaMax)} ${labels.minute}`;
+  return (
+    <div className="demo-feed-details">
+      <bdi>{rating}</bdi>
+      <bdi>{eta}</bdi>
+      <span>{details.feeDzd === 0 ? labels.free : formatDzd(details.feeDzd, locale)}</span>
+    </div>
   );
 }

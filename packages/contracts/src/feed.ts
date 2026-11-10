@@ -23,6 +23,15 @@ export const publicRestaurantCard = z.strictObject({
   coverMediaId: uuid.nullable(),
   logoMediaId: uuid.nullable(),
   isOpen: z.boolean(),
+  details: z
+    .strictObject({
+      rating: z.number().min(0).max(5),
+      reviewCount: z.int().nonnegative(),
+      etaMin: z.int().positive(),
+      etaMax: z.int().positive(),
+      feeDzd: z.int().nonnegative(),
+    })
+    .optional(),
   nextOpensAt: z.iso.datetime().nullable(),
 });
 

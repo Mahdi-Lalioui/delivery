@@ -273,3 +273,34 @@
   text-decoration: underline;
   text-decoration-color: var(--color-primary);
 }
+
+.demo-feed-details {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-8) var(--space-12);
+  font-size: var(--font-size-caption);
+}
+
+.demo-feed-details > :first-child {
+  padding: var(--space-4) var(--space-8);
+  border-radius: var(--radius-pill);
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.demo-feed-collections,
+.demo-feed-collections section {
+  display: grid;
+  gap: var(--space-16);
+}
+
+.demo-feed-collections {
+  margin-block-start: var(--space-32);
+  gap: var(--space-24);
+}
+
+.demo-feed-collections h2 {
+  font-family: var(--font-display);
+  font-size: var(--font-size-h2);
+}

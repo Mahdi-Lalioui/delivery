@@ -2,7 +2,7 @@ import type { Locale } from "@zaafran/i18n/locales";
 import type { MouseEventHandler } from "react";
 import { FeedCard, FeedPlate } from "./feed-card";
 import type { FeedState } from "./feed-http";
-import { getFeedMessages } from "./feed-messages";
+import { getFeedCuisineLabel, getFeedMessages } from "./feed-messages";
 
 function FeedSkeleton() {
   return (
@@ -70,6 +70,9 @@ export function FeedContent({ locale, state, onLoad }: ContentProps) {
           ))}
         </ul>
       )}
+      {restaurants.some(({ details }) => details !== undefined) && (
+        <DemoCollections locale={locale} restaurants={restaurants} />
+      )}
       {!hasRestaurants && isLoading && <FeedSkeleton />}
       {!hasRestaurants && phase === "ready" && (
         <div className="restaurant-feed-empty">
@@ -79,5 +82,49 @@ export function FeedContent({ locale, state, onLoad }: ContentProps) {
       )}
       <FeedActions locale={locale} state={state} onLoad={onLoad} />
     </>
+  );
+}
+
+const collections = {
+  ar: { cuisines: "المطابخ", top: "الأعلى تقييمًا", recent: "جديد على زعفران" },
+  fr: { cuisines: "Explorer par cuisine", top: "Les mieux notés", recent: "Nouveautés" },
+  en: { cuisines: "Explore by cuisine", top: "Top rated", recent: "New on Zaafran" },
+};
+
+function DemoCollections({
+  locale,
+  restaurants,
+}: {
+  locale: Locale;
+  restaurants: FeedState["restaurants"];
+}) {
+  const copy = collections[locale === "en-XA" ? "en" : locale];
+  const cuisines = new Set(restaurants.flatMap(({ cuisines }) => cuisines));
+  const top = restaurants.toSorted((a, b) => (b.details?.rating ?? 0) - (a.details?.rating ?? 0));
+  const recent = restaurants.toReversed();
+  return (
+    <div className="demo-feed-collections">
+      <h2>{copy.cuisines}</h2>
+      <ul className="restaurant-feed-cuisines" role="list">
+        {[...cuisines].map((cuisine) => (
+          <li key={cuisine}>{getFeedCuisineLabel(locale, cuisine)}</li>
+        ))}
+      </ul>
+      {[
+        { title: copy.top, rows: top },
+        { title: copy.recent, rows: recent },
+      ].map(({ title, rows }) => (
+        <section key={title}>
+          <h2>{title}</h2>
+          <ul className="restaurant-feed-grid" role="list">
+            {rows.slice(0, 3).map((restaurant) => (
+              <li key={restaurant.merchantId}>
+                <FeedCard restaurant={restaurant} locale={locale} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
   );
 }

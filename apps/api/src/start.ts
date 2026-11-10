@@ -60,6 +60,10 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
   const platform = createPlatformRepository(database);
   const publicRestaurant = createPublicRestaurantRepository(database);
   const mediaStore = createLocalMediaStore({ root: environment.MEDIA_STORAGE_ROOT });
+  const feed = withDemoFeedDetails(
+    createPublicFeedRepository(database),
+    options.codes !== undefined,
+  );
   const api = createApi({
     checkReadiness: () => checkReadiness(database),
     trustedProxy: environment.API_TRUSTED_PROXY,
@@ -77,7 +81,11 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     platform: { repository: platform, now },
     discovery: createServiceAreaRepository(database),
     discoverySearch: createDiscoverySearchRepository(database),
-    publicFeed: { repository: createPublicFeedRepository(database), store: mediaStore, now },
+    publicFeed: {
+      repository: feed,
+      store: mediaStore,
+      now,
+    },
     publicRestaurant: { repository: publicRestaurant, now },
     publicRestaurantPhotos: { readPhoto: publicRestaurant.readPhoto, store: mediaStore },
     ramadan: {
@@ -129,4 +137,34 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
 
 function unavailableSms(): never {
   throw new Error("SMS delivery is unavailable.");
+}
+
+function withDemoFeedDetails(
+  feed: ReturnType<typeof createPublicFeedRepository>,
+  enabled: boolean,
+) {
+  if (!enabled) return feed;
+  return {
+    ...feed,
+    async list(query: Parameters<typeof feed.list>[0]) {
+      const page = await feed.list(query);
+      return {
+        ...page,
+        restaurants: page.restaurants.map((restaurant) => {
+          const score = restaurant.slug.length;
+          const etaMin = 20 + (score % 5) * 5;
+          return {
+            ...restaurant,
+            details: {
+              rating: (42 + (score % 8)) / 10,
+              reviewCount: 38 + (score % 17) * 9,
+              etaMin,
+              etaMax: etaMin + 10,
+              feeDzd: score % 3 === 0 ? 0 : 150 + (score % 4) * 50,
+            },
+          };
+        }),
+      };
+    },
+  };
 }
