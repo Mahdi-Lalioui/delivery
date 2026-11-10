@@ -131,3 +131,6 @@
 
 - 2026-11-09 · Medium · Local team demo on the standalone `demo` branch. Launcher, synthetic logins, seed, fixtures and tour are in `docs/DEMO.md`.
   The 128-visit smoke passed; simulated checkout to rating passed at 390px Arabic and 1280px French. Production work resumes from `lane-a`.
+
+- 2026-11-10 · Medium · Demo landing now opens with an immersive backdrop, search, and a lower Casbah scene.
+  Attached photo paths were unavailable on disk. Replace the existing illustration and add the photo credits when supplied.

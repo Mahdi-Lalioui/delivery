@@ -319,25 +319,63 @@
 }
 
 .landing-hero[data-local-demo] {
-  align-items: center;
+  position: relative;
+  isolation: isolate;
+  min-block-size: 100svh;
+  margin-inline: calc((100% - 100vw) / 2);
+  margin-block-start: calc(-1 * var(--space-32));
+  padding: var(--space-64) max(var(--space-24), calc((100vw - 1160px) / 2));
+  align-content: end;
+  color: white;
 }
 
-.landing-hero[data-local-demo] .casbah-frame {
-  aspect-ratio: 8 / 5;
+.demo-photo-backdrop {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: -1;
+  background: #15110e;
 }
 
-.landing-hero[data-local-demo] .casbah-poster {
+.demo-photo-backdrop::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: linear-gradient(180deg, transparent 20%, #15110e55 45%, #15110ef5 100%);
+}
+
+.demo-photo-backdrop img {
+  inline-size: 100%;
+  block-size: 100%;
   object-fit: cover;
+  animation: demo-photo-drift 20s ease-in-out infinite alternate;
 }
 
-@media (min-width: 56rem) {
-  .landing-hero[data-local-demo] {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
-    gap: var(--space-40);
+@keyframes demo-photo-drift {
+  from {
+    transform: scale(1.02);
   }
+  to {
+    transform: scale(1.15) translate(-2%, 2%);
+  }
+}
 
-  .landing-hero[data-local-demo] .landing-hero-copy {
-    grid-column: 1;
-    grid-row: 1;
+.landing-hero[data-local-demo] .landing-intro,
+.landing-hero[data-local-demo] .ui-button-ghost,
+.demo-photo-scroll {
+  color: white;
+}
+
+.demo-photo-scroll {
+  justify-self: start;
+}
+
+.demo-photo-scroll::after {
+  content: " ↓";
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .demo-photo-backdrop img {
+    animation: none;
   }
 }
