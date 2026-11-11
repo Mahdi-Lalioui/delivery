@@ -250,6 +250,13 @@ const matrix: readonly MatrixRoute[] = [
   },
   {
     method: "POST",
+    url: "/v1/orders/:orderId/pick-up",
+    requestUrl: "/v1/orders/" + challengeId + "/pick-up",
+    payload: { expectedVersion: 1 },
+    expected: { merchant_owner: 503, merchant_manager: 503, merchant_staff: 503 },
+  },
+  {
+    method: "POST",
     url: "/v1/orders/:orderId/force",
     requestUrl: "/v1/orders/" + challengeId + "/force",
     payload: { expectedVersion: 1, to: "cancelled", reason: "Cancel" },

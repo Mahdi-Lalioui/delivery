@@ -9,7 +9,7 @@ export type BoardAction =
   | { kind: "accept"; prepMinutes: number }
   | { kind: "reject"; reason: RejectReason; soldOutItemIds: string[] }
   | { kind: "cancel"; reason: string }
-  | { kind: "ready" | "collect" };
+  | { kind: "ready" | "collect" | "pick-up" };
 
 type BoardRequest = { merchantId: string; after?: string | undefined; signal: AbortSignal };
 type ActionRequest = { orderId: string; key: string; expectedVersion: number; action: BoardAction };

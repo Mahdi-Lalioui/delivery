@@ -130,6 +130,12 @@ export function registerOrderActionRoutes(api: FastifyInstance, services?: Order
       action: () => ({ kind: "collect" }),
     });
     registerAction(scope, services, {
+      name: "pick-up",
+      roles: merchant,
+      body: orderActionInputs["pick-up"],
+      action: () => ({ kind: "pickUp" }),
+    });
+    registerAction(scope, services, {
       name: "force",
       roles: ["admin"],
       body: orderActionInputs.force,

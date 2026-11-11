@@ -14,7 +14,7 @@ import {
 type Role = "customer" | "merchant_owner" | "merchant_manager" | "merchant_staff" | "admin";
 export type OrderAccess = { accountId: string; role: Role; orderId: string };
 type PublicAction =
-  | Extract<OrderAction, { kind: "cancel" | "collect" | "markReady" | "force" }>
+  | Extract<OrderAction, { kind: "cancel" | "collect" | "markReady" | "pickUp" | "force" }>
   | { kind: "accept"; prepMinutes: number }
   | {
       kind: "reject";

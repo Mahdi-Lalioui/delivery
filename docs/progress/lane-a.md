@@ -158,3 +158,6 @@
 
 - 2026-11-11 · High · Shipped the localized merchant board with polling replay, cash detail, actions, countdown, audio, wake lock and offline state. 829 unit and six production browser tests passed. Screenshots in docs/evidence/awid/merchant-board/.
   Next: wire merchant handover for assigned couriers, then add SSE with polling fallback, push and SMS.
+
+- 2026-11-11 · High · Wired merchant handover from Ready for deliveries with an assigned courier. Passed 19 lifecycle integrations, 242 authz tests and seven production browser checks.
+  Next: stream merchant order events over SSE with cursor resume and polling fallback, then wire customer status notifications.

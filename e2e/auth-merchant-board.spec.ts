@@ -3,8 +3,9 @@ import { expect, test, type Page } from "@playwright/test";
 const merchantId = "01932f18-3150-7c33-8a7a-53acfd343001";
 const orderId = "01932f18-3150-7c33-8a7a-53acfd343002";
 
-async function mockBoard(page: Page) {
+async function mockBoard(page: Page, canHandover = false) {
   let accepted = false;
+  let handedOver = false;
   const now = new Date();
   const base = {
     merchantId,
@@ -20,6 +21,7 @@ async function mockBoard(page: Page) {
     totalDzd: 1380,
     changeDzd: 620,
     confirmByPhone: false,
+    canHandover: false,
     lines: [
       {
         itemId: orderId,
@@ -55,22 +57,44 @@ async function mockBoard(page: Page) {
           fulfilment: "delivery",
           totalDzd: 1950,
           changeDzd: 50,
+          canHandover,
         },
       ],
       events: [],
       cursor: accepted ? "3" : "2",
       hasMore: false,
     };
+    if (handedOver) snapshot.orders.pop();
     await route.fulfill({ json: snapshot });
   });
   await page.route(`**/v1/orders/${orderId}/accept`, async (route) => {
     expect(route.request().headers()["idempotency-key"]).toBeTruthy();
     expect(route.request().postDataJSON()).toEqual({ expectedVersion: 1, prepMinutes: 20 });
     accepted = true;
-    const { lines, changeDzd, confirmByPhone, ...summary } = order();
+    const { lines, changeDzd, confirmByPhone, canHandover: pickupHandover, ...summary } = order();
     expect(lines.length + changeDzd).toBeGreaterThan(0);
     expect(confirmByPhone).toBe(false);
+    expect(pickupHandover).toBe(false);
     await route.fulfill({ json: summary });
+  });
+  await page.route(`**/v1/orders/${merchantId}/pick-up`, async (route) => {
+    expect(route.request().postDataJSON()).toEqual({ expectedVersion: 3 });
+    handedOver = true;
+    await route.fulfill({
+      json: {
+        merchantId,
+        orderId: merchantId,
+        status: "out_for_delivery",
+        fulfilment: "delivery",
+        shortCode: "G8N-2RY",
+        version: 4,
+        placedAt: base.placedAt,
+        scheduledFor: null,
+        acceptanceDeadlineAt: base.acceptanceDeadlineAt,
+        eta: null,
+        totalDzd: 1950,
+      },
+    });
   });
 }
 
@@ -133,4 +157,12 @@ test("[MER-03] keeps visible tickets and disables actions while the board is off
   await expect(page.getByRole("button", { name: "Accepter", exact: true })).toBeEnabled({
     timeout: 10_000,
   });
+});
+
+test("[MER-03] hands a ready delivery to its assigned courier", async ({ page }) => {
+  await mockBoard(page, true);
+  await page.goto(`/fr/merchant/${merchantId}/board`);
+  await expect(page.getByText("G8N-2RY")).toBeVisible();
+  await page.getByRole("button", { name: "Remettre au livreur" }).click();
+  await expect(page.getByText("G8N-2RY")).toHaveCount(0);
 });

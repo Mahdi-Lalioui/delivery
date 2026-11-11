@@ -124,6 +124,7 @@ export const merchantBoardOutput = z.strictObject({
       lines: z.array(boardLine).max(50),
       changeDzd: z.int().min(0).max(10_000),
       confirmByPhone: z.boolean(),
+      canHandover: z.boolean(),
     }),
   ),
   events: z

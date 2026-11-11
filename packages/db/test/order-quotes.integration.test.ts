@@ -455,3 +455,37 @@ test("[MER-03][RT-02] board snapshot and replay are scoped and replay every new 
   ]);
   expect((await orders().board({ ...input, after: changed.cursor }))?.events).toEqual([]);
 });
+
+test("[MER-03] merchant handover requires a ready delivery and an assigned courier", async () => {
+  const addressId = await saveAddress(36.751);
+  const placed = await orders().place(
+    await placement({ ...pickup, fulfilment: "delivery", addressId }),
+  );
+  if (placed.kind !== "placed") throw new Error("Expected placement");
+  const { orderId } = placed.order;
+  const { sql } = database.get();
+  await sql`INSERT INTO merchant_members (merchant_id, user_id, role) VALUES (${merchantId}, ${otherId}, 'owner') ON CONFLICT DO NOTHING`;
+  const merchant = { orderId, accountId: otherId, role: "merchant_owner", now } as const;
+  const apply = (
+    expectedVersion: number,
+    action: Parameters<ReturnType<typeof orders>["apply"]>[0]["action"],
+  ) => orders().apply({ ...merchant, idempotencyKey: randomUUID(), expectedVersion, action });
+  expect(await apply(1, { kind: "accept", prepMinutes: 15 })).toMatchObject({ kind: "applied" });
+  expect(await apply(2, { kind: "markReady" })).toMatchObject({ kind: "applied" });
+  expect(await apply(3, { kind: "pickUp" })).toEqual({ kind: "invalid_order_transition" });
+
+  await sql`UPDATE orders SET courier_id = ${randomUUID()} WHERE id = ${orderId}`;
+  const board = await orders().board({ merchantId, accountId: otherId });
+  expect(board?.orders.find((ticket) => ticket.orderId === orderId)).toMatchObject({
+    canHandover: true,
+  });
+  expect(await apply(3, { kind: "pickUp" })).toMatchObject({
+    kind: "applied",
+    order: { status: "out_for_delivery", version: 4 },
+  });
+  expect(
+    (await orders().board({ merchantId, accountId: otherId }))?.orders.some(
+      (ticket) => ticket.orderId === orderId,
+    ),
+  ).toBe(false);
+});

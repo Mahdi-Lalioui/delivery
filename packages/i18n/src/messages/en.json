@@ -1333,6 +1333,7 @@
     "deleteUnknown": "We could not confirm the deletion. Try again with the same confirmation code."
   },
   "merchantBoard": {
+    "handover": "Hand to courier",
     "quantity": "{count}×",
     "loading": "Loading orders",
     "title": "Order board",

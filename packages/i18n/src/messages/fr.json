@@ -1333,6 +1333,7 @@
     "deleteUnknown": "Nous n’avons pas pu confirmer la suppression. Réessayez avec le même code de confirmation."
   },
   "merchantBoard": {
+    "handover": "Remettre au livreur",
     "quantity": "{count}×",
     "loading": "Chargement des commandes",
     "title": "Tableau des commandes",

@@ -189,6 +189,13 @@ function CancelOrder({ disabled, send }: Controls) {
   );
 }
 
+function nextBoardAction(ticket: Ticket) {
+  if (ticket.status === "accepted") return { kind: "ready", label: "markReady" } as const;
+  if (ticket.fulfilment === "pickup") return { kind: "collect", label: "collect" } as const;
+  if (ticket.canHandover) return { kind: "pick-up", label: "handover" } as const;
+  return undefined;
+}
+
 function BoardActionControls({
   ticket,
   locale,
@@ -204,19 +211,19 @@ function BoardActionControls({
     );
   }
 
-  const preparing = ticket.status === "accepted";
+  const primary = nextBoardAction(ticket);
   return (
     <>
-      {preparing || ticket.fulfilment === "pickup" ? (
+      {primary ? (
         <button
           className="board-primary"
           type="button"
           disabled={controls.disabled}
           onClick={() => {
-            controls.send({ kind: preparing ? "ready" : "collect" });
+            controls.send({ kind: primary.kind });
           }}
         >
-          {t(preparing ? "markReady" : "collect")}
+          {t(primary.label)}
         </button>
       ) : (
         <p className="board-waiting">{t("awaitingCourier")}</p>

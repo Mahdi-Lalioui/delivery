@@ -42,6 +42,7 @@ async function readTickets(sql: TransactionSql, merchantId: string): Promise<Tic
     })),
     changeDzd: row.changeDzd,
     confirmByPhone: row.confirmByPhone,
+    canHandover: row.status === "ready" && row.fulfilment === "delivery" && row.courierId !== null,
   }));
 }
 
