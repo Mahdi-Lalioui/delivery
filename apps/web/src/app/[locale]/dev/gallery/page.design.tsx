@@ -3,6 +3,6 @@ import { requireLatinLocale, type LatinPageProps } from "../../../../i18n/latin-
 
 export const metadata = galleryMetadata;
 
-export default async function LatinLaneBGallery(props: LatinPageProps) {
+export default async function LatinGallery(props: LatinPageProps) {
   return <GalleryPage locale={await requireLatinLocale(props)} />;
 }

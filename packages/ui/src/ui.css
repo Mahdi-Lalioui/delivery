@@ -65,6 +65,12 @@
   opacity: 0.55;
 }
 
+/* A busy button keeps its colour: it is working, not unavailable. */
+.ui-button[aria-busy="true"] {
+  cursor: progress;
+  opacity: 1;
+}
+
 .ui-button-sm {
   min-block-size: 40px;
   padding-inline: var(--space-16);
@@ -689,4 +695,32 @@
   from {
     opacity: 0;
   }
+}
+
+/* AWID logo: Mahdi's artwork as-is. Dark surfaces get a light plate so the deep green reads. */
+.ui-logo {
+  display: block;
+  flex: none;
+  block-size: auto;
+}
+
+.ui-logo-plate {
+  display: inline-flex;
+  border-radius: var(--radius-md);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .ui-logo-plate {
+    padding: var(--space-4) var(--space-8);
+    background: var(--color-text);
+  }
+}
+
+:root[data-theme="dark"] .ui-logo-plate {
+  padding: var(--space-4) var(--space-8);
+  background: var(--color-text);
+}
+
+.ui-logo-icon {
+  border-radius: 24%;
 }

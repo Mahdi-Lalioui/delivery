@@ -7,6 +7,8 @@ import { SiteShell } from "../../components/site-shell";
 import "../billing/admin-billing.css";
 import "../../retention/retention.css";
 import { LaneBGallery } from "./lane-b-gallery";
+import { SystemShowcase } from "../../design/system-showcase";
+import "../../design/system-showcase.css";
 
 export const galleryMetadata = { robots: { index: false, follow: false } };
 
@@ -18,6 +20,7 @@ export function GalleryPage({ locale }: { locale: Locale }) {
         locale={localeDetails[locale].tag}
         timeZone="Africa/Algiers"
         messages={{
+          designGallery: messages.designGallery,
           adminBilling: messages.adminBilling,
           merchantBilling: messages.merchantBilling,
           adminBillingSettings: messages.adminBillingSettings,
@@ -31,13 +34,24 @@ export function GalleryPage({ locale }: { locale: Locale }) {
         }}
       >
         <ToastProvider closeLabel={messages.merchantBilling.closeToast}>
-          <LaneBGallery
-            locale={locale}
-            labels={{
-              screen: messages.marketingMoments.title,
-              state: messages.adminBilling.status,
-            }}
-          />
+          <section className="billing-page" aria-labelledby="gallery-title">
+            <header className="ui-page-header">
+              <div className="ui-page-header-text">
+                <h1 id="gallery-title" className="ui-page-title">
+                  {messages.designGallery.title}
+                </h1>
+                <p className="ui-page-intro">{messages.designGallery.intro}</p>
+              </div>
+            </header>
+            <SystemShowcase copy={messages.designGallery} />
+            <LaneBGallery
+              locale={locale}
+              labels={{
+                screen: messages.designGallery.screens,
+                state: messages.designGallery.state,
+              }}
+            />
+          </section>
         </ToastProvider>
       </NextIntlClientProvider>
     </SiteShell>

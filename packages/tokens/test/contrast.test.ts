@@ -9,7 +9,7 @@ type ContrastPair<Token extends string> = readonly [
   minimum: number,
 ];
 
-// DESIGN §3.3, with one entry per foreground and background combination.
+// DESIGN §3 (AWID), with one entry per foreground and background combination.
 const pairs: readonly ContrastPair<ColorToken>[] = [
   ["text", "bg", 7],
   ["text", "surface", 7],
@@ -36,6 +36,11 @@ const pairs: readonly ContrastPair<ColorToken>[] = [
   ["link", "bg", 4.5],
   ["link", "surface", 4.5],
   ["danger", "surface", 4.5],
+  ["text", "mint-pale", 7],
+  ["text", "cream", 4.5],
+  ["on-accent", "accent", 4.5],
+  ["on-accent", "mint", 4.5],
+  ["accent-strong", "bg", 3],
   ["border-strong", "bg", 3],
   ["border-strong", "surface", 3],
   ["focus", "bg", 3],

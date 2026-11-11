@@ -1,6 +1,8 @@
 import { brand } from "@zaafran/config/brand";
 import { localeDetails, publicLocales, type Locale } from "@zaafran/i18n/locales";
 import { getTranslations } from "next-intl/server";
+import { Logo } from "@zaafran/ui";
+import "@zaafran/ui/ui.css";
 import type { ReactNode } from "react";
 
 interface SiteShellProps {
@@ -67,9 +69,12 @@ export async function SiteShell({ children, locale, subpath }: SiteShellProps) {
       </a>
       <header className="masthead">
         <div className="container masthead-inner">
-          <a className="wordmark" href={`/${locale}`}>
-            <span className="brand-mark" aria-hidden="true" />
-            {locale === "ar" ? brand.arabicName : brand.name}
+          <a
+            className="wordmark"
+            href={`/${locale}`}
+            aria-label={locale === "ar" ? brand.arabicName : brand.name}
+          >
+            <Logo height={40} name={brand.name} />
           </a>
           <nav className="languages" aria-label={translate("languages")}>
             {languages.map((language) => {

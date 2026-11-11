@@ -12,3 +12,4 @@ export {
 export { MoneyField, SelectField, TextAreaField, TextField } from "./fields";
 export { Icon, type IconName } from "./icons";
 export { ActionBar, Card, FormGrid, KpiTile, PageHeader } from "./layout";
+export { Logo, LogoMark } from "./logo";

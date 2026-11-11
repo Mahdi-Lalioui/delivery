@@ -27,6 +27,9 @@ Codex appends items here (what, why, exact steps). Mahdi ticks them. Items marke
 - [ ] Chargily Pay account, for restaurants paying their subscription online (optional at launch).
 - [ ] (Optional) LLM API key, for menu import from photos (feature flag `menu_photo_import`).
 
+## Brand (AWID)
+- [ ] Send the original AWID logo and app icon as vector files (SVG or AI/PDF) and the confirmed Arabic name. Why: lane B currently cuts the logo and icon out of the brand board JPEG (`docs/brand/extract_brand_assets.py` → `apps/web/public/brand/`), which is limited to its resolution; the original files give sharp logos at every size and a proper favicon. Put the files in `docs/brand/`.
+
 ## Mobile stores (M10–M12)
 - [ ] Apple Developer Program ($99/year). An organisation account needs a D-U-N-S number.
 - [ ] Google Play Console ($25 once). **A new personal account must run a closed test with 12 testers opted in for 14 continuous days, per app, before production.** Recruit 12+ testers early (friends, family, pilot restaurants) and start the customer-app closed test by 15 Jan.
