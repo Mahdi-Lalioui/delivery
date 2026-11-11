@@ -8,6 +8,10 @@
       "types": "./src/admin-moderation.ts",
       "default": "./dist/admin-moderation.js"
     },
+    "./admin-orders": {
+      "types": "./src/admin-orders.ts",
+      "default": "./dist/admin-orders.js"
+    },
     "./admin": {
       "types": "./src/admin.ts",
       "default": "./dist/admin.js"

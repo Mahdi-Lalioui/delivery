@@ -242,3 +242,6 @@
 
 - 2026-11-11 · Ultra · Wired the authentication SMS webhook for OTP, privacy and staff invites, with scoped stable invite retries and sanitized provider failures. Passed 62 scoped tests, 50 PostGIS cases and five production-browser auth/staff journeys.
   Next: publish admin live-order search and timeline contracts, then wire the admin tools and complete the two handoffs.
+
+- 2026-11-11 · Medium · Published private admin live-order search and timeline schemas. Three contract cases passed for cursor bounds, exact phone search and the PII-free response shape.
+  Next: add indexed Postgres search and audit, API authorization rows, then the live admin screen.
