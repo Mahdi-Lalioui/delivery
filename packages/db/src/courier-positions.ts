@@ -2,7 +2,7 @@ import type { courierPositionsInput } from "@zaafran/contracts/courier";
 import type { TransactionSql } from "postgres";
 import type { CourierScope } from "./courier-invitations.js";
 import { acceptedCourierPositions, type Position } from "./courier-position-validation.js";
-import { activeCourierSession } from "./courier-session.js";
+import { activeStandardSession } from "./standard-session.js";
 import { timestampParsers } from "./timestamp-parsers.js";
 
 export type CourierPositionRequest = CourierScope &
@@ -16,7 +16,7 @@ async function lockActiveDelivery(sql: TransactionSql, request: CourierPositionR
       AND driver.merchant_id = delivery.merchant_id AND driver.active
     WHERE delivery.id = ${request.orderId} AND delivery.status = 'out_for_delivery'
       AND delivery.address_snapshot IS NOT NULL
-      AND driver.user_id = ${request.userId} AND ${activeCourierSession(sql, request)}
+      AND driver.user_id = ${request.userId} AND ${activeStandardSession(sql, request)}
     FOR UPDATE OF delivery
   `.parsers(timestampParsers);
   return order;

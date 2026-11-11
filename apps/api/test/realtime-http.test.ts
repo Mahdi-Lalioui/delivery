@@ -80,9 +80,26 @@ test("[CUS-18:http] customer can subscribe to an owned order but cannot open the
     status: "accepted",
     at: "2026-11-11T12:00:00Z",
   } as const;
+  const position = {
+    latitude: 36.75,
+    longitude: 3.0625,
+    heading: 45,
+    capturedAt: "2026-11-11T12:00:01Z",
+  };
   const replayOrder = vi
     .fn<ReturnType<typeof createOrderRepository>["orderReplay"]>()
-    .mockResolvedValueOnce({ cursor: "2", events: [event], hasMore: false })
+    .mockResolvedValueOnce({
+      cursor: "2",
+      events: [event],
+      hasMore: true,
+      position: { orderId, ...position },
+    })
+    .mockResolvedValueOnce({
+      cursor: "2",
+      events: [],
+      hasMore: true,
+      position: { orderId, ...position },
+    })
     .mockResolvedValueOnce(undefined);
   const replay = vi
     .fn<ReturnType<typeof createOrderRepository>["merchantReplay"]>()
@@ -111,6 +128,10 @@ test("[CUS-18:http] customer can subscribe to an owned order but cannot open the
   const response = await api.inject("/v1/realtime?topic=order&orderId=" + orderId + "&after=1");
   expect(response.statusCode).toBe(200);
   expect(response.body).toContain("id: 2\nevent: order\ndata: " + JSON.stringify(event));
+  expect(response.body.match(/event: position/g)).toHaveLength(1);
+  expect(response.body).toContain(
+    "event: position\ndata: " + JSON.stringify({ orderId, ...position }),
+  );
   expect(replayOrder).toHaveBeenNthCalledWith(1, {
     orderId,
     accountId,

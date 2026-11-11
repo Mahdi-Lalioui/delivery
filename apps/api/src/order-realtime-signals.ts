@@ -40,8 +40,17 @@ function createChannel(sql: DatabaseConnection["sql"], channel: string) {
 }
 
 export function createOrderRealtimeSignals(sql: DatabaseConnection["sql"]) {
+  const order = createChannel(sql, "order_status_events");
+  const position = createChannel(sql, "courier_position_events");
   return {
     subscribe: createChannel(sql, "merchant_order_events"),
-    subscribeOrder: createChannel(sql, "order_status_events"),
+    subscribeOrder(orderId: string, wake: Wake) {
+      const stopOrder = order(orderId, wake);
+      const stopPosition = position(orderId, wake);
+      return () => {
+        stopOrder();
+        stopPosition();
+      };
+    },
   };
 }

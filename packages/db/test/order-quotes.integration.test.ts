@@ -465,6 +465,53 @@ test("[MER-03][RT-02] board snapshot and replay are scoped and replay every new 
   expect((await orders().board({ ...input, after: changed.cursor }))?.events).toEqual([]);
 });
 
+async function verifyBuyerTracking(
+  orderId: string,
+  driver: { userId: string; sessionId: string },
+  capturedAt: string,
+) {
+  const buyerSessionId = randomUUID();
+  await createAuthRepository(database.get()).transaction((tx) =>
+    tx.insertSession({
+      id: buyerSessionId,
+      userId: customerId,
+      tokenHash: randomBytes(32),
+      transport: "web",
+      kind: "standard",
+      requestIp: "192.0.2.7",
+      deviceName: "Fixture",
+      now: new Date(),
+    }),
+  );
+  expect(
+    await orders().tracking({ orderId, customerId: driver.userId, sessionId: driver.sessionId }),
+  ).toBeUndefined();
+  const tracking = await orders().tracking({ orderId, customerId, sessionId: buyerSessionId });
+  expect(tracking).toMatchObject({
+    fulfilment: "delivery",
+    order: { status: "out_for_delivery" },
+    destination: { latitude: 36.751, longitude: 3.0625 },
+    courier: {
+      phone: "+213500000017",
+      position: { latitude: 36.75, longitude: 3.0625, heading: 45, capturedAt },
+    },
+  });
+  expect(tracking?.timeline.map(({ status }) => status)).toEqual([
+    "pending_acceptance",
+    "accepted",
+    "ready",
+    "out_for_delivery",
+  ]);
+  const replay = await orders().orderReplay({
+    orderId,
+    accountId: customerId,
+    sessionId: buyerSessionId,
+    role: "standard",
+    after: "5",
+  });
+  expect(replay).toMatchObject({ events: [], position: { orderId, capturedAt } });
+}
+
 async function verifyCourierPositions(
   orderId: string,
   driver: { userId: string; sessionId: string },
@@ -494,6 +541,7 @@ async function verifyCourierPositions(
   const [latest] = await sql`SELECT ST_Y(location::geometry) AS latitude, heading
     FROM public.courier_positions WHERE order_id = ${orderId}`;
   expect(latest).toEqual({ latitude: 36.75, heading: 45 });
+  await verifyBuyerTracking(orderId, driver, capturedAt);
   const at = Date.parse(capturedAt);
   const thirtyDays = 30 * 24 * 60 * 60 * 1000;
   await pruneCourierPositions(sql, new Date(at + thirtyDays - 1));

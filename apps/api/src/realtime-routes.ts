@@ -2,6 +2,7 @@ import { randomInt } from "node:crypto";
 import { Readable } from "node:stream";
 import { problemResponseSchema } from "@zaafran/contracts/health";
 import { merchantBoardCursor, orderRealtimeQuery } from "@zaafran/contracts/orders";
+import type { trackingPositionEvent } from "@zaafran/contracts/tracking";
 import type { createOrderRepository } from "@zaafran/db/orders";
 import type { FastifyInstance, FastifyReply } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
@@ -11,7 +12,9 @@ import { sendProblem } from "./problems.js";
 import { createRealtimeWakeup } from "./realtime-wakeup.js";
 
 type Replay = ReturnType<typeof createOrderRepository>["merchantReplay"];
-type Batch = NonNullable<Awaited<ReturnType<Replay>>>;
+type Batch = NonNullable<Awaited<ReturnType<Replay>>> & {
+  position?: z.infer<typeof trackingPositionEvent>;
+};
 type StreamServices = {
   replay: Replay;
   replayOrder: ReturnType<typeof createOrderRepository>["orderReplay"];
@@ -20,7 +23,7 @@ type StreamServices = {
 };
 type Stream = {
   first: Batch;
-  next: (after: string) => ReturnType<Replay>;
+  next: (after: string) => Promise<Batch | undefined>;
   wait: () => Promise<void>;
   signal: AbortSignal;
   close: () => void;
@@ -31,9 +34,14 @@ async function* streamOrders({ first, next, wait, signal, close }: Stream) {
     yield "retry: " + String(randomInt(2_500, 5_001)) + "\n\n";
     const aborted = () => signal.aborted;
     let batch: Batch | undefined = first;
+    let lastPosition = "";
     while (batch && !aborted()) {
       for (const event of batch.events) {
         yield "id: " + event.id + "\nevent: order\ndata: " + JSON.stringify(event) + "\n\n";
+      }
+      if (batch.position && batch.position.capturedAt > lastPosition) {
+        lastPosition = batch.position.capturedAt;
+        yield "event: position\ndata: " + JSON.stringify(batch.position) + "\n\n";
       }
       if (!batch.hasMore) {
         yield ": heartbeat\n\n";

@@ -188,3 +188,6 @@
 
 - 2026-11-11 · Ultra · Added active-driver GPS intake with timestamp, distance, speed and Algeria bounds checks, per-driver throttling, commit-time notifications and 30-day expiry. Passed 37 PostGIS and 13 focused API/unit tests plus scoped lint/typecheck.
   Next: serve the buyer’s scoped tracking view and SSE position updates, then add delivery confirmation.
+
+- 2026-11-11 · Ultra · Added buyer-only pickup/delivery tracking and live position frames without changing the order replay cursor. Passed 249 authz, 23 PostGIS checks, and scoped typecheck/lint/OpenAPI.
+  Next: add four-digit delivery proof and retry-safe attempt limits; share links and routed ETA are still pending.

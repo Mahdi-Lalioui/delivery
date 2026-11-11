@@ -1,7 +1,7 @@
 # AWID sprint contracts
 
 Use the shared Zod schemas and the HTTP shapes below for fixtures. The new endpoints are
-contract handoffs. Address CRUD, quotes, placement, scoped order reads and the accept, reject, cancel, ready, collect, pick-up and force actions are implemented on lane-a. Address voice-note attachments
+contract handoffs. Address CRUD, quotes, placement, scoped order reads and the accept, reject, cancel, ready, collect, assign, pick-up and force actions are implemented on lane-a. The buyer’s authenticated tracking view and the courier invite, roster, presence, jobs and position APIs are implemented. Address voice-note attachments
 return `voice_note_unavailable` until the private audio upload and retention flow lands.
 
 | Endpoint | Request and response schemas | Access |
@@ -16,6 +16,7 @@ return `voice_note_unavailable` until the private audio upload and retention flo
 | `POST /v1/me/addresses` | `addressInput` → `addressOutput` (201) | Customer |
 | `PUT /v1/me/addresses/:addressId` | `addressParams`, `addressInput` → `addressOutput` | Address owner |
 | `DELETE /v1/me/addresses/:addressId` | `addressParams` → 204 | Address owner |
+| `GET /v1/merchants/:merchantId/couriers` | `courierRosterOutput` | Merchant member |
 | `POST /v1/merchants/:merchantId/couriers/invites` | `courierInviteInput` → `courierInviteOutput` (201) | Merchant owner |
 | `POST /v1/courier/invites/accept` | `courierInviteAcceptInput` → `courierInviteAcceptOutput` | Signed-in account with the invited phone |
 | `GET /v1/courier/jobs` | `courierJobsOutput` | Courier, assigned jobs only |
@@ -50,8 +51,11 @@ return `voice_note_unavailable` until the private audio upload and retention flo
 - For merchant SSE, send the last board cursor as `after` on the first connection.
   Reconnects use `Last-Event-ID`. The board polls when streaming is unavailable.
 - For a single order, use the order version as the initial cursor. The stream
-  carries order IDs, versions, timestamps and status. Fetch the scoped tracking
-  view separately for private delivery details.
+  carries order IDs, versions, timestamps and status. The active buyer also receives
+  `event: position` with `trackingPositionEvent` (without an event ID). Positions
+  coalesce to the most recent fix and never advance the order cursor. Use the scoped
+  tracking view for the courier card and initial pin. An unnamed courier has a null
+  first name.
 - Register the browser subscription JSON against the active session and remove it
   when opting out. A signed-out or expired session is ineligible for delivery.
 - Use the public key with the browser Push API. The service worker receives

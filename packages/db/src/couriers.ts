@@ -8,7 +8,7 @@ import {
   type InviteRequest,
 } from "./courier-invitations.js";
 import { recordCourierPositions, type CourierPositionRequest } from "./courier-positions.js";
-import { activeCourierSession } from "./courier-session.js";
+import { activeStandardSession } from "./standard-session.js";
 import type { DatabaseConnection } from "./database.js";
 
 import { orderStateColumns, orderSummaryFor, type OrderStateRow } from "./order-state-store.js";
@@ -28,7 +28,7 @@ async function listCouriers(
 ): Promise<Roster | undefined> {
   const [member] = await sql`
     SELECT FROM public.merchant_members WHERE user_id = ${request.userId} AND merchant_id = ${request.merchantId}
-      AND ${activeCourierSession(sql, request)}
+      AND ${activeStandardSession(sql, request)}
   `;
   if (!member) return undefined;
   return sql<Roster>`
@@ -40,7 +40,7 @@ async function listCouriers(
 async function setCourierPresence(sql: ISql, request: PresenceRequest) {
   const changed = await sql`
     UPDATE public.couriers SET online = ${request.online}
-    WHERE user_id = ${request.userId} AND active AND ${activeCourierSession(sql, request)}
+    WHERE user_id = ${request.userId} AND active AND ${activeStandardSession(sql, request)}
   `;
   return changed.count > 0;
 }
@@ -51,7 +51,7 @@ async function readCourierJobs(
 ): Promise<Jobs | undefined> {
   const [driver] = await sql<Driver[]>`
     SELECT id AS "courierId", merchant_id AS "merchantId", online
-    FROM public.couriers WHERE user_id = ${request.userId} AND active AND ${activeCourierSession(sql, request)}
+    FROM public.couriers WHERE user_id = ${request.userId} AND active AND ${activeStandardSession(sql, request)}
   `;
   if (!driver) return undefined;
   const rows = await sql<JobRow[]>`

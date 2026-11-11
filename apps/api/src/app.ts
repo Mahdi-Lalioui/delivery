@@ -14,6 +14,7 @@ import { registerBillingReadRoutes, type BillingRepository } from "./billing-rea
 import { registerBillingWriteRoutes, type BillingWriteServices } from "./billing-write-routes.js";
 import { registerPushSubscriptionRoutes } from "./push-subscription-routes.js";
 import { registerRealtimeRoutes } from "./realtime-routes.js";
+import { registerTrackingRoutes } from "./tracking-routes.js";
 import { registerCourierRoutes } from "./courier-routes.js";
 import { registerMerchantBoardRoutes } from "./merchant-board-routes.js";
 import { registerOrderActionRoutes } from "./order-action-routes.js";
@@ -112,6 +113,7 @@ interface ApiOptions {
   readonly pushPublicKey?: string | undefined;
   readonly pushSubscriptions?: Parameters<typeof registerPushSubscriptionRoutes>[1];
   readonly realtime?: Parameters<typeof registerRealtimeRoutes>[1];
+  readonly orderTracking?: Parameters<typeof registerTrackingRoutes>[1];
   readonly couriers?: Parameters<typeof registerCourierRoutes>[1];
   readonly merchantBoard?: Parameters<typeof registerMerchantBoardRoutes>[1];
   readonly orderActions?: Parameters<typeof registerOrderActionRoutes>[1];
@@ -177,6 +179,7 @@ export function createApi(options: ApiOptions): FastifyInstance {
     registerOrderQuoteRoutes(api, options.orderQuotes);
     registerOrderRoutes(api, options.orders);
     registerOrderActionRoutes(api, options.orderActions);
+    registerTrackingRoutes(api, options.orderTracking);
     registerCourierRoutes(api, options.couriers);
     registerMerchantBoardRoutes(api, options.merchantBoard);
     registerRealtimeRoutes(api, options.realtime);
