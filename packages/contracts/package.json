@@ -87,6 +87,22 @@
     "./scheduling": {
       "types": "./src/scheduling.ts",
       "default": "./dist/scheduling.js"
+    },
+    "./addresses": {
+      "types": "./src/addresses.ts",
+      "default": "./dist/addresses.js"
+    },
+    "./courier": {
+      "types": "./src/courier.ts",
+      "default": "./dist/courier.js"
+    },
+    "./orders": {
+      "types": "./src/orders.ts",
+      "default": "./dist/orders.js"
+    },
+    "./tracking": {
+      "types": "./src/tracking.ts",
+      "default": "./dist/tracking.js"
     }
   },
   "scripts": {
