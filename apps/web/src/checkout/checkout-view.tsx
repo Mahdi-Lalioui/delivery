@@ -219,7 +219,8 @@ export function CheckoutView({ state, locale }: { state: CheckoutState; locale: 
       <header className="checkout-header">
         <h1 id="checkout-title">{translate("title")}</h1>
         {state.cart && (
-          <p>
+          <p className="checkout-merchant">
+            <span aria-hidden="true">{Array.from(state.cart.merchant.name)[0]}</span>
             <bdi>{state.cart.merchant.name}</bdi>
           </p>
         )}

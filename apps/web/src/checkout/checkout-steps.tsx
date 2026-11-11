@@ -14,6 +14,7 @@ import {
 } from "@zaafran/ui";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { getCartSummary, type Cart } from "@zaafran/domain/cart";
 import { SlotPicker } from "../retention/slot-picker";
 import { localizeRestaurantText } from "../restaurant/restaurant-types";
 import type { CheckoutState } from "./use-checkout";
@@ -230,7 +231,9 @@ function QuoteLines({ state, locale }: { state: CheckoutState; locale: Locale })
       <div className="checkout-total">
         <dt>{translate("total")}</dt>
         <dd>
-          <bdi key={totalDzd}>{formatDzd(totalDzd, locale)}</bdi>
+          <span className="checkout-total-roll">
+            <bdi key={totalDzd}>{formatDzd(totalDzd, locale)}</bdi>
+          </span>
         </dd>
       </div>
     </dl>
@@ -248,6 +251,23 @@ function checkTender(tender: number | undefined, total: number | undefined): Ten
   if (tender < total) return { kind: "short" };
   if (tender > total + maxChangeDzd) return { kind: "too-much", maxDzd: total + maxChangeDzd };
   return { kind: "change", changeDzd: tender - total };
+}
+
+/** One line's price, computed by the domain (never in the view). */
+function LinePrice({
+  cart,
+  line,
+  locale,
+}: {
+  cart: CheckoutState["cart"];
+  line: Cart["lines"][number];
+  locale: Locale;
+}) {
+  if (!cart) return null;
+  const summary = getCartSummary({ ...cart, lines: [line] });
+  return summary.ok ? (
+    <bdi className="checkout-line-price">{formatDzd(summary.value.subtotalDzd, locale)}</bdi>
+  ) : null;
 }
 
 function CashCard({ state, locale }: { state: CheckoutState; locale: Locale }) {
@@ -291,15 +311,18 @@ export function PaymentStep({ state, locale }: { state: CheckoutState; locale: L
   return (
     <div className="checkout-step">
       <h2>{translate("summary")}</h2>
-      <ul className="checkout-lines" role="list">
-        {state.cart?.lines.map((line) => (
-          <li key={line.lineId}>
-            <span className="checkout-qty">{line.quantity}</span>
-            <bdi>{localizeRestaurantText(line.names, locale)}</bdi>
-          </li>
-        ))}
-      </ul>
-      <QuoteLines state={state} locale={locale} />
+      <div className="checkout-receipt">
+        <ul className="checkout-lines" role="list">
+          {state.cart?.lines.map((line) => (
+            <li key={line.lineId}>
+              <span className="checkout-qty">{line.quantity}</span>
+              <bdi>{localizeRestaurantText(line.names, locale)}</bdi>
+              <LinePrice cart={state.cart} line={line} locale={locale} />
+            </li>
+          ))}
+        </ul>
+        <QuoteLines state={state} locale={locale} />
+      </div>
       <CashCard state={state} locale={locale} />
     </div>
   );
