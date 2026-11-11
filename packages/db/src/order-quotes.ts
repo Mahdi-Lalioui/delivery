@@ -142,6 +142,7 @@ export async function evaluateQuote(sql: TransactionSql, request: QuoteRequest) 
     address: service.address,
     restaurantName: merchant.restaurantName,
     prepAndTravelMinutes: merchant.prepMinutes + service.travelMinutes,
+    travelMinutes: service.travelMinutes,
   } as const;
 }
 

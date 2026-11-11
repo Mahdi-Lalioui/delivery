@@ -1,6 +1,7 @@
 import type { orderSummary } from "@zaafran/contracts/orders";
 import type { OrderEvent, OrderSnapshot } from "@zaafran/domain/order-types";
 import type { TransactionSql } from "postgres";
+import { timestampParsers } from "./timestamp-parsers.js";
 
 export type OrderSummary = ReturnType<typeof orderSummary.parse>;
 
@@ -51,10 +52,19 @@ export async function enqueueOrderTimer(sql: TransactionSql, order: OrderSnapsho
   `;
 }
 
-export async function lockOrderSnapshot(sql: TransactionSql, orderId: string) {
-  const [snapshot] = await sql<OrderSnapshot[]>`
+type StateRow = OrderSnapshot & {
+  travelMinutes: number;
+  shortCode: string;
+  totalDzd: number;
+  placedAt: Date;
+};
+
+export async function readOrderSnapshot(sql: TransactionSql, orderId: string, lock: boolean) {
+  const [snapshot] = await sql<StateRow[]>`
     SELECT id, customer_id AS "customerId", merchant_id AS "merchantId", fulfilment, status,
       courier_id AS "courierId", version, prep_minutes AS "prepMinutes",
+      travel_minutes AS "travelMinutes", short_code AS "shortCode", total_dzd AS "totalDzd",
+      placed_at AS "placedAt",
       (extract(epoch FROM last_event_at) * 1000)::float8 AS "lastEventAt",
       (extract(epoch FROM scheduled_for) * 1000)::float8 AS "scheduledFor",
       (extract(epoch FROM release_at) * 1000)::float8 AS "releaseAt",
@@ -64,8 +74,8 @@ export async function lockOrderSnapshot(sql: TransactionSql, orderId: string) {
         'latestAt', extract(epoch FROM eta_latest_at) * 1000
       ) END AS eta
     FROM public.orders WHERE id = ${orderId}
-    FOR UPDATE
-  `;
+    ${lock ? sql`FOR UPDATE` : sql``}
+  `.parsers(timestampParsers);
   return snapshot;
 }
 

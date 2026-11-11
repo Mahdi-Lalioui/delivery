@@ -52,7 +52,7 @@ function shortCode() {
 
 export async function insertOrder(sql: TransactionSql, request: InsertOrder) {
   const { order, quoteId, evaluated, payingWithDzd, confirmByPhone } = request;
-  const { price, restaurantName, address } = evaluated;
+  const { price, restaurantName, address, travelMinutes } = evaluated;
   const orderDay = getAlgiersDate(order.lastEventAt).isoDate;
   const placedAt = new Date(order.lastEventAt).toISOString();
   for (let attempt = 0; attempt < 8; attempt++) {
@@ -62,14 +62,14 @@ export async function insertOrder(sql: TransactionSql, request: InsertOrder) {
         id, quote_id, customer_id, merchant_id, restaurant_name, short_code, order_day,
         status, fulfilment, version, placed_at, last_event_at, scheduled_for, release_at,
         acceptance_deadline_at, address_snapshot, subtotal_dzd, delivery_fee_dzd, total_dzd,
-        paying_with_dzd, confirm_by_phone, lines
+        paying_with_dzd, confirm_by_phone, lines, travel_minutes
       ) VALUES (
         ${order.id}, ${quoteId}, ${order.customerId}, ${order.merchantId}, ${restaurantName}, ${code},
         ${orderDay}, ${order.status}, ${order.fulfilment}, ${order.version}, ${placedAt}, ${placedAt},
         ${iso(order.scheduledFor)}, ${iso(order.releaseAt)}, ${iso(order.acceptanceDeadlineAt)},
         ${address === null ? null : JSON.stringify(address)}::jsonb, ${price.subtotalDzd},
         ${price.deliveryFeeDzd}, ${price.totalDzd}, ${payingWithDzd}, ${confirmByPhone},
-        ${JSON.stringify(price.lines)}::jsonb
+        ${JSON.stringify(price.lines)}::jsonb, ${travelMinutes}
       ) ON CONFLICT (merchant_id, order_day, short_code) DO NOTHING
       RETURNING id
     `;

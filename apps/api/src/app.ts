@@ -12,6 +12,7 @@ import {
 import { createAuthAccess } from "./auth-access.js";
 import { registerBillingReadRoutes, type BillingRepository } from "./billing-read-routes.js";
 import { registerBillingWriteRoutes, type BillingWriteServices } from "./billing-write-routes.js";
+import { registerOrderActionRoutes } from "./order-action-routes.js";
 import { registerOrderRoutes } from "./order-routes.js";
 import { registerOrderQuoteRoutes } from "./order-quote-routes.js";
 import { registerAddressRoutes } from "./address-routes.js";
@@ -104,6 +105,7 @@ interface ApiOptions {
   readonly trustedProxy?: string | undefined;
   readonly privacy?: PrivacyServices;
   readonly addresses?: Parameters<typeof registerAddressRoutes>[1];
+  readonly orderActions?: Parameters<typeof registerOrderActionRoutes>[1];
   readonly orders?: Parameters<typeof registerOrderRoutes>[1];
   readonly orderQuotes?: Parameters<typeof registerOrderQuoteRoutes>[1];
   readonly auth?: Parameters<typeof createAuthAccess>[0];
@@ -165,6 +167,7 @@ export function createApi(options: ApiOptions): FastifyInstance {
     registerAddressRoutes(api, options.addresses);
     registerOrderQuoteRoutes(api, options.orderQuotes);
     registerOrderRoutes(api, options.orders);
+    registerOrderActionRoutes(api, options.orderActions);
     registerMerchantRoutes(api, options.merchant);
     registerBillingReadRoutes(api, options.billing);
     registerBillingWriteRoutes(api, options.billingWrites);

@@ -5,6 +5,12 @@ import { calculateChange } from "@zaafran/domain/pricing";
 import type { OrderAction } from "@zaafran/domain/order-types";
 import { randomUUID } from "node:crypto";
 import type { TransactionSql } from "postgres";
+import {
+  applyOrderCommand,
+  readScopedOrder,
+  type OrderCommandRequest,
+  type OrderAccess,
+} from "./order-commands.js";
 import type { DatabaseConnection } from "./database.js";
 import {
   hash,
@@ -18,7 +24,7 @@ import { evaluateQuote, lockOrderingCustomer, quoteBreakdown } from "./order-quo
 import {
   appendOrderEvent,
   enqueueOrderTimer,
-  lockOrderSnapshot,
+  readOrderSnapshot,
   writeOrderState,
   type OrderTimer,
 } from "./order-state-store.js";
@@ -167,7 +173,7 @@ async function runTimer(
   sql: TransactionSql,
   { orderId, action, now }: { orderId: string; action: OrderTimer; now: Date },
 ) {
-  const order = await lockOrderSnapshot(sql, orderId);
+  const order = await readOrderSnapshot(sql, orderId, true);
   if (!order) return;
   const command: OrderAction =
     action === "release"
@@ -195,6 +201,9 @@ async function runTimer(
 
 export function createOrderRepository({ sql }: DatabaseConnection) {
   return {
+    apply: (request: OrderCommandRequest) => sql.begin((tx) => applyOrderCommand(tx, request)),
+    read: (request: OrderAccess) =>
+      sql.begin("isolation level repeatable read read only", (tx) => readScopedOrder(tx, request)),
     place: (request: PlacementRequest) => sql.begin((tx) => placeOrder(tx, request)),
     runTimer: (orderId: string, action: OrderTimer, now: Date) =>
       sql.begin((tx) => runTimer(tx, { orderId, action, now })),

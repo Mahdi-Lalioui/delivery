@@ -146,3 +146,6 @@
 
 - 2026-11-11 · Ultra · Implemented quote revalidation and idempotent placement with snapshots, event and Graphile timer in one transaction. Passed 662 package tests, 263 integrations and 239 authz tests.
   Next: add scoped reads and versioned customer and merchant transitions, then feed filters and sorting.
+
+- 2026-11-11 · Ultra · Added scoped order reads and versioned, idempotent customer, merchant and admin actions. Passed 663 package tests, 268 integrations and 240 authz tests.
+  Next: implement feed metadata, filters and stable sorting, then build the merchant order board against these actions.

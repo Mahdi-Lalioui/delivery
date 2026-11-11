@@ -99,7 +99,9 @@ async function clearPersonalData(
       FROM jsonb_array_elements(lines) WITH ORDINALITY AS item(line, index)
     ) WHERE customer_id = ${userId}
   `;
-  await sql`UPDATE public.order_events SET actor_id = NULL WHERE actor_id = ${userId} AND actor_kind = 'customer'`;
+  await sql`UPDATE public.order_events SET actor_id = NULL, payload = payload - 'reason'
+    WHERE actor_id = ${userId} AND actor_kind = 'customer'`;
+  await sql`DELETE FROM public.order_action_receipts WHERE actor_id = ${userId}`;
   await sql`DELETE FROM public.order_placement_receipts WHERE customer_id = ${userId}`;
   await sql`DELETE FROM public.quotes WHERE customer_id = ${userId}`;
   await sql`DELETE FROM public.addresses WHERE user_id = ${userId}`;

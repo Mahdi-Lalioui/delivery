@@ -269,3 +269,161 @@ test("[CUS-24] anonymised orders still expire and retain their accounting totals
     { status: "expired", total_dzd: 1000 },
   ]);
 });
+
+test("[ORD-03][ORD-04] only one concurrent merchant accept wins and replays return the original result", async () => {
+  const request = await placement();
+  const placed = await orders().place(request);
+  if (placed.kind !== "placed") throw new Error("Expected placement");
+  const { orderId } = placed.order;
+  const { sql } = database.get();
+  await sql`INSERT INTO merchant_members (merchant_id, user_id, role) VALUES (${merchantId}, ${otherId}, 'owner') ON CONFLICT DO NOTHING`;
+  const command = {
+    orderId,
+    accountId: otherId,
+    role: "merchant_owner",
+    idempotencyKey: randomUUID(),
+    now,
+    action: { kind: "accept", prepMinutes: 15 },
+    expectedVersion: 1,
+  } as const;
+  const foreign = { ...command, accountId: customerId };
+  expect(await orders().apply(foreign)).toEqual({ kind: "not_found" });
+  const rival = { ...command, idempotencyKey: randomUUID() };
+  const results = await Promise.all([orders().apply(command), orders().apply(rival)]);
+  expect(results.map(({ kind }) => kind).sort()).toEqual(["applied", "order_conflict"]);
+  const winner = results[0].kind === "applied" ? command : rival;
+  const won = results.find(({ kind }) => kind === "applied");
+  expect(won).toMatchObject({ kind: "applied", order: { status: "accepted", version: 2 } });
+  expect(await orders().apply(winner)).toEqual(won);
+  expect(await orders().apply({ ...winner, action: { kind: "accept", prepMinutes: 20 } })).toEqual({
+    kind: "idempotency_conflict",
+  });
+  await orders().runTimer(orderId, "expire", new Date("2026-11-11T12:08:00Z"));
+  expect(await sql`SELECT version, status FROM orders WHERE id = ${orderId}`).toEqual([
+    { version: 2, status: "accepted" },
+  ]);
+  expect(await sql`SELECT FROM order_events WHERE order_id = ${orderId}`).toHaveLength(2);
+});
+
+test("[ORD-01] pickup can be marked ready and collected with a scoped order read", async () => {
+  const request = await placement();
+  const placed = await orders().place(request);
+  if (placed.kind !== "placed") throw new Error("Expected placement");
+  const { orderId } = placed.order;
+  const { sql } = database.get();
+  await sql`INSERT INTO merchant_members (merchant_id, user_id, role) VALUES (${merchantId}, ${otherId}, 'owner') ON CONFLICT DO NOTHING`;
+  const customer = { orderId, accountId: customerId, role: "customer" } as const;
+  const merchant = { orderId, accountId: otherId, role: "merchant_owner" } as const;
+  expect(await orders().read({ ...customer, accountId: otherId })).toBeUndefined();
+  expect(await orders().read(customer)).toEqual(placed.order);
+  const command = { ...merchant, now };
+  expect(
+    await orders().apply({
+      ...command,
+      idempotencyKey: randomUUID(),
+      expectedVersion: 1,
+      action: { kind: "accept", prepMinutes: 15 },
+    }),
+  ).toMatchObject({ kind: "applied" });
+  expect(
+    await orders().apply({
+      ...command,
+      idempotencyKey: randomUUID(),
+      expectedVersion: 2,
+      action: { kind: "markReady" },
+    }),
+  ).toMatchObject({ kind: "applied" });
+  expect(
+    await orders().apply({
+      ...command,
+      idempotencyKey: randomUUID(),
+      expectedVersion: 3,
+      action: { kind: "collect" },
+    }),
+  ).toMatchObject({ kind: "applied", order: { status: "collected" } });
+  expect(
+    await orders().apply({
+      ...command,
+      idempotencyKey: randomUUID(),
+      expectedVersion: 4,
+      action: { kind: "collect" },
+    }),
+  ).toEqual({ kind: "order_terminal" });
+});
+
+test("[ORD-02] customer can cancel only their pending order, and the timeout cannot undo it", async () => {
+  const placed = await orders().place(await placement());
+  if (placed.kind !== "placed") throw new Error("Expected placement");
+  const { orderId } = placed.order;
+  const request = {
+    orderId,
+    accountId: customerId,
+    role: "customer",
+    idempotencyKey: randomUUID(),
+    now,
+    action: { kind: "cancel", reason: "Erreur de commande" },
+    expectedVersion: 1,
+  } as const;
+  expect(await orders().apply({ ...request, accountId: otherId })).toEqual({ kind: "not_found" });
+  expect(await orders().apply(request)).toMatchObject({
+    kind: "applied",
+    order: { status: "cancelled" },
+  });
+  await orders().runTimer(orderId, "expire", new Date("2026-11-11T12:08:00Z"));
+  expect(await orders().read(request)).toMatchObject({ status: "cancelled", version: 2 });
+});
+
+test("[ORD-02] rejecting an order can mark only its ordered items sold out", async () => {
+  const placed = await orders().place(await placement());
+  if (placed.kind !== "placed") throw new Error("Expected placement");
+  const { orderId } = placed.order;
+  const { sql } = database.get();
+  await sql`INSERT INTO merchant_members (merchant_id, user_id, role) VALUES (${merchantId}, ${otherId}, 'owner') ON CONFLICT DO NOTHING`;
+  const command = {
+    orderId,
+    accountId: otherId,
+    role: "merchant_owner",
+    idempotencyKey: randomUUID(),
+    now,
+    action: { kind: "reject", reason: "item_unavailable", soldOutItemIds: [randomUUID()] },
+    expectedVersion: 1,
+  } as const;
+  expect(await orders().apply(command)).toEqual({ kind: "invalid_order_command" });
+  try {
+    expect(
+      await orders().apply({ ...command, action: { ...command.action, soldOutItemIds: [itemId] } }),
+    ).toMatchObject({ kind: "applied", order: { status: "rejected", version: 2 } });
+    expect(await sql`SELECT is_available FROM items WHERE id = ${itemId}`).toEqual([
+      { is_available: false },
+    ]);
+  } finally {
+    await sql`UPDATE items SET is_available = true WHERE id = ${itemId}`;
+  }
+});
+
+test("[ORD-02] a verified admin force action records its actor and reason", async () => {
+  const placed = await orders().place(await placement());
+  if (placed.kind !== "placed") throw new Error("Expected placement");
+  const { orderId } = placed.order;
+  const { sql } = database.get();
+  const command = {
+    orderId,
+    accountId: otherId,
+    role: "admin",
+    idempotencyKey: randomUUID(),
+    now,
+    action: { kind: "force", to: "cancelled", reason: "Assistance" },
+    expectedVersion: 1,
+  } as const;
+  expect(await orders().apply(command)).toEqual({ kind: "not_found" });
+  await sql`INSERT INTO admins (user_id, totp_secret_encrypted) VALUES (${otherId}, decode('00', 'hex'))`;
+  expect(await orders().apply(command)).toMatchObject({
+    kind: "applied",
+    order: { status: "cancelled" },
+  });
+  expect(
+    await sql`SELECT actor_kind, actor_id, payload FROM order_events WHERE order_id = ${orderId} AND version = 2`,
+  ).toEqual([
+    { actor_kind: "admin", actor_id: otherId, payload: { kind: "force", reason: "Assistance" } },
+  ]);
+});
