@@ -1,4 +1,17 @@
 {
+  "maps": {
+    "show": "عرض الخريطة",
+    "loading": "جاري تحميل الخريطة…",
+    "unavailable": "الخريطة غير متاحة الآن.",
+    "retry": "إعادة المحاولة",
+    "choose": "تأكيد هذا الموقع",
+    "label": "خريطة الموقع",
+    "zoomIn": "تكبير",
+    "zoomOut": "تصغير",
+    "attribution": "© OpenStreetMap",
+    "plus": "+",
+    "minus": "−"
+  },
   "shell": {
     "skip": "انتقل إلى المحتوى",
     "languages": "اللغة"

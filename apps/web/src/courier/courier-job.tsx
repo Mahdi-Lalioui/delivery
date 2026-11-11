@@ -5,6 +5,7 @@ import { localeDetails, type Locale } from "@zaafran/i18n/locales";
 import { Badge, Button, Icon } from "@zaafran/ui";
 import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
+import { AlgeriaMap } from "../maps/algeria-map";
 import { useDeliveryAttempt } from "./courier-delivery-attempt";
 import { CourierDropoff } from "./courier-dropoff";
 import { confirmCourierPickup, type Job } from "./courier-http";
@@ -31,7 +32,17 @@ function DeliverySteps({ active }: { active: boolean }) {
   );
 }
 
-function JobAddress({ job, active, onCall }: { job: Job; active: boolean; onCall: () => void }) {
+function JobAddress({
+  job,
+  locale,
+  active,
+  onCall,
+}: {
+  job: Job;
+  locale: Locale;
+  active: boolean;
+  onCall: () => void;
+}) {
   const t = useTranslations("courier");
   const { dropoff, pickup, customerFirstName, customerPhone } = job;
   const fields = [
@@ -78,6 +89,7 @@ function JobAddress({ job, active, onCall }: { job: Job; active: boolean; onCall
           )}
         </>
       )}
+      <AlgeriaMap locale={locale} selected={active ? dropoff.pin : pickup.pin} />
       <CourierNavigation pin={active ? dropoff.pin : pickup.pin} />
     </section>
   );
@@ -193,7 +205,12 @@ export function CourierJob({
       </div>
       <DeliverySteps active={active} />
       <div className="courier-job-grid">
-        <JobAddress job={job} active={active} onCall={() => void attempts.record("call")} />
+        <JobAddress
+          job={job}
+          locale={locale}
+          active={active}
+          onCall={() => void attempts.record("call")}
+        />
         <CourierCash job={job} locale={locale} />
       </div>
       {ready && (

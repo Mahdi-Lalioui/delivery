@@ -12,3 +12,11 @@ docker compose -f compose.yml -f infra/compose.maps.yml up -d --wait martin osrm
 ```
 
 The overlay reads `infra/data/maps` by default. Set `ZAAFRAN_MAP_DATA_DIR` to reuse a separately prepared directory. Martin publishes TileJSON at `http://127.0.0.1:3001/algeria`. Set `OSRM_INTERNAL_ORIGIN=http://127.0.0.1:5000` for the local API, or `http://osrm:5000` in the same Compose network. The normal development Compose still uses the small offline fixtures.
+
+## Web map
+
+For a local production build, run `ZAAFRAN_TILE_ORIGIN=http://127.0.0.1:3001 pnpm --filter @zaafran/web build` after starting the national overlay. The browser uses only the application origin. The hosted app derives its tile upstream from `ZAAFRAN_API_ORIGIN` and expects the backend to expose `/tiles/algeria/{z}/{x}/{y}`.
+
+Run `pnpm exec playwright test --config e2e/maps.config.ts` against that build and the PostGIS test database. This suite requires the national archive and checks Arabic and French pin selection, tile and glyph responses, canvas sizing and console errors.
+
+MapLibre GL JS uses its built-in Arabic shaping, and map labels use the checked-in Noto Sans glyph ranges. The glyphs and OFL licence come from the [pinned Protomaps asset revision](https://github.com/protomaps/basemaps-assets/tree/028c18f713baecad011301ff7a69acc39bcc2ae7/fonts).

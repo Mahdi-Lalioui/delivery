@@ -1,4 +1,17 @@
 {
+  "maps": {
+    "show": "Afficher la carte",
+    "loading": "Chargement de la carte…",
+    "unavailable": "La carte est indisponible pour le moment.",
+    "retry": "Réessayer",
+    "choose": "Confirmer ce point",
+    "label": "Carte de localisation",
+    "zoomIn": "Zoom avant",
+    "zoomOut": "Zoom arrière",
+    "attribution": "© OpenStreetMap",
+    "plus": "+",
+    "minus": "−"
+  },
   "shell": {
     "skip": "Aller au contenu",
     "languages": "Langue"

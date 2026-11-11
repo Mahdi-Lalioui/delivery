@@ -252,3 +252,7 @@ that page, and locale switching and alternate metadata retain the discovery path
 ### D-028 — Keep route estimates separate from cash quotes (2026-11-11)
 
 Active buyer tracking sends a fresh courier fix and the destination to self-hosted OSRM. The API accepts loopback and Compose routing origins. It coalesces estimates for the same order for 30 seconds. A route failure uses great-circle distance × 1.35 at 24 km/h, with a 60-second breaker after three failures. The fallback provides an ETA without drawing a road line. Expired GPS fixes do not generate a new ETA. Quote totals, zone fees and accepted order prices remain independent of router availability. [OSRM route service](https://project-osrm.org/docs/v26.6.1/http.html)
+
+## D-029 · Use built-in Arabic map shaping
+
+Pinned MapLibre GL JS 6.16.0 shapes Arabic and reorders bidirectional text in its worker. Keep the worker and Noto Sans glyph ranges on the same origin and use Protomaps 5.7.2 for the geometry layers. This replaces the external RTL plugin for the web implementation of GEO-05. [MapLibre RTL API](https://maplibre.org/maplibre-gl-js/docs/API/functions/setRTLTextPlugin/) · [Protomaps assets](https://docs.protomaps.com/basemaps/maplibre)

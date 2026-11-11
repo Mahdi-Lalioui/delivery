@@ -1,4 +1,17 @@
 {
+  "maps": {
+    "show": "Show map",
+    "loading": "Loading map…",
+    "unavailable": "The map is currently unavailable.",
+    "retry": "Try again",
+    "choose": "Confirm this pin",
+    "label": "Location map",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "attribution": "© OpenStreetMap",
+    "plus": "+",
+    "minus": "−"
+  },
   "shell": {
     "skip": "Skip to content",
     "languages": "Language"

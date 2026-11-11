@@ -218,3 +218,6 @@
 
 - 2026-11-11 · High · Connected nationwide wilaya and commune selection and verified 1,541 PostGIS boundaries, seven real browser checks, 23 PostGIS checks and 54 scoped tests. Martin and OSRM served the pinned Algeria datasets.
   Next: display the self-hosted basemap, add exact pin selection, then seed eight cities and enable merchant radius controls.
+
+- 2026-11-11 · High · Added lazy Algeria basemap to discovery and courier. Four production-browser map checks, 56 scoped tests, lint, typecheck and dependency boundaries passed. Reviewed captures in docs/evidence/awid/location-map/.
+  Next: replace merchant typed coordinates with the same pin control, seed eight cities, and wire merchant radius settings.

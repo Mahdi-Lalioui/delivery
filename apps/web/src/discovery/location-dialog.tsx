@@ -1,5 +1,7 @@
 import type { Locale } from "@zaafran/i18n/locales";
 import { useEffect, useId, useRef, useState } from "react";
+import type { MapPoint } from "../maps/algeria-map-style";
+import { AlgeriaMap } from "../maps/algeria-map";
 import type { Commune } from "../merchant/merchant-http";
 import { CommunePicker } from "./commune-picker";
 import {
@@ -137,6 +139,16 @@ export function LocationDialog({
             {messages.gps}
           </button>
           <GpsStatus {...{ gps, draft, locale, messages }} />
+          <DiscoveryPin
+            locale={locale}
+            draft={draft}
+            onSelect={(point) => {
+              gpsAttempt.current += 1;
+              setGps("idle");
+              setSave("idle");
+              setDraft({ input: { ...point, kind: "point" }, accuracy: null });
+            }}
+          />
         </fieldset>
         <CommunePicker
           {...{ locale, messages }}
@@ -162,6 +174,25 @@ export function LocationDialog({
         </button>
       </div>
     </dialog>
+  );
+}
+
+function DiscoveryPin({
+  locale,
+  draft,
+  onSelect,
+}: {
+  locale: Locale;
+  draft: LocationDraft | null;
+  onSelect: (point: MapPoint) => void;
+}) {
+  return (
+    <AlgeriaMap
+      locale={locale}
+      selected={draft?.input.kind === "point" ? draft.input : undefined}
+      accuracy={draft?.accuracy ?? undefined}
+      onSelect={onSelect}
+    />
   );
 }
 
