@@ -1,5 +1,5 @@
 import { expect, test, vi } from "vitest";
-import { readBrowserPin } from "../src/merchant/merchant-location";
+import { readBrowserLocation } from "../src/discovery/location";
 
 test("[MER-01:web] explicitly requests a fresh high-accuracy position and preserves the decimal pin", async () => {
   const coords = {
@@ -16,11 +16,9 @@ test("[MER-01:web] explicitly requests a fresh high-accuracy position and preser
     receive({ ...position, toJSON: () => position });
   });
 
-  await expect(readBrowserPin({ getCurrentPosition })).resolves.toEqual({
-    kind: "found",
-    latitude: "36.7666581",
-    longitude: "3.0574036",
-    approximate: true,
+  await expect(readBrowserLocation({ getCurrentPosition })).resolves.toEqual({
+    input: { kind: "point", latitude: 36.7666581, longitude: 3.0574036 },
+    accuracy: 41,
   });
   expect(getCurrentPosition).toHaveBeenCalledWith(expect.any(Function), expect.any(Function), {
     enableHighAccuracy: true,
@@ -29,6 +27,6 @@ test("[MER-01:web] explicitly requests a fresh high-accuracy position and preser
   });
 });
 
-test("[MER-01:web] an unavailable location API leaves the manual coordinate path usable", async () => {
-  await expect(readBrowserPin(undefined)).resolves.toEqual({ kind: "unavailable" });
+test("[MER-01:web] an unavailable location API leaves the map pin path usable", async () => {
+  await expect(readBrowserLocation(undefined)).resolves.toBeNull();
 });

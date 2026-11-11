@@ -119,11 +119,12 @@ function useMap({
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !selected) return;
-    map.jumpTo({ center: camera(selected), zoom: Math.max(map.getZoom(), 16) });
-    marker.current?.setLngLat(camera(selected));
+    if (!map) return;
+    const point = selected ?? initial;
+    map.jumpTo({ center: camera(point), zoom: selected ? Math.max(map.getZoom(), 16) : 13 });
+    marker.current?.setLngLat(camera(point));
     if (map.isStyleLoaded()) applyAccuracy(map, selected, accuracy);
-  }, [accuracy, mapRef, selected]);
+  }, [accuracy, initial, mapRef, selected]);
 
   return container;
 }

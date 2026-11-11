@@ -2,9 +2,7 @@
 
 import type { Locale } from "@zaafran/i18n/locales";
 import { useTranslations } from "next-intl";
-import { useRef, useState } from "react";
 import type { Commune } from "../merchant-http";
-import { readBrowserPin } from "../merchant-location";
 import type { MerchantApplicationState } from "../use-merchant-application";
 import type { useMerchantResource } from "../use-merchant-resource";
 
@@ -21,30 +19,25 @@ const cuisineOptions = [
 
 interface DraftFieldProps {
   state: MerchantApplicationState;
-  field: "restaurantName" | "ownerName" | "latitude" | "longitude" | "rcNumber";
-  onEdit?: () => void;
+  field: "restaurantName" | "ownerName" | "rcNumber";
 }
 
 interface TextFieldOptions {
-  error: "invalidName" | "invalidLatitude" | "invalidLongitude" | "invalidRc";
+  error: "invalidName" | "invalidRc";
   maxLength: number;
-  coordinate?: boolean;
   autoComplete?: string;
 }
 
 const textFields: Record<DraftFieldProps["field"], TextFieldOptions> = {
   restaurantName: { error: "invalidName", maxLength: 120, autoComplete: "organization" },
   ownerName: { error: "invalidName", maxLength: 120, autoComplete: "name" },
-  latitude: { error: "invalidLatitude", maxLength: 30, coordinate: true },
-  longitude: { error: "invalidLongitude", maxLength: 30, coordinate: true },
   rcNumber: { error: "invalidRc", maxLength: 64 },
 };
 
-export function ApplicationTextField({ state, field, onEdit }: DraftFieldProps) {
+export function ApplicationTextField({ state, field }: DraftFieldProps) {
   const translate = useTranslations("merchant");
   const fieldId = `merchant-${field}`;
   const options = textFields[field];
-  const isOutside = options.coordinate === true && state.error === "outsideCommune";
   const isInvalid = state.fields.includes(field);
 
   return (
@@ -55,17 +48,13 @@ export function ApplicationTextField({ state, field, onEdit }: DraftFieldProps) 
         name={field}
         value={state.draft[field]}
         type="text"
-        dir={options.coordinate ? "ltr" : "auto"}
-        inputMode={options.coordinate ? "decimal" : undefined}
+        dir="auto"
         autoComplete={options.autoComplete}
         maxLength={options.maxLength}
         aria-required={field !== "rcNumber"}
-        aria-invalid={isInvalid || isOutside}
-        aria-describedby={
-          isInvalid ? `${fieldId}-error` : isOutside ? "merchant-application-error" : undefined
-        }
+        aria-invalid={isInvalid}
+        aria-describedby={isInvalid ? `${fieldId}-error` : undefined}
         onChange={(event) => {
-          onEdit?.();
           state.update({ [field]: event.currentTarget.value });
         }}
       />
@@ -82,6 +71,7 @@ interface CommuneFieldProps {
   state: MerchantApplicationState;
   locale: Locale;
   resource: ReturnType<typeof useMerchantResource<Commune[]>>;
+  onPick: (communeId: string) => void;
 }
 
 function CommuneNotice({ resource }: { resource: CommuneFieldProps["resource"] }) {
@@ -103,7 +93,7 @@ function CommuneNotice({ resource }: { resource: CommuneFieldProps["resource"] }
   );
 }
 
-export function CommuneField({ state, locale, resource }: CommuneFieldProps) {
+export function CommuneField({ state, locale, resource, onPick }: CommuneFieldProps) {
   const translate = useTranslations("merchant");
   const { view } = resource;
   const options = view.kind === "ready" ? view.data : [];
@@ -121,7 +111,7 @@ export function CommuneField({ state, locale, resource }: CommuneFieldProps) {
         aria-invalid={isInvalid}
         aria-describedby={isInvalid ? "merchant-commune-error" : undefined}
         onChange={(event) => {
-          state.update({ communeId: event.currentTarget.value });
+          onPick(event.currentTarget.value);
         }}
       >
         <option value="">{translate("selectCommune")}</option>
@@ -142,69 +132,6 @@ export function CommuneField({ state, locale, resource }: CommuneFieldProps) {
       )}
       <CommuneNotice resource={resource} />
     </div>
-  );
-}
-
-export function ApplicationPinFields({
-  state,
-  onLocatingChange,
-}: {
-  state: MerchantApplicationState;
-  onLocatingChange: (locating: boolean) => void;
-}) {
-  const translate = useTranslations("merchant");
-  const [locationStatus, setLocationStatus] = useState<
-    "locating" | "locationUnavailable" | "locationImprecise"
-  >();
-  const pendingPin = useRef<symbol | undefined>(undefined);
-
-  function editPin() {
-    pendingPin.current = undefined;
-    setLocationStatus(undefined);
-    onLocatingChange(false);
-  }
-
-  async function locate() {
-    const request = Symbol();
-    pendingPin.current = request;
-    setLocationStatus("locating");
-    onLocatingChange(true);
-    const result = await readBrowserPin(navigator.geolocation);
-    if (pendingPin.current !== request) return;
-    pendingPin.current = undefined;
-    onLocatingChange(false);
-    if (result.kind === "unavailable") {
-      setLocationStatus("locationUnavailable");
-      return;
-    }
-    state.update({ latitude: result.latitude, longitude: result.longitude });
-    setLocationStatus(result.approximate ? "locationImprecise" : undefined);
-  }
-
-  return (
-    <fieldset className="merchant-group" aria-describedby="merchant-pin-hint">
-      <legend>{translate("pin")}</legend>
-      <p id="merchant-pin-hint" className="merchant-hint">
-        {translate("pinHint")}
-      </p>
-      <div className="merchant-grid">
-        <ApplicationTextField state={state} field="latitude" onEdit={editPin} />
-        <ApplicationTextField state={state} field="longitude" onEdit={editPin} />
-      </div>
-      <button
-        type="button"
-        className="merchant-secondary"
-        disabled={locationStatus === "locating"}
-        onClick={() => void locate()}
-      >
-        {translate(locationStatus === "locating" ? "locating" : "useLocation")}
-      </button>
-      {locationStatus && locationStatus !== "locating" && (
-        <p role="status" className="merchant-hint">
-          {translate(locationStatus)}
-        </p>
-      )}
-    </fieldset>
   );
 }
 

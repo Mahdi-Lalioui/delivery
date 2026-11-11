@@ -4,15 +4,11 @@ import type { Locale } from "@zaafran/i18n/locales";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { MediaPhotoField } from "../../media-photo/media-photo-field";
-import {
-  ApplicationPinFields,
-  ApplicationTextField,
-  CommuneField,
-  CuisineFields,
-} from "./application-fields";
+import { ApplicationTextField, CommuneField, CuisineFields } from "./application-fields";
 import { listWilayaCommunes } from "../merchant-http";
 import { useMerchantApplication, type MerchantApplicationState } from "../use-merchant-application";
 import { useMerchantResource } from "../use-merchant-resource";
+import { ApplicationPinFields } from "./application-pin";
 import { WilayaField } from "./wilaya-field";
 
 function ApplicationFeedback({
@@ -98,6 +94,11 @@ export function MerchantApplicationForm({
     !locating &&
     busyPhotos.size === 0;
 
+  function changeCommune(communeId: string) {
+    setLocating(false);
+    state.update({ communeId, latitude: "", longitude: "" });
+  }
+
   function updatePhotoBusy(slot: number, busy: boolean) {
     setBusyPhotos((current) => {
       if (current.has(slot) === busy) return current;
@@ -153,7 +154,10 @@ export function MerchantApplicationForm({
         event.preventDefault();
         if (!canSubmit) return;
         void state.submit().then((field) => {
-          if (field) form.current?.querySelector<HTMLElement>(`[name="${field}"]`)?.focus();
+          if (field) {
+            const target = field === "longitude" ? "latitude" : field;
+            form.current?.querySelector<HTMLElement>(`[name="${target}"]`)?.focus();
+          }
         });
       }}
     >
@@ -173,12 +177,22 @@ export function MerchantApplicationForm({
             retryText={translate("retry")}
             onChange={(code) => {
               setWilaya(code);
-              state.update({ communeId: "" });
+              changeCommune("");
             }}
           />
-          <CommuneField state={state} locale={locale} resource={communeResource} />
+          <CommuneField
+            state={state}
+            locale={locale}
+            resource={communeResource}
+            onPick={changeCommune}
+          />
         </div>
-        <ApplicationPinFields state={state} onLocatingChange={setLocating} />
+        <ApplicationPinFields
+          key={state.draft.communeId}
+          state={state}
+          locale={locale}
+          onLocatingChange={setLocating}
+        />
         <CuisineFields state={state} />
         <ApplicationTextField state={state} field="rcNumber" />
         <ApplicationPhotos

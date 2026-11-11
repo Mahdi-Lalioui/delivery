@@ -73,9 +73,16 @@ async function enterMerchantApplication(page: Page, auth: AuthHarness) {
   return commune;
 }
 
+async function chooseGpsPin(page: Page, pin: { latitude: number; longitude: number }) {
+  const context = page.context();
+  await context.grantPermissions(["geolocation"], { origin: new URL(page.url()).origin });
+  await context.setGeolocation({ ...pin, accuracy: 10 });
+  await page.getByRole("button", { name: ar.merchant.useLocation }).click();
+  await expect(page.getByText(ar.merchant.pinSelected, { exact: true })).toBeVisible();
+}
+
 async function submitPin(page: Page, pin: { latitude: number; longitude: number }) {
-  await page.getByRole("textbox", { name: ar.merchant.latitude }).fill(pin.latitude.toString());
-  await page.getByRole("textbox", { name: ar.merchant.longitude }).fill(pin.longitude.toString());
+  await chooseGpsPin(page, pin);
   const response = waitForPost(page, applicationEndpoint);
   await page.getByRole("button", { name: ar.merchant.submit }).click();
   return response;
@@ -297,12 +304,7 @@ test("[MER-01:browser] replays a committed application after a lost response and
       }
     });
 
-    await page
-      .getByRole("textbox", { name: ar.merchant.latitude })
-      .fill(String(commune.pin.latitude));
-    await page
-      .getByRole("textbox", { name: ar.merchant.longitude })
-      .fill(String(commune.pin.longitude));
+    await chooseGpsPin(page, commune.pin);
     const submit = page.getByRole("button", { name: ar.merchant.submit });
     await submit.click();
     await expect(

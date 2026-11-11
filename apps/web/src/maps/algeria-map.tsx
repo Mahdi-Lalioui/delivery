@@ -23,7 +23,7 @@ export function AlgeriaMap({
   onSelect,
 }: {
   locale: Locale;
-  initial?: MapPoint;
+  initial?: MapPoint | undefined;
   selected?: MapPoint | undefined;
   accuracy?: number | undefined;
   onSelect?: (point: MapPoint) => void;

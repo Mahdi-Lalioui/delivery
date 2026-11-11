@@ -221,3 +221,6 @@
 
 - 2026-11-11 · High · Added lazy Algeria basemap to discovery and courier. Four production-browser map checks, 56 scoped tests, lint, typecheck and dependency boundaries passed. Reviewed captures in docs/evidence/awid/location-map/.
   Next: replace merchant typed coordinates with the same pin control, seed eight cities, and wire merchant radius settings.
+
+- 2026-11-11 · Medium · Replaced merchant coordinates with a commune-centred pin, GPS accuracy, and localized validation. Passed 66 scoped checks, three real merchant/admin journeys and four production-map checks.
+  Next: expand the local-only catalog to 40 fictional restaurants across eight cities with cover photos and reviews.
