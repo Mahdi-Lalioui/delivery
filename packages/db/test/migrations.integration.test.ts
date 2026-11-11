@@ -83,3 +83,18 @@ test("[M2-2] provisions platform settings and safe default feature flags", async
     sql`insert into feature_flags (key, scope) values ('fixture_flag', '[]'::jsonb)`,
   ).rejects.toMatchObject({ code: "23514" });
 });
+
+test("[CUS-24] provisions separate challenge, replay proof and audit storage", async () => {
+  const { sql } = database.get();
+  expect(
+    await sql`
+    SELECT table_name FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name LIKE 'account_deletion_%'
+    ORDER BY table_name
+  `,
+  ).toEqual([
+    { table_name: "account_deletion_audit" },
+    { table_name: "account_deletion_challenges" },
+    { table_name: "account_deletion_proofs" },
+  ]);
+});

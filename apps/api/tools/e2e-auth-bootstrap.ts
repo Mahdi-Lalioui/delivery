@@ -89,6 +89,50 @@ async function seedMenuMemberships(database: DatabaseConnection, phone: string, 
   });
 }
 
+async function seedDiscoverySearch(database: DatabaseConnection) {
+  const commune = await seedAlgiersCommune(database);
+  await database.sql.begin(async (sql) => {
+    const [merchant] = await sql<{ id: string }[]>`
+      INSERT INTO public.merchants (slug, restaurant_name, owner_name, phone_e164, commune_id,
+        location, cuisines, status, created_at)
+      VALUES ('chawarma-fixture', 'Chawarma du Port', 'Synthetic owner', '+213500000000',
+        ${commune.id}, ST_SetSRID(ST_MakePoint(${commune.pin.longitude}, ${commune.pin.latitude}), 4326),
+        ARRAY['grill'], 'active', now()) RETURNING id
+    `;
+    if (!merchant) throw new Error("Expected a synthetic search merchant.");
+    const [category] = await sql<{ id: string }[]>`
+      INSERT INTO public.categories (merchant_id, names, sort)
+      VALUES (${merchant.id}, '{"ar":"مشاوي","fr":"Grillades","en":"Grilled dishes"}', 0) RETURNING id
+    `;
+    if (!category) throw new Error("Expected a synthetic search category.");
+    await sql`
+      INSERT INTO public.items (merchant_id, category_id, names, descriptions, price_dzd, tags,
+        prep_extra_min, moderation_status)
+      VALUES (${merchant.id}, ${category.id}, '{"ar":"شاورما الدجاج","fr":"Chawarma poulet"}',
+        '{"ar":"دجاج وسلطة","fr":"Poulet et salade","en":"Chicken and salad"}', 500, '{}', 0, 'approved')
+    `;
+    const [group] = await sql<{ id: string }[]>`
+      INSERT INTO public.option_groups (merchant_id, names, minimum, maximum)
+      VALUES (${merchant.id}, '{"ar":"اختر الصلصة","fr":"Choisir la sauce"}', 1, 1)
+      RETURNING id
+    `;
+    if (!group) throw new Error("Expected a synthetic option group.");
+    await sql`
+      INSERT INTO public.options (merchant_id, group_id, names, price_delta_dzd,
+        is_default, is_available, sort)
+      VALUES (${merchant.id}, ${group.id}, '{"ar":"صلصة بيضاء","fr":"Sauce blanche"}',
+        50, false, true, 0)
+    `;
+    await sql`
+      INSERT INTO public.item_option_groups (merchant_id, item_id, group_id, sort)
+      SELECT ${merchant.id}, id, ${group.id}, 0 FROM public.items
+      WHERE merchant_id = ${merchant.id}
+    `;
+    await sql`SELECT graphile_worker.add_job('search_refresh', '{}'::json)`;
+  });
+  return commune;
+}
+
 async function seedOnboardingProgress(
   database: DatabaseConnection,
   merchantId: string,
@@ -191,6 +235,7 @@ export async function startAuthHarness(
     origin: proxy.origin,
     close: () => cleanup.disposeAsync(),
     seedAlgiersCommune: () => seedAlgiersCommune(database),
+    seedDiscoverySearch: () => seedDiscoverySearch(database),
     async seedDiscoveryFeed() {
       if (!mediaRoot) throw new Error("Start the test media worker for the discovery fixture.");
       return seedDiscoveryFeed(database, {

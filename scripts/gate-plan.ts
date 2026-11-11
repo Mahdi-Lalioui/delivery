@@ -70,6 +70,7 @@ const commands: ReadonlyMap<string, readonly string[]> = new Map([
   ["mutation:domain", ["test:mutation"]],
   ["property:1000", ["test:properties"]],
   ["authz:matrix", ["test:authz"]],
+  ["bench:search", ["bench:search"]],
 ]);
 
 const merchantCheckTags: ReadonlyMap<string, string> = new Map([
@@ -79,7 +80,8 @@ const merchantCheckTags: ReadonlyMap<string, string> = new Map([
 
 export function gateCommand(milestone: string, check: string): readonly string[] | undefined {
   const merchantTag = milestone === "m2" ? merchantCheckTags.get(check) : undefined;
-  if (merchantTag) return ["test:e2e:auth", "--grep", merchantTag, "--fail-on-flaky-tests"];
+  const authTag = milestone === "m3" && check === "e2e:@discovery" ? "@discovery" : merchantTag;
+  if (authTag) return ["test:e2e:auth", "--grep", authTag, "--fail-on-flaky-tests"];
   const testTag = /^e2e:(@[a-z0-9-]+)$/.exec(check)?.[1];
   return testTag ? ["test:e2e", "--grep", testTag] : commands.get(check);
 }

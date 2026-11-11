@@ -16,7 +16,7 @@ test("[CUS-01] requests the public feed without a session or cached response", a
   expect(options).toMatchObject({
     method: "GET",
     credentials: "omit",
-    cache: "no-store",
+    cache: "no-cache",
     redirect: "error",
   });
   expect(options?.signal).toBeInstanceOf(AbortSignal);

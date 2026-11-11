@@ -263,3 +263,13 @@
     display: none;
   }
 }
+
+.restaurant-feed-identity h3 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.restaurant-feed-identity h3 a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--color-primary);
+}

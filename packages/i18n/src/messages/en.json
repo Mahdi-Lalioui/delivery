@@ -1330,7 +1330,7 @@
     "deletedTitle": "Account deleted",
     "deletedBody": "Your personal data has been erased. Thank you for ordering with us.",
     "home": "Back to home",
-    "deleteUnknown": "We could not confirm the deletion. Try again: if you are asked to sign in, your account has already been deleted."
+    "deleteUnknown": "We could not confirm the deletion. Try again with the same confirmation code."
   },
   "designGallery": {
     "title": "AWID gallery",

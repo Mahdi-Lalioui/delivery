@@ -18,6 +18,7 @@
     "@zaafran/db": "workspace:*",
     "@zaafran/domain": "workspace:*",
     "@zaafran/geo": "workspace:*",
+    "@zaafran/i18n": "workspace:*",
     "@zaafran/media": "workspace:*",
     "fastify": "5.12.8",
     "fastify-type-provider-zod": "7.0.0",

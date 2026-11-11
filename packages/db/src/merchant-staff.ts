@@ -1,4 +1,5 @@
 import type { TransactionSql } from "postgres";
+import { lockOtpPhone } from "./auth-otp-lock.js";
 import type { DatabaseConnection } from "./database.js";
 
 type InvitedRole = "manager" | "staff";
@@ -133,6 +134,8 @@ async function createInvitation(
   sql: TransactionSql,
   request: StaffInvitationCreate,
 ): Promise<CreateResult> {
+  // Account deletion clears invitations for the target phone under the same lock.
+  await lockOtpPhone(sql, request.phone);
   if (!(await lockOwnedMerchant(sql, request))) return { kind: "not_found" };
   const replay = await readReplay(sql, request);
   if (replay) return replay;

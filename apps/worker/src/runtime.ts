@@ -1,17 +1,24 @@
 import type { DatabaseConnection } from "@zaafran/db/database";
+import { createDiscoverySearchRepository } from "@zaafran/db/discovery-search";
+import { createPrivacyRepository } from "@zaafran/db/privacy";
 import { createMediaRepository } from "@zaafran/db/media";
 import { createLocalMediaStore, type MediaStore } from "@zaafran/media";
 import type { RunnerOptions, TaskList } from "graphile-worker";
 import { z } from "zod";
 import { defaultMediaStorageRoot } from "./command.js";
+import { createSearchRefreshJob } from "./discovery-search.js";
 import { runJobEffectOnce } from "./effects.js";
 import { defineJob } from "./jobs.js";
 import { queueLogger } from "./logger.js";
 import { createCropMediaJob } from "./media-crop.js";
 import { createPrepareMediaJob } from "./media-prepare.js";
+import { createPrivacyMediaPurgeJob } from "./privacy-media.js";
 import { workerSchema } from "./migrate-worker.js";
 
 const mediaPayload = z.strictObject({ mediaId: z.uuid(), phase: z.enum(["prepare", "crop"]) });
+const cleanupPayload = z.strictObject({
+  _cron: z.strictObject({ ts: z.iso.datetime(), backfilled: z.boolean() }).optional(),
+});
 const watchdogIdentifier = "ops.watchdog";
 const watchdogPayload = z.strictObject({ checkId: z.uuid() });
 
@@ -22,13 +29,24 @@ export function createWorkerOptions(
     store: createLocalMediaStore({ root: defaultMediaStorageRoot() }),
   },
 ) {
-  const mediaOptions = { repository: createMediaRepository(database), ...media };
+  const privacy = createPrivacyRepository(database);
+  const mediaOptions = {
+    repository: createMediaRepository(database),
+    recordArtifact: privacy.recordApplicationMediaArtifact,
+    ...media,
+  };
   const prepare = createPrepareMediaJob(mediaOptions);
   const crop = createCropMediaJob(mediaOptions);
   const taskList = {
     "media.process": defineJob(mediaPayload, (payload) =>
       payload.phase === "prepare" ? prepare(payload) : crop(payload),
     ),
+    "privacy.purge_media": createPrivacyMediaPurgeJob({
+      repository: privacy,
+      store: media.store,
+    }),
+    privacy_cleanup: defineJob(cleanupPayload, () => privacy.pruneDeletionState(new Date())),
+    search_refresh: createSearchRefreshJob(createDiscoverySearchRepository(database)),
     [watchdogIdentifier]: defineJob(watchdogPayload, async ({ checkId }) => {
       await runJobEffectOnce({
         database,
@@ -46,7 +64,7 @@ export function createWorkerOptions(
     taskList,
     schema: workerSchema,
     logger: queueLogger,
-    crontab: "",
+    crontab: "* * * * * search_refresh\n*/5 * * * * privacy_cleanup",
     // Graphile Worker drains these queues before closing its pool on shutdown.
     preset: { worker: { completeJobBatchDelay: 0, failJobBatchDelay: 0 } },
   } satisfies RunnerOptions;

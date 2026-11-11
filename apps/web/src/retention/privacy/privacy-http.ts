@@ -1,5 +1,6 @@
 import { problemResponseSchema } from "@zaafran/contracts/health";
 import {
+  customerPrivacyChallengeOutput,
   customerPrivacyDeleteInput,
   customerPrivacyExportOutput,
 } from "@zaafran/contracts/retention";
@@ -40,12 +41,6 @@ export async function exportMyData(): Promise<ExportResult> {
   }
 }
 
-function readChallengeId(body: unknown): unknown {
-  return typeof body === "object" && body !== null && "challengeId" in body
-    ? body.challengeId
-    : undefined;
-}
-
 /** Sends a 6-digit code to the account's phone; the key makes a retried tap send only once. */
 export async function requestDeletionCode(key: string): Promise<ChallengeResult> {
   try {
@@ -56,8 +51,10 @@ export async function requestDeletionCode(key: string): Promise<ChallengeResult>
     });
     if (!response.ok) return failure(response.status);
     const body: unknown = await response.json();
-    const parsed = customerPrivacyDeleteInput.shape.challengeId.safeParse(readChallengeId(body));
-    return parsed.success ? { kind: "sent", challengeId: parsed.data } : { kind: "error" };
+    const parsed = customerPrivacyChallengeOutput.safeParse(body);
+    return parsed.success
+      ? { kind: "sent", challengeId: parsed.data.challengeId }
+      : { kind: "error" };
   } catch {
     return { kind: "error" };
   }
@@ -96,7 +93,7 @@ export async function confirmDeletion(input: {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body.data),
     });
-    if (response.ok) return { kind: "deleted" };
+    if (response.status === 204) return { kind: "deleted" };
     if (response.status === 400 || response.status === 409) return await codeProblem(response);
     return failure(response.status);
   } catch {

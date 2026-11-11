@@ -7,9 +7,10 @@ import { problemResponseSchema } from "@zaafran/contracts/health";
 import type { MediaStore } from "@zaafran/media";
 import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
-import type { z } from "zod";
+import { z } from "zod";
 import { binaryImage, sendImage } from "./image-response.js";
 import { sendProblem } from "./problems.js";
+import { revalidatePublicJson } from "./public-json-cache.js";
 
 export interface PublicFeedServices {
   readonly repository: {
@@ -39,10 +40,13 @@ export function registerPublicFeedRoutes(api: FastifyInstance, services?: Public
     "/v1/feed",
     {
       config,
-      schema: { querystring: publicFeedQuery, response: { 200: publicFeedOutput, ...readErrors } },
+      onSend: revalidatePublicJson,
+      schema: {
+        querystring: publicFeedQuery,
+        response: { 200: publicFeedOutput, 304: z.void(), ...readErrors },
+      },
     },
     async (request, reply) => {
-      reply.header("cache-control", "no-store");
       if (!services) return sendProblem(reply, 503);
       const { limit, cursor } = request.query;
       return reply.send(

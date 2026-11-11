@@ -16,11 +16,11 @@ Customer orders (delivery or pickup, cash) → restaurant accepts on a live boar
 - Nothing from the demo branch's local-demo-* files or its auth-service code override reaches any lane or main.
 
 ## Lanes and ownership
-- Lane A, Codex 1, branch lane-a: packages/contracts, db, domain, geo; apps/api; apps/worker; infra and deployment.
+- Lane A, Codex 1, branch lane-a: packages/contracts, db, domain, geo; apps/api; apps/worker; infra and deployment; apps/web merchant, courier and admin screens; e2e tests.
 - Lane B, Claude Code, branch lane-b: packages/tokens and ui; apps/web marketing, discovery, restaurant, cart, checkout, tracking, retention; photos, motion, 3D. Lane B owns the design system and every other lane follows it.
-- Lane C, Codex 2, branch lane-c, own folder, ports 200 above lane A: apps/web merchant, courier and admin screens; e2e tests.
-- Only lane A edits contracts and migrations; others ask in docs/requests/. Lane A publishes each contract before building behind it. B and C build on fixtures until the API lands.
-- Lane A merges lane-a, lane-c, lane-b into main at the end of each phase.
+- Lane C is paused. Lane A owns its work and proceeds without a second Codex.
+- Only lane A edits contracts and migrations; others ask in docs/requests/. Lane A publishes each contract before building behind it. Lane B builds on fixtures until the API lands.
+- Lane A merges lane-a, then lane-b into main at the end of each phase.
 
 ## Brand
 - Name: AWID (Arabic أويد until Mahdi confirms). Tagline: "You're in need, try AWID". Change display names only (packages/config/src/brand.ts, messages, manifest, metadata, logo). Do not rename package scopes or environment variables.
@@ -63,13 +63,18 @@ Order of work for lane B: design system and gallery first; then Discovery, Resta
 Loading skeleton, empty state, error state. 390 px Arabic and 1280 px French, light and dark. No console errors, no horizontal overflow, no layout shift. Passed the design loop.
 
 ## Lane A tasks
-1. Contracts: orders, quote, addresses, tracking, courier, and feed fields (rating, ETA range, delivery fee, filters, sort).
-2. Orders per SPEC §3–4: cash, delivery or pickup (pickup has no fee and no courier), quote = subtotal + restaurant zone fee, idempotent placement, state machine, accept-timeout job. Feed filters and sorting (CUS-04, CUS-06).
-3. Realtime over SSE with a polling fallback, web push for status changes, SMS through the adapter interface configured by environment.
-4. Courier API: invite, assigned deliveries, position every 5 s with validation, delivery code confirmation, broadcast to the customer.
-5. Maps for all of Algeria: one PMTiles file styled from the AWID tokens, OSRM ETA with fallback. Location by wilaya then commune for all 69 wilayas, restaurant-defined delivery radius, no Algiers-only assumptions. Seed 40 restaurants across at least 8 cities with full menus, photos, ratings and reviews.
-6. Deployment: production Docker Compose on one server (Caddy with TLS on an sslip.io hostname, api, worker, PostGIS, tiles, OSRM), one-command deploy, nightly encrypted backup, health checks. Web on Vercel through the existing ZAAFRAN_API_ORIGIN rewrite; verify sign-in cookies, media and realtime through it, and connect realtime directly to the API if the rewrite buffers. Write every server and Vercel setting in docs/DEPLOY.md.
-7. Freeze: fix reviewer findings and failing e2e only, until everything is green.
+
+1. Publish contracts for orders, quotes, addresses, tracking, couriers, and feed fields and filters.
+2. Implement orders per SPEC §3–4: cash pricing, delivery or pickup (no pickup fee or courier), zone fee, idempotent placement, transitions, accept-timeout job, and feed filters and sorting (CUS-04, CUS-06).
+3. Build the restaurant live board with new-order sound, accept, reject, ready, handover, cancel, an offline banner and event replay.
+4. Add realtime SSE with polling fallback, web push for status changes, and an environment-configured SMS adapter.
+5. Build the courier API, then courier screens: invite acceptance, assigned deliveries, start, validated position updates every 5 seconds, delivery code confirmation and customer broadcasts.
+6. Add nationwide maps and location: AWID-styled PMTiles, OSRM ETA with fallback, wilaya and commune selection for all 69 wilayas, restaurant-defined delivery radius, and 40 seeded restaurants across at least eight cities with menus, photos, ratings and reviews.
+7. Deploy the backend on one server with production Compose, Caddy and TLS on an sslip.io hostname, API, worker, PostGIS, tiles, OSRM, one-command deploy, health checks and nightly encrypted backups. Deploy the web on Vercel through the existing `ZAAFRAN_API_ORIGIN` rewrite and verify cookies, media and realtime. Connect directly for realtime if the rewrite buffers. Document the settings in `docs/DEPLOY.md`.
+8. Build admin live orders and complete both open handoffs in `docs/requests/` (merchant notice and moderation token).
+9. Add production-build e2e for the delivery golden path, pickup, rejection, timeout and customer cancellation. Port `e2e/demo-smoke.ts` as a route smoke check for Arabic and French, covering console errors and overflow.
+10. Restyle merchant, courier and admin screens with Lane B’s design system and run the design loop on each.
+11. Freeze. Fix findings and failing e2e until everything is green.
 
 ## Lane B tasks (priority order)
 1. Rewrite docs/DESIGN.md for AWID from the brief above and record it in DECISIONS.md. New tokens, fonts, a clean SVG logo and app icon redrawn from the reference, every packages/ui component restyled, the gallery page.
@@ -81,11 +86,3 @@ Loading skeleton, empty state, error state. 390 px Arabic and 1280 px French, li
 7. Installable app: icons, install prompt, offline shell, push opt-in.
 8. The 3D scene, under the rule above.
 9. Final sweep of every customer screen through the design loop.
-
-## Lane C tasks
-1. Restaurant live board: new-order sound, accept, reject, ready, hand over, cancel, offline banner and replay.
-2. Courier screens: invite acceptance, my deliveries, start, live position sharing, delivery code.
-3. Admin live-orders page, and the two open handoffs in docs/requests (merchant notice, moderation token).
-4. Restyle every merchant, courier and admin screen with lane B's design system and run the design loop on each.
-5. End-to-end tests on the production build: delivery golden path with customer, restaurant and courier; pickup; reject; timeout; customer cancel. Port e2e/demo-smoke.ts from the demo branch to visit every route in ar and fr and fail on console errors or overflow.
-6. Freeze: fix findings only, until everything is green.

@@ -210,9 +210,18 @@ Close the remaining M2 acceptance checks and seed the demo restaurants. Then lan
   - [ ] Add open-first ordering, cuisine browsing and the remaining sections and fields when their data producers are available.
 - [ ] M3-3 Search index, jobs, endpoint and UI (SRCH-04…06, CUS-05, CUS-06).
 - [ ] M3-4 Restaurant page and item sheet (CUS-07, CUS-08), with ETag caching.
+  - [x] Publish strict public restaurant, category and revision-bound item contracts.
+  - [x] Connect public menu and photo reads with legacy moderation and category serving windows.
+  - [x] Prove item options and localized restaurant pages in the production browser and screenshot matrix.
 - [ ] M3-5 Cart (CUS-09) with persistence.
+  - [x] Validate configured lines, money, merchant changes and seven-day persistence in the domain.
+  - [x] Wire item sheet and editable cart UI and prove reload persistence end to end.
 - [ ] M3-6 Link-in-bio pages with OG images (CUS-27). SEO: metadata, `hreflang`, sitemap, schema.org Restaurant/Menu.
 - [ ] M3-7 PWA basics (CUS-25), low-data mode (CUS-26, GEO-10), and route bundle budgets in CI (NFR-02).
+  - [x] Publish a customer manifest with standalone mode and normal, maskable and Apple touch icons.
+  - [x] Show a localized offline fallback and keep private routes outside its cache.
+  - [x] Use smaller customer photo variants for the Save-Data header and browser preference.
+  - [ ] Cache recent public menus, add push setup, gate maps and motion in low-data mode, and add bundle checks.
 
 **Gate m3:**
 

@@ -30,7 +30,7 @@ test("[CUS-01] renders a named Arabic section and announces the initial skeleton
   expect(html).toContain('aria-hidden="true"');
 });
 
-test("[CUS-04] renders localized cuisines, availability, and public image variants without restaurant links", () => {
+test("[CUS-04] renders localized cuisines, availability, and public image variants with localized restaurant links", () => {
   const html = renderToStaticMarkup(
     <FeedContent
       locale="fr"
@@ -50,7 +50,7 @@ test("[CUS-04] renders localized cuisines, availability, and public image varian
   expect(html).toContain('width="640" height="360"');
   expect(html).toContain('width="160" height="160"');
   expect(html).toContain('loading="lazy"');
-  expect(html).not.toContain("href=");
+  expect(html).toContain(`href="/fr/restaurants/${openRestaurant.slug}"`);
 });
 
 test("[CUS-03] shows an Algiers opening time and placeholder for a closed restaurant", () => {

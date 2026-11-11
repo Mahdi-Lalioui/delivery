@@ -3,7 +3,13 @@
   "ignoreBinaries": ["pmtiles"],
   "workspaces": {
     ".": {
-      "entry": ["scripts/check-pr.ts", "scripts/*.test.ts", "tooling/*.test.ts"]
+      "entry": [
+        "scripts/check-pr.ts",
+        "scripts/*.test.ts",
+        "tooling/*.test.ts",
+        "e2e/preview.config.ts",
+        "e2e/team-preview.preview.ts"
+      ]
     },
     "apps/api": {
       "entry": ["src/server.ts", "test/**/*.test.ts"]
@@ -12,7 +18,7 @@
       "entry": ["src/migrate.ts", "test/**/*.test.ts"]
     },
     "apps/web": {
-      "entry": ["src/app/**/page.design.tsx"]
+      "entry": ["src/app/**/page.design.tsx", "public/pwa-worker.js", "public/pwa/offline.css"]
     },
     "apps/mobile": {
       "entry": ["app/**/*.tsx", "test/**/*.test.tsx"],

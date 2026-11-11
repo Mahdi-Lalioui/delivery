@@ -14,15 +14,21 @@ interface CropMediaOptions {
     "findCropWork" | "completeCrop"
   >;
   readonly store: MediaStore;
+  readonly recordArtifact: (mediaId: string, key: string) => Promise<void>;
   readonly heicDecoderPath?: string | undefined;
 }
 
 type EncodedVariant = Omit<MediaStoredVariant, "bytes" | "key"> & { bytes: Buffer };
 
-async function storeVariant(store: MediaStore, mediaId: string, variant: EncodedVariant) {
+async function storeVariant(
+  { store, recordArtifact }: Pick<CropMediaOptions, "store" | "recordArtifact">,
+  mediaId: string,
+  variant: EncodedVariant,
+) {
   const { format, width, height, bytes } = variant;
   const digest = createHash("sha256").update(bytes).digest();
   const key = `variants/${mediaId}/${String(width)}-${digest.toString("hex")}.${format}`;
+  await recordArtifact(mediaId, key);
   await store.put({
     key,
     body: Readable.from([bytes]),
@@ -32,7 +38,12 @@ async function storeVariant(store: MediaStore, mediaId: string, variant: Encoded
   return { key, format, width, height, bytes: bytes.length };
 }
 
-export function createCropMediaJob({ repository, store, heicDecoderPath }: CropMediaOptions) {
+export function createCropMediaJob({
+  repository,
+  store,
+  heicDecoderPath,
+  recordArtifact,
+}: CropMediaOptions) {
   return defineJob(cropPayload, async (payload) => {
     const mediaId = payload.mediaId.toLowerCase();
     const source = await repository.findCropWork(mediaId);
@@ -51,7 +62,7 @@ export function createCropMediaJob({ repository, store, heicDecoderPath }: CropM
       if (result.status !== "cropped") throw new Error("Prepared original could not be cropped");
       const variants: MediaStoredVariant[] = [];
       for (const variant of result.variants)
-        variants.push(await storeVariant(store, mediaId, variant));
+        variants.push(await storeVariant({ store, recordArtifact }, mediaId, variant));
       if (
         !(await repository.completeCrop({
           mediaId,

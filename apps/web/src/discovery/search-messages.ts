@@ -1,0 +1,68 @@
+import type { Locale } from "@zaafran/i18n/locales";
+
+const en = {
+  trigger: "Search for a dish or restaurant",
+  heading: "Find your next bite",
+  intro: "Explore restaurants and dishes across Algiers.",
+  close: "Close search",
+  clearQuery: "Clear search",
+  recent: "Recent searches",
+  clearHistory: "Clear history",
+  suggestions: "Try a search",
+  suggestedQueries: ["Shawarma", "Pizza", "Mahdjouba", "Grilled chicken"],
+  loading: "Searching…",
+  error: "We couldn’t load your search results.",
+  retry: "Try again",
+  empty: "No matching restaurants or dishes.",
+  invalid: "Enter a search of up to 100 characters.",
+  restaurants: "Restaurants",
+  dishes: "Dishes",
+  results: "Search results updated.",
+};
+
+const messages = {
+  en,
+  "en-XA": en,
+  fr: {
+    trigger: "Rechercher un plat ou un restaurant",
+    heading: "Une envie à table",
+    intro: "Découvrez les restaurants et les plats d’Alger.",
+    close: "Fermer la recherche",
+    clearQuery: "Effacer la recherche",
+    recent: "Recherches récentes",
+    clearHistory: "Effacer l’historique",
+    suggestions: "À essayer",
+    suggestedQueries: ["Chawarma", "Pizza", "Mahdjouba", "Poulet grillé"],
+    loading: "Recherche en cours…",
+    error: "Impossible de charger les résultats de recherche.",
+    retry: "Réessayer",
+    empty: "Aucun restaurant ni plat ne correspond à votre recherche.",
+    invalid: "Saisissez une recherche de 100 caractères maximum.",
+    restaurants: "Restaurants",
+    dishes: "Plats",
+    results: "Résultats de recherche mis à jour.",
+  },
+  ar: {
+    trigger: "ابحث عن طبق أو مطعم",
+    heading: "ماذا تشتهي اليوم؟",
+    intro: "اكتشف المطاعم والأطباق في الجزائر العاصمة.",
+    close: "إغلاق البحث",
+    clearQuery: "مسح البحث",
+    recent: "عمليات البحث الأخيرة",
+    clearHistory: "مسح السجل",
+    suggestions: "جرّب البحث عن",
+    suggestedQueries: ["شاورما", "بيتزا", "محاجب", "دجاج مشوي"],
+    loading: "جارٍ البحث…",
+    error: "تعذّر تحميل نتائج البحث.",
+    retry: "إعادة المحاولة",
+    empty: "لا توجد مطاعم أو أطباق تطابق بحثك.",
+    invalid: "أدخل عبارة بحث من 100 حرف أو أقل.",
+    restaurants: "المطاعم",
+    dishes: "الأطباق",
+    results: "تم تحديث نتائج البحث.",
+  },
+} satisfies Record<Locale, typeof en>;
+
+export function getSearchMessages(locale: Locale) {
+  return messages[locale];
+}

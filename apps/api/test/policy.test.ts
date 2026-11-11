@@ -201,6 +201,14 @@ const matrix: readonly MatrixRoute[] = [
     payload: { scope: "current", expectedSessionId: challengeId },
     expected: 401,
   },
+  { method: "GET", url: "/v1/me/export", expected: { customer: 503 } },
+  { method: "POST", url: "/v1/me/deletion-challenge", expected: { customer: 503 } },
+  {
+    method: "DELETE",
+    url: "/v1/me",
+    payload: { challengeId, code: "012345" },
+    expected: { customer: 503 },
+  },
   { method: "GET", url: "/v1/me/sessions", expected: 401 },
   {
     method: "DELETE",
@@ -454,6 +462,31 @@ const matrix: readonly MatrixRoute[] = [
   },
   { method: "GET", url: "/v1/flags", expected: 503 },
   { method: "GET", url: "/v1/feed", expected: 503 },
+  {
+    method: "GET",
+    url: "/v1/merchants/:merchantId/items/:itemId/photos/:mediaId/variants/:format/:width",
+    requestUrl: `/v1/merchants/${challengeId}/items/${challengeId}/photos/${challengeId}/variants/webp/640`,
+    expected: 503,
+  },
+  {
+    method: "GET",
+    url: "/v1/merchants/:slug",
+    requestUrl: "/v1/merchants/table-fixture",
+    expected: 503,
+  },
+  {
+    method: "GET",
+    url: "/v1/merchants/:slug/categories/:categoryId/items",
+    requestUrl: `/v1/merchants/table-fixture/categories/${challengeId}/items`,
+    expected: 503,
+  },
+  {
+    method: "GET",
+    url: "/v1/merchants/:slug/items/:itemId",
+    requestUrl: `/v1/merchants/table-fixture/items/${challengeId}?expectedRevision=0`,
+    expected: 503,
+  },
+  { method: "GET", url: "/v1/search", requestUrl: "/v1/search?q=chawarma", expected: 503 },
   {
     method: "GET",
     url: "/v1/merchants/:merchantId/profile/photos/:mediaId/variants/:format/:width",

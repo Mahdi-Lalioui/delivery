@@ -9,10 +9,7 @@ import {
   type DeleteResult,
 } from "./privacy-http";
 
-type Step =
-  | { kind: "idle" }
-  | { kind: "code-sent"; challengeId: string; isUncertain: boolean }
-  | { kind: "deleted" };
+type Step = { kind: "idle" } | { kind: "code-sent"; challengeId: string } | { kind: "deleted" };
 export type PrivacyState = {
   step: Step;
   isBusy: boolean;
@@ -67,7 +64,7 @@ export function usePrivacy(fileName: string): PrivacyState {
       return;
     }
     setDeleteError(undefined);
-    setStep({ kind: "code-sent", challengeId: result.challengeId, isUncertain: false });
+    setStep({ kind: "code-sent", challengeId: result.challengeId });
   }, []);
 
   const confirm = useCallback(
@@ -76,13 +73,10 @@ export function usePrivacy(fileName: string): PrivacyState {
       setIsBusy(true);
       const result = await confirmDeletion({ challengeId: step.challengeId, code });
       setIsBusy(false);
-      // After an unanswered delete, losing the session means the account is gone (sessions revoked).
-      const isGone = result.kind === "deleted" || (step.isUncertain && result.kind === "sign-in");
-      if (isGone) {
+      if (result.kind === "deleted") {
         setStep({ kind: "deleted" });
         return;
       }
-      if (result.kind === "unknown") setStep({ ...step, isUncertain: true });
       if (result.kind === "expired") {
         sendKey.current = undefined;
         setStep({ kind: "idle" });

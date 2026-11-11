@@ -55,3 +55,79 @@
 
 - 2026-11-08 · Ultra and high · Public feed and current profile variants passed 1,568 unit, 222 PostGIS, 224 authorization and two production browser cases. Reviewer closed the extended-year pause P0 and design critic approved eight captures. [Evidence](../evidence/m3/feed.md)
 - 2026-11-08 · High · Resume M3-3 with the search index and ranking. Share live publication checks with the feed and later restaurant pages. Keep M3-2 open for global ordering, additional sections and commercial data.
+
+- 2026-11-08 · High · Evening integration is pushed to main at `1a7a77e`, including Lane A `233e62f` and Lane B `8171285`. Verify passed 1,700 unit, 222 PostGIS and four mobile Jest cases; production suites passed 59 and 24. Main serves marketing at locale root and customer discovery at `/discover`.
+- 2026-11-08 · Ultra and high · Search is in progress on lane-a with contract commit `dc756fc` and uncommitted DB/API/worker/UI changes. DB agent proved 204 PostGIS cases. HTTP aliases passed 11 cases. Graphile wiring still needs the running session/log result checked. Production search journey is authored but unrun.
+- 2026-11-08 · Ultra review · Fix open search work-bound P1 before pushing. Red regressions are in discovery-search integration (one-character query) and API HTTP (Postgres 57014 maps to 503 search_busy). Add minimum normalized length and transaction-local statement timeout, then verify. Agents reached usage limit at 19:05; preserve all files.
+- 2026-11-08 · High · Resume with those P1s, finish search UI integration in Home, real worker/browser proof, screenshot matrix and review. Do not rebase the dirty lane-a worktree. After committing, merge current main to retain `/discover` and Lane B updates. M2 remains 36/37.
+
+- 2026-11-08 · Ultra · Search work-bound fixes now pass two HTTP and 14 real PostGIS/Graphile tests. One-character queries return no matches, SQL statements have a 500ms local timeout, and cancellation maps to retryable search_busy. Independent review and full benchmark remain before closing the review item.
+- 2026-11-08 · High · Search screen is mounted in Home. Worker production build now rewrites relative TypeScript import extensions like API. French production search journey passed; Arabic reached successful results and reload but the history assertion ambiguously matches a suggestion and recent query. Scope assertion to recent-history region next, then run full verify and capture/review before push.
+- 2026-11-08 · High · Both production search journeys now pass after scoping the history assertion with a relative locator. Eight captures are saved under docs/evidence/m3/search and design review is pending. Full verify is running under /private/tmp/zaafran-search-verify.log, session 30779. No feature push yet.
+- 2026-11-08 · High · Search passed full verify with 1,579 unit and 234 PostGIS cases, plus both ar/fr production journeys. Reviewer closed the work-bound P1 and design critic passed eight captures. Performance benchmark and complete ranking remain open.
+- 2026-11-08 · High · Mahdi targets half the overall scope by 22:00 London today. Measure against SPEC acceptance, with customer restaurant/item/cart journey the next implementation batch. This is a target, not verified completion.
+- 2026-11-08 · High and ultra · Resumed restaurant/item/cart batch after search push. Lane A merged verified main at `28db669`. Contract builder owns restaurant schemas; cart builder owns domain logic. Root will wire public repository/API against committed schemas. Frozen integrated install is running in session 82967.
+- 2026-11-08 · High · Public menu contract committed at `86269ca`. Root added three anonymous restaurant routes, policy inventory and revision error mapping. Eleven focused HTTP/inventory tests and API typecheck passed. Repository writer is reusing preview visibility safely; cart builder has 39 green cases. Next connect production repository and start restaurant UI.
+- 2026-11-08 · High · Added localized /restaurants/[slug] page entries and public client reads while repository and UI builders continue. Cart core committed separately after 290 domain tests. Root API start now uses public restaurant repository, awaiting its private-preview regression completion. Unfinished batch is unpushed.
+- 2026-11-08 · Ultra review · Restaurant reviewer found category serving windows were omitted from item availability. DB builder is adding shared Algiers-time window checks and boundary regressions before this batch can close. Public item-photo and route inventory tests pass 12 cases. Feed links pass 12 web cases; production item/cart journey is authored.
+- 2026-11-08 · High · Feed/search results now link to localized restaurant pages, with 12 web tests passing. Item/cart browser proof asserts required sauce blocks Add, two configured units total 1,100 DZD, and cart survives reload. UI and review fixes still in flight; no full batch push yet.
+- 2026-11-08 · Ultra · Full route authorization matrix passed 228 tests after public menu and photo wiring. DB builder reports both review fixes green across 24 relevant PostGIS cases; waiting final suite and independent re-review. UI build remains active; production item/cart test is ready.
+
+- **M3 public menu review (ultra).** Fixed Algiers serving-window boundaries and blocked
+  prohibited option names across list, detail and photo reads. Independent reviewer reran
+  24 PostGIS tests successfully. Opened a P1 for stale menu revision recovery.
+
+
+- 2026-11-08 · Ultra review · Main CI repair pushed at `5564a30` after full verify
+  (1,701 unit and 222 PostGIS tests) and all 65 smoke cases passed. The repair
+  isolates codec inputs and locale navigations into their existing per-test budgets.
+
+- 2026-11-08 · Ultra review · The menu now carries its category revision into item detail and
+  recovers from stale item or pagination reads. The cart preserves another tab’s renewal
+  when an older expiry timer fires. Both production browser regressions passed.
+
+- 2026-11-08 · High · Eight focused production discovery/cart cases and all 30 authenticated
+  browser cases passed. The bilingual journey selects a commune, searches, configures a
+  required option, checks the 1,100 DZD total, and reopens the saved cart after reload.
+
+- 2026-11-08 · High · Design critic approved the 48 restaurant/item/cart captures at
+  390×844, 768×1024 and 1280×800, ar/fr and light/dark. The item CTA stays visible in its
+  own footer. M3-4 and M3-5 remain open for ETag, restaurant information and cart merchandising.
+
+- 2026-11-09 · High · Feed and menu now revalidate serialized public JSON with ETags.
+  Fresh reads preserve availability, moderation and revision errors. Full verify passed
+  (1,787 unit and 253 PostGIS), and all three focused production journeys passed.
+
+- 2026-11-09 · Medium · Arabic, French and English discovery now advertise the customer
+  manifest and saffron app icons. Production Chromium reproduced the missing manifest and
+  passed after wiring it. Offline, push and low-data behavior remain open.
+
+- 2026-11-09 · Medium review · Fixed the PWA launch P1 with localized discovery URLs
+  and one stable app ID. Four production Chromium checks passed. The M3 gate now
+  dispatches discovery and the scale benchmark, with 17 gate tests passing.
+
+- 2026-11-09 · Ultra · Search at 500 restaurants and 30,000 items timed out before the
+  SQL planner fix. Fresh-index p95 is now 65.5 ms over 22 golden queries with synonyms.
+  All 12 focused PostGIS tests passed. Evidence is in `docs/evidence/m3/search-scale.md`.
+
+- 2026-11-09 · High · The customer offline fallback caches only localized public pages and CSS.
+  Three production tests proved disconnect, locale, private-route bypass and recovery.
+  Twelve captures are in `docs/evidence/m3/offline/`. Recent menus and push remain open.
+- 2026-11-09 · High · The M3 gate and CI now run the search benchmark in isolation.
+  This keeps the unchanged 120 ms budget independent of parallel codecs and database fixtures.
+  The dedicated command passed at 67.4 ms p95.
+
+- 2026-11-09 · Medium · Customer photos use smaller variants when Save-Data is sent
+  or the browser requests it. Both production browser cases passed. Merged the green
+  merchant-photo CI repair into main at `c39cfc2` and brought it into lane-a.
+
+- 2026-11-09 · Ultra · Closed Lane B privacy request and merged `8757454`. Account-bound
+  OTP, rate limits, audit, anonymization, media erasure, and exact deletion replay are wired.
+  Full verify passed (1,808 unit, 269 PostGIS), with 234 authz and two production privacy cases.
+
+- 2026-11-09 · Medium/high · Added the team preview with synthetic restaurant discovery, cart,
+  Arabic RTL, partner/admin examples, and 3D/motion studies. Three Node 24 browser cases passed.
+  Eight visual captures are in `docs/evidence/team-preview`; Vercel setup is in `docs/TEAM_PREVIEW.md`.
+
+- 2026-11-11 · Low · Updated sprint ownership and sequence. Lane A now owns the restaurant board, courier and admin screens, and e2e.
+  Next: publish the tested order, quote, address, tracking, courier and feed contracts.

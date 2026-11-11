@@ -46,15 +46,19 @@ async function fixture(contentType: "image/png" | "image/jpeg" = "image/png") {
       completion.result.status === "rejected" ? { status: "rejected", quarantineKey } : undefined;
     return Promise.resolve(true);
   });
+  const recordArtifact = vi
+    .fn<(id: string, key: string) => Promise<void>>()
+    .mockResolvedValue(undefined);
   const job = (overrides: Partial<MediaStore> = {}) =>
     createPrepareMediaJob({
       store: { ...store, ...overrides },
+      recordArtifact,
       repository: {
         findPreparation: (id) => Promise.resolve(id === mediaId ? source : undefined),
         completePreparation: complete,
       },
     });
-  return { store, complete, job };
+  return { store, complete, job, recordArtifact };
 }
 
 test.each([
@@ -85,7 +89,7 @@ test("[MER-14:worker] retries a preview write failure without publishing a broke
 });
 
 test("[MER-14:worker] reuses the immutable preview after an interruption before the DB update", async () => {
-  const { store, complete, job } = await fixture();
+  const { store, complete, job, recordArtifact } = await fixture();
   const put = vi.fn(store.put.bind(store));
   const get = vi.fn(store.get.bind(store));
   const run = job({ put, get });
@@ -94,6 +98,8 @@ test("[MER-14:worker] reuses the immutable preview after an interruption before 
   const [firstWrite] = put.mock.calls;
   if (!firstWrite) throw new Error("Missing preview write");
   const previewKey = firstWrite[0].key;
+  expect(recordArtifact).toHaveBeenCalledExactlyOnceWith(mediaId, previewKey);
+  expect(recordArtifact).toHaveBeenCalledBefore(put);
   const preview = await store.get(previewKey);
   if (!preview) throw new Error("Missing preview");
   const previewDigest = createHash("sha256")

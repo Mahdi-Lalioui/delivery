@@ -41,7 +41,6 @@ test("[CUS-24] asks for the SMS code with autofill before the final destructive 
       step: {
         kind: "code-sent",
         challengeId: "019d6abc-0000-7000-8000-000000000802",
-        isUncertain: false,
       },
       deleteError: "invalid-code",
     },

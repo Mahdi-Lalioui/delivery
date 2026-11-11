@@ -15,13 +15,19 @@ type PreparationRepository = Pick<
 interface PrepareMediaOptions {
   readonly repository: PreparationRepository;
   readonly store: MediaStore;
+  readonly recordArtifact: (mediaId: string, key: string) => Promise<void>;
   readonly heicDecoderPath?: string | undefined;
 }
 
-async function writePreview(store: MediaStore, mediaId: string, bytes: Buffer): Promise<string> {
+async function writePreview(
+  { store, recordArtifact }: Pick<PrepareMediaOptions, "store" | "recordArtifact">,
+  mediaId: string,
+  bytes: Buffer,
+): Promise<string> {
   const digest = createHash("sha256").update(bytes).digest();
   // A retry can reuse the same object while different encoders cannot overwrite it.
   const key = `previews/${mediaId}/${digest.toString("hex")}.webp`;
+  await recordArtifact(mediaId, key);
   await store.put({
     key,
     body: Readable.from(bytes),
@@ -31,7 +37,12 @@ async function writePreview(store: MediaStore, mediaId: string, bytes: Buffer): 
   return key;
 }
 
-export function createPrepareMediaJob({ repository, store, heicDecoderPath }: PrepareMediaOptions) {
+export function createPrepareMediaJob({
+  repository,
+  store,
+  heicDecoderPath,
+  recordArtifact,
+}: PrepareMediaOptions) {
   return defineJob(preparePayload, async (payload) => {
     const mediaId = payload.mediaId.toLowerCase();
     const source = await repository.findPreparation(mediaId);
@@ -56,7 +67,7 @@ export function createPrepareMediaJob({ repository, store, heicDecoderPath }: Pr
     }
 
     const { width, height } = result.preview;
-    const previewKey = await writePreview(store, mediaId, result.preview.bytes);
+    const previewKey = await writePreview({ store, recordArtifact }, mediaId, result.preview.bytes);
     await repository.completePreparation({
       mediaId,
       quarantineKey,

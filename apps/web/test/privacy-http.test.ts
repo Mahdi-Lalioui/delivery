@@ -105,3 +105,8 @@ test("[CUS-24] normalises autofilled codes and reports an unanswered delete as u
   server.use(http.delete("*/v1/me", () => HttpResponse.error()));
   expect(await confirmDeletion({ challengeId, code: "123456" })).toEqual({ kind: "unknown" });
 });
+
+test("[CUS-24] treats only a confirmed 204 as successful deletion", async () => {
+  server.use(http.delete("*/v1/me", () => HttpResponse.json({ status: "unexpected" })));
+  expect(await confirmDeletion({ challengeId, code: "123456" })).toEqual({ kind: "error" });
+});

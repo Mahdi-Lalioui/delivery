@@ -12,8 +12,21 @@ import {
 import { createAuthAccess } from "./auth-access.js";
 import { registerBillingReadRoutes, type BillingRepository } from "./billing-read-routes.js";
 import { registerBillingWriteRoutes, type BillingWriteServices } from "./billing-write-routes.js";
+import { registerPrivacyRoutes, type PrivacyServices } from "./privacy-routes.js";
 import { registerAuthRoutes } from "./auth-routes.js";
 import { registerDiscoveryRoutes, type DiscoveryServices } from "./discovery-routes.js";
+import {
+  registerDiscoverySearchRoutes,
+  type DiscoverySearchServices,
+} from "./discovery-search-routes.js";
+import {
+  registerPublicRestaurantRoutes,
+  type PublicRestaurantServices,
+} from "./public-restaurant-routes.js";
+import {
+  registerPublicItemPhotoRoutes,
+  type PublicItemPhotoServices,
+} from "./public-item-photo-routes.js";
 import { registerHealth } from "./health.js";
 import {
   registerMerchantProfilePhotosRoutes,
@@ -68,7 +81,10 @@ interface ApiOptions {
   readonly platform?: PlatformServices;
   readonly ramadan?: RamadanServices;
   readonly discovery?: DiscoveryServices;
+  readonly discoverySearch?: DiscoverySearchServices;
   readonly publicFeed?: PublicFeedServices;
+  readonly publicRestaurant?: PublicRestaurantServices;
+  readonly publicRestaurantPhotos?: PublicItemPhotoServices;
   readonly merchantProfilePhotos?: MerchantProfilePhotosServices;
   readonly merchantPromotions?: MerchantPromotionsServices;
   readonly menuModeration?: MenuModerationServices;
@@ -83,6 +99,7 @@ interface ApiOptions {
   readonly merchantHoursPreview?: MerchantHoursPreviewServices;
   readonly merchantStaff?: MerchantStaffServices;
   readonly trustedProxy?: string | undefined;
+  readonly privacy?: PrivacyServices;
   readonly auth?: Parameters<typeof createAuthAccess>[0];
   readonly resolveActor?: ResolveActor;
   readonly rateLimit?: { readonly max: number; readonly timeWindow: number };
@@ -138,13 +155,17 @@ export function createApi(options: ApiOptions): FastifyInstance {
       return Promise.resolve(payload);
     });
     registerAuthRoutes(api, access);
+    registerPrivacyRoutes(api, options.privacy);
     registerMerchantRoutes(api, options.merchant);
     registerBillingReadRoutes(api, options.billing);
     registerBillingWriteRoutes(api, options.billingWrites);
     registerPlatformRoutes(api, options.platform);
     registerRamadanRoutes(api, options.ramadan);
     registerDiscoveryRoutes(api, options.discovery);
+    registerDiscoverySearchRoutes(api, options.discoverySearch);
     registerPublicFeedRoutes(api, options.publicFeed);
+    registerPublicRestaurantRoutes(api, options.publicRestaurant);
+    registerPublicItemPhotoRoutes(api, options.publicRestaurantPhotos);
     registerMerchantProfilePhotosRoutes(api, options.merchantProfilePhotos);
     registerMerchantPromotionsRoutes(api, options.merchantPromotions);
     registerAdminModerationRoutes(api, options.menuModeration);

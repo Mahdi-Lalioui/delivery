@@ -40,3 +40,8 @@ Codex appends items here (what, why, exact steps). Mahdi ticks them. Items marke
 - [ ] Visit restaurants and sign 3–5 pilot restaurants for 11–20 Jan; photograph their menus (with permission).
 - [ ] Recruit 20–30 pilot customers in the pilot neighbourhoods.
 - [ ] Confirm the subscription price: 5 000 DA or 3 000 DA (admin setting, no code change).
+
+- [ ] **[team preview]** Import `Mahdi-Lalioui/delivery` in the team’s Vercel account and deploy
+  `lane-a` as Preview. Set the Root Directory to `apps/web`, enable access to workspace
+  packages and system environment variables, and set `ZAAFRAN_PREVIEW_DEMO=1` for Preview
+  only. See [team preview steps](TEAM_PREVIEW.md) for Node, build, and opening the demo.

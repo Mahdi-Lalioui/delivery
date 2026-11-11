@@ -137,3 +137,12 @@ test("[MER-14:http] removes only a known replay or rejected candidate after adop
   expect((await api.inject(upload)).statusCode).toBe(500);
   expect(store.delete).toHaveBeenCalledTimes(1);
 });
+
+test("[CUS-24:http] erases quarantine bytes if deletion wins before upload adoption", async () => {
+  const { api, repository, store } = setup();
+  repository.acceptUpload.mockResolvedValueOnce({ kind: "not_found" });
+  expect((await api.inject(upload)).statusCode).toBe(404);
+  const [written] = store.put.mock.calls;
+  expect(written?.[0].key).toMatch(/^quarantine\//u);
+  expect(store.delete).toHaveBeenCalledExactlyOnceWith(written?.[0].key);
+});

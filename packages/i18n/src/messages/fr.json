@@ -1330,7 +1330,7 @@
     "deletedTitle": "Compte supprimé",
     "deletedBody": "Vos données personnelles ont été effacées. Merci d’avoir commandé avec nous.",
     "home": "Retour à l’accueil",
-    "deleteUnknown": "Nous n’avons pas pu confirmer la suppression. Réessayez : si l’on vous demande de vous connecter, votre compte est déjà supprimé."
+    "deleteUnknown": "Nous n’avons pas pu confirmer la suppression. Réessayez avec le même code de confirmation."
   },
   "designGallery": {
     "title": "Galerie AWID",

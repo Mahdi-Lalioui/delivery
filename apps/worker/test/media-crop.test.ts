@@ -42,11 +42,19 @@ test("[MER-14:worker] retries a partial variant write and resumes cleanup after 
     source = { status: "ready", quarantineKey, previewKey };
     return Promise.resolve(true);
   });
+  const recordArtifact = vi
+    .fn<(id: string, key: string) => Promise<void>>()
+    .mockResolvedValue(undefined);
   const run = createCropMediaJob({
+    recordArtifact,
     store,
     repository: { findCropWork: () => Promise.resolve(source), completeCrop },
   });
   await expect(run(payload)).rejects.toThrow("variant write failed");
+  expect(recordArtifact.mock.calls).toEqual(
+    store.put.mock.calls.map(([write]) => [mediaId, write.key]),
+  );
+  expect(recordArtifact).toHaveBeenCalledBefore(store.put);
   expect(completeCrop).not.toHaveBeenCalled();
   expect(store.delete).not.toHaveBeenCalled();
 

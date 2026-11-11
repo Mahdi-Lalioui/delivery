@@ -16,7 +16,7 @@ export async function readDiscoveryFeed(
     const response = await fetch(url, {
       method: "GET",
       credentials: "omit",
-      cache: "no-store",
+      cache: "no-cache",
       redirect: "error",
       signal: AbortSignal.any([signal, AbortSignal.timeout(15_000)]),
     });

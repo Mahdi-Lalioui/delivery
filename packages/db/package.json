@@ -8,6 +8,10 @@
       "types": "./src/auth.ts",
       "default": "./dist/auth.js"
     },
+    "./privacy": {
+      "types": "./src/privacy.ts",
+      "default": "./dist/privacy.js"
+    },
     "./platform": {
       "types": "./src/platform/repository.ts",
       "default": "./dist/platform/repository.js"
@@ -28,9 +32,17 @@
       "types": "./src/geography.ts",
       "default": "./dist/geography.js"
     },
+    "./discovery-search": {
+      "types": "./src/discovery-search.ts",
+      "default": "./dist/discovery-search.js"
+    },
     "./public-feed": {
       "types": "./src/public-feed.ts",
       "default": "./dist/public-feed.js"
+    },
+    "./public-restaurant": {
+      "types": "./src/public-restaurant.ts",
+      "default": "./dist/public-restaurant.js"
     },
     "./service-area": {
       "types": "./src/service-area.ts",
