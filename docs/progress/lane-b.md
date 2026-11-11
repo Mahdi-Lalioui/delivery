@@ -68,3 +68,5 @@
   Next: T3 Restaurant + dish sheet, then cart, through the design loop.
 - 2026-11-11 · AWID T3 Restaurant + dish sheet: full-bleed parallax cover, overlapping panel with rating/ETA/fee, styled hours, Popular row, dish rows with round + that turns into the cart quantity, sticky tabs with the name, bottom-sheet dish view with custom radios/checks, pill stepper, live price; cart bar slides up with popping count/total. Evidence docs/evidence/awid/restaurant.
   Next: T3 cart (sheet/page design loop), then T4 checkout.
+- 2026-11-11 · AWID T3 cart sheet: merchant header, line cards with domain-priced line totals, inline stepper + quiet remove, bold subtotal. T3 done.
+  Next: T4 — checkout (3 steps, delivery/pickup segmented, address pin, morphing Place order), order confirmed, tracking, rating; add checkout CTA to the cart sheet.

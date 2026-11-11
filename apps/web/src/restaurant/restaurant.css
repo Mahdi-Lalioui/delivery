@@ -660,40 +660,94 @@
   font-variant-numeric: var(--font-variant-numeric-numbers);
 }
 .restaurant-cart-contents,
-.restaurant-cart-lines,
-.restaurant-cart-line {
+.restaurant-cart-lines {
   display: grid;
   gap: var(--space-16);
   list-style: none;
 }
+.restaurant-cart-merchant {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  font-weight: var(--font-weight-h3);
+}
+.restaurant-cart-merchant svg {
+  color: var(--color-accent-strong);
+}
 .restaurant-cart-line {
-  padding-block-end: var(--space-20);
-  border-block-end: 1px solid var(--color-border-subtle);
+  display: grid;
+  gap: var(--space-8);
+  padding: var(--space-16);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-2);
+}
+.restaurant-cart-line-head {
+  display: flex;
+  gap: var(--space-12);
+  justify-content: space-between;
+  align-items: baseline;
+}
+.restaurant-cart-line h3 {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-h3);
+}
+.restaurant-cart-line > p {
+  color: var(--color-text-2);
+  font-size: var(--font-size-caption);
+}
+.restaurant-cart-line-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+}
+/* In the cart the stepper sits beside its line; the legend stays for screen readers. */
+.restaurant-cart-line .restaurant-quantity legend {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.restaurant-cart-line .restaurant-stepper {
+  order: 2;
+  margin-inline-start: 0;
+  background: var(--color-surface);
 }
 .restaurant-cart-options {
   display: flex;
-  gap: var(--space-8);
+  gap: var(--space-4) var(--space-8);
   flex-wrap: wrap;
   list-style: none;
   color: var(--color-text-2);
   font-size: var(--font-size-caption);
 }
-.restaurant-cart-options li {
-  border-radius: var(--radius-pill);
-  padding: var(--space-4) var(--space-8);
-  background: var(--color-surface-2);
+.restaurant-cart-options li + li::before {
+  margin-inline-end: var(--space-8);
+  content: "·";
 }
 .restaurant-cart-remove {
-  justify-self: end;
+  min-block-size: var(--touch-target-min);
+  padding-inline: var(--space-8);
+  border: 0;
+  background: none;
+  color: var(--color-danger);
+  font: inherit;
+  font-size: var(--font-size-label);
+  cursor: pointer;
 }
 .restaurant-cart-summary {
   display: grid;
   gap: var(--space-12);
+  padding-block-start: var(--space-8);
 }
 .restaurant-cart-summary > p:first-child {
   display: flex;
   justify-content: space-between;
   gap: var(--space-12);
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-h3);
 }
 .restaurant-replace-actions {
   display: flex;
