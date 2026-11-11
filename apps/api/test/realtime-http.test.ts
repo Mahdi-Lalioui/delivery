@@ -84,7 +84,9 @@ test("[CUS-18:http] customer can subscribe to an owned order but cannot open the
     .fn<ReturnType<typeof createOrderRepository>["orderReplay"]>()
     .mockResolvedValueOnce({ cursor: "2", events: [event], hasMore: false })
     .mockResolvedValueOnce(undefined);
-  const replay = vi.fn<ReturnType<typeof createOrderRepository>["merchantReplay"]>();
+  const replay = vi
+    .fn<ReturnType<typeof createOrderRepository>["merchantReplay"]>()
+    .mockResolvedValue(undefined);
   const api = createApi({
     checkReadiness: () => Promise.resolve(),
     resolveActor: () => Promise.resolve({ role: "customer", accountId, sessionId }),
@@ -99,8 +101,13 @@ test("[CUS-18:http] customer can subscribe to an owned order but cannot open the
     },
   });
   onTestFinished(() => api.close());
-  expect((await api.inject(url)).statusCode).toBe(403);
-  expect(replay).not.toHaveBeenCalled();
+  expect((await api.inject(url)).statusCode).toBe(404);
+  expect(replay).toHaveBeenCalledExactlyOnceWith({
+    accountId,
+    sessionId,
+    merchantId,
+    after: undefined,
+  });
   const response = await api.inject("/v1/realtime?topic=order&orderId=" + orderId + "&after=1");
   expect(response.statusCode).toBe(200);
   expect(response.body).toContain("id: 2\nevent: order\ndata: " + JSON.stringify(event));
@@ -108,7 +115,7 @@ test("[CUS-18:http] customer can subscribe to an owned order but cannot open the
     orderId,
     accountId,
     sessionId,
-    role: "customer",
+    role: "standard",
     after: "1",
   });
 });

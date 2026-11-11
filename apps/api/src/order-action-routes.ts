@@ -5,13 +5,13 @@ import type { createOrderRepository } from "@zaafran/db/orders";
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
-import { getRequestActor } from "./policy.js";
+import { getRequestActor, type Actor } from "./policy.js";
 import { sendProblem } from "./problems.js";
 
 type Repository = Pick<ReturnType<typeof createOrderRepository>, "read" | "apply">;
 type OrderServices = { repository: Repository; now: () => Date };
 type Action = Parameters<Repository["apply"]>[0]["action"];
-type Role = Parameters<Repository["read"]>[0]["role"];
+type Role = Actor["role"];
 type ActionRoute<Body extends z.ZodType<{ expectedVersion: number }>> = {
   name: string;
   roles: readonly Role[];
@@ -20,7 +20,7 @@ type ActionRoute<Body extends z.ZodType<{ expectedVersion: number }>> = {
 };
 
 const routePath = "/v1/orders/:orderId";
-const merchant = ["merchant_owner", "merchant_manager", "merchant_staff"] as const;
+const merchant = ["customer", "merchant_owner", "merchant_manager", "merchant_staff"] as const;
 const errors = {
   400: problemResponseSchema,
   401: problemResponseSchema,
@@ -34,7 +34,10 @@ const errors = {
 function readActor(request: FastifyRequest) {
   const actor = getRequestActor(request);
   return actor && actor.role !== "courier"
-    ? { accountId: actor.accountId, role: actor.role }
+    ? {
+        accountId: actor.accountId,
+        role: actor.role === "customer" ? ("standard" as const) : actor.role,
+      }
     : undefined;
 }
 
@@ -84,7 +87,7 @@ export function registerOrderActionRoutes(api: FastifyInstance, services?: Order
     scope.withTypeProvider<ZodTypeProvider>().get(
       routePath,
       {
-        config: { policy: { kind: "roles", roles: ["customer", ...merchant, "admin"] } },
+        config: { policy: { kind: "roles", roles: [...merchant, "admin"] } },
         schema: { params: orderParams, response: { 200: orderSummary, ...errors } },
       },
       async (request, reply) => {
@@ -113,7 +116,7 @@ export function registerOrderActionRoutes(api: FastifyInstance, services?: Order
     });
     registerAction(scope, services, {
       name: "cancel",
-      roles: ["customer", ...merchant],
+      roles: merchant,
       body: orderActionInputs.cancel,
       action: ({ reason }) => ({ kind: "cancel", reason }),
     });

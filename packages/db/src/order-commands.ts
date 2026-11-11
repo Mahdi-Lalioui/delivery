@@ -11,7 +11,8 @@ import {
   type OrderSummary,
 } from "./order-state-store.js";
 
-type Role = "customer" | "merchant_owner" | "merchant_manager" | "merchant_staff" | "admin";
+type Role =
+  "standard" | "customer" | "merchant_owner" | "merchant_manager" | "merchant_staff" | "admin";
 export type OrderAccess = { accountId: string; role: Role; orderId: string };
 type PublicAction =
   | Extract<OrderAction, { kind: "cancel" | "collect" | "markReady" | "pickUp" | "force" }>
@@ -29,23 +30,38 @@ export type OrderCommandRequest = OrderAccess & {
 };
 type StateRow = NonNullable<Awaited<ReturnType<typeof readOrderSnapshot>>>;
 
-async function authorizeOrder(
+async function readMerchantActor(
   sql: TransactionSql,
-  { role, accountId, lockRole = false }: OrderAccess & { lockRole?: boolean },
-  { merchantId, customerId }: OrderSnapshot,
+  { accountId, lockRole }: { accountId: string; lockRole: boolean },
+  merchantId: string,
 ): Promise<OrderActor | undefined> {
-  if (role === "customer")
-    return accountId === customerId ? { kind: "customer", id: accountId } : undefined;
-
   const lock = lockRole ? sql`FOR SHARE` : sql``;
-  if (role === "admin") {
-    const [admin] = await sql`SELECT FROM public.admins WHERE user_id = ${accountId} ${lock}`;
-    return admin ? { kind: "admin", id: accountId } : undefined;
-  }
-
   const [member] = await sql`SELECT FROM public.merchant_members
     WHERE user_id = ${accountId} AND merchant_id = ${merchantId} ${lock}`;
   return member ? { kind: "merchant", id: accountId, merchantIds: [merchantId] } : undefined;
+}
+
+async function readAdminActor(sql: TransactionSql, accountId: string, lockRole: boolean) {
+  const lock = lockRole ? sql`FOR SHARE` : sql``;
+  const [admin] = await sql`SELECT FROM public.admins WHERE user_id = ${accountId} ${lock}`;
+  return admin ? ({ kind: "admin", id: accountId } as const) : undefined;
+}
+
+type AuthorizationScope = OrderAccess & { lockRole: boolean; preferMerchant: boolean };
+
+async function authorizeOrder(
+  sql: TransactionSql,
+  { role, accountId, lockRole, preferMerchant }: AuthorizationScope,
+  { merchantId, customerId }: OrderSnapshot,
+): Promise<OrderActor | undefined> {
+  const owner =
+    accountId === customerId ? ({ kind: "customer", id: accountId } as const) : undefined;
+  if (role === "customer" || (role === "standard" && owner && !preferMerchant)) return owner;
+
+  if (role === "admin") return readAdminActor(sql, accountId, lockRole);
+
+  const merchant = await readMerchantActor(sql, { accountId, lockRole }, merchantId);
+  return merchant ?? (role === "standard" ? owner : undefined);
 }
 
 function presentOrder(order: OrderSnapshot, row: StateRow) {
@@ -58,7 +74,8 @@ function presentOrder(order: OrderSnapshot, row: StateRow) {
 
 export async function readScopedOrder(sql: TransactionSql, request: OrderAccess) {
   const order = await readOrderSnapshot(sql, request.orderId, false);
-  return order && (await authorizeOrder(sql, request, order))
+  return order &&
+    (await authorizeOrder(sql, { ...request, lockRole: false, preferMerchant: false }, order))
     ? presentOrder(order, order)
     : undefined;
 }
@@ -172,6 +189,8 @@ export async function applyOrderCommand(sql: TransactionSql, request: OrderComma
   if (!account) return { kind: "not_found" } as const;
   const order = await readOrderSnapshot(sql, request.orderId, true);
   if (!order) return { kind: "not_found" } as const;
-  const actor = await authorizeOrder(sql, { ...request, lockRole: true }, order);
+  const preferMerchant =
+    request.action.kind !== "cancel" || order.status === "accepted" || order.status === "ready";
+  const actor = await authorizeOrder(sql, { ...request, lockRole: true, preferMerchant }, order);
   return actor ? commitCommand(sql, request, { order, actor }) : ({ kind: "not_found" } as const);
 }

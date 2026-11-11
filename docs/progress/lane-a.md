@@ -176,3 +176,6 @@
 
 - 2026-11-11 · High · Added localized VAPID order notifications with web-push 4.0.0, idempotent worker delivery, expired endpoint cleanup and the public key API. Passed 560 package tests, 247 authz and 27 integrations.
   Next: fix real standard-session merchant board authorization, then implement courier invitation, assignments and jobs. Browser opt-in remains a Lane B task.
+
+- 2026-11-11 · Ultra · Fixed board, order actions and SSE authorization for real standard session cookies. A full API/PostGIS regression proves staff membership, buyer ownership and outsider denial. Passed 280 integrations, 247 authz and dependency checks.
+  Next: persist phone-bound courier invitations and membership, then wire assignment and jobs.

@@ -55,7 +55,7 @@ function sendEventStream(reply: FastifyReply, body: Readable) {
     .send(body);
 }
 
-const merchantRoles = ["merchant_owner", "merchant_manager", "merchant_staff"] as const;
+const merchantRoles = ["customer", "merchant_owner", "merchant_manager", "merchant_staff"] as const;
 const merchantRoleSet = new Set<string>(merchantRoles);
 
 function selectTopic(
@@ -76,7 +76,13 @@ function selectTopic(
   const orderId = query.orderId.toLowerCase();
   return {
     replay: (after: string | undefined) =>
-      services.replayOrder({ orderId, accountId, sessionId, role, after }),
+      services.replayOrder({
+        orderId,
+        accountId,
+        sessionId,
+        role: role === "customer" ? "standard" : role,
+        after,
+      }),
     subscribe: (wake: () => void) => services.subscribeOrder(orderId, wake),
   };
 }
@@ -94,7 +100,7 @@ export function registerRealtimeRoutes(api: FastifyInstance, services?: StreamSe
     "/v1/realtime",
     {
       config: {
-        policy: { kind: "roles", roles: ["customer", ...merchantRoles, "admin"] },
+        policy: { kind: "roles", roles: [...merchantRoles, "admin"] },
       },
       schema: {
         querystring: orderRealtimeQuery,

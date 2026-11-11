@@ -260,6 +260,9 @@ importers:
       '@zaafran/config':
         specifier: workspace:*
         version: link:../../packages/config
+      graphile-worker:
+        specifier: 0.18.0
+        version: 0.18.0(supports-color@7.2.0)(typescript@6.0.3)
       tsx:
         specifier: 4.23.15
         version: 4.23.15

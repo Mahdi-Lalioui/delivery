@@ -14,7 +14,10 @@ export function registerMerchantBoardRoutes(api: FastifyInstance, services?: Boa
     "/v1/merchants/:merchantId/order-board",
     {
       config: {
-        policy: { kind: "roles", roles: ["merchant_owner", "merchant_manager", "merchant_staff"] },
+        policy: {
+          kind: "roles",
+          roles: ["customer", "merchant_owner", "merchant_manager", "merchant_staff"],
+        },
       },
       onSend(_request, reply, payload) {
         reply.header("cache-control", "no-store");
