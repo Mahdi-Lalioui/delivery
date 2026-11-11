@@ -137,3 +137,6 @@
 
 - 2026-11-11 · High · Added scoped address CRUD, PostGIS serviceability, Plus Codes, one default, privacy export and erasure. 544 package tests and 17 focused PostGIS tests passed.
   Next: persist server-priced quotes using current merchant zones and menu snapshots, then place orders and enqueue expiry in one transaction. Private voice uploads remain pending.
+
+- 2026-11-11 · High · Added cash quote pricing from validated menu options and whole-DZD zone fees, with zero-fee pickup. All 297 domain tests, build, lint and typecheck passed.
+  Next: store the account-bound quote with a 10-minute expiry; resolve current menu availability, delivery zone and order modes before writing.

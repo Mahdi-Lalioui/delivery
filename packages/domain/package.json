@@ -51,6 +51,10 @@
     "./search": {
       "types": "./src/search.ts",
       "default": "./dist/search.js"
+    },
+    "./order-quote": {
+      "types": "./src/order-quote.ts",
+      "default": "./dist/order-quote.js"
     }
   },
   "scripts": {
