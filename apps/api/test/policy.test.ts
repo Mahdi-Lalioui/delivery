@@ -203,6 +203,12 @@ const matrix: readonly MatrixRoute[] = [
   },
   {
     method: "POST",
+    url: "/v1/orders",
+    payload: { quoteId: challengeId },
+    expected: { customer: 503 },
+  },
+  {
+    method: "POST",
     url: "/v1/quotes",
     payload: {
       merchantId: challengeId,

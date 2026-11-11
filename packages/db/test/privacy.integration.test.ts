@@ -516,3 +516,55 @@ test("[CUS-24] queues erasure of unattached media and retains attached applicati
     { id: attached },
   ]);
 });
+
+test("[CUS-24] exports only owned orders and erases order PII without losing accounting", async () => {
+  const repo = createPrivacyRepository(database.get());
+  const { sql } = database.get();
+  const [account, other, { merchantId }] = await Promise.all([
+    customer(),
+    customer(),
+    merchantFixture(),
+  ]);
+  const orderId = randomUUID();
+  const anotherId = randomUUID();
+  const lines = JSON.stringify([
+    {
+      itemId: randomUUID(),
+      names: { fr: "Couscous" },
+      unitPriceDzd: 500,
+      quantity: 2,
+      options: [],
+      note: "Contact privé",
+    },
+  ]);
+  await sql`
+    INSERT INTO public.orders (
+      id, quote_id, customer_id, merchant_id, restaurant_name, short_code, order_day, status,
+      fulfilment, version, placed_at, last_event_at, address_snapshot, subtotal_dzd,
+      delivery_fee_dzd, total_dzd, paying_with_dzd, lines
+    )
+    VALUES
+      (${orderId}, ${randomUUID()}, ${account.userId}, ${merchantId}, 'Test', 'AAA-222', current_date,
+       'delivered', 'delivery', 1, now(), now(), '{"landmark":"Lieu privé"}', 1000, 137, 1137, 1200, ${lines}::jsonb),
+      (${anotherId}, ${randomUUID()}, ${other.userId}, ${merchantId}, 'Test', 'AAA-223', current_date,
+       'delivered', 'delivery', 1, now(), now(), NULL, 1000, 137, 1137, 1200, ${lines}::jsonb)
+  `;
+  await sql`
+    INSERT INTO public.order_events (order_id, version, to_status, actor_kind, actor_id, payload, occurred_at)
+    VALUES (${orderId}, 1, 'delivered', 'customer', ${account.userId}, '{"kind":"place"}', now())
+  `;
+  expect((await repo.exportAccount({ ...account, now }))?.orders).toMatchObject([
+    { orderId, totalDzd: 1137, lines: [{ lineTotalDzd: 1000 }] },
+  ]);
+  const request = challenge(account, "192.0.2.190");
+  await issueDelivered(request);
+  expect(await repo.deleteAccount(request)).toBe("deleted");
+  expect(
+    await sql`
+    SELECT customer_id, address_snapshot, lines->0->>'note' AS note, total_dzd
+    FROM public.orders WHERE id = ${orderId}`,
+  ).toEqual([{ customer_id: null, address_snapshot: null, note: null, total_dzd: 1137 }]);
+  expect(await sql`SELECT actor_id FROM public.order_events WHERE order_id = ${orderId}`).toEqual([
+    { actor_id: null },
+  ]);
+});

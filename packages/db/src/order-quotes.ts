@@ -1,6 +1,5 @@
 import type { orderQuoteInput, orderQuoteOutput } from "@zaafran/contracts/orders";
 import { priceCashQuote } from "@zaafran/domain/order-quote";
-import { createHash } from "node:crypto";
 import type { ISql, TransactionSql } from "postgres";
 import type { z } from "zod";
 import type { DatabaseConnection } from "./database.js";
@@ -14,9 +13,8 @@ import { readVisibleItem } from "./public-restaurant-items.js";
 
 type QuoteInput = z.infer<typeof orderQuoteInput>;
 type Quote = z.infer<typeof orderQuoteOutput>;
-type Request = { customerId: string; input: QuoteInput; now: Date };
+export type QuoteRequest = { customerId: string; input: QuoteInput; now: Date };
 type PriceInput = Parameters<typeof priceCashQuote>[0];
-type Price = Extract<ReturnType<typeof priceCashQuote>, { ok: true }>["value"];
 
 const quoteLifetimeMs = 600_000;
 
@@ -49,7 +47,7 @@ async function readQuoteLines(sql: TransactionSql, input: QuoteInput, at: Date) 
 
 async function resolveQuoteFulfilment(
   sql: TransactionSql,
-  request: Request,
+  request: QuoteRequest,
   merchant: NonNullable<Awaited<ReturnType<typeof readOrderMerchant>>>,
 ) {
   const { customerId, input } = request;
@@ -59,6 +57,7 @@ async function resolveQuoteFulfilment(
       kind: "available",
       minimumDzd: merchant.pickupMinimumDzd,
       travelMinutes: 0,
+      address: null,
       fulfilment: { kind: "pickup" },
     } as const;
   }
@@ -74,21 +73,29 @@ async function resolveQuoteFulfilment(
   return {
     kind: "available",
     minimumDzd,
+    address: address.snapshot,
     travelMinutes,
     fulfilment: { kind: "delivery", feeDzd },
   } as const;
 }
 
-async function persistQuote(sql: TransactionSql, request: Request, price: Price) {
+type Evaluation = Extract<Awaited<ReturnType<typeof evaluateQuote>>, { kind: "priced" }>;
+
+export function quoteBreakdown({ price, address }: Evaluation) {
+  return JSON.stringify({ ...price, address });
+}
+
+async function persistQuote(sql: TransactionSql, request: QuoteRequest, evaluation: Evaluation) {
+  const { price } = evaluation;
   const { customerId, input, now } = request;
   const { subtotalDzd, deliveryFeeDzd, totalDzd } = price;
   const expiresAt = new Date(now.getTime() + quoteLifetimeMs).toISOString();
   const payload = JSON.stringify(input);
-  const breakdown = JSON.stringify(price);
-  const payloadHash = createHash("sha256").update(payload).update("\0").update(breakdown).digest();
+  const breakdown = quoteBreakdown(evaluation);
   const [row] = await sql<{ quoteId: string }[]>`
     INSERT INTO public.quotes (customer_id, merchant_id, input, payload_hash, breakdown, created_at, expires_at)
-    VALUES (${customerId}, ${input.merchantId}, ${payload}::jsonb, ${payloadHash},
+    VALUES (${customerId}, ${input.merchantId}, ${payload}::jsonb,
+      sha256(convert_to(jsonb_build_array(${payload}::jsonb, ${breakdown}::jsonb)::text, 'UTF8')),
       ${breakdown}::jsonb, ${now.toISOString()}, ${expiresAt}) RETURNING id AS "quoteId"
   `;
   if (!row) throw new Error("Quote insert returned no row");
@@ -103,14 +110,17 @@ async function persistQuote(sql: TransactionSql, request: Request, price: Price)
   return { kind: "quoted", quote } as const;
 }
 
-async function createQuote(sql: TransactionSql, request: Request) {
-  const { customerId, input, now } = request;
+export async function lockOrderingCustomer(sql: TransactionSql, customerId: string) {
   const [customer] = await sql`
     SELECT FROM public.users WHERE id = ${customerId}
       AND deleted_at IS NULL AND blocked_at IS NULL AND phone_e164 IS NOT NULL
     FOR UPDATE
   `;
-  if (!customer) return { kind: "unauthorized" } as const;
+  return customer !== undefined;
+}
+
+export async function evaluateQuote(sql: TransactionSql, request: QuoteRequest) {
+  const { input, now } = request;
   const merchant = await readOrderMerchant(sql, input.merchantId);
   if (!merchant) return { kind: "restaurant_unavailable" } as const;
   const service = await resolveQuoteFulfilment(sql, request, merchant);
@@ -126,7 +136,20 @@ async function createQuote(sql: TransactionSql, request: Request) {
   if (!lines) return { kind: "item_unavailable" } as const;
   const price = priceCashQuote({ ...service, lines });
   if (!price.ok) return { kind: price.error.code };
-  return persistQuote(sql, request, price.value);
+  return {
+    kind: "priced",
+    price: price.value,
+    address: service.address,
+    restaurantName: merchant.restaurantName,
+    prepAndTravelMinutes: merchant.prepMinutes + service.travelMinutes,
+  } as const;
+}
+
+async function createQuote(sql: TransactionSql, request: QuoteRequest) {
+  if (!(await lockOrderingCustomer(sql, request.customerId)))
+    return { kind: "unauthorized" } as const;
+  const evaluated = await evaluateQuote(sql, request);
+  return evaluated.kind === "priced" ? persistQuote(sql, request, evaluated) : evaluated;
 }
 
 async function pruneExpired(sql: ISql, now: Date) {
@@ -141,7 +164,7 @@ async function pruneExpired(sql: ISql, now: Date) {
 export function createOrderQuoteRepository({ sql }: DatabaseConnection) {
   return {
     pruneExpired: (now: Date) => pruneExpired(sql, now),
-    create: (request: Request) =>
+    create: (request: QuoteRequest) =>
       sql.begin("isolation level repeatable read", (tx) => createQuote(tx, request)),
   };
 }

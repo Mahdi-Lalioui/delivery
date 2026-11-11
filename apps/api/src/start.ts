@@ -1,4 +1,5 @@
 import { randomBytes } from "node:crypto";
+import { createOrderRepository } from "@zaafran/db/orders";
 import { createOrderQuoteRepository } from "@zaafran/db/order-quotes";
 import { createAddressRepository } from "@zaafran/db/addresses";
 import { createPrivacyRepository } from "@zaafran/db/privacy";
@@ -64,6 +65,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     trustedProxy: environment.API_TRUSTED_PROXY,
     auth: { service, publicOrigin: environment.AUTH_PUBLIC_ORIGIN },
     addresses: createAddressRepository(database),
+    orders: { repository: createOrderRepository(database), now },
     orderQuotes: { repository: createOrderQuoteRepository(database), now },
     privacy: createPrivacyService({
       repository: createPrivacyRepository(database),

@@ -1,9 +1,11 @@
 import type { orderQuoteInput } from "@zaafran/contracts/orders";
 import { randomUUID } from "node:crypto";
+import { runMigrations } from "graphile-worker";
 import { beforeAll, expect, test } from "vitest";
 import type { z } from "zod";
 import { createAddressRepository } from "../src/addresses.ts";
 import { createOrderQuoteRepository } from "../src/order-quotes.ts";
+import { createOrderRepository } from "../src/orders.ts";
 import { registerTestDatabase } from "./database.ts";
 
 const database = registerTestDatabase();
@@ -23,6 +25,7 @@ const pickup = {
 } satisfies z.infer<typeof orderQuoteInput>;
 
 beforeAll(async () => {
+  await runMigrations({ connectionString: database.url(), schema: "graphile_worker" });
   const { sql } = database.get();
   await sql`INSERT INTO users (id, phone_e164, created_at) VALUES
     (${customerId}, '+213500000001', now()), (${otherId}, '+213500000002', now())`;
@@ -115,4 +118,154 @@ test("[MON-09] cleans up expired quote snapshots and retains live ones", async (
   expect(await sql`SELECT FROM quotes WHERE id = ${quoteId}`).toHaveLength(1);
   await repo().pruneExpired(new Date(result.quote.expiresAt));
   expect(await sql`SELECT FROM quotes WHERE id = ${quoteId}`).toHaveLength(0);
+});
+
+const orders = () => createOrderRepository(database.get());
+
+async function placement(input: z.infer<typeof orderQuoteInput> = pickup) {
+  const result = await repo().create({ customerId, input, now });
+  if (result.kind !== "quoted") throw new Error("Expected quote");
+  return {
+    customerId,
+    now,
+    input: { quoteId: result.quote.quoteId },
+    idempotencyKey: randomUUID(),
+  };
+}
+
+test("[ORD-05][ORD-07] concurrent retry returns one order, one event and one job", async () => {
+  const request = await placement();
+  const [first, second] = await Promise.all([orders().place(request), orders().place(request)]);
+  expect(first).toEqual(second);
+  expect(first).toMatchObject({
+    kind: "placed",
+    order: {
+      status: "pending_acceptance",
+      fulfilment: "pickup",
+      totalDzd: 1000,
+      version: 1,
+      acceptanceDeadlineAt: "2026-11-11T12:08:00.000Z",
+    },
+  });
+  if (first.kind !== "placed") throw new Error("Expected placement");
+  const { orderId } = first.order;
+  const { sql } = database.get();
+  expect(await sql`SELECT FROM order_events WHERE order_id = ${orderId}`).toHaveLength(1);
+  expect(
+    await sql`SELECT FROM graphile_worker.jobs WHERE key = ${"order:expire:" + orderId}`,
+  ).toHaveLength(1);
+  expect(await orders().place({ ...request, now: new Date("2026-11-11T12:11:00Z") })).toEqual(
+    first,
+  );
+  expect(
+    await orders().place({ ...request, input: { ...request.input, payingWithDzd: 2000 } }),
+  ).toEqual({ kind: "idempotency_conflict" });
+  expect(await orders().place({ ...request, idempotencyKey: randomUUID() })).toEqual({
+    kind: "quote_consumed",
+  });
+});
+
+test("[MON-09] placement rechecks expiry, customer ownership and changed menu prices", async () => {
+  const request = await placement();
+  expect(await orders().place({ ...request, customerId: otherId })).toEqual({
+    kind: "quote_expired",
+  });
+  expect(await orders().place({ ...request, now: new Date("2026-11-11T12:10:00Z") })).toEqual({
+    kind: "quote_expired",
+  });
+  const { sql } = database.get();
+  await sql`UPDATE items SET price_dzd = 600 WHERE id = ${itemId}`;
+  try {
+    expect(await orders().place(request)).toEqual({ kind: "quote_changed" });
+  } finally {
+    await sql`UPDATE items SET price_dzd = 500 WHERE id = ${itemId}`;
+  }
+});
+
+test("[MON-07][MON-08] enforces cash tender and the first-order cap", async () => {
+  const request = await placement();
+  expect(
+    await orders().place({ ...request, input: { ...request.input, payingWithDzd: 999 } }),
+  ).toEqual({ kind: "invalid_change" });
+  const expensive = await placement({
+    ...pickup,
+    items: [{ itemId, quantity: 13, optionIds: [] }],
+  });
+  expect(await orders().place(expensive)).toEqual({ kind: "cash_limit" });
+});
+
+test("[ORD-07] a failed enqueue rolls back the order and the command receipt", async () => {
+  const request = await placement();
+  const { sql } = database.get();
+  await sql`ALTER SCHEMA graphile_worker RENAME TO unavailable_worker`;
+  try {
+    await expect(orders().place(request)).rejects.toThrow();
+    expect(await sql`SELECT FROM orders WHERE quote_id = ${request.input.quoteId}`).toHaveLength(0);
+  } finally {
+    await sql`ALTER SCHEMA unavailable_worker RENAME TO graphile_worker`;
+  }
+  expect(await orders().place(request)).toMatchObject({ kind: "placed" });
+});
+
+test("[ORD-07] timeout is a no-op before its deadline and appends one event on retry", async () => {
+  const request = await placement();
+  const placed = await orders().place(request);
+  if (placed.kind !== "placed") throw new Error("Expected placement");
+  const { orderId } = placed.order;
+  await orders().runTimer(orderId, "expire", now);
+  const { sql } = database.get();
+  expect(await sql`SELECT status FROM orders WHERE id = ${orderId}`).toEqual([
+    { status: "pending_acceptance" },
+  ]);
+  const deadline = new Date("2026-11-11T12:08:00Z");
+  await Promise.all([
+    orders().runTimer(orderId, "expire", deadline),
+    orders().runTimer(orderId, "expire", deadline),
+  ]);
+  expect(await sql`SELECT status, version FROM orders WHERE id = ${orderId}`).toEqual([
+    { status: "expired", version: 2 },
+  ]);
+  expect(await sql`SELECT FROM order_events WHERE order_id = ${orderId}`).toHaveLength(2);
+});
+
+test("[ORD-07] scheduled release starts a fresh acceptance timer", async () => {
+  const request = await placement({
+    ...pickup,
+    timing: { kind: "scheduled", scheduledFor: "2026-11-11T13:00:00Z" },
+  });
+  const placed = await orders().place(request);
+  if (placed.kind !== "placed") throw new Error("Expected placement");
+  expect(placed.order.status).toBe("scheduled");
+  const { orderId } = placed.order;
+  await orders().runTimer(orderId, "release", new Date("2026-11-11T12:30:00Z"));
+  const { sql } = database.get();
+  expect(await sql`SELECT status, version FROM orders WHERE id = ${orderId}`).toEqual([
+    { status: "pending_acceptance", version: 2 },
+  ]);
+  expect(
+    await sql`SELECT FROM graphile_worker.jobs WHERE key = ${"order:expire:" + orderId}`,
+  ).toHaveLength(1);
+});
+
+test("[MON-09] moving a saved pin invalidates its quote even when the zone fee stays the same", async () => {
+  const addressId = await saveAddress(36.751);
+  const request = await placement({ ...pickup, fulfilment: "delivery", addressId });
+  await createAddressRepository(database.get()).update(customerId, addressId, {
+    label: "Maison",
+    pin: { latitude: 36.752, longitude: 3.0625 },
+  });
+  expect(await orders().place(request)).toEqual({ kind: "quote_changed" });
+});
+
+test("[CUS-24] anonymised orders still expire and retain their accounting totals", async () => {
+  const request = await placement();
+  const placed = await orders().place(request);
+  if (placed.kind !== "placed") throw new Error("Expected placement");
+  const { orderId } = placed.order;
+  const { sql } = database.get();
+  await sql`UPDATE orders SET customer_id = NULL WHERE id = ${orderId}`;
+  await orders().runTimer(orderId, "expire", new Date("2026-11-11T12:08:00Z"));
+  expect(await sql`SELECT status, total_dzd FROM orders WHERE id = ${orderId}`).toEqual([
+    { status: "expired", total_dzd: 1000 },
+  ]);
 });

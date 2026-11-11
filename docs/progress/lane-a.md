@@ -143,3 +143,6 @@
 
 - 2026-11-11 · High · Added ten-minute checkout quotes with pickup, scoped addresses, live menu pricing, zone fees, slot checks, and quote cleanup. 661 package tests and 254 PostGIS tests passed.
   Next: add idempotent order placement with quote revalidation, write the order snapshot and event, and enqueue the acceptance timer in the same transaction.
+
+- 2026-11-11 · Ultra · Implemented quote revalidation and idempotent placement with snapshots, event and Graphile timer in one transaction. Passed 662 package tests, 263 integrations and 239 authz tests.
+  Next: add scoped reads and versioned customer and merchant transitions, then feed filters and sorting.

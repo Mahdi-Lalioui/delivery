@@ -10,7 +10,7 @@ type SaveResult =
   | { kind: "saved"; address: Address }
   | { kind: "missing" | "outside_service_area" | "voice_note_unavailable" };
 
-function addressProjection(sql: ISql) {
+export function addressProjection(sql: ISql) {
   return sql`jsonb_build_object(
     'addressId', id, 'label', label, 'communeId', commune_id, 'plusCode', plus_code,
     'isDefault', is_default,

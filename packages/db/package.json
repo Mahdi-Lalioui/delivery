@@ -107,6 +107,10 @@
     "./order-quotes": {
       "types": "./src/order-quotes.ts",
       "default": "./dist/order-quotes.js"
+    },
+    "./orders": {
+      "types": "./src/orders.ts",
+      "default": "./dist/orders.js"
     }
   },
   "scripts": {

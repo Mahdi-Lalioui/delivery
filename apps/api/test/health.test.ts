@@ -217,6 +217,7 @@ test("[M0-6] the generated OpenAPI document describes the readiness problem resp
       "/v1/merchants/{slug}",
       "/v1/merchants/{slug}/categories/{categoryId}/items",
       "/v1/merchants/{slug}/items/{itemId}",
+      "/v1/orders",
       "/v1/quotes",
       "/v1/ramadan/today",
       "/v1/search",

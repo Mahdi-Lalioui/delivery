@@ -1,5 +1,6 @@
 import type { DatabaseConnection } from "@zaafran/db/database";
 import { createDiscoverySearchRepository } from "@zaafran/db/discovery-search";
+import { createOrderRepository } from "@zaafran/db/orders";
 import { createOrderQuoteRepository } from "@zaafran/db/order-quotes";
 import { createPrivacyRepository } from "@zaafran/db/privacy";
 import { createMediaRepository } from "@zaafran/db/media";
@@ -20,6 +21,10 @@ const mediaPayload = z.strictObject({ mediaId: z.uuid(), phase: z.enum(["prepare
 const cleanupPayload = z.strictObject({
   _cron: z.strictObject({ ts: z.iso.datetime(), backfilled: z.boolean() }).optional(),
 });
+const orderTimerPayload = z.strictObject({
+  orderId: z.uuid(),
+  action: z.enum(["expire", "release"]),
+});
 const watchdogIdentifier = "ops.watchdog";
 const watchdogPayload = z.strictObject({ checkId: z.uuid() });
 
@@ -31,6 +36,7 @@ export function createWorkerOptions(
   },
 ) {
   const privacy = createPrivacyRepository(database);
+  const orders = createOrderRepository(database);
   const quotes = createOrderQuoteRepository(database);
   const mediaOptions = {
     repository: createMediaRepository(database),
@@ -52,6 +58,9 @@ export function createWorkerOptions(
       await privacy.pruneDeletionState(now);
       await quotes.pruneExpired(now);
     }),
+    "order.timer": defineJob(orderTimerPayload, ({ orderId, action }) =>
+      orders.runTimer(orderId, action, new Date()),
+    ),
     search_refresh: createSearchRefreshJob(createDiscoverySearchRepository(database)),
     [watchdogIdentifier]: defineJob(watchdogPayload, async ({ checkId }) => {
       await runJobEffectOnce({

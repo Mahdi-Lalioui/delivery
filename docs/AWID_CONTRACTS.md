@@ -1,7 +1,7 @@
 # AWID sprint contracts
 
 Use the shared Zod schemas and the HTTP shapes below for fixtures. The new endpoints are
-contract handoffs. Address CRUD and quote creation are implemented on lane-a. Address voice-note attachments
+contract handoffs. Address CRUD, quote creation and order placement are implemented on lane-a. Address voice-note attachments
 return `voice_note_unavailable` until the private audio upload and retention flow lands.
 
 | Endpoint | Request and response schemas | Access |
@@ -27,7 +27,7 @@ return `voice_note_unavailable` until the private audio upload and retention flo
 - Send `Idempotency-Key` on order placement and every order action. Reuse the key
   and request body when retrying. For a new transition use the latest order version.
 - A quote binds the server-computed amount to the cart and customer. Submit the returned
-  quote ID and optional cash tender to confirm. An expired or changed quote requires a
+  quote ID and optional cash tender to confirm. Retried placement returns its original response for 24 hours. An expired or changed quote requires a
   fresh review. Omit the address ID for pickup.
 - A public tracking response contains only the status, times, ETA and first name.
   Use authenticated tracking for exact coordinates and the delivery or pickup code.

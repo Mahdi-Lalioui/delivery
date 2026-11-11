@@ -93,6 +93,14 @@ async function clearPersonalData(
       public.auth_otp_rate_digest('ip', host(request_ip)), requested_at
     FROM discarded WHERE requested_at > ${now.toISOString()}::timestamptz - interval '24 hours'
   `;
+  await sql`
+    UPDATE public.orders SET customer_id = NULL, address_snapshot = NULL, lines = (
+      SELECT coalesce(jsonb_agg(line - 'note' ORDER BY index), '[]'::jsonb)
+      FROM jsonb_array_elements(lines) WITH ORDINALITY AS item(line, index)
+    ) WHERE customer_id = ${userId}
+  `;
+  await sql`UPDATE public.order_events SET actor_id = NULL WHERE actor_id = ${userId} AND actor_kind = 'customer'`;
+  await sql`DELETE FROM public.order_placement_receipts WHERE customer_id = ${userId}`;
   await sql`DELETE FROM public.quotes WHERE customer_id = ${userId}`;
   await sql`DELETE FROM public.addresses WHERE user_id = ${userId}`;
   await sql`DELETE FROM public.merchant_staff_invitations WHERE phone_e164 = ${phoneE164}`;
