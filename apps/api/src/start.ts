@@ -68,6 +68,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     addresses: createAddressRepository(database),
     orders: { repository: orders, now },
     orderActions: { repository: orders, now },
+    merchantBoard: orders,
     orderQuotes: { repository: createOrderQuoteRepository(database), now },
     privacy: createPrivacyService({
       repository: createPrivacyRepository(database),

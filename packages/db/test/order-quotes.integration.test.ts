@@ -427,3 +427,31 @@ test("[ORD-02] a verified admin force action records its actor and reason", asyn
     { actor_kind: "admin", actor_id: otherId, payload: { kind: "force", reason: "Assistance" } },
   ]);
 });
+
+test("[MER-03][RT-02] board snapshot and replay are scoped and replay every new order in commit order", async () => {
+  const { sql } = database.get();
+  await sql`INSERT INTO merchant_members (merchant_id, user_id, role) VALUES (${merchantId}, ${otherId}, 'owner') ON CONFLICT DO NOTHING`;
+  const input = { merchantId, accountId: otherId };
+  expect(await orders().board({ ...input, accountId: customerId })).toBeUndefined();
+  const before = await orders().board(input);
+  if (!before) throw new Error("Expected board");
+  expect(before.events).toEqual([]);
+
+  const [first, second] = await Promise.all([placement(), placement()]);
+  const created = await Promise.all([orders().place(first), orders().place(second)]);
+  const ids = created.flatMap((result) => (result.kind === "placed" ? [result.order.orderId] : []));
+  expect(ids).toHaveLength(2);
+  const changed = await orders().board({ ...input, after: before.cursor });
+  if (!changed) throw new Error("Expected board");
+  expect(changed.events.map(({ orderId }) => orderId).sort()).toEqual(ids.sort());
+  expect(changed.events.map(({ id }) => BigInt(id))).toEqual([
+    BigInt(before.cursor) + 1n,
+    BigInt(before.cursor) + 2n,
+  ]);
+  expect(changed.hasMore).toBe(false);
+  expect(changed.orders.filter(({ orderId }) => ids.includes(orderId))).toMatchObject([
+    { fulfilment: "pickup", lines: [{ names: { fr: "Couscous" }, quantity: 2 }], changeDzd: 0 },
+    { fulfilment: "pickup", lines: [{ names: { fr: "Couscous" }, quantity: 2 }], changeDzd: 0 },
+  ]);
+  expect((await orders().board({ ...input, after: changed.cursor }))?.events).toEqual([]);
+});

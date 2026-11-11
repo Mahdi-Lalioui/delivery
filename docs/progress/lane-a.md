@@ -152,3 +152,6 @@
 
 - 2026-11-11 · High · Implemented discovery ratings, ETA and fee metadata, URL filters and stable sorting by distance, rating and ETA. Passed 352 package tests and 271 PostGIS and worker integration tests.
   Next: add the scoped merchant board snapshot and durable replay cursor, then wire the live board screens.
+
+- 2026-11-11 · High · Published the tenant-scoped merchant board snapshot and commit-ordered replay. Passed 549 package tests, 33 focused PostGIS tests and 242 authz tests.
+  Next: build the localized board with polling, sound, countdowns and order actions. SSE and courier handover follow their sprint slices.

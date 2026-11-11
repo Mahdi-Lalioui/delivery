@@ -21,6 +21,7 @@ return `voice_note_unavailable` until the private audio upload and retention flo
 | `GET /v1/courier/jobs` | `courierJobsOutput` | Courier, assigned jobs only |
 | `POST /v1/courier/presence` | `courierPresenceInput` → 204 | Courier |
 | `POST /v1/courier/positions` | `courierPositionsInput` → `courierPositionsOutput` | Courier assigned to the active delivery |
+| `GET /v1/merchants/:merchantId/order-board` | `merchantBoardQuery` → `merchantBoardOutput` | Merchant owner, manager or staff on the requested merchant |
 | `GET /v1/feed` | `publicFeedQuery` → `publicFeedOutput` | Public |
 
 - Import schemas from `@zaafran/contracts/{orders,addresses,tracking,courier,feed}`.
@@ -37,3 +38,6 @@ return `voice_note_unavailable` until the private audio upload and retention flo
   rollout. Render a zero fee as free delivery and treat null or absent as unknown.
 - In the cash-only release, the payment-method filters return an empty page when either
   Baridi Pay or TPE is required.
+- Fetch the merchant board without a cursor to load its active tickets. Poll with
+  `after=<cursor>` to replay events. If `hasMore` is true, fetch the next batch before
+  returning to the regular poll interval. The cursor is scoped to one merchant.

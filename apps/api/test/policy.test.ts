@@ -203,6 +203,12 @@ const matrix: readonly MatrixRoute[] = [
   },
   {
     method: "GET",
+    url: "/v1/merchants/:merchantId/order-board",
+    requestUrl: "/v1/merchants/" + challengeId + "/order-board",
+    expected: { merchant_owner: 503, merchant_manager: 503, merchant_staff: 503 },
+  },
+  {
+    method: "GET",
     url: "/v1/orders/:orderId",
     requestUrl: "/v1/orders/" + challengeId,
     expected: { ...merchantRoles, admin: 503 },

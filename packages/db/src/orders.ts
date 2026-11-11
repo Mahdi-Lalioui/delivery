@@ -11,6 +11,7 @@ import {
   type OrderCommandRequest,
   type OrderAccess,
 } from "./order-commands.js";
+import { readMerchantBoard, type BoardRequest } from "./order-board.js";
 import type { DatabaseConnection } from "./database.js";
 import {
   hash,
@@ -201,6 +202,10 @@ async function runTimer(
 
 export function createOrderRepository({ sql }: DatabaseConnection) {
   return {
+    board: (request: BoardRequest) =>
+      sql.begin("isolation level repeatable read read only", (tx) =>
+        readMerchantBoard(tx, request),
+      ),
     apply: (request: OrderCommandRequest) => sql.begin((tx) => applyOrderCommand(tx, request)),
     read: (request: OrderAccess) =>
       sql.begin("isolation level repeatable read read only", (tx) => readScopedOrder(tx, request)),

@@ -52,16 +52,16 @@ export async function enqueueOrderTimer(sql: TransactionSql, order: OrderSnapsho
   `;
 }
 
-type StateRow = OrderSnapshot & {
+export type OrderStateRow = OrderSnapshot & {
   travelMinutes: number;
   shortCode: string;
   totalDzd: number;
   placedAt: Date;
 };
 
-export async function readOrderSnapshot(sql: TransactionSql, orderId: string, lock: boolean) {
-  const [snapshot] = await sql<StateRow[]>`
-    SELECT id, customer_id AS "customerId", merchant_id AS "merchantId", fulfilment, status,
+export function orderStateColumns(sql: TransactionSql) {
+  return sql`
+    id, customer_id AS "customerId", merchant_id AS "merchantId", fulfilment, status,
       courier_id AS "courierId", version, prep_minutes AS "prepMinutes",
       travel_minutes AS "travelMinutes", short_code AS "shortCode", total_dzd AS "totalDzd",
       placed_at AS "placedAt",
@@ -73,6 +73,12 @@ export async function readOrderSnapshot(sql: TransactionSql, orderId: string, lo
         'earliestAt', extract(epoch FROM eta_earliest_at) * 1000,
         'latestAt', extract(epoch FROM eta_latest_at) * 1000
       ) END AS eta
+  `;
+}
+
+export async function readOrderSnapshot(sql: TransactionSql, orderId: string, lock: boolean) {
+  const [snapshot] = await sql<OrderStateRow[]>`
+    SELECT ${orderStateColumns(sql)}
     FROM public.orders WHERE id = ${orderId}
     ${lock ? sql`FOR UPDATE` : sql``}
   `.parsers(timestampParsers);
