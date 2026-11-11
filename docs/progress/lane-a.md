@@ -230,3 +230,6 @@
 
 - 2026-11-11 · Medium · Published merchant delivery settings schemas. Contract cases cover the radius bounds, required radius for delivery, invalid money, pickup and legacy reads.
   Next: implement the transactional settings repository, authorization matrix, API and merchant controls against this contract.
+
+- 2026-11-11 · Ultra · Added transactional merchant radius and modes, scoped reads and revision-bound replay. Passed 253 authz and HTTP cases, 32 real PostGIS cases and OpenAPI validation. Exact addresses inside and outside the radius resolved correctly.
+  Next: connect the settings screen to this API with conflict recovery, then start production deployment preparation.

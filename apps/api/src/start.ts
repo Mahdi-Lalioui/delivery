@@ -18,6 +18,7 @@ import { createMenuItemRepository } from "@zaafran/db/menu-item";
 import { createMenuPreviewRepository } from "@zaafran/db/menu-preview";
 import { createMenuOptionGroupRepository } from "@zaafran/db/menu-option-group";
 import { createMenuPriceRepository } from "@zaafran/db/menu-price";
+import { createMerchantDeliveryRepository } from "@zaafran/db/merchant-delivery";
 import { createMerchantHoursRepository } from "@zaafran/db/merchant-hours";
 import { createMenuModerationRepository } from "@zaafran/db/menu-moderation";
 import { createMerchantPromotionsRepository } from "@zaafran/db/promotions";
@@ -95,6 +96,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
       sendSms,
     }),
     merchant: { repository: createMerchantRepository(database), now },
+    merchantDelivery: { repository: createMerchantDeliveryRepository(database), now },
     billing: createBillingRepository(database),
     billingWrites: { repository: createBillingWriteRepository(database), now },
     platform: { repository: platform, now },

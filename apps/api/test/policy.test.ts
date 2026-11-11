@@ -608,6 +608,26 @@ const matrix: readonly MatrixRoute[] = [
   },
   {
     method: "GET",
+    url: "/v1/merchants/:merchantId/delivery-settings",
+    requestUrl: "/v1/merchants/" + challengeId + "/delivery-settings",
+    expected: menuRoles,
+  },
+  {
+    method: "PUT",
+    url: "/v1/merchants/:merchantId/delivery-settings",
+    requestUrl: "/v1/merchants/" + challengeId + "/delivery-settings",
+    payload: {
+      pickupEnabled: true,
+      deliveryEnabled: false,
+      pickupMinimumDzd: 0,
+      prepMinutes: 20,
+      zone: null,
+      expectedRevision: 0,
+    },
+    expected: menuRoles,
+  },
+  {
+    method: "GET",
     url: "/v1/merchants/:merchantId/hours",
     requestUrl: "/v1/merchants/" + challengeId + "/hours",
     expected: menuRoles,
