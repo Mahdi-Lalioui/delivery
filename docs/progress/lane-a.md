@@ -194,3 +194,6 @@
 
 - 2026-11-11 · Ultra · Added buyer-only four-digit proof, stored keyed digests, five-try lockout and idempotent successful and failed submissions. Passed 250 authz, 38 PostGIS, and scoped unit/typecheck/lint/OpenAPI checks.
   Next: implement server-timed failed delivery and photo proof fallback before the courier screens.
+
+- 2026-11-11 · Ultra · Added assigned-courier wait and call records, replay-safe counting and the failed-delivery transition with server-side ten-minute and two-call guards. Passed 250 authz and 38 PostGIS checks.
+  Next: bind private photo proofs to an active order and surface their flag to the merchant, then build courier screens.

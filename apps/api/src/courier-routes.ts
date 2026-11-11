@@ -1,3 +1,4 @@
+import { idempotencyKeySchema } from "@zaafran/contracts/auth";
 import {
   courierInviteAcceptInput,
   courierInviteAcceptOutput,
@@ -8,8 +9,11 @@ import {
   courierPositionsOutput,
   courierPresenceInput,
   courierRosterOutput,
+  deliveryAttemptInput,
+  deliveryAttemptOutput,
 } from "@zaafran/contracts/courier";
 import { problemResponseSchema } from "@zaafran/contracts/health";
+import { orderParams } from "@zaafran/contracts/orders";
 import type { createCourierRepository } from "@zaafran/db/couriers";
 import type { onSendAsyncHookHandler, FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
@@ -158,6 +162,37 @@ export function registerCourierRoutes(api: FastifyInstance, services?: CourierSe
         return sendProblem(reply, 429);
       }
       return reply.send({ accepted: result.accepted });
+    },
+  );
+
+  routes.post(
+    "/v1/orders/:orderId/delivery-attempts",
+    {
+      onSend: noStore,
+      config: policy(["customer", "courier"]),
+      schema: {
+        params: orderParams,
+        headers: z.object({ "idempotency-key": idempotencyKeySchema }),
+        body: deliveryAttemptInput,
+        response: { 200: deliveryAttemptOutput, ...errors },
+      },
+    },
+    async (request, reply) => {
+      const actor = getRequestActor(request);
+      if (!actor) return sendProblem(reply, 401);
+      if (!services) return sendProblem(reply, 503);
+      const result = await services.repository.recordDeliveryAttempt({
+        ...request.params,
+        ...request.body,
+        userId: actor.accountId,
+        sessionId: actor.sessionId,
+        now: services.now(),
+        idempotencyKey: request.headers["idempotency-key"],
+      });
+      if (result.kind === "recorded") return reply.send(result.state);
+      if (result.kind === "not_found") return sendProblem(reply, 404);
+      if (result.kind === "rate_limited") return sendProblem(reply, 429);
+      return sendProblem(reply, 409, result.kind);
     },
   );
 

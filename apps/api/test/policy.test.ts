@@ -329,6 +329,20 @@ const matrix: readonly MatrixRoute[] = [
   },
   {
     method: "POST",
+    url: "/v1/orders/:orderId/delivery-attempts",
+    requestUrl: "/v1/orders/" + challengeId + "/delivery-attempts",
+    payload: { action: "start_wait" },
+    expected: { customer: 503, courier: 503 },
+  },
+  {
+    method: "POST",
+    url: "/v1/orders/:orderId/fail",
+    requestUrl: "/v1/orders/" + challengeId + "/fail",
+    payload: { expectedVersion: 1, reason: "Recipient unavailable" },
+    expected: { customer: 503, courier: 503 },
+  },
+  {
+    method: "POST",
     url: "/v1/orders/:orderId/force",
     requestUrl: "/v1/orders/" + challengeId + "/force",
     payload: { expectedVersion: 1, to: "cancelled", reason: "Cancel" },

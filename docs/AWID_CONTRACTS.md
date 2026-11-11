@@ -1,7 +1,7 @@
 # AWID sprint contracts
 
 Use the shared Zod schemas and the HTTP shapes below for fixtures. The new endpoints are
-contract handoffs. Address CRUD, quotes, placement, scoped order reads and the accept, reject, cancel, ready, collect, assign, pick-up, deliver by code and force actions are implemented on lane-a. The buyer’s authenticated tracking view and the courier invite, roster, presence, jobs and position APIs are implemented. Address voice-note attachments
+contract handoffs. Address CRUD, quotes, placement, scoped order reads and the accept, reject, cancel, ready, collect, assign, pick-up, deliver by code, fail and force actions are implemented on lane-a. The buyer’s authenticated tracking view and the courier invite, roster, presence, jobs and position APIs are implemented. Address voice-note attachments
 return `voice_note_unavailable` until the private audio upload and retention flow lands.
 
 | Endpoint | Request and response schemas | Access |
@@ -19,6 +19,7 @@ return `voice_note_unavailable` until the private audio upload and retention flo
 | `GET /v1/merchants/:merchantId/couriers` | `courierRosterOutput` | Merchant member |
 | `POST /v1/merchants/:merchantId/couriers/invites` | `courierInviteInput` → `courierInviteOutput` (201) | Merchant owner |
 | `POST /v1/courier/invites/accept` | `courierInviteAcceptInput` → `courierInviteAcceptOutput` | Signed-in account with the invited phone |
+| `POST /v1/orders/:orderId/delivery-attempts` | `deliveryAttemptInput` → `deliveryAttemptOutput` | Active courier assigned to the order |
 | `GET /v1/courier/jobs` | `courierJobsOutput` | Courier, assigned jobs only |
 | `POST /v1/courier/presence` | `courierPresenceInput` → 204 | Courier |
 | `POST /v1/courier/positions` | `courierPositionsInput` → `courierPositionsOutput` | Courier assigned to the active delivery |
@@ -41,6 +42,9 @@ return `voice_note_unavailable` until the private audio upload and retention flo
   A wrong code returns `invalid_delivery_code`. Five wrong attempts return
   `delivery_code_locked`. Repeat the original idempotency key after a transport
   failure. A new code attempt needs a new key.
+- A driver records `start_wait` at the drop-off and `call` for each call.
+  Use a new idempotency key for each action and reuse it on retry. The server
+  allows `fail` after ten minutes and two recorded calls.
 - A public tracking response contains only the status, times, ETA and first name.
   Use authenticated tracking for exact coordinates and the delivery or pickup code.
 - Feed filters are URL query parameters, with `true` and `false` for flags. Preserve

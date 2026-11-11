@@ -232,6 +232,8 @@ test("[M0-6] the generated OpenAPI document describes the readiness problem resp
       "/v1/orders/{orderId}/cancel",
       "/v1/orders/{orderId}/collect",
       "/v1/orders/{orderId}/deliver",
+      "/v1/orders/{orderId}/delivery-attempts",
+      "/v1/orders/{orderId}/fail",
       "/v1/orders/{orderId}/force",
       "/v1/orders/{orderId}/pick-up",
       "/v1/orders/{orderId}/ready",

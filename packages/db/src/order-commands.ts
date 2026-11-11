@@ -2,6 +2,7 @@ import { estimateDelivery } from "@zaafran/domain/eta";
 import { transition } from "@zaafran/domain/order-transition";
 import type { OrderAction, OrderActor, OrderSnapshot } from "@zaafran/domain/order-types";
 import type { TransactionSql } from "postgres";
+import { readDeliveryAttempts } from "./courier-delivery-attempts.js";
 import {
   deliveryCodeDigest,
   deriveDeliveryCode,
@@ -29,6 +30,7 @@ type PublicAction =
   | Extract<OrderAction, { kind: "cancel" | "collect" | "markReady" | "pickUp" | "force" }>
   | { kind: "assignCourier"; courierId: string }
   | { kind: "deliver"; code: string }
+  | { kind: "fail"; reason: string }
   | { kind: "accept"; prepMinutes: number }
   | {
       kind: "reject";
@@ -152,6 +154,10 @@ async function toDomainAction(
       reason: input.reason,
       facts: { soldOutItemIds: input.soldOutItemIds },
     };
+  }
+  if (input.kind === "fail") {
+    const { waitStartedAt, callAttempts } = await readDeliveryAttempts(sql, order.id);
+    return { ...input, facts: { waitStartedAt: waitStartedAt?.getTime() ?? null, callAttempts } };
   }
   if (input.kind !== "accept") return input;
 
@@ -378,7 +384,7 @@ export async function applyOrderCommand(
     allowCourier: request.action.kind === "pickUp",
   };
   const actor =
-    request.action.kind === "deliver"
+    request.action.kind === "deliver" || request.action.kind === "fail"
       ? await deliveryActor(sql, scope, order)
       : await authorizeOrder(sql, scope, order);
   return actor

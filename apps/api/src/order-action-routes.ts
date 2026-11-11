@@ -155,6 +155,12 @@ export function registerOrderActionRoutes(api: FastifyInstance, services?: Order
         proof.kind === "code" ? { kind: "deliver", code: proof.code } : undefined,
     });
     registerAction(scope, services, {
+      name: "fail",
+      roles: ["customer", "courier"],
+      body: orderActionInputs.fail,
+      action: ({ reason }) => ({ kind: "fail", reason }),
+    });
+    registerAction(scope, services, {
       name: "force",
       roles: ["admin"],
       body: orderActionInputs.force,

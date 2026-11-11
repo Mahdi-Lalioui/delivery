@@ -608,14 +608,76 @@ async function verifyCourierPositions(
   );
 }
 
+async function verifyFailedDelivery(
+  orderId: string,
+  driver: { userId: string; sessionId: string },
+) {
+  const courier = createCourierRepository(database.get());
+  const started = new Date();
+  const base = { ...driver, orderId, now: started };
+  const fail = (offset: number) =>
+    orders().apply({
+      orderId,
+      accountId: driver.userId,
+      role: "standard",
+      expectedVersion: 5,
+      now: new Date(started.getTime() + offset),
+      idempotencyKey: randomUUID(),
+      action: { kind: "fail", reason: "Recipient unavailable" },
+    });
+  expect(await fail(0)).toEqual({ kind: "invalid_order_command" });
+  const arrival = { ...base, action: "start_wait", idempotencyKey: randomUUID() } as const;
+  expect(await courier.recordDeliveryAttempt({ ...arrival, userId: customerId })).toEqual({
+    kind: "not_found",
+  });
+  expect(await courier.recordDeliveryAttempt(arrival)).toEqual({
+    kind: "recorded",
+    state: { waitStartedAt: started.toISOString(), callAttempts: 0 },
+  });
+  const firstCall = { ...base, action: "call", idempotencyKey: randomUUID() } as const;
+  const [first, repeat] = await Promise.all([
+    courier.recordDeliveryAttempt(firstCall),
+    courier.recordDeliveryAttempt(firstCall),
+  ]);
+  expect(first).toMatchObject({ kind: "recorded", state: { callAttempts: 1 } });
+  expect(repeat).toEqual(first);
+  expect(
+    await courier.recordDeliveryAttempt({ ...firstCall, idempotencyKey: randomUUID() }),
+  ).toEqual({ kind: "rate_limited" });
+  expect(await fail(600_000)).toEqual({ kind: "order_not_due" });
+  expect(
+    await courier.recordDeliveryAttempt({
+      ...firstCall,
+      idempotencyKey: randomUUID(),
+      now: new Date(started.getTime() + 60_000),
+    }),
+  ).toMatchObject({ kind: "recorded", state: { callAttempts: 2 } });
+  expect(await courier.jobs(driver)).toMatchObject({
+    jobs: [
+      {
+        order: { orderId },
+        deliveryAttempt: { waitStartedAt: started.toISOString(), callAttempts: 2 },
+      },
+    ],
+  });
+  expect(await fail(599_999)).toEqual({ kind: "order_not_due" });
+  expect(await fail(600_000)).toMatchObject({
+    kind: "applied",
+    order: { status: "delivery_failed", version: 6 },
+  });
+  expect(
+    await courier.recordDeliveryAttempt({ ...firstCall, idempotencyKey: randomUUID() }),
+  ).toEqual({ kind: "not_found" });
+}
+
 async function verifyDeliveryLockout({
   addressId,
   courierId,
-  driverId,
+  driver,
 }: {
   addressId: string;
   courierId: string;
-  driverId: string;
+  driver: { userId: string; sessionId: string };
 }) {
   const locked = await orders().place(
     await placement({ ...pickup, fulfilment: "delivery", addressId }),
@@ -639,7 +701,8 @@ async function verifyDeliveryLockout({
       }),
     ).toMatchObject({ kind: "applied" });
   }
-  await verifyDeliveryCode(locked.order.orderId, driverId, "lock");
+  await verifyDeliveryCode(locked.order.orderId, driver.userId, "lock");
+  await verifyFailedDelivery(locked.order.orderId, driver);
 }
 
 test("[MER-03][COU-02] assigns only an active restaurant courier and exposes their delivery", async () => {
@@ -733,7 +796,7 @@ test("[MER-03][COU-02] assigns only an active restaurant courier and exposes the
   expect((await jobs(driverSession))?.jobs[0]?.order.status).toBe("out_for_delivery");
   await verifyCourierPositions(orderId, driverSession);
   await verifyDeliveryCode(orderId, driver.id, "deliver");
-  await verifyDeliveryLockout({ addressId, courierId, driverId: driver.id });
+  await verifyDeliveryLockout({ addressId, courierId, driver: driverSession });
   expect(
     (await orders().board({ merchantId, accountId: otherId }))?.orders.some(
       (ticket) => ticket.orderId === orderId,

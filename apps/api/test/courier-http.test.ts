@@ -39,11 +39,26 @@ test("[COU-01:http] invites and accepts using the signed-in standard session", a
     .mockResolvedValueOnce({ kind: "recorded", accepted: 1 })
     .mockResolvedValueOnce({ kind: "rate_limited" })
     .mockResolvedValueOnce({ kind: "not_found" });
+  const recordDeliveryAttempt = vi
+    .fn<ReturnType<typeof createCourierRepository>["recordDeliveryAttempt"]>()
+    .mockResolvedValueOnce({
+      kind: "recorded",
+      state: { waitStartedAt: now.toISOString(), callAttempts: 0 },
+    })
+    .mockResolvedValueOnce({ kind: "idempotency_conflict" });
   const api = createApi({
     checkReadiness: () => Promise.resolve(),
     resolveActor: () => Promise.resolve({ role: "customer", accountId, sessionId }),
     couriers: {
-      repository: { invite, accept, list, setPresence, jobs, recordPositions },
+      repository: {
+        invite,
+        accept,
+        list,
+        setPresence,
+        jobs,
+        recordPositions,
+        recordDeliveryAttempt,
+      },
       now: () => now,
     },
   });
@@ -105,4 +120,22 @@ test("[COU-01:http] invites and accepts using the signed-in standard session", a
   expect(limited.statusCode).toBe(429);
   expect(limited.headers["retry-after"]).toBe("3");
   expect((await send(positionsPath, batch)).statusCode).toBe(404);
+  const attempt = {
+    method: "POST",
+    url: "/v1/orders/" + inviteId + "/delivery-attempts",
+    payload: { action: "start_wait" },
+    headers: { "idempotency-key": "courier-wait" },
+  } as const;
+  const waited = await api.inject(attempt);
+  expect(waited.statusCode).toBe(200);
+  expect(waited.json()).toEqual({ waitStartedAt: now.toISOString(), callAttempts: 0 });
+  expect(recordDeliveryAttempt).toHaveBeenCalledWith({
+    orderId: inviteId,
+    userId: accountId,
+    sessionId,
+    action: "start_wait",
+    idempotencyKey: "courier-wait",
+    now,
+  });
+  expect((await api.inject({ ...attempt, payload: { action: "call" } })).statusCode).toBe(409);
 });

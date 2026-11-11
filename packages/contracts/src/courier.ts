@@ -26,6 +26,11 @@ export const courierRosterOutput = z.strictObject({
     z.strictObject({ courierId: uuid, displayName: displayName.nullable(), online: z.boolean() }),
   ),
 });
+export const deliveryAttemptInput = z.strictObject({ action: z.enum(["start_wait", "call"]) });
+export const deliveryAttemptOutput = z.strictObject({
+  waitStartedAt: instant.nullable(),
+  callAttempts: z.int().min(0).max(20),
+});
 export const courierPresenceInput = z.strictObject({ online: z.boolean() });
 
 export const courierJobsOutput = z.strictObject({
@@ -39,6 +44,7 @@ export const courierJobsOutput = z.strictObject({
       dropoff: addressOutput.omit({ label: true, isDefault: true, addressId: true }),
       customerFirstName: z.string().min(1).max(80).nullable(),
       customerPhone: algerianMobilePhone.nullable(),
+      deliveryAttempt: deliveryAttemptOutput,
       changeDzd: z.int().min(0).max(10_000),
     }),
   ),
