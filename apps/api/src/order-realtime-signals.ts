@@ -2,7 +2,7 @@ import type { DatabaseConnection } from "@zaafran/db/database";
 
 type Wake = () => void;
 
-export function createOrderRealtimeSignals(sql: DatabaseConnection["sql"]) {
+function createChannel(sql: DatabaseConnection["sql"], channel: string) {
   const listeners = new Map<string, Set<Wake>>();
   let connecting = false;
 
@@ -11,9 +11,9 @@ export function createOrderRealtimeSignals(sql: DatabaseConnection["sql"]) {
     connecting = true;
     void sql
       .listen(
-        "merchant_order_events",
-        (merchantId) => {
-          for (const wake of listeners.get(merchantId) ?? []) wake();
+        channel,
+        (resourceId) => {
+          for (const wake of listeners.get(resourceId) ?? []) wake();
         },
         () => {
           for (const subscribed of listeners.values()) {
@@ -27,16 +27,21 @@ export function createOrderRealtimeSignals(sql: DatabaseConnection["sql"]) {
       });
   }
 
+  return (resourceId: string, wake: Wake) => {
+    const subscribed = listeners.get(resourceId) ?? new Set<Wake>();
+    subscribed.add(wake);
+    listeners.set(resourceId, subscribed);
+    connect();
+    return () => {
+      subscribed.delete(wake);
+      if (subscribed.size === 0) listeners.delete(resourceId);
+    };
+  };
+}
+
+export function createOrderRealtimeSignals(sql: DatabaseConnection["sql"]) {
   return {
-    subscribe(merchantId: string, wake: Wake) {
-      const subscribed = listeners.get(merchantId) ?? new Set<Wake>();
-      subscribed.add(wake);
-      listeners.set(merchantId, subscribed);
-      connect();
-      return () => {
-        subscribed.delete(wake);
-        if (subscribed.size === 0) listeners.delete(merchantId);
-      };
-    },
+    subscribe: createChannel(sql, "merchant_order_events"),
+    subscribeOrder: createChannel(sql, "order_status_events"),
   };
 }

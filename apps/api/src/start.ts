@@ -70,7 +70,11 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     orders: { repository: orders, now },
     orderActions: { repository: orders, now },
     merchantBoard: orders,
-    realtime: { replay: orders.merchantReplay, ...createOrderRealtimeSignals(database.sql) },
+    realtime: {
+      replay: orders.merchantReplay,
+      replayOrder: orders.orderReplay,
+      ...createOrderRealtimeSignals(database.sql),
+    },
     orderQuotes: { repository: createOrderQuoteRepository(database), now },
     privacy: createPrivacyService({
       repository: createPrivacyRepository(database),

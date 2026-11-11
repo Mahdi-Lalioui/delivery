@@ -116,11 +116,18 @@ const boardLine = z.strictObject({
   options: z.array(menuItemInput.shape.names).max(50),
   note: z.string().max(140),
 });
-export const merchantRealtimeQuery = z.strictObject({
-  topic: z.literal("merchantOrders"),
-  merchantId: uuid,
-  after: merchantBoardCursor.optional(),
-});
+export const orderRealtimeQuery = z.discriminatedUnion("topic", [
+  z.strictObject({
+    topic: z.literal("merchantOrders"),
+    merchantId: uuid,
+    after: merchantBoardCursor.optional(),
+  }),
+  z.strictObject({
+    topic: z.literal("order"),
+    orderId: uuid,
+    after: merchantBoardCursor.optional(),
+  }),
+]);
 export const merchantBoardQuery = z.strictObject({ after: merchantBoardCursor.optional() });
 export const merchantBoardOutput = z.strictObject({
   orders: z.array(

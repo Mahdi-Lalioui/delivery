@@ -13,9 +13,9 @@ type TicketRow = OrderStateRow & {
   changeDzd: number;
   confirmByPhone: boolean;
 };
-type BoardEvent = Omit<Board["events"][number], "at"> & { at: Date };
+export type ReplayEventRow = Omit<Board["events"][number], "at"> & { at: Date };
 export type BoardRequest = { merchantId: string; accountId: string; after?: string | undefined };
-const replayLimit = 100;
+export const replayLimit = 100;
 
 async function readTickets(sql: TransactionSql, merchantId: string): Promise<Ticket[]> {
   const rows = await sql<TicketRow[]>`
@@ -48,7 +48,7 @@ async function readTickets(sql: TransactionSql, merchantId: string): Promise<Tic
 
 async function readReplay(sql: TransactionSql, { merchantId, after }: BoardRequest) {
   if (after === undefined) return [];
-  return sql<BoardEvent[]>`
+  return sql<ReplayEventRow[]>`
     SELECT merchant_sequence::text AS id, order_id AS "orderId", version, to_status AS status, occurred_at AS at
     FROM public.order_events WHERE merchant_id = ${merchantId} AND merchant_sequence > ${after}::bigint
     ORDER BY merchant_sequence LIMIT ${replayLimit + 1}
@@ -77,7 +77,7 @@ async function readBoardCursor(
   return access?.cursor;
 }
 
-function replayPage(rows: readonly BoardEvent[], currentCursor: string) {
+export function presentReplayPage(rows: readonly ReplayEventRow[], currentCursor: string) {
   const events = rows
     .slice(0, replayLimit)
     .map(({ at, ...event }) => ({ ...event, at: at.toISOString() }));
@@ -98,7 +98,7 @@ export async function readMerchantBoard(
     readTickets(sql, request.merchantId),
     readReplay(sql, request),
   ]);
-  return { orders, ...replayPage(rows, cursor) };
+  return { orders, ...presentReplayPage(rows, cursor) };
 }
 
 export type ReplayRequest = BoardRequest & { sessionId: string };
@@ -106,5 +106,5 @@ export type ReplayRequest = BoardRequest & { sessionId: string };
 export async function readMerchantReplay(sql: TransactionSql, request: ReplayRequest) {
   const cursor = await readBoardCursor(sql, request, request.sessionId);
   if (cursor === undefined) return undefined;
-  return replayPage(await readReplay(sql, request), cursor);
+  return presentReplayPage(await readReplay(sql, request), cursor);
 }

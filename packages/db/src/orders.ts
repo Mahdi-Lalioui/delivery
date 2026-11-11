@@ -26,6 +26,7 @@ import {
   savePlacementReceipt,
   type PricedQuote,
 } from "./order-placement-store.js";
+import { readOrderReplay, type OrderReplayRequest } from "./order-replay.js";
 import { evaluateQuote, lockOrderingCustomer, quoteBreakdown } from "./order-quotes.js";
 import {
   appendOrderEvent,
@@ -207,6 +208,8 @@ async function runTimer(
 
 export function createOrderRepository({ sql }: DatabaseConnection) {
   return {
+    orderReplay: (request: OrderReplayRequest) =>
+      sql.begin("isolation level repeatable read read only", (tx) => readOrderReplay(tx, request)),
     merchantReplay: (request: ReplayRequest) =>
       sql.begin("isolation level repeatable read read only", (tx) =>
         readMerchantReplay(tx, request),

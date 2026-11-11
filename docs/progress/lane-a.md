@@ -164,3 +164,6 @@
 
 - 2026-11-11 · Ultra · Added merchant SSE with durable cursor resume, PostgreSQL wakeups, live-session checks and polling fallback. Passed 553 package tests, 274 integrations, 244 authz tests and eight production browser checks.
   Next: add order-status notifications and configure the SMS adapter, then build the courier API and screens. Verify stream buffering on the deployed proxy.
+
+- 2026-11-11 · High · Added authenticated single-order SSE with version replay and Postgres notifications. Passed 552 package tests, 245 authz tests and 21 focused PostGIS tests.
+  Next: queue customer order-status web push and SMS from committed transitions, then implement courier assignment, jobs and live positions.

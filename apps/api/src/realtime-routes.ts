@@ -1,12 +1,12 @@
 import { randomInt } from "node:crypto";
 import { Readable } from "node:stream";
 import { problemResponseSchema } from "@zaafran/contracts/health";
-import { merchantBoardCursor, merchantRealtimeQuery } from "@zaafran/contracts/orders";
+import { merchantBoardCursor, orderRealtimeQuery } from "@zaafran/contracts/orders";
 import type { createOrderRepository } from "@zaafran/db/orders";
 import type { FastifyInstance, FastifyReply } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
-import { getRequestActor } from "./policy.js";
+import { getRequestActor, type Actor } from "./policy.js";
 import { sendProblem } from "./problems.js";
 import { createRealtimeWakeup } from "./realtime-wakeup.js";
 
@@ -14,6 +14,8 @@ type Replay = ReturnType<typeof createOrderRepository>["merchantReplay"];
 type Batch = NonNullable<Awaited<ReturnType<Replay>>>;
 type StreamServices = {
   replay: Replay;
+  replayOrder: ReturnType<typeof createOrderRepository>["orderReplay"];
+  subscribeOrder: (orderId: string, wake: () => void) => () => void;
   subscribe: (merchantId: string, wake: () => void) => () => void;
 };
 type Stream = {
@@ -53,6 +55,32 @@ function sendEventStream(reply: FastifyReply, body: Readable) {
     .send(body);
 }
 
+const merchantRoles = ["merchant_owner", "merchant_manager", "merchant_staff"] as const;
+const merchantRoleSet = new Set<string>(merchantRoles);
+
+function selectTopic(
+  services: StreamServices,
+  query: z.infer<typeof orderRealtimeQuery>,
+  actor: Actor,
+) {
+  const { accountId, sessionId, role } = actor;
+  if (query.topic === "merchantOrders") {
+    const merchantId = query.merchantId.toLowerCase();
+    return {
+      replay: (after: string | undefined) =>
+        services.replay({ accountId, sessionId, merchantId, after }),
+      subscribe: (wake: () => void) => services.subscribe(merchantId, wake),
+    };
+  }
+  if (role === "courier") return undefined;
+  const orderId = query.orderId.toLowerCase();
+  return {
+    replay: (after: string | undefined) =>
+      services.replayOrder({ orderId, accountId, sessionId, role, after }),
+    subscribe: (wake: () => void) => services.subscribeOrder(orderId, wake),
+  };
+}
+
 export function registerRealtimeRoutes(api: FastifyInstance, services?: StreamServices) {
   const active = new Map<string, Set<AbortController>>();
   api.addHook("preClose", (done) => {
@@ -66,10 +94,10 @@ export function registerRealtimeRoutes(api: FastifyInstance, services?: StreamSe
     "/v1/realtime",
     {
       config: {
-        policy: { kind: "roles", roles: ["merchant_owner", "merchant_manager", "merchant_staff"] },
+        policy: { kind: "roles", roles: ["customer", ...merchantRoles, "admin"] },
       },
       schema: {
-        querystring: merchantRealtimeQuery,
+        querystring: orderRealtimeQuery,
         headers: z.object({ "last-event-id": merchantBoardCursor.optional() }),
         response: {
           200: { content: { "text/event-stream": { schema: z.string() } } },
@@ -85,16 +113,19 @@ export function registerRealtimeRoutes(api: FastifyInstance, services?: StreamSe
     async (request, reply) => {
       const actor = getRequestActor(request);
       if (!actor) return sendProblem(reply, 401);
+      if (request.query.topic === "merchantOrders" && !merchantRoleSet.has(actor.role))
+        return sendProblem(reply, 403);
       if (!services) return sendProblem(reply, 503);
-      const { sessionId, accountId } = actor;
-      const merchantId = request.query.merchantId.toLowerCase();
+      const { sessionId } = actor;
+      const topic = selectTopic(services, request.query, actor);
+      if (!topic) return sendProblem(reply, 403);
       const streams = active.get(sessionId) ?? new Set<AbortController>();
       if (streams.size >= 4) return sendProblem(reply, 429);
       const controller = new AbortController();
       streams.add(controller);
       active.set(sessionId, streams);
       const wake = createRealtimeWakeup(controller.signal);
-      const unsubscribe = services.subscribe(merchantId, () => {
+      const unsubscribe = topic.subscribe(() => {
         wake.notify();
       });
       function close() {
@@ -106,11 +137,7 @@ export function registerRealtimeRoutes(api: FastifyInstance, services?: StreamSe
 
       reply.raw.once("close", close);
       const { after } = request.query;
-      const scope = { accountId, sessionId, merchantId };
-      const first = await services.replay({
-        ...scope,
-        after: request.headers["last-event-id"] ?? after,
-      });
+      const first = await topic.replay(request.headers["last-event-id"] ?? after);
       if (!first) {
         close();
         return sendProblem(reply, 404);
@@ -118,7 +145,7 @@ export function registerRealtimeRoutes(api: FastifyInstance, services?: StreamSe
       const body = Readable.from(
         streamOrders({
           first,
-          next: (cursor) => services.replay({ ...scope, after: cursor }),
+          next: (cursor) => topic.replay(cursor),
           wait: () => wake.wait(),
           signal: controller.signal,
           close,

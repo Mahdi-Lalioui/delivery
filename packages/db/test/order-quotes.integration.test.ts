@@ -527,3 +527,39 @@ test("[RT-03] committed order events wake the restaurant stream and require a li
     await listener.unlisten();
   }
 });
+
+test("[CUS-18][RT-02] customer replays only their order and session", async () => {
+  const { sql } = database.get();
+  const sessionId = randomUUID();
+  await createAuthRepository(database.get()).transaction((tx) =>
+    tx.insertSession({
+      id: sessionId,
+      userId: customerId,
+      tokenHash: randomBytes(32),
+      transport: "web",
+      kind: "standard",
+      requestIp: "192.0.2.4",
+      deviceName: "Fixture",
+      now: new Date(),
+    }),
+  );
+  const placed = await orders().place(await placement());
+  if (placed.kind !== "placed") throw new Error("Expected placement");
+  const { orderId } = placed.order;
+  const scope = { orderId, accountId: customerId, sessionId, role: "customer" } as const;
+  expect(await orders().orderReplay({ ...scope, accountId: otherId })).toBeUndefined();
+  expect(await orders().orderReplay(scope)).toEqual({ cursor: "1", events: [], hasMore: false });
+  const signal = Promise.withResolvers<string>();
+  const listener = await sql.listen("order_status_events", signal.resolve);
+  try {
+    await orders().runTimer(orderId, "expire", new Date("2026-11-11T12:08:00Z"));
+    expect(await signal.promise).toBe(orderId);
+    expect(await orders().orderReplay({ ...scope, after: "1" })).toEqual({
+      cursor: "2",
+      hasMore: false,
+      events: [{ id: "2", orderId, version: 2, status: "expired", at: "2026-11-11T12:08:00.000Z" }],
+    });
+  } finally {
+    await listener.unlisten();
+  }
+});

@@ -281,6 +281,13 @@
       "when": 1794136800000,
       "tag": "0039_order_realtime",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1794137400000,
+      "tag": "0040_order_status_realtime",
+      "breakpoints": true
     }
   ]
 }
