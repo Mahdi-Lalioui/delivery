@@ -77,6 +77,13 @@
   color: var(--color-accent-strong);
 }
 
+/* Without a photo: zellige pattern in brand greens with the plate mark. */
+.restaurant-feed-cover:not(:has(img)) {
+  background-color: var(--color-mint-pale);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cpath d='M24 4 44 24 24 44 4 24Z' fill='none' stroke='%2300A37A' stroke-opacity='.25' stroke-width='2'/%3E%3C/svg%3E");
+  background-size: 48px;
+}
+
 .restaurant-feed-plate {
   inline-size: min(75%, calc(var(--space-120) + var(--space-64)));
   block-size: auto;
@@ -218,7 +225,14 @@
   color: var(--color-text-2);
 }
 
-.restaurant-feed-empty .restaurant-feed-plate {
+.restaurant-feed-empty /* Without a photo: zellige pattern in brand greens with the plate mark. */
+.restaurant-feed-cover:not(:has(img)) {
+  background-color: var(--color-mint-pale);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cpath d='M24 4 44 24 24 44 4 24Z' fill='none' stroke='%2300A37A' stroke-opacity='.25' stroke-width='2'/%3E%3C/svg%3E");
+  background-size: 48px;
+}
+
+.restaurant-feed-plate {
   inline-size: var(--space-120);
   color: var(--color-accent-strong);
 }
@@ -417,8 +431,8 @@
 /* Page top: location pill, greeting, search. */
 .discover-top {
   display: grid;
-  gap: var(--space-20);
-  padding-block: var(--space-8) var(--space-16);
+  gap: var(--space-12);
+  padding-block: 0 var(--space-8);
 }
 
 .discover-greeting {
@@ -427,11 +441,18 @@
 }
 
 .discover-greeting h1 {
-  font: var(--font-weight-display) var(--font-size-h1) / var(--line-height-h1) var(--font-display);
+  font: var(--font-weight-display) var(--font-size-h2) / var(--line-height-h2) var(--font-display);
 }
 
 .discover-greeting p {
+  display: none;
   color: var(--color-text-2);
+}
+
+@media (min-width: 640px) {
+  .discover-greeting p {
+    display: block;
+  }
 }
 
 /* Rails show the essentials only: name, rating, time, fee. */
@@ -441,15 +462,23 @@
 
 .discovery-rail .restaurant-feed-meta {
   flex-wrap: nowrap;
-  overflow: hidden;
+}
+
+.discovery-rail .restaurant-feed-meta [data-free],
+.discovery-rail .restaurant-feed-count {
+  display: none;
+}
+
+.restaurant-feed-meta li {
+  white-space: nowrap;
 }
 
 /* Horizontal rails (collections and restaurant rows). */
 .discovery-rail,
 .discovery-cuisines {
   display: grid;
-  gap: var(--space-12);
-  margin-block-start: var(--space-32);
+  gap: var(--space-8);
+  margin-block-start: var(--space-24);
 }
 
 .discovery-collections {
@@ -481,7 +510,7 @@
   position: relative;
   display: grid;
   inline-size: 100%;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 2 / 1;
   overflow: hidden;
   padding: 0;
   border: 0;
@@ -510,9 +539,9 @@
   position: relative;
   display: grid;
   align-content: end;
-  gap: var(--space-4);
-  padding: var(--space-20);
-  background: linear-gradient(transparent 50%, var(--color-photo-scrim));
+  gap: 2px;
+  padding: var(--space-16);
+  background: linear-gradient(transparent 45%, var(--color-photo-scrim));
   color: var(--color-on-photo);
 }
 
@@ -522,7 +551,7 @@
 }
 
 .discovery-collection-title {
-  font: var(--font-weight-display) var(--font-size-h2) / var(--line-height-h2) var(--font-display);
+  font: var(--font-weight-display) var(--font-size-h3) / var(--line-height-h3) var(--font-display);
 }
 
 /* Cuisine chips with photos. */
@@ -534,16 +563,41 @@
 .discovery-cuisine {
   display: grid;
   justify-items: center;
+  align-content: start;
   gap: var(--space-8);
-  min-inline-size: var(--space-80);
+  inline-size: 5.5rem;
   padding: var(--space-4);
   border: 0;
   background: none;
   color: var(--color-text-2);
   font: inherit;
   font-size: var(--font-size-caption);
-  white-space: nowrap;
+  line-height: var(--line-height-caption);
+  text-align: center;
   cursor: pointer;
+}
+
+.discovery-cuisine > span:last-child {
+  max-inline-size: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.discovery-cuisine-all {
+  display: grid;
+  place-items: center;
+  inline-size: var(--space-64);
+  block-size: var(--space-64);
+  border: 3px solid transparent;
+  border-radius: var(--radius-pill);
+  background: var(--color-mint-pale);
+  color: var(--color-accent-strong);
+  box-shadow: var(--shadow-e1);
+}
+
+.discovery-cuisine[aria-pressed="true"] .discovery-cuisine-all {
+  border-color: var(--color-accent);
 }
 
 .discovery-cuisine img {
@@ -658,13 +712,39 @@
     gap: var(--space-20);
   }
 
-  .discover-top .discovery-search-trigger {
-    max-inline-size: 40rem;
+  .discover-top {
+    grid-template-columns: minmax(0, 1fr) minmax(20rem, 30rem);
+    align-items: end;
+    gap: var(--space-12) var(--space-32);
+  }
+
+  .discover-top > .discovery-location {
+    grid-column: 2;
+    grid-row: 1;
+    justify-items: end;
+  }
+
+  .discover-top > .discover-greeting {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: end;
+  }
+
+  .discover-top > :last-child {
+    grid-column: 2;
   }
 
   .discover-greeting h1 {
-    font-size: var(--font-size-display);
-    line-height: var(--line-height-display);
+    font-size: var(--font-size-h1);
+    line-height: var(--line-height-h1);
+  }
+
+  .discover-top .discovery-search-trigger {
+    max-inline-size: none;
+  }
+
+  .discovery-collection {
+    aspect-ratio: 16 / 9;
   }
 
   .restaurant-feed-header {
@@ -682,5 +762,87 @@
   .restaurant-feed-favourite[data-burst="true"],
   .restaurant-feed-favourite[data-burst="true"]::after {
     animation: none;
+  }
+}
+
+/* Cards rise in with a short stagger (first eight only). */
+@media (prefers-reduced-motion: no-preference) {
+  .restaurant-feed-grid > li,
+  .discovery-rail-list > li {
+    animation: discovery-rise var(--motion-slow) var(--ease-standard) both;
+  }
+
+  .restaurant-feed-grid > li:nth-child(2),
+  .discovery-rail-list > li:nth-child(2) {
+    animation-delay: 30ms;
+  }
+
+  .restaurant-feed-grid > li:nth-child(3),
+  .discovery-rail-list > li:nth-child(3) {
+    animation-delay: 60ms;
+  }
+
+  .restaurant-feed-grid > li:nth-child(4),
+  .discovery-rail-list > li:nth-child(4) {
+    animation-delay: 90ms;
+  }
+
+  .restaurant-feed-grid > li:nth-child(5),
+  .discovery-rail-list > li:nth-child(5) {
+    animation-delay: 120ms;
+  }
+
+  .restaurant-feed-grid > li:nth-child(n + 6),
+  .discovery-rail-list > li:nth-child(n + 6) {
+    animation-delay: 150ms;
+  }
+}
+
+@keyframes discovery-rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-12));
+  }
+}
+
+/* Only the exception gets a badge: open cards keep the status for screen readers only. */
+.restaurant-feed-badge[data-open="true"] {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Rails are a lighter, swipeable layer: smaller cards than the main list. */
+.discovery-rail .discovery-rail-list {
+  grid-auto-columns: min(64%, 15rem);
+}
+
+.discovery-rail .restaurant-feed-cover {
+  aspect-ratio: 4 / 3;
+}
+
+.discovery-rail .restaurant-feed-logo {
+  display: none;
+}
+
+.discovery-rail .restaurant-feed-card {
+  box-shadow: none;
+  background: none;
+}
+
+.discovery-rail .restaurant-feed-cover {
+  border-radius: var(--radius-xl);
+}
+
+.discovery-rail .restaurant-feed-card-body {
+  padding: var(--space-8) var(--space-4) 0;
+}
+
+@media (min-width: 960px) {
+  .discovery-rail .discovery-rail-list {
+    grid-auto-columns: calc((100% - 3 * var(--space-12)) / 4);
   }
 }

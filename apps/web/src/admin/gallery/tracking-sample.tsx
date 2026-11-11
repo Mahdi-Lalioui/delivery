@@ -83,8 +83,18 @@ const stories: Readonly<Record<Story, Tracking>> = {
 };
 
 /** CUS-18 / CUS-19 tracking with fixtures for each story and state. */
-export function TrackingSample({ mode, locale }: { mode: Mode; locale: Locale }) {
-  const [story, setStory] = useState<Story>("on-the-way");
+export function TrackingSample({
+  mode,
+  locale,
+  initialStory = "on-the-way",
+  isBare = false,
+}: {
+  mode: Mode;
+  locale: Locale;
+  initialStory?: Story;
+  isBare?: boolean;
+}) {
+  const [story, setStory] = useState<Story>(initialStory);
   const state: TrackingState = {
     view:
       mode === "ready"
@@ -97,19 +107,21 @@ export function TrackingSample({ mode, locale }: { mode: Mode; locale: Locale })
     cancelOrder: noop,
   };
   return (
-    <div className="billing-layout">
-      <SegmentedControl
-        legend="story"
-        name="tracking-story"
-        value={story}
-        onChange={setStory}
-        options={[
-          { value: "on-the-way", label: "→" },
-          { value: "waiting", label: "…" },
-          { value: "pickup", label: "P" },
-          { value: "delivered", label: "✓" },
-        ]}
-      />
+    <div className={isBare ? undefined : "billing-layout"}>
+      {!isBare && (
+        <SegmentedControl
+          legend="story"
+          name="tracking-story"
+          value={story}
+          onChange={setStory}
+          options={[
+            { value: "on-the-way", label: "→" },
+            { value: "waiting", label: "…" },
+            { value: "pickup", label: "P" },
+            { value: "delivered", label: "✓" },
+          ]}
+        />
+      )}
       <TrackingView state={state} locale={locale} />
     </div>
   );

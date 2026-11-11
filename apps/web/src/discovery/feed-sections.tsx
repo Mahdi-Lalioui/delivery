@@ -1,10 +1,11 @@
 "use client";
 
 import type { Locale } from "@zaafran/i18n/locales";
+import { Icon } from "@zaafran/ui";
 import { useEffect, useId, useState } from "react";
 import { FeedCard } from "./feed-card";
 import { readDiscoveryFeed, type FeedFilters, type FeedRestaurant } from "./feed-http";
-import { getFeedCuisineLabel, getFeedMessages } from "./feed-messages";
+import { getFeedMessages } from "./feed-messages";
 
 /** Brand photos for the cuisine chips (credited in docs/PHOTO_CREDITS.md). */
 const cuisinePhotos = [
@@ -31,7 +32,7 @@ export function CuisineChips({
 }) {
   const messages = getFeedMessages(locale);
   const headingId = useId();
-  const chips = [[undefined, "chakhchoukha"] as const, ...cuisinePhotos];
+  const chips = [[undefined, undefined] as const, ...cuisinePhotos];
   return (
     <section className="discovery-cuisines" aria-labelledby={headingId}>
       <h2 id={headingId} className="discovery-section-title">
@@ -48,11 +49,15 @@ export function CuisineChips({
                 onChange(cuisine);
               }}
             >
-              <img src={photoSrc(photo)} alt="" width="64" height="64" loading="lazy" />
+              {photo === undefined ? (
+                <span className="discovery-cuisine-all" aria-hidden="true">
+                  <Icon name="plate" size={26} />
+                </span>
+              ) : (
+                <img src={photoSrc(photo)} alt="" width="64" height="64" loading="lazy" />
+              )}
               <span>
-                {cuisine === undefined
-                  ? messages.allCuisines
-                  : getFeedCuisineLabel(locale, cuisine)}
+                {cuisine === undefined ? messages.allCuisines : messages.chipNames[cuisine]}
               </span>
             </button>
           </li>

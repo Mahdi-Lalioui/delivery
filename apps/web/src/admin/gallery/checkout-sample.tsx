@@ -111,8 +111,18 @@ function fixture({
 }
 
 /** CUS-13/14 checkout steps and the order-confirmed moment, with fixtures. */
-export function CheckoutSample({ mode, locale }: { mode: Mode; locale: Locale }) {
-  const [view, setView] = useState<View>(mode === "error" ? "3" : "1");
+export function CheckoutSample({
+  mode,
+  locale,
+  initialView,
+  isBare = false,
+}: {
+  mode: Mode;
+  locale: Locale;
+  initialView?: View;
+  isBare?: boolean;
+}) {
+  const [view, setView] = useState<View>(initialView ?? (mode === "error" ? "3" : "1"));
   const [fulfilment, setFulfilment] = useState<FulfilmentKind>("delivery");
   const [slot, setSlot] = useState<SlotChoice>({ kind: "asap" });
   const state = {
@@ -124,19 +134,21 @@ export function CheckoutSample({ mode, locale }: { mode: Mode; locale: Locale })
     setSlot,
   };
   return (
-    <div className="billing-layout">
-      <SegmentedControl
-        legend="step"
-        name="checkout-view"
-        value={view}
-        onChange={setView}
-        options={[
-          { value: "1", label: "1" },
-          { value: "2", label: "2" },
-          { value: "3", label: "3" },
-          { value: "confirmed", label: "✓" },
-        ]}
-      />
+    <div className={isBare ? undefined : "billing-layout"}>
+      {!isBare && (
+        <SegmentedControl
+          legend="step"
+          name="checkout-view"
+          value={view}
+          onChange={setView}
+          options={[
+            { value: "1", label: "1" },
+            { value: "2", label: "2" },
+            { value: "3", label: "3" },
+            { value: "confirmed", label: "✓" },
+          ]}
+        />
+      )}
       {view === "confirmed" ? (
         <OrderConfirmed
           locale={locale}

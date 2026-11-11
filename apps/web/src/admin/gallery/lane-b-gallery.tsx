@@ -184,7 +184,7 @@ function ReviewsSample({ mode }: { mode: Mode }) {
   );
 }
 
-function RatingSample({ mode }: { mode: Mode }) {
+export function RatingSample({ mode }: { mode: Mode }) {
   const view =
     mode === "ready" || mode === "empty"
       ? { kind: "ready" as const, rating: null }
@@ -268,7 +268,7 @@ const galleryOrders = [
   },
 ];
 
-function OrdersSample({ mode, locale }: { mode: Mode; locale: Locale }) {
+export function OrdersSample({ mode, locale }: { mode: Mode; locale: Locale }) {
   const history =
     mode === "ready" || mode === "empty"
       ? { kind: "ready" as const, orders: mode === "ready" ? galleryOrders : [], nextCursor: null }
@@ -284,6 +284,20 @@ function OrdersSample({ mode, locale }: { mode: Mode; locale: Locale }) {
               slug: "dar",
               coverMediaId: null,
               isOpen: true,
+            },
+            {
+              merchantId: "00000000-0000-4000-8000-000000000040",
+              name: "Karantika Bab El Oued",
+              slug: "karantika-bab-el-oued",
+              coverMediaId: null,
+              isOpen: true,
+            },
+            {
+              merchantId: "00000000-0000-4000-8000-000000000050",
+              name: "Pâtisserie Cirta",
+              slug: "patisserie-cirta",
+              coverMediaId: null,
+              isOpen: false,
             },
           ]
         : [],

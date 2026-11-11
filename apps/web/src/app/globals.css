@@ -92,6 +92,65 @@ a {
   text-decoration: underline var(--color-primary) var(--link-underline-width);
 }
 
+/* Phones: one compact language menu; wide screens: the three links inline. */
+.language-menu {
+  position: relative;
+}
+
+.language-menu summary {
+  display: inline-flex;
+  gap: var(--space-4);
+  align-items: center;
+  min-block-size: var(--touch-target-min);
+  padding-inline: var(--space-12);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-2);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-label);
+  list-style: none;
+  cursor: pointer;
+}
+
+.language-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.language-menu .languages {
+  position: absolute;
+  z-index: 30;
+  inset-block-start: calc(100% + var(--space-4));
+  inset-inline-end: 0;
+  display: grid;
+  min-inline-size: 10rem;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-e3);
+}
+
+.language-menu .languages a {
+  justify-content: start;
+  font-size: var(--font-size-label);
+}
+
+.masthead-inner > .languages {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .masthead-inner > .languages {
+    display: flex;
+  }
+
+  .language-menu {
+    display: none;
+  }
+}
+
+.masthead {
+  background: var(--color-bg);
+}
+
 .page {
   padding-block: var(--space-32) var(--space-64);
 }

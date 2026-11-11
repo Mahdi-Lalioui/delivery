@@ -31,6 +31,7 @@ export default function config(phase: string): NextConfig {
     env: { ZAAFRAN_DESIGN_ENABLED: includeDesign ? "1" : "0" },
     pageExtensions: includeDesign ? ["design.tsx", "tsx", "ts"] : ["tsx", "ts"],
     poweredByHeader: false,
+    devIndicators: false,
     ...(destination && {
       rewrites: () => Promise.resolve({ beforeFiles: [{ source: "/v1/:path*", destination }] }),
     }),
