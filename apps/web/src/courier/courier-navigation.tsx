@@ -25,6 +25,7 @@ export function CourierNavigation({ pin }: { pin: Job["dropoff"]["pin"] }) {
       {links.map(([label, href]) => (
         <a
           key={label}
+          data-apple={label === "Apple Maps" || undefined}
           className="ui-button ui-button-secondary ui-button-md"
           href={href}
           target="_blank"

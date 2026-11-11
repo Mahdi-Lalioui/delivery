@@ -5,6 +5,8 @@ import { localeDetails, type Locale } from "@zaafran/i18n/locales";
 import { Badge, Button, Icon } from "@zaafran/ui";
 import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
+import { useDeliveryAttempt } from "./courier-delivery-attempt";
+import { CourierDropoff } from "./courier-dropoff";
 import { confirmCourierPickup, type Job } from "./courier-http";
 import { CourierNavigation } from "./courier-navigation";
 import { SlideConfirm } from "./slide-confirm";
@@ -29,7 +31,7 @@ function DeliverySteps({ active }: { active: boolean }) {
   );
 }
 
-function JobAddress({ job, active }: { job: Job; active: boolean }) {
+function JobAddress({ job, active, onCall }: { job: Job; active: boolean; onCall: () => void }) {
   const t = useTranslations("courier");
   const { dropoff, pickup, customerFirstName, customerPhone } = job;
   const fields = [
@@ -70,7 +72,7 @@ function JobAddress({ job, active }: { job: Job; active: boolean }) {
             )}
           </dl>
           {customerPhone && (
-            <a className="courier-call" href={"tel:" + customerPhone}>
+            <a className="courier-call" href={"tel:" + customerPhone} onClick={onCall}>
               {t("call")}
             </a>
           )}
@@ -177,11 +179,12 @@ export function CourierJob({
 }) {
   const t = useTranslations("courier");
   const { order } = job;
+  const attempts = useDeliveryAttempt(job, offline);
   const active = order.status === "out_for_delivery";
   const ready = order.status === "ready";
   const label = active ? "onTheWay" : ready ? "ready" : "preparing";
   return (
-    <section className="courier-work" aria-labelledby="courier-job-title">
+    <section className="courier-work" data-active={active} aria-labelledby="courier-job-title">
       <div className="courier-job-heading">
         <h2 id="courier-job-title">
           <bdi>{order.shortCode}</bdi>
@@ -190,7 +193,7 @@ export function CourierJob({
       </div>
       <DeliverySteps active={active} />
       <div className="courier-job-grid">
-        <JobAddress job={job} active={active} />
+        <JobAddress job={job} active={active} onCall={() => void attempts.record("call")} />
         <CourierCash job={job} locale={locale} />
       </div>
       {ready && (
@@ -199,6 +202,15 @@ export function CourierJob({
           disabled={offline}
           rtl={localeDetails[locale].direction === "rtl"}
           refresh={refresh}
+        />
+      )}
+      {active && (
+        <CourierDropoff
+          job={job}
+          locale={locale}
+          offline={offline}
+          refresh={refresh}
+          attempts={attempts}
         />
       )}
       {!ready && !active && (

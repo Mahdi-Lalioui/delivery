@@ -1,11 +1,12 @@
+export function normalizeDigits(input: string): string {
+  return input.replace(/[٠-٩۰-۹]/g, (digit) => {
+    const zero = digit >= "۰" ? "۰" : "٠";
+    return String(digit.charCodeAt(0) - zero.charCodeAt(0));
+  });
+}
+
 function getNationalMobileNumber(input: string): string | undefined {
-  const digits = input
-    .trim()
-    .replace(/[٠-٩۰-۹]/g, (digit) => {
-      const zero = digit >= "۰" ? "۰" : "٠";
-      return String(digit.charCodeAt(0) - zero.charCodeAt(0));
-    })
-    .replace(/[-\p{Zs}]/gu, "");
+  const digits = normalizeDigits(input.trim()).replace(/[-\p{Zs}]/gu, "");
   const match = /^(?:0|\+213|00213)([567][0-9]{8})$/.exec(digits);
   return match?.[1];
 }

@@ -1,5 +1,6 @@
 import { localeDetails, type Locale } from "@zaafran/i18n/locales";
 import { getMessages } from "@zaafran/i18n/messages";
+import { ToastProvider } from "@zaafran/ui";
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { SiteShell } from "../components/site-shell";
@@ -16,13 +17,16 @@ export function courierMetadata(locale: Locale): Metadata {
 }
 
 export function CourierPage({ locale }: { locale: Locale }) {
+  const messages = getMessages(locale);
   return (
     <SiteShell locale={locale} subpath="/courier">
       <NextIntlClientProvider
         locale={localeDetails[locale].tag}
-        messages={{ courier: getMessages(locale).courier }}
+        messages={{ courier: messages.courier, mediaPhoto: messages.mediaPhoto }}
       >
-        <CourierScreen locale={locale} />
+        <ToastProvider closeLabel={messages.courier.close}>
+          <CourierScreen locale={locale} />
+        </ToastProvider>
       </NextIntlClientProvider>
     </SiteShell>
   );

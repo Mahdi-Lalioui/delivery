@@ -1,15 +1,23 @@
 import {
   courierInviteAcceptOutput,
   courierJobsOutput,
+  courierPositionsOutput,
+  deliveryAttemptOutput,
+  type deliveryAttemptInput,
   type courierInviteAcceptInput,
+  type courierPositionsInput,
 } from "@zaafran/contracts/courier";
-import { orderSummary } from "@zaafran/contracts/orders";
+import { problemResponseSchema } from "@zaafran/contracts/health";
+import { orderSummary, type orderActionInputs } from "@zaafran/contracts/orders";
 
 export type Jobs = ReturnType<typeof courierJobsOutput.parse>;
 export type Job = Jobs["jobs"][number];
+export type Proof = ReturnType<typeof orderActionInputs.deliver.parse>["proof"];
+export type DeliveryAttempt = ReturnType<typeof deliveryAttemptInput.parse>["action"];
+export type PositionBatch = ReturnType<typeof courierPositionsInput.parse>["positions"];
 type Invite = ReturnType<typeof courierInviteAcceptInput.parse>;
 type Request = { path: string; body?: object; key?: string; signal?: AbortSignal };
-type Failure = { kind: "sign-in" | "forbidden" | "conflict" | "retry" | "error" };
+type Failure = { code?: string; kind: "sign-in" | "forbidden" | "conflict" | "retry" | "error" };
 type Result<T> = { kind: "ready"; data: T } | Failure;
 
 function failed(status: number): Failure {
@@ -56,7 +64,12 @@ async function request<T>(
             },
           }),
     });
-    if (!response.ok) return failed(response.status);
+    if (!response.ok) {
+      const failure = failed(response.status);
+      const payload: unknown = await response.json().catch(() => undefined);
+      const problem = problemResponseSchema.safeParse(payload);
+      return problem.success ? { ...failure, code: problem.data.code } : failure;
+    }
     if (!schema) return { kind: "ready", data: undefined };
     const payload: unknown = await response.json();
     const parsed = schema.safeParse(payload);
@@ -83,5 +96,39 @@ export function confirmCourierPickup(job: Job, key: string) {
   return request(
     { path: `/v1/orders/${orderId}/pick-up`, body: { expectedVersion: version }, key },
     orderSummary,
+  );
+}
+
+export function confirmCourierDelivery(job: Job, proof: Proof, key: string) {
+  const { orderId, version } = job.order;
+  return request(
+    { path: `/v1/orders/${orderId}/deliver`, body: { expectedVersion: version, proof }, key },
+    orderSummary,
+  );
+}
+
+export function failCourierDelivery(job: Job, reason: string, key: string) {
+  const { orderId, version } = job.order;
+  return request(
+    { path: `/v1/orders/${orderId}/fail`, body: { expectedVersion: version, reason }, key },
+    orderSummary,
+  );
+}
+
+export function recordDeliveryAttempt(orderId: string, action: DeliveryAttempt, key: string) {
+  return request(
+    { path: `/v1/orders/${orderId}/delivery-attempts`, body: { action }, key },
+    deliveryAttemptOutput,
+  );
+}
+
+export function sendCourierPositions(
+  orderId: string,
+  positions: PositionBatch,
+  signal: AbortSignal,
+) {
+  return request(
+    { path: "/v1/courier/positions", body: { orderId, positions }, signal },
+    courierPositionsOutput,
   );
 }
