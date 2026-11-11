@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const dayMinutes = 1440;
 const maxRangesPerDay = 4;
-const maxSpecialDates = 60;
+export const maxSpecialDates = 60;
 
 // A range closing at or before it opens runs past midnight into the next day (18:00–02:00).
 const openingRange = z
@@ -49,7 +49,13 @@ function sevenWeekdays<Ranges extends z.ZodType>(ranges: Ranges) {
 const weekly = sevenWeekdays(dayRanges);
 
 /** An empty range list closes the whole Algiers civil date. */
-const specialDate = z.strictObject({ date: z.iso.date(), ranges: dayRanges });
+const specialDate = z.strictObject({
+  date: z.iso
+    .date()
+    .regex(/^(?!0000-)/u, "Use a positive Gregorian year.")
+    .meta({ format: "date" }),
+  ranges: dayRanges,
+});
 
 const specialDates = z
   .array(specialDate)

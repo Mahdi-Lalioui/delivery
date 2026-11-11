@@ -65,6 +65,25 @@ test("[MER-16] a saved schedule moves to the new revision with a notice", () => 
     result: { kind: "saved", data: { revision: 4 } },
   });
   expect(saved).toMatchObject({ kind: "editing", revision: 4, notice: "saved" });
+  expect(
+    reduceRamadan(saved, {
+      kind: "revision-advanced",
+      sessionId,
+      expectedRevision: 4,
+      revision: 5,
+    }),
+  ).toMatchObject({ revision: 5, notice: "saved" });
+});
+
+test.each([
+  { sessionId, expectedRevision: 4, revision: 5 },
+  { sessionId: "different-session", expectedRevision: 3, revision: 4 },
+])("[MER-16] keeps a Ramadan draft on its own revision after an unrelated save", (change) => {
+  const edited = withIftar(loaded);
+  const afterSave = reduceRamadan(edited, { kind: "revision-advanced", ...change });
+  expect(prepareRamadanSave(afterSave, () => "draft-key")).toMatchObject({
+    input: { expectedRevision: 3 },
+  });
 });
 
 test("[MER-16] keeps the key only after an uncertain failure and drops it on edit or advance", () => {
@@ -75,10 +94,11 @@ test("[MER-16] keeps the key only after an uncertain failure and drops it on edi
   expect(uncertain).toMatchObject({ retryKey: "key-1", failure: "rate-limited" });
   expect(prepareRamadanSave(uncertain, () => "fresh")).toMatchObject({ idempotencyKey: "key-1" });
   expect(withIftar(uncertain)).not.toHaveProperty("retryKey");
-  const advanced = reduceRamadan(uncertain, { kind: "revision-advanced", revision: 5 });
-  expect(advanced).toMatchObject({ revision: 5 });
+  const event = { kind: "revision-advanced", sessionId, expectedRevision: 3, revision: 4 } as const;
+  const advanced = reduceRamadan(uncertain, event);
+  expect(advanced).toMatchObject({ revision: 4 });
   expect(advanced).not.toHaveProperty("retryKey");
-  expect(reduceRamadan(advanced, { kind: "revision-advanced", revision: 4 })).toBe(advanced);
+  expect(reduceRamadan(advanced, event)).toBe(advanced);
   const rejected = reduceRamadan(saving(loaded), {
     kind: "save-finished",
     result: { kind: "revision-conflict" },

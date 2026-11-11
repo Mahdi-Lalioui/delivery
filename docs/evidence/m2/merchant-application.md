@@ -17,3 +17,9 @@ The optimized Chromium matrix covered application and status in Arabic and Frenc
 The first review found raw E.164 phone text wrapping. After local formatting, a second review found overflow at 200% text size. The final font-relative grid passed all eight double-text combinations at 360px and 1280px. The formatted number stayed on one line inside its cell and the page width matched the viewport. The approval journey also checks the 360px case. All captures are lossless WebPs. [Normal and double-text captures](merchant-application/)
 
 `pnpm test:visual --fail-on-flaky-tests` passed 35 home and design checks, including the public application link on the updated home page.
+
+## Durable admin notice API
+
+The API reported zero pending notices before signup, one after signup and exact replay, and zero after approval. The real PostGIS tests also covered a second application, rejection, historical notice preservation and denied accounts. The production browser journey checked the pending notice from the administrator’s session and 403 from the applicant’s session.
+
+`pnpm verify` passed 1,466 unit and 176 real PostGIS tests. All 18 authenticated production browser cases passed. Lane B owns the visible notification and its live browser test. [Lane B handoff](../../requests/lane-a-merchant-notice.md)

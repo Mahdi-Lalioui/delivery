@@ -162,7 +162,7 @@ test("[MER-12:db] updates only imported fields and screens new text while retain
     ...item,
     priceDzd: 600,
     categoryNames: { fr: "Nouveau" },
-    descriptions: { fr: "Bière" },
+    descriptions: item.externalKey === "held" ? item.descriptions : { fr: "Bière" },
   }));
   rows.push({ ...row("new", 5), names: { fr: "Cigarettes" } });
   expect(
@@ -195,6 +195,56 @@ test("[MER-12:db] updates only imported fields and screens new text while retain
     { external_key: "new", moderation_status: "blocked_pending_review" },
     { external_key: "rejected", price_dzd: 600, moderation_status: "rejected" },
   ]);
+});
+
+test("[ADM-04:db] an import cannot replace held text or apply any other rows in that batch", async () => {
+  const scope = await merchant(320);
+  const held = { ...row("held"), names: { fr: "Bière sans alcool" } };
+  await expect(repo().apply(command(scope, [held]))).resolves.toMatchObject({
+    kind: "applied",
+    revision: 1,
+  });
+  const live = { ...scope, expectedRevision: 1 };
+  const second = { ...row("second", 3), categoryNames: { fr: "Nouveau" } };
+  const errors = [{ row: 2, field: "external_key", reason: "moderation_pending" }];
+  for (const changed of [
+    { ...held, names: { fr: "Bière pression" } },
+    { ...held, descriptions: { fr: "Contient du rhum" } },
+  ]) {
+    const rows = [second, changed];
+    await expect(repo().preview({ ...live, rows })).resolves.toMatchObject({
+      kind: "previewed",
+      errors,
+    });
+    await expect(repo().apply(command(live, rows, "replace-held"))).resolves.toEqual({
+      kind: "import_conflict",
+      errors,
+    });
+  }
+  const { sql } = database.get();
+  await expect(
+    sql`SELECT names FROM public.categories WHERE merchant_id = ${scope.merchantId}`,
+  ).resolves.toEqual([{ names: held.categoryNames }]);
+  await expect(sql`SELECT external_key, names, descriptions, price_dzd, moderation_status
+    FROM public.items WHERE merchant_id = ${scope.merchantId}`).resolves.toEqual([
+    {
+      external_key: "held",
+      names: held.names,
+      descriptions: held.descriptions,
+      price_dzd: held.priceDzd,
+      moderation_status: "blocked_pending_review",
+    },
+  ]);
+  const priceOnly = [{ ...held, priceDzd: 600 }];
+  await expect(repo().preview({ ...live, rows: priceOnly })).resolves.toMatchObject({ errors: [] });
+  await expect(repo().apply(command(live, priceOnly, "replace-held"))).resolves.toMatchObject({
+    kind: "applied",
+    revision: 2,
+    summary: { itemsUpdated: 1 },
+  });
+  await expect(
+    sql`SELECT price_dzd, moderation_status FROM public.items WHERE merchant_id = ${scope.merchantId}`,
+  ).resolves.toEqual([{ price_dzd: 600, moderation_status: "blocked_pending_review" }]);
 });
 
 test("[MER-12:db] archived external keys remain reserved and reject the entire import", async () => {

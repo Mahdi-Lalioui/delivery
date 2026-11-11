@@ -58,3 +58,28 @@ test("[M0-5] the migration suite sees only its own scratch row", async () => {
 
   expect([...rows]).toEqual([{ database: database.name(), marker: "migrations" }]);
 });
+
+test("[M2-2] provisions platform settings and safe default feature flags", async () => {
+  const { sql } = database.get();
+  await sql`insert into platform_settings (key, value) values ('fixture_timeout', '30'::jsonb)`;
+  await expect(
+    sql`select value from platform_settings where key = 'fixture_timeout'`,
+  ).resolves.toEqual([{ value: 30 }]);
+  await expect(sql`select key, is_enabled from feature_flags order by key`).resolves.toEqual([
+    { key: "menu_photo_import", is_enabled: false },
+    { key: "online_payments", is_enabled: false },
+    { key: "ramadan_mode", is_enabled: false },
+    { key: "subscription_online_payment", is_enabled: false },
+  ]);
+  await expect(sql`
+    select indexname from pg_indexes where schemaname = 'public'
+      and indexname in ('platform_settings_updated_by_idx', 'feature_flags_updated_by_idx')
+    order by indexname
+  `).resolves.toEqual([
+    { indexname: "feature_flags_updated_by_idx" },
+    { indexname: "platform_settings_updated_by_idx" },
+  ]);
+  await expect(
+    sql`insert into feature_flags (key, scope) values ('fixture_flag', '[]'::jsonb)`,
+  ).rejects.toMatchObject({ code: "23514" });
+});

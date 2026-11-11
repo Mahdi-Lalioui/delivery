@@ -41,23 +41,28 @@ const controls: MenuCategoryEditor = {
   fieldError: undefined,
   saveError: undefined,
   isSaving: false,
+  isImportOpen: false,
   revisionConflict: false,
   notice: undefined,
   focus: undefined,
   edit: vi.fn(),
   update: vi.fn(),
   reload: vi.fn(),
+  toggleImport: vi.fn(),
+  refreshAfterImport: vi.fn(),
+  showAccessFailure: vi.fn(),
   save: vi.fn(),
   move: vi.fn(),
 };
 
 function render(override: Partial<MenuCategoryEditor> = {}) {
   vi.mocked(useMenuCategoryEditor).mockReturnValue({ ...controls, ...override });
+  const { menuCategory, menuImport } = getMessages("ar");
   return renderToStaticMarkup(
     <NextIntlClientProvider
       locale="ar-DZ"
       timeZone="Africa/Algiers"
-      messages={{ menuCategory: getMessages("ar").menuCategory }}
+      messages={{ menuCategory, menuImport }}
     >
       <MenuCategoryScreen merchantId={merchantId} locale="ar" />
     </NextIntlClientProvider>,
@@ -93,6 +98,7 @@ test("[MER-09:categories] a changed session removes private rows and drafts and 
   expect(html).not.toContain(first.names.ar);
   expect(html).not.toContain(controls.draft.fr);
   expect(html).not.toContain("/menu/options");
+  expect(html).not.toContain(menuCategory.importMenu);
   expect(html).not.toContain("<form");
 });
 
@@ -143,4 +149,5 @@ test("[MER-09:categories] an empty menu offers category creation and announces a
   expect(html).toContain(menuCategory.empty);
   expect(html).toContain(menuCategory.createTitle);
   expect(html).toContain(menuCategory.created);
+  expect(html).toContain(menuCategory.importMenu);
 });

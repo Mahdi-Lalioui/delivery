@@ -1,13 +1,13 @@
 import { createHash } from "node:crypto";
 import { buffer } from "node:stream/consumers";
 import { mediaOutput, photoUploadMaximumBytes } from "@zaafran/contracts/media";
-import type { createMediaRepository } from "@zaafran/db/media";
 import type { MediaStore } from "@zaafran/media";
 import { expect, onTestFinished, test, vi } from "vitest";
 import { createApi } from "../src/app.ts";
+import type { MediaReservationServices } from "../src/media-reservation-routes.ts";
 import type { Actor } from "../src/policy.ts";
 
-type Repository = ReturnType<typeof createMediaRepository>;
+type Repository = MediaReservationServices["repository"];
 
 const accountId = "019d6abc-1234-7234-8234-123456789000";
 const sessionId = "019d6abc-1234-7234-8234-123456789001";
@@ -24,6 +24,9 @@ function setup(authenticated: Actor | undefined = actor) {
   const repository = {
     reserve: vi.fn<Repository["reserve"]>(),
     read: vi.fn<Repository["read"]>(),
+    submitCrop: vi.fn<Repository["submitCrop"]>(),
+    findVariant: vi.fn<Repository["findVariant"]>(),
+    findPreview: vi.fn<Repository["findPreview"]>(),
     findUpload: vi.fn<Repository["findUpload"]>().mockResolvedValue(descriptor),
     acceptUpload: vi
       .fn<Repository["acceptUpload"]>()

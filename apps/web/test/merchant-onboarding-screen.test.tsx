@@ -15,11 +15,7 @@ const retry = vi.fn();
 
 function render() {
   return renderToStaticMarkup(
-    <NextIntlClientProvider
-      locale="ar-DZ"
-      timeZone="Africa/Algiers"
-      messages={{ merchantOnboarding: getMessages("ar").merchantOnboarding }}
-    >
+    <NextIntlClientProvider locale="ar-DZ" timeZone="Africa/Algiers" messages={getMessages("ar")}>
       <MerchantOnboardingScreen merchantId={merchantId} locale="ar" />
     </NextIntlClientProvider>,
   );
@@ -75,6 +71,8 @@ test.each([
     );
     expect(html).toContain(translate("menuProgress", { completed: String(count), required: "5" }));
     expect(html).toContain(`href="/ar/merchant/${merchantId}/menu"`);
+    expect(html).toContain(`href="/ar/merchant/${merchantId}/profile/photos"`);
+    expect(html).toContain(getMessages("ar").merchantProfilePhotos.manage);
     expect(html).toContain(merchantOnboarding.deliveryZone);
     expect(html).toContain(merchantOnboarding.testOrder);
     expect(html).toContain(merchantOnboarding.goLive);

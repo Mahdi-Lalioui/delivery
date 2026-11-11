@@ -1,10 +1,11 @@
 import { fileURLToPath } from "node:url";
 import { defineConfig, devices } from "@playwright/test";
 import { browserTestPattern } from "@zaafran/config/test-patterns";
+import { designPort, loopbackOrigin, productionPort } from "./ports.ts";
 
 const workspace = fileURLToPath(new URL("../", import.meta.url));
-const designUrl = "http://127.0.0.1:3100";
-const productionUrl = "http://127.0.0.1:3101";
+const designUrl = loopbackOrigin(designPort);
+const productionUrl = loopbackOrigin(productionPort);
 const isCi = Boolean(process.env.CI);
 
 export default defineConfig({
@@ -55,14 +56,14 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: "pnpm --filter @zaafran/web start:design --hostname 127.0.0.1 --port 3100",
+      command: `pnpm --filter @zaafran/web start:design --hostname 127.0.0.1 --port ${designPort}`,
       cwd: workspace,
       url: designUrl + "/fr/dev/design",
       reuseExistingServer: false,
       timeout: 60_000,
     },
     {
-      command: "pnpm --filter @zaafran/web start --hostname 127.0.0.1 --port 3101",
+      command: `pnpm --filter @zaafran/web start --hostname 127.0.0.1 --port ${productionPort}`,
       cwd: workspace,
       url: productionUrl + "/fr",
       reuseExistingServer: false,

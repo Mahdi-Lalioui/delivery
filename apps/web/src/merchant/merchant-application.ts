@@ -9,6 +9,7 @@ export interface MerchantDraft {
   longitude: string;
   cuisines: readonly string[];
   rcNumber: string;
+  photoIds?: readonly (string | null)[];
 }
 
 const fieldNames = [
@@ -19,6 +20,7 @@ const fieldNames = [
   "longitude",
   "cuisines",
   "rcNumber",
+  "photoIds",
 ] as const satisfies readonly (keyof MerchantDraft)[];
 
 export type DraftField = (typeof fieldNames)[number];
@@ -41,6 +43,7 @@ function parseCoordinate(value: string): number | undefined {
 
 export function parseMerchantDraft(draft: MerchantDraft): DraftResult {
   const { restaurantName, ownerName, communeId, latitude, longitude, cuisines, rcNumber } = draft;
+  const photoIds = draft.photoIds?.filter((id) => id !== null);
   const result = merchantApplicationInput.safeParse({
     restaurantName,
     ownerName,
@@ -48,6 +51,7 @@ export function parseMerchantDraft(draft: MerchantDraft): DraftResult {
     pin: { latitude: parseCoordinate(latitude), longitude: parseCoordinate(longitude) },
     cuisines,
     ...(rcNumber.trim() ? { rcNumber } : {}),
+    ...(photoIds?.length ? { photoIds } : {}),
   });
 
   if (result.success) return { kind: "valid", data: result.data };

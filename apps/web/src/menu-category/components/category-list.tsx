@@ -151,7 +151,7 @@ export function CategoryList({ merchantId, categories, locale, controls }: Categ
   const drag = useRef<DragStart | undefined>(undefined);
   const [dragging, setDragging] = useState<string>();
   const [dropTarget, setDropTarget] = useState<string>();
-  const disabled = controls.isSaving || controls.revisionConflict;
+  const disabled = controls.isSaving || controls.revisionConflict || controls.isImportOpen;
 
   function getTarget(event: PointerEvent<HTMLSpanElement>) {
     const row = document
@@ -185,7 +185,7 @@ export function CategoryList({ merchantId, categories, locale, controls }: Categ
     if (origin?.pointerId !== event.pointerId) return;
     const target = getTarget(event);
     cancelDrag();
-    if (target !== undefined) void controls.move(origin.categoryId, target);
+    if (!disabled && target !== undefined) void controls.move(origin.categoryId, target);
   }
 
   return (

@@ -30,7 +30,7 @@ function render(screen: "application" | "status") {
     <NextIntlClientProvider
       locale="ar-DZ"
       timeZone="Africa/Algiers"
-      messages={{ merchant: getMessages("ar").merchant }}
+      messages={{ merchant: getMessages("ar").merchant, mediaPhoto: getMessages("ar").mediaPhoto }}
     >
       <MerchantScreen locale="ar" screen={screen} />
     </NextIntlClientProvider>,

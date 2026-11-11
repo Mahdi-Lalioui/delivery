@@ -52,7 +52,7 @@ export async function Landing({ locale }: { locale: Locale }) {
               <a
                 id={startId}
                 className="ui-button ui-button-primary ui-button-lg"
-                href={`/${locale}/sign-in`}
+                href={`/${locale}/discover`}
               >
                 <span>{translate("start")}</span>
               </a>

@@ -8,6 +8,7 @@ interface SiteShellProps {
   locale: Locale;
   subpath?:
     | "/dev/design"
+    | "/discover"
     | "/sign-in"
     | "/sign-in?purpose=admin"
     | "/sign-in?continue=merchant-apply"
@@ -24,6 +25,7 @@ interface SiteShellProps {
     | `/merchant/${string}/menu/options`
     | `/merchant/${string}/menu/${string}/items`
     | `/merchant/${string}/setup`
+    | `/merchant/${string}/profile/photos`
     | `/merchant/${string}/hours`
     | `/merchant/${string}/staff`
     | `/merchant/${string}/billing`

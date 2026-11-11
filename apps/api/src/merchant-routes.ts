@@ -1,4 +1,5 @@
 import {
+  adminMerchantNoticeOutput,
   adminMerchantReviewInput,
   adminMerchantReviewOutput,
   adminReviewQueueOutput,
@@ -58,6 +59,7 @@ const failureStatus = {
   outside_commune: 422,
   idempotency_conflict: 409,
   invalid_status: 409,
+  photos_unavailable: 409,
   not_found: 404,
   forbidden: 403,
 };
@@ -84,8 +86,11 @@ function registerApplication(api: FastifyInstance, services: MerchantServices | 
       if (request.headers["x-expected-session-id"].toLowerCase() !== actor.sessionId)
         return sendProblem(reply, 409, "session_changed");
       const { photoIds, ...body } = request.body;
-      if (photoIds?.length) return sendProblem(reply, 409, "photos_unavailable");
-      const input = { ...body, communeId: body.communeId.toLowerCase() };
+      const input = {
+        ...body,
+        communeId: body.communeId.toLowerCase(),
+        ...(photoIds?.length ? { photoIds: photoIds.map((id) => id.toLowerCase()) } : {}),
+      };
       const result = await services.repository.submitApplication({
         accountId: actor.accountId,
         input,
@@ -191,6 +196,25 @@ function registerAdminQueue(api: FastifyInstance, services: MerchantServices | u
   );
 }
 
+function registerAdminNotice(api: FastifyInstance, services: MerchantServices | undefined): void {
+  api
+    .withTypeProvider<ZodTypeProvider>()
+    .get(
+      "/v1/admin/merchant-applications/notice",
+      { config: adminConfig, schema: { response: { 200: adminMerchantNoticeOutput, ...errors } } },
+      async (request, reply) => {
+        const actor = getRequestActor(request);
+        if (!actor) return sendProblem(reply, 401);
+        if (!services) return sendProblem(reply, 503);
+        reply.header("cache-control", "no-store");
+        const notice = await services.repository.readApplicationNotice(actor.accountId);
+        return notice
+          ? reply.send({ ...notice, sessionId: actor.sessionId })
+          : merchantProblem(reply, "forbidden");
+      },
+    );
+}
+
 function registerAdminReview(api: FastifyInstance, services: MerchantServices | undefined): void {
   api.withTypeProvider<ZodTypeProvider>().post(
     "/v1/admin/merchant-applications/:merchantId/review",
@@ -236,5 +260,6 @@ export function registerMerchantRoutes(
   registerMerchantReads(api, services);
   registerOnboarding(api, services);
   registerAdminQueue(api, services);
+  registerAdminNotice(api, services);
   registerAdminReview(api, services);
 }

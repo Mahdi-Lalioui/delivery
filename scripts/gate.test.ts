@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { getGateChecks, parseGates, resolveGate, runGate } from "./gate-plan.ts";
+import { gateCommand, getGateChecks, parseGates, resolveGate, runGate } from "./gate-plan.ts";
 
 function gateSection(...definitions: string[]): string {
   return ["## Gate definitions for `pnpm gate`", "", "```", ...definitions, "```"].join("\n");
@@ -122,4 +122,21 @@ void test("[M2-gate] requires onboarding, authorization and design evidence", ()
   }
   const checks = ["verify", ...required];
   assert.deepEqual(getGateChecks(gateSection("m2: " + checks.join(", ")), "m2"), checks);
+});
+
+void test("[M2-12] runs authenticated merchant onboarding and builder design checks", () => {
+  assert.deepEqual(gateCommand("m2", "e2e:@merchant-onboarding"), [
+    "test:e2e:auth",
+    "--grep",
+    "@merchant-onboarding",
+    "--fail-on-flaky-tests",
+  ]);
+  assert.deepEqual(gateCommand("m2", "design:screens"), [
+    "test:e2e:auth",
+    "--grep",
+    "@merchant-design",
+    "--fail-on-flaky-tests",
+  ]);
+  assert.equal(gateCommand("m6", "design:screens"), undefined);
+  assert.deepEqual(gateCommand("m0", "e2e:@smoke"), ["test:e2e", "--grep", "@smoke"]);
 });

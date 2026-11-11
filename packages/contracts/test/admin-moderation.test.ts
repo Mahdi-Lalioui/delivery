@@ -61,3 +61,17 @@ test("[ADM-04:contract] the held-item queue pages by item id and lists unique ma
   const tooMany = { ...page, items: Array.from({ length: 101 }, () => queued) };
   expect(adminItemQueueOutput.safeParse(tooMany).success).toBe(false);
 });
+
+test("[ADM-04:contract] opts into a content-bound review token", () => {
+  const token = "a".repeat(64);
+  expect(adminItemQueueQuery.parse({ includeReviewToken: "1" })).toMatchObject({
+    includeReviewToken: "1",
+  });
+  expect(
+    adminItemReviewInput.parse({ decision: "approve", reason: "Verified", reviewToken: token }),
+  ).toMatchObject({ reviewToken: token });
+  expect(
+    adminItemReviewInput.safeParse({ decision: "approve", reason: "Verified", reviewToken: "bad" })
+      .success,
+  ).toBe(false);
+});

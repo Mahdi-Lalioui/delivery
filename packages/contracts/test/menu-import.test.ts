@@ -105,6 +105,7 @@ test("[MER-12:contract] preview reports persisted category and key conflicts", (
   for (const [field, reason] of [
     ["category_fr", "ambiguous_category"],
     ["external_key", "archived_key"],
+    ["external_key", "moderation_pending"],
     ["category_fr", "category_limit"],
   ] as const) {
     expect(

@@ -60,3 +60,26 @@ export function runGate(checks: readonly string[], runCheck: (check: string) => 
   }
   return 0;
 }
+
+const commands: ReadonlyMap<string, readonly string[]> = new Map([
+  ["verify", ["verify"]],
+  ["verify:full", ["verify:full"]],
+  ["tokens:contrast", ["--dir", "packages/tokens", "test:contrast"]],
+  ["ci:pr", ["exec", "node", "scripts/check-pr.ts"]],
+  ["coverage:domain", ["test:domain:coverage"]],
+  ["mutation:domain", ["test:mutation"]],
+  ["property:1000", ["test:properties"]],
+  ["authz:matrix", ["test:authz"]],
+]);
+
+const merchantCheckTags: ReadonlyMap<string, string> = new Map([
+  ["e2e:@merchant-onboarding", "@merchant-onboarding"],
+  ["design:screens", "@merchant-design"],
+]);
+
+export function gateCommand(milestone: string, check: string): readonly string[] | undefined {
+  const merchantTag = milestone === "m2" ? merchantCheckTags.get(check) : undefined;
+  if (merchantTag) return ["test:e2e:auth", "--grep", merchantTag, "--fail-on-flaky-tests"];
+  const testTag = /^e2e:(@[a-z0-9-]+)$/.exec(check)?.[1];
+  return testTag ? ["test:e2e", "--grep", testTag] : commands.get(check);
+}

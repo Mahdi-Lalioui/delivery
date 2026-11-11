@@ -13,7 +13,6 @@ import { z } from "zod";
 import { commandIdentity, resolveSessionCommand } from "./command-identity.js";
 import { createImportPreviewToken, matchesImportPreviewToken } from "./menu-import-preview.js";
 import { validateMenuImportRows } from "./menu-import-rows.js";
-import { getRequestActor } from "./policy.js";
 import { sendProblem } from "./problems.js";
 
 type Repository = ReturnType<typeof createMenuImportRepository>;
@@ -52,19 +51,25 @@ function registerPreview(api: FastifyInstance, services: MenuImportServices | un
       config,
       schema: {
         params: merchantParams,
+        headers: sessionBoundCommandHeaders.pick({ "x-expected-session-id": true }),
         body: menuImportInput,
         response: { 200: menuImportPreviewOutput, ...errors },
       },
     },
     async (request, reply) => {
-      const actor = getRequestActor(request);
-      if (!actor) return sendProblem(reply, 401);
-      if (!services) return sendProblem(reply, 503);
       reply.header("cache-control", "no-store");
+      const context = resolveSessionCommand({
+        request,
+        reply,
+        services,
+        expectedSessionId: request.headers["x-expected-session-id"],
+      });
+      if (!context || !services) return reply;
+      const { accountId, sessionId, repository } = context;
       const merchantId = request.params.merchantId.toLowerCase();
       const validated = validateMenuImportRows(request.body.rows);
-      const result = await services.repository.preview({
-        accountId: actor.accountId,
+      const result = await repository.preview({
+        accountId,
         merchantId,
         expectedRevision: request.body.expectedRevision,
         rows: validated.errors.length > 0 ? [] : validated.rows,
@@ -77,15 +82,15 @@ function registerPreview(api: FastifyInstance, services: MenuImportServices | un
       const isValid = rowErrors.length === 0;
       const previewToken = isValid
         ? createImportPreviewToken(services.previewKey, {
-            accountId: actor.accountId,
+            accountId,
             merchantId,
-            sessionId: actor.sessionId,
+            sessionId,
             revision: result.revision,
             rows: validated.rows,
           })
         : null;
       return reply.send({
-        sessionId: actor.sessionId,
+        sessionId,
         revision: result.revision,
         errors: rowErrors,
         summary: isValid ? result.summary : emptySummary,

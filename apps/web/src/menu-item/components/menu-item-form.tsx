@@ -1,5 +1,7 @@
 import type { Locale } from "@zaafran/i18n/locales";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
+import { MediaPhotoField } from "../../media-photo/media-photo-field";
 import { isAttachmentSaveBlocked } from "../item-attachments";
 import type { ItemField } from "../item-editor";
 import type { useMenuItemEditor } from "../use-menu-item-editor";
@@ -103,6 +105,8 @@ function TranslationFields({
 
 export function MenuItemForm({
   editor,
+  merchantId,
+  sessionId,
   locale,
   attachments,
   updateAttachments,
@@ -124,9 +128,12 @@ export function MenuItemForm({
   | "retry"
 > & {
   editor: Editor;
+  merchantId: string;
+  sessionId: string;
   locale: Locale;
 }) {
   const translate = useTranslations("menuItem");
+  const [photoBusy, setPhotoBusy] = useState(false);
 
   return (
     <section className="menu-item-card" aria-labelledby="menu-item-editor-title">
@@ -140,7 +147,7 @@ export function MenuItemForm({
         className="menu-item-form"
         onSubmit={(event) => {
           event.preventDefault();
-          submitDraft();
+          if (!photoBusy) submitDraft();
         }}
       >
         <fieldset
@@ -211,6 +218,17 @@ export function MenuItemForm({
             </div>
           </fieldset>
         </fieldset>
+        <MediaPhotoField
+          kind="item"
+          merchantId={merchantId}
+          expectedSessionId={sessionId}
+          mediaId={editor.draft.photoId}
+          onChange={(photoId) => {
+            changeDraft({ photoId, removePhoto: editor.kind === "edit" && photoId === null });
+          }}
+          onBusyChange={setPhotoBusy}
+          disabled={pending}
+        />
         <ItemAttachmentFields
           attachments={attachments}
           ids={editor.draft.optionGroupIds}
@@ -225,7 +243,7 @@ export function MenuItemForm({
             className="menu-item-primary"
             type="submit"
             id="menu-item-save"
-            disabled={pending || isAttachmentSaveBlocked(attachments)}
+            disabled={pending || photoBusy || isAttachmentSaveBlocked(attachments)}
           >
             {translate(pending ? "saving" : "save")}
           </button>

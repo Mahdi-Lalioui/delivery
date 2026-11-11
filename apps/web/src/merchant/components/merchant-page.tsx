@@ -35,7 +35,10 @@ export function MerchantPage({ locale, screen }: MerchantPageProps) {
     <SiteShell locale={locale} subpath={screen === "application" ? "/merchant/apply" : "/merchant"}>
       <NextIntlClientProvider
         locale={localeDetails[locale].tag}
-        messages={{ merchant: getMessages(locale).merchant }}
+        messages={{
+          merchant: getMessages(locale).merchant,
+          mediaPhoto: getMessages(locale).mediaPhoto,
+        }}
       >
         <MerchantScreen locale={locale} screen={screen} />
       </NextIntlClientProvider>

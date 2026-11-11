@@ -86,6 +86,19 @@ interface PendingApplication {
   readonly submittedAt: Date;
 }
 
+export async function readApplicationNotice(sql: TransactionSql, adminUserId: string) {
+  if (!(await lockMerchantAdmin(sql, adminUserId))) return undefined;
+  const [notice] = await sql<{ pendingCount: number; latestMerchantId: string }[]>`
+    SELECT (count(*) OVER ())::double precision AS "pendingCount",
+      merchant.id AS "latestMerchantId"
+    FROM public.merchants AS merchant
+    JOIN public.merchant_review_notices AS notice ON notice.merchant_id = merchant.id
+    WHERE merchant.status = 'pending_review'
+    ORDER BY merchant.created_at DESC, merchant.id DESC LIMIT 1
+  `;
+  return notice ?? { pendingCount: 0, latestMerchantId: null };
+}
+
 export async function listPendingApplications(
   sql: TransactionSql,
   { adminUserId, cursor, limit }: QueuePage,

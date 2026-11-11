@@ -3,10 +3,18 @@
 import { useEffect, useReducer, useRef, useState, type Dispatch } from "react";
 import {
   addHoursRange,
+  addSpecialDate,
+  addSpecialDateRange,
+  changeSpecialDate,
+  changeSpecialDateRange,
   removeHoursRange,
+  removeSpecialDate,
+  removeSpecialDateRange,
   updateHoursRange,
   type HoursDraft,
+  type HoursError,
   type RangeDraft,
+  type SpecialDateRangeAddress,
 } from "./hours-editor";
 import { initialHoursState, prepareHoursSave, reduceHours, type HoursEvent } from "./hours-flow";
 import { isStale, readHours, readHoursPreview, replaceHours } from "./hours-http";
@@ -22,6 +30,55 @@ type FocusRequest = { selector: string };
 
 function rangeCount(draft: HoursDraft, weekday: number): number {
   return draft.weekly.find((day) => day.weekday === weekday)?.ranges.length ?? 0;
+}
+
+function validationFocus(error: HoursError): string {
+  if ("weekday" in error) return `#hours-${String(error.weekday)}-0-opens`;
+  const prefix = `#hours-special-${error.dateId}`;
+  if (error.reason === "time") return `${prefix}-${String(error.index)}-${error.field}`;
+  if (error.reason === "overlap") return `${prefix}-0-opens`;
+  return `${prefix}-date`;
+}
+
+function specialDateControls({
+  draft,
+  editDraft,
+  onFocus,
+}: {
+  draft: HoursDraft | undefined;
+  editDraft: (change: (draft: HoursDraft) => HoursDraft) => HoursDraft | undefined;
+  onFocus: (selector: string) => void;
+}) {
+  return {
+    addDate() {
+      const id = crypto.randomUUID();
+      if (editDraft((current) => addSpecialDate(current, id))) onFocus(`#hours-special-${id}-date`);
+    },
+    changeDate(change: { dateId: string; value: string }) {
+      editDraft((current) => changeSpecialDate(current, change));
+    },
+    removeDate(dateId: string) {
+      const index = draft?.specialDates.findIndex(({ id }) => id === dateId) ?? -1;
+      if (index < 0) return;
+      const updated = editDraft((current) => removeSpecialDate(current, dateId));
+      if (!updated) return;
+      const neighbor = updated.specialDates[index] ?? updated.specialDates.at(-1);
+      onFocus(neighbor ? `#hours-special-${neighbor.id}-date` : "#hours-special-add");
+    },
+    addRange(dateId: string) {
+      const updated = editDraft((current) => addSpecialDateRange(current, dateId));
+      const entry = updated?.specialDates.find(({ id }) => id === dateId);
+      if (entry) onFocus(`#hours-special-${dateId}-${String(entry.ranges.length - 1)}-opens`);
+    },
+    changeRange(change: SpecialDateRangeAddress & { field: keyof RangeDraft; value: string }) {
+      editDraft((current) => changeSpecialDateRange(current, change));
+    },
+    removeRange(range: SpecialDateRangeAddress) {
+      if (editDraft((current) => removeSpecialDateRange(current, range))) {
+        onFocus(`#hours-special-${range.dateId}-add-range`);
+      }
+    },
+  };
 }
 
 function useHoursLoad(merchantId: string, version: number, dispatch: Dispatch<HoursEvent>) {
@@ -67,38 +124,40 @@ export function useHoursEditor(merchantId: string) {
   const [focus, setFocus] = useState<FocusRequest>();
   const inFlight = useRef(false);
   useHoursLoad(merchantId, version, dispatch);
-  const revision = state.kind === "editing" || state.kind === "saving" ? state.revision : undefined;
   const [previewSchedule, showPreview] = useState<PreviewSchedule>("regular");
-  const preview = useHoursPreview(merchantId, revision, previewSchedule);
   const ramadan = useRamadanEditor({
     merchantId,
     version,
     isBlocked: () => state.kind === "saving" || pause.state.kind === "saving",
-    onSaved: (saved) => {
-      dispatch({ kind: "revision-advanced", revision: saved });
-    },
+    onSaved: dispatch,
     onFocus: (selector) => {
       setFocus({ selector });
     },
   });
-  // Pause, weekly hours and Ramadan share one D-011 revision, so each success advances the others.
+  // A pause success can advance both drafts on the same D-011 snapshot.
   const pause = useHoursPause({
     merchantId,
     version,
     hours: state,
-    dispatchHours: (event) => {
+    onSaved: (event) => {
       dispatch(event);
-      if (event.kind === "revision-advanced") ramadan.advance(event.revision);
+      ramadan.advance(event);
     },
     isBlocked: () => ramadan.state.kind === "saving",
     onSettled: (selector) => {
       if (selector) setFocus({ selector });
     },
   });
+  // Refresh the preview even when a saved Ramadan edit leaves a stale weekly draft in place.
+  const ramadanRevision = "revision" in ramadan.state ? ramadan.state.revision : 0;
+  const previewRevision =
+    "revision" in state ? Math.max(state.revision, ramadanRevision) : undefined;
+  const preview = useHoursPreview(merchantId, previewRevision, previewSchedule);
 
   function editDraft(change: (draft: HoursDraft) => HoursDraft) {
     if (state.kind !== "editing") return undefined;
     const draft = change(state.draft);
+    if (draft === state.draft) return undefined;
     dispatch({ kind: "draft-changed", draft });
     return draft;
   }
@@ -127,7 +186,7 @@ export function useHoursEditor(merchantId: string) {
     if (attempt.kind === "invalid") {
       dispatch({ kind: "validation-failed", errors: attempt.errors });
       const first = attempt.errors[0];
-      if (first) setFocus({ selector: `#hours-${String(first.weekday)}-0-opens` });
+      if (first) setFocus({ selector: validationFocus(first) });
       return;
     }
     inFlight.current = true;
@@ -137,7 +196,14 @@ export function useHoursEditor(merchantId: string) {
     const result = await replaceHours({ merchantId, sessionId, idempotencyKey, input });
     inFlight.current = false;
     dispatch({ kind: "save-finished", result });
-    if (result.kind === "saved") ramadan.advance(result.data.revision);
+    if (result.kind === "saved") {
+      ramadan.advance({
+        kind: "revision-advanced",
+        sessionId,
+        expectedRevision: input.expectedRevision,
+        revision: result.data.revision,
+      });
+    }
     setFocus({ selector: isStale(result) ? "[data-hours-reload]" : "[data-hours-save]" });
   }
 
@@ -160,6 +226,13 @@ export function useHoursEditor(merchantId: string) {
       remove: ramadan.remove,
       save: ramadan.save,
     },
+    specialDates: specialDateControls({
+      draft: state.kind === "editing" ? state.draft : undefined,
+      editDraft,
+      onFocus: (selector) => {
+        setFocus({ selector });
+      },
+    }),
     focus,
     change,
     add,

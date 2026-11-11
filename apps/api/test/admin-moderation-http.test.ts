@@ -72,6 +72,36 @@ test("[ADM-04:http] the held-item queue reports the matched categories for each 
   });
 });
 
+test("[ADM-04:http] opts into content-bound tokens and forwards them on decisions", async () => {
+  const { api, repository } = setup(admin);
+  const reviewToken = "a".repeat(64);
+  const held = {
+    itemId,
+    merchantId,
+    restaurantName: "Table fictive",
+    names: { fr: "Bière sans alcool" },
+    descriptions: { fr: "Boisson fraîche" },
+    reviewToken,
+  };
+  repository.listHeldItems.mockResolvedValue({ items: [held], nextCursor: null });
+  const response = await api.inject(queuePath + "?includeReviewToken=1");
+  expect(response.statusCode).toBe(200);
+  expect(adminItemQueueOutput.parse(response.json()).items[0]?.reviewToken).toBe(reviewToken);
+  expect(repository.listHeldItems).toHaveBeenCalledExactlyOnceWith({
+    adminUserId,
+    limit: 50,
+    includeReviewToken: true,
+  });
+
+  repository.reviewItem.mockResolvedValue({ kind: "stale_review" });
+  const rejected = await api.inject({
+    ...reviewRequest,
+    payload: { ...reviewRequest.payload, reviewToken },
+  });
+  expectProblem(rejected, 409, "stale_review");
+  expect(repository.reviewItem.mock.calls[0]?.[0].reviewToken).toBe(reviewToken);
+});
+
 test("[ADM-04:http] the queue maps a repository admin denial to 403", async () => {
   const { api, repository } = setup(admin);
   repository.listHeldItems.mockResolvedValue(undefined);

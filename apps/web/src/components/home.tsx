@@ -2,14 +2,16 @@ import { brand } from "@zaafran/config/brand";
 import { localeDetails, publicLocales, type Locale } from "@zaafran/i18n/locales";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { DiscoveryLocationSelector } from "../discovery/discovery-location-selector";
+import { DiscoveryFeed } from "../discovery/feed";
 import { SiteShell } from "./site-shell";
 
-export function homeMetadata(locale: Locale): Metadata {
+export function homeMetadata(locale: Locale, subpath = ""): Metadata {
   return {
     title: locale === "ar" ? brand.arabicName : brand.name,
     alternates: {
       languages: Object.fromEntries(
-        publicLocales.map((item) => [localeDetails[item].tag, `/${item}`]),
+        publicLocales.map((item) => [localeDetails[item].tag, `/${item}${subpath}`]),
       ),
     },
   };
@@ -23,16 +25,18 @@ export async function Home({ locale }: { locale: Locale }) {
   ]);
 
   return (
-    <SiteShell locale={locale}>
+    <SiteShell locale={locale} subpath="/discover">
       <section className="hero">
         <p className="eyebrow">{translate("eyebrow")}</p>
         <h1>{locale === "ar" ? brand.arabicName : brand.name}</h1>
         <p className="intro">{translate("description")}</p>
+        <DiscoveryLocationSelector locale={locale} />
         <div className="home-actions">
           <a href={`/${locale}/sign-in`}>{translateAuth("title")}</a>
           <a href={`/${locale}/merchant/apply`}>{translateMerchant("startApplication")}</a>
         </div>
       </section>
+      <DiscoveryFeed locale={locale} />
     </SiteShell>
   );
 }

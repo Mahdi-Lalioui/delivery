@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import type { AuthHarness } from "../apps/api/tools/e2e-auth-types.ts";
 import {
+  adminMerchantNoticeOutput,
   adminMerchantReviewOutput,
   adminReviewQueueOutput,
 } from "../packages/contracts/src/admin.ts";
@@ -12,6 +13,8 @@ import {
 import ar from "../packages/i18n/src/messages/ar.json" with { type: "json" };
 import fr from "../packages/i18n/src/messages/fr.json" with { type: "json" };
 import { withAuthHarness } from "./auth-fixture.ts";
+import { attachPhoto } from "./media-photo-fixture.ts";
+import { completeOnboardingMenu } from "./merchant-onboarding-menu.ts";
 
 const applicant = { input: "٠٥٥٠٠٠٠٢٠١", phone: "+213550000201" };
 const reviewer = { input: "0660 00 02 02", phone: "+213660000202" };
@@ -22,6 +25,7 @@ const ownerName = "صاحب المطعم التجريبي";
 const reason = "Commune et identité vérifiées pour cette demande fictive.";
 const applicationEndpoint = "/v1/merchant-applications";
 const queueEndpoint = "/v1/admin/merchant-applications";
+const noticeEndpoint = queueEndpoint + "/notice";
 const membershipsEndpoint = "/v1/me/merchants";
 
 function waitForPost(page: Page, path: string) {
@@ -177,6 +181,15 @@ async function expectPhoneToFitAtDoubleText(page: Page, phone: string) {
   }
 }
 
+async function expectApplicationNotice(page: Page, origin: string, merchantId: string | null) {
+  const response = await page.request.get(origin + noticeEndpoint);
+  expect(response.status()).toBe(200);
+  expect(adminMerchantNoticeOutput.parse(await response.json())).toMatchObject({
+    pendingCount: merchantId === null ? 0 : 1,
+    latestMerchantId: merchantId,
+  });
+}
+
 async function approveApplication(page: Page, merchantId: string, communeName: string) {
   const { row, details } = await prepareReview(page, communeName);
   await expectPhoneToFitAtDoubleText(page, "0550 00 02 01");
@@ -193,58 +206,71 @@ async function approveApplication(page: Page, merchantId: string, communeName: s
   await expect(row).toHaveCount(0);
 }
 
-test("[MER-01:browser] [ADM-03:browser] submits and reviews an Algiers merchant application @merchant-application", async ({
+test("[MER-01:browser] [ADM-03:browser] submits and reviews an Algiers merchant application @merchant-application @merchant-onboarding", async ({
   baseURL,
   browser,
   ignoreHTTPSErrors,
   page,
 }) => {
-  await withAuthHarness(baseURL, async (auth) => {
-    const { merchantId, communeName } =
-      await test.step("The Arabic applicant submits an eligible location", async () => {
-        const commune = await enterMerchantApplication(page, auth);
-        const invalid = await submitPin(page, { latitude: 0, longitude: 0 });
-        expect(invalid.status()).toBe(422);
-        expect(problemResponseSchema.parse(await invalid.json()).code).toBe("outside_commune");
-        await expect(
-          page.getByRole("alert").filter({ hasText: ar.merchant.outsideCommune }),
-        ).toBeVisible();
+  test.setTimeout(60_000);
+  await withAuthHarness(
+    baseURL,
+    async (auth) => {
+      const { merchantId, communeName } =
+        await test.step("The Arabic applicant submits an eligible location", async () => {
+          const commune = await enterMerchantApplication(page, auth);
+          const invalid = await submitPin(page, { latitude: 0, longitude: 0 });
+          expect(invalid.status()).toBe(422);
+          expect(problemResponseSchema.parse(await invalid.json()).code).toBe("outside_commune");
+          await expect(
+            page.getByRole("alert").filter({ hasText: ar.merchant.outsideCommune }),
+          ).toBeVisible();
 
-        const response = await submitPin(page, commune.pin);
-        expect(response.status()).toBe(201);
-        expect(response.request().postDataJSON()).toMatchObject({
-          communeId: commune.id,
-          pin: commune.pin,
+          const photoId = await attachPhoto(page, ar.mediaPhoto);
+          const response = await submitPin(page, commune.pin);
+          expect(response.status()).toBe(201);
+          expect(response.request().postDataJSON()).toMatchObject({
+            communeId: commune.id,
+            pin: commune.pin,
+            photoIds: [photoId],
+          });
+          const created = merchantApplicationOutput.parse(await response.json());
+          await expect(
+            page.getByRole("heading", { name: ar.merchant.submittedTitle }),
+          ).toBeVisible();
+          await page.getByRole("link", { name: ar.merchant.viewStatus }).click();
+          await expectMembership(page, auth, {
+            merchantId: created.merchantId,
+            status: "pending_review",
+          });
+          return { merchantId: created.merchantId, communeName: commune.nameFr };
         });
-        const created = merchantApplicationOutput.parse(await response.json());
-        await expect(page.getByRole("heading", { name: ar.merchant.submittedTitle })).toBeVisible();
-        await page.getByRole("link", { name: ar.merchant.viewStatus }).click();
-        await expectMembership(page, auth, {
-          merchantId: created.merchantId,
-          status: "pending_review",
-        });
-        return { merchantId: created.merchantId, communeName: commune.nameFr };
-      });
 
-    const adminContext = await browser.newContext({ ignoreHTTPSErrors });
-    try {
-      await test.step("A separate French administrator approves the application", async () => {
-        const adminPage = await adminContext.newPage();
-        await enterAdminQueue(adminPage, auth);
-        await approveApplication(adminPage, merchantId, communeName);
-        await expect(adminPage.locator('a[hreflang="ar-DZ"]')).toHaveCount(0);
-      });
-      await test.step("The applicant sees approval but cannot read the admin queue", async () => {
-        await page.reload();
-        await expectMembership(page, auth, { merchantId, status: "approved" });
-        const denied = await page.request.get(auth.origin + queueEndpoint);
-        expect(denied.status()).toBe(403);
-        expect(problemResponseSchema.parse(await denied.json()).code).toBe("forbidden");
-      });
-    } finally {
-      await adminContext.close();
-    }
-  });
+      const adminContext = await browser.newContext({ ignoreHTTPSErrors });
+      try {
+        await test.step("A separate French administrator approves the application", async () => {
+          const adminPage = await adminContext.newPage();
+          await enterAdminQueue(adminPage, auth);
+          await expectApplicationNotice(adminPage, auth.origin, merchantId);
+          await approveApplication(adminPage, merchantId, communeName);
+          await expectApplicationNotice(adminPage, auth.origin, null);
+          await expect(adminPage.locator('a[hreflang="ar-DZ"]')).toHaveCount(0);
+        });
+        await test.step("The applicant sees approval but cannot read the admin queue", async () => {
+          await page.reload();
+          await expectMembership(page, auth, { merchantId, status: "approved" });
+          const denied = await page.request.get(auth.origin + queueEndpoint);
+          expect(denied.status()).toBe(403);
+          expect(problemResponseSchema.parse(await denied.json()).code).toBe("forbidden");
+          expect((await page.request.get(auth.origin + noticeEndpoint)).status()).toBe(403);
+        });
+      } finally {
+        await adminContext.close();
+      }
+      await completeOnboardingMenu(page, auth.origin, merchantId);
+    },
+    true,
+  );
 });
 
 test("[MER-01:browser] replays a committed application after a lost response and rate limit @merchant-application", async ({

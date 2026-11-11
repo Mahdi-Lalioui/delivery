@@ -18,6 +18,7 @@ type Operation =
   | "hours_replace"
   | "ramadan_replace"
   | "hours_pause"
+  | "profile_photos_replace"
   | "menu_import";
 
 export interface CommandRequest<
@@ -33,6 +34,7 @@ type CategoryWriteFailure = "not_found" | "category_limit" | "invalid_order";
 type WriteFailure =
   | CategoryWriteFailure
   | "photos_unavailable"
+  | "moderation_pending"
   | "invalid_bulk_price_change"
   | "undo_window_expired"
   | "price_changed_since_apply"

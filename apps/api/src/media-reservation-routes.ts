@@ -2,10 +2,17 @@ import { createHash, randomUUID } from "node:crypto";
 import { Readable } from "node:stream";
 import { sessionBoundCommandHeaders } from "@zaafran/contracts/auth";
 import { problemResponseSchema } from "@zaafran/contracts/health";
-import { mediaOutput, mediaUploadInput, photoUploadMaximumBytes } from "@zaafran/contracts/media";
+import {
+  mediaCropInput,
+  mediaOutput,
+  mediaUploadInput,
+  photoUploadMaximumBytes,
+  photoVariantWidths,
+} from "@zaafran/contracts/media";
 import type {
   createMediaRepository,
   MediaAdoptionResult,
+  MediaStatus,
   MediaUploadDescriptor,
 } from "@zaafran/db/media";
 import type { MediaStore } from "@zaafran/media";
@@ -13,11 +20,21 @@ import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
 import { commandIdentity, resolveSessionCommand } from "./command-identity.js";
+import { binaryImage, sendImage } from "./image-response.js";
 import { getRequestActor } from "./policy.js";
 import { sendProblem } from "./problems.js";
 
 export interface MediaReservationServices {
-  readonly repository: ReturnType<typeof createMediaRepository>;
+  readonly repository: Pick<
+    ReturnType<typeof createMediaRepository>,
+    | "reserve"
+    | "read"
+    | "findUpload"
+    | "acceptUpload"
+    | "findPreview"
+    | "submitCrop"
+    | "findVariant"
+  >;
   readonly store: MediaStore;
   readonly now: () => Date;
 }
@@ -39,6 +56,17 @@ const readErrors = {
 const writeErrors = { ...readErrors, 409: problemResponseSchema, 413: problemResponseSchema };
 const uploadErrors = { ...writeErrors, 415: problemResponseSchema };
 const mediaIdParams = z.strictObject({ mediaId: z.uuid() });
+const variantParams = mediaIdParams.extend({
+  format: z.enum(["avif", "webp"]),
+  width: z
+    .enum(photoVariantWidths.map(String))
+    .transform(Number)
+    .pipe(z.literal(photoVariantWidths)),
+});
+
+function mediaResponse(media: MediaStatus): z.output<typeof mediaOutput> {
+  return media.status === "ready" ? { ...media, variants: [...media.variants] } : media;
+}
 
 function registerReserve(api: FastifyInstance, services: MediaReservationServices | undefined) {
   api.withTypeProvider<ZodTypeProvider>().post(
@@ -72,7 +100,7 @@ function registerReserve(api: FastifyInstance, services: MediaReservationService
         input,
         ...commandIdentity(request.headers["idempotency-key"], input),
       });
-      if ("media" in result) return reply.code(201).send(result.media);
+      if ("media" in result) return reply.code(201).send(mediaResponse(result.media));
       if (result.kind === "idempotency_conflict") return sendProblem(reply, 409, result.kind);
       return sendProblem(reply, 404);
     },
@@ -199,12 +227,118 @@ function registerUploadContent(
           request.log.error("Unhandled media adoption failure");
           return sendProblem(reply, 500);
         }
-        if ("media" in result) return reply.code(202).send(result.media);
+        if ("media" in result) return reply.code(202).send(mediaResponse(result.media));
         if (isKnownAdoptionFailure(result.kind)) return sendProblem(reply, 409, result.kind);
         return sendProblem(reply, 404);
       },
     );
   });
+}
+
+function registerCrop(api: FastifyInstance, services: MediaReservationServices | undefined) {
+  api.withTypeProvider<ZodTypeProvider>().post(
+    "/v1/media/:mediaId/crop",
+    {
+      config: privatePhotoPolicy,
+      schema: {
+        headers: sessionBoundCommandHeaders,
+        params: mediaIdParams,
+        body: mediaCropInput,
+        response: { 202: mediaOutput, ...writeErrors },
+      },
+    },
+    async (request, reply) => {
+      reply.header("cache-control", "no-store");
+      const context = resolveSessionCommand({
+        request,
+        reply,
+        services,
+        expectedSessionId: request.headers["x-expected-session-id"],
+      });
+      if (!context) return reply;
+      const { accountId, sessionId, now, repository } = context;
+      const mediaId = request.params.mediaId.toLowerCase();
+      const input = request.body;
+      const result = await repository.submitCrop({
+        accountId,
+        sessionId,
+        now,
+        mediaId,
+        input,
+        ...commandIdentity(request.headers["idempotency-key"], { mediaId, ...input }),
+      });
+      if ("media" in result) return reply.code(202).send(mediaResponse(result.media));
+      if (result.kind === "not_found") return sendProblem(reply, 404);
+      return sendProblem(reply, 409, result.kind);
+    },
+  );
+}
+
+function registerPreview(api: FastifyInstance, services: MediaReservationServices | undefined) {
+  api.withTypeProvider<ZodTypeProvider>().get(
+    "/v1/media/:mediaId/preview",
+    {
+      config: privatePhotoPolicy,
+      schema: {
+        params: mediaIdParams,
+        response: {
+          200: { content: { "image/webp": binaryImage } },
+          ...readErrors,
+        },
+      },
+    },
+    async (request, reply) => {
+      reply.header("cache-control", "private, no-store");
+      const actor = getRequestActor(request);
+      if (!actor) return sendProblem(reply, 401);
+      if (!services) return sendProblem(reply, 503);
+      const preview = await services.repository.findPreview({
+        accountId: actor.accountId,
+        sessionId: actor.sessionId,
+        mediaId: request.params.mediaId.toLowerCase(),
+        now: services.now(),
+      });
+      if (!preview) return sendProblem(reply, 404);
+      const object = await services.store.get(preview.key);
+      if (!object) return sendProblem(reply, 503);
+      return sendImage(reply, object, "image/webp");
+    },
+  );
+}
+
+function registerVariant(api: FastifyInstance, services: MediaReservationServices | undefined) {
+  api.withTypeProvider<ZodTypeProvider>().get(
+    "/v1/media/:mediaId/variants/:format/:width",
+    {
+      config: privatePhotoPolicy,
+      schema: {
+        params: variantParams,
+        response: {
+          200: { content: { "image/avif": binaryImage, "image/webp": binaryImage } },
+          ...readErrors,
+        },
+      },
+    },
+    async (request, reply) => {
+      reply.header("cache-control", "private, no-store");
+      const actor = getRequestActor(request);
+      if (!actor) return sendProblem(reply, 401);
+      if (!services) return sendProblem(reply, 503);
+      const { mediaId, format, width } = request.params;
+      const variant = await services.repository.findVariant({
+        accountId: actor.accountId,
+        sessionId: actor.sessionId,
+        mediaId: mediaId.toLowerCase(),
+        format,
+        width,
+        now: services.now(),
+      });
+      if (!variant) return sendProblem(reply, 404);
+      const object = await services.store.get(variant.key);
+      if (!object) return sendProblem(reply, 503);
+      return sendImage(reply, object, `image/${format}`);
+    },
+  );
 }
 
 export function registerMediaReservationRoutes(
@@ -213,6 +347,9 @@ export function registerMediaReservationRoutes(
 ): void {
   registerReserve(api, services);
   registerUploadContent(api, services);
+  registerPreview(api, services);
+  registerCrop(api, services);
+  registerVariant(api, services);
   api.withTypeProvider<ZodTypeProvider>().get(
     "/v1/media/:mediaId",
     {
@@ -233,7 +370,7 @@ export function registerMediaReservationRoutes(
         mediaId: request.params.mediaId.toLowerCase(),
         now: services.now(),
       });
-      return media ? reply.send(media) : sendProblem(reply, 404);
+      return media ? reply.send(mediaResponse(media)) : sendProblem(reply, 404);
     },
   );
 }

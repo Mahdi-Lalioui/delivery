@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { beforeAll, expect, test, vi } from "vitest";
 import { openDatabase } from "../src/database.ts";
+import { createMenuItemRepository } from "../src/menu-item.ts";
 import { createMenuModerationRepository } from "../src/menu-moderation.ts";
 import { createMerchantRepository } from "../src/merchant.ts";
 import { registerTestDatabase } from "./database.ts";
@@ -64,7 +65,7 @@ beforeAll(async () => {
   }
 });
 
-type Decision = { decision: "approve" | "reject"; reason: string };
+type Decision = { decision: "approve" | "reject"; reason: string; reviewToken?: string };
 
 function review(
   itemId: string,
@@ -240,4 +241,102 @@ test("[ADM-04:db] an admin review lets an in-flight merchant edit finish first",
     SELECT action, reason FROM public.audit_log WHERE merchant_id = ${merchantId} AND reason = ${request.reason}
   `;
   expect(audit).toEqual([{ action: "item_approved", reason: request.reason }]);
+});
+
+test("[ADM-04:db] decisions bind the review cycle while price changes and exact replay remain valid", async () => {
+  const connection = database.get();
+  const moderation = createMenuModerationRepository(connection);
+  const menu = createMenuItemRepository(connection);
+  const [merchant] = await connection.sql<{ revision: number }[]>`
+    SELECT menu_revision::double precision AS revision FROM merchants WHERE id = ${merchantId}
+  `;
+  if (!merchant) throw new Error("Missing fixture merchant.");
+  const names = { fr: "Bière sans alcool" };
+  const data = {
+    categoryId,
+    names,
+    descriptions: { fr: "Boisson de test" },
+    priceDzd: 300,
+    photoId: null,
+    tags: [],
+    extraPrepMinutes: 0,
+    optionGroupIds: [],
+  };
+  const write = (key: string, expectedRevision: number, fields: Partial<typeof data> = {}) => ({
+    merchantId,
+    accountId: ownerId,
+    now,
+    input: { ...data, ...fields, expectedRevision },
+    idempotencyKeyHash: hash(key),
+    requestHash: hash(JSON.stringify({ key, expectedRevision, fields })),
+  });
+  const created = await menu.create(write("cycle-create", merchant.revision));
+  if (created.kind !== "applied") throw new Error("Expected a new held item.");
+  const { itemId } = created.item;
+  const queue = async (includeReviewToken?: boolean) => {
+    const page = await moderation.listHeldItems({
+      adminUserId: adminId,
+      limit: 20,
+      includeReviewToken,
+    });
+    return page?.items.find((item) => item.itemId === itemId);
+  };
+  const queued = await queue();
+  expect(queued).toMatchObject({ itemId, names });
+  expect(queued).not.toHaveProperty("reviewToken");
+  const decision = { decision: "approve", reason: "Sans alcool" } as const;
+  await expect(
+    moderation.reviewItem(
+      review(itemId, "forged-first", {
+        ...decision,
+        reviewToken: "0".repeat(64),
+      }),
+    ),
+  ).resolves.toEqual({ kind: "stale_review" });
+  const firstToken = (await queue(true))?.reviewToken;
+  expect(firstToken).toMatch(/^[0-9a-f]{64}$/u);
+  if (!firstToken) throw new Error("Expected an initial review token.");
+  const first = review(itemId, "first-cycle", { ...decision, reviewToken: firstToken });
+  await expect(moderation.reviewItem(first)).resolves.toMatchObject({ kind: "reviewed" });
+
+  await expect(
+    menu.update({
+      itemId,
+      ...write("cycle-clear", created.revision + 1, { names: { fr: "Sirop" } }),
+    }),
+  ).resolves.toMatchObject({ kind: "applied", item: { moderationStatus: "unreviewed" } });
+  await expect(
+    menu.update({ itemId, ...write("cycle-hold", created.revision + 2) }),
+  ).resolves.toMatchObject({
+    kind: "applied",
+    item: { moderationStatus: "blocked_pending_review", names },
+  });
+  const currentToken = (await queue(true))?.reviewToken;
+  expect(currentToken).toMatch(/^[0-9a-f]{64}$/u);
+  expect(currentToken).not.toBe(firstToken);
+  if (!currentToken) throw new Error("Expected a new review token for the same text.");
+  await expect(moderation.reviewItem(review(itemId, "legacy-stale", decision))).resolves.toEqual({
+    kind: "stale_review",
+  });
+  await expect(
+    moderation.reviewItem(review(itemId, "token-stale", { ...decision, reviewToken: firstToken })),
+  ).resolves.toEqual({ kind: "stale_review" });
+  await expect(moderation.reviewItem(first)).resolves.toMatchObject({ kind: "replayed" });
+
+  await expect(
+    menu.update({ itemId, ...write("cycle-price", created.revision + 3, { priceDzd: 350 }) }),
+  ).resolves.toMatchObject({
+    kind: "applied",
+    item: { moderationStatus: "blocked_pending_review", priceDzd: 350 },
+  });
+  expect((await queue(true))?.reviewToken).toBe(currentToken);
+  const current = review(itemId, "current-cycle", { ...decision, reviewToken: currentToken });
+  await expect(moderation.reviewItem(current)).resolves.toMatchObject({
+    kind: "reviewed",
+    status: "approved",
+  });
+  await expect(moderation.reviewItem(current)).resolves.toMatchObject({
+    kind: "replayed",
+    status: "approved",
+  });
 });

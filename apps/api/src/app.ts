@@ -10,8 +10,19 @@ import {
   validatorCompiler,
 } from "fastify-type-provider-zod";
 import { createAuthAccess } from "./auth-access.js";
+import { registerBillingReadRoutes, type BillingRepository } from "./billing-read-routes.js";
+import { registerBillingWriteRoutes, type BillingWriteServices } from "./billing-write-routes.js";
 import { registerAuthRoutes } from "./auth-routes.js";
+import { registerDiscoveryRoutes, type DiscoveryServices } from "./discovery-routes.js";
 import { registerHealth } from "./health.js";
+import {
+  registerMerchantProfilePhotosRoutes,
+  type MerchantProfilePhotosServices,
+} from "./merchant-profile-photos-routes.js";
+import {
+  registerMerchantPromotionsRoutes,
+  type MerchantPromotionsServices,
+} from "./merchant-promotions-routes.js";
 import { registerMerchantRoutes, type MerchantServices } from "./merchant-routes.js";
 import {
   registerAdminModerationRoutes,
@@ -25,6 +36,7 @@ import { createLogger } from "./logger.js";
 import { registerMenuCategoryRoutes, type MenuCategoryServices } from "./menu-category-routes.js";
 import { registerMenuImportRoutes, type MenuImportServices } from "./menu-import-routes.js";
 import { registerMenuItemRoutes, type MenuItemServices } from "./menu-item-routes.js";
+import { registerMenuPreviewRoutes, type MenuPreviewServices } from "./menu-preview-routes.js";
 import {
   registerMenuOptionGroupRoutes,
   type MenuOptionGroupServices,
@@ -43,15 +55,27 @@ import {
   type MerchantStaffServices,
 } from "./merchant-staff-routes.js";
 import { enforceRoutePolicies, recordRoutePolicies, type ResolveActor } from "./policy.js";
+import { registerPlatformRoutes, type PlatformServices } from "./platform-routes.js";
+import { registerRamadanRoutes, type RamadanServices } from "./ramadan-routes.js";
+import { registerPublicFeedRoutes, type PublicFeedServices } from "./public-feed-routes.js";
 import { sendProblem } from "./problems.js";
 
 interface ApiOptions {
   readonly checkReadiness: () => Promise<void>;
   readonly merchant?: MerchantServices;
+  readonly billing?: BillingRepository;
+  readonly billingWrites?: BillingWriteServices;
+  readonly platform?: PlatformServices;
+  readonly ramadan?: RamadanServices;
+  readonly discovery?: DiscoveryServices;
+  readonly publicFeed?: PublicFeedServices;
+  readonly merchantProfilePhotos?: MerchantProfilePhotosServices;
+  readonly merchantPromotions?: MerchantPromotionsServices;
   readonly menuModeration?: MenuModerationServices;
   readonly media?: MediaReservationServices;
   readonly menuCategory?: MenuCategoryServices;
   readonly menuItem?: MenuItemServices;
+  readonly menuPreview?: MenuPreviewServices;
   readonly menuImport?: MenuImportServices;
   readonly menuOptionGroup?: MenuOptionGroupServices;
   readonly menuPrice?: MenuPriceServices;
@@ -115,10 +139,19 @@ export function createApi(options: ApiOptions): FastifyInstance {
     });
     registerAuthRoutes(api, access);
     registerMerchantRoutes(api, options.merchant);
+    registerBillingReadRoutes(api, options.billing);
+    registerBillingWriteRoutes(api, options.billingWrites);
+    registerPlatformRoutes(api, options.platform);
+    registerRamadanRoutes(api, options.ramadan);
+    registerDiscoveryRoutes(api, options.discovery);
+    registerPublicFeedRoutes(api, options.publicFeed);
+    registerMerchantProfilePhotosRoutes(api, options.merchantProfilePhotos);
+    registerMerchantPromotionsRoutes(api, options.merchantPromotions);
     registerAdminModerationRoutes(api, options.menuModeration);
     registerMediaReservationRoutes(api, options.media);
     registerMenuCategoryRoutes(api, options.menuCategory);
     registerMenuItemRoutes(api, options.menuItem);
+    registerMenuPreviewRoutes(api, options.menuPreview);
     registerMenuImportRoutes(api, options.menuImport);
     registerMenuOptionGroupRoutes(api, options.menuOptionGroup);
     registerMenuPriceRoutes(api, options.menuPrice);

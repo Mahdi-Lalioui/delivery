@@ -43,6 +43,16 @@ jobs:
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
       - run: pnpm install --frozen-lockfile
       - run: pnpm verify
+      - name: Verify the real HEVC preview decoder
+        run: |
+          docker build --platform linux/amd64 -t zaafran-media-heic infra/media-heic
+          docker run --rm --platform linux/amd64 --network none --read-only --tmpfs /tmp \
+            --mount "type=bind,source=$PWD/infra/media-heic,target=/test,readonly" \
+            --mount "type=bind,source=$PWD/packages/media/test/fixtures,target=/fixtures,readonly" \
+            --entrypoint node zaafran-media-heic /test/test.mjs \
+            /usr/local/bin/zaafran-heic-decode /fixtures/synthetic.heic
+          HEIC_DECODER_PATH="$PWD/packages/media/test/heic-decoder-docker.sh" \
+            node packages/media/test/heic-decoder.conformance.mjs
       - run: pnpm test:domain:coverage
       - run: pnpm test:properties
       - run: pnpm test:mutation

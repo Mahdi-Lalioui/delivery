@@ -1,8 +1,10 @@
 import { createHash } from "node:crypto";
 import { beforeAll, expect, test, vi } from "vitest";
 import { openDatabase } from "../src/database.ts";
+import { createMediaRepository } from "../src/media.ts";
 import { createMerchantRepository } from "../src/merchant.ts";
 import { registerTestDatabase } from "./database.ts";
+import { seedReadyPhoto } from "./ready-photo.ts";
 
 type Repository = ReturnType<typeof createMerchantRepository>;
 type Submission = Parameters<Repository["submitApplication"]>[0];
@@ -234,10 +236,109 @@ test("[MER-01:db] signup keys are account-scoped and bind the original request",
   expect(await createApplication(independent)).not.toBe(merchantId);
 });
 
-test("[MER-01:db] a failed notice rolls back the application, membership and replay receipt", async () => {
-  const owner = await account(600);
-  const request = submission(600, owner.id);
+test("[MER-01:db] application photos retain their order, private scope and replay behavior", async () => {
+  const owner = await account(510);
+  const outsider = await account(511);
+  const photoIds = [fixtureId(519), fixtureId(518)];
   const { sql } = database.get();
+  for (const mediaId of photoIds) {
+    await seedReadyPhoto(sql, { mediaId, accountId: owner.id, kind: "application", now });
+  }
+  const request = amend(submission(510, owner.id), { photoIds });
+  const results = await concurrently(
+    (repo) => repo.submitApplication(request),
+    (repo) => repo.submitApplication(request),
+  );
+  expect(results.map(({ kind }) => kind).sort()).toEqual(["created", "replayed"]);
+  const created = results.find((result) => result.kind === "created");
+  if (!created || created.kind !== "created") throw new Error("Expected an application.");
+
+  const rows = await sql`
+    select attachment.media_id, upload.merchant_id, upload.kind, upload.owner_id
+    from merchant_application_photos as attachment
+    join media_uploads as upload on upload.id = attachment.media_id
+    where attachment.merchant_id = ${created.merchantId}
+    order by attachment.sort
+  `;
+  expect(rows).toEqual(
+    photoIds.map((mediaId) => ({
+      media_id: mediaId,
+      merchant_id: null,
+      kind: "application",
+      owner_id: owner.id,
+    })),
+  );
+  expect(
+    await repository().submitApplication(amend(request, { photoIds: [...photoIds].reverse() })),
+  ).toEqual({ kind: "idempotency_conflict" });
+
+  const [mediaId] = photoIds;
+  if (!mediaId) throw new Error("Expected an application photo.");
+  const sessionId = fixtureId(512);
+  await sql`
+    insert into sessions
+      (id, user_id, token_hash, transport, kind, request_ip, created_at, last_seen_at, expires_at)
+    values (${sessionId}, ${outsider.id}, ${hash(sessionId)}, 'web', 'standard', '192.0.2.1',
+      ${now.toISOString()}, ${now.toISOString()}, ${now.toISOString()}::timestamptz + interval '1 hour')
+  `;
+  const media = createMediaRepository(database.get());
+  await expect(
+    media.findVariant({
+      accountId: outsider.id,
+      sessionId,
+      now,
+      mediaId,
+      format: "webp",
+      width: 160,
+    }),
+  ).resolves.toBeUndefined();
+});
+
+test("[MER-01:db] an unavailable application photo leaves the entire command retryable", async () => {
+  const owner = await account(520);
+  const outsider = await account(521);
+  const ready = fixtureId(525);
+  const foreign = fixtureId(526);
+  const awaitingUpload = fixtureId(527);
+  const { sql } = database.get();
+  await seedReadyPhoto(sql, { mediaId: ready, accountId: owner.id, kind: "application", now });
+  await seedReadyPhoto(sql, {
+    mediaId: foreign,
+    accountId: outsider.id,
+    kind: "application",
+    now,
+  });
+  await sql`
+    insert into media_uploads (id, owner_id, kind, content_type, bytes, created_at)
+    values (${awaitingUpload}, ${owner.id}, 'application', 'image/png', 16, ${now.toISOString()})
+  `;
+  const merchantId = await createApplication(submission(521, outsider.id));
+  const itemPhoto = fixtureId(528);
+  await seedReadyPhoto(sql, {
+    mediaId: itemPhoto,
+    accountId: owner.id,
+    merchantId,
+    kind: "item",
+    now,
+  });
+
+  const request = submission(520, owner.id);
+  for (const unavailable of [foreign, awaitingUpload, itemPhoto, fixtureId(529), ready]) {
+    const input = amend(request, { photoIds: [ready, unavailable] });
+    expect(await repository().submitApplication(input)).toEqual({ kind: "photos_unavailable" });
+  }
+  expect(await sql`select from merchant_members where user_id = ${owner.id}`).toHaveLength(0);
+  await expect(
+    repository().submitApplication(amend(request, { photoIds: [ready] })),
+  ).resolves.toMatchObject({ kind: "created", status: "pending_review" });
+});
+
+test("[MER-01:db] a failed notice rolls back the application, photo attachment, membership and receipt", async () => {
+  const owner = await account(600);
+  const mediaId = fixtureId(601);
+  const request = amend(submission(600, owner.id), { photoIds: [mediaId] });
+  const { sql } = database.get();
+  await seedReadyPhoto(sql, { mediaId, accountId: owner.id, kind: "application", now });
   await sql`
     create function reject_fixture_merchant_notice() returns trigger language plpgsql as $$
     begin
@@ -260,6 +361,9 @@ test("[MER-01:db] a failed notice rolls back the application, membership and rep
 
   expect(
     await sql`select id from merchants where restaurant_name = ${request.input.restaurantName}`,
+  ).toHaveLength(0);
+  expect(
+    await sql`select from merchant_application_photos where media_id = ${mediaId}`,
   ).toHaveLength(0);
   expect(await repository().listMemberships({ accountId: owner.id })).toEqual([]);
   expect(await repository().submitApplication(request)).toMatchObject({ kind: "created" });
@@ -482,6 +586,77 @@ test("[ADM-03:db] paginates the review queue by time and ID for a current admin"
     cursor: { submittedAt: leading.submittedAt, merchantId: leading.merchantId },
   });
   expect(next?.applications.map(({ merchantId }) => merchantId)).toEqual([newest[1]]);
+});
+
+test("[MER-01:db] admin notices follow durable pending applications across signup, replay and review", async () => {
+  const owner = await account(1_500);
+  const admin = await administrator(1_501);
+  const repo = repository();
+  const baseline = await repo.readApplicationNotice(admin.id);
+  if (!baseline) throw new Error("Expected the existing admin notice summary.");
+
+  const firstAt = new Date(now.getTime() + 120_000);
+  const first = { ...submission(1_500, owner.id), now: firstAt };
+  const firstId = await createApplication(first);
+  const firstNotice = { pendingCount: baseline.pendingCount + 1, latestMerchantId: firstId };
+  expect(await repo.readApplicationNotice(admin.id)).toEqual(firstNotice);
+  expect(await repo.submitApplication(first)).toMatchObject({
+    kind: "replayed",
+    merchantId: firstId,
+  });
+  expect(await repo.readApplicationNotice(admin.id)).toEqual(firstNotice);
+
+  const secondAt = new Date(now.getTime() + 180_000);
+  const secondId = await createApplication({ ...submission(1_501, owner.id), now: secondAt });
+  const { sql } = database.get();
+  const withoutNotice = fixtureId(1_502);
+  await sql`
+    INSERT INTO merchants (id, slug, restaurant_name, owner_name, phone_e164,
+      commune_id, location, cuisines, status, created_at)
+    SELECT ${withoutNotice}, 'fixture-without-notice', restaurant_name, owner_name, phone_e164,
+      commune_id, location, cuisines, status, created_at + interval '1 second'
+    FROM merchants WHERE id = ${secondId}
+  `;
+  expect(await repo.readApplicationNotice(admin.id)).toEqual({
+    pendingCount: baseline.pendingCount + 2,
+    latestMerchantId: secondId,
+  });
+
+  const rejectSecond = review(1_501, {
+    adminUserId: admin.id,
+    merchantId: secondId,
+    decision: "reject",
+  });
+  const approveFirst = review(1_500, {
+    adminUserId: admin.id,
+    merchantId: firstId,
+    decision: "approve",
+  });
+  expect(await repo.reviewApplication({ ...rejectSecond, now: secondAt })).toMatchObject({
+    kind: "reviewed",
+  });
+  expect(await repo.readApplicationNotice(admin.id)).toEqual(firstNotice);
+  expect(await repo.reviewApplication({ ...approveFirst, now: firstAt })).toMatchObject({
+    kind: "reviewed",
+  });
+  expect(await repo.readApplicationNotice(admin.id)).toEqual(baseline);
+  expect(
+    await sql`SELECT FROM merchant_review_notices WHERE merchant_id IN (${firstId}, ${secondId})`,
+  ).toHaveLength(2);
+});
+
+test("[MER-01:db] notice summaries require a current unblocked admin enrollment", async () => {
+  const owner = await account(1_510);
+  const blocked = await administrator(1_511);
+  const deleted = await administrator(1_512);
+  const { sql } = database.get();
+  await sql`UPDATE users SET blocked_at = ${now.toISOString()} WHERE id = ${blocked.id}`;
+  await sql`UPDATE users SET deleted_at = ${now.toISOString()} WHERE id = ${deleted.id}`;
+
+  const repo = repository();
+  for (const adminUserId of [owner.id, blocked.id, deleted.id]) {
+    await expect(repo.readApplicationNotice(adminUserId)).resolves.toBeUndefined();
+  }
 });
 
 test("[MER-01:db] UUID spelling does not split the application replay lock", async () => {

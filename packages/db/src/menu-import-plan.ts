@@ -22,6 +22,7 @@ interface ExistingItem {
   readonly descriptions: ImportTranslations;
   readonly priceDzd: number;
   readonly archived: boolean;
+  readonly held: boolean;
 }
 
 function normalizeCategory(names: ImportTranslations): ImportTranslations {
@@ -37,6 +38,18 @@ function categoryKey(names: ImportTranslations): string {
 
 function equalText(left: ImportTranslations, right: ImportTranslations): boolean {
   return left.ar === right.ar && left.fr === right.fr && left.en === right.en;
+}
+
+function hasTextChanges(existing: ExistingItem, row: ValidatedMenuImportRow): boolean {
+  return (
+    !equalText(existing.names, row.names) || !equalText(existing.descriptions, row.descriptions)
+  );
+}
+
+function unavailableItemReason(existing: ExistingItem | undefined, row: ValidatedMenuImportRow) {
+  if (existing?.archived) return "archived_key";
+  if (existing?.held && hasTextChanges(existing, row)) return "moderation_pending";
+  return undefined;
 }
 
 function resolveCategories(existing: readonly ExistingCategory[]) {
@@ -59,8 +72,7 @@ function hasImportedChanges(
     existing === undefined ||
     existing.categoryId !== category.id ||
     existing.priceDzd !== row.priceDzd ||
-    !equalText(existing.names, row.names) ||
-    !equalText(existing.descriptions, row.descriptions)
+    hasTextChanges(existing, row)
   );
 }
 
@@ -77,8 +89,9 @@ function planImport(
 
   for (const row of rows) {
     const existing = byExternalKey.get(row.externalKey);
-    if (existing?.archived) {
-      errors.push({ row: row.row, field: "external_key", reason: "archived_key" });
+    const reason = unavailableItemReason(existing, row);
+    if (reason) {
+      errors.push({ row: row.row, field: "external_key", reason });
       continue;
     }
 
@@ -137,7 +150,8 @@ export async function readImportPlan(
   const lockItems = lock ? sql`FOR NO KEY UPDATE` : sql``;
   const items = await sql<ExistingItem[]>`
     SELECT id, external_key AS "externalKey", category_id AS "categoryId", names, descriptions,
-      price_dzd AS "priceDzd", archived_at IS NOT NULL AS archived
+      price_dzd AS "priceDzd", archived_at IS NOT NULL AS archived,
+      moderation_status = 'blocked_pending_review' AS held
     FROM public.items WHERE merchant_id = ${merchantId} AND external_key = ANY(${keys}::text[])
     ORDER BY id ${lockItems}
   `;

@@ -7,7 +7,10 @@ import { pageLimit } from "./pagination.js";
 export const prohibitedCategory = z.enum(["alcohol", "tobacco", "medicine", "gambling"]);
 
 /** ADM-04: an admin approves or rejects a held item with an audited reason. */
-export const adminItemReviewInput = adminMerchantReviewInput;
+const reviewToken = z.string().regex(/^[a-f0-9]{64}$/u);
+export const adminItemReviewInput = adminMerchantReviewInput.extend({
+  reviewToken: reviewToken.optional(),
+});
 
 export const adminItemReviewOutput = z.strictObject({
   itemId: z.uuid(),
@@ -20,6 +23,7 @@ export const adminItemReviewOutput = z.strictObject({
 export const adminItemQueueQuery = z.strictObject({
   cursor: z.uuid().optional(),
   limit: pageLimit,
+  includeReviewToken: z.literal("1").optional(),
 });
 
 const heldItem = z.strictObject({
@@ -28,7 +32,7 @@ const heldItem = z.strictObject({
   restaurantName: z.string().min(1).max(120),
   names: menuItemInput.shape.names,
   descriptions: menuItemInput.shape.descriptions,
-  // Empty when the text no longer matches, e.g. after an edit while held.
+  reviewToken: reviewToken.optional(),
   matches: z
     .array(prohibitedCategory)
     .max(4)

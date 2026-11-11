@@ -1,4 +1,6 @@
 import process from "node:process";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { z } from "zod";
 import { openDatabase } from "./database.ts";
 import { seedGeography } from "./geography.ts";
@@ -17,7 +19,15 @@ async function prepareDevelopmentDatabase(url: URL, action: "migrate" | "seed"):
   try {
     await assertPostgres18Database(connection.sql, developmentDatabase);
     await migrateDatabase(connection);
-    if (action === "seed") await seedGeography(connection);
+    if (action === "seed") {
+      await seedGeography(connection);
+      const [{ createLocalMediaStore }, { seedDemoRestaurants }] = await Promise.all([
+        import("@zaafran/media"),
+        import("./demo-seed.ts"),
+      ]);
+      const root = process.env.MEDIA_STORAGE_ROOT ?? join(tmpdir(), "zaafran-media");
+      await seedDemoRestaurants(connection, createLocalMediaStore({ root }));
+    }
   } finally {
     await connection.close();
   }
@@ -76,7 +86,7 @@ async function main(): Promise<void> {
 
   await prepareDevelopmentDatabase(url, args.data[0]);
   if (args.data[0] === "seed") {
-    process.stdout.write("Seeded wilayas, communes, and Algiers boundaries.\n");
+    process.stdout.write("Seeded geography and twelve fictional Algiers restaurants.\n");
   }
 }
 

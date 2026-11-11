@@ -203,6 +203,13 @@
   align-items: center;
 }
 
+.landing-actions .ui-button {
+  padding-block: var(--space-8);
+  line-height: var(--line-height-label);
+  text-align: center;
+  white-space: normal;
+}
+
 @media (max-width: 40rem) {
   .casbah-frame {
     aspect-ratio: 4 / 5;

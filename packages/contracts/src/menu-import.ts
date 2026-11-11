@@ -48,6 +48,7 @@ const menuImportErrorReason = z.enum([
   "duplicate_key",
   "invalid_price",
   "archived_key",
+  "moderation_pending",
   "ambiguous_category",
   "category_limit",
 ]);

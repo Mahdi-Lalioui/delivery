@@ -1,5 +1,10 @@
+import { randomUUID } from "node:crypto";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Locator, type Page, type TestInfo } from "@playwright/test";
+import {
+  merchantHoursOutput,
+  merchantHoursPreviewOutput,
+} from "../packages/contracts/src/merchant-hours.ts";
 import type { AuthHarness } from "../apps/api/tools/e2e-auth-types.ts";
 import { formatAlgiersTime } from "../packages/i18n/src/formats.ts";
 import ar from "../packages/i18n/src/messages/ar.json" with { type: "json" };
@@ -63,6 +68,72 @@ async function saveWeeklyOvernight(page: Page, labels: Labels, locale: Locale) {
   await expect(previewDay(page, labels)).toContainText(fill(labels.previewRangeNextDay, times));
 }
 
+async function saveSpecialDates(page: Page, labels: Labels) {
+  await page.getByRole("button", { name: labels.save, exact: true }).click();
+  await expect(page.getByText(labels.saved, { exact: true })).toBeVisible();
+}
+
+async function testSpecialDate(
+  page: Page,
+  info: TestInfo,
+  { locale, previewUrl }: { locale: Locale; previewUrl: string },
+) {
+  const labels = messages[locale].merchantHours;
+  await page.getByRole("button", { name: labels.previewRegular, exact: true }).click();
+  const response = await page.request.get(previewUrl);
+  expect(response.ok()).toBe(true);
+  const preview = merchantHoursPreviewOutput.parse(await response.json());
+  const thursday = preview.days.find(({ date }) => new Date(date).getUTCDay() === 4);
+  if (!thursday) throw new Error("The seven-day preview must include Thursday.");
+
+  const exceptions = page.getByRole("group", { name: labels.specialDatesLegend, exact: true });
+  const add = exceptions.getByRole("button", { name: labels.addSpecialDate, exact: true });
+  await expect(add).toBeVisible();
+  await add.click();
+  const date = exceptions.getByLabel(labels.specialDateLabel, { exact: true });
+  await expect(date).toBeFocused();
+  await date.fill(thursday.date);
+  await saveSpecialDates(page, labels);
+  await expect(previewDay(page, labels)).toContainText(labels.previewSpecial);
+  await expect(previewDay(page, labels)).toContainText(labels.closedDay);
+  await page.reload();
+  await expect(date).toHaveValue(thursday.date);
+
+  await exceptions.getByRole("button", { name: labels.addRange, exact: true }).click();
+  const opens = exceptions.getByLabel(labels.opensLabel, { exact: true });
+  await expect(opens).toBeFocused();
+  await opens.fill("19:00");
+  const closes = exceptions.getByLabel(labels.closesLabel, { exact: true });
+  await closes.fill("01:00");
+  await saveSpecialDates(page, labels);
+  await expect(previewDay(page, labels)).toContainText(
+    fill(labels.previewRangeNextDay, {
+      opens: formatAlgiersTime(Date.parse("2026-01-01T19:00:00+01:00"), locale),
+      closes: formatAlgiersTime(Date.parse("2026-01-01T01:00:00+01:00"), locale),
+    }),
+  );
+  await page.reload();
+  await expect(date).toHaveValue(thursday.date);
+  await expect(opens).toHaveValue("19:00");
+  await expect(closes).toHaveValue("01:00");
+  await test.step("Check the theme and viewport matrix with a saved exception", async () => {
+    await checkMatrix(page, info, locale);
+  });
+
+  await exceptions.getByRole("button", { name: labels.removeSpecialDate, exact: true }).click();
+  await expect(add).toBeFocused();
+  await saveSpecialDates(page, labels);
+  await page.reload();
+  await expect(date).toHaveCount(0);
+  await expect(previewDay(page, labels)).not.toContainText(labels.previewSpecial);
+  await expect(previewDay(page, labels)).toContainText(
+    fill(labels.previewRangeNextDay, {
+      opens: formatAlgiersTime(at1800, locale),
+      closes: formatAlgiersTime(at0200, locale),
+    }),
+  );
+}
+
 async function saveRamadanRange(page: Page, labels: Labels) {
   const ramadan = page.getByRole("group", { name: labels.ramadanLegend, exact: true });
   const thursday = day(ramadan, labels, "thursday");
@@ -88,9 +159,13 @@ async function expectRamadanPreview(page: Page, labels: Labels, locale: Locale) 
 
 async function checkMatrix(page: Page, info: TestInfo, locale: Locale) {
   for (const theme of ["light", "dark"] as const) {
-    for (const width of [390, 1280]) {
+    for (const { width, height } of [
+      { width: 390, height: 844 },
+      { width: 768, height: 1024 },
+      { width: 1280, height: 800 },
+    ]) {
       await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
-      await page.setViewportSize({ width, height: width === 390 ? 844 : 800 });
+      await page.setViewportSize({ width, height });
       await attachPageScreenshot(page, info, `merchant-hours-${locale}-${theme}-${String(width)}`);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
       expect(overflow).toBe(0);
@@ -132,9 +207,75 @@ for (const locale of ["ar", "fr"] as const) {
         await expect(page.locator("#ramadan-4-0-opens-offset")).toHaveValue("-30");
         await expectRamadanPreview(page, labels, locale);
       });
-      await test.step("Check the theme and viewport matrix", async () => {
-        await checkMatrix(page, info, locale);
+      await test.step("Create, edit and delete a dated hours exception", async () => {
+        await testSpecialDate(page, info, {
+          locale,
+          previewUrl: `${auth.origin}/v1/merchants/${merchantId}/hours/preview?schedule=regular`,
+        });
       });
     });
   });
 }
+
+async function saveExceptionFromAnotherTab(page: Page, origin: string, url: string) {
+  const loaded = await page.request.get(url);
+  expect(loaded.ok()).toBe(true);
+  const { weekly, sessionId, revision } = merchantHoursOutput.parse(await loaded.json());
+  const saved = await page.request.put(url, {
+    headers: {
+      origin,
+      "sec-fetch-site": "same-origin",
+      "x-expected-session-id": sessionId,
+      "idempotency-key": randomUUID(),
+    },
+    data: {
+      weekly,
+      specialDates: [{ date: "2030-01-01", ranges: [] }],
+      expectedRevision: revision,
+    },
+  });
+  expect(saved.status()).toBe(200);
+}
+
+test("[MER-15:browser] a newer Ramadan read cannot let stale hours overwrite another tab's exception @merchant-hours", async ({
+  baseURL,
+  page,
+}) => {
+  await withAuthHarness(baseURL, async (auth) => {
+    const merchantId = await signInOwner(page, auth);
+    const url = `${auth.origin}/v1/merchants/${merchantId}/hours`;
+    const ramadanRead = Promise.withResolvers<undefined>();
+    const labels = fr.merchantHours;
+    await page.route("**" + new URL(url).pathname + "/ramadan", async (route) => {
+      if (route.request().method() === "GET") await ramadanRead.promise;
+      await route.continue();
+    });
+    try {
+      await page.goto(`${auth.origin}/fr/merchant/${merchantId}/hours`);
+      await expect(
+        page.getByRole("group", { name: labels.weeklyLegend, exact: true }),
+      ).toBeVisible();
+      await saveExceptionFromAnotherTab(page, auth.origin, url);
+    } finally {
+      ramadanRead.resolve(undefined);
+    }
+
+    await saveRamadanRange(page, labels);
+    const dates = page.getByRole("group", { name: labels.specialDatesLegend, exact: true });
+    await dates.getByRole("button", { name: labels.addSpecialDate, exact: true }).click();
+    await dates.getByLabel(labels.specialDateLabel, { exact: true }).fill("2030-01-02");
+    const attempt = page.waitForResponse(
+      (response) => response.url() === url && response.request().method() === "PUT",
+    );
+    await page.getByRole("button", { name: labels.save, exact: true }).click();
+    expect((await attempt).status()).toBe(409);
+    await expect(page.getByText(labels.revisionConflict, { exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: labels.reload, exact: true })).toBeFocused();
+
+    const readback = await page.request.get(url);
+    expect(readback.ok()).toBe(true);
+    expect(merchantHoursOutput.parse(await readback.json()).specialDates).toEqual([
+      { date: "2030-01-01", ranges: [] },
+    ]);
+  });
+});

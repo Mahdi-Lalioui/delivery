@@ -13,6 +13,65 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-08 19:02 GMT — Evening Lane A and Lane B integration
+
+- **Effort and evidence** — High. Merged Lane A `233e62f` then Lane B `8171285`. Frozen install passed, `pnpm verify` passed 1,700 unit, 222 PostGIS and four mobile Jest tests, and both production browser suites passed 59 and 24 cases.
+- **Review** — Preserved both sets of dependency pins and locale copy. Fixed the French mobile landing overflow in Chromium and WebKit. Marketing stays at the locale root and opens the customer home at `/discover`. [Routing decision](DECISIONS.md#d-027--separate-marketing-from-customer-discovery-2026-11-08)
+- **Next** — Lane A search. M2 is still at 36/37 pending the visible admin notice.
+
+### 2026-11-08 18:48 GMT — M3-2 anonymous feed
+
+- **Effort and evidence** — Ultra for migration and media authorization, high for the feed UI. `pnpm verify` passed 1,568 unit and 222 PostGIS tests. Authorization passed 224 and the two production browser journeys passed.
+- **Review** — Fixed a far-future pause that could break the page. The reviewer reproduced HTTP 500 before and HTTP 200 after. The lead inspected 390px and 1280px captures and the design critic approved the eight final views. [Evidence](evidence/m3/feed.md)
+- **Next** — Search index and ranking. Feed ordering and its dependent sections remain open. M2 still lacks the Lane B live notice.
+
+### 2026-11-08 17:45 GMT — M3-1 service areas and location selection
+
+- **Effort and evidence** — Ultra for the migration and API, high for the picker. `pnpm verify` passed 1,553 unit and 216 PostGIS tests, authorization passed 222, and the production discovery browser suite passed three journeys.
+- **Review** — Closed no-store errors, stale commune selection and radio contrast findings. The lead inspected phone and desktop captures, and the design critic approved all eight final views. [Evidence](evidence/m3/location.md)
+- **Next** — M3-2 anonymous feed. M3-1 still needs the fixed-centre map, outside-area opt-in and polygon editor. M2 still lacks the Lane B notice.
+
+### 2026-11-08 16:48 GMT — Lane B billing, promotions, platform and Ramadan backend
+
+- **Effort and evidence** — Ultra. `pnpm verify` passed 1,539 unit and 210 PostGIS tests. Authorization passed 218 cases and the authenticated production browser regression passed 19.
+- **Review** — Fixed overlapping invoice periods and a mixed-case actor UUID replay race. Both regressions failed before the fix in PostGIS and passed afterward. [Review record](reviews/2026-11-08-lane-b-backend.md)
+- **Next** — M3-1 service areas and location discovery. The handoff lists pending client wiring, billing lifecycle, ratings and retention dependencies. [Batch handoff](requests/lane-a-backend-batch.md)
+
+### 2026-11-08 16:17 GMT — M2 cover, logo and combined onboarding
+
+- **Effort and evidence** — Ultra for media persistence, high for the editor, medium for browser wiring. `pnpm verify` passed 1,518 unit and 187 PostGIS tests. All 19 authenticated browser cases and 203 authorization cases passed. The lead and design critic passed the final 390px and 1280px captures.
+- **Review** — Closed stalled-save and incomplete browser proof findings. `pnpm gate m2` exited 1 at 36/37, with MER-01 waiting for Lane B’s visible admin notice. [Gate evidence](evidence/m2/gate-status.md)
+- **Next** — Prepare Lane B’s requested backend batch while its admin UI handoffs are open. Then M3. [Profile and onboarding proof](evidence/m2/profile-photos.md)
+
+### 2026-11-08 15:58 GMT — M2 preview, settings schema and demo seed
+
+- **Effort and evidence** — High for preview and seed, ultra for moderation and migration. `pnpm verify` passed 1,493 unit and 185 PostGIS tests. All 18 authenticated browser journeys passed. Two seed runs produced stable IDs for twelve fictional restaurants.
+- **Review** — Fixed both stale moderation paths. The lead inspected phone and desktop preview captures, and the design critic passed them. [Evidence](evidence/m2/menu-preview.md) · [Lane B token handoff](requests/lane-a-moderation-token.md)
+- **Next** — Finish cover/logo controls and the combined onboarding gate, then batch Lane B’s open requests before M3. Lane B still owns the visible admin notice and repeat-review UI.
+
+### 2026-11-08 15:29 GMT — M2-3 durable admin notice read
+
+- **Effort and evidence** — Ultra. The admin-only endpoint reads pending signup notices and retires them after approval or rejection. `pnpm verify` passed 1,466 unit and 176 PostGIS tests. All 18 authenticated production browser journeys passed, including the notice and applicant denial.
+- **Review** — Reviewer and security auditor found no P0/P1 in replay, count consistency, caching or admin scope. [Lane B handoff](requests/lane-a-merchant-notice.md) records the remaining in-app browser proof.
+- **Next** — M2-10 moderated customer preview for the merchant builder.
+
+### 2026-11-08 15:21 GMT — M2-8 deterministic ZIP checksum regression
+
+- **Effort and evidence** — Ultra. A fixed ZIP timestamp reproduced the wrong UTF-8 offset. A binary offset now changes valid XML whitespace, with a regenerated-checksum control. All 15 file tests passed, and review independently reproduced `Invalid CRC32` for the intended mutation.
+- **Next** — MER-01 in-app admin notice read and Lane B handoff.
+
+### 2026-11-08 15:20 GMT — M2-9 dated hours exceptions
+
+- **Effort and evidence** — High for the editor and ultra for revision safety. `pnpm verify` passed 1,461 unit and 174 PostGIS tests. Three production browser journeys passed, including 12 accessible theme, language and viewport checks with a saved exception.
+- **Review** — Fixed the stale-draft overwrite and retained OpenAPI date format. The browser went from HTTP 200 to 409 and confirmed the other tab’s exception survived. See [hours evidence](evidence/m2/hours.md) and [closed findings](reviews/2026-11-08-hours-revisions.md).
+- **Next** — Stabilize the import ZIP CRC fixture, then add the in-app admin notice backend and the moderated menu preview.
+
+### 2026-11-08 15:07 GMT — M2-6 application and item photo attachment
+
+- **Effort and evidence** — Ultra. Ready application photos are ordered and private. Menu photos are tenant-scoped and the cropper ships in Arabic, French and English. `pnpm verify` passed 1,449 unit and 174 PostGIS tests. Production Playwright passed 17 auth and 59 foundation cases.
+- **Review** — Fixed shared manager preview and cached-editor photo loss. Regression coverage proves attachment scope, legacy preservation and explicit removal. See [closed findings](reviews/2026-11-08-photo-attachment.md) and [browser evidence](evidence/m2/photo-prepare.md).
+- **Next** — M2-9 dated exceptions. The M2 trace remains 35/37 while admin notice delivery and the complete photo workflow are open.
+
 ### 2026-11-08 12:48 GMT — M2 CodeQL follow-up
 
 - **Effort and evidence** — Ultra. Declared OTP/TOTP route throttling explicitly and proved the existing shared API budget still counts once per request. Standalone regressions failed before the declaration, then passed. All 235 API unit tests and the 13 menu-item HTTP tests passed.
@@ -871,6 +930,8 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 ## Current status
 
 - Milestone: M1 (last passing gate, M2 in progress)
-- Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import is traced at row validation and its browser UI is still in progress. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
-- Last green baseline `pnpm verify`: 2026-11-08 12:42 GMT on Docker Desktop with 1,246 unit and 155 PostGIS integration tests. Both production browser suites passed, 59 foundation and 16 authenticated cases.
-- Open HUMAN_TODO items: see docs/HUMAN_TODO.md
+- M2 is at 36 of 37 IDs, with the live Lane B admin notice still open. See [M2 gate evidence](evidence/m2/gate-status.md).
+- Lane A backend slice passed `pnpm verify` with 1,539 unit and 210 PostGIS tests, `pnpm test:authz` with 218 tests, and `pnpm test:e2e:auth` with 19 production browser regressions. The new Lane B screens still need live backend integration.
+- Billing period overlap and platform replay reviews are closed. Pending billing lifecycle, ratings and retention dependencies are in the [batch handoff](requests/lane-a-backend-batch.md). Resume from [Lane A progress](progress/lane-a.md).
+- M3 location lookup and GPS/commune picker passed 1,553 unit, 216 PostGIS, 222 authorization and three production browser tests. [Location evidence](evidence/m3/location.md)
+- See [HUMAN_TODO](HUMAN_TODO.md) for outstanding production dependencies.

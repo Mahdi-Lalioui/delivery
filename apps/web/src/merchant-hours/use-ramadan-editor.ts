@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useReducer, useRef } from "react";
+import type { RevisionAdvanced } from "./hours-flow";
 import { isStale, readRamadan, replaceRamadan } from "./hours-http";
 import {
   addRamadanRange,
@@ -32,7 +33,7 @@ export function useRamadanEditor({
   version: number;
   /** True while another command on the shared D-011 revision is in flight. */
   isBlocked: () => boolean;
-  onSaved: (revision: number) => void;
+  onSaved: (event: RevisionAdvanced) => void;
   onFocus: (selector: string) => void;
 }) {
   const [state, dispatch] = useReducer(reduceRamadan, initialRamadanState);
@@ -88,12 +89,19 @@ export function useRamadanEditor({
     const result = await replaceRamadan({ merchantId, sessionId, idempotencyKey, input });
     inFlight.current = false;
     dispatch({ kind: "save-finished", result });
-    if (result.kind === "saved") onSaved(result.data.revision);
+    if (result.kind === "saved") {
+      onSaved({
+        kind: "revision-advanced",
+        sessionId,
+        expectedRevision: input.expectedRevision,
+        revision: result.data.revision,
+      });
+    }
     onFocus(isStale(result) ? "[data-hours-reload]" : "[data-ramadan-save]");
   }
 
-  function advance(revision: number) {
-    dispatch({ kind: "revision-advanced", revision });
+  function advance(event: RevisionAdvanced) {
+    dispatch(event);
   }
 
   return { state, edit, add, remove, save, advance };
