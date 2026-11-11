@@ -131,3 +131,6 @@
 
 - 2026-11-11 · Low · Updated sprint ownership and sequence. Lane A now owns the restaurant board, courier and admin screens, and e2e.
   Next: publish the tested order, quote, address, tracking, courier and feed contracts.
+
+- 2026-11-11 · High · Published order, quote, address, tracking, courier and feed schemas in AWID_CONTRACTS.md. All 196 contract tests, typecheck, build and lint passed.
+  Next: persist addresses and server-priced quotes, then place and transition orders transactionally with the acceptance job before wiring feed filters.
