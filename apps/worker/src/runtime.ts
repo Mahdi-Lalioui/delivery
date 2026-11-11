@@ -1,5 +1,6 @@
 import type { DatabaseConnection } from "@zaafran/db/database";
 import { createDiscoverySearchRepository } from "@zaafran/db/discovery-search";
+import { createOrderQuoteRepository } from "@zaafran/db/order-quotes";
 import { createPrivacyRepository } from "@zaafran/db/privacy";
 import { createMediaRepository } from "@zaafran/db/media";
 import { createLocalMediaStore, type MediaStore } from "@zaafran/media";
@@ -30,6 +31,7 @@ export function createWorkerOptions(
   },
 ) {
   const privacy = createPrivacyRepository(database);
+  const quotes = createOrderQuoteRepository(database);
   const mediaOptions = {
     repository: createMediaRepository(database),
     recordArtifact: privacy.recordApplicationMediaArtifact,
@@ -45,7 +47,11 @@ export function createWorkerOptions(
       repository: privacy,
       store: media.store,
     }),
-    privacy_cleanup: defineJob(cleanupPayload, () => privacy.pruneDeletionState(new Date())),
+    privacy_cleanup: defineJob(cleanupPayload, async () => {
+      const now = new Date();
+      await privacy.pruneDeletionState(now);
+      await quotes.pruneExpired(now);
+    }),
     search_refresh: createSearchRefreshJob(createDiscoverySearchRepository(database)),
     [watchdogIdentifier]: defineJob(watchdogPayload, async ({ checkId }) => {
       await runJobEffectOnce({

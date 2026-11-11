@@ -103,6 +103,10 @@
     "./addresses": {
       "types": "./src/addresses.ts",
       "default": "./dist/addresses.js"
+    },
+    "./order-quotes": {
+      "types": "./src/order-quotes.ts",
+      "default": "./dist/order-quotes.js"
     }
   },
   "scripts": {

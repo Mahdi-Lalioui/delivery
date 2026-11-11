@@ -239,6 +239,13 @@
       "when": 1794133200000,
       "tag": "0033_customer_addresses",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1794133800000,
+      "tag": "0034_order_quotes",
+      "breakpoints": true
     }
   ]
 }

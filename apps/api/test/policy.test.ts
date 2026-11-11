@@ -201,6 +201,17 @@ const matrix: readonly MatrixRoute[] = [
     payload: { scope: "current", expectedSessionId: challengeId },
     expected: 401,
   },
+  {
+    method: "POST",
+    url: "/v1/quotes",
+    payload: {
+      merchantId: challengeId,
+      fulfilment: "pickup",
+      timing: { kind: "asap" },
+      items: [{ itemId: challengeId, quantity: 1, optionIds: [] }],
+    },
+    expected: { customer: 503 },
+  },
   { method: "GET", url: "/v1/me/addresses", expected: { customer: 503 } },
   {
     method: "POST",

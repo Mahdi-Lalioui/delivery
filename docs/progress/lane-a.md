@@ -140,3 +140,6 @@
 
 - 2026-11-11 · High · Added cash quote pricing from validated menu options and whole-DZD zone fees, with zero-fee pickup. All 297 domain tests, build, lint and typecheck passed.
   Next: store the account-bound quote with a 10-minute expiry; resolve current menu availability, delivery zone and order modes before writing.
+
+- 2026-11-11 · High · Added ten-minute checkout quotes with pickup, scoped addresses, live menu pricing, zone fees, slot checks, and quote cleanup. 661 package tests and 254 PostGIS tests passed.
+  Next: add idempotent order placement with quote revalidation, write the order snapshot and event, and enqueue the acceptance timer in the same transaction.
