@@ -51,11 +51,45 @@
   stroke-width: 1.5;
 }
 
+/* The route follows a street drawn beneath it. */
+.tracking-map-road {
+  fill: none;
+  stroke: var(--color-surface);
+  stroke-width: 18;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.tracking-map-block {
+  fill: var(--color-surface-2);
+}
+
 .tracking-map-street {
   fill: none;
   stroke: var(--color-surface);
-  stroke-width: 14;
+  stroke-width: 12;
   stroke-linecap: round;
+}
+
+.tracking-map-start circle {
+  fill: var(--color-surface);
+  stroke: var(--color-primary);
+  stroke-width: 3;
+}
+
+.tracking-map-start path {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+
+.tracking-map-pin {
+  fill: var(--color-primary);
+}
+
+.tracking-map-home {
+  fill: var(--color-mint);
 }
 
 /* The route draws itself in. */
@@ -81,8 +115,17 @@
 }
 
 .tracking-map-destination .tracking-map-halo {
-  fill: var(--color-primary);
-  opacity: 0.15;
+  fill: var(--color-mint);
+  opacity: 0.35;
+}
+
+.tracking-map-route-done {
+  fill: none;
+  stroke: var(--color-border-strong);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 2 9;
 }
 
 .tracking-map-courier-halo {
@@ -142,7 +185,7 @@
 }
 
 .tracking-headline h1 {
-  font: var(--font-weight-display) var(--font-size-h1) / var(--line-height-h1) var(--font-display);
+  font: var(--font-weight-h3) var(--font-size-h3) / var(--line-height-h3) var(--font-display);
 }
 
 .tracking-code-line {
@@ -158,15 +201,57 @@
   content: "·";
 }
 
+/* The arrival time is the hero of the sheet. */
 .tracking-eta {
-  display: flex;
-  gap: var(--space-8);
-  align-items: center;
+  display: grid;
+  gap: 2px;
   padding: var(--space-12) var(--space-16);
   border-radius: var(--radius-lg);
   background: var(--color-mint-pale);
-  font-weight: var(--font-weight-h3);
   font-variant-numeric: var(--font-variant-numeric-numbers);
+}
+
+.tracking-eta small {
+  display: flex;
+  gap: var(--space-8);
+  align-items: center;
+  color: var(--color-text-2);
+  font-size: var(--font-size-caption);
+}
+
+.tracking-eta strong {
+  font: var(--font-weight-display) var(--font-size-display) / var(--line-height-display)
+    var(--font-numbers);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+@media (min-width: 960px) {
+  .tracking-eta strong {
+    font-size: var(--font-size-h1);
+    line-height: var(--line-height-h1);
+  }
+}
+
+/* Dark mode: the code card stays a calm surface with mint figures. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .tracking-code {
+    background: var(--color-surface-2);
+    color: var(--color-text);
+  }
+
+  :root:not([data-theme="light"]) .tracking-code strong {
+    color: var(--color-mint);
+  }
+}
+
+:root[data-theme="dark"] .tracking-code {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+}
+
+:root[data-theme="dark"] .tracking-code strong {
+  color: var(--color-mint);
 }
 
 .tracking-eta svg {
@@ -411,8 +496,13 @@
     margin: 0;
   }
 
+  .tracking {
+    align-items: stretch;
+  }
+
   .tracking-map {
-    block-size: 70svb;
+    block-size: auto;
+    min-block-size: 36rem;
     max-block-size: none;
     border-radius: var(--radius-xl);
   }

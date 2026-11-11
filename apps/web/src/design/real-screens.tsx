@@ -4,23 +4,12 @@ import type { Locale } from "@zaafran/i18n/locales";
 import { CheckoutSample } from "../admin/gallery/checkout-sample";
 import { OrdersSample, RatingSample } from "../admin/gallery/lane-b-gallery";
 import { TrackingSample } from "../admin/gallery/tracking-sample";
+import type { RealScreen as Screen } from "./real-screen-list";
 
 // Design build only: each customer screen as a full page in a realistic state, for the
 // design-loop screenshots (the preview API is read-only, so these use fixtures).
 
-export const realScreens = [
-  "checkout",
-  "checkout-payment",
-  "confirmed",
-  "tracking",
-  "tracking-waiting",
-  "tracking-pickup",
-  "rating",
-  "orders",
-] as const;
-export type RealScreen = (typeof realScreens)[number];
-
-export function RealScreen({ screen, locale }: { screen: RealScreen; locale: Locale }) {
+export function RealScreen({ screen, locale }: { screen: Screen; locale: Locale }) {
   switch (screen) {
     case "checkout":
       return <CheckoutSample mode="ready" locale={locale} isBare />;

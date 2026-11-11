@@ -7,7 +7,7 @@ import {
   timelineSteps,
   type Tracking,
 } from "../src/tracking/tracking-http";
-import { layoutMap, projectPins } from "../src/tracking/tracking-map";
+import { layoutMap, projectPins, splitRoute } from "../src/tracking/tracking-map";
 
 const orderId = "00000000-0000-4000-8000-000000000501";
 const merchantId = "00000000-0000-4000-8000-000000000010";
@@ -141,4 +141,25 @@ test("[CUS-18] draws the route only from route pins and leaves the courier out w
     box,
   );
   expect(moving.route).toEqual([moving.courier, moving.destination]);
+});
+
+test("[CUS-18] splits the route at the courier into travelled and remaining parts", () => {
+  const route = [
+    { x: 0, y: 0 },
+    { x: 10, y: 0 },
+    { x: 20, y: 0 },
+    { x: 30, y: 0 },
+  ];
+  const [done, left] = splitRoute(route, { x: 12, y: 1 });
+  expect(done).toEqual([
+    { x: 0, y: 0 },
+    { x: 10, y: 0 },
+    { x: 12, y: 1 },
+  ]);
+  expect(left).toEqual([
+    { x: 12, y: 1 },
+    { x: 20, y: 0 },
+    { x: 30, y: 0 },
+  ]);
+  expect(splitRoute(route, undefined)).toEqual([[], route]);
 });

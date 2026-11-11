@@ -7,7 +7,8 @@ import "../admin/billing/admin-billing.css";
 import { SiteShell } from "../components/site-shell";
 import { CustomerTabBar, type CustomerTab } from "../customer/tab-bar";
 import "../retention/retention.css";
-import { RealScreen, realScreens, type RealScreen as Screen } from "./real-screens";
+import { realScreens, type RealScreen as Screen } from "./real-screen-list";
+import { RealScreen } from "./real-screens";
 
 const tabs: Partial<Record<Screen, CustomerTab>> = {
   tracking: "orders",

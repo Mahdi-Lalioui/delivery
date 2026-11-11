@@ -1522,7 +1522,10 @@
     "notifyAction": "تفعيل",
     "notifyOn": "التنبيهات مفعّلة",
     "notifyDenied": "التنبيهات محظورة في إعدادات المتصفح.",
-    "notifyError": "تعذّر تفعيل التنبيهات. أعد المحاولة."
+    "notifyError": "تعذّر تفعيل التنبيهات. أعد المحاولة.",
+    "etaLabel": "الوصول المتوقع",
+    "etaRange": "{from} – {to}",
+    "etaPickupLabel": "جاهز حوالي"
   },
   "accountHub": {
     "title": "حسابي",

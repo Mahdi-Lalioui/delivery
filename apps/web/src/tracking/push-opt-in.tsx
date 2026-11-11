@@ -21,7 +21,8 @@ export function PushOptIn() {
           : "idle",
     );
   }, []);
-  if (state === "unsupported") return null;
+  // Blocked in browser settings: nothing to offer here, so stay out of the way.
+  if (state === "unsupported" || state === "denied") return null;
   if (state === "on")
     return (
       <p className="tracking-push" data-state="on" role="status">
@@ -34,15 +35,9 @@ export function PushOptIn() {
       <Icon name="bell" size={22} />
       <div>
         <strong>{translate("notifyTitle")}</strong>
-        <p>
-          {state === "denied"
-            ? translate("notifyDenied")
-            : state === "error"
-              ? translate("notifyError")
-              : translate("notifyBody")}
-        </p>
+        <p>{state === "error" ? translate("notifyError") : translate("notifyBody")}</p>
       </div>
-      {state !== "denied" && (
+      {
         <button
           type="button"
           className="ui-button ui-button-secondary ui-button-sm"
@@ -55,7 +50,7 @@ export function PushOptIn() {
         >
           {translate("notifyAction")}
         </button>
-      )}
+      }
     </div>
   );
 }

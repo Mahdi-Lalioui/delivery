@@ -23,14 +23,16 @@ function Eta({ tracking, locale }: { tracking: Tracking; locale: Locale }) {
   if (eta === null || isTerminal(tracking.order.status)) return null;
   const from = formatAlgiersTime(new Date(eta.earliestAt), locale);
   const to = formatAlgiersTime(new Date(eta.latestAt), locale);
+  const isPickup = tracking.fulfilment === "pickup";
   return (
     <p className="tracking-eta">
-      <Icon name="clock" size={20} />
-      <bdi>
-        {tracking.fulfilment === "pickup"
-          ? translate("etaPickup", { time: to })
-          : translate("eta", { from, to })}
-      </bdi>
+      <small>
+        <Icon name="clock" size={16} />
+        {translate(isPickup ? "etaPickupLabel" : "etaLabel")}
+      </small>
+      <strong>
+        <bdi dir="ltr">{isPickup ? to : translate("etaRange", { from, to })}</bdi>
+      </strong>
     </p>
   );
 }
@@ -154,6 +156,30 @@ function CancelOrder({ state, tracking }: { state: TrackingState; tracking: Trac
   );
 }
 
+/** Time, code and timeline; for pickup the code comes before the timeline. */
+function LiveDetails({
+  tracking,
+  locale,
+  isLive,
+}: {
+  tracking: Tracking;
+  locale: Locale;
+  isLive: boolean;
+}) {
+  const translate = useTranslations("tracking");
+  const isPickup = tracking.fulfilment === "pickup";
+  const isWaitingForCourier = !isPickup && tracking.courier === null && isLive;
+  return (
+    <>
+      <Eta tracking={tracking} locale={locale} />
+      {isLive && isPickup && <CodeCard tracking={tracking} />}
+      <Timeline tracking={tracking} locale={locale} />
+      {isLive && !isPickup && <CodeCard tracking={tracking} />}
+      {isWaitingForCourier && <p className="tracking-note">{translate("waitingCourier")}</p>}
+    </>
+  );
+}
+
 function Ready({
   state,
   tracking,
@@ -186,12 +212,7 @@ function Ready({
           </div>
           {isLive && <Badge tone="success">{translate("live")}</Badge>}
         </div>
-        <Eta tracking={tracking} locale={locale} />
-        <Timeline tracking={tracking} locale={locale} />
-        {isLive && <CodeCard tracking={tracking} />}
-        {tracking.fulfilment === "delivery" && tracking.courier === null && isLive && (
-          <p className="tracking-note">{translate("waitingCourier")}</p>
-        )}
+        <LiveDetails tracking={tracking} locale={locale} isLive={isLive} />
         <Contacts tracking={tracking} />
         {isLive && <PushOptIn />}
         <CancelOrder state={state} tracking={tracking} />

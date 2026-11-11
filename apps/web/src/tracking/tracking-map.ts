@@ -49,3 +49,21 @@ export function layoutMap(
   const fallback = courier !== undefined && destination !== undefined ? [courier, destination] : [];
   return { destination, courier, route: route.length > 1 ? route : fallback };
 }
+
+/** Splits the route at the point nearest the courier: [travelled, remaining]. */
+export function splitRoute(
+  route: readonly Point[],
+  courier: Point | undefined,
+): [Point[], Point[]] {
+  if (courier === undefined || route.length < 2) return [[], [...route]];
+  let nearest = 0;
+  route.forEach((point, index) => {
+    const best = route[nearest] ?? point;
+    const distance = (point.x - courier.x) ** 2 + (point.y - courier.y) ** 2;
+    if (distance < (best.x - courier.x) ** 2 + (best.y - courier.y) ** 2) nearest = index;
+  });
+  return [
+    [...route.slice(0, nearest + 1), courier],
+    [courier, ...route.slice(nearest + 1)],
+  ];
+}

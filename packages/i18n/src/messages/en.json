@@ -1522,7 +1522,10 @@
     "notifyAction": "Turn on",
     "notifyOn": "Notifications are on",
     "notifyDenied": "Notifications are blocked in your browser settings.",
-    "notifyError": "We couldn’t turn on notifications. Try again."
+    "notifyError": "We couldn’t turn on notifications. Try again.",
+    "etaLabel": "Estimated arrival",
+    "etaRange": "{from} – {to}",
+    "etaPickupLabel": "Ready around"
   },
   "accountHub": {
     "title": "My account",

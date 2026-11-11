@@ -1522,7 +1522,10 @@
     "notifyAction": "Activer",
     "notifyOn": "Notifications activées",
     "notifyDenied": "Les notifications sont bloquées dans les réglages du navigateur.",
-    "notifyError": "Impossible d’activer les notifications. Réessayez."
+    "notifyError": "Impossible d’activer les notifications. Réessayez.",
+    "etaLabel": "Arrivée estimée",
+    "etaRange": "{from} – {to}",
+    "etaPickupLabel": "Prête vers"
   },
   "accountHub": {
     "title": "Mon compte",
