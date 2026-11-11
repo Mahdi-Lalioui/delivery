@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { readCommuneCoordinates, seedGeography } from "../src/geography.ts";
+import { readCommuneCoordinates, readWilayas, seedGeography } from "../src/geography.ts";
 import { registerTestDatabase } from "./database.ts";
 
 const database = registerTestDatabase();
@@ -34,6 +34,15 @@ test("[MER-01:db] seeds all official commune codes and Algiers boundaries withou
     valid_centroids: 1541,
   });
 
+  const directory = await readWilayas(connection);
+  expect(directory.map(({ code }) => code)).toEqual(
+    Array.from({ length: 69 }, (_, index) => index + 1),
+  );
+  expect(directory.at(-1)).toEqual({
+    code: 69,
+    nameAr: "الأبيض سيدي الشيخ",
+    nameFr: "El Abiodh Sidi Cheikh",
+  });
   const original = await sql`SELECT code, id FROM communes ORDER BY code`;
   await sql`UPDATE wilayas SET name_fr = 'Previous label' WHERE code = 16`;
   await sql`

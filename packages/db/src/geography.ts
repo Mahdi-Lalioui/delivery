@@ -1,3 +1,4 @@
+import type { wilayaListOutput } from "@zaafran/contracts/merchant";
 import { readFile } from "node:fs/promises";
 import { gunzipSync } from "node:zlib";
 import type { DatabaseConnection } from "./database.ts";
@@ -64,4 +65,12 @@ export async function readCommuneCoordinates({ sql }: DatabaseConnection, commun
     WHERE id = ${communeId}::uuid
   `;
   return row;
+}
+
+export async function readWilayas({
+  sql,
+}: DatabaseConnection): Promise<ReturnType<typeof wilayaListOutput.parse>["wilayas"]> {
+  return sql<{ code: number; nameAr: string; nameFr: string }[]>`
+    SELECT code, name_ar AS "nameAr", name_fr AS "nameFr" FROM public.wilayas ORDER BY code
+  `;
 }

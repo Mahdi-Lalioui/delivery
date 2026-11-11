@@ -7,7 +7,7 @@ import { createPushSubscriptionRepository } from "@zaafran/db/push-subscriptions
 import { createPrivacyRepository } from "@zaafran/db/privacy";
 import { createAuthRepository } from "@zaafran/db/auth";
 import { createBillingRepository, createBillingWriteRepository } from "@zaafran/db/billing";
-import { readCommuneCoordinates } from "@zaafran/db/geography";
+import { readCommuneCoordinates, readWilayas } from "@zaafran/db/geography";
 import { createPlatformRepository } from "@zaafran/db/platform";
 import { openDatabase } from "@zaafran/db/database";
 import { createDiscoverySearchRepository } from "@zaafran/db/discovery-search";
@@ -99,6 +99,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     billingWrites: { repository: createBillingWriteRepository(database), now },
     platform: { repository: platform, now },
     discovery: createServiceAreaRepository(database),
+    wilayas: () => readWilayas(database),
     discoverySearch: createDiscoverySearchRepository(database),
     publicFeed: { repository: createPublicFeedRepository(database), store: mediaStore, now },
     publicRestaurant: { repository: publicRestaurant, now },

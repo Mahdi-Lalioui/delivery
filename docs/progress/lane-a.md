@@ -212,3 +212,6 @@
 
 - 2026-11-11 · High · Added private OSRM tracking routes, thirty-second ETA coalescing and distance fallback with a circuit breaker. Passed 60 scoped tests. Pinned OSRM Docker returned 14 points, 874 m and 91 s on the Algiers fixture.
   Next: publish all 69 wilayas to location pickers and wire the national map and seed data. Production still needs the full Algeria road graph.
+
+- 2026-11-11 · Medium · Published the anonymous bilingual wilaya directory and documented per-wilaya commune pagination. All 69 sorted codes were checked on PostGIS. Passed 15 API and three geography integration checks.
+  Next: connect the catalog to location selectors and prepare the pinned nationwide map, route and boundary data.

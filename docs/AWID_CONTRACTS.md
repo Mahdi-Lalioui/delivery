@@ -29,6 +29,8 @@ return `voice_note_unavailable` until the private audio upload and retention flo
 | `POST /v1/me/push-subscriptions` | `pushSubscriptionInput` → 204 | Active customer web session |
 | `DELETE /v1/me/push-subscriptions` | `removePushSubscriptionInput` → 204 | Active customer web session |
 | `GET /v1/push/public-key` | `pushPublicKeyOutput` | Public when VAPID is configured |
+| `GET /v1/wilayas` | `wilayaListOutput` | Public bilingual directory of all 69 wilayas |
+| `GET /v1/communes?wilayaCode=:code` | `communeListQuery` → `communeListOutput` | Public, paginated within the chosen wilaya |
 | `GET /v1/feed` | `publicFeedQuery` → `publicFeedOutput` | Public |
 
 - Import schemas from `@zaafran/contracts/{orders,addresses,tracking,courier,feed}`.

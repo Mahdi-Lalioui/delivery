@@ -76,3 +76,22 @@ test("[GEO-02:http] applies no-store even when rate limiting short-circuits the 
   expect(response.headers["cache-control"]).toBe("no-store");
   expect(resolve).toHaveBeenCalledTimes(1);
 });
+
+test("[CUS-02:http] publishes the bilingual wilaya directory without an account", async () => {
+  const records = [
+    { code: 16, nameAr: "الجزائر", nameFr: "Alger" },
+    { code: 69, nameAr: "الأبيض سيدي الشيخ", nameFr: "El Abiodh Sidi Cheikh" },
+  ];
+  const resolveActor = vi.fn();
+  const api = createApi({
+    checkReadiness: () => Promise.resolve(),
+    resolveActor,
+    wilayas: () => Promise.resolve(records),
+  });
+  onTestFinished(() => api.close());
+  const directory = await api.inject("/v1/wilayas");
+  expect(directory.statusCode).toBe(200);
+  expect(directory.headers["cache-control"]).toBe("public, max-age=300, s-maxage=3600");
+  expect(directory.json()).toEqual({ wilayas: records });
+  expect(resolveActor).not.toHaveBeenCalled();
+});

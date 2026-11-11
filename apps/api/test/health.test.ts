@@ -245,6 +245,7 @@ test("[M0-6] the generated OpenAPI document describes the readiness problem resp
       "/v1/realtime",
       "/v1/search",
       "/v1/staff-invitations/accept",
+      "/v1/wilayas",
     ]);
     expect(schema.paths?.["/v1/media/{mediaId}/preview"]?.get?.responses).toMatchObject({
       200: { content: { "image/webp": { schema: { type: "string", format: "binary" } } } },

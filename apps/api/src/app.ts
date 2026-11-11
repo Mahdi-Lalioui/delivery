@@ -23,7 +23,11 @@ import { registerOrderQuoteRoutes } from "./order-quote-routes.js";
 import { registerAddressRoutes } from "./address-routes.js";
 import { registerPrivacyRoutes, type PrivacyServices } from "./privacy-routes.js";
 import { registerAuthRoutes } from "./auth-routes.js";
-import { registerDiscoveryRoutes, type DiscoveryServices } from "./discovery-routes.js";
+import {
+  registerDiscoveryRoutes,
+  type DiscoveryServices,
+  type ReadWilayas,
+} from "./discovery-routes.js";
 import {
   registerDiscoverySearchRoutes,
   type DiscoverySearchServices,
@@ -90,6 +94,7 @@ interface ApiOptions {
   readonly platform?: PlatformServices;
   readonly ramadan?: RamadanServices;
   readonly discovery?: DiscoveryServices;
+  readonly wilayas?: ReadWilayas;
   readonly discoverySearch?: DiscoverySearchServices;
   readonly publicFeed?: PublicFeedServices;
   readonly publicRestaurant?: PublicRestaurantServices;
@@ -189,7 +194,7 @@ export function createApi(options: ApiOptions): FastifyInstance {
     registerBillingWriteRoutes(api, options.billingWrites);
     registerPlatformRoutes(api, options.platform);
     registerRamadanRoutes(api, options.ramadan);
-    registerDiscoveryRoutes(api, options.discovery);
+    registerDiscoveryRoutes(api, options.discovery, options.wilayas);
     registerDiscoverySearchRoutes(api, options.discoverySearch);
     registerPublicFeedRoutes(api, options.publicFeed);
     registerPublicRestaurantRoutes(api, options.publicRestaurant);

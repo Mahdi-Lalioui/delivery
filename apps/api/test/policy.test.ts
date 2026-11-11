@@ -185,6 +185,7 @@ const groupPayload = {
 };
 
 const matrix: readonly MatrixRoute[] = [
+  { method: "GET", url: "/v1/wilayas", expected: 503 },
   { method: "GET", url: "/healthz", expected: 200 },
   { method: "GET", url: "/readyz", expected: 200 },
   {

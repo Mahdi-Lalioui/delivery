@@ -35,6 +35,11 @@ const communeCode = z
   .length(4)
   .regex(/^[0-9]{4}$/);
 const wilayaCode = z.int().min(1).max(69);
+export const wilayaListOutput = z.strictObject({
+  wilayas: z
+    .array(z.strictObject({ code: wilayaCode, nameAr: displayName, nameFr: displayName }))
+    .max(69),
+});
 const commune = z.strictObject({
   id: uuid,
   code: communeCode,
