@@ -94,6 +94,10 @@ async function clearPersonalData(
     FROM discarded WHERE requested_at > ${now.toISOString()}::timestamptz - interval '24 hours'
   `;
   await sql`
+    UPDATE public.ratings SET comment = NULL
+    WHERE order_id IN (SELECT id FROM public.orders WHERE customer_id = ${userId})
+  `;
+  await sql`
     UPDATE public.orders SET customer_id = NULL, address_snapshot = NULL, lines = (
       SELECT coalesce(jsonb_agg(line - 'note' ORDER BY index), '[]'::jsonb)
       FROM jsonb_array_elements(lines) WITH ORDINALITY AS item(line, index)

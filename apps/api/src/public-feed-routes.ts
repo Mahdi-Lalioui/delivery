@@ -14,11 +14,9 @@ import { revalidatePublicJson } from "./public-json-cache.js";
 
 export interface PublicFeedServices {
   readonly repository: {
-    list: (query: {
-      limit: number;
-      cursor?: string;
-      now: Date;
-    }) => Promise<z.infer<typeof publicFeedOutput>>;
+    list: (
+      query: z.infer<typeof publicFeedQuery> & { now: Date },
+    ) => Promise<z.infer<typeof publicFeedOutput>>;
     readPhoto: (
       params: z.infer<typeof publicProfilePhotoParams>,
     ) => Promise<{ key: string } | undefined>;
@@ -48,10 +46,10 @@ export function registerPublicFeedRoutes(api: FastifyInstance, services?: Public
     },
     async (request, reply) => {
       if (!services) return sendProblem(reply, 503);
-      const { limit, cursor } = request.query;
+      const { cursor, ...filters } = request.query;
       return reply.send(
         await services.repository.list({
-          limit,
+          ...filters,
           ...(cursor ? { cursor: cursor.toLowerCase() } : {}),
           now: services.now(),
         }),

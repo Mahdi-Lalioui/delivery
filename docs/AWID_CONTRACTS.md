@@ -35,3 +35,5 @@ return `voice_note_unavailable` until the private audio upload and retention flo
   the query while paging and reset the cursor when it changes. Use the commune as
   the coarse distance reference. Rating, ETA and fee fields are optional during the
   rollout. Render a zero fee as free delivery and treat null or absent as unknown.
+- In the cash-only release, the payment-method filters return an empty page when either
+  Baridi Pay or TPE is required.

@@ -149,3 +149,6 @@
 
 - 2026-11-11 · Ultra · Added scoped order reads and versioned, idempotent customer, merchant and admin actions. Passed 663 package tests, 268 integrations and 240 authz tests.
   Next: implement feed metadata, filters and stable sorting, then build the merchant order board against these actions.
+
+- 2026-11-11 · High · Implemented discovery ratings, ETA and fee metadata, URL filters and stable sorting by distance, rating and ETA. Passed 352 package tests and 271 PostGIS and worker integration tests.
+  Next: add the scoped merchant board snapshot and durable replay cursor, then wire the live board screens.
