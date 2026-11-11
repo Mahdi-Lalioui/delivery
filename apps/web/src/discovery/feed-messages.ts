@@ -200,7 +200,7 @@ const messages = {
     sortEta: "مدة التوصيل",
     ratingLabel: "تقييم {rating} من 5 من {count} مراجعة",
     minutes: "د",
-    etaRange: "{min}–{max} د",
+    etaRange: "\u2066{min}–{max}\u2069 د",
     ratingCount: "({count})",
     free: "مجاني",
     feeLabel: "رسوم التوصيل",

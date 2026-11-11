@@ -11,6 +11,16 @@ import {
   type RestaurantItem,
 } from "./restaurant-types";
 
+/** "Choose 1", "Up to 2" or "Choose 1–3" for an option group. */
+function rangeText(
+  { minimum, maximum }: RestaurantGroup,
+  messages: ReturnType<typeof getRestaurantMessages>,
+) {
+  if (minimum === maximum) return messages.chooseExactly.replace("{count}", String(minimum));
+  if (minimum === 0) return messages.chooseUpTo.replace("{max}", String(maximum));
+  return messages.chooseRange.replace("{min}", String(minimum)).replace("{max}", String(maximum));
+}
+
 function ItemOptions({
   group,
   draft,
@@ -35,11 +45,7 @@ function ItemOptions({
         {localizeRestaurantText(group.names, locale)}{" "}
         <span>{group.minimum > 0 ? messages.required : messages.optional}</span>
       </legend>
-      <p className="restaurant-muted">
-        {messages.chooseRange
-          .replace("{min}", String(group.minimum))
-          .replace("{max}", String(group.maximum))}
-      </p>
+      <p className="restaurant-muted">{rangeText(group, messages)}</p>
       {radio && group.minimum === 0 && (
         <label className="restaurant-choice">
           <input

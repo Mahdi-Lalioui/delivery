@@ -1,7 +1,4 @@
-import { Button } from "@zaafran/ui";
-
-const decreaseSymbol = "−";
-const increaseSymbol = "+";
+import { Icon } from "@zaafran/ui";
 
 export function RestaurantQuantity({
   label,
@@ -19,27 +16,31 @@ export function RestaurantQuantity({
   return (
     <fieldset className="restaurant-quantity">
       <legend>{label}</legend>
-      <Button
-        variant="secondary"
-        aria-label={decreaseLabel}
-        disabled={quantity <= 1}
-        onClick={() => {
-          onChange(quantity - 1);
-        }}
-      >
-        {decreaseSymbol}
-      </Button>
-      <output aria-label={label}>{quantity}</output>
-      <Button
-        variant="secondary"
-        aria-label={increaseLabel}
-        disabled={quantity >= 20}
-        onClick={() => {
-          onChange(quantity + 1);
-        }}
-      >
-        {increaseSymbol}
-      </Button>
+      <div className="restaurant-stepper">
+        <button
+          type="button"
+          aria-label={decreaseLabel}
+          disabled={quantity <= 1}
+          onClick={() => {
+            onChange(quantity - 1);
+          }}
+        >
+          <Icon name="minus" size={20} />
+        </button>
+        <output aria-label={label} key={quantity}>
+          {quantity}
+        </output>
+        <button
+          type="button"
+          aria-label={increaseLabel}
+          disabled={quantity >= 20}
+          onClick={() => {
+            onChange(quantity + 1);
+          }}
+        >
+          <Icon name="plus" size={20} />
+        </button>
+      </div>
     </fieldset>
   );
 }

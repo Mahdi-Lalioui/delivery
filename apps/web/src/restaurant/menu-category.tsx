@@ -27,6 +27,8 @@ export function MenuCategory({
   onVisible,
   onChoose,
   onStale,
+  onDishes,
+  inCart,
 }: {
   slug: string;
   merchantId: string;
@@ -36,6 +38,9 @@ export function MenuCategory({
   onVisible: (id: string) => void;
   onChoose: (selection: DishSelection) => void;
   onStale: (categoryId: string) => void;
+  /** Reports the dishes loaded so far, for the Popular row. */
+  onDishes: (selections: readonly DishSelection[]) => void;
+  inCart: ReadonlyMap<string, number>;
 }) {
   const [state, setState] = useState<State>({
     phase: "idle",
@@ -76,6 +81,11 @@ export function MenuCategory({
       observer.disconnect();
     };
   }, [category.categoryId, onVisible]);
+  useEffect(() => {
+    const { revision } = state;
+    if (revision === null) return;
+    onDishes(state.dishes.map((dish) => ({ dish, revision, categoryId: category.categoryId })));
+  }, [state, category.categoryId, onDishes]);
   const shouldLoad = state.phase === "loading" || (state.phase === "idle" && (isNear || isActive));
   useEffect(() => {
     if (!shouldLoad) return;
@@ -144,6 +154,7 @@ export function MenuCategory({
             dish={dish}
             merchantId={merchantId}
             locale={locale}
+            quantityInCart={inCart.get(dish.itemId) ?? 0}
             onChoose={(chosen) => {
               if (state.revision !== null)
                 onChoose({

@@ -66,7 +66,7 @@ export function ItemDialog({
       locale={locale}
       onClose={onClose}
     >
-      {state.phase !== "ready" && <DishPhoto merchantId={merchantId} dish={dish} locale={locale} />}
+      {state.phase !== "ready" && <DishPhoto merchantId={merchantId} dish={dish} />}
       {state.phase === "loading" && <Skeleton label={messages.itemLoading} />}
       {state.phase === "error" && <ErrorState title={messages.itemError} />}
       {state.phase === "ready" && (
@@ -79,7 +79,7 @@ export function ItemDialog({
           }}
           onAdd={add}
         >
-          <DishPhoto merchantId={merchantId} dish={dish} locale={locale} />
+          <DishPhoto merchantId={merchantId} dish={dish} />
         </ItemForm>
       )}
     </RestaurantDialog>

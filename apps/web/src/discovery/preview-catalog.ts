@@ -107,6 +107,7 @@ function build(seed: RestaurantSeed): PreviewRestaurant {
         nextOpensAt: isOpen ? null : "2026-11-12T10:00:00.000Z",
         pausedUntil: null,
         hours: alwaysOpen,
+        ...seed.feed,
       },
       revision,
       categories,

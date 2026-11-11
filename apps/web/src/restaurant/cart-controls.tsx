@@ -2,7 +2,6 @@ import { useState } from "react";
 import { getCartSummary, removeCartLine, setCartQuantity } from "@zaafran/domain/cart";
 import { formatDzd } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
-import { Icon } from "@zaafran/ui";
 import { CartContents } from "./cart-contents";
 import { RestaurantDialog } from "./restaurant-dialog";
 import { getRestaurantMessages } from "./restaurant-messages";
@@ -57,10 +56,14 @@ export function CartControls({
           }}
         >
           <span>
-            <Icon name="bag" />
-            <bdi>{summary.value.itemCount}</bdi> {messages.viewCart}
+            <bdi className="restaurant-cart-count" key={summary.value.itemCount}>
+              {summary.value.itemCount}
+            </bdi>
+            {messages.viewCart}
           </span>
-          <bdi>{formatDzd(summary.value.subtotalDzd, locale)}</bdi>
+          <bdi className="restaurant-cart-total" key={summary.value.subtotalDzd}>
+            {formatDzd(summary.value.subtotalDzd, locale)}
+          </bdi>
         </button>
       </div>
 

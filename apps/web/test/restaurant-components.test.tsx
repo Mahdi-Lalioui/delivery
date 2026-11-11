@@ -22,6 +22,7 @@ test("[CUS-07:web] sold-out dishes cannot be opened for ordering and have a text
       dish={{ ...detail.item, isAvailable: false }}
       merchantId="merchant"
       locale="fr"
+      quantityInCart={0}
       onChoose={noop}
     />,
   );
@@ -29,6 +30,21 @@ test("[CUS-07:web] sold-out dishes cannot be opened for ordering and have a text
   expect(html).toContain("disabled");
   expect(html).toContain("Chawarma");
   expect(html).toContain("400 DA");
+});
+
+test("[CUS-07:web] a dish already in the cart shows its quantity on the add button", () => {
+  const html = renderToStaticMarkup(
+    <DishCard
+      dish={detail.item}
+      merchantId="merchant"
+      locale="fr"
+      quantityInCart={2}
+      onChoose={noop}
+    />,
+  );
+  expect(html).toContain('data-in-cart="true"');
+  expect(html).toContain("×2");
+  expect(html).toContain('aria-label="Choisir · Chawarma');
 });
 
 test("[CUS-08:web] required radios block Add, show option deltas and expose quantity and note bounds", () => {
@@ -98,4 +114,19 @@ test("[CUS-09:web] cart lines expose configured snapshots, quantity editing and 
   expect(html).toContain('<output aria-label="Quantité · Chawarma">1</output>');
   expect(html).toContain('aria-label="Augmenter la quantité · Chawarma"');
   expect(html).toMatch(/aria-label="Réduire la quantité · Chawarma"[^>]*disabled/u);
+});
+
+test("[CUS-07:web] lists popular dishes with a distinct add label and hides when there are none", async () => {
+  const { PopularRow } = await import("../src/restaurant/popular-row");
+  const selection = { dish: detail.item, revision: 1, categoryId: "category" };
+  const html = renderToStaticMarkup(
+    <PopularRow selections={[selection]} merchantId="merchant" locale="fr" onChoose={noop} />,
+  );
+  expect(html).toContain("Les plus commandés");
+  expect(html).toContain('aria-label="Les plus commandés · Chawarma');
+  expect(
+    renderToStaticMarkup(
+      <PopularRow selections={[]} merchantId="merchant" locale="fr" onChoose={noop} />,
+    ),
+  ).toBe("");
 });

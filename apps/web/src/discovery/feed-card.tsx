@@ -197,7 +197,13 @@ function FeeItem({ feeDzd, locale }: { feeDzd: number; locale: Locale }) {
   );
 }
 
-function FeedMeta({ restaurant, locale }: { restaurant: FeedRestaurant; locale: Locale }) {
+export function FeedMeta({
+  restaurant,
+  locale,
+}: {
+  restaurant: Pick<FeedRestaurant, "rating" | "ratingCount" | "etaMinutes" | "deliveryFeeDzd">;
+  locale: Locale;
+}) {
   const messages = getFeedMessages(locale);
   const { rating, ratingCount, etaMinutes, deliveryFeeDzd } = restaurant;
   const hasAny =

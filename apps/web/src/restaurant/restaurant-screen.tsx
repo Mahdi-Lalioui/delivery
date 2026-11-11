@@ -1,12 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { addCartLine, type CartLine } from "@zaafran/domain/cart";
+import { addCartLine, type Cart, type CartLine } from "@zaafran/domain/cart";
 import type { Locale } from "@zaafran/i18n/locales";
 import { Button, EmptyState, ErrorState, Skeleton } from "@zaafran/ui";
 import { CartControls } from "./cart-controls";
 import { ItemDialog } from "./item-dialog";
 import { MenuCategory } from "./menu-category";
+import { PopularRow } from "./popular-row";
 import { RestaurantDialog } from "./restaurant-dialog";
 import { RestaurantHeader } from "./restaurant-header";
 import { readRestaurant } from "./restaurant-http";
@@ -141,6 +142,7 @@ function RestaurantLoaded({
         slug={slug}
         locale={locale}
         data={data}
+        inCart={cartQuantities(basket.cart, data.restaurant.merchantId)}
         refreshedCategory={refreshedCategory}
         onChoose={setSelected}
         onStale={onStale}
@@ -199,10 +201,21 @@ function RestaurantLoaded({
   );
 }
 
+/** Quantity of each dish already in the cart for this restaurant, by item ID. */
+function cartQuantities(cart: Cart | null, merchantId: string): ReadonlyMap<string, number> {
+  const quantities = new Map<string, number>();
+  if (cart?.merchant.merchantId !== merchantId) return quantities;
+  for (const line of cart.lines) {
+    quantities.set(line.itemId, (quantities.get(line.itemId) ?? 0) + line.quantity);
+  }
+  return quantities;
+}
+
 function RestaurantMenu({
   slug,
   locale,
   data,
+  inCart,
   refreshedCategory,
   onChoose,
   onStale,
@@ -210,6 +223,7 @@ function RestaurantMenu({
   slug: string;
   locale: Locale;
   data: Restaurant;
+  inCart: ReadonlyMap<string, number>;
   refreshedCategory: string | null;
   onChoose: (selection: DishSelection) => void;
   onStale: (categoryId: string) => void;
@@ -221,10 +235,28 @@ function RestaurantMenu({
       "",
   );
   const messages = getRestaurantMessages(locale);
+  const [loaded, setLoaded] = useState<ReadonlyMap<string, readonly DishSelection[]>>(new Map());
+  const recordDishes = useCallback((selections: readonly DishSelection[]) => {
+    const categoryId = selections[0]?.categoryId;
+    if (categoryId === undefined) return;
+    setLoaded((previous) => new Map(previous).set(categoryId, selections));
+  }, []);
   if (data.categories.length === 0) return <EmptyState title={messages.empty} />;
+  const popular = [...loaded.values()]
+    .flat()
+    .filter(({ dish }) => dish.isAvailable && dish.tags.includes("popular"));
   return (
     <>
+      <PopularRow
+        selections={popular}
+        merchantId={data.restaurant.merchantId}
+        locale={locale}
+        onChoose={onChoose}
+      />
       <nav className="restaurant-category-tabs" aria-label={messages.menu}>
+        <span className="restaurant-sticky-name" aria-hidden="true">
+          <bdi>{data.restaurant.name}</bdi>
+        </span>
         {data.categories.map((category) => (
           <a
             key={category.categoryId}
@@ -250,6 +282,8 @@ function RestaurantMenu({
             onVisible={setActiveCategory}
             onChoose={onChoose}
             onStale={onStale}
+            onDishes={recordDishes}
+            inCart={inCart}
           />
         ))}
       </div>

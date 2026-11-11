@@ -3,6 +3,8 @@ import { Badge, Icon } from "@zaafran/ui";
 import { localeDetails, type Locale } from "@zaafran/i18n/locales";
 import { formatAlgiersDate } from "@zaafran/i18n/formats";
 import { useLowData } from "../discovery/low-data";
+import { FeedMeta } from "../discovery/feed-card";
+import "../discovery/feed.css";
 import { getFeedCuisineLabel } from "../discovery/feed-messages";
 import { getRestaurantMessages } from "./restaurant-messages";
 import type { Restaurant } from "./restaurant-types";
@@ -42,7 +44,6 @@ export function RestaurantHeader({ data, locale }: { data: Restaurant; locale: L
       <div className="restaurant-cover" aria-hidden="true">
         <div className="restaurant-photo-placeholder">
           <Icon name="plate" size={64} />
-          <bdi>{restaurant.name}</bdi>
         </div>
         {restaurant.coverMediaId !== null && !photoFailed && (
           <img
@@ -50,6 +51,7 @@ export function RestaurantHeader({ data, locale }: { data: Restaurant; locale: L
             height="720"
             alt=""
             decoding="async"
+            fetchPriority="high"
             src={`/v1/merchants/${restaurant.merchantId}/profile/photos/${restaurant.coverMediaId}/variants/webp/${String(width)}`}
             onError={() => {
               setPhotoFailed(true);
@@ -57,46 +59,50 @@ export function RestaurantHeader({ data, locale }: { data: Restaurant; locale: L
           />
         )}
       </div>
-      <div className="restaurant-heading">
-        <div>
-          <p className="eyebrow">{messages.menu}</p>
+      <a className="restaurant-back" href={`/${locale}/discover`} aria-label={messages.back}>
+        <Icon name="chevron" size={24} />
+      </a>
+      <div className="restaurant-panel">
+        <div className="restaurant-heading">
           <h1>
             <bdi>{restaurant.name}</bdi>
           </h1>
+          <Badge tone={restaurant.isOpen ? "success" : "warning"}>
+            {restaurant.isOpen ? messages.open : messages.closed}
+          </Badge>
         </div>
-        <Badge tone={restaurant.isOpen ? "success" : "warning"}>
-          {restaurant.isOpen ? messages.open : messages.closed}
-        </Badge>
+        <ul className="restaurant-cuisines" role="list">
+          {restaurant.cuisines.map((cuisine) => (
+            <li key={cuisine}>{getFeedCuisineLabel(locale, cuisine)}</li>
+          ))}
+        </ul>
+        <FeedMeta restaurant={restaurant} locale={locale} />
+        <details className="restaurant-hours">
+          <summary>
+            <Icon name="clock" size={16} />
+            {messages.hours}
+            <Icon name="chevron" size={16} />
+          </summary>
+          <dl>
+            {restaurant.hours.weekly.map((day) => (
+              <div key={day.weekday}>
+                <dt>{weekday.format(Date.UTC(2026, 10, 1 + day.weekday))}</dt>
+                <dd>
+                  <bdi>{ranges(day.ranges)}</bdi>
+                </dd>
+              </div>
+            ))}
+            {restaurant.hours.specialDates.map((day) => (
+              <div key={day.date}>
+                <dt>{formatAlgiersDate(new Date(day.date + "T12:00:00Z"), locale)}</dt>
+                <dd>
+                  <bdi>{ranges(day.ranges)}</bdi>
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </details>
       </div>
-      <ul className="restaurant-cuisines" role="list">
-        {restaurant.cuisines.map((cuisine) => (
-          <li key={cuisine}>
-            <Icon name="plate" size={16} />
-            {getFeedCuisineLabel(locale, cuisine)}
-          </li>
-        ))}
-      </ul>
-      <details className="restaurant-hours">
-        <summary>{messages.hours}</summary>
-        <dl>
-          {restaurant.hours.weekly.map((day) => (
-            <div key={day.weekday}>
-              <dt>{weekday.format(Date.UTC(2026, 10, 1 + day.weekday))}</dt>
-              <dd>
-                <bdi>{ranges(day.ranges)}</bdi>
-              </dd>
-            </div>
-          ))}
-          {restaurant.hours.specialDates.map((day) => (
-            <div key={day.date}>
-              <dt>{formatAlgiersDate(new Date(day.date + "T12:00:00Z"), locale)}</dt>
-              <dd>
-                <bdi>{ranges(day.ranges)}</bdi>
-              </dd>
-            </div>
-          ))}
-        </dl>
-      </details>
     </header>
   );
 }
