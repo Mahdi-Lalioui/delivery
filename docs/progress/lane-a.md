@@ -200,3 +200,6 @@
 
 - 2026-11-11 · Ultra · Added private, order-bound delivery photo proofs, a merchant review flag and retryable 30-day/erasure cleanup. Passed 304 integrations, 250 authz and scoped lint/typecheck, plus the focused merchant photo-access regression.
   Next: build the localized courier screens and add assignment, invite sharing and proof review to the merchant board.
+
+- 2026-11-11 · Medium · Built localized courier invitations, job cards, availability, cash details, exact-pin navigation and slide-to-pickup. Five production-browser cases and 44 localization tests passed. Four inspected screenshots are in docs/evidence/awid/courier-pickup/.
+  Next: add foreground location sharing and code/photo/failed drop-off controls, then wire assignment and proof review into the merchant board.

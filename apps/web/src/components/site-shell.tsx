@@ -14,6 +14,7 @@ interface SiteShellProps {
     | "/sign-in?continue=merchant-apply"
     | "/sign-in?continue=merchant-status"
     | "/sign-in?continue=staff-accept"
+    | "/sign-in?continue=courier"
     | "/sign-in?continue=admin-review"
     | "/sign-in?continue=admin-moderation"
     | "/account/sessions"
@@ -21,6 +22,7 @@ interface SiteShellProps {
     | "/merchant"
     | "/merchant/apply"
     | "/staff/accept"
+    | "/courier"
     | `/merchant/${string}/menu`
     | `/merchant/${string}/menu/options`
     | `/merchant/${string}/menu/${string}/items`
