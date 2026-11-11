@@ -31,7 +31,7 @@ export function StarField(props: {
               value={value}
               defaultChecked={props.defaultValue === value}
             />
-            <Icon name="star" size={36} />
+            <Icon name="star" size={44} />
             <span className="ui-visually-hidden">{translate("stars", { count: value })}</span>
           </label>
         ))}

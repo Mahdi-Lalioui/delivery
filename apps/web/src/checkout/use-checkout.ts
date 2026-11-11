@@ -60,6 +60,12 @@ export function toTiming(slot: SlotChoice): Timing {
     : { kind: "scheduled", scheduledFor: slot.scheduledFor };
 }
 
+/** CUS-14: the cash tender covers the total and is at most total + 10 000 DA. */
+export const maxChangeDzd = 10_000;
+export function isTenderInRange(tenderDzd: number, totalDzd: number): boolean {
+  return tenderDzd >= totalDzd && tenderDzd <= totalDzd + maxChangeDzd;
+}
+
 /** Whole dinars typed by the customer, or undefined when empty or not a whole number. */
 export function parseTender(tender: string): number | undefined {
   const digits = tender.replace(/[\s\u202f]/gu, "");

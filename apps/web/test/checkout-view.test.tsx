@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { expect, test } from "vitest";
 import { CheckoutSample } from "../src/admin/gallery/checkout-sample";
 import { OrderConfirmed } from "../src/checkout/checkout-view";
-import { parseTender, toTiming } from "../src/checkout/use-checkout";
+import { isTenderInRange, parseTender, toTiming } from "../src/checkout/use-checkout";
 
 function render(locale: "fr" | "ar", node: ReactNode) {
   const messages = getMessages(locale);
@@ -71,4 +71,11 @@ test("[ORD-01] the confirmed moment shows the order code and links to tracking",
   expect(html).toContain("K7P-4QX");
   expect(html).toContain('href="/ar/orders/00000000-0000-4000-8000-000000000500"');
   expect(html).toContain("تم تأكيد الطلب");
+});
+
+test("[CUS-14] accepts a cash tender from the total up to 10 000 DA above it", () => {
+  expect(isTenderInRange(3100, 3100)).toBe(true);
+  expect(isTenderInRange(13_100, 3100)).toBe(true);
+  expect(isTenderInRange(13_101, 3100)).toBe(false);
+  expect(isTenderInRange(3099, 3100)).toBe(false);
 });

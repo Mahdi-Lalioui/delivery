@@ -39,6 +39,7 @@ interface SiteShellProps {
     | "/restaurants"
     | `/restaurants/${string}`
     | `/orders/${string}/rating`
+    | `/orders/${string}`
     | "/orders"
     | "/admin/merchant-applications"
     | "/admin/menu-items"

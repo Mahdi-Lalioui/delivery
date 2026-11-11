@@ -175,11 +175,18 @@
 .rating-hero-icon {
   display: grid;
   place-items: center;
-  inline-size: 72px;
-  block-size: 72px;
+  inline-size: 88px;
+  block-size: 88px;
+  border: 6px solid var(--color-surface);
   border-radius: var(--radius-pill);
-  background: var(--color-surface-2);
-  color: var(--color-primary-pressed);
+  background: var(--color-mint-pale);
+  box-shadow: var(--shadow-e2);
+  color: var(--color-accent-strong);
+}
+
+.rating-form .star-field {
+  padding-block-end: var(--space-16);
+  border-block-end: 1px dashed var(--color-border-subtle);
 }
 
 .rating-form {
@@ -198,6 +205,8 @@
 .star-field-row {
   display: flex;
   gap: var(--space-4);
+  justify-content: space-between;
+  max-inline-size: 22rem;
 }
 
 .star-field-star {
@@ -232,7 +241,24 @@
 .star-field-row .star-field-star:hover {
   --star-fill: 1;
 
-  color: var(--color-primary);
+  color: var(--color-accent);
+}
+
+/* The chosen star springs; the ones before it follow with a short stagger. */
+@media (prefers-reduced-motion: no-preference) {
+  .star-field-star:has(input:checked) .ui-icon {
+    animation: star-pop var(--motion-slow) var(--ease-spring-bouncy);
+  }
+}
+
+@keyframes star-pop {
+  0% {
+    transform: scale(0.6) rotate(-12deg);
+  }
+
+  60% {
+    transform: scale(1.25) rotate(6deg);
+  }
 }
 
 .star-field-star .ui-icon,
@@ -253,7 +279,7 @@
 
 .star-row-star[data-filled] {
   --star-fill: 1;
-  color: var(--color-primary);
+  color: var(--color-accent);
 }
 
 .rating-reply-label {

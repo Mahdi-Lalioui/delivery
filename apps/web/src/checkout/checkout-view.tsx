@@ -6,7 +6,12 @@ import { ButtonLink, EmptyState, Icon, Skeleton } from "@zaafran/ui";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { FulfilmentStep, PaymentStep, TimingStep } from "./checkout-steps";
-import { parseTender, type CheckoutState, type CheckoutStep } from "./use-checkout";
+import {
+  isTenderInRange,
+  parseTender,
+  type CheckoutState,
+  type CheckoutStep,
+} from "./use-checkout";
 import "./checkout.css";
 
 const stepKeys = ["stepFulfilment", "stepTiming", "stepPayment"] as const;
@@ -41,7 +46,7 @@ function canContinue(state: CheckoutState): boolean {
 function canPlace(state: CheckoutState): boolean {
   if (state.quote.kind !== "ready") return false;
   const tender = parseTender(state.tender);
-  return tender === undefined || tender >= state.quote.quote.totalDzd;
+  return tender === undefined || isTenderInRange(tender, state.quote.quote.totalDzd);
 }
 
 /** One primary action per step; Place order morphs loading → success. */

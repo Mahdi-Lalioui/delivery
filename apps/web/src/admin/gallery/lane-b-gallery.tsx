@@ -14,6 +14,7 @@ import { MyOrdersView } from "../../retention/my-orders";
 import { MerchantAnalyticsView } from "../../retention/analytics/analytics-views";
 import { OrderRatingView } from "../../retention/order-rating";
 import { CheckoutSample } from "./checkout-sample";
+import { TrackingSample } from "./tracking-sample";
 import { PromotionsView } from "../../retention/promotions-editor";
 import { billingSettingsDefaults } from "@zaafran/contracts/billing";
 import {
@@ -35,6 +36,7 @@ type Screen =
   | "reviews"
   | "rating"
   | "checkout"
+  | "tracking"
   | "platform"
   | "orders"
   | "analytics";
@@ -368,6 +370,7 @@ const samples: Readonly<Record<Screen, (props: SampleProps) => ReactNode>> = {
   reviews: ({ mode }) => <ReviewsSample mode={mode} />,
   rating: ({ mode }) => <RatingSample mode={mode} />,
   checkout: (props) => <CheckoutSample {...props} />,
+  tracking: (props) => <TrackingSample {...props} />,
   platform: ({ mode }) => <PlatformSample mode={mode} />,
   orders: (props) => <OrdersSample {...props} />,
   analytics: (props) => <AnalyticsSample {...props} />,
@@ -406,6 +409,7 @@ export function LaneBGallery({
             { value: "reviews", label: "MER-20" },
             { value: "rating", label: "CUS-22" },
             { value: "checkout", label: "CUS-13/15" },
+            { value: "tracking", label: "CUS-18" },
             { value: "platform", label: "ADM-08" },
             { value: "orders", label: "CUS-21" },
             { value: "analytics", label: "MER-21" },

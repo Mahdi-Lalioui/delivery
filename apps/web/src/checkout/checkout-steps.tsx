@@ -17,7 +17,7 @@ import { useState } from "react";
 import { SlotPicker } from "../retention/slot-picker";
 import { localizeRestaurantText } from "../restaurant/restaurant-types";
 import type { CheckoutState } from "./use-checkout";
-import { parseTender } from "./use-checkout";
+import { maxChangeDzd, parseTender } from "./use-checkout";
 
 function readText(form: FormData, name: string): string | undefined {
   const value = form.get(name);
@@ -237,11 +237,57 @@ function QuoteLines({ state, locale }: { state: CheckoutState; locale: Locale })
   );
 }
 
-export function PaymentStep({ state, locale }: { state: CheckoutState; locale: Locale }) {
+type TenderCheck =
+  | { kind: "none" | "short" }
+  | { kind: "too-much"; maxDzd: number }
+  | { kind: "change"; changeDzd: number };
+
+/** CUS-14: what to say about the cash tender against the quoted total. */
+function checkTender(tender: number | undefined, total: number | undefined): TenderCheck {
+  if (tender === undefined || total === undefined || tender === total) return { kind: "none" };
+  if (tender < total) return { kind: "short" };
+  if (tender > total + maxChangeDzd) return { kind: "too-much", maxDzd: total + maxChangeDzd };
+  return { kind: "change", changeDzd: tender - total };
+}
+
+function CashCard({ state, locale }: { state: CheckoutState; locale: Locale }) {
   const translate = useTranslations("checkout");
   const total = state.quote.kind === "ready" ? state.quote.quote.totalDzd : undefined;
-  const tender = parseTender(state.tender);
-  const isShort = tender !== undefined && total !== undefined && tender < total;
+  const check = checkTender(parseTender(state.tender), total);
+  const error =
+    check.kind === "short"
+      ? translate("tooLittle")
+      : check.kind === "too-much"
+        ? translate("tooMuch", { max: formatDzd(check.maxDzd, locale) })
+        : undefined;
+  return (
+    <div className="checkout-cash">
+      <p>
+        <Icon name="card" size={20} />
+        {translate(state.fulfilment === "pickup" ? "cashPickup" : "cash")}
+      </p>
+      <MoneyField
+        label={translate("payingWith")}
+        hint={translate("payingWithHint")}
+        name="tender"
+        unit={translate("unit")}
+        value={state.tender}
+        onChange={(event) => {
+          state.setTender(event.currentTarget.value);
+        }}
+        error={error}
+      />
+      {check.kind === "change" && (
+        <p className="checkout-change" role="status">
+          {translate("change", { amount: formatDzd(check.changeDzd, locale) })}
+        </p>
+      )}
+    </div>
+  );
+}
+
+export function PaymentStep({ state, locale }: { state: CheckoutState; locale: Locale }) {
+  const translate = useTranslations("checkout");
   return (
     <div className="checkout-step">
       <h2>{translate("summary")}</h2>
@@ -254,28 +300,7 @@ export function PaymentStep({ state, locale }: { state: CheckoutState; locale: L
         ))}
       </ul>
       <QuoteLines state={state} locale={locale} />
-      <div className="checkout-cash">
-        <p>
-          <Icon name="card" size={20} />
-          {translate(state.fulfilment === "pickup" ? "cashPickup" : "cash")}
-        </p>
-        <MoneyField
-          label={translate("payingWith")}
-          hint={translate("payingWithHint")}
-          name="tender"
-          unit={translate("unit")}
-          value={state.tender}
-          onChange={(event) => {
-            state.setTender(event.currentTarget.value);
-          }}
-          error={isShort ? translate("tooLittle") : undefined}
-        />
-        {tender !== undefined && total !== undefined && tender > total && (
-          <p className="checkout-change" role="status">
-            {translate("change", { amount: formatDzd(tender - total, locale) })}
-          </p>
-        )}
-      </div>
+      <CashCard state={state} locale={locale} />
     </div>
   );
 }

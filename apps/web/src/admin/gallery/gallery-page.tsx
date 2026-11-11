@@ -34,6 +34,7 @@ export function GalleryPage({
           retentionRatings: messages.retentionRatings,
           retentionScheduling: messages.retentionScheduling,
           checkout: messages.checkout,
+          tracking: messages.tracking,
           retentionRecipient: messages.retentionRecipient,
           adminPlatform: messages.adminPlatform,
           retentionOrders: messages.retentionOrders,
