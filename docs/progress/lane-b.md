@@ -62,3 +62,5 @@
   Next: T1 remainder — restyle `packages/ui` to the brief, DESIGN.md + DECISIONS, evidence screenshots.
 - 2026-11-11 · AWID T1 done: ui motion 150/250/400 + cubic-bezier(0.2,0.8,0.2,1), press 0.97, cards radius 28 with green shadow (no border), inputs radius 20; DESIGN.md rewritten for AWID (D-B05); gallery evidence in docs/evidence/awid/gallery (no overflow; only dev-tools CSP noise).
   Next: T2 — 15–20 credited Algeria photos → WebP + docs/PHOTO_CREDITS.md.
+- 2026-11-11 · AWID T2: 16 Wikimedia Commons photos (Algiers, Oran, Constantine, Ghardaïa, Tlemcen, Béjaïa, Sahara, couscous, chakhchoukha) viewed, WebP ≤1600 px in `apps/web/public/photos/algeria/`, credited in docs/PHOTO_CREDITS.md.
+  Next: T3 — Discovery, Restaurant, dish sheet, cart through the design loop.
