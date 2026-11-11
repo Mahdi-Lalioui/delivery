@@ -531,6 +531,31 @@ test("[ADM-03:db] competing administrators cannot both decide the same pending a
   ]);
 });
 
+test("[MER-01:db] validates a merchant pin against its selected commune outside Algiers", async () => {
+  const { sql } = database.get();
+  const communeId = fixtureId(771);
+  await sql`INSERT INTO wilayas (code, name_ar, name_fr) VALUES (31, 'وهران', 'Oran')`;
+  await sql`
+    INSERT INTO communes (id, code, wilaya_code, name_ar, name_fr, centroid, boundary)
+    SELECT ${communeId}, '3199', 31, 'بلدية تجريبية', 'Commune de test',
+      ST_Centroid(polygon)::geography, polygon
+    FROM (SELECT ST_Multi(ST_MakeEnvelope(-0.66, 35.68, -0.63, 35.72, 4326)) AS polygon) AS shape
+  `;
+  const user = await account(772);
+  const request = amend(submission(772, user.id), {
+    communeId,
+    pin: { latitude: 35.7, longitude: -0.64 },
+  });
+  expect(
+    await repository().submitApplication(
+      amend(request, {
+        pin: { latitude: 35.8, longitude: -0.64 },
+      }),
+    ),
+  ).toEqual({ kind: "outside_commune" });
+  expect(await repository().submitApplication(request)).toMatchObject({ kind: "created" });
+});
+
 test("[MER-01:db] paginates communes by stable code within a wilaya", async () => {
   const repo = repository();
   const first = await repo.listCommunes({ wilayaCode: 16, limit: 1 });

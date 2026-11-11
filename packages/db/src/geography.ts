@@ -4,14 +4,15 @@ import { gunzipSync } from "node:zlib";
 import type { DatabaseConnection } from "./database.ts";
 
 const fixtureDirectory = new URL("../fixtures/geography/", import.meta.url);
+const pendingSeeds = new WeakMap<DatabaseConnection, Promise<void>>();
 
-export async function seedGeography({ sql }: DatabaseConnection): Promise<void> {
-  const [wilayas, communes, compressedAlgiers] = await Promise.all([
+async function writeGeography({ sql }: DatabaseConnection): Promise<void> {
+  const [wilayas, communes, compressedBoundaries] = await Promise.all([
     readFile(new URL("wilayas.json", fixtureDirectory), "utf8"),
     readFile(new URL("communes.json", fixtureDirectory), "utf8"),
-    readFile(new URL("algiers-boundaries.geojson.gz", fixtureDirectory)),
+    readFile(new URL("algeria-boundaries.geojson.gz", fixtureDirectory)),
   ]);
-  const algiers = gunzipSync(compressedAlgiers).toString("utf8");
+  const boundaries = gunzipSync(compressedBoundaries).toString("utf8");
 
   await sql.begin(async (transaction) => {
     await transaction`
@@ -20,13 +21,14 @@ export async function seedGeography({ sql }: DatabaseConnection): Promise<void> 
       FROM jsonb_to_recordset(${wilayas}::jsonb) AS wilaya(code smallint, "nameAr" text, "nameFr" text)
       ORDER BY code
       ON CONFLICT (code) DO UPDATE SET name_ar = EXCLUDED.name_ar, name_fr = EXCLUDED.name_fr
+      WHERE (wilayas.name_ar, wilayas.name_fr) IS DISTINCT FROM (EXCLUDED.name_ar, EXCLUDED.name_fr)
     `;
 
     await transaction`
       WITH boundaries AS (
         SELECT feature -> 'properties' ->> 'code' AS code,
           ST_GeomFromGeoJSON(feature -> 'geometry') AS boundary
-        FROM jsonb_array_elements(${algiers}::jsonb -> 'features') AS feature
+        FROM jsonb_array_elements(${boundaries}::jsonb -> 'features') AS feature
       )
       INSERT INTO public.communes (code, wilaya_code, name_ar, name_fr, centroid, boundary)
       SELECT commune.code, "wilayaCode", "nameAr", "nameFr",
@@ -38,11 +40,13 @@ export async function seedGeography({ sql }: DatabaseConnection): Promise<void> 
       FROM jsonb_to_recordset(${communes}::jsonb) AS commune(
         code text, "wilayaCode" smallint, "nameAr" text, "nameFr" text, centroid jsonb
       )
-      LEFT JOIN boundaries ON boundaries.code = commune.code AND commune."wilayaCode" = 16
+      JOIN boundaries ON boundaries.code = commune.code
       ORDER BY commune.code
       ON CONFLICT (code) DO UPDATE SET wilaya_code = EXCLUDED.wilaya_code,
         name_ar = EXCLUDED.name_ar, name_fr = EXCLUDED.name_fr,
         centroid = EXCLUDED.centroid, boundary = EXCLUDED.boundary
+      WHERE (communes.wilaya_code, communes.name_ar, communes.name_fr, communes.centroid, communes.boundary)
+        IS DISTINCT FROM (EXCLUDED.wilaya_code, EXCLUDED.name_ar, EXCLUDED.name_fr, EXCLUDED.centroid, EXCLUDED.boundary)
     `;
 
     // The pilot footprint includes the inner Algiers communes and all demo restaurant communes.
@@ -56,6 +60,16 @@ export async function seedGeography({ sql }: DatabaseConnection): Promise<void> 
       ON CONFLICT (slug) DO NOTHING
     `;
   });
+}
+
+export function seedGeography(database: DatabaseConnection): Promise<void> {
+  const pending = pendingSeeds.get(database);
+  if (pending) return pending;
+  const seed = writeGeography(database).finally(() => {
+    pendingSeeds.delete(database);
+  });
+  pendingSeeds.set(database, seed);
+  return seed;
 }
 
 export async function readCommuneCoordinates({ sql }: DatabaseConnection, communeId: string) {

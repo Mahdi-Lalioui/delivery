@@ -96,3 +96,23 @@ test("[CUS-02:browser] keeps browsing available after saving an outside-area GPS
     await expect(page.getByRole("main")).toBeVisible();
   });
 });
+
+test("[CUS-02] selects a commune from wilaya 69 and preserves it across reloads", async ({
+  baseURL,
+  page,
+}) => {
+  await withAuthHarness(baseURL, async (harness) => {
+    await harness.seedAlgiersCommune();
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(harness.origin + "/fr/discover");
+    await page.getByRole("button", { name: labels.fr.open }).click();
+    const dialog = page.getByRole("dialog");
+    await dialog.getByRole("combobox", { name: "Wilaya" }).selectOption("69");
+    await dialog.getByRole("radio", { name: "El Abiodh Sidi Cheikh", exact: true }).check();
+    await dialog.getByRole("button", { name: labels.fr.save }).click();
+    await expect(page.getByText(labels.fr.saved, { exact: true })).toBeVisible();
+    await expect(page.getByText("El Abiodh Sidi Cheikh", { exact: true })).toBeVisible();
+    await page.reload();
+    await expect(page.getByText("El Abiodh Sidi Cheikh", { exact: true })).toBeVisible();
+  });
+});

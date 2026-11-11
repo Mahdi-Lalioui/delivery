@@ -215,3 +215,6 @@
 
 - 2026-11-11 · Medium · Published the anonymous bilingual wilaya directory and documented per-wilaya commune pagination. All 69 sorted codes were checked on PostGIS. Passed 15 API and three geography integration checks.
   Next: connect the catalog to location selectors and prepare the pinned nationwide map, route and boundary data.
+
+- 2026-11-11 · High · Connected nationwide wilaya and commune selection and verified 1,541 PostGIS boundaries, seven real browser checks, 23 PostGIS checks and 54 scoped tests. Martin and OSRM served the pinned Algeria datasets.
+  Next: display the self-hosted basemap, add exact pin selection, then seed eight cities and enable merchant radius controls.

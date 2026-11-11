@@ -4,7 +4,7 @@ import { registerTestDatabase } from "./database.ts";
 
 const database = registerTestDatabase();
 
-test("[MER-01:db] seeds all official commune codes and Algiers boundaries without replacing IDs", async () => {
+test("[MER-01:db] seeds all official commune codes and boundaries without replacing IDs", async () => {
   const connection = database.get();
   const { sql } = connection;
   await seedGeography(connection);
@@ -14,7 +14,7 @@ test("[MER-01:db] seeds all official commune codes and Algiers boundaries withou
       count(*)::int AS communes,
       count(DISTINCT code)::int AS distinct_codes,
       count(boundary)::int AS boundaries,
-      count(*) FILTER (WHERE (boundary IS NOT NULL) <> (wilaya_code = 16))::int AS misplaced,
+      count(*) FILTER (WHERE wilaya_code = 16 AND boundary IS NOT NULL)::int AS algiers_boundaries,
       count(*) FILTER (
         WHERE ST_SRID(boundary) = 4326 AND GeometryType(boundary) = 'MULTIPOLYGON'
           AND ST_IsValid(boundary) AND NOT ST_IsEmpty(boundary)
@@ -28,12 +28,17 @@ test("[MER-01:db] seeds all official commune codes and Algiers boundaries withou
     wilayas: 69,
     communes: 1541,
     distinct_codes: 1541,
-    boundaries: 57,
-    misplaced: 0,
-    valid_boundaries: 57,
+    boundaries: 1541,
+    algiers_boundaries: 57,
+    valid_boundaries: 1541,
     valid_centroids: 1541,
   });
 
+  const [oran] = await sql`
+    SELECT ST_Covers(boundary, ST_SetSRID(ST_MakePoint(-0.64, 35.7), 4326)) AS contains_city
+    FROM public.communes WHERE code = '3101'
+  `;
+  expect(oran).toEqual({ contains_city: true });
   const directory = await readWilayas(connection);
   expect(directory.map(({ code }) => code)).toEqual(
     Array.from({ length: 69 }, (_, index) => index + 1),

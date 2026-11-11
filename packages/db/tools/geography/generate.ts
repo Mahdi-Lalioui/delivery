@@ -200,16 +200,13 @@ async function deriveCentroids(features: readonly Feature[]) {
   return z.array(centroidRow).parse(result);
 }
 
-function algiersBoundaries(features: readonly Feature[]) {
-  const selected = features
-    .filter(({ properties }) => properties.wilaya_code === algiersWilaya)
-    .map(({ geometry, properties, type }) => ({
-      type,
-      properties: { code: properties.ons_commune_code },
-      geometry,
-    }));
+function encodeBoundaries(features: readonly Feature[]) {
+  const selected = features.map(({ geometry, properties, type }) => ({
+    type,
+    properties: { code: properties.ons_commune_code },
+    geometry,
+  }));
   selected.sort((a, b) => a.properties.code.localeCompare(b.properties.code, "en"));
-  if (selected.length !== algiersCount) throw new Error("Expected 57 Algiers boundaries.");
   return gzipSync(JSON.stringify({ type: "FeatureCollection", features: selected }) + "\n", {
     level: 9,
   });
@@ -246,7 +243,10 @@ async function main() {
     Buffer.from(JSON.stringify(joinCentroids(communes, centroids), null, 2) + "\n"),
     check,
   );
-  saveFixture("algiers-boundaries.geojson.gz", algiersBoundaries(features), check);
+  const algiers = features.filter(({ properties }) => properties.wilaya_code === algiersWilaya);
+  if (algiers.length !== algiersCount) throw new Error("Expected 57 Algiers boundaries.");
+  saveFixture("algiers-boundaries.geojson.gz", encodeBoundaries(algiers), check);
+  saveFixture("algeria-boundaries.geojson.gz", encodeBoundaries(features), check);
 }
 
 if (import.meta.main) await main();
