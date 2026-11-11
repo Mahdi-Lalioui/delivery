@@ -36,3 +36,12 @@ test("[NOT-04:http] only the active session can manage its own push endpoint", a
   expect((await api.inject({ method: "DELETE", url, payload: { endpoint } })).statusCode).toBe(204);
   expect(remove).toHaveBeenCalledWith({ userId: accountId, sessionId }, endpoint);
 });
+
+test("[NOT-04:http] exposes only the public application server key", async () => {
+  const publicKey = "B" + "A".repeat(86);
+  const api = createApi({ checkReadiness: () => Promise.resolve(), pushPublicKey: publicKey });
+  onTestFinished(() => api.close());
+  const response = await api.inject("/v1/push/public-key");
+  expect(response.statusCode).toBe(200);
+  expect(response.json()).toEqual({ publicKey });
+});

@@ -3,6 +3,7 @@ import type { DatabaseConnection } from "@zaafran/db/database";
 import type { TransactionSql } from "postgres";
 import { z } from "zod";
 import { runJobEffectOnce } from "./effects.js";
+import { orderNotificationCopy, type OrderLocale } from "./order-notification-copy.js";
 import { defineJob } from "./jobs.js";
 import type { SendOrderSms } from "./order-sms-adapter.js";
 
@@ -10,29 +11,7 @@ export const orderSmsTask = "order.sms";
 const payload = z.strictObject({ orderId: z.uuid(), version: z.int().positive() });
 type Payload = z.output<typeof payload>;
 type Status = z.output<typeof customerSmsStatus>;
-type Locale = "ar" | "fr" | "en";
-type Delivery = { recipient: string; code: string; locale: Locale; status: Status };
-
-const messages: Readonly<Record<Locale, Readonly<Record<Status, string>>>> = {
-  ar: {
-    rejected: "لم يقبل المطعم الطلب",
-    expired: "انتهت مهلة تأكيد الطلب",
-    cancelled: "أُلغي الطلب",
-    delivery_failed: "تعذّر توصيل الطلب",
-  },
-  fr: {
-    rejected: "Commande refusée",
-    expired: "Commande expirée",
-    cancelled: "Commande annulée",
-    delivery_failed: "Livraison impossible",
-  },
-  en: {
-    rejected: "Order declined",
-    expired: "Order expired",
-    cancelled: "Order cancelled",
-    delivery_failed: "Delivery failed",
-  },
-};
+type Delivery = { recipient: string; code: string; locale: OrderLocale; status: Status };
 
 async function readDelivery(sql: TransactionSql, { orderId, version }: Payload) {
   const [delivery] = await sql<Delivery[]>`
@@ -65,7 +44,7 @@ export function createOrderSmsJob(database: DatabaseConnection, send: SendOrderS
           await send({
             recipient,
             key,
-            text: ["AWID", messages[locale][status], code].join(" · "),
+            text: ["AWID", orderNotificationCopy[locale][status], code].join(" · "),
           });
         }
       },

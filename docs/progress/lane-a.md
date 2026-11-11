@@ -173,3 +173,6 @@
 
 - 2026-11-11 · High · Added session-scoped browser push registration and opt-out, trusted endpoint validation, device caps and erasure. Passed 555 package tests, 246 authz and 17 PostGIS integrations.
   Next: send order status updates over VAPID, prune expired subscriptions and publish the public key contract.
+
+- 2026-11-11 · High · Added localized VAPID order notifications with web-push 4.0.0, idempotent worker delivery, expired endpoint cleanup and the public key API. Passed 560 package tests, 247 authz and 27 integrations.
+  Next: fix real standard-session merchant board authorization, then implement courier invitation, assignments and jobs. Browser opt-in remains a Lane B task.

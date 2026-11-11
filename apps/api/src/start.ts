@@ -72,6 +72,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     orderActions: { repository: orders, now },
     merchantBoard: orders,
     pushSubscriptions: createPushSubscriptionRepository(database),
+    pushPublicKey: environment.VAPID_PUBLIC_KEY,
     realtime: {
       replay: orders.merchantReplay,
       replayOrder: orders.orderReplay,

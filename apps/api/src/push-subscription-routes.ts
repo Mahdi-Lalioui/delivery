@@ -1,5 +1,9 @@
 import { problemResponseSchema } from "@zaafran/contracts/health";
-import { pushSubscriptionInput, removePushSubscriptionInput } from "@zaafran/contracts/push";
+import {
+  pushPublicKeyOutput,
+  pushSubscriptionInput,
+  removePushSubscriptionInput,
+} from "@zaafran/contracts/push";
 import type { createPushSubscriptionRepository } from "@zaafran/db/push-subscriptions";
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
@@ -25,13 +29,37 @@ function identity(request: FastifyRequest) {
   return actor && { userId: actor.accountId, sessionId: actor.sessionId };
 }
 
-export function registerPushSubscriptionRoutes(api: FastifyInstance, repository?: Repository) {
+export function registerPushSubscriptionRoutes(
+  api: FastifyInstance,
+  repository?: Repository,
+  publicKey?: string,
+) {
   void api.register((scope, _options, done) => {
     scope.addHook("onSend", (_request, reply, body) => {
       reply.header("cache-control", "no-store");
       return Promise.resolve(body);
     });
     const routes = scope.withTypeProvider<ZodTypeProvider>();
+    routes.get(
+      "/v1/push/public-key",
+      {
+        config: { policy: { kind: "public" } },
+        schema: {
+          response: {
+            200: pushPublicKeyOutput,
+            429: problemResponseSchema,
+            503: problemResponseSchema,
+          },
+        },
+      },
+      (_request, reply) => {
+        if (publicKey === undefined) {
+          sendProblem(reply, 503);
+          return;
+        }
+        reply.send({ publicKey });
+      },
+    );
     routes.post(
       path,
       { config, schema: { body: pushSubscriptionInput, response } },

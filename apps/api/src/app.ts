@@ -108,6 +108,7 @@ interface ApiOptions {
   readonly trustedProxy?: string | undefined;
   readonly privacy?: PrivacyServices;
   readonly addresses?: Parameters<typeof registerAddressRoutes>[1];
+  readonly pushPublicKey?: string | undefined;
   readonly pushSubscriptions?: Parameters<typeof registerPushSubscriptionRoutes>[1];
   readonly realtime?: Parameters<typeof registerRealtimeRoutes>[1];
   readonly merchantBoard?: Parameters<typeof registerMerchantBoardRoutes>[1];
@@ -176,7 +177,7 @@ export function createApi(options: ApiOptions): FastifyInstance {
     registerOrderActionRoutes(api, options.orderActions);
     registerMerchantBoardRoutes(api, options.merchantBoard);
     registerRealtimeRoutes(api, options.realtime);
-    registerPushSubscriptionRoutes(api, options.pushSubscriptions);
+    registerPushSubscriptionRoutes(api, options.pushSubscriptions, options.pushPublicKey);
     registerMerchantRoutes(api, options.merchant);
     registerBillingReadRoutes(api, options.billing);
     registerBillingWriteRoutes(api, options.billingWrites);

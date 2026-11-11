@@ -2,6 +2,7 @@ import { isIP } from "node:net";
 import { tmpdir } from "node:os";
 import { isAbsolute, join } from "node:path";
 import { z } from "zod";
+import { pushPublicKey } from "@zaafran/contracts/push";
 
 const loopback = new Set(["127.0.0.1", "localhost", "[::1]"]);
 const key = z
@@ -38,6 +39,7 @@ const apiEnvironment = z
       .default(3002),
     API_TRUSTED_PROXY: z.string().refine(isProxyAddress).optional(),
     AUTH_PUBLIC_ORIGIN: z.string().refine(isOrigin),
+    VAPID_PUBLIC_KEY: pushPublicKey.optional(),
     AUTH_OTP_KEY: key,
     AUTH_TOTP_KEY: key,
     MEDIA_STORAGE_ROOT: z

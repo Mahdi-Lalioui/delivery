@@ -48,3 +48,10 @@ Codex appends items here (what, why, exact steps). Mahdi ticks them. Items marke
   The HTTPS gateway must accept a bearer token and a JSON body with `to` and `text`.
   Make it deduplicate the `Idempotency-Key` header and return 2xx only after accepting
   the message. Verify an expired test order on an approved test number.
+
+- [ ] **[before launch]** Provision persistent VAPID keys for order status web push.
+  Run `pnpm --filter @zaafran/worker exec web-push generate-vapid-keys --json` in an
+  approved environment. Set `VAPID_PUBLIC_KEY` on both the API and worker. Set
+  `VAPID_PRIVATE_KEY` and a monitored `VAPID_SUBJECT` such as a `mailto:` address on
+  the worker only. Verify an opted-in Chromium, Firefox and installed Safari PWA
+  receives a test notification. Keep the same keys across deployments.

@@ -320,6 +320,7 @@ const matrix: readonly MatrixRoute[] = [
     payload: { endpoint: "https://fcm.googleapis.com/fcm/send/fixture" },
     expected: { customer: 503 },
   },
+  { method: "GET", url: "/v1/push/public-key", expected: 503 },
   { method: "GET", url: "/v1/me/export", expected: { customer: 503 } },
   { method: "POST", url: "/v1/me/deletion-challenge", expected: { customer: 503 } },
   {

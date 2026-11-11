@@ -26,6 +26,7 @@ return `voice_note_unavailable` until the private audio upload and retention flo
 | `GET /v1/realtime?topic=order&orderId=:id` | `orderRealtimeQuery` → SSE order events | Active customer or merchant session scoped to the order, or admin |
 | `POST /v1/me/push-subscriptions` | `pushSubscriptionInput` → 204 | Active customer web session |
 | `DELETE /v1/me/push-subscriptions` | `removePushSubscriptionInput` → 204 | Active customer web session |
+| `GET /v1/push/public-key` | `pushPublicKeyOutput` | Public when VAPID is configured |
 | `GET /v1/feed` | `publicFeedQuery` → `publicFeedOutput` | Public |
 
 - Import schemas from `@zaafran/contracts/{orders,addresses,tracking,courier,feed}`.
@@ -53,3 +54,6 @@ return `voice_note_unavailable` until the private audio upload and retention flo
   view separately for private delivery details.
 - Register the browser subscription JSON against the active session and remove it
   when opting out. A signed-out or expired session is ineligible for delivery.
+- Use the public key with the browser Push API. The service worker receives
+  `orderPushPayload` from `@zaafran/contracts/push`. Use its stable `id` as the
+  notification tag to coalesce retries and its locale-specific `url` on click.

@@ -1,5 +1,7 @@
-import { randomUUID } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 import { tmpdir } from "node:os";
+import { createAuthRepository } from "@zaafran/db/auth";
+import type { SendOrderPush } from "../src/order-push-adapter.ts";
 import { createLocalMediaStore } from "@zaafran/media";
 import { once } from "node:events";
 import { run, runOnce } from "graphile-worker";
@@ -132,7 +134,7 @@ test("[CUS-24:job] the retention worker clears expired deletion secrets without 
   ).toEqual([{ key_hash: null, code_hmac: null }]);
 });
 
-test("[NOT-01][NOT-02] the worker sends a localized terminal SMS once per order event", async () => {
+test("[NOT-01][NOT-02] the worker sends localized SMS and push once per order event and drops expired endpoints", async () => {
   const connection = database.get();
   const { sql } = connection;
   await migrateWorker(database.url());
@@ -172,12 +174,41 @@ test("[NOT-01][NOT-02] the worker sends a localized terminal SMS once per order 
     SELECT graphile_worker.add_job('order.sms', json_build_object('orderId', ${orderId}::uuid, 'version', 2))
     FROM generate_series(1, 2)
   `;
+  const [order] = await sql<{ userId: string }[]>`
+    SELECT customer_id AS "userId" FROM public.orders WHERE id = ${orderId}
+  `;
+  if (!order) throw new Error("Expected a customer order");
+  const sessionId = randomUUID();
+  await createAuthRepository(connection).transaction((tx) =>
+    tx.insertSession({
+      id: sessionId,
+      userId: order.userId,
+      tokenHash: randomBytes(32),
+      transport: "web",
+      kind: "standard",
+      requestIp: "192.0.2.4",
+      deviceName: "Fixture",
+      now: new Date(),
+    }),
+  );
+  const endpoint = "https://fcm.googleapis.com/fcm/send/fixture";
+  const keys = { p256dh: "B" + "A".repeat(86), auth: "A".repeat(22) };
+  await sql`
+    INSERT INTO push_subscriptions (endpoint, user_id, session_id, p256dh, auth_key)
+    VALUES (${endpoint}, ${order.userId}, ${sessionId}, ${keys.p256dh}, ${keys.auth})
+  `;
+  await sql`
+    SELECT graphile_worker.add_job('order.push', json_build_object('orderId', ${orderId}::uuid, 'version', 2))
+    FROM generate_series(1, 2)
+  `;
+  const orderPush = vi.fn<SendOrderPush>().mockResolvedValue("gone");
   const orderSms = vi
     .fn<(message: { recipient: string; key: string; text: string }) => Promise<void>>()
     .mockResolvedValue(undefined);
   const worker = createWorkerOptions(database.url(), connection, {
     store: createLocalMediaStore({ root: tmpdir() }),
     orderSms,
+    orderPush,
   });
   await runOnce({ ...worker, noHandleSignals: true });
   expect(orderSms).toHaveBeenCalledExactlyOnceWith({
@@ -185,4 +216,16 @@ test("[NOT-01][NOT-02] the worker sends a localized terminal SMS once per order 
     key: "order:sms:" + orderId + ":2",
     text: "AWID · Order expired · AAA-222",
   });
+  expect(orderPush).toHaveBeenCalledExactlyOnceWith(
+    { endpoint, keys },
+    {
+      id: orderId + ":2",
+      status: "expired",
+      code: "AAA-222",
+      title: "AWID",
+      body: "Order expired",
+      url: "/en/orders",
+    },
+  );
+  expect(await sql`SELECT FROM push_subscriptions WHERE endpoint = ${endpoint}`).toHaveLength(0);
 });

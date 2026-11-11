@@ -14,6 +14,9 @@ import { defineJob } from "./jobs.js";
 import { queueLogger } from "./logger.js";
 import { createCropMediaJob } from "./media-crop.js";
 import { createPrepareMediaJob } from "./media-prepare.js";
+import { createOrderPushJob, orderPushTask } from "./order-push.js";
+import { unavailableOrderPush, type SendOrderPush } from "./order-push-adapter.js";
+import { pruneInactivePushSubscriptions } from "./order-push-delivery.js";
 import { createOrderSmsJob, orderSmsTask } from "./order-sms.js";
 import { unavailableOrderSms, type SendOrderSms } from "./order-sms-adapter.js";
 import { createPrivacyMediaPurgeJob } from "./privacy-media.js";
@@ -37,11 +40,12 @@ export function createWorkerOptions(
     store: MediaStore;
     heicDecoderPath?: string | undefined;
     orderSms?: SendOrderSms | undefined;
+    orderPush?: SendOrderPush | undefined;
   } = {
     store: createLocalMediaStore({ root: defaultMediaStorageRoot() }),
   },
 ) {
-  const { orderSms = unavailableOrderSms, ...media } = options;
+  const { orderSms = unavailableOrderSms, orderPush = unavailableOrderPush, ...media } = options;
   const privacy = createPrivacyRepository(database);
   const orders = createOrderRepository(database);
   const quotes = createOrderQuoteRepository(database);
@@ -64,7 +68,9 @@ export function createWorkerOptions(
       const now = new Date();
       await privacy.pruneDeletionState(now);
       await quotes.pruneExpired(now);
+      await pruneInactivePushSubscriptions(database.sql);
     }),
+    [orderPushTask]: createOrderPushJob(database, orderPush),
     [orderSmsTask]: createOrderSmsJob(database, orderSms),
     "order.timer": defineJob(orderTimerPayload, ({ orderId, action }) =>
       orders.runTimer(orderId, action, new Date()),

@@ -569,3 +569,35 @@ test("[CUS-18][RT-02] customer replays only their order and session", async () =
     await listener.unlisten();
   }
 });
+
+test("[NOT-01] a committed order update queues web push once for an opted-in customer", async () => {
+  const { sql } = database.get();
+  const sessionId = randomUUID();
+  await createAuthRepository(database.get()).transaction((tx) =>
+    tx.insertSession({
+      id: sessionId,
+      userId: customerId,
+      tokenHash: randomBytes(32),
+      transport: "web",
+      kind: "standard",
+      requestIp: "192.0.2.4",
+      deviceName: "Fixture",
+      now: new Date(),
+    }),
+  );
+  await sql`
+    INSERT INTO push_subscriptions (endpoint, user_id, session_id, p256dh, auth_key)
+    VALUES ('https://fcm.googleapis.com/fcm/send/fixture', ${customerId}, ${sessionId}, 'B' || repeat('A', 86), repeat('A', 22))
+  `;
+  const placed = await orders().place(await placement());
+  if (placed.kind !== "placed") throw new Error("Expected placement");
+  const { orderId } = placed.order;
+  const deadline = new Date("2026-11-11T12:08:00Z");
+  await Promise.all([
+    orders().runTimer(orderId, "expire", deadline),
+    orders().runTimer(orderId, "expire", deadline),
+  ]);
+  expect(
+    await sql`SELECT task_identifier FROM graphile_worker.jobs WHERE key = ${"order:push:" + orderId + ":2"}`,
+  ).toEqual([{ task_identifier: "order.push" }]);
+});
