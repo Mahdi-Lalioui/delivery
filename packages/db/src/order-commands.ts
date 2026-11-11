@@ -1,6 +1,11 @@
 import { estimateDelivery } from "@zaafran/domain/eta";
 import { transition } from "@zaafran/domain/order-transition";
-import type { OrderAction, OrderActor, OrderSnapshot } from "@zaafran/domain/order-types";
+import type {
+  OrderAction,
+  OrderActor,
+  OrderEvent,
+  OrderSnapshot,
+} from "@zaafran/domain/order-types";
 import type { TransactionSql } from "postgres";
 import { readDeliveryAttempts } from "./courier-delivery-attempts.js";
 import {
@@ -293,6 +298,19 @@ async function recordWrongDeliveryCode(
   return result;
 }
 
+async function recordAdminOrderAudit(
+  sql: TransactionSql,
+  order: OrderSnapshot,
+  { actor, payload, at, to }: OrderEvent,
+) {
+  if (actor.kind !== "admin" || payload.kind !== "force") return;
+  await sql`
+    INSERT INTO public.audit_log (actor_id, merchant_id, order_id, action, reason, created_at)
+    VALUES (${actor.id}, ${order.merchantId}, ${order.id}, ${"order_force_" + to},
+      ${payload.reason}, ${new Date(at).toISOString()})
+  `;
+}
+
 async function persistTransition(
   sql: TransactionSql,
   result: Extract<ReturnType<typeof transition>, { ok: true }>["value"],
@@ -315,6 +333,7 @@ async function persistTransition(
     `;
   }
   await appendOrderEvent(sql, event);
+  await recordAdminOrderAudit(sql, order, event);
   await saveActionReceipt(sql, key, response);
   return { kind: "applied", order: response } as const;
 }

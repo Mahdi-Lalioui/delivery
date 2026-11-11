@@ -245,3 +245,6 @@
 
 - 2026-11-11 · Medium · Published private admin live-order search and timeline schemas. Three contract cases passed for cursor bounds, exact phone search and the PII-free response shape.
   Next: add indexed Postgres search and audit, API authorization rows, then the live admin screen.
+
+- 2026-11-11 · Ultra · Added admin-only indexed live search and bounded timelines, session-bound force commands and exactly-once audit rows. Passed 255 authz/HTTP tests, 24 PostGIS cases and OpenAPI validation.
+  Next: implement and verify the admin order console, then connect the merchant notice and moderation token handoffs.

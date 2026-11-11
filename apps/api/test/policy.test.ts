@@ -186,6 +186,13 @@ const groupPayload = {
 
 const matrix: readonly MatrixRoute[] = [
   { method: "GET", url: "/v1/wilayas", expected: 503 },
+  { method: "POST", url: "/v1/admin/orders/search", payload: {}, expected: adminRole },
+  {
+    method: "GET",
+    url: "/v1/admin/orders/:orderId/timeline",
+    requestUrl: "/v1/admin/orders/" + challengeId + "/timeline",
+    expected: adminRole,
+  },
   { method: "GET", url: "/healthz", expected: 200 },
   { method: "GET", url: "/readyz", expected: 200 },
   {
@@ -887,11 +894,11 @@ test("[AUTH-08] covers every registered route for every required actor", async (
     ).toEqual(matrix.map(({ method, url }) => method + " " + url).sort());
     for (const [index, [label, candidate]] of Object.entries(actors).entries()) {
       actor = candidate;
-      for (const { method, url, requestUrl, payload, expected } of matrix) {
+      for (const [routeIndex, { method, url, requestUrl, payload, expected }] of matrix.entries()) {
         const response = await api.inject({
           method,
           url: requestUrl ?? url,
-          remoteAddress: `192.0.2.${String(index + 1)}`,
+          remoteAddress: `198.18.${String(index)}.${String(routeIndex + 1)}`,
           headers: { "idempotency-key": "fixture-policy", "x-expected-session-id": challengeId },
           ...(payload === undefined ? {} : { payload }),
         });

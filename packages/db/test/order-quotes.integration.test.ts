@@ -433,6 +433,19 @@ test("[ORD-02] a verified admin force action records its actor and reason", asyn
     kind: "applied",
     order: { status: "cancelled" },
   });
+  expect(await orders().apply(command)).toMatchObject({ kind: "applied", order: { version: 2 } });
+  expect(
+    await sql`
+    SELECT actor_id, merchant_id, action, reason FROM audit_log WHERE order_id = ${orderId}
+  `,
+  ).toEqual([
+    {
+      actor_id: otherId,
+      merchant_id: merchantId,
+      action: "order_force_cancelled",
+      reason: "Assistance",
+    },
+  ]);
   expect(
     await sql`SELECT actor_kind, actor_id, payload FROM order_events WHERE order_id = ${orderId} AND version = 2`,
   ).toEqual([

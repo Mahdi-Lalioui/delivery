@@ -4,6 +4,10 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./admin-orders": {
+      "types": "./src/admin-orders.ts",
+      "default": "./dist/admin-orders.js"
+    },
     "./auth": {
       "types": "./src/auth.ts",
       "default": "./dist/auth.js"

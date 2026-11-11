@@ -351,6 +351,13 @@
       "when": 1794142800000,
       "tag": "0049_merchant_delivery_radius",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1794143400000,
+      "tag": "0050_admin_orders",
+      "breakpoints": true
     }
   ]
 }

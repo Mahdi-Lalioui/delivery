@@ -17,6 +17,7 @@ import { registerRealtimeRoutes } from "./realtime-routes.js";
 import { registerTrackingRoutes } from "./tracking-routes.js";
 import { registerCourierRoutes } from "./courier-routes.js";
 import { registerMerchantBoardRoutes } from "./merchant-board-routes.js";
+import { registerAdminOrdersRoutes } from "./admin-orders-routes.js";
 import { registerOrderActionRoutes } from "./order-action-routes.js";
 import { registerOrderRoutes } from "./order-routes.js";
 import { registerOrderQuoteRoutes } from "./order-quote-routes.js";
@@ -126,6 +127,7 @@ interface ApiOptions {
   readonly orderTracking?: Parameters<typeof registerTrackingRoutes>[1];
   readonly couriers?: Parameters<typeof registerCourierRoutes>[1];
   readonly merchantBoard?: Parameters<typeof registerMerchantBoardRoutes>[1];
+  readonly adminOrders?: Parameters<typeof registerAdminOrdersRoutes>[1];
   readonly orderActions?: Parameters<typeof registerOrderActionRoutes>[1];
   readonly orders?: Parameters<typeof registerOrderRoutes>[1];
   readonly orderQuotes?: Parameters<typeof registerOrderQuoteRoutes>[1];
@@ -189,6 +191,7 @@ export function createApi(options: ApiOptions): FastifyInstance {
     registerOrderQuoteRoutes(api, options.orderQuotes);
     registerOrderRoutes(api, options.orders);
     registerOrderActionRoutes(api, options.orderActions);
+    registerAdminOrdersRoutes(api, options.adminOrders);
     registerTrackingRoutes(api, options.orderTracking);
     registerCourierRoutes(api, options.couriers);
     registerMerchantBoardRoutes(api, options.merchantBoard);

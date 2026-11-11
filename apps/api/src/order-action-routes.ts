@@ -1,4 +1,4 @@
-import { idempotencyKeySchema } from "@zaafran/contracts/auth";
+import { idempotencyKeySchema, sessionBoundCommandHeaders } from "@zaafran/contracts/auth";
 import { problemResponseSchema } from "@zaafran/contracts/health";
 import { orderActionInputs, orderParams, orderSummary } from "@zaafran/contracts/orders";
 import type { createOrderRepository } from "@zaafran/db/orders";
@@ -41,6 +41,13 @@ function readActor(request: FastifyRequest) {
     : undefined;
 }
 
+function hasExpectedSession(request: FastifyRequest): boolean {
+  const expected = request.headers["x-expected-session-id"];
+  return (
+    typeof expected === "string" && expected.toLowerCase() === getRequestActor(request)?.sessionId
+  );
+}
+
 function registerAction<Body extends z.ZodType<{ expectedVersion: number }>>(
   api: FastifyInstance,
   services: OrderServices | undefined,
@@ -52,7 +59,10 @@ function registerAction<Body extends z.ZodType<{ expectedVersion: number }>>(
       config: { policy: { kind: "roles", roles: descriptor.roles } },
       schema: {
         params: orderParams,
-        headers: z.object({ "idempotency-key": idempotencyKeySchema }),
+        headers:
+          descriptor.name === "force"
+            ? sessionBoundCommandHeaders
+            : z.object({ "idempotency-key": idempotencyKeySchema }),
         body: descriptor.body,
         response: { 200: orderSummary, ...errors },
       },
@@ -61,6 +71,8 @@ function registerAction<Body extends z.ZodType<{ expectedVersion: number }>>(
       const actor = readActor(request);
       if (!actor) return sendProblem(reply, 401);
       if (!services) return sendProblem(reply, 503);
+      if (descriptor.name === "force" && !hasExpectedSession(request))
+        return sendProblem(reply, 409, "session_changed");
       const input = descriptor.body.parse(request.body);
       const action = descriptor.action(input);
       const result = await services.repository.apply({

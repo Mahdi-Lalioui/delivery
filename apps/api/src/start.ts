@@ -1,3 +1,4 @@
+import { createAdminOrdersRepository } from "@zaafran/db/admin-orders";
 import { createCourierRepository } from "@zaafran/db/couriers";
 import { createOrderRepository } from "@zaafran/db/orders";
 import { createOrderQuoteRepository } from "@zaafran/db/order-quotes";
@@ -75,6 +76,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     addresses: createAddressRepository(database),
     orders: { repository: orders, now },
     orderActions: { repository: orders, now },
+    adminOrders: createAdminOrdersRepository(database),
     couriers: { repository: createCourierRepository(database), now },
     merchantBoard: orders,
     orderTracking: createRoutedTracking({
