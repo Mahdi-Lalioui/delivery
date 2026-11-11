@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { SiteShell } from "../components/site-shell";
 import { MerchantBoardScreen } from "./board-screen";
+import "@zaafran/ui/ui.css";
 import "./board.css";
 
 export function boardMetadata(locale: Locale): Metadata {

@@ -1,8 +1,10 @@
 "use client";
 
 import type { Locale } from "@zaafran/i18n/locales";
+import { Badge } from "@zaafran/ui";
 import { useTranslations } from "next-intl";
 import { useRef, useState, type SubmitEvent } from "react";
+import { BoardAssignCourier } from "./board-couriers";
 import { submitBoardAction, type BoardAction, type RejectReason, type Ticket } from "./board-http";
 import { dishName } from "./dish-name";
 
@@ -226,7 +228,16 @@ function BoardActionControls({
           {t(primary.label)}
         </button>
       ) : (
-        <p className="board-waiting">{t("awaitingCourier")}</p>
+        <Badge tone="warning">{t("awaitingCourier")}</Badge>
+      )}
+      {ticket.fulfilment === "delivery" && (
+        <BoardAssignCourier
+          ticket={ticket}
+          disabled={controls.disabled}
+          select={(courierId) => {
+            controls.send({ kind: "assign", courierId });
+          }}
+        />
       )}
       <CancelOrder {...controls} />
     </>

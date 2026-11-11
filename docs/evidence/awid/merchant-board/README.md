@@ -16,3 +16,5 @@ through the shared design system.
 The same browser suite checks acceptance, offline action locking, resuming with
 the last cursor, no console errors in the four layout captures, and no horizontal
 overflow.
+
+The courier pass checked owner invitation, assigning a ready ticket and opening a private proof photo. The second visual pass uses a compact delivery-team disclosure with a mirrored chevron, an assignment status badge, and separate desktop roster and invite columns. The four screenshots show the updated board.

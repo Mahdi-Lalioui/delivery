@@ -3,6 +3,8 @@
 import type { Locale } from "@zaafran/i18n/locales";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+import { BoardCourierTeam } from "./board-couriers";
+import { BoardDeliveryProofs } from "./board-delivery-proofs";
 import { BoardTicket } from "./board-ticket";
 import type { Board } from "./board-http";
 import { useBoardPresence } from "./use-board-presence";
@@ -90,10 +92,12 @@ function BoardColumns({
 
 function BoardBody({
   view,
+  merchantId,
   locale,
   refresh,
 }: {
   view: ReturnType<typeof useOrderBoard>["view"];
+  merchantId: string;
   locale: Locale;
   refresh: () => void;
 }) {
@@ -132,12 +136,14 @@ function BoardBody({
               {t("offline")}
             </p>
           )}
+          <BoardCourierTeam merchantId={merchantId} locale={locale} offline={view.offline} />
           <BoardColumns
             board={view.data}
             locale={locale}
             offline={view.offline}
             refresh={refresh}
           />
+          <BoardDeliveryProofs proofs={view.data.deliveryProofs ?? []} />
         </>
       );
   }
@@ -186,7 +192,7 @@ export function MerchantBoardScreen({
           {t("soundUnavailable")}
         </p>
       )}
-      <BoardBody view={view} locale={locale} refresh={refresh} />
+      <BoardBody view={view} merchantId={merchantId} locale={locale} refresh={refresh} />
     </div>
   );
 }

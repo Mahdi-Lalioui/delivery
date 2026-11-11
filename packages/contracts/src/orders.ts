@@ -151,6 +151,7 @@ export const merchantBoardOutput = z.strictObject({
       changeDzd: z.int().min(0).max(10_000),
       confirmByPhone: z.boolean(),
       canHandover: z.boolean(),
+      courierId: uuid.nullable().optional(),
     }),
   ),
   events: z

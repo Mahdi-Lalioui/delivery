@@ -206,3 +206,6 @@
 
 - 2026-11-11 · High · Connected foreground GPS with in-memory batching, delivery codes, private fallback photos and wait/call controls. Eight production-browser checks and 46 unit/localization tests passed. Inspected layouts in docs/evidence/awid/courier-dropoff/.
   Next: wire merchant invitation, assignment and proof review into the board, then move to nationwide maps. Courier voice notes still need private audio.
+
+- 2026-11-11 · Medium · Connected owner invite links, courier assignment, live handover readiness and private delivery proof review to the board. Passed 18 production-browser checks, 23 PostGIS cases and 51 scoped unit checks.
+  Next: implement OSRM routing with fallback, nationwide location selection and the national seed.

@@ -3,9 +3,10 @@ import { expect, test, type Page } from "@playwright/test";
 const merchantId = "01932f18-3150-7c33-8a7a-53acfd343001";
 const orderId = "01932f18-3150-7c33-8a7a-53acfd343002";
 
-async function mockBoard(page: Page, canHandover = false) {
+async function mockBoard(page: Page, canHandover = false, addProof = false) {
   let accepted = false;
   let handedOver = false;
+  let assignedCourier: string | undefined;
   const now = new Date();
   const base = {
     merchantId,
@@ -53,16 +54,30 @@ async function mockBoard(page: Page, canHandover = false) {
           ...base,
           orderId: merchantId,
           status: "ready",
-          version: 3,
+          version: assignedCourier ? 4 : 3,
           shortCode: "G8N-2RY",
           fulfilment: "delivery",
           totalDzd: 1950,
           changeDzd: 50,
-          canHandover,
+          canHandover: canHandover || Boolean(assignedCourier),
+          courierId: assignedCourier ?? null,
         },
       ],
       events: [],
       cursor: accepted ? "3" : "2",
+      ...(addProof
+        ? {
+            deliveryProofs: [
+              {
+                orderId,
+                photoId: merchantId,
+                shortCode: "C7X-5DW",
+                reason: "Code indisponible",
+                at: now.toISOString(),
+              },
+            ],
+          }
+        : {}),
       hasMore: false,
     };
     if (handedOver) snapshot.orders.pop();
@@ -97,6 +112,11 @@ async function mockBoard(page: Page, canHandover = false) {
       },
     });
   });
+  return {
+    assign: (id: string) => {
+      assignedCourier = id;
+    },
+  };
 }
 
 test("[MER-03][MER-04] merchant accepts a ticket and it moves to preparing", async ({ page }) => {
@@ -190,4 +210,81 @@ test("[RT-02] a streamed event immediately refreshes the board from its saved cu
   });
   send.resolve(true);
   await refresh;
+});
+
+test("[COU-01][MER-03] owner creates a courier invitation and assigns the ready ticket", async ({
+  page,
+}) => {
+  const courierId = "01932f18-3150-7c33-8a7a-53acfd343006";
+  const inviteId = "01932f18-3150-7c33-8a7a-53acfd343007";
+  const board = await mockBoard(page);
+  await page.route("**/v1/me/merchants", (route) =>
+    route.fulfill({
+      json: {
+        sessionId: inviteId,
+        memberships: [
+          { merchantId, restaurantName: "Table de la Casbah", status: "active", role: "owner" },
+        ],
+      },
+    }),
+  );
+  await page.route(`**/v1/merchants/${merchantId}/couriers`, (route) =>
+    route.fulfill({
+      json: {
+        couriers: [{ courierId, displayName: "Sami", online: true }],
+      },
+    }),
+  );
+  await page.route(`**/v1/merchants/${merchantId}/couriers/invites`, (route) => {
+    expect(route.request().postDataJSON()).toEqual({ phone: "+213500000007" });
+    return route.fulfill({ status: 201, json: { inviteId, expiresAt: new Date().toISOString() } });
+  });
+  await page.route(`**/v1/orders/${merchantId}/assign`, (route) => {
+    expect(route.request().postDataJSON()).toEqual({ courierId, expectedVersion: 3 });
+    board.assign(courierId);
+    return route.fulfill({
+      json: {
+        orderId: merchantId,
+        merchantId,
+        status: "ready",
+        version: 4,
+        fulfilment: "delivery",
+        shortCode: "G8N-2RY",
+        totalDzd: 1950,
+        placedAt: new Date().toISOString(),
+        scheduledFor: null,
+        acceptanceDeadlineAt: null,
+        eta: null,
+      },
+    });
+  });
+  await page.goto(`/fr/merchant/${merchantId}/board`);
+  await page.getByText("Équipe de livraison", { exact: true }).click();
+  await page.getByLabel("Téléphone du livreur").fill("0500000007");
+  await page.getByRole("button", { name: "Créer l’invitation" }).click();
+  await expect(page.getByLabel("Lien d’invitation")).toHaveValue(
+    new RegExp("/fr/courier#invite=" + inviteId, "u"),
+  );
+  await page.getByText("Assigner un livreur", { exact: true }).click();
+  await page.getByRole("button", { name: "Sami" }).click();
+  await expect(page.getByText("Changer de livreur", { exact: true })).toBeVisible();
+});
+
+test("[COU-05] flags a handover without code and opens the private evidence", async ({ page }) => {
+  await mockBoard(page, false, true);
+  const photo = `/v1/media/${merchantId}/variants/webp/640`;
+  await page.route("**" + photo, (route) =>
+    route.fulfill({
+      path: "apps/web/public/pwa/icon-192.png",
+      contentType: "image/png",
+    }),
+  );
+  await page.goto(`/fr/merchant/${merchantId}/board`);
+  await expect(page.getByRole("heading", { name: "Photos de remise à vérifier" })).toBeVisible();
+  await page.getByText("C7X-5DW", { exact: true }).click();
+  await expect(page.getByText("Code indisponible", { exact: true })).toBeVisible();
+  await expect(page.getByRole("img", { name: "Photo de remise du colis" })).toHaveAttribute(
+    "src",
+    photo,
+  );
 });

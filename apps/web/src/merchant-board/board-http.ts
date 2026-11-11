@@ -1,14 +1,17 @@
+import { courierInviteOutput, courierRosterOutput } from "@zaafran/contracts/courier";
 import type { orderActionInputs } from "@zaafran/contracts/orders";
 import { merchantBoardOutput, orderSummary } from "@zaafran/contracts/orders";
 import type { MerchantRead } from "../merchant/merchant-http";
 
 export type Board = ReturnType<typeof merchantBoardOutput.parse>;
+export type CourierRoster = ReturnType<typeof courierRosterOutput.parse>["couriers"];
 export type Ticket = Board["orders"][number];
 export type RejectReason = ReturnType<typeof orderActionInputs.reject.parse>["reason"];
 export type BoardAction =
   | { kind: "accept"; prepMinutes: number }
   | { kind: "reject"; reason: RejectReason; soldOutItemIds: string[] }
   | { kind: "cancel"; reason: string }
+  | { kind: "assign"; courierId: string }
   | { kind: "ready" | "collect" | "pick-up" };
 
 type BoardRequest = { merchantId: string; after?: string | undefined; signal: AbortSignal };
@@ -50,5 +53,38 @@ export async function submitBoardAction({ orderId, key, expectedVersion, action 
     return orderSummary.safeParse(await response.json()).success ? "saved" : "retry";
   } catch {
     return "retry";
+  }
+}
+
+export async function readCourierRoster(merchantId: string, signal: AbortSignal) {
+  try {
+    const response = await fetch(`/v1/merchants/${merchantId}/couriers`, { ...options, signal });
+    if (!response.ok) return undefined;
+    const payload: unknown = await response.json();
+    const roster = courierRosterOutput.safeParse(payload);
+    return roster.success ? roster.data.couriers : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export async function inviteCourier(merchantId: string, phone: string) {
+  try {
+    const response = await fetch(`/v1/merchants/${merchantId}/couriers/invites`, {
+      ...options,
+      method: "POST",
+      signal: AbortSignal.timeout(12_000),
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ phone }),
+    });
+    if (response.status === 409) return { kind: "already" } as const;
+    if (!response.ok) return { kind: "error" } as const;
+    const payload: unknown = await response.json();
+    const invitation = courierInviteOutput.safeParse(payload);
+    return invitation.success
+      ? ({ kind: "ready", data: invitation.data } as const)
+      : ({ kind: "error" } as const);
+  } catch {
+    return { kind: "error" } as const;
   }
 }
