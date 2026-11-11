@@ -1,0 +1,13 @@
+[Unit]
+Description=Encrypt the AWID database and media backup
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/srv/awid/infra/deploy/backup.sh /etc/awid/compose.env /var/backups/awid /etc/awid/backup-recipients.txt
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/var/backups/awid

@@ -4,7 +4,7 @@ import { sendNotification, type PushSubscription, type RequestOptions } from "we
 
 type VapidDetails = NonNullable<RequestOptions["vapidDetails"]>;
 
-export type OrderPushPayload = ReturnType<typeof orderPushPayload.parse>;
+type OrderPushPayload = ReturnType<typeof orderPushPayload.parse>;
 export type SendOrderPush = (
   subscription: PushSubscription,
   notification: OrderPushPayload,

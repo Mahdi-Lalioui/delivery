@@ -17,7 +17,8 @@ Codex appends items here (what, why, exact steps). Mahdi ticks them. Items marke
 - [ ] **[before launch]** ANPDP declaration for personal-data processing (Law 18-07).
 
 ## Infrastructure
-- [ ] Staging VPS (any provider; synthetic data only): 2 vCPU / 4 GB / 80 GB, Ubuntu LTS. Give Codex a deploy SSH key with limited rights.
+- [ ] Staging VPS for the connected web release. Provision Ubuntu LTS with Docker Compose, a static IPv4, at least 4 GB RAM and 80 GB disk. Open TCP 80/443. Create a deployment account with access to the AWID Docker project and install its public SSH key. Share the host and deployment username or the credential reference. Set up the file paths and map data in [DEPLOY.md](DEPLOY.md) and [MAPS.md](../infra/MAPS.md).
+- [ ] Connect the AWID web project in the Vercel team. Import `Mahdi-Lalioui/delivery` with Root Directory `apps/web` and workspace access. Give the staging environment a stable alias, then set its `ZAAFRAN_API_ORIGIN` to the API's TLS origin. Share the project and alias so cookies, media and SSE can be verified against the connected deployment. See [DEPLOY.md](DEPLOY.md).
 - [ ] **[before launch]** Production VPS **hosted in Algeria**: 4 vCPU / 8–16 GB / 160 GB SSD, Ubuntu LTS.
 - [ ] **[before launch]** Second backup location for encrypted backups.
 

@@ -256,3 +256,7 @@ Active buyer tracking sends a fresh courier fix and the destination to self-host
 ## D-029 · Use built-in Arabic map shaping
 
 Pinned MapLibre GL JS 6.16.0 shapes Arabic and reorders bidirectional text in its worker. Keep the worker and Noto Sans glyph ranges on the same origin and use Protomaps 5.7.2 for the geometry layers. This replaces the external RTL plugin for the web implementation of GEO-05. [MapLibre RTL API](https://maplibre.org/maplibre-gl-js/docs/API/functions/setRTLTextPlugin/) · [Protomaps assets](https://docs.protomaps.com/basemaps/maplibre)
+
+## D-030 · Encrypt nightly backups with age
+
+Use the exact age 1.3.2 release for streaming authenticated encryption. The backup server holds the recipient only. The recovery host holds the identity. Linux amd64 release SHA-256 is `cbe24006683f8eb669266162894b9a522a1af52f2665fbc63a4bb032ed26ac10`. [Official release](https://github.com/FiloSottile/age/releases/tag/v1.3.2)

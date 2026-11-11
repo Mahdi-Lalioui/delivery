@@ -236,3 +236,6 @@
 
 - 2026-11-11 · Medium · Shipped the merchant delivery settings screen with radius and fees, save feedback and stale-draft recovery. One production HTTPS/PostGIS journey, four axe/overflow checks and 57 scoped tests passed. Captures in docs/evidence/awid/merchant-delivery/.
   Next: prepare the backend Compose image, TLS, migrations, backups and Vercel wiring. Hosted checks need a staging server and linked web project.
+
+- 2026-11-11 · High · Built the production Compose stack and passed a trusted local Caddy HTTPS smoke. Restored the encrypted PostGIS dump and synthetic private media. Knip and dependency boundaries passed.
+  Next: wire the configurable authentication SMS provider, then implement admin live orders and its two handoffs while Mahdi provisions the server and Vercel project.
