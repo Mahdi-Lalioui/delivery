@@ -10,8 +10,22 @@ const uuid = z.uuid();
 
 export const courierInviteInput = z.strictObject({ phone: algerianMobilePhone });
 export const courierInviteOutput = z.strictObject({ inviteId: uuid, expiresAt: instant });
-export const courierInviteAcceptInput = z.strictObject({ inviteId: uuid });
+const displayName = z
+  .string()
+  .trim()
+  .min(1)
+  .max(80)
+  .refine((name) => !name.includes("\0"));
+export const courierInviteAcceptInput = z.strictObject({
+  inviteId: uuid,
+  displayName: displayName.optional(),
+});
 export const courierInviteAcceptOutput = z.strictObject({ courierId: uuid, merchantId: uuid });
+export const courierRosterOutput = z.strictObject({
+  couriers: z.array(
+    z.strictObject({ courierId: uuid, displayName: displayName.nullable(), online: z.boolean() }),
+  ),
+});
 export const courierPresenceInput = z.strictObject({ online: z.boolean() });
 
 export const courierJobsOutput = z.strictObject({

@@ -53,6 +53,8 @@ export async function lockDeletableAccount(
     SELECT FROM public.admins WHERE user_id = ${scope.userId}
     UNION ALL
     SELECT FROM public.merchant_members WHERE user_id = ${scope.userId}
+    UNION ALL
+    SELECT FROM public.couriers WHERE user_id = ${scope.userId} AND active
     LIMIT 1
   `;
   return privileged ? undefined : phone;

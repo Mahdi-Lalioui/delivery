@@ -110,6 +110,8 @@ async function clearPersonalData(
   await sql`DELETE FROM public.push_subscriptions WHERE user_id = ${userId}`;
   await sql`DELETE FROM public.quotes WHERE customer_id = ${userId}`;
   await sql`DELETE FROM public.addresses WHERE user_id = ${userId}`;
+  await sql`DELETE FROM public.courier_invitations WHERE phone_e164 = ${phoneE164}`;
+  await sql`UPDATE public.couriers SET display_name = NULL, online = false WHERE user_id = ${userId}`;
   await sql`DELETE FROM public.merchant_staff_invitations WHERE phone_e164 = ${phoneE164}`;
   await sql`UPDATE public.promotion_redemptions SET customer_id = NULL WHERE customer_id = ${userId}`;
   await sql`

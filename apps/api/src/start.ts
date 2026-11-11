@@ -1,4 +1,5 @@
 import { randomBytes } from "node:crypto";
+import { createCourierRepository } from "@zaafran/db/couriers";
 import { createOrderRepository } from "@zaafran/db/orders";
 import { createOrderQuoteRepository } from "@zaafran/db/order-quotes";
 import { createAddressRepository } from "@zaafran/db/addresses";
@@ -70,6 +71,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     addresses: createAddressRepository(database),
     orders: { repository: orders, now },
     orderActions: { repository: orders, now },
+    couriers: { repository: createCourierRepository(database), now },
     merchantBoard: orders,
     pushSubscriptions: createPushSubscriptionRepository(database),
     pushPublicKey: environment.VAPID_PUBLIC_KEY,

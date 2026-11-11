@@ -302,6 +302,13 @@
       "when": 1794138600000,
       "tag": "0042_push_subscriptions",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1794139200000,
+      "tag": "0043_couriers",
+      "breakpoints": true
     }
   ]
 }

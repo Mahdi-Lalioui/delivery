@@ -208,6 +208,31 @@ const matrix: readonly MatrixRoute[] = [
     expected: merchantRoles,
   },
   {
+    method: "POST",
+    url: "/v1/courier/invites/accept",
+    payload: { inviteId: challengeId },
+    expected: { customer: 503, courier: 503 },
+  },
+  {
+    method: "POST",
+    url: "/v1/courier/presence",
+    payload: { online: true },
+    expected: { customer: 503, courier: 503 },
+  },
+  {
+    method: "GET",
+    url: "/v1/merchants/:merchantId/couriers",
+    requestUrl: "/v1/merchants/" + challengeId + "/couriers",
+    expected: merchantRoles,
+  },
+  {
+    method: "POST",
+    url: "/v1/merchants/:merchantId/couriers/invites",
+    requestUrl: "/v1/merchants/" + challengeId + "/couriers/invites",
+    payload: { phone: "+213500000021" },
+    expected: staffOwnerRoles,
+  },
+  {
     method: "GET",
     url: "/v1/merchants/:merchantId/order-board",
     requestUrl: "/v1/merchants/" + challengeId + "/order-board",

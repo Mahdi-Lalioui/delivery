@@ -179,3 +179,6 @@
 
 - 2026-11-11 · Ultra · Fixed board, order actions and SSE authorization for real standard session cookies. A full API/PostGIS regression proves staff membership, buyer ownership and outsider denial. Passed 280 integrations, 247 authz and dependency checks.
   Next: persist phone-bound courier invitations and membership, then wire assignment and jobs.
+
+- 2026-11-11 · Ultra · Added phone-bound courier invitations, one-restaurant membership, presence and tenant roster. Passed 248 authz, 17 PostGIS onboarding/privacy checks, scoped typecheck/lint and dependency checks.
+  Next: wire roster assignment and assigned jobs. Owners currently share invite links manually.

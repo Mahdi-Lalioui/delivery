@@ -115,6 +115,10 @@
     "./push-subscriptions": {
       "types": "./src/push-subscriptions.ts",
       "default": "./dist/push-subscriptions.js"
+    },
+    "./couriers": {
+      "types": "./src/couriers.ts",
+      "default": "./dist/couriers.js"
     }
   },
   "scripts": {
