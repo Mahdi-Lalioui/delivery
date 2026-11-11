@@ -377,11 +377,80 @@
   justify-self: start;
 }
 
+/* Sliding thumb: equal segments and a surface pill that glides to the checked one. */
+.ui-segmented-track:is([data-count="2"], [data-count="3"], [data-count="4"]) {
+  position: relative;
+  display: inline-grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  flex-wrap: nowrap;
+}
+
+.ui-segmented-track:is([data-count="2"], [data-count="3"], [data-count="4"])::before {
+  position: absolute;
+  inset-block: var(--space-4);
+  inset-inline-start: var(--space-4);
+  inline-size: calc(
+    (100% - var(--space-8) - (var(--segments) - 1) * var(--space-4)) / var(--segments)
+  );
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-e1);
+  transform: translateX(calc(var(--segment-index, 0) * (100% + var(--space-4))));
+  transition: transform var(--motion-base) var(--ease-standard);
+  content: "";
+}
+
+.ui-segmented-track[data-count="2"] {
+  --segments: 2;
+}
+
+.ui-segmented-track[data-count="3"] {
+  --segments: 3;
+}
+
+.ui-segmented-track[data-count="4"] {
+  --segments: 4;
+}
+
+.ui-segmented-track:has(.ui-segment:nth-child(2) input:checked) {
+  --segment-index: 1;
+}
+
+.ui-segmented-track:has(.ui-segment:nth-child(3) input:checked) {
+  --segment-index: 2;
+}
+
+.ui-segmented-track:has(.ui-segment:nth-child(4) input:checked) {
+  --segment-index: 3;
+}
+
+[dir="rtl"] .ui-segmented-track::before {
+  transform: translateX(calc(var(--segment-index, 0) * (-100% - var(--space-4))));
+}
+
+.ui-segmented-track:is([data-count="2"], [data-count="3"], [data-count="4"]) .ui-segment-face {
+  position: relative;
+  justify-content: center;
+}
+
+.ui-segmented-track:is([data-count="2"], [data-count="3"], [data-count="4"])
+  .ui-segment
+  input:checked
+  + .ui-segment-face {
+  background: none;
+  box-shadow: none;
+}
+
 .ui-segment input,
 .ui-chip input {
   position: absolute;
   opacity: 0;
   pointer-events: none;
+}
+
+.ui-segment {
+  display: grid;
 }
 
 .ui-segment-face {
@@ -673,6 +742,7 @@
   .ui-toggle-track,
   .ui-toggle-thumb,
   .ui-segment-face,
+  .ui-segmented-track::before,
   .ui-chip-face {
     transition: none;
   }

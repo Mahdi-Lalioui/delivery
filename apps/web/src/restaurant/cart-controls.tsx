@@ -77,6 +77,13 @@ export function CartControls({
         >
           <CartContents cart={activeCart} locale={locale} onQuantity={edit} onRemove={remove} />
           {cartError && <p role="alert">{messages.cartError}</p>}
+          <a
+            className="ui-button ui-button-primary ui-button-lg restaurant-checkout"
+            href={`/${locale}/checkout`}
+          >
+            {messages.checkout}
+            <bdi>{formatDzd(summary.value.subtotalDzd, locale)}</bdi>
+          </a>
         </RestaurantDialog>
       )}
     </>

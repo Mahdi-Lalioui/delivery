@@ -13,8 +13,7 @@ import { MerchantReviewsView } from "../../retention/merchant-reviews";
 import { MyOrdersView } from "../../retention/my-orders";
 import { MerchantAnalyticsView } from "../../retention/analytics/analytics-views";
 import { OrderRatingView } from "../../retention/order-rating";
-import { RecipientFields, type RecipientDraft } from "../../retention/recipient";
-import { SlotPicker, type SlotChoice } from "../../retention/slot-picker";
+import { CheckoutSample } from "./checkout-sample";
 import { PromotionsView } from "../../retention/promotions-editor";
 import { billingSettingsDefaults } from "@zaafran/contracts/billing";
 import {
@@ -196,18 +195,6 @@ function RatingSample({ mode }: { mode: Mode }) {
   );
 }
 
-const gallerySlots = [
-  { kind: "iftar" as const, scheduledFor: "2027-02-10T18:05:00+01:00" },
-  ...["19:00", "19:15", "19:30", "19:45", "20:00", "20:15"].map((time) => ({
-    kind: "scheduled" as const,
-    scheduledFor: `2027-02-10T${time}:00+01:00`,
-  })),
-  ...["12:00", "12:15", "12:30"].map((time) => ({
-    kind: "scheduled" as const,
-    scheduledFor: `2027-02-11T${time}:00+01:00`,
-  })),
-];
-
 function PlatformSample({ mode }: { mode: Mode }) {
   const settings = {
     order_accept_timeout_seconds: 180,
@@ -372,21 +359,6 @@ function AnalyticsSample({ mode, locale }: { mode: Mode; locale: Locale }) {
   );
 }
 
-function CheckoutSample() {
-  const [slot, setSlot] = useState<SlotChoice>({ kind: "asap" });
-  const [recipient, setRecipient] = useState<RecipientDraft>({
-    name: "",
-    phone: "",
-    shareTracking: true,
-  });
-  return (
-    <div className="billing-layout">
-      <SlotPicker slots={gallerySlots} value={slot} onChange={setSlot} />
-      <RecipientFields value={recipient} invalidField={undefined} onChange={setRecipient} />
-    </div>
-  );
-}
-
 type SampleProps = { mode: Mode; locale: Locale };
 const samples: Readonly<Record<Screen, (props: SampleProps) => ReactNode>> = {
   "admin-billing": (props) => <AdminBillingSample {...props} />,
@@ -395,7 +367,7 @@ const samples: Readonly<Record<Screen, (props: SampleProps) => ReactNode>> = {
   promotions: (props) => <PromotionsSample {...props} />,
   reviews: ({ mode }) => <ReviewsSample mode={mode} />,
   rating: ({ mode }) => <RatingSample mode={mode} />,
-  checkout: () => <CheckoutSample />,
+  checkout: (props) => <CheckoutSample {...props} />,
   platform: ({ mode }) => <PlatformSample mode={mode} />,
   orders: (props) => <OrdersSample {...props} />,
   analytics: (props) => <AnalyticsSample {...props} />,

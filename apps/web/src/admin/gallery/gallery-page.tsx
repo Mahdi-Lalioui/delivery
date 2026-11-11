@@ -33,6 +33,7 @@ export function GalleryPage({
           retentionPromotions: messages.retentionPromotions,
           retentionRatings: messages.retentionRatings,
           retentionScheduling: messages.retentionScheduling,
+          checkout: messages.checkout,
           retentionRecipient: messages.retentionRecipient,
           adminPlatform: messages.adminPlatform,
           retentionOrders: messages.retentionOrders,

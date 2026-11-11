@@ -70,3 +70,5 @@
   Next: T3 cart (sheet/page design loop), then T4 checkout.
 - 2026-11-11 · AWID T3 cart sheet: merchant header, line cards with domain-priced line totals, inline stepper + quiet remove, bold subtotal. T3 done.
   Next: T4 — checkout (3 steps, delivery/pickup segmented, address pin, morphing Place order), order confirmed, tracking, rating; add checkout CTA to the cart sheet.
+- 2026-11-11 · AWID T4 checkout: /[locale]/checkout in 3 steps (progress bar, delivery/pickup with sliding segmented thumb, saved addresses + new address from the saved discovery pin, slot picker, server quote with totals, cash tender with change), Place order morph with a reused Idempotency-Key, full-screen confirmed moment → tracking; cart sheet gets the checkout CTA. Gallery sample uses fixtures (preview API is read-only).
+  Next: T4 tracking screen (polling GET /v1/orders/:id/tracking; SSE once lane A's order topic lands on main), then rating restyle.

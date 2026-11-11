@@ -836,3 +836,8 @@ body:has(.restaurant-cart-bar) .customer-tabs {
     animation: none;
   }
 }
+.restaurant-checkout {
+  justify-content: space-between;
+  inline-size: 100%;
+  margin-block-start: var(--space-8);
+}

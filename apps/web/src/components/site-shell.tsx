@@ -11,6 +11,7 @@ interface SiteShellProps {
   subpath?:
     | "/dev/design"
     | "/discover"
+    | "/checkout"
     | "/sign-in"
     | "/sign-in?purpose=admin"
     | "/sign-in?continue=merchant-apply"
