@@ -128,3 +128,6 @@
 - 2026-11-09 · Medium/high · Added the team preview with synthetic restaurant discovery, cart,
   Arabic RTL, partner/admin examples, and 3D/motion studies. Three Node 24 browser cases passed.
   Eight visual captures are in `docs/evidence/team-preview`; Vercel setup is in `docs/TEAM_PREVIEW.md`.
+
+- 2026-11-11 · Low · Updated sprint ownership and sequence. Lane A now owns the restaurant board, courier and admin screens, and e2e.
+  Next: publish the tested order, quote, address, tracking, courier and feed contracts.
