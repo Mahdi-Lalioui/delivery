@@ -56,9 +56,11 @@ export const orderQuoteOutput = z
     { path: ["totalDzd"] },
   );
 
+export const customerSmsStatus = z.enum(["rejected", "expired", "cancelled", "delivery_failed"]);
 export const orderPlacementInput = z.strictObject({
   quoteId: uuid,
   payingWithDzd: dzd.optional(),
+  locale: z.enum(["ar", "fr", "en"]).optional(),
 });
 
 export const orderParams = z.strictObject({ orderId: uuid });

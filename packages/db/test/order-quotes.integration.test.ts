@@ -227,6 +227,12 @@ test("[ORD-07] timeout is a no-op before its deadline and appends one event on r
     { status: "expired", version: 2 },
   ]);
   expect(await sql`SELECT FROM order_events WHERE order_id = ${orderId}`).toHaveLength(2);
+  expect(
+    await sql`
+    SELECT task_identifier FROM graphile_worker.jobs
+    WHERE key = ${"order:sms:" + orderId + ":2"}
+  `,
+  ).toEqual([{ task_identifier: "order.sms" }]);
 });
 
 test("[ORD-07] scheduled release starts a fresh acceptance timer", async () => {

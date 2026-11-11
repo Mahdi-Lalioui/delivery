@@ -42,3 +42,9 @@ Codex appends items here (what, why, exact steps). Mahdi ticks them. Items marke
   `lane-a` as Preview. Set the Root Directory to `apps/web`, enable access to workspace
   packages and system environment variables, and set `ZAAFRAN_PREVIEW_DEMO=1` for Preview
   only. See [team preview steps](TEAM_PREVIEW.md) for Node, build, and opening the demo.
+
+- [ ] **[before launch]** Configure customer order-status SMS in the worker. Set
+  `ORDER_SMS_WEBHOOK_URL` and `ORDER_SMS_WEBHOOK_TOKEN` in the deployment secret store.
+  The HTTPS gateway must accept a bearer token and a JSON body with `to` and `text`.
+  Make it deduplicate the `Idempotency-Key` header and return 2xx only after accepting
+  the message. Verify an expired test order on an approved test number.

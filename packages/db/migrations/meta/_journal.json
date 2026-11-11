@@ -288,6 +288,13 @@
       "when": 1794137400000,
       "tag": "0040_order_status_realtime",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1794138000000,
+      "tag": "0041_order_message_locale",
+      "breakpoints": true
     }
   ]
 }

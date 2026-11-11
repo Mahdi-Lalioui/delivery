@@ -1,4 +1,4 @@
-import type { orderSummary } from "@zaafran/contracts/orders";
+import { customerSmsStatus, type orderSummary } from "@zaafran/contracts/orders";
 import type { OrderEvent, OrderSnapshot } from "@zaafran/domain/order-types";
 import type { TransactionSql } from "postgres";
 import { timestampParsers } from "./timestamp-parsers.js";
@@ -36,6 +36,15 @@ export async function appendOrderEvent(sql: TransactionSql, event: OrderEvent) {
       ${event.actor.id}, ${JSON.stringify(event.payload)}::jsonb, ${iso(event.at)}
     )
   `;
+  if (event.from !== event.to && customerSmsStatus.safeParse(event.to).success) {
+    const key = ["order", "sms", event.orderId, String(event.version)].join(":");
+    await sql`
+      SELECT graphile_worker.add_job(
+        'order.sms', json_build_object('orderId', ${event.orderId}::uuid, 'version', ${event.version}::int),
+        job_key => ${key}, max_attempts => 8
+      )
+    `;
+  }
 }
 
 export type OrderTimer = "expire" | "release";

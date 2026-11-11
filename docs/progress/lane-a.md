@@ -167,3 +167,6 @@
 
 - 2026-11-11 · High · Added authenticated single-order SSE with version replay and Postgres notifications. Passed 552 package tests, 245 authz tests and 21 focused PostGIS tests.
   Next: queue customer order-status web push and SMS from committed transitions, then implement courier assignment, jobs and live positions.
+
+- 2026-11-11 · High · Queued terminal order SMS atomically and added a retry-safe HTTPS gateway with ar/fr/en checkout locale. Passed 213 package tests and 26 PostGIS and Graphile integrations using a fake gateway.
+  Next: persist session-scoped web push subscriptions and queue push on order transitions. Real SMS credentials are listed in HUMAN_TODO.md.

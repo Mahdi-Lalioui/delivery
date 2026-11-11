@@ -14,6 +14,8 @@ import { defineJob } from "./jobs.js";
 import { queueLogger } from "./logger.js";
 import { createCropMediaJob } from "./media-crop.js";
 import { createPrepareMediaJob } from "./media-prepare.js";
+import { createOrderSmsJob, orderSmsTask } from "./order-sms.js";
+import { unavailableOrderSms, type SendOrderSms } from "./order-sms-adapter.js";
 import { createPrivacyMediaPurgeJob } from "./privacy-media.js";
 import { workerSchema } from "./migrate-worker.js";
 
@@ -31,10 +33,15 @@ const watchdogPayload = z.strictObject({ checkId: z.uuid() });
 export function createWorkerOptions(
   connectionString: string,
   database: DatabaseConnection,
-  media: { store: MediaStore; heicDecoderPath?: string | undefined } = {
+  options: {
+    store: MediaStore;
+    heicDecoderPath?: string | undefined;
+    orderSms?: SendOrderSms | undefined;
+  } = {
     store: createLocalMediaStore({ root: defaultMediaStorageRoot() }),
   },
 ) {
+  const { orderSms = unavailableOrderSms, ...media } = options;
   const privacy = createPrivacyRepository(database);
   const orders = createOrderRepository(database);
   const quotes = createOrderQuoteRepository(database);
@@ -58,6 +65,7 @@ export function createWorkerOptions(
       await privacy.pruneDeletionState(now);
       await quotes.pruneExpired(now);
     }),
+    [orderSmsTask]: createOrderSmsJob(database, orderSms),
     "order.timer": defineJob(orderTimerPayload, ({ orderId, action }) =>
       orders.runTimer(orderId, action, new Date()),
     ),

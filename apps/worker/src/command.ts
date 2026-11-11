@@ -7,11 +7,33 @@ export function defaultMediaStorageRoot(): string {
   return join(tmpdir(), "zaafran-media");
 }
 
-const workerEnvironment = z.object({
-  DATABASE_URL: z.url({ protocol: /^postgres(?:ql)?$/ }),
-  MEDIA_STORAGE_ROOT: z.string().refine(isAbsolute).default(defaultMediaStorageRoot),
-  HEIC_DECODER_PATH: z.string().refine(isAbsolute).optional(),
-});
+const workerEnvironment = z
+  .object({
+    DATABASE_URL: z.url({ protocol: /^postgres(?:ql)?$/ }),
+    MEDIA_STORAGE_ROOT: z.string().refine(isAbsolute).default(defaultMediaStorageRoot),
+    HEIC_DECODER_PATH: z.string().refine(isAbsolute).optional(),
+    ORDER_SMS_WEBHOOK_URL: z
+      .url({ protocol: /^https$/u })
+      .refine((value) => {
+        const url = URL.parse(value);
+        return url !== null && !url.username && !url.password && !url.hash;
+      })
+      .optional(),
+    ORDER_SMS_WEBHOOK_TOKEN: z
+      .string()
+      .min(1)
+      .max(2048)
+      .regex(/^[!-~]+$/u)
+      .optional(),
+  })
+  .refine(
+    ({ ORDER_SMS_WEBHOOK_URL, ORDER_SMS_WEBHOOK_TOKEN }) =>
+      Boolean(ORDER_SMS_WEBHOOK_URL) === Boolean(ORDER_SMS_WEBHOOK_TOKEN),
+    {
+      path: ["ORDER_SMS_WEBHOOK_URL"],
+      message: "Set both SMS webhook variables or omit both.",
+    },
+  );
 
 export async function runWorkerCommand(
   command: "start" | "migrate",

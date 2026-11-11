@@ -1,6 +1,9 @@
+import { randomUUID } from "node:crypto";
+import { tmpdir } from "node:os";
+import { createLocalMediaStore } from "@zaafran/media";
 import { once } from "node:events";
 import { run, runOnce } from "graphile-worker";
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 import { registerTestDatabase } from "../../../packages/db/test/database.ts";
 import { migrateWorker } from "../src/migrate-worker.ts";
 import { createWorkerOptions } from "../src/runtime.ts";
@@ -127,4 +130,59 @@ test("[CUS-24:job] the retention worker clears expired deletion secrets without 
   expect(
     await sql`SELECT key_hash, code_hmac FROM account_deletion_challenges WHERE id = ${challengeId}`,
   ).toEqual([{ key_hash: null, code_hmac: null }]);
+});
+
+test("[NOT-01][NOT-02] the worker sends a localized terminal SMS once per order event", async () => {
+  const connection = database.get();
+  const { sql } = connection;
+  await migrateWorker(database.url());
+  const orderId = randomUUID();
+  const quoteId = randomUUID();
+  await sql`
+    INSERT INTO public.wilayas (code, name_ar, name_fr)
+    VALUES (16, 'الجزائر', 'Alger') ON CONFLICT DO NOTHING
+  `;
+  await sql`
+    WITH account AS (
+      INSERT INTO users (phone_e164, created_at) VALUES ('+213500000258', now()) RETURNING id
+    ), commune AS (
+      INSERT INTO communes (code, wilaya_code, name_ar, name_fr, centroid)
+      VALUES ('1698', 16, 'تجريبي', 'Test', ST_GeogFromText('SRID=4326;POINT(3 36)')) RETURNING id
+    ), merchant AS (
+      INSERT INTO merchants (slug, restaurant_name, owner_name, phone_e164, commune_id,
+        location, cuisines, status, created_at)
+      SELECT 'fixture-sms', 'Test', 'Synthetic owner', '+213500000000', id,
+        ST_GeogFromText('SRID=4326;POINT(3 36)'), ARRAY['algerian'], 'active', now()
+      FROM commune RETURNING id
+    )
+    INSERT INTO orders (
+      id, quote_id, customer_id, merchant_id, restaurant_name, short_code, order_day, status,
+      fulfilment, version, placed_at, last_event_at, subtotal_dzd, delivery_fee_dzd, total_dzd,
+      paying_with_dzd, lines, customer_locale
+    )
+    SELECT ${orderId}, ${quoteId}, account.id, merchant.id, 'Test', 'AAA-222', current_date,
+      'expired', 'pickup', 2, now(), now(), 1000, 0, 1000, 1000, '[]', 'en'
+    FROM account, merchant
+  `;
+  await sql`
+    INSERT INTO order_events (order_id, version, from_status, to_status, actor_kind, payload, occurred_at)
+    VALUES (${orderId}, 2, 'pending_acceptance', 'expired', 'system', '{"kind":"expire"}', now())
+  `;
+  await sql`
+    SELECT graphile_worker.add_job('order.sms', json_build_object('orderId', ${orderId}::uuid, 'version', 2))
+    FROM generate_series(1, 2)
+  `;
+  const orderSms = vi
+    .fn<(message: { recipient: string; key: string; text: string }) => Promise<void>>()
+    .mockResolvedValue(undefined);
+  const worker = createWorkerOptions(database.url(), connection, {
+    store: createLocalMediaStore({ root: tmpdir() }),
+    orderSms,
+  });
+  await runOnce({ ...worker, noHandleSignals: true });
+  expect(orderSms).toHaveBeenCalledExactlyOnceWith({
+    recipient: "+213500000258",
+    key: "order:sms:" + orderId + ":2",
+    text: "AWID · Order expired · AAA-222",
+  });
 });

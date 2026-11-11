@@ -104,7 +104,13 @@ async function placeOrder(sql: TransactionSql, request: PlacementRequest) {
     customerId,
     now,
     keyHash: hash(idempotencyKey),
-    requestHash: hash(JSON.stringify([input.quoteId.toLowerCase(), input.payingWithDzd ?? null])),
+    requestHash: hash(
+      JSON.stringify([
+        input.quoteId.toLowerCase(),
+        input.payingWithDzd ?? null,
+        ...(input.locale && input.locale !== "fr" ? [input.locale] : []),
+      ]),
+    ),
   };
   const receipt = await readPlacementReceipt(sql, key);
   if (receipt)
@@ -169,6 +175,7 @@ async function completePlacement(
     evaluated: quote.evaluated,
     payingWithDzd,
     confirmByPhone: policy.confirmByPhone,
+    locale: input.locale ?? "fr",
   });
   await appendOrderEvent(sql, event);
   await enqueueOrderTimer(sql, order);
