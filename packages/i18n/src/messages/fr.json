@@ -1517,5 +1517,21 @@
     "keep": "Garder ma commande",
     "cancelling": "Annulation…",
     "cancelTooLate": "La commande ne peut plus être annulée. Appelez le restaurant."
+  },
+  "accountHub": {
+    "title": "Mon compte",
+    "intro": "Vos commandes, favoris, appareils et données au même endroit.",
+    "orders": "Mes commandes",
+    "ordersBody": "Reçus et recommande en un geste",
+    "favourites": "Restaurants favoris",
+    "favouritesBody": "Les adresses que vous avez gardées",
+    "devices": "Appareils connectés",
+    "devicesBody": "Voir et déconnecter vos appareils",
+    "privacy": "Confidentialité et données",
+    "privacyBody": "Exporter ou supprimer vos données",
+    "restaurants": "Vous avez un restaurant ?",
+    "restaurantsBody": "Rejoignez AWID avec un abonnement fixe",
+    "signIn": "Se connecter",
+    "signInBody": "Connectez-vous pour voir vos commandes et vos adresses."
   }
 }

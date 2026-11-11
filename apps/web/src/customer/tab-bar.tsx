@@ -20,7 +20,7 @@ const tabs: readonly { tab: CustomerTab; icon: IconName; path: string }[] = [
   { tab: "home", icon: "home", path: "/discover" },
   { tab: "search", icon: "search", path: "/discover?search=open" },
   { tab: "orders", icon: "receipt", path: "/orders" },
-  { tab: "profile", icon: "user", path: "/account/sessions" },
+  { tab: "profile", icon: "user", path: "/account" },
 ];
 
 /** Customer app bottom tab bar (phones); a slim top navigation row on wide screens. */

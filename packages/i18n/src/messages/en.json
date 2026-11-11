@@ -1517,5 +1517,21 @@
     "keep": "Keep my order",
     "cancelling": "Cancelling…",
     "cancelTooLate": "The order can no longer be cancelled. Call the restaurant."
+  },
+  "accountHub": {
+    "title": "My account",
+    "intro": "Your orders, favourites, devices and data in one place.",
+    "orders": "My orders",
+    "ordersBody": "Receipts and one-tap reorder",
+    "favourites": "Favourite restaurants",
+    "favouritesBody": "The places you saved",
+    "devices": "Signed-in devices",
+    "devicesBody": "See and sign out other devices",
+    "privacy": "Privacy and data",
+    "privacyBody": "Export or delete your data",
+    "restaurants": "Own a restaurant?",
+    "restaurantsBody": "Join AWID with a flat monthly fee",
+    "signIn": "Sign in",
+    "signInBody": "Sign in to see your orders and saved addresses."
   }
 }

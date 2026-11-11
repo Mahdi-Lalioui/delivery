@@ -2,7 +2,7 @@ import { photoRatios, type photoVariantWidths } from "@zaafran/contracts/media";
 import { formatAlgiersDate, formatAlgiersTime, formatDzd } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
 import { Icon } from "@zaafran/ui";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import { readFavourites, toggleFavourite } from "./favourites";
 import { useLowData } from "./low-data";
 import type { FeedRestaurant } from "./feed-http";
@@ -230,6 +230,14 @@ export function FeedMeta({
   );
 }
 
+/** Gives this card's photo the shared name so it morphs into the restaurant cover. */
+function nameCoverForTransition(event: MouseEvent<HTMLAnchorElement>) {
+  const cover = event.currentTarget
+    .closest("article")
+    ?.querySelector<HTMLElement>(".restaurant-feed-cover img");
+  if (cover) cover.style.viewTransitionName = "restaurant-cover";
+}
+
 export function FeedCard({ restaurant, locale }: { restaurant: FeedRestaurant; locale: Locale }) {
   const { name, merchantId, coverMediaId, logoMediaId, cuisines, isOpen, nextOpensAt } = restaurant;
   const cuisineLabels = new Set(cuisines.map((cuisine) => getFeedCuisineLabel(locale, cuisine)));
@@ -262,7 +270,10 @@ export function FeedCard({ restaurant, locale }: { restaurant: FeedRestaurant; l
             )}
           </div>
           <h3 tabIndex={-1}>
-            <a href={`/${locale}/restaurants/${encodeURIComponent(restaurant.slug)}`}>
+            <a
+              href={`/${locale}/restaurants/${encodeURIComponent(restaurant.slug)}`}
+              onClick={nameCoverForTransition}
+            >
               <bdi>{name}</bdi>
             </a>
           </h3>

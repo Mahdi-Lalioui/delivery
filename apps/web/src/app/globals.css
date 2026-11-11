@@ -155,3 +155,26 @@ a {
   align-items: center;
   min-block-size: var(--touch-target-min);
 }
+
+/* Page transitions (SPRINT motion): a quick cross-fade between pages, plus the card photo
+   that becomes the restaurant cover. Browsers without View Transitions just navigate. */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 250ms;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+::view-transition-group(restaurant-cover) {
+  animation-duration: 400ms;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+}

@@ -450,9 +450,9 @@
   display: grid;
   flex: none;
   place-items: center;
-  border-radius: var(--radius-md);
-  background: linear-gradient(135deg, var(--color-primary-hover), var(--color-harissa));
-  color: var(--color-on-harissa);
+  border-radius: var(--radius-lg);
+  background: var(--color-mint-pale);
+  color: var(--color-accent-strong);
   font-family: var(--font-display);
   font-weight: var(--font-weight-display);
 }
@@ -465,17 +465,26 @@
 
 .orders-cover-lg {
   inline-size: 100%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 4 / 3;
   font-size: var(--font-size-display);
 }
 
+/* Favourites: a compact horizontal rail. */
 .orders-favourites {
   display: grid;
-  gap: var(--space-16);
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+  grid-auto-columns: min(44%, 11rem);
+  grid-auto-flow: column;
+  gap: var(--space-12);
   margin: 0;
-  padding: 0;
+  padding: 0 0 var(--space-4);
+  overflow-x: auto;
+  scroll-snap-type: inline mandatory;
+  scrollbar-width: none;
   list-style: none;
+}
+
+.orders-favourite {
+  scroll-snap-align: start;
 }
 
 .orders-favourite {
@@ -485,10 +494,17 @@
 }
 
 .orders-favourite-text {
-  display: flex;
-  gap: var(--space-8);
-  align-items: center;
-  justify-content: space-between;
+  display: grid;
+  gap: var(--space-4);
+  justify-items: start;
+  min-inline-size: 0;
+}
+
+.orders-favourite-text .billing-row-title {
+  max-inline-size: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .orders-heart {
@@ -496,7 +512,7 @@
   inset-block-start: var(--space-8);
   inset-inline-end: var(--space-8);
   background: var(--color-surface);
-  color: var(--color-harissa);
+  color: var(--color-danger);
   box-shadow: var(--shadow-e1);
 }
 
@@ -508,9 +524,9 @@
   display: grid;
   gap: var(--space-12);
   padding: var(--space-16);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   background: var(--color-surface);
+  box-shadow: var(--shadow-e1);
 }
 
 .orders-card-head {
@@ -523,8 +539,22 @@
   display: grid;
   gap: var(--space-16);
   padding: var(--space-16);
-  border-radius: var(--radius-md);
-  background: var(--color-surface-2);
+  border-radius: var(--radius-lg);
+  background: var(--color-cream);
+  animation: orders-receipt-in var(--motion-base) var(--ease-standard);
+}
+
+@keyframes orders-receipt-in {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-1 * var(--space-8)));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orders-receipt {
+    animation: none;
+  }
 }
 
 .orders-receipt-lines {

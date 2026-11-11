@@ -38,7 +38,12 @@ export async function SignInPage({ locale, searchParams }: LocalizedSignInPagePr
         locale={localeDetails[locale].tag}
         messages={{ auth: getMessages(locale).auth }}
       >
-        <SignInForm locale={locale} purpose={purpose} destination={destination} />
+        <div className="auth-layout">
+          <figure className="auth-photo" aria-hidden="true">
+            <img src="/preview-catalog/chorba-table.webp" alt="" width="1600" height="1067" />
+          </figure>
+          <SignInForm locale={locale} purpose={purpose} destination={destination} />
+        </div>
       </NextIntlClientProvider>
     </SiteShell>
   );

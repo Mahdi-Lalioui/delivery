@@ -20,6 +20,7 @@ interface SiteShellProps {
     | "/sign-in?continue=staff-accept"
     | "/sign-in?continue=admin-review"
     | "/sign-in?continue=admin-moderation"
+    | "/account"
     | "/account/sessions"
     | "/account/privacy"
     | "/merchant"
