@@ -7,6 +7,7 @@ import { DiscoveryLocationSelector } from "../discovery/discovery-location-selec
 import { DiscoveryFeed } from "../discovery/feed";
 import { getFeedMessages } from "../discovery/feed-messages";
 import { DiscoverySearch } from "../discovery/search";
+import { InstallPrompt } from "../customer/install-prompt";
 import { CustomerTabBar } from "../customer/tab-bar";
 import { SiteShell } from "./site-shell";
 
@@ -46,6 +47,7 @@ export async function Home({ locale }: { locale: Locale }) {
         <a href={`/${locale}/sign-in`}>{translateAuth("title")}</a>
         <a href={`/${locale}/merchant/apply`}>{translateMerchant("startApplication")}</a>
       </div>
+      <InstallPrompt locale={locale} />
       <CustomerTabBar locale={locale} current="home" />
     </SiteShell>
   );

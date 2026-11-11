@@ -17,3 +17,9 @@ the tab is visible and stops at terminal statuses.
 3. **Cancel route.** The screen calls `POST /v1/orders/:orderId/cancel` with
    `{ expectedVersion, reason }` and an `Idempotency-Key`, and treats 409 as "too late, call the
    restaurant" (CUS-19). Please confirm 409 is the code for a state that no longer allows it.
+4. **Push contract on main.** The web opt-in (`apps/web/src/tracking/push-http.ts`) calls
+   `GET /v1/push/public-key` and `POST /v1/me/push-subscriptions` with the browser's
+   `PushSubscription.toJSON()`. `@zaafran/contracts/push` exists only on `lane-a` (it imports
+   `customerSmsStatus` from the newer orders contract), so lane B validates the key shape locally
+   until it is merged; then it will import `pushPublicKeyOutput` and `pushSubscriptionInput`.
+   The service worker shows `orderPushPayload` notifications and opens its `/xx/orders` URL.

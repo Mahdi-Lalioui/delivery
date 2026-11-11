@@ -90,3 +90,64 @@ body:has(.customer-tabs) {
     padding-block-end: 0;
   }
 }
+
+/* Install prompt: a floating card above the tab bar. */
+.install-prompt {
+  position: fixed;
+  z-index: 22;
+  inset-block-end: calc(var(--touch-target-customer-primary) + var(--space-32));
+  inset-inline: var(--page-padding);
+  display: flex;
+  gap: var(--space-12);
+  align-items: center;
+  max-inline-size: 30rem;
+  margin-inline: auto;
+  padding: var(--space-12);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-e3);
+  animation: install-in var(--motion-slow) var(--ease-standard);
+}
+
+.install-prompt > div {
+  display: grid;
+  flex: 1;
+  min-inline-size: 0;
+}
+
+.install-prompt p {
+  color: var(--color-text-2);
+  font-size: var(--font-size-caption);
+}
+
+.install-prompt-close {
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: var(--touch-target-min);
+  block-size: var(--touch-target-min);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--color-text-3);
+  cursor: pointer;
+}
+
+@keyframes install-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-16));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .install-prompt {
+    animation: none;
+  }
+}
+
+@media (min-width: 960px) {
+  .install-prompt {
+    inset-block-end: var(--space-24);
+  }
+}

@@ -37,7 +37,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ loc
   </head>
   <body>
     <main>
-      <p class="brand"><span aria-hidden="true"></span>${name}</p>
+      <img class="brand" src="/brand/awid-icon.svg" width="72" height="72" alt="${name}">
       <h1>${title}</h1>
       <p>${detail}</p>
       <a href="/${locale}/discover">${retry}</a>

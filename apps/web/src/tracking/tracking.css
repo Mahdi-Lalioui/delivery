@@ -372,6 +372,37 @@
   color: var(--color-on-primary);
 }
 
+/* Push opt-in card. */
+.tracking-push {
+  display: flex;
+  gap: var(--space-12);
+  align-items: center;
+  padding: var(--space-12) var(--space-16);
+  border-radius: var(--radius-lg);
+  background: var(--color-cream);
+}
+
+.tracking-push > div {
+  display: grid;
+  flex: 1;
+  min-inline-size: 0;
+}
+
+.tracking-push p {
+  color: var(--color-text-2);
+  font-size: var(--font-size-caption);
+}
+
+.tracking-push > svg {
+  flex: none;
+  color: var(--color-accent-strong);
+}
+
+.tracking-push[data-state="on"] {
+  color: var(--color-success);
+  font-weight: var(--font-weight-h3);
+}
+
 @media (min-width: 960px) {
   .tracking {
     grid-template-columns: 1fr 26rem;

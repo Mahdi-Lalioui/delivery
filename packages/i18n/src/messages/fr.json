@@ -1516,7 +1516,13 @@
     "reason_slow": "C’est trop long",
     "keep": "Garder ma commande",
     "cancelling": "Annulation…",
-    "cancelTooLate": "La commande ne peut plus être annulée. Appelez le restaurant."
+    "cancelTooLate": "La commande ne peut plus être annulée. Appelez le restaurant.",
+    "notifyTitle": "Être prévenu à chaque étape",
+    "notifyBody": "On vous dit quand elle est acceptée, prête et en route.",
+    "notifyAction": "Activer",
+    "notifyOn": "Notifications activées",
+    "notifyDenied": "Les notifications sont bloquées dans les réglages du navigateur.",
+    "notifyError": "Impossible d’activer les notifications. Réessayez."
   },
   "accountHub": {
     "title": "Mon compte",

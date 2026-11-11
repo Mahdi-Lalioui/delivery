@@ -78,3 +78,5 @@
   Next: T6 — orders, receipt, profile, sign-in restyle; page transitions (View Transitions) and micro-interactions.
 - 2026-11-11 · AWID T6: My orders restyled (mint covers instead of gradients, favourites rail, shadow cards, cream receipt panel), sign-in on a food photo band, new /[locale]/account hub as the Profile tab, cross-document View Transitions with the card photo morphing into the restaurant cover (off under reduced motion). Evidence docs/evidence/awid/{orders,sign-in,account}.
   Next: T7 — installable app: icons from the AWID SVG, install prompt, offline shell, push opt-in.
+- 2026-11-11 · AWID T7 installable app: AWID icons (192/512 any, 512 maskable, apple-touch) rendered from the SVG, manifest with AWID colours, tagline and shortcuts, offline page restyled, install prompt on Discovery (beforeinstallprompt, dismissible), push opt-in on tracking + service-worker push/notificationclick handlers (lane A routes; contract import pending, see docs/requests/lane-b-tracking.md §4).
+  Next: T9 — final sweep of every customer screen through the design loop (390 ar, 390 fr, 1280 fr, dark), fix what fails, push.

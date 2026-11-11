@@ -5,6 +5,7 @@ import type { Locale } from "@zaafran/i18n/locales";
 import { Badge, ButtonLink, EmptyState, ErrorState, Icon, Skeleton } from "@zaafran/ui";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { PushOptIn } from "./push-opt-in";
 import { TrackingMap } from "./tracking-map-view";
 import {
   canCancel,
@@ -192,6 +193,7 @@ function Ready({
           <p className="tracking-note">{translate("waitingCourier")}</p>
         )}
         <Contacts tracking={tracking} />
+        {isLive && <PushOptIn />}
         <CancelOrder state={state} tracking={tracking} />
         {(order.status === "delivered" || order.status === "collected") && (
           <ButtonLink

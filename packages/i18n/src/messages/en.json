@@ -1516,7 +1516,13 @@
     "reason_slow": "Taking too long",
     "keep": "Keep my order",
     "cancelling": "Cancelling…",
-    "cancelTooLate": "The order can no longer be cancelled. Call the restaurant."
+    "cancelTooLate": "The order can no longer be cancelled. Call the restaurant.",
+    "notifyTitle": "Get notified at every step",
+    "notifyBody": "We’ll tell you when it’s accepted, ready and on its way.",
+    "notifyAction": "Turn on",
+    "notifyOn": "Notifications are on",
+    "notifyDenied": "Notifications are blocked in your browser settings.",
+    "notifyError": "We couldn’t turn on notifications. Try again."
   },
   "accountHub": {
     "title": "My account",
