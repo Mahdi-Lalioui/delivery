@@ -80,3 +80,5 @@
   Next: T7 — installable app: icons from the AWID SVG, install prompt, offline shell, push opt-in.
 - 2026-11-11 · AWID T7 installable app: AWID icons (192/512 any, 512 maskable, apple-touch) rendered from the SVG, manifest with AWID colours, tagline and shortcuts, offline page restyled, install prompt on Discovery (beforeinstallprompt, dismissible), push opt-in on tracking + service-worker push/notificationclick handlers (lane A routes; contract import pending, see docs/requests/lane-b-tracking.md §4).
   Next: T9 — final sweep of every customer screen through the design loop (390 ar, 390 fr, 1280 fr, dark), fix what fails, push.
+- 2026-11-11 · AWID T9 final sweep: 10 customer screens × (ar 390 light/dark, fr 390, fr 1280) — no overflow, no console errors beyond dev tools; contact sheets in docs/evidence/awid/sweep. Lane B sprint list complete.
+  Next: follow-ups only — SSE + AWID basemap + push contract import when lane A merges them (docs/requests/lane-b-tracking.md); restaurant reviews on the restaurant page once a public reviews route exists.
