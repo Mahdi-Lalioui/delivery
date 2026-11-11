@@ -227,3 +227,6 @@
 
 - 2026-11-11 · Medium · Seeded 40 fictional restaurants across eight cities with 200 bilingual dishes, item and cover variants and 120 anonymous reviews. Four PostGIS checks passed, including repeat seeding and storage failure rollback.
   Next: publish the merchant delivery-radius contract and wire it to quote coverage, then prepare production Compose and Vercel.
+
+- 2026-11-11 · Medium · Published merchant delivery settings schemas. Contract cases cover the radius bounds, required radius for delivery, invalid money, pickup and legacy reads.
+  Next: implement the transactional settings repository, authorization matrix, API and merchant controls against this contract.
