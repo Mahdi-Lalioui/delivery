@@ -12,6 +12,7 @@ interface SiteShellProps {
     | "/dev/design"
     | "/discover"
     | "/checkout"
+    | "/credits"
     | "/sign-in"
     | "/sign-in?purpose=admin"
     | "/sign-in?continue=merchant-apply"

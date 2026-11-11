@@ -252,3 +252,7 @@ that page, and locale switching and alternate metadata retain the discovery path
 ### D-B05 — AWID design system supersedes "Casbah Saffron" (2026-11-11)
 
 Supersedes the colour, type, logo and motion sections of the earlier DESIGN. Per docs/SPRINT.md the brand is AWID: deep green #0B3D2E for text and primary actions, #00A37A for large shapes and accents, mint #4DE3B4, pale mint #D9FCE7 and cream #FFF8E6; Poppins with IBM Plex Sans Arabic, self-hosted; radii 20/28 px with green-tinted shadows instead of borders; motion 150/250/400 ms on cubic-bezier(0.2, 0.8, 0.2, 1) with a 0.97 press. The logo and app icon are SVGs traced from docs/brand/awid-reference.jpg with dark variants. Fraunces, Inter and Noto Naskh were removed.
+
+### D-B06 — Remove the 3D Casbah hero; photography leads the landing (2026-11-11)
+
+Supersedes D-B03. SPRINT allows one 3D scene only if it is excellent after a bounded effort. The procedural Casbah hero read as crude boxes in the old saffron palette, so the landing now opens on credited Algeria photography with a slow zoom and crossfade (CSS only, off under reduced motion). `three`, `@react-three/fiber` and `@types/three` are removed from `apps/web`. Attribution for every photo is shown at `/[locale]/credits`.

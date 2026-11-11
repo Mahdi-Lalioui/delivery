@@ -15,6 +15,15 @@ export function DiscoveryFeed({ locale }: { locale: Locale }) {
   const [state, setState] = useState(initialState);
   const [filters, setFilters] = useState<FeedFilters>({});
   const filtersRef = useRef(filters);
+
+  // The landing links here with ?cuisine=…; start the full list on that cuisine.
+  useEffect(() => {
+    const cuisine = new URLSearchParams(window.location.search).get("cuisine");
+    if (cuisine === null || !/^[a-z0-9-]{1,48}$/u.test(cuisine)) return;
+    filtersRef.current = { cuisine };
+    setFilters({ cuisine });
+    setState(initialState);
+  }, []);
   const headingId = useId();
   const section = useRef<HTMLElement>(null);
   const focusRestaurant = useRef<string | null>(null);

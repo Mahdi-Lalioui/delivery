@@ -70,7 +70,7 @@
   margin: 0;
 }
 
-.preview-scene .casbah-frame {
+.preview-scene .preview-scene-poster {
   aspect-ratio: 4 / 3;
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-e2);
@@ -191,7 +191,7 @@
     gap: var(--space-48);
   }
 
-  .preview-scene .casbah-frame {
+  .preview-scene .preview-scene-poster {
     aspect-ratio: 16 / 10;
   }
 

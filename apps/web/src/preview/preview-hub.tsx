@@ -4,8 +4,6 @@ import { getMessages } from "@zaafran/i18n/messages";
 import { Icon, type IconName } from "@zaafran/ui";
 import "@zaafran/ui/ui.css";
 import type { Metadata } from "next";
-import { CasbahHero } from "../marketing/casbah-hero";
-import { heroSeed } from "../marketing/casbah-poster";
 import "../marketing/marketing.css";
 import { previewMessages } from "./preview-messages";
 import "./preview.css";
@@ -74,19 +72,13 @@ function PreviewHero({ locale }: { locale: PublicLocale }) {
         </a>
       </div>
       <figure className="preview-scene">
-        <CasbahHero
-          seed={heroSeed}
-          homeTargetId={discoveryTargetId}
-          poster={
-            <img
-              className="casbah-poster preview-scene-poster"
-              src="/preview-catalog/casbah.webp"
-              alt={getMessages(locale).marketingLanding.heroImage}
-              width={1600}
-              height={1000}
-              fetchPriority="high"
-            />
-          }
+        <img
+          className="preview-scene-poster"
+          src="/photos/algeria/algiers-casbah.webp"
+          alt={getMessages(locale).marketingLanding.heroImage}
+          width={1600}
+          height={1067}
+          fetchPriority="high"
         />
         <figcaption>
           <span>{messages.city}</span>

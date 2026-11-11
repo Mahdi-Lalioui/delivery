@@ -29,7 +29,7 @@ test.each([
     const html = renderToStaticMarkup(element);
 
     expect(html).toContain(label);
-    expect(html).toContain('src="/preview-catalog/casbah.webp"');
+    expect(html).toContain('src="/photos/algeria/algiers-casbah.webp"');
     expect(html).toContain(`href="/${locale}/discover"`);
     expect(html).toContain(`href="/${locale}/dev/gallery?screen=merchant-billing"`);
     expect(html).toContain(`href="/${locale}/dev/gallery?screen=admin-billing"`);
