@@ -30,10 +30,14 @@ test("[COU-01:http] invites and accepts using the signed-in standard session", a
     .fn<ReturnType<typeof createCourierRepository>["setPresence"]>()
     .mockResolvedValueOnce(true)
     .mockResolvedValueOnce(false);
+  const jobs = vi
+    .fn<ReturnType<typeof createCourierRepository>["jobs"]>()
+    .mockResolvedValueOnce({ courierId, merchantId, online: true, jobs: [] })
+    .mockResolvedValueOnce(undefined);
   const api = createApi({
     checkReadiness: () => Promise.resolve(),
     resolveActor: () => Promise.resolve({ role: "customer", accountId, sessionId }),
-    couriers: { repository: { invite, accept, list, setPresence }, now: () => now },
+    couriers: { repository: { invite, accept, list, setPresence, jobs }, now: () => now },
   });
   onTestFinished(() => api.close());
   const send = (url: string, payload: object) => api.inject({ method: "POST", url, payload });
@@ -67,6 +71,12 @@ test("[COU-01:http] invites and accepts using the signed-in standard session", a
   });
   expect(list).toHaveBeenCalledWith({ merchantId, userId: accountId, sessionId });
   expect((await api.inject(rosterPath)).statusCode).toBe(404);
+  const active = await api.inject("/v1/courier/jobs");
+  expect(active.statusCode).toBe(200);
+  expect(active.headers["cache-control"]).toBe("no-store");
+  expect(active.json()).toEqual({ courierId, merchantId, online: true, jobs: [] });
+  expect(jobs).toHaveBeenCalledWith({ userId: accountId, sessionId });
+  expect((await api.inject("/v1/courier/jobs")).statusCode).toBe(403);
   expect((await send("/v1/courier/presence", { online: true })).statusCode).toBe(204);
   expect(setPresence).toHaveBeenCalledWith({ online: true, userId: accountId, sessionId });
   expect((await send("/v1/courier/presence", { online: false })).statusCode).toBe(403);

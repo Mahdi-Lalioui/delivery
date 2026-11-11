@@ -3,6 +3,7 @@ import {
   courierInviteAcceptOutput,
   courierInviteInput,
   courierInviteOutput,
+  courierJobsOutput,
   courierPresenceInput,
   courierRosterOutput,
 } from "@zaafran/contracts/courier";
@@ -110,6 +111,25 @@ export function registerCourierRoutes(api: FastifyInstance, services?: CourierSe
       if (result.kind === "not_found") return sendProblem(reply, 404);
       if (result.kind === "unauthorized") return sendProblem(reply, 401);
       return sendProblem(reply, 409, result.kind);
+    },
+  );
+
+  routes.get(
+    "/v1/courier/jobs",
+    {
+      onSend: noStore,
+      config: policy(["customer", "courier"]),
+      schema: { response: { 200: courierJobsOutput, ...errors } },
+    },
+    async (request, reply) => {
+      const actor = getRequestActor(request);
+      if (!actor) return sendProblem(reply, 401);
+      if (!services) return sendProblem(reply, 503);
+      const jobs = await services.repository.jobs({
+        userId: actor.accountId,
+        sessionId: actor.sessionId,
+      });
+      return jobs ? reply.send(jobs) : sendProblem(reply, 403);
     },
   );
 

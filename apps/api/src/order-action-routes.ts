@@ -33,7 +33,7 @@ const errors = {
 
 function readActor(request: FastifyRequest) {
   const actor = getRequestActor(request);
-  return actor && actor.role !== "courier"
+  return actor
     ? {
         accountId: actor.accountId,
         role: actor.role === "customer" ? ("standard" as const) : actor.role,
@@ -133,8 +133,14 @@ export function registerOrderActionRoutes(api: FastifyInstance, services?: Order
       action: () => ({ kind: "collect" }),
     });
     registerAction(scope, services, {
-      name: "pick-up",
+      name: "assign",
       roles: merchant,
+      body: orderActionInputs.assign,
+      action: ({ courierId }) => ({ kind: "assignCourier", courierId: courierId.toLowerCase() }),
+    });
+    registerAction(scope, services, {
+      name: "pick-up",
+      roles: [...merchant, "courier"],
       body: orderActionInputs["pick-up"],
       action: () => ({ kind: "pickUp" }),
     });

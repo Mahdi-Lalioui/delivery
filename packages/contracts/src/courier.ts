@@ -29,12 +29,15 @@ export const courierRosterOutput = z.strictObject({
 export const courierPresenceInput = z.strictObject({ online: z.boolean() });
 
 export const courierJobsOutput = z.strictObject({
+  courierId: uuid,
+  merchantId: uuid,
+  online: z.boolean(),
   jobs: z.array(
     z.strictObject({
       order: orderSummary,
       pickup: z.strictObject({ pin, restaurantName: z.string().min(1).max(120) }),
       dropoff: addressOutput.omit({ label: true, isDefault: true, addressId: true }),
-      customerFirstName: z.string().min(1).max(80),
+      customerFirstName: z.string().min(1).max(80).nullable(),
       customerPhone: algerianMobilePhone.nullable(),
       changeDzd: z.int().min(0).max(10_000),
     }),

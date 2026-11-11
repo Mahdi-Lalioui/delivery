@@ -13,7 +13,8 @@ test("[ORD-03:http] orders read and actions are scoped to the session", async ()
   const apply = vi
     .fn<ReturnType<typeof createOrderRepository>["apply"]>()
     .mockResolvedValueOnce({ kind: "not_found" })
-    .mockResolvedValueOnce({ kind: "order_conflict" });
+    .mockResolvedValueOnce({ kind: "order_conflict" })
+    .mockResolvedValueOnce({ kind: "invalid_order_command" });
   const api = createApi({
     checkReadiness: () => Promise.resolve(),
     resolveActor: () =>
@@ -45,4 +46,18 @@ test("[ORD-03:http] orders read and actions are scoped to the session", async ()
   const conflict = await api.inject(request);
   expect(conflict.statusCode).toBe(409);
   expect(conflict.json()).toMatchObject({ code: "order_conflict" });
+  const assigned = await api.inject({
+    ...request,
+    url: url + "/assign",
+    payload: { expectedVersion: 3, courierId: accountId.toUpperCase() },
+    headers: { "idempotency-key": "order-assign" },
+  });
+  expect(assigned.statusCode).toBe(400);
+  expect(apply).toHaveBeenLastCalledWith({
+    ...identity,
+    expectedVersion: 3,
+    idempotencyKey: "order-assign",
+    now,
+    action: { kind: "assignCourier", courierId: accountId },
+  });
 });

@@ -214,6 +214,11 @@ const matrix: readonly MatrixRoute[] = [
     expected: { customer: 503, courier: 503 },
   },
   {
+    method: "GET",
+    url: "/v1/courier/jobs",
+    expected: { customer: 503, courier: 503 },
+  },
+  {
     method: "POST",
     url: "/v1/courier/presence",
     payload: { online: true },
@@ -281,10 +286,17 @@ const matrix: readonly MatrixRoute[] = [
   },
   {
     method: "POST",
+    url: "/v1/orders/:orderId/assign",
+    requestUrl: "/v1/orders/" + challengeId + "/assign",
+    payload: { expectedVersion: 1, courierId: challengeId },
+    expected: merchantRoles,
+  },
+  {
+    method: "POST",
     url: "/v1/orders/:orderId/pick-up",
     requestUrl: "/v1/orders/" + challengeId + "/pick-up",
     payload: { expectedVersion: 1 },
-    expected: merchantRoles,
+    expected: { ...merchantRoles, courier: 503 },
   },
   {
     method: "POST",

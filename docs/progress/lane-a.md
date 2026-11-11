@@ -182,3 +182,6 @@
 
 - 2026-11-11 · Ultra · Added phone-bound courier invitations, one-restaurant membership, presence and tenant roster. Passed 248 authz, 17 PostGIS onboarding/privacy checks, scoped typecheck/lint and dependency checks.
   Next: wire roster assignment and assigned jobs. Owners currently share invite links manually.
+
+- 2026-11-11 · Ultra · Added tenant-safe, idempotent courier assignment, assigned jobs with exact pins and cash, and assigned-driver pickup. Passed 24 PostGIS cases, 248 authz, scoped lint/typecheck and OpenAPI checks.
+  Next: validate, rate-limit and publish courier positions for live tracking. Jobs return a null first name until customer profiles collect it.

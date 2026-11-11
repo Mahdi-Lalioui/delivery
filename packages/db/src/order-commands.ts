@@ -12,10 +12,17 @@ import {
 } from "./order-state-store.js";
 
 type Role =
-  "standard" | "customer" | "merchant_owner" | "merchant_manager" | "merchant_staff" | "admin";
+  | "standard"
+  | "customer"
+  | "merchant_owner"
+  | "merchant_manager"
+  | "merchant_staff"
+  | "admin"
+  | "courier";
 export type OrderAccess = { accountId: string; role: Role; orderId: string };
 type PublicAction =
   | Extract<OrderAction, { kind: "cancel" | "collect" | "markReady" | "pickUp" | "force" }>
+  | { kind: "assignCourier"; courierId: string }
   | { kind: "accept"; prepMinutes: number }
   | {
       kind: "reject";
@@ -47,21 +54,59 @@ async function readAdminActor(sql: TransactionSql, accountId: string, lockRole: 
   return admin ? ({ kind: "admin", id: accountId } as const) : undefined;
 }
 
-type AuthorizationScope = OrderAccess & { lockRole: boolean; preferMerchant: boolean };
+type AuthorizationScope = OrderAccess & {
+  lockRole: boolean;
+  preferMerchant: boolean;
+  allowCourier?: boolean;
+};
+
+async function readAssignedCourier(
+  sql: TransactionSql,
+  { accountId, lockRole }: AuthorizationScope,
+  { courierId, merchantId }: OrderSnapshot,
+): Promise<OrderActor | undefined> {
+  if (!courierId) return undefined;
+  const lock = lockRole ? sql`FOR SHARE` : sql``;
+  const [courier] = await sql`
+    SELECT FROM public.couriers WHERE id = ${courierId} AND merchant_id = ${merchantId}
+      AND user_id = ${accountId} AND active ${lock}
+  `;
+  return courier ? { kind: "courier", id: accountId, courierId, merchantId } : undefined;
+}
+
+async function readStandardActor(
+  sql: TransactionSql,
+  scope: AuthorizationScope,
+  order: OrderSnapshot,
+): Promise<OrderActor | undefined> {
+  const { accountId, preferMerchant, allowCourier } = scope;
+  const owner =
+    accountId === order.customerId ? ({ kind: "customer", id: accountId } as const) : undefined;
+  if (owner && !preferMerchant) return owner;
+  const merchant = await readMerchantActor(sql, scope, order.merchantId);
+  if (merchant) return merchant;
+  const courier = allowCourier ? await readAssignedCourier(sql, scope, order) : undefined;
+  return courier ?? owner;
+}
 
 async function authorizeOrder(
   sql: TransactionSql,
-  { role, accountId, lockRole, preferMerchant }: AuthorizationScope,
-  { merchantId, customerId }: OrderSnapshot,
+  scope: AuthorizationScope,
+  order: OrderSnapshot,
 ): Promise<OrderActor | undefined> {
-  const owner =
-    accountId === customerId ? ({ kind: "customer", id: accountId } as const) : undefined;
-  if (role === "customer" || (role === "standard" && owner && !preferMerchant)) return owner;
-
-  if (role === "admin") return readAdminActor(sql, accountId, lockRole);
-
-  const merchant = await readMerchantActor(sql, { accountId, lockRole }, merchantId);
-  return merchant ?? (role === "standard" ? owner : undefined);
+  const { role, accountId, lockRole, allowCourier } = scope;
+  switch (role) {
+    case "customer":
+      return accountId === order.customerId ? { kind: "customer", id: accountId } : undefined;
+    case "admin":
+      return readAdminActor(sql, accountId, lockRole);
+    case "courier":
+      return allowCourier ? readAssignedCourier(sql, scope, order) : undefined;
+    case "standard":
+      return readStandardActor(sql, scope, order);
+    default:
+      return readMerchantActor(sql, scope, order.merchantId);
+  }
 }
 
 function presentOrder(order: OrderSnapshot, row: StateRow) {
@@ -80,11 +125,18 @@ export async function readScopedOrder(sql: TransactionSql, request: OrderAccess)
     : undefined;
 }
 
-function toDomainAction(
-  input: PublicAction,
+async function toDomainAction(
+  sql: TransactionSql,
+  { action: input, now }: OrderCommandRequest,
   order: StateRow,
-  now: number,
-): OrderAction | undefined {
+): Promise<OrderAction | undefined> {
+  if (input.kind === "assignCourier") {
+    const [courier] = await sql<{ id: string; merchantId: string; isActive: boolean }[]>`
+      SELECT id, merchant_id AS "merchantId", active AS "isActive" FROM public.couriers
+      WHERE id = ${input.courierId} AND merchant_id = ${order.merchantId} FOR SHARE
+    `;
+    return { ...input, facts: { courier: courier ?? null } };
+  }
   if (input.kind === "reject") {
     return {
       kind: input.kind,
@@ -101,8 +153,8 @@ function toDomainAction(
     ...input,
     facts: {
       eta: {
-        earliestAt: now + range.value.earliestMinutes * 60_000,
-        latestAt: now + range.value.latestMinutes * 60_000,
+        earliestAt: now.getTime() + range.value.earliestMinutes * 60_000,
+        latestAt: now.getTime() + range.value.latestMinutes * 60_000,
       },
     },
   };
@@ -138,8 +190,6 @@ async function commitCommand(
   { order, actor }: CommandContext,
 ) {
   const { now, idempotencyKey, expectedVersion } = request;
-  const action = toDomainAction(request.action, order, now.getTime());
-  if (!action) return { kind: "invalid_order_command" } as const;
   const keyHash = hash(idempotencyKey);
   const requestHash = hash(JSON.stringify([expectedVersion, request.action]));
   const [receipt] = await sql<{ matches: boolean; response: OrderSummary }[]>`
@@ -150,6 +200,9 @@ async function commitCommand(
     return receipt.matches
       ? ({ kind: "applied", order: receipt.response } as const)
       : ({ kind: "idempotency_conflict" } as const);
+
+  const action = await toDomainAction(sql, request, order);
+  if (!action) return { kind: "invalid_order_command" } as const;
 
   const result = transition({
     order,
@@ -191,6 +244,15 @@ export async function applyOrderCommand(sql: TransactionSql, request: OrderComma
   if (!order) return { kind: "not_found" } as const;
   const preferMerchant =
     request.action.kind !== "cancel" || order.status === "accepted" || order.status === "ready";
-  const actor = await authorizeOrder(sql, { ...request, lockRole: true, preferMerchant }, order);
+  const actor = await authorizeOrder(
+    sql,
+    {
+      ...request,
+      lockRole: true,
+      preferMerchant,
+      allowCourier: request.action.kind === "pickUp",
+    },
+    order,
+  );
   return actor ? commitCommand(sql, request, { order, actor }) : ({ kind: "not_found" } as const);
 }

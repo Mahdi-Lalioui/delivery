@@ -1,4 +1,4 @@
-import type { courierRosterOutput } from "@zaafran/contracts/courier";
+import type { courierJobsOutput, courierRosterOutput } from "@zaafran/contracts/courier";
 import type { ISql, TransactionSql } from "postgres";
 import {
   acceptCourierInvitation,
@@ -9,6 +9,13 @@ import {
 } from "./courier-invitations.js";
 import type { DatabaseConnection } from "./database.js";
 
+import { orderStateColumns, orderSummaryFor, type OrderStateRow } from "./order-state-store.js";
+import { timestampParsers } from "./timestamp-parsers.js";
+
+type Jobs = ReturnType<typeof courierJobsOutput.parse>;
+type Driver = Omit<Jobs, "jobs">;
+type Job = Jobs["jobs"][number];
+type JobRow = OrderStateRow & Pick<Job, "pickup" | "dropoff" | "customerPhone" | "changeDzd">;
 type Roster = ReturnType<typeof courierRosterOutput.parse>["couriers"];
 type RosterRequest = CourierScope & { merchantId: string };
 type PresenceRequest = CourierScope & { online: boolean };
@@ -45,12 +52,52 @@ async function setCourierPresence(sql: ISql, request: PresenceRequest) {
   return changed.count > 0;
 }
 
+async function readCourierJobs(
+  sql: TransactionSql,
+  request: CourierScope,
+): Promise<Jobs | undefined> {
+  const [driver] = await sql<Driver[]>`
+    SELECT id AS "courierId", merchant_id AS "merchantId", online
+    FROM public.couriers WHERE user_id = ${request.userId} AND active AND ${activeSession(sql, request)}
+  `;
+  if (!driver) return undefined;
+  const rows = await sql<JobRow[]>`
+    SELECT ${orderStateColumns(sql)},
+      (SELECT jsonb_build_object('restaurantName', orders.restaurant_name, 'pin', jsonb_build_object(
+        'latitude', ST_Y(merchant.location::geometry), 'longitude', ST_X(merchant.location::geometry)))
+       FROM public.merchants AS merchant WHERE merchant.id = orders.merchant_id) AS pickup,
+      address_snapshot - ARRAY['addressId', 'label', 'isDefault'] AS dropoff,
+      (SELECT phone_e164 FROM public.users WHERE id = orders.customer_id
+        AND deleted_at IS NULL AND blocked_at IS NULL) AS "customerPhone",
+      paying_with_dzd - total_dzd AS "changeDzd"
+    FROM public.orders WHERE courier_id = ${driver.courierId} AND merchant_id = ${driver.merchantId}
+      AND fulfilment = 'delivery' AND address_snapshot IS NOT NULL
+      AND status IN ('accepted', 'ready', 'out_for_delivery')
+    ORDER BY placed_at, id
+  `.parsers(timestampParsers);
+  const jobs = rows.map((row) => ({
+    order: orderSummaryFor(row, {
+      shortCode: row.shortCode,
+      totalDzd: row.totalDzd,
+      placedAt: row.placedAt.toISOString(),
+    }),
+    pickup: row.pickup,
+    dropoff: row.dropoff,
+    customerFirstName: null,
+    customerPhone: row.customerPhone,
+    changeDzd: row.changeDzd,
+  }));
+  return { ...driver, jobs };
+}
+
 export function createCourierRepository({ sql }: DatabaseConnection) {
   return {
     invite: (request: InviteRequest) => sql.begin((tx) => inviteCourier(tx, request)),
     accept: (request: AcceptRequest) => sql.begin((tx) => acceptCourierInvitation(tx, request)),
     list: (request: RosterRequest) =>
       sql.begin("isolation level repeatable read read only", (tx) => listCouriers(tx, request)),
+    jobs: (request: CourierScope) =>
+      sql.begin("isolation level repeatable read read only", (tx) => readCourierJobs(tx, request)),
     setPresence: (request: PresenceRequest) => setCourierPresence(sql, request),
   };
 }

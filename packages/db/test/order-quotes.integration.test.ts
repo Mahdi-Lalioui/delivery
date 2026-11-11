@@ -5,6 +5,7 @@ import { beforeAll, expect, test } from "vitest";
 import type { z } from "zod";
 import { createAddressRepository } from "../src/addresses.ts";
 import { createAuthRepository } from "../src/auth.ts";
+import { createCourierRepository } from "../src/couriers.ts";
 import { createOrderQuoteRepository } from "../src/order-quotes.ts";
 import { createOrderRepository } from "../src/orders.ts";
 import { registerTestDatabase } from "./database.ts";
@@ -463,7 +464,7 @@ test("[MER-03][RT-02] board snapshot and replay are scoped and replay every new 
   expect((await orders().board({ ...input, after: changed.cursor }))?.events).toEqual([]);
 });
 
-test("[MER-03] merchant handover requires a ready delivery and an assigned courier", async () => {
+test("[MER-03][COU-02] assigns only an active restaurant courier and exposes their delivery", async () => {
   const addressId = await saveAddress(36.751);
   const placed = await orders().place(
     await placement({ ...pickup, fulfilment: "delivery", addressId }),
@@ -472,24 +473,86 @@ test("[MER-03] merchant handover requires a ready delivery and an assigned couri
   const { orderId } = placed.order;
   const { sql } = database.get();
   await sql`INSERT INTO merchant_members (merchant_id, user_id, role) VALUES (${merchantId}, ${otherId}, 'owner') ON CONFLICT DO NOTHING`;
+  const auth = createAuthRepository(database.get());
+  const signedAt = new Date();
+  const driver = await auth.transaction((tx) =>
+    tx.getOrCreateUserForSignIn({ phoneE164: "+213500000017", now: signedAt }),
+  );
+  const sessionId = randomUUID();
+  await auth.transaction((tx) =>
+    tx.insertSession({
+      id: sessionId,
+      userId: driver.id,
+      tokenHash: randomBytes(32),
+      transport: "web",
+      kind: "standard",
+      requestIp: "192.0.2.7",
+      deviceName: "Fixture",
+      now: signedAt,
+    }),
+  );
+  const courierId = randomUUID();
+  const foreignId = randomUUID();
+  const foreignMerchantId = randomUUID();
+  await sql`INSERT INTO merchants (id, slug, restaurant_name, owner_name, phone_e164, commune_id,
+      location, cuisines, status, created_at)
+    SELECT ${foreignMerchantId}, 'fixture-other-orders', restaurant_name, owner_name, phone_e164,
+      commune_id, location, cuisines, status, created_at FROM merchants WHERE id = ${merchantId}`;
+  await sql`INSERT INTO couriers (id, user_id, merchant_id, created_at) VALUES
+    (${courierId}, ${driver.id}, ${merchantId}, now()), (${foreignId}, ${customerId}, ${foreignMerchantId}, now())`;
+
   const merchant = { orderId, accountId: otherId, role: "merchant_owner", now } as const;
   const apply = (
     expectedVersion: number,
     action: Parameters<ReturnType<typeof orders>["apply"]>[0]["action"],
   ) => orders().apply({ ...merchant, idempotencyKey: randomUUID(), expectedVersion, action });
+  const jobs = createCourierRepository(database.get()).jobs;
+  const driverSession = { userId: driver.id, sessionId };
+  expect(await jobs(driverSession)).toMatchObject({ jobs: [], online: false });
+  expect(await jobs({ ...driverSession, userId: customerId })).toBeUndefined();
   expect(await apply(1, { kind: "accept", prepMinutes: 15 })).toMatchObject({ kind: "applied" });
   expect(await apply(2, { kind: "markReady" })).toMatchObject({ kind: "applied" });
   expect(await apply(3, { kind: "pickUp" })).toEqual({ kind: "invalid_order_transition" });
-
-  await sql`UPDATE orders SET courier_id = ${randomUUID()} WHERE id = ${orderId}`;
+  expect(await apply(3, { kind: "assignCourier", courierId: foreignId })).toEqual({
+    kind: "invalid_order_command",
+  });
+  const assign = {
+    ...merchant,
+    idempotencyKey: randomUUID(),
+    expectedVersion: 3,
+    action: { kind: "assignCourier", courierId },
+  } as const;
+  const [first, second] = await Promise.all([orders().apply(assign), orders().apply(assign)]);
+  expect(first).toMatchObject({ kind: "applied", order: { version: 4, status: "ready" } });
+  expect(second).toEqual(first);
   const board = await orders().board({ merchantId, accountId: otherId });
   expect(board?.orders.find((ticket) => ticket.orderId === orderId)).toMatchObject({
     canHandover: true,
   });
-  expect(await apply(3, { kind: "pickUp" })).toMatchObject({
-    kind: "applied",
-    order: { status: "out_for_delivery", version: 4 },
-  });
+  const assigned = await jobs(driverSession);
+  expect(assigned?.jobs).toMatchObject([
+    {
+      order: { orderId, totalDzd: 1137, status: "ready" },
+      pickup: { restaurantName: "Table fictive", pin: { latitude: 36.75, longitude: 3.0625 } },
+      dropoff: { pin: { latitude: 36.751, longitude: 3.0625 } },
+      customerPhone: "+213500000001",
+      changeDzd: 0,
+    },
+  ]);
+  const dropoff = assigned?.jobs[0]?.dropoff;
+  expect(dropoff).not.toHaveProperty("addressId");
+  expect(dropoff).not.toHaveProperty("label");
+  expect(
+    await orders().apply({
+      ...merchant,
+      accountId: driver.id,
+      role: "standard",
+      expectedVersion: 4,
+      idempotencyKey: randomUUID(),
+      action: { kind: "pickUp" },
+    }),
+  ).toMatchObject({ kind: "applied", order: { status: "out_for_delivery", version: 5 } });
+  expect((await jobs(driverSession))?.jobs[0]?.order.status).toBe("out_for_delivery");
   expect(
     (await orders().board({ merchantId, accountId: otherId }))?.orders.some(
       (ticket) => ticket.orderId === orderId,
