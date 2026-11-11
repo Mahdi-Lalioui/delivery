@@ -1,3 +1,4 @@
+import { pruneCourierPositions } from "@zaafran/db/courier-retention";
 import type { DatabaseConnection } from "@zaafran/db/database";
 import { createDiscoverySearchRepository } from "@zaafran/db/discovery-search";
 import { createOrderRepository } from "@zaafran/db/orders";
@@ -69,6 +70,7 @@ export function createWorkerOptions(
       await privacy.pruneDeletionState(now);
       await quotes.pruneExpired(now);
       await pruneInactivePushSubscriptions(database.sql);
+      await pruneCourierPositions(database.sql, now);
     }),
     [orderPushTask]: createOrderPushJob(database, orderPush),
     [orderSmsTask]: createOrderSmsJob(database, orderSms),

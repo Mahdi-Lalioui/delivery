@@ -4,6 +4,8 @@ import {
   courierInviteInput,
   courierInviteOutput,
   courierJobsOutput,
+  courierPositionsInput,
+  courierPositionsOutput,
   courierPresenceInput,
   courierRosterOutput,
 } from "@zaafran/contracts/courier";
@@ -130,6 +132,32 @@ export function registerCourierRoutes(api: FastifyInstance, services?: CourierSe
         sessionId: actor.sessionId,
       });
       return jobs ? reply.send(jobs) : sendProblem(reply, 403);
+    },
+  );
+
+  routes.post(
+    "/v1/courier/positions",
+    {
+      onSend: noStore,
+      config: policy(["customer", "courier"]),
+      schema: { body: courierPositionsInput, response: { 200: courierPositionsOutput, ...errors } },
+    },
+    async (request, reply) => {
+      const actor = getRequestActor(request);
+      if (!actor) return sendProblem(reply, 401);
+      if (!services) return sendProblem(reply, 503);
+      const result = await services.repository.recordPositions({
+        ...request.body,
+        userId: actor.accountId,
+        sessionId: actor.sessionId,
+        now: services.now(),
+      });
+      if (result.kind === "not_found") return sendProblem(reply, 404);
+      if (result.kind === "rate_limited") {
+        reply.header("retry-after", "3");
+        return sendProblem(reply, 429);
+      }
+      return reply.send({ accepted: result.accepted });
     },
   );
 

@@ -166,6 +166,7 @@ test("[M0-6] the generated OpenAPI document describes the readiness problem resp
       "/v1/communes",
       "/v1/courier/invites/accept",
       "/v1/courier/jobs",
+      "/v1/courier/positions",
       "/v1/courier/presence",
       "/v1/feed",
       "/v1/flags",

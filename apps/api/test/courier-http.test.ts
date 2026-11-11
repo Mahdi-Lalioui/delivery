@@ -34,10 +34,18 @@ test("[COU-01:http] invites and accepts using the signed-in standard session", a
     .fn<ReturnType<typeof createCourierRepository>["jobs"]>()
     .mockResolvedValueOnce({ courierId, merchantId, online: true, jobs: [] })
     .mockResolvedValueOnce(undefined);
+  const recordPositions = vi
+    .fn<ReturnType<typeof createCourierRepository>["recordPositions"]>()
+    .mockResolvedValueOnce({ kind: "recorded", accepted: 1 })
+    .mockResolvedValueOnce({ kind: "rate_limited" })
+    .mockResolvedValueOnce({ kind: "not_found" });
   const api = createApi({
     checkReadiness: () => Promise.resolve(),
     resolveActor: () => Promise.resolve({ role: "customer", accountId, sessionId }),
-    couriers: { repository: { invite, accept, list, setPresence, jobs }, now: () => now },
+    couriers: {
+      repository: { invite, accept, list, setPresence, jobs, recordPositions },
+      now: () => now,
+    },
   });
   onTestFinished(() => api.close());
   const send = (url: string, payload: object) => api.inject({ method: "POST", url, payload });
@@ -80,4 +88,21 @@ test("[COU-01:http] invites and accepts using the signed-in standard session", a
   expect((await send("/v1/courier/presence", { online: true })).statusCode).toBe(204);
   expect(setPresence).toHaveBeenCalledWith({ online: true, userId: accountId, sessionId });
   expect((await send("/v1/courier/presence", { online: false })).statusCode).toBe(403);
+  const positionsPath = "/v1/courier/positions";
+  const position = {
+    latitude: 36.75,
+    longitude: 3.0625,
+    accuracyM: 10,
+    capturedAt: now.toISOString(),
+  };
+  const batch = { orderId: inviteId, positions: [position] };
+  expect(
+    (await send(positionsPath, { ...batch, positions: Array(51).fill(position) })).statusCode,
+  ).toBe(400);
+  expect((await send(positionsPath, batch)).json()).toEqual({ accepted: 1 });
+  expect(recordPositions).toHaveBeenCalledWith({ ...batch, userId: accountId, sessionId, now });
+  const limited = await send(positionsPath, batch);
+  expect(limited.statusCode).toBe(429);
+  expect(limited.headers["retry-after"]).toBe("3");
+  expect((await send(positionsPath, batch)).statusCode).toBe(404);
 });

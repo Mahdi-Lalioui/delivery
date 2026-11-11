@@ -97,6 +97,11 @@ async function clearPersonalData(
     UPDATE public.ratings SET comment = NULL
     WHERE order_id IN (SELECT id FROM public.orders WHERE customer_id = ${userId})
   `;
+  // Serialize erasure with a driver's in-flight position batch before removing the route.
+  await sql`SELECT id FROM public.orders WHERE customer_id = ${userId} ORDER BY id FOR UPDATE`;
+  await sql`DELETE FROM public.courier_positions WHERE order_id IN (
+    SELECT id FROM public.orders WHERE customer_id = ${userId}
+  ) OR courier_id IN (SELECT id FROM public.couriers WHERE user_id = ${userId})`;
   await sql`
     UPDATE public.orders SET customer_id = NULL, address_snapshot = NULL, lines = (
       SELECT coalesce(jsonb_agg(line - 'note' ORDER BY index), '[]'::jsonb)

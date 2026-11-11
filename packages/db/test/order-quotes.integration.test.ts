@@ -5,6 +5,7 @@ import { beforeAll, expect, test } from "vitest";
 import type { z } from "zod";
 import { createAddressRepository } from "../src/addresses.ts";
 import { createAuthRepository } from "../src/auth.ts";
+import { pruneCourierPositions } from "../src/courier-retention.ts";
 import { createCourierRepository } from "../src/couriers.ts";
 import { createOrderQuoteRepository } from "../src/order-quotes.ts";
 import { createOrderRepository } from "../src/orders.ts";
@@ -464,6 +465,47 @@ test("[MER-03][RT-02] board snapshot and replay are scoped and replay every new 
   expect((await orders().board({ ...input, after: changed.cursor }))?.events).toEqual([]);
 });
 
+async function verifyCourierPositions(
+  orderId: string,
+  driver: { userId: string; sessionId: string },
+) {
+  const databaseConnection = database.get();
+  const { sql } = databaseConnection;
+  const repo = createCourierRepository(databaseConnection);
+  const capturedAt = new Date().toISOString();
+  const position = { latitude: 36.75, longitude: 3.0625, accuracyM: 15, heading: 45, capturedAt };
+  const input = { ...driver, orderId, now: new Date(capturedAt), positions: [position] };
+  expect(await repo.recordPositions({ ...input, userId: customerId })).toEqual({
+    kind: "not_found",
+  });
+  const signal = Promise.withResolvers<string>();
+  const listener = await sql.listen("courier_position_events", signal.resolve);
+  try {
+    const responses = await Promise.all([repo.recordPositions(input), repo.recordPositions(input)]);
+    expect(responses).toContainEqual({ kind: "recorded", accepted: 1 });
+    expect(responses).toContainEqual({ kind: "rate_limited" });
+    expect(await signal.promise).toBe(orderId);
+  } finally {
+    await listener.unlisten();
+  }
+  expect(
+    await repo.recordPositions({ ...input, now: new Date(Date.parse(capturedAt) + 5_000) }),
+  ).toEqual({ kind: "recorded", accepted: 0 });
+  const [latest] = await sql`SELECT ST_Y(location::geometry) AS latitude, heading
+    FROM public.courier_positions WHERE order_id = ${orderId}`;
+  expect(latest).toEqual({ latitude: 36.75, heading: 45 });
+  const at = Date.parse(capturedAt);
+  const thirtyDays = 30 * 24 * 60 * 60 * 1000;
+  await pruneCourierPositions(sql, new Date(at + thirtyDays - 1));
+  expect(await sql`SELECT FROM public.courier_positions WHERE order_id = ${orderId}`).toHaveLength(
+    1,
+  );
+  await pruneCourierPositions(sql, new Date(at + thirtyDays));
+  expect(await sql`SELECT FROM public.courier_positions WHERE order_id = ${orderId}`).toHaveLength(
+    0,
+  );
+}
+
 test("[MER-03][COU-02] assigns only an active restaurant courier and exposes their delivery", async () => {
   const addressId = await saveAddress(36.751);
   const placed = await orders().place(
@@ -553,6 +595,7 @@ test("[MER-03][COU-02] assigns only an active restaurant courier and exposes the
     }),
   ).toMatchObject({ kind: "applied", order: { status: "out_for_delivery", version: 5 } });
   expect((await jobs(driverSession))?.jobs[0]?.order.status).toBe("out_for_delivery");
+  await verifyCourierPositions(orderId, driverSession);
   expect(
     (await orders().board({ merchantId, accountId: otherId }))?.orders.some(
       (ticket) => ticket.orderId === orderId,

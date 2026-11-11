@@ -119,6 +119,10 @@
     "./couriers": {
       "types": "./src/couriers.ts",
       "default": "./dist/couriers.js"
+    },
+    "./courier-retention": {
+      "types": "./src/courier-retention.ts",
+      "default": "./dist/courier-retention.js"
     }
   },
   "scripts": {

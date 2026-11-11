@@ -316,6 +316,13 @@
       "when": 1794139800000,
       "tag": "0044_order_courier_assignment",
       "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1794140400000,
+      "tag": "0045_courier_positions",
+      "breakpoints": true
     }
   ]
 }

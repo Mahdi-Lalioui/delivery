@@ -185,3 +185,6 @@
 
 - 2026-11-11 · Ultra · Added tenant-safe, idempotent courier assignment, assigned jobs with exact pins and cash, and assigned-driver pickup. Passed 24 PostGIS cases, 248 authz, scoped lint/typecheck and OpenAPI checks.
   Next: validate, rate-limit and publish courier positions for live tracking. Jobs return a null first name until customer profiles collect it.
+
+- 2026-11-11 · Ultra · Added active-driver GPS intake with timestamp, distance, speed and Algeria bounds checks, per-driver throttling, commit-time notifications and 30-day expiry. Passed 37 PostGIS and 13 focused API/unit tests plus scoped lint/typecheck.
+  Next: serve the buyer’s scoped tracking view and SSE position updates, then add delivery confirmation.

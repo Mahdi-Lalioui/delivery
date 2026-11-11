@@ -7,6 +7,8 @@ import {
   type CourierScope,
   type InviteRequest,
 } from "./courier-invitations.js";
+import { recordCourierPositions, type CourierPositionRequest } from "./courier-positions.js";
+import { activeCourierSession } from "./courier-session.js";
 import type { DatabaseConnection } from "./database.js";
 
 import { orderStateColumns, orderSummaryFor, type OrderStateRow } from "./order-state-store.js";
@@ -20,22 +22,13 @@ type Roster = ReturnType<typeof courierRosterOutput.parse>["couriers"];
 type RosterRequest = CourierScope & { merchantId: string };
 type PresenceRequest = CourierScope & { online: boolean };
 
-function activeSession(sql: ISql, { userId, sessionId }: CourierScope) {
-  return sql`EXISTS (
-    SELECT FROM public.sessions AS session JOIN public.users AS account ON account.id = session.user_id
-    WHERE session.id = ${sessionId} AND session.user_id = ${userId} AND session.kind = 'standard'
-      AND session.revoked_at IS NULL AND session.expires_at > statement_timestamp()
-      AND account.deleted_at IS NULL AND account.blocked_at IS NULL
-  )`;
-}
-
 async function listCouriers(
   sql: TransactionSql,
   request: RosterRequest,
 ): Promise<Roster | undefined> {
   const [member] = await sql`
     SELECT FROM public.merchant_members WHERE user_id = ${request.userId} AND merchant_id = ${request.merchantId}
-      AND ${activeSession(sql, request)}
+      AND ${activeCourierSession(sql, request)}
   `;
   if (!member) return undefined;
   return sql<Roster>`
@@ -47,7 +40,7 @@ async function listCouriers(
 async function setCourierPresence(sql: ISql, request: PresenceRequest) {
   const changed = await sql`
     UPDATE public.couriers SET online = ${request.online}
-    WHERE user_id = ${request.userId} AND active AND ${activeSession(sql, request)}
+    WHERE user_id = ${request.userId} AND active AND ${activeCourierSession(sql, request)}
   `;
   return changed.count > 0;
 }
@@ -58,7 +51,7 @@ async function readCourierJobs(
 ): Promise<Jobs | undefined> {
   const [driver] = await sql<Driver[]>`
     SELECT id AS "courierId", merchant_id AS "merchantId", online
-    FROM public.couriers WHERE user_id = ${request.userId} AND active AND ${activeSession(sql, request)}
+    FROM public.couriers WHERE user_id = ${request.userId} AND active AND ${activeCourierSession(sql, request)}
   `;
   if (!driver) return undefined;
   const rows = await sql<JobRow[]>`
@@ -98,6 +91,8 @@ export function createCourierRepository({ sql }: DatabaseConnection) {
       sql.begin("isolation level repeatable read read only", (tx) => listCouriers(tx, request)),
     jobs: (request: CourierScope) =>
       sql.begin("isolation level repeatable read read only", (tx) => readCourierJobs(tx, request)),
+    recordPositions: (request: CourierPositionRequest) =>
+      sql.begin((tx) => recordCourierPositions(tx, request)),
     setPresence: (request: PresenceRequest) => setCourierPresence(sql, request),
   };
 }

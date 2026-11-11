@@ -220,6 +220,22 @@ const matrix: readonly MatrixRoute[] = [
   },
   {
     method: "POST",
+    url: "/v1/courier/positions",
+    payload: {
+      orderId: challengeId,
+      positions: [
+        {
+          latitude: 36.75,
+          longitude: 3.0625,
+          accuracyM: 25,
+          capturedAt: "2026-11-11T10:00:00.000Z",
+        },
+      ],
+    },
+    expected: { customer: 503, courier: 503 },
+  },
+  {
+    method: "POST",
     url: "/v1/courier/presence",
     payload: { online: true },
     expected: { customer: 503, courier: 503 },

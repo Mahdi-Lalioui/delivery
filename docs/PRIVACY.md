@@ -6,7 +6,7 @@ Draft for the engineering team. Complete retention rules, processor agreements a
 |---|---|---|
 | OTP challenges and sessions | Authenticate and revoke access | Confirm OTP and expired session cleanup in M7 |
 | Address, pin and voice note | Fulfill the customer's order | Apply the SPEC retention windows and prove deletion jobs |
-| Courier position events | Live tracking and delivery support | Apply the SPEC position cleanup and access controls |
+| Courier position events | Live tracking and delivery support | Assigned active driver writes only. Breadcrumbs expire after 30 days and customer account erasure removes its orders’ positions. |
 | Order and billing records | Fulfillment, accounting and audit | Record the approved accounting retention and anonymization rules |
 | First-party analytics | Operational reporting | Confirm fields, aggregation and deletion behavior before launch |
 | Development data | Local tests, fixture maps and fake inboxes | Keep fixtures synthetic and drop test database clones after each suite |
