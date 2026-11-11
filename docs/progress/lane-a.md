@@ -233,3 +233,6 @@
 
 - 2026-11-11 · Ultra · Added transactional merchant radius and modes, scoped reads and revision-bound replay. Passed 253 authz and HTTP cases, 32 real PostGIS cases and OpenAPI validation. Exact addresses inside and outside the radius resolved correctly.
   Next: connect the settings screen to this API with conflict recovery, then start production deployment preparation.
+
+- 2026-11-11 · Medium · Shipped the merchant delivery settings screen with radius and fees, save feedback and stale-draft recovery. One production HTTPS/PostGIS journey, four axe/overflow checks and 57 scoped tests passed. Captures in docs/evidence/awid/merchant-delivery/.
+  Next: prepare the backend Compose image, TLS, migrations, backups and Vercel wiring. Hosted checks need a staging server and linked web project.

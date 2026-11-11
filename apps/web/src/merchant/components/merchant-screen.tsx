@@ -30,6 +30,7 @@ function MembershipList({
 }) {
   const translate = useTranslations("merchant");
   const board = useTranslations("merchantBoard");
+  const delivery = useTranslations("merchantDelivery");
 
   return (
     <>
@@ -61,6 +62,12 @@ function MembershipList({
                   </a>
                   <a className="merchant-secondary" href={`/${locale}/merchant/${merchantId}/menu`}>
                     {translate("manageMenu")}
+                  </a>
+                  <a
+                    className="merchant-secondary"
+                    href={`/${locale}/merchant/${merchantId}/delivery-settings`}
+                  >
+                    {delivery("title")}
                   </a>
                   {role === "owner" && (
                     <a
