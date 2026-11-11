@@ -17,6 +17,15 @@ function isOrigin(input: string): boolean {
   return url.protocol === "https:" || (url.protocol === "http:" && loopback.has(url.hostname));
 }
 
+function isInternalOsrmOrigin(input: string): boolean {
+  const url = URL.parse(input);
+  return (
+    url?.origin === input &&
+    (url.protocol === "http:" || url.protocol === "https:") &&
+    (url.hostname === "osrm" || loopback.has(url.hostname))
+  );
+}
+
 function isProxyAddress(input: string): boolean {
   const [address, prefix, extra] = input.split("/");
   if (!address || extra !== undefined) return false;
@@ -39,6 +48,7 @@ const apiEnvironment = z
       .default(3002),
     API_TRUSTED_PROXY: z.string().refine(isProxyAddress).optional(),
     AUTH_PUBLIC_ORIGIN: z.string().refine(isOrigin),
+    OSRM_INTERNAL_ORIGIN: z.string().refine(isInternalOsrmOrigin).optional(),
     VAPID_PUBLIC_KEY: pushPublicKey.optional(),
     AUTH_OTP_KEY: key,
     AUTH_TOTP_KEY: key,

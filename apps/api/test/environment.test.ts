@@ -68,3 +68,24 @@ test("[MER-14:env] defaults the media storage root and rejects a relative path",
   ).toBe("/var/zaafran/media");
   expect(() => readApiEnvironment({ ...input, MEDIA_STORAGE_ROOT: "relative/media" })).toThrow();
 });
+
+test("[GEO-03] private routes use only the loopback or Compose OSRM origin", () => {
+  const input = {
+    DATABASE_URL: "postgresql://zaafran:fixture@127.0.0.1:5432/zaafran_test",
+    AUTH_PUBLIC_ORIGIN: "https://zaafran.test",
+    AUTH_OTP_KEY: "01".repeat(32),
+    AUTH_TOTP_KEY: "02".repeat(32),
+  };
+  for (const origin of ["http://osrm:5000", "http://127.0.0.1:5000"]) {
+    expect(
+      readApiEnvironment({ ...input, OSRM_INTERNAL_ORIGIN: origin }).OSRM_INTERNAL_ORIGIN,
+    ).toBe(origin);
+  }
+  for (const origin of [
+    "https://router.project-osrm.org",
+    "http://osrm:5000/route",
+    "ftp://osrm:5000",
+  ]) {
+    expect(() => readApiEnvironment({ ...input, OSRM_INTERNAL_ORIGIN: origin })).toThrow();
+  }
+});

@@ -11,6 +11,10 @@
     "./zone": {
       "types": "./src/zone.ts",
       "default": "./dist/zone.js"
+    },
+    "./road-routing": {
+      "types": "./src/road-routing.ts",
+      "default": "./dist/road-routing.js"
     }
   },
   "scripts": {

@@ -27,6 +27,7 @@ import { createMerchantStaffRepository } from "@zaafran/db/merchant-staff";
 import { createServiceAreaRepository } from "@zaafran/db/service-area";
 import { createPublicFeedRepository } from "@zaafran/db/public-feed";
 import { createPublicRestaurantRepository } from "@zaafran/db/public-restaurant";
+import { createRoadRouter } from "@zaafran/geo/road-routing";
 import { createLocalMediaStore } from "@zaafran/media";
 import type { FastifyInstance, FastifyListenOptions } from "fastify";
 import { createApi } from "./app.js";
@@ -35,6 +36,7 @@ import { createPrivacyService } from "./privacy-service.js";
 import { createAuthService } from "./auth-service.js";
 import type { MerchantStaffServices } from "./merchant-staff-routes.js";
 import { readApiEnvironment } from "./environment.js";
+import { createRoutedTracking } from "./routed-tracking.js";
 import { checkReadiness } from "./readiness.js";
 
 export interface StartOptions {
@@ -73,7 +75,11 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     orderActions: { repository: orders, now },
     couriers: { repository: createCourierRepository(database), now },
     merchantBoard: orders,
-    orderTracking: orders.tracking,
+    orderTracking: createRoutedTracking({
+      read: orders.tracking,
+      route: createRoadRouter({ origin: environment.OSRM_INTERNAL_ORIGIN }),
+      now: () => now().getTime(),
+    }),
     pushSubscriptions: createPushSubscriptionRepository(database),
     pushPublicKey: environment.VAPID_PUBLIC_KEY,
     realtime: {

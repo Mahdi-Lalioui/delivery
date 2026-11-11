@@ -248,3 +248,7 @@ DESIGN §8 asks for React Three Fiber. `three` 0.187.0 and `@react-three/fiber` 
 Keep the Casbah marketing landing at the locale root. Its primary action opens the anonymous
 customer home at the localized `/discover` path. The address picker and feed stay together on
 that page, and locale switching and alternate metadata retain the discovery path.
+
+### D-028 — Keep route estimates separate from cash quotes (2026-11-11)
+
+Active buyer tracking sends a fresh courier fix and the destination to self-hosted OSRM. The API accepts loopback and Compose routing origins. It coalesces estimates for the same order for 30 seconds. A route failure uses great-circle distance × 1.35 at 24 km/h, with a 60-second breaker after three failures. The fallback provides an ETA without drawing a road line. Expired GPS fixes do not generate a new ETA. Quote totals, zone fees and accepted order prices remain independent of router availability. [OSRM route service](https://project-osrm.org/docs/v26.6.1/http.html)

@@ -209,3 +209,6 @@
 
 - 2026-11-11 · Medium · Connected owner invite links, courier assignment, live handover readiness and private delivery proof review to the board. Passed 18 production-browser checks, 23 PostGIS cases and 51 scoped unit checks.
   Next: implement OSRM routing with fallback, nationwide location selection and the national seed.
+
+- 2026-11-11 · High · Added private OSRM tracking routes, thirty-second ETA coalescing and distance fallback with a circuit breaker. Passed 60 scoped tests. Pinned OSRM Docker returned 14 points, 874 m and 91 s on the Algiers fixture.
+  Next: publish all 69 wilayas to location pickers and wire the national map and seed data. Production still needs the full Algeria road graph.
