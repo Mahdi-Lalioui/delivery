@@ -134,3 +134,6 @@
 
 - 2026-11-11 · High · Published order, quote, address, tracking, courier and feed schemas in AWID_CONTRACTS.md. All 196 contract tests, typecheck, build and lint passed.
   Next: persist addresses and server-priced quotes, then place and transition orders transactionally with the acceptance job before wiring feed filters.
+
+- 2026-11-11 · High · Added scoped address CRUD, PostGIS serviceability, Plus Codes, one default, privacy export and erasure. 544 package tests and 17 focused PostGIS tests passed.
+  Next: persist server-priced quotes using current merchant zones and menu snapshots, then place orders and enqueue expiry in one transaction. Private voice uploads remain pending.

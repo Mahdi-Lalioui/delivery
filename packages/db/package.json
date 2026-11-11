@@ -99,6 +99,10 @@
     "./menu-import": {
       "types": "./src/menu-import.ts",
       "default": "./dist/menu-import.js"
+    },
+    "./addresses": {
+      "types": "./src/addresses.ts",
+      "default": "./dist/addresses.js"
     }
   },
   "scripts": {

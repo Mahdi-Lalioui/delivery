@@ -93,6 +93,7 @@ async function clearPersonalData(
       public.auth_otp_rate_digest('ip', host(request_ip)), requested_at
     FROM discarded WHERE requested_at > ${now.toISOString()}::timestamptz - interval '24 hours'
   `;
+  await sql`DELETE FROM public.addresses WHERE user_id = ${userId}`;
   await sql`DELETE FROM public.merchant_staff_invitations WHERE phone_e164 = ${phoneE164}`;
   await sql`UPDATE public.promotion_redemptions SET customer_id = NULL WHERE customer_id = ${userId}`;
   await sql`

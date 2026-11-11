@@ -1,7 +1,8 @@
 # AWID sprint contracts
 
 Use the shared Zod schemas and the HTTP shapes below for fixtures. The new endpoints are
-contract handoffs. Their implementation follows on lane-a.
+contract handoffs. Address CRUD is implemented on lane-a. Address voice-note attachments
+return `voice_note_unavailable` until the private audio upload and retention flow lands.
 
 | Endpoint | Request and response schemas | Access |
 | --- | --- | --- |

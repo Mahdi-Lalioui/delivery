@@ -183,10 +183,21 @@ test("[CUS-24] does not redeem a correct but expired or undelivered challenge", 
   await expect(repo.deleteAccount({ ...request, now: at(300) })).resolves.toBe("challenge_expired");
 });
 
+async function seedPrivateAddress(userId: string, label: string) {
+  const addressId = randomUUID();
+  await database.get().sql`
+    INSERT INTO public.addresses (id, user_id, label, location, plus_code, is_default, floor)
+    VALUES (${addressId}, ${userId}, ${label},
+      ST_GeogFromText('SRID=4326;POINT(3.0625 36.75)'), '8F85Q327+22', true, '2')
+  `;
+  return addressId;
+}
+
 test("[CUS-24] deletes once, revokes all sessions, and permits only the original bounded proof", async () => {
   const repo = createPrivacyRepository(database.get());
   const { sql } = database.get();
   const account = await customer();
+  const addressId = await seedPrivateAddress(account.userId, "Maison");
   const secondSession = await addSession({ userId: account.userId, transport: "bearer" });
   const request = challenge(account, "192.0.2.70");
   const auth = createAuthRepository(database.get());
@@ -220,6 +231,7 @@ test("[CUS-24] deletes once, revokes all sessions, and permits only the original
   expect(await repo.replayDeletion({ ...account, ...confirmation, now: at(598) })).toBe(true);
   expect(await repo.replayDeletion({ ...account, ...confirmation, now: at(599) })).toBe(false);
   expect(await repo.exportAccount({ ...account, now })).toBeUndefined();
+  expect(await sql`SELECT FROM public.addresses WHERE id = ${addressId}`).toHaveLength(0);
   expect(await auth.resolveSession({ ...account, now })).toBeUndefined();
   expect(await auth.resolveSession({ ...secondSession, now })).toBeUndefined();
   const [user] =
@@ -248,9 +260,23 @@ test("[CUS-24] exports only the active session's own profile and supported colle
   expect(
     await repo.exportAccount({ userId: account.userId, sessionId: other.sessionId, now }),
   ).toBeUndefined();
+  const addressId = await seedPrivateAddress(account.userId, "Maison");
+  await seedPrivateAddress(other.userId, "Adresse privée");
   expect(await repo.exportAccount({ ...account, now })).toEqual({
     profile: { accountId: account.userId, phoneE164: account.phoneE164 },
-    addresses: [],
+    addresses: [
+      {
+        addressId,
+        label: "Maison",
+        communeId: null,
+        floor: "2",
+        isDefault: true,
+        plusCode: "8F85Q327+22",
+        pin: { latitude: 36.75, longitude: 3.0625 },
+        landmark: null,
+        instructions: null,
+      },
+    ],
     orders: [],
     ratings: [],
   });

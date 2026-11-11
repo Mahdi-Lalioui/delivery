@@ -201,6 +201,26 @@ const matrix: readonly MatrixRoute[] = [
     payload: { scope: "current", expectedSessionId: challengeId },
     expected: 401,
   },
+  { method: "GET", url: "/v1/me/addresses", expected: { customer: 503 } },
+  {
+    method: "POST",
+    url: "/v1/me/addresses",
+    payload: { label: "Test", pin: { latitude: 36.75, longitude: 3.0625 } },
+    expected: { customer: 503 },
+  },
+  {
+    method: "PUT",
+    url: "/v1/me/addresses/:addressId",
+    requestUrl: `/v1/me/addresses/${challengeId}`,
+    payload: { label: "Test", pin: { latitude: 36.75, longitude: 3.0625 } },
+    expected: { customer: 503 },
+  },
+  {
+    method: "DELETE",
+    url: "/v1/me/addresses/:addressId",
+    requestUrl: `/v1/me/addresses/${challengeId}`,
+    expected: { customer: 503 },
+  },
   { method: "GET", url: "/v1/me/export", expected: { customer: 503 } },
   { method: "POST", url: "/v1/me/deletion-challenge", expected: { customer: 503 } },
   {

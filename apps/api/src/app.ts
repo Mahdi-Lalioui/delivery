@@ -12,6 +12,7 @@ import {
 import { createAuthAccess } from "./auth-access.js";
 import { registerBillingReadRoutes, type BillingRepository } from "./billing-read-routes.js";
 import { registerBillingWriteRoutes, type BillingWriteServices } from "./billing-write-routes.js";
+import { registerAddressRoutes } from "./address-routes.js";
 import { registerPrivacyRoutes, type PrivacyServices } from "./privacy-routes.js";
 import { registerAuthRoutes } from "./auth-routes.js";
 import { registerDiscoveryRoutes, type DiscoveryServices } from "./discovery-routes.js";
@@ -100,6 +101,7 @@ interface ApiOptions {
   readonly merchantStaff?: MerchantStaffServices;
   readonly trustedProxy?: string | undefined;
   readonly privacy?: PrivacyServices;
+  readonly addresses?: Parameters<typeof registerAddressRoutes>[1];
   readonly auth?: Parameters<typeof createAuthAccess>[0];
   readonly resolveActor?: ResolveActor;
   readonly rateLimit?: { readonly max: number; readonly timeWindow: number };
@@ -156,6 +158,7 @@ export function createApi(options: ApiOptions): FastifyInstance {
     });
     registerAuthRoutes(api, access);
     registerPrivacyRoutes(api, options.privacy);
+    registerAddressRoutes(api, options.addresses);
     registerMerchantRoutes(api, options.merchant);
     registerBillingReadRoutes(api, options.billing);
     registerBillingWriteRoutes(api, options.billingWrites);
