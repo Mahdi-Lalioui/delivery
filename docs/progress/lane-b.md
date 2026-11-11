@@ -60,3 +60,5 @@
   Next: T1 part 2 — restyle every ui component to the brief (radii 20–28, green-tinted shadows, press 0.97, motion 150/250/400), zellige + wave motifs, rewrite DESIGN.md + DECISIONS, then T2 photos.
 - 2026-11-11 · AWID logo: wordmark and app icon redrawn as SVG (light + dark variants) traced from the brand board; PNG cut-outs and favicon PNG removed, `app/icon.svg` added.
   Next: T1 remainder — restyle `packages/ui` to the brief, DESIGN.md + DECISIONS, evidence screenshots.
+- 2026-11-11 · AWID T1 done: ui motion 150/250/400 + cubic-bezier(0.2,0.8,0.2,1), press 0.97, cards radius 28 with green shadow (no border), inputs radius 20; DESIGN.md rewritten for AWID (D-B05); gallery evidence in docs/evidence/awid/gallery (no overflow; only dev-tools CSP noise).
+  Next: T2 — 15–20 credited Algeria photos → WebP + docs/PHOTO_CREDITS.md.

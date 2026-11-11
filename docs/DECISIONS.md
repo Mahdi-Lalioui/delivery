@@ -248,3 +248,7 @@ DESIGN §8 asks for React Three Fiber. `three` 0.187.0 and `@react-three/fiber` 
 Keep the Casbah marketing landing at the locale root. Its primary action opens the anonymous
 customer home at the localized `/discover` path. The address picker and feed stay together on
 that page, and locale switching and alternate metadata retain the discovery path.
+
+### D-B05 — AWID design system supersedes "Casbah Saffron" (2026-11-11)
+
+Supersedes the colour, type, logo and motion sections of the earlier DESIGN. Per docs/SPRINT.md the brand is AWID: deep green #0B3D2E for text and primary actions, #00A37A for large shapes and accents, mint #4DE3B4, pale mint #D9FCE7 and cream #FFF8E6; Poppins with IBM Plex Sans Arabic, self-hosted; radii 20/28 px with green-tinted shadows instead of borders; motion 150/250/400 ms on cubic-bezier(0.2, 0.8, 0.2, 1) with a 0.97 press. The logo and app icon are SVGs traced from docs/brand/awid-reference.jpg with dark variants. Fraunces, Inter and Noto Naskh were removed.

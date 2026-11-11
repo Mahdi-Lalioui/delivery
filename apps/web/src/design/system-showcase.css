@@ -43,6 +43,7 @@
 }
 
 .system-swatch code {
+  justify-self: start;
   font-family: var(--font-numbers);
 }
 
@@ -127,4 +128,26 @@
   align-items: start;
   gap: var(--space-16);
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+}
+
+.system-hex-dark {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .system-hex-light {
+    display: none;
+  }
+
+  :root:not([data-theme="light"]) .system-hex-dark {
+    display: inline;
+  }
+}
+
+:root[data-theme="dark"] .system-hex-light {
+  display: none;
+}
+
+:root[data-theme="dark"] .system-hex-dark {
+  display: inline;
 }

@@ -62,14 +62,15 @@ export type SystemCopy = Readonly<
   >
 >;
 
-// Brand palette from docs/SPRINT.md; names and hex are design vocabulary, not UI copy.
+// Brand palette from docs/SPRINT.md with each token's dark-theme value; names and hex are design
+// vocabulary, not UI copy. The chip shows the current theme, so CSS shows the matching hex.
 const swatches = [
-  ["text", "Deep green", "#0B3D2E"],
-  ["accent", "Green", "#00A37A"],
-  ["mint", "Mint", "#4DE3B4"],
-  ["mint-pale", "Pale mint", "#D9FCE7"],
-  ["cream", "Cream", "#FFF8E6"],
-  ["harissa", "Harissa", "#C2410C"],
+  ["text", "Deep green", "#0B3D2E", "#F1FBF6"],
+  ["accent", "Green", "#00A37A", "#00C994"],
+  ["mint", "Mint", "#4DE3B4", "#4DE3B4"],
+  ["mint-pale", "Pale mint", "#D9FCE7", "#123F30"],
+  ["cream", "Cream", "#FFF8E6", "#1A3A2E"],
+  ["harissa", "Harissa", "#C2410C", "#FF7A3D"],
 ] as const;
 const icons: readonly IconName[] = [
   "plate",
@@ -100,13 +101,18 @@ export function SystemShowcase({ copy }: { copy: SystemCopy }) {
       </Card>
       <Card title={copy.colour} titleId="system-colour">
         <ul className="system-swatches">
-          {swatches.map(([token, label, hex]) => (
+          {swatches.map(([token, label, light, dark]) => (
             <li key={token} className="system-swatch" data-token={token}>
               <span className="system-swatch-chip" />
               <span className="system-swatch-name" lang="en">
                 {label}
               </span>
-              <code dir="ltr">{hex}</code>
+              <code dir="ltr" className="system-hex-light">
+                {light}
+              </code>
+              <code dir="ltr" className="system-hex-dark">
+                {dark}
+              </code>
             </li>
           ))}
         </ul>
