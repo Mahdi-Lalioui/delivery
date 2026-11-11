@@ -8,7 +8,7 @@ The backend runs as a pinned Docker Compose stack. Caddy terminates TLS and is t
 2. Check out the approved Git commit under `/srv/awid`. Install `curl`, `jq`, and the pinned go-pmtiles binary. Prepare and verify the national map data with [MAPS.md](../infra/MAPS.md). The build host needs enough memory and disk for OSRM preprocessing and the HEIC image build.
 3. Create a private directory such as `/etc/awid` with mode 0700. Generate two separate 32-byte hex passwords with `openssl rand -hex 32` and save them in `postgres-password` and `database-password`. Keep secret files in that directory. If the Postgres container cannot read its mounted secret, allow read access to the container user while keeping the host directory private.
 4. Write `database.env` with `DATABASE_URL=postgresql://awid:<database-password>@db:5432/awid`. The database initializer creates a database owner without superuser or role-creation privileges.
-5. Write `api.env` with the final web origin in `AUTH_PUBLIC_ORIGIN`, plus independent 32-byte hex values for `AUTH_OTP_KEY` and `AUTH_TOTP_KEY`. Keep the keys stable across releases. Write `worker.env` with the provider and push settings listed in [.env.example](../.env.example). The file may be empty for an infrastructure smoke test.
+5. Write `api.env` with the final web origin in `AUTH_PUBLIC_ORIGIN`, plus independent 32-byte hex values for `AUTH_OTP_KEY` and `AUTH_TOTP_KEY`. Keep the keys stable across releases. Set `AUTH_SMS_WEBHOOK_URL` and `AUTH_SMS_WEBHOOK_TOKEN` in `api.env` to enable sign-in and staff invitations. Write `worker.env` with the provider and push settings listed in [.env.example](../.env.example). The file may be empty for an infrastructure smoke test.
 6. Write `/etc/awid/compose.env` with the paths below. Set `AWID_RELEASE_TAG` to the reviewed short Git SHA for each release.
 
 ```dotenv
@@ -29,6 +29,10 @@ Run one command after installing the files.
 ```
 
 The command validates Compose, builds the API and worker, waits for the data services, runs application and Graphile migrations, loads the public Algeria geography, starts Caddy, and checks TLS, API readiness, the 69 wilayas, a populated vector tile and the absence of a test route. The local-only restaurant seed stays outside this deployment command. Save the previous image tag and take an encrypted backup before deploying a database migration. Roll back by selecting the previous image only if it remains compatible with the migrated schema.
+
+## SMS gateway
+
+The API posts `{to, text}` with a bearer credential and an `Idempotency-Key` header. Accept the message once per key and return 2xx only after accepting it. Keys use `otp:` or `invite:` plus the server delivery ID. OTP and invitation retries send the same payload. Keep destination and message text out of gateway logs. Verify delivery using approved provider test numbers before enabling signup.
 
 ## Vercel
 

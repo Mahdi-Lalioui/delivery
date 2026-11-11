@@ -36,6 +36,11 @@ function isProxyAddress(input: string): boolean {
   return /^[0-9]{1,3}$/.test(prefix) && bits > 0 && bits <= (family === 4 ? 32 : 128);
 }
 
+function isWebhookUrl(value: string): boolean {
+  const url = URL.parse(value);
+  return url?.protocol === "https:" && !url.username && !url.password && !url.hash;
+}
+
 const apiEnvironment = z
   .object({
     DATABASE_URL: z.url({ protocol: /^postgres(?:ql)?$/ }),
@@ -48,6 +53,13 @@ const apiEnvironment = z
       .default(3002),
     API_TRUSTED_PROXY: z.string().refine(isProxyAddress).optional(),
     AUTH_PUBLIC_ORIGIN: z.string().refine(isOrigin),
+    AUTH_SMS_WEBHOOK_URL: z.string().refine(isWebhookUrl).optional(),
+    AUTH_SMS_WEBHOOK_TOKEN: z
+      .string()
+      .min(1)
+      .max(2048)
+      .regex(/^[!-~]+$/u)
+      .optional(),
     OSRM_INTERNAL_ORIGIN: z.string().refine(isInternalOsrmOrigin).optional(),
     VAPID_PUBLIC_KEY: pushPublicKey.optional(),
     AUTH_OTP_KEY: key,
@@ -60,7 +72,15 @@ const apiEnvironment = z
   .refine(({ AUTH_OTP_KEY, AUTH_TOTP_KEY }) => AUTH_OTP_KEY !== AUTH_TOTP_KEY, {
     path: ["AUTH_TOTP_KEY"],
     message: "Authentication keys must be different.",
-  });
+  })
+  .refine(
+    ({ AUTH_SMS_WEBHOOK_URL, AUTH_SMS_WEBHOOK_TOKEN }) =>
+      Boolean(AUTH_SMS_WEBHOOK_URL) === Boolean(AUTH_SMS_WEBHOOK_TOKEN),
+    {
+      path: ["AUTH_SMS_WEBHOOK_URL"],
+      message: "Set both authentication SMS variables or omit both.",
+    },
+  );
 
 export function readApiEnvironment(environment: Readonly<Record<string, string | undefined>>) {
   return apiEnvironment.parse(environment);

@@ -1,4 +1,3 @@
-import { randomBytes } from "node:crypto";
 import { createCourierRepository } from "@zaafran/db/couriers";
 import { createOrderRepository } from "@zaafran/db/orders";
 import { createOrderQuoteRepository } from "@zaafran/db/order-quotes";
@@ -34,6 +33,8 @@ import type { FastifyInstance, FastifyListenOptions } from "fastify";
 import { createApi } from "./app.js";
 import { createOrderRealtimeSignals } from "./order-realtime-signals.js";
 import { createPrivacyService } from "./privacy-service.js";
+import { createStaffInvitationToken } from "./auth-crypto.js";
+import { createAuthSmsAdapter } from "./auth-sms-adapter.js";
 import { createAuthService } from "./auth-service.js";
 import type { MerchantStaffServices } from "./merchant-staff-routes.js";
 import { readApiEnvironment } from "./environment.js";
@@ -54,7 +55,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
   const database = openDatabase(environment.DATABASE_URL);
   const now = options.now ?? (() => new Date());
   const otpKey = Buffer.from(environment.AUTH_OTP_KEY, "hex");
-  const sendSms = options.sendSms ?? unavailableSms;
+  const { sendSms, sendInvitation } = smsServices(environment, options);
   const service = createAuthService({
     repository: createAuthRepository(database),
     otpKey,
@@ -134,8 +135,8 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     merchantStaff: {
       repository: createMerchantStaffRepository(database),
       now,
-      createToken: () => randomBytes(32).toString("base64url"),
-      sendInvitation: options.sendInvitation ?? unavailableSms,
+      createToken: (scope) => createStaffInvitationToken({ ...scope, key: otpKey }),
+      sendInvitation,
     },
   });
   api.addHook("onClose", () => database.close());
@@ -151,6 +152,22 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     await api.close();
     throw error;
   }
+}
+
+function smsServices(environment: ReturnType<typeof readApiEnvironment>, options: StartOptions) {
+  const {
+    AUTH_SMS_WEBHOOK_URL: url,
+    AUTH_SMS_WEBHOOK_TOKEN: token,
+    AUTH_PUBLIC_ORIGIN,
+  } = environment;
+  const configured =
+    url && token
+      ? createAuthSmsAdapter({ url, token, publicOrigin: AUTH_PUBLIC_ORIGIN })
+      : undefined;
+  return {
+    sendSms: options.sendSms ?? configured?.sendOtp ?? unavailableSms,
+    sendInvitation: options.sendInvitation ?? configured?.sendInvitation ?? unavailableSms,
+  };
 }
 
 function unavailableSms(): never {

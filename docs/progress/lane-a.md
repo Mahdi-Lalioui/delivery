@@ -239,3 +239,6 @@
 
 - 2026-11-11 · High · Built the production Compose stack and passed a trusted local Caddy HTTPS smoke. Restored the encrypted PostGIS dump and synthetic private media. Knip and dependency boundaries passed.
   Next: wire the configurable authentication SMS provider, then implement admin live orders and its two handoffs while Mahdi provisions the server and Vercel project.
+
+- 2026-11-11 · Ultra · Wired the authentication SMS webhook for OTP, privacy and staff invites, with scoped stable invite retries and sanitized provider failures. Passed 62 scoped tests, 50 PostGIS cases and five production-browser auth/staff journeys.
+  Next: publish admin live-order search and timeline contracts, then wire the admin tools and complete the two handoffs.

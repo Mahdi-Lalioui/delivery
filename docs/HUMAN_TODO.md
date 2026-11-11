@@ -23,7 +23,7 @@ Codex appends items here (what, why, exact steps). Mahdi ticks them. Items marke
 - [ ] **[before launch]** Second backup location for encrypted backups.
 
 ## Providers
-- [ ] **[before launch]** SMS gateway for login. In the provider console, register a transactional sender ID, enable its HTTPS send endpoint and request the delivery and idempotency documentation. Put the provider credential in the deployment secret store and share the credential reference and sender ID so the production adapter can be configured. Use approved test numbers on Mobilis, Djezzy and Ooredoo to confirm delivery before opening signup. Development and automated checks use the local fake inbox.
+- [ ] **[before launch]** Connect the authentication SMS gateway. Register a transactional sender ID and configure an HTTPS endpoint that accepts bearer authentication, a JSON body with `to` and `text`, and `Idempotency-Key` deduplication. Put its endpoint and credential in `AUTH_SMS_WEBHOOK_URL` and `AUTH_SMS_WEBHOOK_TOKEN` in the API secret file. Confirm sign-in, deletion and staff-invitation delivery on approved Mobilis, Djezzy and Ooredoo test numbers. [Gateway contract](DEPLOY.md#sms-gateway)
 - [ ] Telegram bot token (or an email address) for alerts.
 - [ ] Chargily Pay account, for restaurants paying their subscription online (optional at launch).
 - [ ] (Optional) LLM API key, for menu import from photos (feature flag `menu_photo_import`).

@@ -89,3 +89,27 @@ test("[GEO-03] private routes use only the loopback or Compose OSRM origin", () 
     expect(() => readApiEnvironment({ ...input, OSRM_INTERNAL_ORIGIN: origin })).toThrow();
   }
 });
+
+test("accepts paired HTTPS authentication SMS credentials without embedded credentials or fragments", () => {
+  const base = {
+    DATABASE_URL: "postgresql://zaafran:local@127.0.0.1:5432/zaafran_dev",
+    AUTH_PUBLIC_ORIGIN: "https://awid.example.test",
+    AUTH_OTP_KEY: "01".repeat(32),
+    AUTH_TOTP_KEY: "02".repeat(32),
+  };
+  const sms = {
+    AUTH_SMS_WEBHOOK_URL: "https://sms.example.test/messages",
+    AUTH_SMS_WEBHOOK_TOKEN: "synthetic-gateway-token",
+  };
+  expect(readApiEnvironment({ ...base, ...sms })).toMatchObject(sms);
+  expect(() =>
+    readApiEnvironment({ ...base, AUTH_SMS_WEBHOOK_TOKEN: sms.AUTH_SMS_WEBHOOK_TOKEN }),
+  ).toThrow();
+  for (const url of [
+    "http://sms.example.test/messages",
+    "https://user@sms.example.test",
+    "https://sms.example.test/#fragment",
+  ]) {
+    expect(() => readApiEnvironment({ ...base, ...sms, AUTH_SMS_WEBHOOK_URL: url })).toThrow();
+  }
+});
