@@ -6,6 +6,8 @@ You are building **Zaafran** (working name — the real name lives only in `pack
 
 ## 0. Parallel build week
 
+[The AWID sprint](docs/SPRINT.md) supersedes this section until Mahdi ends it.
+
 These rules override slower work-loop and milestone sequencing rules through Sunday 15 November 2026. The feature target is 15 November. The hardening week runs 16–22 November.
 
 | Lane | Builder and branch    | Order                                          | Owned paths                                                                                                                        |
