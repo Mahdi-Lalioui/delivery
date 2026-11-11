@@ -322,6 +322,13 @@ const matrix: readonly MatrixRoute[] = [
   },
   {
     method: "POST",
+    url: "/v1/orders/:orderId/deliver",
+    requestUrl: "/v1/orders/" + challengeId + "/deliver",
+    payload: { expectedVersion: 1, proof: { kind: "code", code: "1234" } },
+    expected: { customer: 503, courier: 503 },
+  },
+  {
+    method: "POST",
     url: "/v1/orders/:orderId/force",
     requestUrl: "/v1/orders/" + challengeId + "/force",
     payload: { expectedVersion: 1, to: "cancelled", reason: "Cancel" },

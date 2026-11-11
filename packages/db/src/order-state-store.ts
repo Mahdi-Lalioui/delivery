@@ -87,6 +87,8 @@ export async function enqueueOrderTimer(sql: TransactionSql, order: OrderSnapsho
 
 export type OrderStateRow = OrderSnapshot & {
   travelMinutes: number;
+  deliveryCodeDigest: Uint8Array | null;
+  deliveryCodeAttempts: number;
   shortCode: string;
   totalDzd: number;
   placedAt: Date;
@@ -97,7 +99,8 @@ export function orderStateColumns(sql: TransactionSql) {
     id, customer_id AS "customerId", merchant_id AS "merchantId", fulfilment, status,
       courier_id AS "courierId", version, prep_minutes AS "prepMinutes",
       travel_minutes AS "travelMinutes", short_code AS "shortCode", total_dzd AS "totalDzd",
-      placed_at AS "placedAt",
+      placed_at AS "placedAt", delivery_code_digest AS "deliveryCodeDigest",
+      delivery_code_attempts AS "deliveryCodeAttempts",
       (extract(epoch FROM last_event_at) * 1000)::float8 AS "lastEventAt",
       (extract(epoch FROM scheduled_for) * 1000)::float8 AS "scheduledFor",
       (extract(epoch FROM release_at) * 1000)::float8 AS "releaseAt",
@@ -118,11 +121,17 @@ export async function readOrderSnapshot(sql: TransactionSql, orderId: string, lo
   return snapshot;
 }
 
-export async function writeOrderState(sql: TransactionSql, order: OrderSnapshot) {
+export async function writeOrderState(
+  sql: TransactionSql,
+  order: OrderSnapshot,
+  deliveryDigest: Buffer | null = null,
+) {
   await sql`
     UPDATE public.orders SET status = ${order.status}, version = ${order.version},
       last_event_at = ${iso(order.lastEventAt)}, acceptance_deadline_at = ${iso(order.acceptanceDeadlineAt)},
       prep_minutes = ${order.prepMinutes}, courier_id = ${order.courierId},
+      delivery_code_digest = CASE WHEN ${order.status} = 'out_for_delivery'
+        THEN coalesce(delivery_code_digest, ${deliveryDigest}::bytea) ELSE NULL END,
       eta_earliest_at = ${iso(order.eta?.earliestAt ?? null)},
       eta_latest_at = ${iso(order.eta?.latestAt ?? null)}
     WHERE id = ${order.id}

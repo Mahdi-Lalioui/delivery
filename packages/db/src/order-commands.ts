@@ -2,6 +2,11 @@ import { estimateDelivery } from "@zaafran/domain/eta";
 import { transition } from "@zaafran/domain/order-transition";
 import type { OrderAction, OrderActor, OrderSnapshot } from "@zaafran/domain/order-types";
 import type { TransactionSql } from "postgres";
+import {
+  deliveryCodeDigest,
+  deriveDeliveryCode,
+  matchesDeliveryCode,
+} from "./order-delivery-code.js";
 import { hash } from "./order-placement-store.js";
 import {
   appendOrderEvent,
@@ -23,6 +28,7 @@ export type OrderAccess = { accountId: string; role: Role; orderId: string };
 type PublicAction =
   | Extract<OrderAction, { kind: "cancel" | "collect" | "markReady" | "pickUp" | "force" }>
   | { kind: "assignCourier"; courierId: string }
+  | { kind: "deliver"; code: string }
   | { kind: "accept"; prepMinutes: number }
   | {
       kind: "reject";
@@ -127,7 +133,10 @@ export async function readScopedOrder(sql: TransactionSql, request: OrderAccess)
 
 async function toDomainAction(
   sql: TransactionSql,
-  { action: input, now }: OrderCommandRequest,
+  {
+    action: input,
+    now,
+  }: Omit<OrderCommandRequest, "action"> & { action: Exclude<PublicAction, { kind: "deliver" }> },
   order: StateRow,
 ): Promise<OrderAction | undefined> {
   if (input.kind === "assignCourier") {
@@ -183,59 +192,177 @@ async function markRejectedItemsSoldOut(
   return true;
 }
 
-type CommandContext = { order: StateRow; actor: OrderActor };
+type CommandContext = { order: StateRow; actor: OrderActor; deliveryKey: Uint8Array | undefined };
+type FailedProof = { kind: "invalid_delivery_code" | "delivery_code_locked" };
+type ReceiptResponse = OrderSummary | FailedProof;
+type ReceiptKey = { orderId: string; accountId: string; keyHash: Buffer; requestHash: Buffer };
+
+async function readActionReceipt(sql: TransactionSql, key: ReceiptKey) {
+  const [receipt] = await sql<{ matches: boolean; response: ReceiptResponse }[]>`
+    SELECT request_hash = ${key.requestHash} AS matches, response FROM public.order_action_receipts
+    WHERE order_id = ${key.orderId} AND actor_id = ${key.accountId} AND key_hash = ${key.keyHash}
+  `;
+  if (!receipt) return undefined;
+  if (!receipt.matches) return { kind: "idempotency_conflict" } as const;
+  return "kind" in receipt.response
+    ? receipt.response
+    : ({ kind: "applied", order: receipt.response } as const);
+}
+
+async function saveActionReceipt(sql: TransactionSql, key: ReceiptKey, response: ReceiptResponse) {
+  await sql`
+    INSERT INTO public.order_action_receipts (order_id, actor_id, key_hash, request_hash, response)
+    VALUES (${key.orderId}, ${key.accountId}, ${key.keyHash}, ${key.requestHash}, ${JSON.stringify(response)}::jsonb)
+  `;
+}
+
+type DeliveryAttempt = {
+  digest: Buffer;
+  expected: Buffer | Uint8Array;
+  action: Extract<OrderAction, { kind: "deliver" }>;
+};
+
+function deliveryAttempt(key: Uint8Array, order: StateRow, suppliedCode: string): DeliveryAttempt {
+  const digest = deliveryCodeDigest(key, order.id, suppliedCode);
+  const expected =
+    order.deliveryCodeDigest ??
+    deliveryCodeDigest(key, order.id, deriveDeliveryCode(key, order.id));
+  return {
+    digest,
+    expected,
+    action: {
+      kind: "deliver",
+      facts: {
+        proof: {
+          kind: "code",
+          isCodeValid: matchesDeliveryCode(expected, digest),
+          failedAttempts: order.deliveryCodeAttempts,
+        },
+      },
+    },
+  };
+}
+
+async function recordWrongDeliveryCode(
+  sql: TransactionSql,
+  attempt: DeliveryAttempt,
+  { order, key }: { order: StateRow; key: ReceiptKey },
+): Promise<FailedProof> {
+  if (order.deliveryCodeAttempts >= 5) return { kind: "delivery_code_locked" };
+  const count = order.deliveryCodeAttempts + 1;
+  const result = { kind: count === 5 ? "delivery_code_locked" : "invalid_delivery_code" } as const;
+  await sql`
+    UPDATE public.orders SET delivery_code_attempts = ${count}, delivery_code_digest = ${Buffer.from(attempt.expected)}
+    WHERE id = ${order.id}
+  `;
+  await saveActionReceipt(sql, key, result);
+  return result;
+}
+
+async function persistTransition(
+  sql: TransactionSql,
+  result: Extract<ReturnType<typeof transition>, { ok: true }>["value"],
+  { key, context }: { key: ReceiptKey; context: CommandContext },
+) {
+  if (result.kind !== "applied") throw new Error("New order action unexpectedly replayed");
+  const { event, order: next } = result;
+  const { order, deliveryKey } = context;
+  const digest =
+    event.payload.kind === "pickUp" && deliveryKey
+      ? deliveryCodeDigest(deliveryKey, order.id, deriveDeliveryCode(deliveryKey, order.id))
+      : null;
+  const response = presentOrder(next, order);
+  await writeOrderState(sql, next, digest);
+  await appendOrderEvent(sql, event);
+  await saveActionReceipt(sql, key, response);
+  return { kind: "applied", order: response } as const;
+}
+
+function actionReceiptKey(
+  request: OrderCommandRequest,
+  orderId: string,
+  fingerprint: unknown,
+): ReceiptKey {
+  return {
+    orderId,
+    accountId: request.accountId,
+    keyHash: hash(request.idempotencyKey),
+    requestHash: hash(JSON.stringify([request.expectedVersion, fingerprint])),
+  };
+}
+
+function transitionCommand(
+  context: CommandContext,
+  { request, action, key }: { request: OrderCommandRequest; action: OrderAction; key: ReceiptKey },
+) {
+  return transition({
+    order: context.order,
+    actor: context.actor,
+    now: request.now.getTime(),
+    command: {
+      action,
+      idempotencyKey: request.idempotencyKey,
+      expectedVersion: request.expectedVersion,
+      requestFingerprint: key.requestHash.toString("hex"),
+    },
+  });
+}
+
+async function commitDeliveryCode(
+  sql: TransactionSql,
+  request: OrderCommandRequest & { action: { kind: "deliver"; code: string } },
+  context: CommandContext,
+) {
+  const { order, deliveryKey } = context;
+  if (!deliveryKey) return { kind: "delivery_code_unavailable" } as const;
+  const attempt = deliveryAttempt(deliveryKey, order, request.action.code);
+  const key = actionReceiptKey(request, order.id, ["deliver", attempt.digest.toString("hex")]);
+  const receipt = await readActionReceipt(sql, key);
+  if (receipt) return receipt;
+
+  const result = transitionCommand(context, { request, key, action: attempt.action });
+  if (result.ok) return persistTransition(sql, result.value, { key, context });
+  if (result.error.code === "invalid_order_command" && order.status === "out_for_delivery")
+    return recordWrongDeliveryCode(sql, attempt, { order, key });
+  return { kind: result.error.code };
+}
+
 async function commitCommand(
   sql: TransactionSql,
   request: OrderCommandRequest,
-  { order, actor }: CommandContext,
+  context: CommandContext,
 ) {
-  const { now, idempotencyKey, expectedVersion } = request;
-  const keyHash = hash(idempotencyKey);
-  const requestHash = hash(JSON.stringify([expectedVersion, request.action]));
-  const [receipt] = await sql<{ matches: boolean; response: OrderSummary }[]>`
-    SELECT request_hash = ${requestHash} AS matches, response FROM public.order_action_receipts
-    WHERE order_id = ${order.id} AND actor_id = ${request.accountId} AND key_hash = ${keyHash}
-  `;
-  if (receipt)
-    return receipt.matches
-      ? ({ kind: "applied", order: receipt.response } as const)
-      : ({ kind: "idempotency_conflict" } as const);
-
-  const action = await toDomainAction(sql, request, order);
+  const { action: input } = request;
+  if (input.kind === "deliver")
+    return commitDeliveryCode(sql, { ...request, action: input }, context);
+  const { order } = context;
+  const key = actionReceiptKey(request, order.id, input);
+  const receipt = await readActionReceipt(sql, key);
+  if (receipt) return receipt;
+  const action = await toDomainAction(sql, { ...request, action: input }, order);
   if (!action) return { kind: "invalid_order_command" } as const;
-
-  const result = transition({
-    order,
-    actor,
-    now: now.getTime(),
-    command: {
-      action,
-      idempotencyKey,
-      expectedVersion,
-      requestFingerprint: requestHash.toString("hex"),
-    },
-  });
+  const result = transitionCommand(context, { request, key, action });
   if (!result.ok) return { kind: result.error.code };
-  if (result.value.kind !== "applied") throw new Error("New order action unexpectedly replayed");
   if (
     action.kind === "reject" &&
     !(await markRejectedItemsSoldOut(sql, order, action.facts.soldOutItemIds))
   ) {
     return { kind: "invalid_order_command" } as const;
   }
-
-  const { event, order: next } = result.value;
-  const response = presentOrder(next, order);
-  await writeOrderState(sql, next);
-  await appendOrderEvent(sql, event);
-  await sql`
-    INSERT INTO public.order_action_receipts (order_id, actor_id, key_hash, request_hash, response)
-    VALUES (${order.id}, ${request.accountId}, ${keyHash}, ${requestHash}, ${JSON.stringify(response)}::jsonb)
-  `;
-  return { kind: "applied", order: response } as const;
+  return persistTransition(sql, result.value, { key, context });
 }
 
-export async function applyOrderCommand(sql: TransactionSql, request: OrderCommandRequest) {
+function deliveryActor(sql: TransactionSql, scope: AuthorizationScope, order: StateRow) {
+  return scope.role === "standard" || scope.role === "courier"
+    ? readAssignedCourier(sql, scope, order)
+    : undefined;
+}
+
+export async function applyOrderCommand(
+  sql: TransactionSql,
+  request: OrderCommandRequest,
+  deliveryKey?: Uint8Array,
+) {
   const [account] = await sql`
     SELECT FROM public.users WHERE id = ${request.accountId} AND deleted_at IS NULL AND blocked_at IS NULL FOR SHARE
   `;
@@ -244,15 +371,17 @@ export async function applyOrderCommand(sql: TransactionSql, request: OrderComma
   if (!order) return { kind: "not_found" } as const;
   const preferMerchant =
     request.action.kind !== "cancel" || order.status === "accepted" || order.status === "ready";
-  const actor = await authorizeOrder(
-    sql,
-    {
-      ...request,
-      lockRole: true,
-      preferMerchant,
-      allowCourier: request.action.kind === "pickUp",
-    },
-    order,
-  );
-  return actor ? commitCommand(sql, request, { order, actor }) : ({ kind: "not_found" } as const);
+  const scope = {
+    ...request,
+    lockRole: true,
+    preferMerchant,
+    allowCourier: request.action.kind === "pickUp",
+  };
+  const actor =
+    request.action.kind === "deliver"
+      ? await deliveryActor(sql, scope, order)
+      : await authorizeOrder(sql, scope, order);
+  return actor
+    ? commitCommand(sql, request, { order, actor, deliveryKey })
+    : ({ kind: "not_found" } as const);
 }

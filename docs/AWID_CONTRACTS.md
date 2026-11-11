@@ -1,7 +1,7 @@
 # AWID sprint contracts
 
 Use the shared Zod schemas and the HTTP shapes below for fixtures. The new endpoints are
-contract handoffs. Address CRUD, quotes, placement, scoped order reads and the accept, reject, cancel, ready, collect, assign, pick-up and force actions are implemented on lane-a. The buyer’s authenticated tracking view and the courier invite, roster, presence, jobs and position APIs are implemented. Address voice-note attachments
+contract handoffs. Address CRUD, quotes, placement, scoped order reads and the accept, reject, cancel, ready, collect, assign, pick-up, deliver by code and force actions are implemented on lane-a. The buyer’s authenticated tracking view and the courier invite, roster, presence, jobs and position APIs are implemented. Address voice-note attachments
 return `voice_note_unavailable` until the private audio upload and retention flow lands.
 
 | Endpoint | Request and response schemas | Access |
@@ -37,6 +37,10 @@ return `voice_note_unavailable` until the private audio upload and retention flo
   quote ID and optional cash tender to confirm. Retried placement returns its original response for 24 hours. An expired or changed quote requires a
   fresh review. Omit the address ID for pickup. Pass `locale` as `ar`, `fr` or `en`
   so order messages follow the checkout language. It defaults to French.
+- Delivery codes are shown only to the signed-in buyer while the driver is en route.
+  A wrong code returns `invalid_delivery_code`. Five wrong attempts return
+  `delivery_code_locked`. Repeat the original idempotency key after a transport
+  failure. A new code attempt needs a new key.
 - A public tracking response contains only the status, times, ETA and first name.
   Use authenticated tracking for exact coordinates and the delivery or pickup code.
 - Feed filters are URL query parameters, with `true` and `false` for flags. Preserve

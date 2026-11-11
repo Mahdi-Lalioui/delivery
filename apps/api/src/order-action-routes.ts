@@ -16,7 +16,7 @@ type ActionRoute<Body extends z.ZodType<{ expectedVersion: number }>> = {
   name: string;
   roles: readonly Role[];
   body: Body;
-  action: (input: z.output<Body>) => Action;
+  action: (input: z.output<Body>) => Action | undefined;
 };
 
 const routePath = "/v1/orders/:orderId";
@@ -62,17 +62,20 @@ function registerAction<Body extends z.ZodType<{ expectedVersion: number }>>(
       if (!actor) return sendProblem(reply, 401);
       if (!services) return sendProblem(reply, 503);
       const input = descriptor.body.parse(request.body);
+      const action = descriptor.action(input);
+      if (!action) return sendProblem(reply, 503, "delivery_photo_unavailable");
       const result = await services.repository.apply({
         ...actor,
         orderId: request.params.orderId,
         expectedVersion: input.expectedVersion,
-        action: descriptor.action(input),
+        action,
         now: services.now(),
         idempotencyKey: request.headers["idempotency-key"],
       });
       if (result.kind === "applied") return reply.send(result.order);
       if (result.kind === "not_found" || result.kind === "order_forbidden")
         return sendProblem(reply, 404);
+      if (result.kind === "delivery_code_unavailable") return sendProblem(reply, 503, result.kind);
       return sendProblem(reply, result.kind === "invalid_order_command" ? 400 : 409, result.kind);
     },
   );
@@ -143,6 +146,13 @@ export function registerOrderActionRoutes(api: FastifyInstance, services?: Order
       roles: [...merchant, "courier"],
       body: orderActionInputs["pick-up"],
       action: () => ({ kind: "pickUp" }),
+    });
+    registerAction(scope, services, {
+      name: "deliver",
+      roles: ["customer", "courier"],
+      body: orderActionInputs.deliver,
+      action: ({ proof }) =>
+        proof.kind === "code" ? { kind: "deliver", code: proof.code } : undefined,
     });
     registerAction(scope, services, {
       name: "force",

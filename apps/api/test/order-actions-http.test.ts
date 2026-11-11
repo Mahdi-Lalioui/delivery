@@ -61,3 +61,32 @@ test("[ORD-03:http] orders read and actions are scoped to the session", async ()
     action: { kind: "assignCourier", courierId: accountId },
   });
 });
+
+test("[COU-05:http] delivery checks the assigned actor and reports a locked code", async () => {
+  const apply = vi
+    .fn<ReturnType<typeof createOrderRepository>["apply"]>()
+    .mockResolvedValue({ kind: "delivery_code_locked" });
+  const api = createApi({
+    checkReadiness: () => Promise.resolve(),
+    resolveActor: () => Promise.resolve({ role: "courier", accountId, sessionId: accountId }),
+    orderActions: { repository: { read: () => Promise.resolve(undefined), apply }, now: () => now },
+  });
+  onTestFinished(() => api.close());
+  const response = await api.inject({
+    method: "POST",
+    url: "/v1/orders/" + orderId + "/deliver",
+    payload: { expectedVersion: 5, proof: { kind: "code", code: "0123" } },
+    headers: { "idempotency-key": "delivery-proof" },
+  });
+  expect(response.statusCode).toBe(409);
+  expect(response.json()).toMatchObject({ code: "delivery_code_locked" });
+  expect(apply).toHaveBeenCalledWith({
+    orderId,
+    accountId,
+    role: "courier",
+    expectedVersion: 5,
+    now,
+    idempotencyKey: "delivery-proof",
+    action: { kind: "deliver", code: "0123" },
+  });
+});

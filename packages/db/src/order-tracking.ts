@@ -1,5 +1,6 @@
 import type { customerTrackingOutput, trackingPositionEvent } from "@zaafran/contracts/tracking";
 import type { TransactionSql } from "postgres";
+import { revealDeliveryCode } from "./order-delivery-code.js";
 import { orderStateColumns, orderSummaryFor, type OrderStateRow } from "./order-state-store.js";
 import { activeStandardSession } from "./standard-session.js";
 import { timestampParsers } from "./timestamp-parsers.js";
@@ -80,6 +81,7 @@ async function readTimeline(sql: TransactionSql, orderId: string): Promise<Timel
 export async function readCustomerTracking(
   sql: TransactionSql,
   { orderId, customerId, sessionId }: CustomerTrackingScope,
+  deliveryKey?: Uint8Array,
 ): Promise<Tracking | undefined> {
   const [row] = await sql<TrackingRow[]>`
     SELECT ${orderStateColumns(sql)}, address_snapshot->'pin' AS destination,
@@ -100,12 +102,16 @@ export async function readCustomerTracking(
   if (fulfilment === "pickup")
     return { ...base, fulfilment, pickupPin: restaurant.pin, pickupCode: shortCode };
   if (!destination) return undefined;
+  const deliveryCode =
+    deliveryKey && row.status === "out_for_delivery" && row.deliveryCodeAttempts < 5
+      ? revealDeliveryCode(deliveryKey, orderId, row.deliveryCodeDigest)
+      : null;
   return {
     ...base,
     fulfilment,
     destination,
     courier: await readCourier(sql, row),
-    deliveryCode: null,
+    deliveryCode,
     route: null,
   };
 }

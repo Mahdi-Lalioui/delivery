@@ -191,3 +191,6 @@
 
 - 2026-11-11 · Ultra · Added buyer-only pickup/delivery tracking and live position frames without changing the order replay cursor. Passed 249 authz, 23 PostGIS checks, and scoped typecheck/lint/OpenAPI.
   Next: add four-digit delivery proof and retry-safe attempt limits; share links and routed ETA are still pending.
+
+- 2026-11-11 · Ultra · Added buyer-only four-digit proof, stored keyed digests, five-try lockout and idempotent successful and failed submissions. Passed 250 authz, 38 PostGIS, and scoped unit/typecheck/lint/OpenAPI checks.
+  Next: implement server-timed failed delivery and photo proof fallback before the courier screens.

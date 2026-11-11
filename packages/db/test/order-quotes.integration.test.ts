@@ -7,6 +7,7 @@ import { createAddressRepository } from "../src/addresses.ts";
 import { createAuthRepository } from "../src/auth.ts";
 import { pruneCourierPositions } from "../src/courier-retention.ts";
 import { createCourierRepository } from "../src/couriers.ts";
+import { deriveDeliveryCode } from "../src/order-delivery-code.ts";
 import { createOrderQuoteRepository } from "../src/order-quotes.ts";
 import { createOrderRepository } from "../src/orders.ts";
 import { registerTestDatabase } from "./database.ts";
@@ -123,7 +124,7 @@ test("[MON-09] cleans up expired quote snapshots and retains live ones", async (
   expect(await sql`SELECT FROM quotes WHERE id = ${quoteId}`).toHaveLength(0);
 });
 
-const orders = () => createOrderRepository(database.get());
+const orders = () => createOrderRepository(database.get(), Buffer.alloc(32, 7));
 
 async function placement(input: z.infer<typeof orderQuoteInput> = pickup) {
   const result = await repo().create({ customerId, input, now });
@@ -496,6 +497,9 @@ async function verifyBuyerTracking(
       position: { latitude: 36.75, longitude: 3.0625, heading: 45, capturedAt },
     },
   });
+  expect(tracking).toMatchObject({
+    deliveryCode: deriveDeliveryCode(Buffer.alloc(32, 7), orderId),
+  });
   expect(tracking?.timeline.map(({ status }) => status)).toEqual([
     "pending_acceptance",
     "accepted",
@@ -510,6 +514,56 @@ async function verifyBuyerTracking(
     after: "5",
   });
   expect(replay).toMatchObject({ events: [], position: { orderId, capturedAt } });
+}
+
+async function verifyDeliveryCode(orderId: string, driverId: string, mode: "deliver" | "lock") {
+  const { sql } = database.get();
+  const [{ delivery_code_digest: digest } = {}] = await sql`SELECT delivery_code_digest
+    FROM public.orders WHERE id = ${orderId}`;
+  expect(digest).toBeInstanceOf(Uint8Array);
+  const code = deriveDeliveryCode(Buffer.alloc(32, 7), orderId);
+  const wrong = code === "0000" ? "1111" : "0000";
+  const delivery = {
+    orderId,
+    accountId: driverId,
+    role: "standard",
+    expectedVersion: 5,
+    now: new Date(),
+    idempotencyKey: randomUUID(),
+    action: { kind: "deliver", code: wrong },
+  } as const;
+  expect(await orders().apply({ ...delivery, accountId: customerId })).toEqual({
+    kind: "not_found",
+  });
+  const attempts = await Promise.all([orders().apply(delivery), orders().apply(delivery)]);
+  expect(attempts).toEqual(Array(2).fill({ kind: "invalid_delivery_code" }));
+  const correct = {
+    ...delivery,
+    action: { kind: "deliver", code },
+    idempotencyKey: randomUUID(),
+  } as const;
+  expect(await orders().apply({ ...correct, idempotencyKey: delivery.idempotencyKey })).toEqual({
+    kind: "idempotency_conflict",
+  });
+  if (mode === "lock") {
+    for (let attempt = 2; attempt <= 5; attempt++) {
+      expect(await orders().apply({ ...delivery, idempotencyKey: randomUUID() })).toEqual({
+        kind: attempt === 5 ? "delivery_code_locked" : "invalid_delivery_code",
+      });
+    }
+    expect(await orders().apply(correct)).toEqual({ kind: "delivery_code_locked" });
+    expect(await orders().apply(delivery)).toEqual({ kind: "invalid_delivery_code" });
+    return;
+  }
+  const [first, replay] = await Promise.all([orders().apply(correct), orders().apply(correct)]);
+  expect(first).toMatchObject({ kind: "applied", order: { status: "delivered", version: 6 } });
+  expect(replay).toEqual(first);
+  const [finished] =
+    await sql`SELECT delivery_code_digest, delivery_code_attempts FROM public.orders WHERE id = ${orderId}`;
+  expect(finished).toMatchObject({ delivery_code_digest: null, delivery_code_attempts: 1 });
+  expect(
+    await sql`SELECT FROM public.order_events WHERE order_id = ${orderId} AND to_status = 'delivered'`,
+  ).toHaveLength(1);
 }
 
 async function verifyCourierPositions(
@@ -552,6 +606,40 @@ async function verifyCourierPositions(
   expect(await sql`SELECT FROM public.courier_positions WHERE order_id = ${orderId}`).toHaveLength(
     0,
   );
+}
+
+async function verifyDeliveryLockout({
+  addressId,
+  courierId,
+  driverId,
+}: {
+  addressId: string;
+  courierId: string;
+  driverId: string;
+}) {
+  const locked = await orders().place(
+    await placement({ ...pickup, fulfilment: "delivery", addressId }),
+  );
+  if (locked.kind !== "placed") throw new Error("Expected second placement");
+  for (const [expectedVersion, action] of [
+    [1, { kind: "accept", prepMinutes: 15 }],
+    [2, { kind: "markReady" }],
+    [3, { kind: "assignCourier", courierId }],
+    [4, { kind: "pickUp" }],
+  ] as const) {
+    expect(
+      await orders().apply({
+        accountId: otherId,
+        role: "merchant_owner",
+        now,
+        orderId: locked.order.orderId,
+        expectedVersion,
+        idempotencyKey: randomUUID(),
+        action,
+      }),
+    ).toMatchObject({ kind: "applied" });
+  }
+  await verifyDeliveryCode(locked.order.orderId, driverId, "lock");
 }
 
 test("[MER-03][COU-02] assigns only an active restaurant courier and exposes their delivery", async () => {
@@ -644,6 +732,8 @@ test("[MER-03][COU-02] assigns only an active restaurant courier and exposes the
   ).toMatchObject({ kind: "applied", order: { status: "out_for_delivery", version: 5 } });
   expect((await jobs(driverSession))?.jobs[0]?.order.status).toBe("out_for_delivery");
   await verifyCourierPositions(orderId, driverSession);
+  await verifyDeliveryCode(orderId, driver.id, "deliver");
+  await verifyDeliveryLockout({ addressId, courierId, driverId: driver.id });
   expect(
     (await orders().board({ merchantId, accountId: otherId }))?.orders.some(
       (ticket) => ticket.orderId === orderId,

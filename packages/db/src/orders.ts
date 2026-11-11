@@ -214,11 +214,11 @@ async function runTimer(
   if (action === "release") await enqueueOrderTimer(sql, result.value.order);
 }
 
-export function createOrderRepository({ sql }: DatabaseConnection) {
+export function createOrderRepository({ sql }: DatabaseConnection, deliveryKey?: Uint8Array) {
   return {
     tracking: (request: CustomerTrackingScope) =>
       sql.begin("isolation level repeatable read read only", (tx) =>
-        readCustomerTracking(tx, request),
+        readCustomerTracking(tx, request, deliveryKey),
       ),
     orderReplay: (request: OrderReplayRequest) =>
       sql.begin("isolation level repeatable read read only", (tx) => readOrderReplay(tx, request)),
@@ -230,7 +230,8 @@ export function createOrderRepository({ sql }: DatabaseConnection) {
       sql.begin("isolation level repeatable read read only", (tx) =>
         readMerchantBoard(tx, request),
       ),
-    apply: (request: OrderCommandRequest) => sql.begin((tx) => applyOrderCommand(tx, request)),
+    apply: (request: OrderCommandRequest) =>
+      sql.begin((tx) => applyOrderCommand(tx, request, deliveryKey)),
     read: (request: OrderAccess) =>
       sql.begin("isolation level repeatable read read only", (tx) => readScopedOrder(tx, request)),
     place: (request: PlacementRequest) => sql.begin((tx) => placeOrder(tx, request)),

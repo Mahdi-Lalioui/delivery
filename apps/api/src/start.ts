@@ -63,7 +63,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
   const platform = createPlatformRepository(database);
   const publicRestaurant = createPublicRestaurantRepository(database);
   const mediaStore = createLocalMediaStore({ root: environment.MEDIA_STORAGE_ROOT });
-  const orders = createOrderRepository(database);
+  const orders = createOrderRepository(database, otpKey);
   const api = createApi({
     checkReadiness: () => checkReadiness(database),
     trustedProxy: environment.API_TRUSTED_PROXY,
