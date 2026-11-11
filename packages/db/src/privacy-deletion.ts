@@ -1,3 +1,4 @@
+import { queueDeliveryProofErasure } from "./delivery-proof-retention.js";
 import type { ISql, TransactionSql } from "postgres";
 import { lockOtpPhone } from "./auth-otp-lock.js";
 import type { AuthTransport } from "./auth-types.js";
@@ -99,6 +100,7 @@ async function clearPersonalData(
   `;
   // Serialize erasure with a driver's in-flight position batch before removing the route.
   await sql`SELECT id FROM public.orders WHERE customer_id = ${userId} ORDER BY id FOR UPDATE`;
+  await queueDeliveryProofErasure(sql, userId, now);
   await sql`DELETE FROM public.courier_positions WHERE order_id IN (
     SELECT id FROM public.orders WHERE customer_id = ${userId}
   ) OR courier_id IN (SELECT id FROM public.couriers WHERE user_id = ${userId})`;

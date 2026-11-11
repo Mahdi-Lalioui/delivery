@@ -337,6 +337,13 @@
       "when": 1794141600000,
       "tag": "0047_delivery_attempts",
       "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1794142200000,
+      "tag": "0048_delivery_photo_proof",
+      "breakpoints": true
     }
   ]
 }

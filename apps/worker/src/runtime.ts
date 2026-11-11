@@ -20,7 +20,7 @@ import { unavailableOrderPush, type SendOrderPush } from "./order-push-adapter.j
 import { pruneInactivePushSubscriptions } from "./order-push-delivery.js";
 import { createOrderSmsJob, orderSmsTask } from "./order-sms.js";
 import { unavailableOrderSms, type SendOrderSms } from "./order-sms-adapter.js";
-import { createPrivacyMediaPurgeJob } from "./privacy-media.js";
+import { createDeliveryProofPurgeJob, createPrivacyMediaPurgeJob } from "./privacy-media.js";
 import { workerSchema } from "./migrate-worker.js";
 
 const mediaPayload = z.strictObject({ mediaId: z.uuid(), phase: z.enum(["prepare", "crop"]) });
@@ -61,6 +61,10 @@ export function createWorkerOptions(
     "media.process": defineJob(mediaPayload, (payload) =>
       payload.phase === "prepare" ? prepare(payload) : crop(payload),
     ),
+    "privacy.purge_delivery_proof": createDeliveryProofPurgeJob({
+      repository: mediaOptions.repository,
+      store: media.store,
+    }),
     "privacy.purge_media": createPrivacyMediaPurgeJob({
       repository: privacy,
       store: media.store,

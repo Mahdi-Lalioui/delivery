@@ -1,15 +1,12 @@
-export type MediaKind = "application" | "cover" | "item" | "logo";
+import type { mediaUploadInput } from "@zaafran/contracts/media";
+
+type ReservationInput = ReturnType<typeof mediaUploadInput.parse>;
+export type MediaKind = ReservationInput["kind"];
 
 export interface MediaUploadDescriptor {
   readonly contentType: "image/jpeg" | "image/png" | "image/heic" | "image/webp";
   readonly bytes: number;
 }
-
-type ReservationInput = MediaUploadDescriptor &
-  (
-    | { readonly kind: "application" }
-    | { readonly kind: Exclude<MediaKind, "application">; readonly merchantId: string }
-  );
 
 export interface MediaSessionScope {
   readonly accountId: string;
@@ -116,7 +113,7 @@ export interface MediaPreparationCompletion {
 
 export type MediaReservationResult =
   | { readonly kind: "created" | "replayed"; readonly media: MediaStatus }
-  | { readonly kind: "not_found" | "idempotency_conflict" };
+  | { readonly kind: "not_found" | "idempotency_conflict" | "proof_photo_limit" };
 
 export type MediaAdoptionResult =
   | { readonly kind: "accepted" | "replayed"; readonly media: MediaStatus }

@@ -197,3 +197,6 @@
 
 - 2026-11-11 · Ultra · Added assigned-courier wait and call records, replay-safe counting and the failed-delivery transition with server-side ten-minute and two-call guards. Passed 250 authz and 38 PostGIS checks.
   Next: bind private photo proofs to an active order and surface their flag to the merchant, then build courier screens.
+
+- 2026-11-11 · Ultra · Added private, order-bound delivery photo proofs, a merchant review flag and retryable 30-day/erasure cleanup. Passed 304 integrations, 250 authz and scoped lint/typecheck, plus the focused merchant photo-access regression.
+  Next: build the localized courier screens and add assignment, invite sharing and proof review to the merchant board.

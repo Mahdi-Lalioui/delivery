@@ -30,6 +30,7 @@ type PublicAction =
   | Extract<OrderAction, { kind: "cancel" | "collect" | "markReady" | "pickUp" | "force" }>
   | { kind: "assignCourier"; courierId: string }
   | { kind: "deliver"; code: string }
+  | { kind: "deliverPhoto"; photoId: string; reason: string }
   | { kind: "fail"; reason: string }
   | { kind: "accept"; prepMinutes: number }
   | {
@@ -133,11 +134,37 @@ export async function readScopedOrder(sql: TransactionSql, request: OrderAccess)
     : undefined;
 }
 
+async function resolvePhotoProof(
+  sql: TransactionSql,
+  input: { photoId: string; reason: string; accountId: string },
+  order: StateRow,
+): Promise<OrderAction | undefined> {
+  if (order.customerId === null) return undefined;
+  const [photo] = await sql`
+      SELECT FROM public.media_uploads WHERE id = ${input.photoId} AND owner_id = ${input.accountId}
+        AND merchant_id = ${order.merchantId} AND delivery_order_id = ${order.id}
+        AND kind = 'delivery_proof' AND status = 'ready' AND NOT delivery_proof_purging
+      FOR SHARE
+    `;
+  return {
+    kind: "deliver",
+    facts: {
+      proof: {
+        kind: "photo",
+        photoId: input.photoId,
+        reason: input.reason,
+        isPhotoVerified: photo !== undefined,
+      },
+    },
+  };
+}
+
 async function toDomainAction(
   sql: TransactionSql,
   {
     action: input,
     now,
+    accountId,
   }: Omit<OrderCommandRequest, "action"> & { action: Exclude<PublicAction, { kind: "deliver" }> },
   order: StateRow,
 ): Promise<OrderAction | undefined> {
@@ -155,6 +182,7 @@ async function toDomainAction(
       facts: { soldOutItemIds: input.soldOutItemIds },
     };
   }
+  if (input.kind === "deliverPhoto") return resolvePhotoProof(sql, { ...input, accountId }, order);
   if (input.kind === "fail") {
     const { waitStartedAt, callAttempts } = await readDeliveryAttempts(sql, order.id);
     return { ...input, facts: { waitStartedAt: waitStartedAt?.getTime() ?? null, callAttempts } };
@@ -279,6 +307,13 @@ async function persistTransition(
       : null;
   const response = presentOrder(next, order);
   await writeOrderState(sql, next, digest);
+  if (event.payload.kind === "deliver" && event.payload.proof.kind === "photo") {
+    const { photoId, reason } = event.payload.proof;
+    await sql`
+      INSERT INTO public.order_delivery_photo_proofs (order_id, photo_id, merchant_id, reason, submitted_at)
+      VALUES (${order.id}, ${photoId}, ${order.merchantId}, ${reason}, ${new Date(event.at).toISOString()})
+    `;
+  }
   await appendOrderEvent(sql, event);
   await saveActionReceipt(sql, key, response);
   return { kind: "applied", order: response } as const;
@@ -384,7 +419,9 @@ export async function applyOrderCommand(
     allowCourier: request.action.kind === "pickUp",
   };
   const actor =
-    request.action.kind === "deliver" || request.action.kind === "fail"
+    request.action.kind === "deliver" ||
+    request.action.kind === "deliverPhoto" ||
+    request.action.kind === "fail"
       ? await deliveryActor(sql, scope, order)
       : await authorizeOrder(sql, scope, order);
   return actor

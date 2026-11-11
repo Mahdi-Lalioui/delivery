@@ -15,6 +15,7 @@ export type SelectedPhoto = PhotoImage & { mediaId: string };
 export interface PhotoScope {
   kind: PhotoKind;
   merchantId?: string | undefined;
+  orderId?: string | undefined;
   sessionId: string;
 }
 
@@ -60,7 +61,9 @@ function uploadInput({ file, scope }: UploadAttempt) {
   const result = mediaUploadInput.safeParse(
     scope.kind === "application"
       ? { ...fields, kind: scope.kind }
-      : { ...fields, kind: scope.kind, merchantId: scope.merchantId },
+      : scope.kind === "delivery_proof"
+        ? { ...fields, kind: scope.kind, orderId: scope.orderId }
+        : { ...fields, kind: scope.kind, merchantId: scope.merchantId },
   );
   if (!result.success) throw new PhotoError("invalidFile");
   return result.data;

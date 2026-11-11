@@ -88,17 +88,36 @@ export function presentReplayPage(rows: readonly ReplayEventRow[], currentCursor
   };
 }
 
+async function readDeliveryProofs(sql: TransactionSql, merchantId: string) {
+  type Proof = NonNullable<Board["deliveryProofs"]>[number];
+  const rows = await sql<(Omit<Proof, "at"> & { at: Date })[]>`
+    SELECT proof.order_id AS "orderId", proof.photo_id AS "photoId", proof.reason,
+      delivery.short_code AS "shortCode", proof.submitted_at AS at
+    FROM public.order_delivery_photo_proofs AS proof
+    JOIN public.orders AS delivery ON delivery.id = proof.order_id AND delivery.customer_id IS NOT NULL
+    JOIN public.media_uploads AS upload ON upload.id = proof.photo_id AND NOT upload.delivery_proof_purging
+    WHERE proof.merchant_id = ${merchantId}
+    ORDER BY proof.submitted_at DESC, proof.order_id LIMIT 20
+  `.parsers(timestampParsers);
+  return rows.map(({ at, ...proof }) => ({ ...proof, at: at.toISOString() }));
+}
+
 export async function readMerchantBoard(
   sql: TransactionSql,
   request: BoardRequest,
 ): Promise<Board | undefined> {
   const cursor = await readBoardCursor(sql, request, null);
   if (cursor === undefined) return undefined;
-  const [orders, rows] = await Promise.all([
+  const [orders, rows, deliveryProofs] = await Promise.all([
     readTickets(sql, request.merchantId),
     readReplay(sql, request),
+    readDeliveryProofs(sql, request.merchantId),
   ]);
-  return { orders, ...presentReplayPage(rows, cursor) };
+  return {
+    orders,
+    ...presentReplayPage(rows, cursor),
+    ...(deliveryProofs.length ? { deliveryProofs } : {}),
+  };
 }
 
 export type ReplayRequest = BoardRequest & { sessionId: string };

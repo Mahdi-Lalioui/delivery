@@ -1,7 +1,7 @@
 # AWID sprint contracts
 
 Use the shared Zod schemas and the HTTP shapes below for fixtures. The new endpoints are
-contract handoffs. Address CRUD, quotes, placement, scoped order reads and the accept, reject, cancel, ready, collect, assign, pick-up, deliver by code, fail and force actions are implemented on lane-a. The buyer’s authenticated tracking view and the courier invite, roster, presence, jobs and position APIs are implemented. Address voice-note attachments
+contract handoffs. Address CRUD, quotes, placement, scoped order reads and the accept, reject, cancel, ready, collect, assign, pick-up, deliver by code or verified photo, fail and force actions are implemented on lane-a. The buyer’s authenticated tracking view and the courier invite, roster, presence, jobs and position APIs are implemented. Address voice-note attachments
 return `voice_note_unavailable` until the private audio upload and retention flow lands.
 
 | Endpoint | Request and response schemas | Access |
@@ -42,6 +42,10 @@ return `voice_note_unavailable` until the private audio upload and retention flo
   A wrong code returns `invalid_delivery_code`. Five wrong attempts return
   `delivery_code_locked`. Repeat the original idempotency key after a transport
   failure. A new code attempt needs a new key.
+- For a fallback, reserve `kind: "delivery_proof"` with the order ID through
+  `POST /v1/media/uploads`. Complete the private crop flow, then send its ready
+  photo ID and a reason with the `deliver` action. The merchant board exposes a
+  review flag in `deliveryProofs`.
 - A driver records `start_wait` at the drop-off and `call` for each call.
   Use a new idempotency key for each action and reuse it on retry. The server
   allows `fail` after ten minutes and two recorded calls.

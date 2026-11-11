@@ -132,6 +132,18 @@ export const orderRealtimeQuery = z.discriminatedUnion("topic", [
 ]);
 export const merchantBoardQuery = z.strictObject({ after: merchantBoardCursor.optional() });
 export const merchantBoardOutput = z.strictObject({
+  deliveryProofs: z
+    .array(
+      z.strictObject({
+        orderId: uuid,
+        photoId: uuid,
+        shortCode: orderSummary.shape.shortCode,
+        reason,
+        at: instant,
+      }),
+    )
+    .max(20)
+    .optional(),
   orders: z.array(
     orderSummary.extend({
       status: z.enum(["pending_acceptance", "accepted", "ready"]),

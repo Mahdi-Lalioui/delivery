@@ -7,9 +7,11 @@ import { createAddressRepository } from "../src/addresses.ts";
 import { createAuthRepository } from "../src/auth.ts";
 import { pruneCourierPositions } from "../src/courier-retention.ts";
 import { createCourierRepository } from "../src/couriers.ts";
+import { createMediaRepository } from "../src/media.ts";
 import { deriveDeliveryCode } from "../src/order-delivery-code.ts";
 import { createOrderQuoteRepository } from "../src/order-quotes.ts";
 import { createOrderRepository } from "../src/orders.ts";
+import { seedReadyPhoto } from "./ready-photo.ts";
 import { registerTestDatabase } from "./database.ts";
 
 const database = registerTestDatabase();
@@ -466,24 +468,29 @@ test("[MER-03][RT-02] board snapshot and replay are scoped and replay every new 
   expect((await orders().board({ ...input, after: changed.cursor }))?.events).toEqual([]);
 });
 
-async function verifyBuyerTracking(
-  orderId: string,
-  driver: { userId: string; sessionId: string },
-  capturedAt: string,
-) {
-  const buyerSessionId = randomUUID();
+async function fixtureStandardSession(userId: string, at = new Date()) {
+  const sessionId = randomUUID();
   await createAuthRepository(database.get()).transaction((tx) =>
     tx.insertSession({
-      id: buyerSessionId,
-      userId: customerId,
+      id: sessionId,
+      userId,
       tokenHash: randomBytes(32),
       transport: "web",
       kind: "standard",
       requestIp: "192.0.2.7",
       deviceName: "Fixture",
-      now: new Date(),
+      now: at,
     }),
   );
+  return sessionId;
+}
+
+async function verifyBuyerTracking(
+  orderId: string,
+  driver: { userId: string; sessionId: string },
+  capturedAt: string,
+) {
+  const buyerSessionId = await fixtureStandardSession(customerId);
   expect(
     await orders().tracking({ orderId, customerId: driver.userId, sessionId: driver.sessionId }),
   ).toBeUndefined();
@@ -670,14 +677,12 @@ async function verifyFailedDelivery(
   ).toEqual({ kind: "not_found" });
 }
 
-async function verifyDeliveryLockout({
+async function prepareCourierDelivery({
   addressId,
   courierId,
-  driver,
 }: {
   addressId: string;
   courierId: string;
-  driver: { userId: string; sessionId: string };
 }) {
   const locked = await orders().place(
     await placement({ ...pickup, fulfilment: "delivery", addressId }),
@@ -701,8 +706,107 @@ async function verifyDeliveryLockout({
       }),
     ).toMatchObject({ kind: "applied" });
   }
-  await verifyDeliveryCode(locked.order.orderId, driver.userId, "lock");
-  await verifyFailedDelivery(locked.order.orderId, driver);
+  return locked.order.orderId;
+}
+
+async function verifyPhotoFallback({
+  addressId,
+  courierId,
+  driver,
+}: {
+  addressId: string;
+  courierId: string;
+  driver: { userId: string; sessionId: string };
+}) {
+  const orderId = await prepareCourierDelivery({ addressId, courierId });
+  const anotherOrder = await prepareCourierDelivery({ addressId, courierId });
+  const { sql } = database.get();
+  const media = createMediaRepository(database.get());
+  const at = new Date();
+  const scope = { accountId: driver.userId, sessionId: driver.sessionId, now: at };
+  const input = { kind: "delivery_proof", orderId, contentType: "image/png", bytes: 16 } as const;
+  const request = {
+    ...scope,
+    input,
+    idempotencyKeyHash: randomBytes(32),
+    requestHash: randomBytes(32),
+  };
+  expect(await media.reserve({ ...request, accountId: customerId })).toEqual({ kind: "not_found" });
+  const reserved = await media.reserve(request);
+  if (!("media" in reserved)) throw new Error("Expected proof reservation");
+  expect(reserved.media.kind).toBe("delivery_proof");
+  expect(await media.findUpload({ ...scope, mediaId: reserved.media.mediaId })).toEqual({
+    contentType: "image/png",
+    bytes: 16,
+  });
+  const [cleanup] = await sql`SELECT run_at FROM graphile_worker.jobs
+    WHERE key = ${"privacy:purge-delivery-proof:" + reserved.media.mediaId}`;
+  expect(Date.parse(String(cleanup?.run_at))).toBeGreaterThan(
+    at.getTime() + 29 * 24 * 60 * 60 * 1_000,
+  );
+
+  const photoId = randomUUID();
+  await seedReadyPhoto(sql, {
+    mediaId: photoId,
+    accountId: driver.userId,
+    merchantId,
+    kind: "delivery_proof",
+    now: at,
+    deliveryOrderId: orderId,
+  });
+  const command = {
+    orderId,
+    accountId: driver.userId,
+    role: "standard",
+    expectedVersion: 5,
+    now: at,
+    idempotencyKey: randomUUID(),
+    action: { kind: "deliverPhoto", photoId, reason: "Code unavailable" },
+  } as const;
+  expect(await orders().apply({ ...command, orderId: anotherOrder })).toEqual({
+    kind: "invalid_order_command",
+  });
+  expect(await orders().apply(command)).toMatchObject({
+    kind: "applied",
+    order: { status: "delivered" },
+  });
+  const board = await orders().board({ merchantId, accountId: otherId });
+  expect(board?.deliveryProofs).toMatchObject([{ orderId, photoId, reason: "Code unavailable" }]);
+  const [event] =
+    await sql`SELECT payload FROM public.order_events WHERE order_id = ${orderId} AND to_status = 'delivered'`;
+  expect(event).toMatchObject({ payload: { proof: { kind: "photo", photoId } } });
+  const merchantScope = {
+    accountId: otherId,
+    sessionId: await fixtureStandardSession(otherId, at),
+    now: at,
+    mediaId: photoId,
+  };
+  expect(await media.read(merchantScope)).toMatchObject({
+    kind: "delivery_proof",
+    status: "ready",
+  });
+  expect(await media.findVariant({ ...merchantScope, format: "webp", width: 640 })).toEqual({
+    key: `variants/${photoId}/640.webp`,
+  });
+  expect(await media.read({ ...scope, mediaId: photoId })).toBeUndefined();
+  expect(
+    await media.read({
+      accountId: customerId,
+      sessionId: await fixtureStandardSession(customerId, at),
+      now: at,
+      mediaId: photoId,
+    }),
+  ).toBeUndefined();
+  const claimed = await media.claimDeliveryProof(photoId);
+  expect(claimed?.keys).toContain("quarantine/" + photoId);
+  expect(
+    (await orders().board({ merchantId, accountId: otherId }))?.deliveryProofs,
+  ).toBeUndefined();
+  await media.finishDeliveryProof(photoId);
+  expect(await media.claimDeliveryProof(photoId)).toBeUndefined();
+  const [scrubbed] =
+    await sql`SELECT payload FROM public.order_events WHERE order_id = ${orderId} AND to_status = 'delivered'`;
+  expect(scrubbed).toEqual({ payload: { kind: "deliver", proof: { kind: "photo" } } });
 }
 
 test("[MER-03][COU-02] assigns only an active restaurant courier and exposes their delivery", async () => {
@@ -796,7 +900,10 @@ test("[MER-03][COU-02] assigns only an active restaurant courier and exposes the
   expect((await jobs(driverSession))?.jobs[0]?.order.status).toBe("out_for_delivery");
   await verifyCourierPositions(orderId, driverSession);
   await verifyDeliveryCode(orderId, driver.id, "deliver");
-  await verifyDeliveryLockout({ addressId, courierId, driver: driverSession });
+  const lockedOrder = await prepareCourierDelivery({ addressId, courierId });
+  await verifyDeliveryCode(lockedOrder, driver.id, "lock");
+  await verifyFailedDelivery(lockedOrder, driverSession);
+  await verifyPhotoFallback({ addressId, courierId, driver: driverSession });
   expect(
     (await orders().board({ merchantId, accountId: otherId }))?.orders.some(
       (ticket) => ticket.orderId === orderId,

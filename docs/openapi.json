@@ -8660,6 +8660,47 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "deliveryProofs": {
+                      "maxItems": 20,
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "orderId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "photoId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "shortCode": {
+                            "type": "string",
+                            "pattern": "^[A-HJ-KM-NP-Z2-9]{3}-[A-HJ-KM-NP-Z2-9]{3}$"
+                          },
+                          "reason": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 500
+                          },
+                          "at": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                          }
+                        },
+                        "required": [
+                          "orderId",
+                          "photoId",
+                          "shortCode",
+                          "reason",
+                          "at"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
                     "orders": {
                       "type": "array",
                       "items": {
@@ -26451,6 +26492,44 @@
                       "merchantId"
                     ],
                     "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "contentType": {
+                        "type": "string",
+                        "enum": [
+                          "image/jpeg",
+                          "image/png",
+                          "image/heic",
+                          "image/webp"
+                        ]
+                      },
+                      "bytes": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true,
+                        "maximum": 8388608
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "delivery_proof"
+                        ]
+                      },
+                      "orderId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      }
+                    },
+                    "required": [
+                      "contentType",
+                      "bytes",
+                      "kind",
+                      "orderId"
+                    ],
+                    "additionalProperties": false
                   }
                 ]
               }
@@ -26504,6 +26583,7 @@
                           "type": "string",
                           "enum": [
                             "application",
+                            "delivery_proof",
                             "cover",
                             "item",
                             "logo"
@@ -26543,6 +26623,7 @@
                           "type": "string",
                           "enum": [
                             "application",
+                            "delivery_proof",
                             "cover",
                             "item",
                             "logo"
@@ -26594,6 +26675,7 @@
                           "type": "string",
                           "enum": [
                             "application",
+                            "delivery_proof",
                             "cover",
                             "item",
                             "logo"
@@ -26686,6 +26768,7 @@
                           "type": "string",
                           "enum": [
                             "application",
+                            "delivery_proof",
                             "cover",
                             "item",
                             "logo"
@@ -27474,6 +27557,7 @@
                           "type": "string",
                           "enum": [
                             "application",
+                            "delivery_proof",
                             "cover",
                             "item",
                             "logo"
@@ -27513,6 +27597,7 @@
                           "type": "string",
                           "enum": [
                             "application",
+                            "delivery_proof",
                             "cover",
                             "item",
                             "logo"
@@ -27564,6 +27649,7 @@
                           "type": "string",
                           "enum": [
                             "application",
+                            "delivery_proof",
                             "cover",
                             "item",
                             "logo"
@@ -27656,6 +27742,7 @@
                           "type": "string",
                           "enum": [
                             "application",
+                            "delivery_proof",
                             "cover",
                             "item",
                             "logo"
@@ -28423,6 +28510,7 @@
                           "type": "string",
                           "enum": [
                             "application",
+                            "delivery_proof",
                             "cover",
                             "item",
                             "logo"
@@ -28462,6 +28550,7 @@
                           "type": "string",
                           "enum": [
                             "application",
+                            "delivery_proof",
                             "cover",
                             "item",
                             "logo"
@@ -28513,6 +28602,7 @@
                           "type": "string",
                           "enum": [
                             "application",
+                            "delivery_proof",
                             "cover",
                             "item",
                             "logo"
@@ -28605,6 +28695,7 @@
                           "type": "string",
                           "enum": [
                             "application",
+                            "delivery_proof",
                             "cover",
                             "item",
                             "logo"
@@ -52735,6 +52826,7 @@
                           "type": "string",
                           "enum": [
                             "application",
+                            "delivery_proof",
                             "cover",
                             "item",
                             "logo"
@@ -52774,6 +52866,7 @@
                           "type": "string",
                           "enum": [
                             "application",
+                            "delivery_proof",
                             "cover",
                             "item",
                             "logo"
@@ -52825,6 +52918,7 @@
                           "type": "string",
                           "enum": [
                             "application",
+                            "delivery_proof",
                             "cover",
                             "item",
                             "logo"
@@ -52917,6 +53011,7 @@
                           "type": "string",
                           "enum": [
                             "application",
+                            "delivery_proof",
                             "cover",
                             "item",
                             "logo"

@@ -1,5 +1,5 @@
 import type { TransactionSql } from "postgres";
-import { lockMediaSession, lockMediaTarget, mediaStatus } from "./media-access.js";
+import { lockMediaSession, lockMediaUploadTarget, mediaStatus } from "./media-access.js";
 import type {
   MediaAdoptionRequest,
   MediaAdoptionResult,
@@ -14,13 +14,14 @@ type LockedUpload = Pick<MediaStatus, "mediaId" | "kind"> &
 
 async function lockOwnedUpload(
   sql: TransactionSql,
-  { accountId, mediaId, digest }: MediaAdoptionRequest,
+  request: MediaAdoptionRequest,
 ): Promise<LockedUpload | undefined> {
-  const [target] = await sql<{ merchantId: string | null }[]>`
-    SELECT merchant_id AS "merchantId" FROM public.media_uploads
-    WHERE id = ${mediaId} AND owner_id = ${accountId}
+  const { accountId, mediaId, digest } = request;
+  const [target] = await sql<{ merchantId: string | null; deliveryOrderId: string | null }[]>`
+    SELECT merchant_id AS "merchantId", delivery_order_id AS "deliveryOrderId" FROM public.media_uploads
+    WHERE id = ${mediaId} AND owner_id = ${accountId} AND NOT delivery_proof_purging
   `;
-  if (!target || !(await lockMediaTarget(sql, accountId, target.merchantId))) return undefined;
+  if (!target || !(await lockMediaUploadTarget(sql, request, target))) return undefined;
 
   // Lock merchant membership before the upload, matching the parent-to-child foreign-key order.
   const [upload] = await sql<LockedUpload[]>`
@@ -29,7 +30,7 @@ async function lockOwnedUpload(
       ready_variants AS variants, thumbhash,
       content_digest = ${digest} AS "matchesDigest"
     FROM public.media_uploads
-    WHERE id = ${mediaId} AND owner_id = ${accountId}
+    WHERE id = ${mediaId} AND owner_id = ${accountId} AND NOT delivery_proof_purging
       AND merchant_id IS NOT DISTINCT FROM ${target.merchantId}::uuid
     FOR UPDATE
   `;

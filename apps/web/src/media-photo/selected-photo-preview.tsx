@@ -15,12 +15,13 @@ function useSelectedPhoto({ scope, mediaId, current }: SelectedPhotoPreviewProps
   const photo = current?.mediaId === mediaId ? current : loaded;
   const kind = scope?.kind;
   const merchantId = scope?.merchantId;
+  const orderId = scope?.orderId;
   const sessionId = scope?.sessionId;
 
   useEffect(() => {
     if (current?.mediaId === mediaId || !kind || !sessionId) return;
     const controller = new AbortController();
-    const reference = { scope: { kind, merchantId, sessionId }, mediaId };
+    const reference = { scope: { kind, merchantId, orderId, sessionId }, mediaId };
     void readSelectedPhoto(reference, controller.signal).then(
       (value) => {
         if (!controller.signal.aborted) setLoaded(value);
@@ -32,7 +33,7 @@ function useSelectedPhoto({ scope, mediaId, current }: SelectedPhotoPreviewProps
     return () => {
       controller.abort();
     };
-  }, [current, kind, mediaId, merchantId, sessionId]);
+  }, [current, kind, mediaId, merchantId, orderId, sessionId]);
 
   return { photo, failed: failed || !sessionId, setFailed };
 }

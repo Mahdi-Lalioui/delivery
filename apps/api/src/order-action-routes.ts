@@ -16,7 +16,7 @@ type ActionRoute<Body extends z.ZodType<{ expectedVersion: number }>> = {
   name: string;
   roles: readonly Role[];
   body: Body;
-  action: (input: z.output<Body>) => Action | undefined;
+  action: (input: z.output<Body>) => Action;
 };
 
 const routePath = "/v1/orders/:orderId";
@@ -63,7 +63,6 @@ function registerAction<Body extends z.ZodType<{ expectedVersion: number }>>(
       if (!services) return sendProblem(reply, 503);
       const input = descriptor.body.parse(request.body);
       const action = descriptor.action(input);
-      if (!action) return sendProblem(reply, 503, "delivery_photo_unavailable");
       const result = await services.repository.apply({
         ...actor,
         orderId: request.params.orderId,
@@ -152,7 +151,9 @@ export function registerOrderActionRoutes(api: FastifyInstance, services?: Order
       roles: ["customer", "courier"],
       body: orderActionInputs.deliver,
       action: ({ proof }) =>
-        proof.kind === "code" ? { kind: "deliver", code: proof.code } : undefined,
+        proof.kind === "code"
+          ? { kind: "deliver", code: proof.code }
+          : { kind: "deliverPhoto", photoId: proof.photoId.toLowerCase(), reason: proof.reason },
     });
     registerAction(scope, services, {
       name: "fail",

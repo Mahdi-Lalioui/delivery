@@ -7,8 +7,8 @@ export async function lockCourierDelivery(
   sql: TransactionSql,
   request: CourierScope & { orderId: string },
 ) {
-  const [order] = await sql<{ courierId: string; startedAt: Date }[]>`
-    SELECT driver.id AS "courierId", delivery.last_event_at AS "startedAt"
+  const [order] = await sql<{ courierId: string; merchantId: string; startedAt: Date }[]>`
+    SELECT driver.id AS "courierId", driver.merchant_id AS "merchantId", delivery.last_event_at AS "startedAt"
     FROM public.orders AS delivery
     JOIN public.couriers AS driver ON driver.id = delivery.courier_id
       AND driver.merchant_id = delivery.merchant_id AND driver.active
