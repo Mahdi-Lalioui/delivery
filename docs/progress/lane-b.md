@@ -58,3 +58,5 @@
   Proof: privacy 7/7, `pnpm verify` green. Not done: clearing client caches after deletion (none exist yet).
 - 2026-11-11 · AWID T1 (part 1): tokens repainted to the AWID palette (contrast test 71/71 light+dark), Poppins + IBM Plex Sans Arabic self-hosted, brand name AWID/أويد, Mahdi's exact logo and app icon cut out of the brand board (`docs/brand/extract_brand_assets.py`, no redraw), `/[locale]/dev/gallery` with the system section.
   Next: T1 part 2 — restyle every ui component to the brief (radii 20–28, green-tinted shadows, press 0.97, motion 150/250/400), zellige + wave motifs, rewrite DESIGN.md + DECISIONS, then T2 photos.
+- 2026-11-11 · AWID logo: wordmark and app icon redrawn as SVG (light + dark variants) traced from the brand board; PNG cut-outs and favicon PNG removed, `app/icon.svg` added.
+  Next: T1 remainder — restyle `packages/ui` to the brief, DESIGN.md + DECISIONS, evidence screenshots.

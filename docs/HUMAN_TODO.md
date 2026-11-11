@@ -28,7 +28,7 @@ Codex appends items here (what, why, exact steps). Mahdi ticks them. Items marke
 - [ ] (Optional) LLM API key, for menu import from photos (feature flag `menu_photo_import`).
 
 ## Brand (AWID)
-- [ ] Send the original AWID logo and app icon as vector files (SVG or AI/PDF) and the confirmed Arabic name. Why: lane B currently cuts the logo and icon out of the brand board JPEG (`docs/brand/extract_brand_assets.py` → `apps/web/public/brand/`), which is limited to its resolution; the original files give sharp logos at every size and a proper favicon. Put the files in `docs/brand/`.
+- [ ] Send the original AWID logo and app icon as vector files (SVG or AI/PDF) and the confirmed Arabic name. Why: lane B redrew the logo and icon as SVG by tracing the brand board JPEG (`apps/web/public/brand/*.svg`); the originals would remove small tracing differences. Put the files in `docs/brand/`.
 
 ## Mobile stores (M10–M12)
 - [ ] Apple Developer Program ($99/year). An organisation account needs a D-U-N-S number.
