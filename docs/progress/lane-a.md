@@ -224,3 +224,6 @@
 
 - 2026-11-11 · Medium · Replaced merchant coordinates with a commune-centred pin, GPS accuracy, and localized validation. Passed 66 scoped checks, three real merchant/admin journeys and four production-map checks.
   Next: expand the local-only catalog to 40 fictional restaurants across eight cities with cover photos and reviews.
+
+- 2026-11-11 · Medium · Seeded 40 fictional restaurants across eight cities with 200 bilingual dishes, item and cover variants and 120 anonymous reviews. Four PostGIS checks passed, including repeat seeding and storage failure rollback.
+  Next: publish the merchant delivery-radius contract and wire it to quote coverage, then prepare production Compose and Vercel.
