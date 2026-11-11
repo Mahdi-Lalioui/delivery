@@ -8,6 +8,8 @@ import { CartControls } from "./cart-controls";
 import { ItemDialog } from "./item-dialog";
 import { MenuCategory } from "./menu-category";
 import { PopularRow } from "./popular-row";
+import { flyToCart } from "../marketing/moments/fly-to-cart";
+import "../marketing/moments/moments.css";
 import { RestaurantDialog } from "./restaurant-dialog";
 import { RestaurantHeader } from "./restaurant-header";
 import { readRestaurant } from "./restaurant-http";
@@ -133,6 +135,7 @@ function RestaurantLoaded({
     setSelected(null);
     setCartError(false);
     setAnnouncement(messages.added);
+    flyDishToCart(line.itemId);
   }
 
   return (
@@ -201,6 +204,26 @@ function RestaurantLoaded({
   );
 }
 
+/** Tagged favourites first, topped up with other dishes so the row never shows a lone card. */
+export function pickPopular(selections: readonly DishSelection[]): DishSelection[] {
+  const available = selections.filter(({ dish }) => dish.isAvailable);
+  const tagged = available.filter(({ dish }) => dish.tags.includes("popular"));
+  const rest = available.filter(({ dish }) => !dish.tags.includes("popular"));
+  const row = [...tagged, ...rest].slice(0, 6);
+  return row.length >= 3 ? row : [];
+}
+
+/** The memorable add: the dish photo arcs into the cart bar, whose count springs. */
+function flyDishToCart(itemId: string) {
+  window.setTimeout(() => {
+    const source = document.querySelector<HTMLElement>(
+      `[data-dish="${CSS.escape(itemId)}"] .restaurant-dish-photo`,
+    );
+    const target = document.querySelector<HTMLElement>(".restaurant-cart-count");
+    if (source && target) void flyToCart(source, target);
+  }, 60);
+}
+
 /** Quantity of each dish already in the cart for this restaurant, by item ID. */
 function cartQuantities(cart: Cart | null, merchantId: string): ReadonlyMap<string, number> {
   const quantities = new Map<string, number>();
@@ -242,9 +265,7 @@ function RestaurantMenu({
     setLoaded((previous) => new Map(previous).set(categoryId, selections));
   }, []);
   if (data.categories.length === 0) return <EmptyState title={messages.empty} />;
-  const popular = [...loaded.values()]
-    .flat()
-    .filter(({ dish }) => dish.isAvailable && dish.tags.includes("popular"));
+  const popular = pickPopular([...loaded.values()].flat());
   return (
     <>
       <PopularRow

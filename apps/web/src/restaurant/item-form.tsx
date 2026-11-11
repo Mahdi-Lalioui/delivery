@@ -88,7 +88,7 @@ function ItemOptions({
             {localizeRestaurantText(option.names, locale)}{" "}
             {!option.isAvailable && <small>{messages.soldOut}</small>}
           </span>
-          <bdi className="restaurant-price" dir="ltr">
+          <bdi className="restaurant-price">
             {option.priceDeltaDzd === 0
               ? null
               : pricePrefix + formatDzd(option.priceDeltaDzd, locale)}
@@ -96,6 +96,25 @@ function ItemOptions({
         </label>
       ))}
     </fieldset>
+  );
+}
+
+/** "Choose: Size" while a required group is still unanswered, so the disabled button explains itself. */
+function missingGroup(
+  detail: RestaurantItem,
+  draft: ItemDraft,
+  locale: Locale,
+): string | undefined {
+  const group = detail.optionGroups.find((candidate) => {
+    const chosen = draft.selections.find(
+      (selection) => selection.optionGroupId === candidate.optionGroupId,
+    );
+    return (chosen?.optionIds.length ?? 0) < candidate.minimum;
+  });
+  if (group === undefined) return undefined;
+  return getRestaurantMessages(locale).chooseGroup.replace(
+    "{group}",
+    localizeRestaurantText(group.names, locale),
   );
 }
 
@@ -127,6 +146,14 @@ export function ItemForm({
     >
       <div className="restaurant-item-scroll">
         {children}
+        <div className="restaurant-item-meta">
+          <bdi className="restaurant-price">{formatDzd(detail.item.priceDzd, locale)}</bdi>
+          {detail.item.tags.map((tag) => (
+            <span key={tag} className="restaurant-tag" data-tag={tag}>
+              {messages.tags[tag]}
+            </span>
+          ))}
+        </div>
         <p className="restaurant-muted">
           {localizeRestaurantText(detail.item.descriptions, locale)}
         </p>
@@ -167,8 +194,9 @@ export function ItemForm({
           isBlock
           disabled={!valid || totalDzd === null}
         >
-          {messages.add +
-            (totalDzd === null ? "" : messages.separator + formatDzd(totalDzd, locale))}
+          {missingGroup(detail, draft, locale) ??
+            messages.add +
+              (totalDzd === null ? "" : messages.separator + formatDzd(totalDzd, locale))}
         </Button>
       </div>
     </form>

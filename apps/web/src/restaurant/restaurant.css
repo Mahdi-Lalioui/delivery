@@ -63,7 +63,9 @@
   block-size: var(--touch-target-min);
   border-radius: var(--radius-pill);
   background: var(--color-surface);
-  box-shadow: var(--shadow-e2);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--color-surface) 60%, transparent),
+    var(--shadow-e2);
   color: var(--color-text);
 }
 .restaurant-back svg {
@@ -160,6 +162,7 @@
   margin-inline: calc(-1 * var(--page-padding));
   padding: var(--space-4) var(--page-padding) var(--space-12);
   overflow-x: auto;
+  scroll-padding-inline: var(--page-padding);
   scroll-snap-type: inline mandatory;
   scrollbar-width: none;
   list-style: none;
@@ -843,4 +846,106 @@ body:has(.restaurant-cart-bar) .customer-tabs {
   justify-content: space-between;
   inline-size: 100%;
   margin-block-start: var(--space-8);
+}
+.restaurant-item-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  align-items: center;
+}
+.restaurant-item-meta .restaurant-price {
+  font-size: var(--font-size-h3);
+}
+.restaurant-tag {
+  padding: 2px var(--space-8);
+  border-radius: var(--radius-pill);
+  background: var(--color-mint-pale);
+  color: var(--color-accent-strong);
+  font-size: var(--font-size-micro);
+  font-weight: var(--font-weight-h3);
+}
+.restaurant-tag[data-tag="spicy"] {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+/* Only a closed restaurant gets a visible status badge. */
+.restaurant-heading .ui-badge-success {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+@media (min-width: 768px) {
+  .restaurant-panel {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: var(--space-32);
+    margin-inline: var(--space-24);
+  }
+  .restaurant-panel > .restaurant-hours {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+  }
+  .restaurant-popular-list {
+    grid-auto-columns: calc((100% - 3 * var(--space-12)) / 4);
+    margin-inline: 0;
+    padding-inline: 0;
+  }
+}
+/* Desktop: a persistent cart panel beside the menu instead of the bottom bar. */
+.restaurant-cart-panel {
+  display: none;
+}
+@media (min-width: 1200px) {
+  .restaurant-screen {
+    padding-inline-end: calc(22rem + var(--space-32));
+  }
+  .restaurant-cart-panel {
+    position: fixed;
+    z-index: 4;
+    inset-block-start: calc(var(--space-80) + var(--space-16));
+    inset-inline-end: max(
+      var(--page-padding),
+      calc((100vw - var(--container-width)) / 2 + var(--page-padding))
+    );
+    display: grid;
+    gap: var(--space-16);
+    inline-size: 22rem;
+    max-block-size: calc(100dvb - var(--space-120));
+    overflow: auto;
+    padding: var(--space-20);
+    border-radius: var(--radius-xl);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-e2);
+  }
+  .restaurant-cart-panel h2 {
+    font: var(--font-weight-h2) var(--font-size-h2) / var(--line-height-h2) var(--font-display);
+  }
+  .restaurant-cart-panel-empty {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-8);
+    padding: var(--space-24) var(--space-16);
+    border-radius: var(--radius-lg);
+    background: var(--color-mint-pale);
+    color: var(--color-text-2);
+    text-align: center;
+  }
+  .restaurant-cart-panel-empty svg {
+    color: var(--color-accent-strong);
+  }
+  .restaurant-cart-bar {
+    display: none;
+  }
+  .restaurant-dish-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .restaurant-popular-list {
+    grid-auto-columns: calc((100% - 2 * var(--space-12)) / 3);
+  }
+  .restaurant-popular-card .restaurant-dish-photo {
+    aspect-ratio: 16 / 9;
+  }
 }

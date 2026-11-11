@@ -48,7 +48,7 @@ export function DishCard({
   const name = localizeRestaurantText(dish.names, locale);
   const label = messages.choose + messages.separator + name;
   return (
-    <article className="restaurant-dish" data-sold-out={!dish.isAvailable}>
+    <article className="restaurant-dish" data-sold-out={!dish.isAvailable} data-dish={dish.itemId}>
       <div className="restaurant-dish-body">
         <h3>
           <bdi>{name}</bdi>
