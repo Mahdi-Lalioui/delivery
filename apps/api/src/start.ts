@@ -28,6 +28,7 @@ import { createPublicRestaurantRepository } from "@zaafran/db/public-restaurant"
 import { createLocalMediaStore } from "@zaafran/media";
 import type { FastifyInstance, FastifyListenOptions } from "fastify";
 import { createApi } from "./app.js";
+import { createOrderRealtimeSignals } from "./order-realtime-signals.js";
 import { createPrivacyService } from "./privacy-service.js";
 import { createAuthService } from "./auth-service.js";
 import type { MerchantStaffServices } from "./merchant-staff-routes.js";
@@ -69,6 +70,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     orders: { repository: orders, now },
     orderActions: { repository: orders, now },
     merchantBoard: orders,
+    realtime: { replay: orders.merchantReplay, ...createOrderRealtimeSignals(database.sql) },
     orderQuotes: { repository: createOrderQuoteRepository(database), now },
     privacy: createPrivacyService({
       repository: createPrivacyRepository(database),

@@ -14,7 +14,7 @@ type TicketRow = OrderStateRow & {
   confirmByPhone: boolean;
 };
 type BoardEvent = Omit<Board["events"][number], "at"> & { at: Date };
-export type BoardRequest = { merchantId: string; accountId: string; after?: string };
+export type BoardRequest = { merchantId: string; accountId: string; after?: string | undefined };
 const replayLimit = 100;
 
 async function readTickets(sql: TransactionSql, merchantId: string): Promise<Ticket[]> {
@@ -55,10 +55,11 @@ async function readReplay(sql: TransactionSql, { merchantId, after }: BoardReque
   `.parsers(timestampParsers);
 }
 
-export async function readMerchantBoard(
+async function readBoardCursor(
   sql: TransactionSql,
   request: BoardRequest,
-): Promise<Board | undefined> {
+  sessionId: string | null,
+) {
   const { merchantId, accountId } = request;
   const [access] = await sql<{ cursor: string }[]>`
     SELECT coalesce(stream.latest, 0)::text AS cursor
@@ -67,19 +68,43 @@ export async function readMerchantBoard(
       AND account.deleted_at IS NULL AND account.blocked_at IS NULL
     LEFT JOIN public.merchant_order_streams AS stream ON stream.merchant_id = member.merchant_id
     WHERE member.user_id = ${accountId} AND member.merchant_id = ${merchantId}
+      AND (${sessionId}::uuid IS NULL OR EXISTS (
+        SELECT FROM public.sessions AS session WHERE session.id = ${sessionId}::uuid
+          AND session.user_id = member.user_id AND session.kind = 'standard'
+          AND session.revoked_at IS NULL AND session.expires_at > statement_timestamp()
+      ))
   `;
-  if (!access) return undefined;
-  const [orders, rows] = await Promise.all([
-    readTickets(sql, merchantId),
-    readReplay(sql, request),
-  ]);
+  return access?.cursor;
+}
+
+function replayPage(rows: readonly BoardEvent[], currentCursor: string) {
   const events = rows
     .slice(0, replayLimit)
     .map(({ at, ...event }) => ({ ...event, at: at.toISOString() }));
   return {
-    orders,
     events,
-    cursor: events.at(-1)?.id ?? access.cursor,
+    cursor: events.at(-1)?.id ?? currentCursor,
     hasMore: rows.length > replayLimit,
   };
+}
+
+export async function readMerchantBoard(
+  sql: TransactionSql,
+  request: BoardRequest,
+): Promise<Board | undefined> {
+  const cursor = await readBoardCursor(sql, request, null);
+  if (cursor === undefined) return undefined;
+  const [orders, rows] = await Promise.all([
+    readTickets(sql, request.merchantId),
+    readReplay(sql, request),
+  ]);
+  return { orders, ...replayPage(rows, cursor) };
+}
+
+export type ReplayRequest = BoardRequest & { sessionId: string };
+
+export async function readMerchantReplay(sql: TransactionSql, request: ReplayRequest) {
+  const cursor = await readBoardCursor(sql, request, request.sessionId);
+  if (cursor === undefined) return undefined;
+  return replayPage(await readReplay(sql, request), cursor);
 }

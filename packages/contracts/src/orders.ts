@@ -105,7 +105,7 @@ export const orderActionInputs = {
   force: command.extend({ to: z.enum(["cancelled", "delivered", "collected"]), reason }),
 };
 
-const boardCursor = z
+export const merchantBoardCursor = z
   .string()
   .regex(/^(0|[1-9][0-9]{0,18})$/u)
   .refine((cursor) => cursor.length < 19 || cursor <= "9223372036854775807");
@@ -116,7 +116,12 @@ const boardLine = z.strictObject({
   options: z.array(menuItemInput.shape.names).max(50),
   note: z.string().max(140),
 });
-export const merchantBoardQuery = z.strictObject({ after: boardCursor.optional() });
+export const merchantRealtimeQuery = z.strictObject({
+  topic: z.literal("merchantOrders"),
+  merchantId: uuid,
+  after: merchantBoardCursor.optional(),
+});
+export const merchantBoardQuery = z.strictObject({ after: merchantBoardCursor.optional() });
 export const merchantBoardOutput = z.strictObject({
   orders: z.array(
     orderSummary.extend({
@@ -130,7 +135,7 @@ export const merchantBoardOutput = z.strictObject({
   events: z
     .array(
       z.strictObject({
-        id: boardCursor,
+        id: merchantBoardCursor,
         orderId: uuid,
         version: z.int().positive(),
         status: orderStatus,
@@ -138,6 +143,6 @@ export const merchantBoardOutput = z.strictObject({
       }),
     )
     .max(100),
-  cursor: boardCursor,
+  cursor: merchantBoardCursor,
   hasMore: z.boolean(),
 });

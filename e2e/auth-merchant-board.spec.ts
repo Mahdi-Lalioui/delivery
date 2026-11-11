@@ -44,6 +44,7 @@ async function mockBoard(page: Page, canHandover = false) {
     status: accepted ? "accepted" : base.status,
     version: accepted ? 2 : 1,
   });
+  await page.route("**/v1/realtime?*", (route) => route.fulfill({ status: 204 }));
   await page.route(`**/v1/merchants/${merchantId}/order-board*`, async (route) => {
     const snapshot = {
       orders: [
@@ -165,4 +166,28 @@ test("[MER-03] hands a ready delivery to its assigned courier", async ({ page })
   await expect(page.getByText("G8N-2RY")).toBeVisible();
   await page.getByRole("button", { name: "Remettre au livreur" }).click();
   await expect(page.getByText("G8N-2RY")).toHaveCount(0);
+});
+
+test("[RT-02] a streamed event immediately refreshes the board from its saved cursor", async ({
+  page,
+}) => {
+  await mockBoard(page);
+  const send = Promise.withResolvers<boolean>();
+  await page.route("**/v1/realtime?*", async (route) => {
+    await send.promise;
+    await route.fulfill({
+      contentType: "text/event-stream",
+      body: "id: 3\nevent: order\ndata: {}\n\n",
+    });
+  });
+  const connection = page.waitForRequest((request) => request.url().includes("/v1/realtime?"));
+  await page.goto(`/fr/merchant/${merchantId}/board`);
+  await expect(page.getByText("K7M-4QX")).toBeVisible();
+  const request = await connection;
+  expect(new URL(request.url()).searchParams.get("after")).toBe("2");
+  const refresh = page.waitForRequest((request) => request.url().includes("/order-board?after=2"), {
+    timeout: 2_500,
+  });
+  send.resolve(true);
+  await refresh;
 });

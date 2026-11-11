@@ -22,6 +22,7 @@ return `voice_note_unavailable` until the private audio upload and retention flo
 | `POST /v1/courier/presence` | `courierPresenceInput` → 204 | Courier |
 | `POST /v1/courier/positions` | `courierPositionsInput` → `courierPositionsOutput` | Courier assigned to the active delivery |
 | `GET /v1/merchants/:merchantId/order-board` | `merchantBoardQuery` → `merchantBoardOutput` | Merchant owner, manager or staff on the requested merchant |
+| `GET /v1/realtime?topic=merchantOrders&merchantId=:id` | `merchantRealtimeQuery` → SSE order events | Active merchant session scoped to the requested merchant |
 | `GET /v1/feed` | `publicFeedQuery` → `publicFeedOutput` | Public |
 
 - Import schemas from `@zaafran/contracts/{orders,addresses,tracking,courier,feed}`.
@@ -41,3 +42,5 @@ return `voice_note_unavailable` until the private audio upload and retention flo
 - Fetch the merchant board without a cursor to load its active tickets. Poll with
   `after=<cursor>` to replay events. If `hasMore` is true, fetch the next batch before
   returning to the regular poll interval. The cursor is scoped to one merchant.
+- For merchant SSE, send the last board cursor as `after` on the first connection.
+  Reconnects use `Last-Event-ID`. The board polls when streaming is unavailable.

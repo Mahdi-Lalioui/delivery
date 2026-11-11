@@ -1,9 +1,10 @@
 import type { orderQuoteInput } from "@zaafran/contracts/orders";
-import { randomUUID } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 import { runMigrations } from "graphile-worker";
 import { beforeAll, expect, test } from "vitest";
 import type { z } from "zod";
 import { createAddressRepository } from "../src/addresses.ts";
+import { createAuthRepository } from "../src/auth.ts";
 import { createOrderQuoteRepository } from "../src/order-quotes.ts";
 import { createOrderRepository } from "../src/orders.ts";
 import { registerTestDatabase } from "./database.ts";
@@ -488,4 +489,41 @@ test("[MER-03] merchant handover requires a ready delivery and an assigned couri
       (ticket) => ticket.orderId === orderId,
     ),
   ).toBe(false);
+});
+
+test("[RT-03] committed order events wake the restaurant stream and require a live session for replay", async () => {
+  const { sql } = database.get();
+  const sessionId = randomUUID();
+  await sql`INSERT INTO merchant_members (merchant_id, user_id, role) VALUES (${merchantId}, ${otherId}, 'owner') ON CONFLICT DO NOTHING`;
+  await createAuthRepository(database.get()).transaction((tx) =>
+    tx.insertSession({
+      id: sessionId,
+      userId: otherId,
+      tokenHash: randomBytes(32),
+      transport: "web",
+      kind: "standard",
+      requestIp: "192.0.2.4",
+      deviceName: "Fixture",
+      now: new Date(),
+    }),
+  );
+  const scope = { merchantId, accountId: otherId, sessionId, after: undefined };
+  const before = await orders().merchantReplay(scope);
+  if (!before) throw new Error("Expected authorized replay");
+
+  const signal = Promise.withResolvers<string>();
+  const listener = await sql.listen("merchant_order_events", signal.resolve);
+  try {
+    const request = await placement();
+    const placed = await orders().place(request);
+    if (placed.kind !== "placed") throw new Error("Expected placement");
+    expect(await signal.promise).toBe(merchantId);
+    expect(
+      (await orders().merchantReplay({ ...scope, after: before.cursor }))?.events,
+    ).toMatchObject([{ orderId: placed.order.orderId, status: "pending_acceptance" }]);
+    await sql`UPDATE sessions SET revoked_at = now() WHERE id = ${sessionId}`;
+    expect(await orders().merchantReplay(scope)).toBeUndefined();
+  } finally {
+    await listener.unlisten();
+  }
 });
