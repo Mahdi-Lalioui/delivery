@@ -32,7 +32,9 @@
     "mint": "#4DE3B4",
     "mint-pale": "#D9FCE7",
     "cream": "#FFF8E6",
-    "on-accent": "#06231A"
+    "on-accent": "#06231A",
+    "on-photo": "#FFFFFF",
+    "photo-scrim": "rgb(4 26 19 / 0.72)"
   },
   "dark": {
     "bg": "#05221A",
@@ -67,6 +69,8 @@
     "mint": "#4DE3B4",
     "mint-pale": "#123F30",
     "cream": "#1A3A2E",
-    "on-accent": "#05221A"
+    "on-accent": "#05221A",
+    "on-photo": "#FFFFFF",
+    "photo-scrim": "rgb(4 26 19 / 0.72)"
   }
 }

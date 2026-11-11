@@ -64,3 +64,5 @@
   Next: T2 — 15–20 credited Algeria photos → WebP + docs/PHOTO_CREDITS.md.
 - 2026-11-11 · AWID T2: 16 Wikimedia Commons photos (Algiers, Oran, Constantine, Ghardaïa, Tlemcen, Béjaïa, Sahara, couscous, chakhchoukha) viewed, WebP ≤1600 px in `apps/web/public/photos/algeria/`, credited in docs/PHOTO_CREDITS.md.
   Next: T3 — Discovery, Restaurant, dish sheet, cart through the design loop.
+- 2026-11-11 · AWID T3 Discovery: location pill, greeting, pill search, photo collections, cuisine chips with photos, Top rated / Free delivery / Fastest rails, sticky filter + sort bar (feed query params), cards with rating/ETA/fee and heart burst, bottom tab bar; preview catalog grown to 8 restaurants with 12 credited dish photos. Evidence docs/evidence/awid/discovery.
+  Next: T3 Restaurant + dish sheet, then cart, through the design loop.

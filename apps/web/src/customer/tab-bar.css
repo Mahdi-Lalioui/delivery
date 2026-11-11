@@ -1,0 +1,92 @@
+.customer-tabs {
+  position: fixed;
+  z-index: 20;
+  inset-block-end: 0;
+  inset-inline: 0;
+  padding-block-end: env(safe-area-inset-bottom);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-e2);
+}
+
+.customer-tabs ul {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  max-inline-size: 32rem;
+  margin-inline: auto;
+  list-style: none;
+}
+
+/* Active indicator: a mint bar that slides to the current tab. */
+.customer-tabs ul::before {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inline-size: 25%;
+  block-size: 3px;
+  border-radius: 0 0 var(--radius-pill) var(--radius-pill);
+  background: var(--color-accent);
+  transition: transform var(--motion-base) var(--ease-standard);
+  content: "";
+}
+
+.customer-tabs ul[data-current="search"]::before {
+  transform: translateX(100%);
+}
+
+.customer-tabs ul[data-current="orders"]::before {
+  transform: translateX(200%);
+}
+
+.customer-tabs ul[data-current="profile"]::before {
+  transform: translateX(300%);
+}
+
+[dir="rtl"] .customer-tabs ul[data-current="search"]::before {
+  transform: translateX(-100%);
+}
+
+[dir="rtl"] .customer-tabs ul[data-current="orders"]::before {
+  transform: translateX(-200%);
+}
+
+[dir="rtl"] .customer-tabs ul[data-current="profile"]::before {
+  transform: translateX(-300%);
+}
+
+.customer-tabs a {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  min-block-size: var(--touch-target-customer-primary);
+  padding-block: var(--space-8) var(--space-4);
+  color: var(--color-text-3);
+  font-size: var(--font-size-micro);
+  font-weight: var(--font-weight-label);
+  line-height: var(--line-height-micro);
+  text-decoration: none;
+  transition: color var(--motion-fast) var(--ease-standard);
+}
+
+.customer-tabs a[aria-current="page"] {
+  color: var(--color-text);
+}
+
+.customer-tabs a[aria-current="page"] svg {
+  color: var(--color-accent-strong);
+}
+
+/* Leave room so the bar never covers the last row. */
+body:has(.customer-tabs) {
+  padding-block-end: calc(var(--touch-target-customer-primary) + var(--space-24));
+}
+
+@media (min-width: 960px) {
+  .customer-tabs {
+    display: none;
+  }
+
+  body:has(.customer-tabs) {
+    padding-block-end: 0;
+  }
+}

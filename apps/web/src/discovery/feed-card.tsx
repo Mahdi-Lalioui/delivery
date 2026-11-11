@@ -1,10 +1,12 @@
 import { photoRatios, type photoVariantWidths } from "@zaafran/contracts/media";
-import { formatAlgiersDate, formatAlgiersTime } from "@zaafran/i18n/formats";
+import { formatAlgiersDate, formatAlgiersTime, formatDzd } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
-import { useState } from "react";
+import { Icon } from "@zaafran/ui";
+import { useEffect, useState } from "react";
+import { readFavourites, toggleFavourite } from "./favourites";
 import { useLowData } from "./low-data";
 import type { FeedRestaurant } from "./feed-http";
-import { getFeedCuisineLabel, getFeedMessages } from "./feed-messages";
+import { fillFeedMessage, getFeedCuisineLabel, getFeedMessages } from "./feed-messages";
 
 type VariantWidth = (typeof photoVariantWidths)[number];
 type PhotoFormat = "avif" | "webp";
@@ -113,6 +115,115 @@ function FeedOpening({ opensAt, locale }: { opensAt: string; locale: Locale }) {
   );
 }
 
+function FavouriteButton({
+  merchantId,
+  name,
+  locale,
+}: {
+  merchantId: string;
+  name: string;
+  locale: Locale;
+}) {
+  const messages = getFeedMessages(locale);
+  const [isFavourite, setFavourite] = useState(false);
+  const [hasBurst, setBurst] = useState(false);
+  useEffect(() => {
+    try {
+      setFavourite(readFavourites(window.localStorage).has(merchantId));
+    } catch {
+      // Storage can be blocked; the heart still works for this visit.
+    }
+  }, [merchantId]);
+  return (
+    <button
+      type="button"
+      className="restaurant-feed-favourite"
+      aria-pressed={isFavourite}
+      data-burst={hasBurst}
+      aria-label={fillFeedMessage(isFavourite ? messages.favouriteRemove : messages.favouriteAdd, {
+        name,
+      })}
+      onClick={() => {
+        let next = !isFavourite;
+        try {
+          next = toggleFavourite(window.localStorage, merchantId);
+        } catch {
+          // Keep the in-memory choice.
+        }
+        setFavourite(next);
+        setBurst(next);
+      }}
+      onAnimationEnd={() => {
+        setBurst(false);
+      }}
+    >
+      <Icon name="heart" size={20} />
+    </button>
+  );
+}
+
+function ratingFormat(locale: Locale) {
+  return new Intl.NumberFormat(locale === "ar" ? "ar-DZ-u-nu-latn" : locale, {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  });
+}
+
+function RatingItem({ rating, count, locale }: { rating: number; count: number; locale: Locale }) {
+  const messages = getFeedMessages(locale);
+  const value = ratingFormat(locale).format(rating);
+  return (
+    <li
+      className="restaurant-feed-rating"
+      aria-label={fillFeedMessage(messages.ratingLabel, { rating: value, count: String(count) })}
+    >
+      <Icon name="star" size={16} />
+      <bdi aria-hidden="true">{value}</bdi>
+      <span aria-hidden="true" className="restaurant-feed-count">
+        {fillFeedMessage(messages.ratingCount, { count: String(count) })}
+      </span>
+    </li>
+  );
+}
+
+function FeeItem({ feeDzd, locale }: { feeDzd: number; locale: Locale }) {
+  const messages = getFeedMessages(locale);
+  return (
+    <li data-free={feeDzd === 0}>
+      <Icon name="bike" size={16} />
+      <span className="ui-visually-hidden">{messages.feeLabel}</span>
+      {feeDzd === 0 ? messages.free : <bdi>{formatDzd(feeDzd, locale)}</bdi>}
+    </li>
+  );
+}
+
+function FeedMeta({ restaurant, locale }: { restaurant: FeedRestaurant; locale: Locale }) {
+  const messages = getFeedMessages(locale);
+  const { rating, ratingCount, etaMinutes, deliveryFeeDzd } = restaurant;
+  const hasAny =
+    typeof rating === "number" || Boolean(etaMinutes) || typeof deliveryFeeDzd === "number";
+  if (!hasAny) return null;
+  return (
+    <ul className="restaurant-feed-meta" role="list">
+      {typeof rating === "number" && (
+        <RatingItem rating={rating} count={ratingCount ?? 0} locale={locale} />
+      )}
+      {etaMinutes && (
+        <li>
+          <Icon name="clock" size={16} />
+          <bdi>
+            {fillFeedMessage(messages.etaRange, {
+              min: String(etaMinutes.min),
+              max: String(etaMinutes.max),
+            })}
+          </bdi>
+        </li>
+      )}
+      {typeof deliveryFeeDzd === "number" && <FeeItem feeDzd={deliveryFeeDzd} locale={locale} />}
+    </ul>
+  );
+}
+
 export function FeedCard({ restaurant, locale }: { restaurant: FeedRestaurant; locale: Locale }) {
   const { name, merchantId, coverMediaId, logoMediaId, cuisines, isOpen, nextOpensAt } = restaurant;
   const cuisineLabels = new Set(cuisines.map((cuisine) => getFeedCuisineLabel(locale, cuisine)));
@@ -129,6 +240,7 @@ export function FeedCard({ restaurant, locale }: { restaurant: FeedRestaurant; l
           />
         )}
         <FeedAvailability isOpen={isOpen} locale={locale} />
+        <FavouriteButton merchantId={merchantId} name={name} locale={locale} />
       </div>
       <div className="restaurant-feed-card-body">
         <div className="restaurant-feed-identity">
@@ -162,6 +274,7 @@ export function FeedCard({ restaurant, locale }: { restaurant: FeedRestaurant; l
             </li>
           ))}
         </ul>
+        <FeedMeta restaurant={restaurant} locale={locale} />
         {!isOpen && nextOpensAt && <FeedOpening opensAt={nextOpensAt} locale={locale} />}
       </div>
     </article>

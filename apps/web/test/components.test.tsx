@@ -7,6 +7,7 @@ import { renderToReadableStream } from "react-dom/server";
 import { expect, test, vi } from "vitest";
 import { DesignGuide } from "../src/components/design-guide";
 import { Home, homeMetadata } from "../src/components/home";
+import { getFeedMessages } from "../src/discovery/feed-messages";
 import { SiteShell } from "../src/components/site-shell";
 
 // React DOM runs here without Next's request store.
@@ -31,10 +32,13 @@ test.each(locales)(
   "[M0-8] the %s home renders its localized introduction",
   async (locale, name) => {
     const html = await render(<Home locale={locale} />);
-    const { home, shell } = getMessages(locale);
+    const { shell } = getMessages(locale);
+    const { greeting, greetingIntro } = getFeedMessages(locale);
 
-    expect(html).toContain(`<h1>${name}</h1>`);
-    expect(html).toContain(home.description);
+    // AWID discovery greets the customer; the brand name is the masthead logo's accessible name.
+    expect(html).toMatch(new RegExp(`<h1[^>]*>${RegExp.escape(greeting)}</h1>`));
+    expect(html).toContain(greetingIntro);
+    expect(html).toContain(`aria-label="${name}"`);
     expect(html).toMatch(new RegExp(`<nav\\b[^>]*aria-label="${RegExp.escape(shell.languages)}"`));
     expect(html).toMatch(/<a\b[^>]*href="\/ar\/discover"[^>]*>العربية<\/a>/);
     expect(html).toMatch(/<a\b[^>]*href="\/fr\/discover"[^>]*>Français<\/a>/);
