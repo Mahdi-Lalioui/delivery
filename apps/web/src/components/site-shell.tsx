@@ -27,6 +27,7 @@ interface SiteShellProps {
     | `/merchant/${string}/setup`
     | `/merchant/${string}/profile/photos`
     | `/merchant/${string}/hours`
+    | `/merchant/${string}/board`
     | `/merchant/${string}/staff`
     | `/merchant/${string}/billing`
     | `/merchant/${string}/reviews`

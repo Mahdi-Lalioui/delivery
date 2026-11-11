@@ -155,3 +155,6 @@
 
 - 2026-11-11 · High · Published the tenant-scoped merchant board snapshot and commit-ordered replay. Passed 549 package tests, 33 focused PostGIS tests and 242 authz tests.
   Next: build the localized board with polling, sound, countdowns and order actions. SSE and courier handover follow their sprint slices.
+
+- 2026-11-11 · High · Shipped the localized merchant board with polling replay, cash detail, actions, countdown, audio, wake lock and offline state. 829 unit and six production browser tests passed. Screenshots in docs/evidence/awid/merchant-board/.
+  Next: wire merchant handover for assigned couriers, then add SSE with polling fallback, push and SMS.
