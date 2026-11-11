@@ -103,6 +103,10 @@
     "./tracking": {
       "types": "./src/tracking.ts",
       "default": "./dist/tracking.js"
+    },
+    "./push": {
+      "types": "./src/push.ts",
+      "default": "./dist/push.js"
     }
   },
   "scripts": {

@@ -111,6 +111,10 @@
     "./orders": {
       "types": "./src/orders.ts",
       "default": "./dist/orders.js"
+    },
+    "./push-subscriptions": {
+      "types": "./src/push-subscriptions.ts",
+      "default": "./dist/push-subscriptions.js"
     }
   },
   "scripts": {

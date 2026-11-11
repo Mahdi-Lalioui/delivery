@@ -198,6 +198,11 @@ test("[CUS-24] deletes once, revokes all sessions, and permits only the original
   const { sql } = database.get();
   const account = await customer();
   const addressId = await seedPrivateAddress(account.userId, "Maison");
+  await sql`
+    INSERT INTO public.push_subscriptions (endpoint, user_id, session_id, p256dh, auth_key)
+    VALUES ('https://fcm.googleapis.com/fcm/send/fixture', ${account.userId}, ${account.sessionId},
+      'B' || repeat('A', 86), repeat('A', 22))
+  `;
   const secondSession = await addSession({ userId: account.userId, transport: "bearer" });
   const request = challenge(account, "192.0.2.70");
   const auth = createAuthRepository(database.get());
@@ -232,6 +237,9 @@ test("[CUS-24] deletes once, revokes all sessions, and permits only the original
   expect(await repo.replayDeletion({ ...account, ...confirmation, now: at(599) })).toBe(false);
   expect(await repo.exportAccount({ ...account, now })).toBeUndefined();
   expect(await sql`SELECT FROM public.addresses WHERE id = ${addressId}`).toHaveLength(0);
+  expect(
+    await sql`SELECT FROM public.push_subscriptions WHERE user_id = ${account.userId}`,
+  ).toHaveLength(0);
   expect(await auth.resolveSession({ ...account, now })).toBeUndefined();
   expect(await auth.resolveSession({ ...secondSession, now })).toBeUndefined();
   const [user] =

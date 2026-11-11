@@ -305,6 +305,21 @@ const matrix: readonly MatrixRoute[] = [
     requestUrl: `/v1/me/addresses/${challengeId}`,
     expected: { customer: 503 },
   },
+  {
+    method: "POST",
+    url: "/v1/me/push-subscriptions",
+    payload: {
+      endpoint: "https://fcm.googleapis.com/fcm/send/fixture",
+      keys: { p256dh: "B" + "A".repeat(86), auth: "A".repeat(22) },
+    },
+    expected: { customer: 503 },
+  },
+  {
+    method: "DELETE",
+    url: "/v1/me/push-subscriptions",
+    payload: { endpoint: "https://fcm.googleapis.com/fcm/send/fixture" },
+    expected: { customer: 503 },
+  },
   { method: "GET", url: "/v1/me/export", expected: { customer: 503 } },
   { method: "POST", url: "/v1/me/deletion-challenge", expected: { customer: 503 } },
   {

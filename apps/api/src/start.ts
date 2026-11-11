@@ -2,6 +2,7 @@ import { randomBytes } from "node:crypto";
 import { createOrderRepository } from "@zaafran/db/orders";
 import { createOrderQuoteRepository } from "@zaafran/db/order-quotes";
 import { createAddressRepository } from "@zaafran/db/addresses";
+import { createPushSubscriptionRepository } from "@zaafran/db/push-subscriptions";
 import { createPrivacyRepository } from "@zaafran/db/privacy";
 import { createAuthRepository } from "@zaafran/db/auth";
 import { createBillingRepository, createBillingWriteRepository } from "@zaafran/db/billing";
@@ -70,6 +71,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     orders: { repository: orders, now },
     orderActions: { repository: orders, now },
     merchantBoard: orders,
+    pushSubscriptions: createPushSubscriptionRepository(database),
     realtime: {
       replay: orders.merchantReplay,
       replayOrder: orders.orderReplay,

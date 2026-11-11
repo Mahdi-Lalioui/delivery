@@ -24,6 +24,8 @@ return `voice_note_unavailable` until the private audio upload and retention flo
 | `GET /v1/merchants/:merchantId/order-board` | `merchantBoardQuery` → `merchantBoardOutput` | Merchant owner, manager or staff on the requested merchant |
 | `GET /v1/realtime?topic=merchantOrders&merchantId=:id` | `orderRealtimeQuery` → SSE order events | Active merchant session scoped to the requested merchant |
 | `GET /v1/realtime?topic=order&orderId=:id` | `orderRealtimeQuery` → SSE order events | Active customer or merchant session scoped to the order, or admin |
+| `POST /v1/me/push-subscriptions` | `pushSubscriptionInput` → 204 | Active customer web session |
+| `DELETE /v1/me/push-subscriptions` | `removePushSubscriptionInput` → 204 | Active customer web session |
 | `GET /v1/feed` | `publicFeedQuery` → `publicFeedOutput` | Public |
 
 - Import schemas from `@zaafran/contracts/{orders,addresses,tracking,courier,feed}`.
@@ -49,3 +51,5 @@ return `voice_note_unavailable` until the private audio upload and retention flo
 - For a single order, use the order version as the initial cursor. The stream
   carries order IDs, versions, timestamps and status. Fetch the scoped tracking
   view separately for private delivery details.
+- Register the browser subscription JSON against the active session and remove it
+  when opting out. A signed-out or expired session is ineligible for delivery.

@@ -170,3 +170,6 @@
 
 - 2026-11-11 · High · Queued terminal order SMS atomically and added a retry-safe HTTPS gateway with ar/fr/en checkout locale. Passed 213 package tests and 26 PostGIS and Graphile integrations using a fake gateway.
   Next: persist session-scoped web push subscriptions and queue push on order transitions. Real SMS credentials are listed in HUMAN_TODO.md.
+
+- 2026-11-11 · High · Added session-scoped browser push registration and opt-out, trusted endpoint validation, device caps and erasure. Passed 555 package tests, 246 authz and 17 PostGIS integrations.
+  Next: send order status updates over VAPID, prune expired subscriptions and publish the public key contract.
