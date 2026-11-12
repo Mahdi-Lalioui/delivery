@@ -341,3 +341,6 @@
 
 - 2026-11-12 · High · Fixed the Arabic restaurant's 17 px horizontal overflow on Linux Chromium by allowing the menu and full-bleed header grids to shrink. Reproduced the failure, then passed all four Arabic/French route matrices and both restaurant cart journeys on Linux.
   Next: finish the hosted gate on this exact layout patch before advancing main.
+
+- 2026-11-12 · High · Advanced main to `06b9015` after [all hosted checks](https://github.com/Mahdi-Lalioui/delivery/actions/runs/43246522487), CodeQL and the exact-commit PR gate passed. Includes the latest Lane B motion and design evidence, the live tagine, fee and distance API, and Linux Arabic layout fix.
+  Next: connect the Discovery screen to the saved commune and fee ordering with Lane B, then pick up the remaining feed and reorder handoffs.
