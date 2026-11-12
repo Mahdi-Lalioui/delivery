@@ -1853,5 +1853,12 @@
     "restaurantsBody": "Rejoignez AWID avec un abonnement fixe",
     "signIn": "Se connecter",
     "signInBody": "Connectez-vous pour voir vos commandes et vos adresses."
+  },
+  "feel": {
+    "title": "Sensations",
+    "haptics": "Vibrations",
+    "hapticsBody": "Un petit tap quand vous ajoutez un plat, commandez, et quand le resto accepte.",
+    "sound": "Son de confirmation",
+    "soundBody": "Un petit carillon quand le restaurant accepte votre commande."
   }
 }

@@ -1853,5 +1853,12 @@
     "restaurantsBody": "Join AWID with a flat monthly fee",
     "signIn": "Sign in",
     "signInBody": "Sign in to see your orders and saved addresses."
+  },
+  "feel": {
+    "title": "Feel",
+    "haptics": "Vibration",
+    "hapticsBody": "A small tap when you add a dish, order, and when the restaurant accepts.",
+    "sound": "Confirmation sound",
+    "soundBody": "A soft chime when the restaurant accepts your order."
   }
 }

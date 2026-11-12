@@ -1,5 +1,6 @@
 import { type Cart } from "@zaafran/domain/cart";
 import { useEffect, useState } from "react";
+import { buzz, cartGrew } from "../feel/feel";
 import { cartStorageKey, readBrowserCart, saveBrowserCart } from "./cart-storage";
 
 function browserStorage(): Storage | null {
@@ -13,6 +14,10 @@ function browserStorage(): Storage | null {
 function currentBrowserCart(): Cart | null {
   const storage = browserStorage();
   return storage ? readBrowserCart(storage, Date.now()) : null;
+}
+
+function itemCount(cart: Cart | null): number {
+  return cart?.lines.reduce((total, line) => total + line.quantity, 0) ?? 0;
 }
 
 export function useBrowserCart() {
@@ -47,6 +52,7 @@ export function useBrowserCart() {
   }, [cart]);
 
   function save(next: Cart | null) {
+    if (cartGrew(itemCount(cart), itemCount(next))) buzz("add");
     setCart(next);
     const storage = browserStorage();
     setStorageFailed(storage === null || !saveBrowserCart(storage, next));

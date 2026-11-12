@@ -2,6 +2,7 @@
 
 import type { Cart } from "@zaafran/domain/cart";
 import { isPublicLocale, type Locale } from "@zaafran/i18n/locales";
+import { buzz } from "../feel/feel";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { readSavedLocation } from "../discovery/location";
 import { loadSlots, type Slot } from "../retention/scheduling";
@@ -211,7 +212,10 @@ export function useCheckout(locale: Locale): CheckoutState {
     };
     void placeOrder(placement, key).then((result) => {
       setPlace(result);
-      if (result.kind === "placed") basket.save(null);
+      if (result.kind === "placed") {
+        buzz("placed");
+        basket.save(null);
+      }
       if (result.kind === "expired") setQuoteAttempt((value) => value + 1);
       if (result.kind === "contact-required") contact.retry();
     });
