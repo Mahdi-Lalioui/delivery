@@ -169,8 +169,8 @@ export function OrderRatingView({
   return (
     <section className="rating-page" aria-labelledby="order-rating-title">
       <header className="rating-hero">
-        <span className="rating-hero-icon" aria-hidden="true">
-          <Icon name="plate" size={32} />
+        <span className="rating-hero-photo" aria-hidden="true">
+          <img src="/preview-catalog/couscous-320.webp" alt="" width="320" height="240" />
         </span>
         <h1 id="order-rating-title" className="ui-page-title">
           {translate("title")}

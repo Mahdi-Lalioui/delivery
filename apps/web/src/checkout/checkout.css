@@ -572,3 +572,24 @@
     transition: none;
   }
 }
+
+/* Dark mode: primary is mint there, so the celebration keeps a deep green field. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .checkout-confirmed {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+  }
+
+  :root:not([data-theme="light"]) .checkout-confirmed::before {
+    background: radial-gradient(circle at 50% 45%, var(--color-bg) 30%, transparent 75%);
+  }
+}
+
+:root[data-theme="dark"] .checkout-confirmed {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+:root[data-theme="dark"] .checkout-confirmed::before {
+  background: radial-gradient(circle at 50% 45%, var(--color-bg) 30%, transparent 75%);
+}

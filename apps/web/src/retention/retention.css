@@ -717,3 +717,119 @@
   display: grid;
   gap: var(--space-12);
 }
+
+/* Rating, round 1: a food photo hero, centred stars that name the chosen value. */
+.rating-page {
+  padding-block-end: var(--space-120);
+}
+
+.rating-hero-photo {
+  display: block;
+  inline-size: 7rem;
+  block-size: 7rem;
+  overflow: hidden;
+  border: 6px solid var(--color-surface);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-e2);
+}
+
+.rating-hero-photo img {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+.rating-form .star-field {
+  justify-items: center;
+}
+
+.star-field-row {
+  justify-content: center;
+}
+
+.star-field-value {
+  min-block-size: var(--line-height-label);
+  color: var(--color-accent-strong);
+  font-weight: var(--font-weight-h3);
+}
+
+.star-field-value span {
+  display: none;
+}
+
+.star-field:has([data-value="1"] input:checked) .star-field-value [data-value="1"],
+.star-field:has([data-value="2"] input:checked) .star-field-value [data-value="2"],
+.star-field:has([data-value="3"] input:checked) .star-field-value [data-value="3"],
+.star-field:has([data-value="4"] input:checked) .star-field-value [data-value="4"],
+.star-field:has([data-value="5"] input:checked) .star-field-value [data-value="5"] {
+  display: inline;
+  animation: star-pop var(--motion-slow) var(--ease-spring-bouncy);
+}
+
+/* Food is the main question; delivery steps down. */
+.rating-form .star-field + .star-field .ui-icon {
+  inline-size: 32px;
+  block-size: 32px;
+}
+
+/* Orders, round 1. */
+.orders-cover {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Cpath d='M16 3 29 16 16 29 3 16Z' fill='none' stroke='%2300A37A' stroke-opacity='.2' stroke-width='1.5'/%3E%3C/svg%3E");
+}
+
+.orders-card .review-card-actions {
+  justify-content: space-between;
+}
+
+.orders-card .billing-row-meta time {
+  flex-basis: 100%;
+  color: var(--color-text-3);
+  font-size: var(--font-size-caption);
+}
+
+/* Rating, round 2. */
+.rating-form .star-field legend {
+  inline-size: 100%;
+  text-align: center;
+}
+
+.rating-form .star-field {
+  padding-block-end: var(--space-12);
+}
+
+/* Orders, round 2. */
+.orders-card .review-card-actions {
+  flex-wrap: wrap;
+}
+
+.orders-favourite .ui-badge-success {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.orders-card .billing-row-title {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-12);
+}
+
+.orders-card .review-card-actions .ui-button-primary {
+  transition: transform var(--motion-fast) var(--ease-standard);
+}
+
+.orders-card .review-card-actions .ui-button-primary:active {
+  transform: scale(0.95) rotate(-2deg);
+}
+
+/* Rail items never grow past their column; long names ellipsize. */
+.orders-favourite {
+  min-inline-size: 0;
+}
+
+.orders-favourites {
+  max-inline-size: 100%;
+}

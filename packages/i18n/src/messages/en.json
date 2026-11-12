@@ -54,7 +54,7 @@
   "auth": {
     "title": "Sign in",
     "adminTitle": "Admin sign-in",
-    "phoneDescription": "Enter your Algerian mobile number. We’ll send you a code by SMS.",
+    "phoneDescription": "No password: we text you a 6-digit code.",
     "phoneLabel": "Mobile number",
     "phoneHint": "For example, 05XX XX XX XX.",
     "invalidPhone": "Enter a valid Algerian mobile number.",
@@ -97,7 +97,8 @@
     "continueRestaurants": "Continue to your restaurants",
     "continueModeration": "Open held items",
     "continueInvitation": "Open the invitation",
-    "continueCourier": "Open courier desk"
+    "continueCourier": "Open courier desk",
+    "phonePlaceholder": "05XX XX XX XX"
   },
   "sessions": {
     "title": "Signed-in devices",
@@ -1052,7 +1053,7 @@
     "title": "Rate your order",
     "food": "Food",
     "delivery": "Delivery",
-    "comment": "Comment (optional, up to 500 characters)",
+    "comment": "A word for the restaurant? (optional)",
     "stars": "{count, plural, one {# star} other {# stars}}",
     "submit": "Send rating",
     "update": "Update rating",
@@ -1086,11 +1087,16 @@
     "noReviews": "No reviews yet.",
     "loadError": "Reviews could not be loaded.",
     "loadMore": "Show more reviews",
-    "intro": "Tell the restaurant how it went. You can change this for 24 hours.",
+    "intro": "Tell the restaurant how it went.",
     "reviewsIntro": "What customers say about your food and delivery.",
     "noReviewsBody": "Reviews appear here after customers rate their orders.",
     "cancel": "Cancel",
-    "closeToast": "Dismiss"
+    "closeToast": "Dismiss",
+    "score_1": "Bad",
+    "score_2": "Poor",
+    "score_3": "Okay",
+    "score_4": "Good",
+    "score_5": "Excellent"
   },
   "retentionPromotions": {
     "title": "Promotions",
@@ -1205,7 +1211,7 @@
   },
   "marketingLanding": {
     "title": "You're in need, try {brand}",
-    "intro": "The best kitchens of your city, delivered hot. Pay cash at the door and follow your courier to your street.",
+    "intro": "Order from the best kitchens in your city and pay cash at the door.",
     "start": "Find food near me",
     "heroCredit": "Photo: {place}",
     "slide_maqam": "Maqam Echahid, Algiers",
@@ -1319,7 +1325,7 @@
   },
   "retentionOrders": {
     "title": "My orders",
-    "intro": "Your favourite restaurants and past orders, with receipts and one-tap reorder.",
+    "intro": "Your favourite places and past orders.",
     "favourites": "Favourite restaurants",
     "noFavourites": "No favourites yet",
     "noFavouritesBody": "Tap the heart on a restaurant to find it here.",
@@ -1328,7 +1334,7 @@
     "closed": "Closed",
     "receipt": "Receipt",
     "hideReceipt": "Hide receipt",
-    "orderAgain": "Order again",
+    "orderAgain": "Reorder",
     "lineQuantity": "{count}×",
     "optionLine": "+ {name} ({amount})",
     "subtotal": "Subtotal",

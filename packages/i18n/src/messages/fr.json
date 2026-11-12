@@ -54,7 +54,7 @@
   "auth": {
     "title": "Se connecter",
     "adminTitle": "Connexion administrateur",
-    "phoneDescription": "Saisissez votre numéro de mobile algérien. Nous vous enverrons un code par SMS.",
+    "phoneDescription": "Pas de mot de passe : on vous envoie un code par SMS.",
     "phoneLabel": "Numéro de mobile",
     "phoneHint": "Par exemple, 05XX XX XX XX.",
     "invalidPhone": "Saisissez un numéro de mobile algérien valide.",
@@ -97,7 +97,8 @@
     "continueRestaurants": "Accéder à vos restaurants",
     "continueModeration": "Ouvrir les articles retenus",
     "continueInvitation": "Ouvrir l’invitation",
-    "continueCourier": "Ouvrir l’espace livreur"
+    "continueCourier": "Ouvrir l’espace livreur",
+    "phonePlaceholder": "05XX XX XX XX"
   },
   "sessions": {
     "title": "Appareils connectés",
@@ -1052,7 +1053,7 @@
     "title": "Notez votre commande",
     "food": "Repas",
     "delivery": "Livraison",
-    "comment": "Commentaire (facultatif, 500 caractères au plus)",
+    "comment": "Un mot pour le restaurant ? (facultatif)",
     "stars": "{count, plural, one {# étoile} other {# étoiles}}",
     "submit": "Envoyer la note",
     "update": "Modifier la note",
@@ -1086,11 +1087,16 @@
     "noReviews": "Aucun avis pour l’instant.",
     "loadError": "Les avis n’ont pas pu être chargés.",
     "loadMore": "Afficher plus d’avis",
-    "intro": "Dites au restaurant comment ça s’est passé. Vous pouvez modifier pendant 24 heures.",
+    "intro": "Dites au restaurant comment c’était.",
     "reviewsIntro": "Ce que les clients disent de votre cuisine et de la livraison.",
     "noReviewsBody": "Les avis apparaissent ici quand les clients notent leurs commandes.",
     "cancel": "Annuler",
-    "closeToast": "Fermer"
+    "closeToast": "Fermer",
+    "score_1": "Mauvais",
+    "score_2": "Bof",
+    "score_3": "Correct",
+    "score_4": "Bon",
+    "score_5": "Excellent"
   },
   "retentionPromotions": {
     "title": "Promotions",
@@ -1205,7 +1211,7 @@
   },
   "marketingLanding": {
     "title": "Un besoin ? Essayez {brand}",
-    "intro": "Les meilleures cuisines de votre ville, livrées bien chaudes. Payez en espèces à la porte et suivez votre livreur jusqu’à votre rue.",
+    "intro": "Commandez dans les meilleures cuisines de votre ville, payez en espèces à la porte.",
     "start": "Trouver à manger",
     "heroCredit": "Photo : {place}",
     "slide_maqam": "Maqam Echahid, Alger",
@@ -1319,7 +1325,7 @@
   },
   "retentionOrders": {
     "title": "Mes commandes",
-    "intro": "Vos restaurants favoris et vos commandes passées, avec reçus et recommande en un geste.",
+    "intro": "Vos adresses préférées et vos commandes passées.",
     "favourites": "Restaurants favoris",
     "noFavourites": "Aucun favori pour l’instant",
     "noFavouritesBody": "Touchez le cœur d’un restaurant pour le retrouver ici.",
@@ -1328,7 +1334,7 @@
     "closed": "Fermé",
     "receipt": "Reçu",
     "hideReceipt": "Masquer le reçu",
-    "orderAgain": "Commander à nouveau",
+    "orderAgain": "Recommander",
     "lineQuantity": "{count}×",
     "optionLine": "+ {name} ({amount})",
     "subtotal": "Sous-total",

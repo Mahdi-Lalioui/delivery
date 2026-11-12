@@ -31,6 +31,7 @@ function PhoneField({ flow, translate, inputRef }: FieldProps) {
         ref={inputRef}
         type="tel"
         autoComplete="tel"
+        placeholder={translate("phonePlaceholder")}
         dir="ltr"
         value={flow.phone}
         readOnly={flow.pending !== undefined}
