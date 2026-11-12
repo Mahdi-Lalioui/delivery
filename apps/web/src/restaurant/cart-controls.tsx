@@ -66,6 +66,13 @@ export function CartControls({
           }}
         >
           <span>
+            <span
+              className="restaurant-cart-bag"
+              key={`bag-${String(summary.value.itemCount)}`}
+              aria-hidden="true"
+            >
+              <Icon name="bag" size={22} />
+            </span>
             <bdi className="restaurant-cart-count" key={summary.value.itemCount}>
               {summary.value.itemCount}
             </bdi>

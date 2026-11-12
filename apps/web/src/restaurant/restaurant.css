@@ -1039,3 +1039,28 @@ body:has(.restaurant-cart-bar) .customer-tabs {
 .restaurant-menu-search input::-webkit-search-cancel-button {
   display: none;
 }
+
+/* The bag tips and bounces each time the item count changes (keyed re-mount). */
+.restaurant-cart-bag {
+  display: inline-grid;
+  transform-origin: 50% 90%;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .restaurant-cart-bag {
+    animation: restaurant-bag-bounce var(--motion-slow) var(--ease-spring-bouncy);
+  }
+}
+@keyframes restaurant-bag-bounce {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+  30% {
+    transform: translateY(calc(var(--space-4) * -1)) rotate(-12deg);
+  }
+  60% {
+    transform: translateY(0) rotate(8deg) scale(1.08, 0.92);
+  }
+  100% {
+    transform: none;
+  }
+}
