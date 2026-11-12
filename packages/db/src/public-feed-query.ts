@@ -5,7 +5,13 @@ import { timestampParsers } from "./timestamp-parsers.js";
 export type FeedQuery = ReturnType<typeof publicFeedQuery.parse> & { now: Date };
 type Card = ReturnType<typeof publicRestaurantCard.parse>;
 type MetricKeys =
-  "rating" | "ratingCount" | "etaMinutes" | "deliveryFeeDzd" | "minimumOrderDzd" | "priceLevel";
+  | "rating"
+  | "ratingCount"
+  | "etaMinutes"
+  | "deliveryFeeDzd"
+  | "distanceMeters"
+  | "minimumOrderDzd"
+  | "priceLevel";
 type RestaurantRow = Omit<Card, "isOpen" | "nextOpensAt" | MetricKeys> & {
   pausedUntil: Date | null;
   metrics: Pick<Card, MetricKeys>;
@@ -19,6 +25,8 @@ function orderBy(sql: TransactionSql, sort: FeedQuery["sort"]) {
       return sql`rating DESC NULLS LAST, rating_count DESC, id`;
     case "eta":
       return sql`eta_max ASC NULLS LAST, id`;
+    case "fee":
+      return sql`fee_dzd ASC NULLS LAST, id`;
     default:
       return sql`id`;
   }
@@ -107,7 +115,8 @@ export function readRestaurantRows(sql: TransactionSql, query: FeedQuery) {
       jsonb_strip_nulls(jsonb_build_object(
         'rating', page.rating, 'ratingCount', CASE WHEN page.rating IS NOT NULL THEN page.rating_count END,
         'etaMinutes', CASE WHEN page.eta_max IS NOT NULL THEN jsonb_build_object('min', page.eta_min, 'max', page.eta_max) END,
-        'deliveryFeeDzd', page.fee_dzd, 'minimumOrderDzd', page.minimum_dzd, 'priceLevel', page.price_level
+        'deliveryFeeDzd', page.fee_dzd, 'distanceMeters', round(page.distance)::int,
+        'minimumOrderDzd', page.minimum_dzd, 'priceLevel', page.price_level
       )) AS metrics
     FROM page
     LEFT JOIN public.media_uploads AS cover ON cover.id = page.cover_photo_id

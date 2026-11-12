@@ -24,3 +24,18 @@ Requested additions to `publicFeedQuery` / `publicRestaurantCard`:
    cheapest-dish field for "Under 1 000 DA".
 
 Lane B will add each control as soon as its field lands, with tests named after the SPEC IDs.
+
+
+## First API delivery
+
+The contract and backend now support `sort=fee` on `GET /v1/feed`. It uses the matching
+delivery zone for the selected commune, puts free delivery first and unknown fees last,
+and paginates ties by restaurant ID. The local preview catalog honors fee order too.
+
+`distanceMeters` is an optional, rounded straight-line distance from the selected commune's
+centroid to the restaurant. It is omitted without a usable commune. The public feed continues
+to accept a commune ID only. The current screen saves the location separately from the feed,
+so the UI should pass the selected commune ID on list and rail requests, reset pagination
+when it changes, and label the distance as approximate.
+
+The remaining feed additions and the Discovery controls are open.

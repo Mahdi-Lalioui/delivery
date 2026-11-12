@@ -102,6 +102,9 @@ function matchesFilters(card: Card, query: FeedQuery) {
 const sorters: Record<string, (left: Card, right: Card) => number> = {
   rating: (left, right) => (right.rating ?? 0) - (left.rating ?? 0),
   eta: (left, right) => (left.etaMinutes?.max ?? 999) - (right.etaMinutes?.max ?? 999),
+  fee: (left, right) =>
+    (left.deliveryFeeDzd ?? Number.MAX_SAFE_INTEGER) -
+    (right.deliveryFeeDzd ?? Number.MAX_SAFE_INTEGER),
 };
 
 function feed(params: URLSearchParams) {

@@ -286,6 +286,24 @@ test("[CUS-04][CUS-06:db] publishes delivery estimates and ratings with filtered
       ({ merchantId }) => merchantId,
     ),
   ).toEqual([overnightId, specialClosureId]);
+  await sql`UPDATE delivery_zones SET fee_dzd = 100 - fee_dzd
+    WHERE merchant_id IN (${overnightId}, ${specialClosureId})`;
+  const feeFirst = await repo.list({ limit: 1, now, sort: "fee", communeId });
+  expect(feeFirst.restaurants).toMatchObject([{ merchantId: specialClosureId, deliveryFeeDzd: 0 }]);
+  expect(feeFirst.nextCursor).toBe(specialClosureId);
+  const feeNext = await repo.list({
+    limit: 2,
+    now,
+    sort: "fee",
+    communeId,
+    cursor: specialClosureId,
+  });
+  expect(
+    feeNext.restaurants.map(({ merchantId, deliveryFeeDzd }) => [merchantId, deliveryFeeDzd]),
+  ).toEqual([
+    [overnightId, 100],
+    [temporarilyPausedId, undefined],
+  ]);
   expect((await repo.list({ limit: 2, now, acceptsTpe: true })).restaurants).toEqual([]);
 });
 
@@ -301,6 +319,8 @@ test("[CUS-06:db] distance uses the selected commune and stable ties", async () 
     datedHoursId,
   ]);
   expect(first.nextCursor).toBe(datedHoursId);
+  expect(first.restaurants.map(({ distanceMeters }) => distanceMeters)).toEqual([0, 0, 0]);
+  expect((await repo.list({ now, limit: 1 })).restaurants[0]).not.toHaveProperty("distanceMeters");
   const next = await repo.list({
     now,
     limit: 3,
@@ -312,5 +332,6 @@ test("[CUS-06:db] distance uses the selected commune and stable ties", async () 
     noHoursId,
     temporarilyPausedId,
   ]);
+  expect(next.restaurants.at(-1)?.distanceMeters).toBeGreaterThan(39_000);
   expect(next.nextCursor).toBeNull();
 });

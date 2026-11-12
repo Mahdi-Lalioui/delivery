@@ -329,3 +329,6 @@
 
 - 2026-11-12 · High · Integrated Lane B's search URLs, dish sheet and cart transitions, and 3D tracking. Mounted AWID's tagine after live checkout with low-data and reduced-motion paths. Workspace verification passed with 1,997 unit and 326 PostGIS tests. Reviewed [five confirmation captures](../evidence/awid/order-confirmed/README.md) and verified real delivery, pickup and search history.
   Next: finish browser and GitHub checks on the integration branch before advancing main. Continue the Discovery feed and reorder handoffs from docs/requests.
+
+- 2026-11-12 · High · Added delivery-fee ordering and approximate commune distance to the public feed. PostGIS verifies fee order across cursors, unknown fees last, and omission without a commune. Passed five contract tests, nine focused PostGIS tests and full pnpm verify.
+  Next: keep this slice on `codex/awid-discovery-contract` until the motion PR is merged, then connect the saved commune and fee choice in the Discovery UI. Pickup, scheduling and reorder are still open.
