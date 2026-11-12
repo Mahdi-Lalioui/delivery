@@ -10,7 +10,7 @@ import { CountdownRing } from "./countdown-ring";
 import { flyToCart } from "./fly-to-cart";
 import { LivePill } from "./live-pill";
 import { OdometerNumber } from "./odometer-number";
-import { TagineMoment } from "./tagine-moment";
+import { Tagine3d } from "./tagine-3d";
 
 const itemPriceDzd = 450;
 const acceptWindowMs = 120_000;
@@ -82,7 +82,7 @@ export function MomentsShowcase({ locale }: { locale: Locale }) {
           {translate("confirmOrder")}
         </button>
         {isTagineVisible && (
-          <TagineMoment
+          <Tagine3d
             key={tagineRun}
             label={translate("confirmed")}
             onDone={() => {
