@@ -2,6 +2,7 @@ import { createHash, randomUUID } from "node:crypto";
 import { runMigrations } from "graphile-worker";
 import { expect, test } from "vitest";
 import { createAuthRepository } from "../src/auth.ts";
+import { createOrderRepository } from "../src/orders.ts";
 import { createPrivacyRepository } from "../src/privacy.ts";
 import { registerTestDatabase } from "./database.ts";
 import { seedReadyPhoto } from "./ready-photo.ts";
@@ -564,6 +565,16 @@ test("[CUS-24] exports only owned orders and erases order PII without losing acc
   expect((await repo.exportAccount({ ...account, now }))?.orders).toMatchObject([
     { orderId, totalDzd: 1137, lines: [{ lineTotalDzd: 1000 }] },
   ]);
+  const rating = await createOrderRepository(database.get()).rate({
+    customerId: account.userId,
+    sessionId: account.sessionId,
+    orderId,
+    input: { foodStars: 5, deliveryStars: 4, comment: "Contact privé" },
+    now,
+    idempotencyKey: "first-rating",
+  });
+  expect(rating.kind).toBe("rated");
+  expect((await repo.exportAccount({ ...account, now }))?.ratings).toHaveLength(1);
   const request = challenge(account, "192.0.2.190");
   await issueDelivered(request);
   expect(await repo.deleteAccount(request)).toBe("deleted");
@@ -572,6 +583,12 @@ test("[CUS-24] exports only owned orders and erases order PII without losing acc
     SELECT customer_id, address_snapshot, lines->0->>'note' AS note, total_dzd
     FROM public.orders WHERE id = ${orderId}`,
   ).toEqual([{ customer_id: null, address_snapshot: null, note: null, total_dzd: 1137 }]);
+  expect(
+    await sql`SELECT comment, food_stars FROM public.ratings WHERE order_id = ${orderId}`,
+  ).toEqual([{ comment: null, food_stars: 5 }]);
+  expect(await sql`SELECT 1 FROM public.order_rating_receipts WHERE order_id = ${orderId}`).toEqual(
+    [],
+  );
   expect(await sql`SELECT actor_id FROM public.order_events WHERE order_id = ${orderId}`).toEqual([
     { actor_id: null },
   ]);

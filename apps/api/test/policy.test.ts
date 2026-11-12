@@ -356,6 +356,19 @@ const matrix: readonly MatrixRoute[] = [
     payload: { expectedVersion: 1, to: "cancelled", reason: "Cancel" },
     expected: adminRole,
   },
+  {
+    method: "GET",
+    url: "/v1/orders/:orderId/rating",
+    requestUrl: "/v1/orders/" + challengeId + "/rating",
+    expected: { customer: 503 },
+  },
+  {
+    method: "PUT",
+    url: "/v1/orders/:orderId/rating",
+    requestUrl: "/v1/orders/" + challengeId + "/rating",
+    payload: { foodStars: 5 },
+    expected: { customer: 503 },
+  },
   { method: "GET", url: "/v1/me/orders", expected: { customer: 503 } },
   {
     method: "GET",

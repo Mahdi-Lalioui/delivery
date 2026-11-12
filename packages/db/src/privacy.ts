@@ -2,6 +2,7 @@ import type { customerPrivacyExportOutput } from "@zaafran/contracts/retention";
 import type { ISql } from "postgres";
 import { listAddresses } from "./addresses.js";
 import type { DatabaseConnection } from "./database.js";
+import { readCustomerRatings } from "./order-rating.js";
 import { readCustomerOrderReceipts } from "./order-receipts.js";
 import { readPrivacyPhone, type PrivacyScope } from "./privacy-account.js";
 import { deliverDeletionChallenge, issueDeletionChallenge } from "./privacy-challenge.js";
@@ -27,7 +28,7 @@ async function exportAccount(sql: ISql, scope: PrivacyScope): Promise<PrivacyExp
       instructions: address.instructions ?? null,
     })),
     orders: await readCustomerOrderReceipts(sql, scope.userId),
-    ratings: [],
+    ratings: await readCustomerRatings(sql, scope.userId),
   };
 }
 

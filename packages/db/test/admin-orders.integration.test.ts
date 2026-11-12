@@ -10,6 +10,7 @@ import {
   customerOrderHistoryQuery,
   customerOrderReceiptOutput,
 } from "@zaafran/contracts/retention";
+import { orderRatingOutput } from "@zaafran/contracts/ratings";
 import { createOrderRepository } from "../src/orders.ts";
 import { createAdminOrdersRepository } from "../src/admin-orders.ts";
 import { registerTestDatabase } from "./database.ts";
@@ -155,4 +156,72 @@ test("[CUS-21] paginates only the active customer's orders and returns a scoped 
   await sql`UPDATE sessions SET revoked_at = now() WHERE id = ${customerSessionId}`;
   expect(await repository.history({ ...scope, query: { limit: 20 } })).toBeUndefined();
   expect(await repository.receipt({ ...scope, orderId: terminalId })).toBeUndefined();
+});
+
+test("[CUS-22] scopes ratings, enforces fulfilment and deadlines, and replays the original response", async () => {
+  const { sql } = database.get();
+  const ratingSessionId = randomUUID();
+  await sql`
+    INSERT INTO sessions
+      (id, user_id, token_hash, transport, kind, request_ip, created_at, last_seen_at, expires_at)
+    VALUES (${ratingSessionId}, ${customerId}, decode(repeat('02', 32), 'hex'), 'web', 'standard',
+      '192.0.2.1', now(), now(), now() + interval '1 hour')
+  `;
+  const repository = createOrderRepository(database.get());
+  const scope = { customerId, sessionId: ratingSessionId, orderId: terminalId };
+  const now = new Date("2026-11-11T12:02:00Z");
+  const command = {
+    ...scope,
+    now,
+    idempotencyKey: "first-rating",
+    input: { foodStars: 5, comment: "Très bon" },
+  };
+  expect(await repository.rating(scope)).toEqual({ kind: "unrated" });
+  expect(await repository.rating({ ...scope, orderId: secondId })).toEqual({ kind: "not_found" });
+  expect(await repository.rate({ ...command, orderId: secondId })).toEqual({ kind: "not_found" });
+  expect(await repository.rate({ ...command, orderId: activeId })).toEqual({
+    kind: "not_eligible",
+  });
+  expect(await repository.rate({ ...command, input: { foodStars: 5, deliveryStars: 4 } })).toEqual({
+    kind: "invalid_stars",
+  });
+  const [original, replay] = await Promise.all([
+    repository.rate(command),
+    repository.rate(command),
+  ]);
+  expect(original.kind).toBe("rated");
+  if (original.kind !== "rated") throw new Error("Expected the first rating");
+  expect(orderRatingOutput.parse(original.rating)).toMatchObject({
+    orderId: terminalId,
+    foodStars: 5,
+    deliveryStars: null,
+    editableUntil: "2026-11-12T12:02:00.000Z",
+  });
+  expect(original.rating.ratingId).not.toBe(terminalId);
+  expect(replay).toEqual(original);
+  expect(await repository.rate({ ...command, input: { foodStars: 1 } })).toEqual({
+    kind: "idempotency_conflict",
+  });
+  const edit = await repository.rate({
+    ...command,
+    idempotencyKey: "new-rating",
+    input: { foodStars: 4 },
+  });
+  expect(edit).toEqual({
+    kind: "rated",
+    rating: { ...original.rating, foodStars: 4, comment: null },
+  });
+  expect(await repository.rate(command)).toEqual(original);
+  expect(await repository.rating(scope)).toEqual(edit);
+  expect(
+    await repository.rate({
+      ...command,
+      now: new Date(original.rating.editableUntil),
+      idempotencyKey: "expired-rating",
+    }),
+  ).toEqual({ kind: "edit_window_closed" });
+  await repository.pruneRatingReceipts(new Date(original.rating.editableUntil));
+  expect(
+    await sql`SELECT 1 FROM public.order_rating_receipts WHERE order_id = ${terminalId}`,
+  ).toEqual([]);
 });

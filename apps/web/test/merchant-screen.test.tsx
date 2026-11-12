@@ -51,13 +51,17 @@ test("[MER-01:web] guests can start from the Arabic application and verify a pho
   expect(html).not.toContain("<form");
 });
 
-test("[MER-01:web] the authenticated form displays localized communes and labelled editable pin coordinates", () => {
+test("[MER-01:web] the authenticated form displays localized wilayas and communes and map or GPS pin selection", () => {
   resource
     .mockReturnValueOnce({
       view: { kind: "ready", data: { sessionId: commune.id, memberships: [] } },
       retry,
     })
-    .mockReturnValueOnce({ view: { kind: "ready", data: [commune] }, retry });
+    .mockReturnValueOnce({ view: { kind: "ready", data: [commune] }, retry })
+    .mockReturnValueOnce({
+      view: { kind: "ready", data: [{ code: 16, nameAr: "الجزائر", nameFr: "Alger" }] },
+      retry,
+    });
   const html = render("application");
   const { merchant } = getMessages("ar");
 
@@ -65,14 +69,9 @@ test("[MER-01:web] the authenticated form displays localized communes and labell
   expect(html).toMatch(/<form\b[^>]*method="post"/);
   expect(html).toContain(`<option value="${commune.id}">${commune.nameAr}</option>`);
   expect(html).toContain(merchant.useLocation);
-  for (const name of ["latitude", "longitude"]) {
-    expect(html).toMatch(
-      new RegExp(
-        `<input\\b(?=[^>]*name="${name}")(?=[^>]*dir="ltr")(?=[^>]*inputMode="decimal")`,
-        "i",
-      ),
-    );
-  }
+  expect(html).toContain(getMessages("ar").maps.show);
+  expect(html).toContain('<option value="16" selected="">الجزائر</option>');
+  expect(html).not.toMatch(/<input\b[^>]*name="(?:latitude|longitude)"/);
   expect(html).not.toMatch(/<input\b[^>]*type="tel"/);
 });
 

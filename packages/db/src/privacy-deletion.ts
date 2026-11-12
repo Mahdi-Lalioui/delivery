@@ -112,6 +112,7 @@ async function clearPersonalData(
   `;
   await sql`UPDATE public.order_events SET actor_id = NULL, payload = payload - 'reason'
     WHERE actor_id = ${userId} AND actor_kind = 'customer'`;
+  await sql`DELETE FROM public.order_rating_receipts WHERE customer_id = ${userId}`;
   await sql`DELETE FROM public.order_action_receipts WHERE actor_id = ${userId}`;
   await sql`DELETE FROM public.order_placement_receipts WHERE customer_id = ${userId}`;
   await sql`DELETE FROM public.push_subscriptions WHERE user_id = ${userId}`;

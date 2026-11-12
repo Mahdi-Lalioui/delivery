@@ -254,3 +254,6 @@
 
 - 2026-11-12 · High · Added private order history and receipts on the existing contract, with precise cursor paging and active-session scoping. Passed 256 authz/HTTP tests and three PostGIS cases. OpenAPI matches.
   Next: implement the customer rating read and write against the published contract, then exercise delivery and pickup against real routes.
+
+- 2026-11-12 · Ultra · Added session-scoped customer ratings for delivery and pickup with 24-hour edits, exactly-once retry, expiry cleanup, privacy export and erasure. Passed 257 authz/HTTP, 19 PostGIS and 12 API-schema and merchant-form checks.
+  Next: run the real delivery, pickup, rejection, expiry and cancellation journeys on the integrated build, then complete the restaurant reviews handoff.

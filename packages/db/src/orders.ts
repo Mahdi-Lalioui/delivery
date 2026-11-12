@@ -33,6 +33,7 @@ import {
   type CustomerOrderScope,
   type OrderHistoryQuery,
 } from "./order-receipts.js";
+import { pruneOrderRatingReceipts, readOrderRating, saveOrderRating } from "./order-rating.js";
 import { readCustomerTracking, type CustomerTrackingScope } from "./order-tracking.js";
 import { readOrderReplay, type OrderReplayRequest } from "./order-replay.js";
 import { evaluateQuote, lockOrderingCustomer, quoteBreakdown } from "./order-quotes.js";
@@ -223,6 +224,11 @@ async function runTimer(
 
 export function createOrderRepository({ sql }: DatabaseConnection, deliveryKey?: Uint8Array) {
   return {
+    rating: (scope: Parameters<typeof readOrderRating>[1]) =>
+      sql.begin("isolation level repeatable read read only", (tx) => readOrderRating(tx, scope)),
+    rate: (command: Parameters<typeof saveOrderRating>[1]) =>
+      sql.begin((tx) => saveOrderRating(tx, command)),
+    pruneRatingReceipts: (now: Date) => pruneOrderRatingReceipts(sql, now),
     history: (scope: CustomerOrderScope & { query: OrderHistoryQuery }) =>
       sql.begin("isolation level repeatable read read only", async (tx) => {
         if (await isActiveCustomer(tx, scope))
