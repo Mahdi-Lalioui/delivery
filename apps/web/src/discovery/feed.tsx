@@ -4,6 +4,7 @@ import type { Locale } from "@zaafran/i18n/locales";
 import { useEffect, useId, useRef, useState, type MouseEvent } from "react";
 import { FeedContent } from "./feed-content";
 import { FeedFilterBar } from "./feed-filters";
+import { filtersFromSearch, filtersToSearch } from "./filter-state";
 import { readDiscoveryFeed, type FeedFilters, type FeedState } from "./feed-http";
 import { Collections, CuisineChips, FeedRail } from "./feed-sections";
 import { getFeedMessages } from "./feed-messages";
@@ -16,12 +17,12 @@ export function DiscoveryFeed({ locale }: { locale: Locale }) {
   const [filters, setFilters] = useState<FeedFilters>({});
   const filtersRef = useRef(filters);
 
-  // The landing links here with ?cuisine=…; start the full list on that cuisine.
+  // Filters live in the URL (shareable, survive reloads); the landing links here with ?cuisine=.
   useEffect(() => {
-    const cuisine = new URLSearchParams(window.location.search).get("cuisine");
-    if (cuisine === null || !/^[a-z0-9-]{1,48}$/u.test(cuisine)) return;
-    filtersRef.current = { cuisine };
-    setFilters({ cuisine });
+    const fromUrl = filtersFromSearch(window.location.search);
+    if (Object.keys(fromUrl).length === 0) return;
+    filtersRef.current = fromUrl;
+    setFilters(fromUrl);
     setState(initialState);
   }, []);
   const headingId = useId();
@@ -86,6 +87,9 @@ export function DiscoveryFeed({ locale }: { locale: Locale }) {
   function changeFilters(next: FeedFilters) {
     filtersRef.current = next;
     setFilters(next);
+    const url = new URL(window.location.href);
+    url.search = filtersToSearch(url.search, next);
+    window.history.replaceState(window.history.state, "", url);
     setState(initialState);
   }
 
@@ -111,7 +115,13 @@ export function DiscoveryFeed({ locale }: { locale: Locale }) {
           </h2>
           <FeedFilterBar locale={locale} filters={filters} onChange={changeFilters} />
         </header>
-        <FeedContent locale={locale} state={state} onLoad={loadNext} />
+        <FeedContent
+          locale={locale}
+          state={state}
+          onLoad={loadNext}
+          filters={filters}
+          onFilters={changeFilters}
+        />
       </section>
     </>
   );

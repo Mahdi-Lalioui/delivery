@@ -16,7 +16,8 @@ test("[CUS-04][CUS-06] marks active feed filters and the chosen sort", () => {
   );
   expect(html).toMatch(/aria-pressed="true"[^>]*>Livraison offerte</u);
   expect(html).toMatch(/aria-pressed="false"[^>]*>Ouvert</u);
-  expect(html).toMatch(/<option value="rating" selected="">Note<\/option>/u);
+  // The sort lives in the sheet; the Filters button counts the sort and every active filter.
+  expect(html).toMatch(/aria-haspopup="dialog"[^>]*data-count="2"/u);
   expect(html).toContain('aria-label="Filtres"');
 });
 
@@ -92,4 +93,16 @@ test("[CUS-04] shows a paid delivery fee in dinars and hides absent rollout fiel
   expect(paid).toContain("150 DA");
   const bare = renderToStaticMarkup(<FeedCard locale="fr" restaurant={base} />);
   expect(bare).not.toContain("restaurant-feed-meta");
+});
+
+test("[CUS-04] shows extra active filters as removable chips with an accessible name", () => {
+  const html = renderToStaticMarkup(
+    <FeedFilterBar
+      locale="fr"
+      filters={{ priceLevel: "1", acceptsTpe: "true" }}
+      onChange={ignore}
+    />,
+  );
+  expect(html).toContain('aria-label="Retirer Petit prix"');
+  expect(html).toContain('aria-label="Retirer Terminal de paiement"');
 });

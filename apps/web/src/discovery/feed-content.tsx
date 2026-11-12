@@ -1,8 +1,10 @@
 import type { Locale } from "@zaafran/i18n/locales";
 import type { MouseEventHandler } from "react";
 import { FeedCard, FeedPlate } from "./feed-card";
-import type { FeedState } from "./feed-http";
-import { getFeedMessages } from "./feed-messages";
+import type { FeedFilters, FeedState } from "./feed-http";
+import { filterLabel, without } from "./feed-filters";
+import { activeFilters } from "./filter-state";
+import { fillFeedMessage, getFeedMessages } from "./feed-messages";
 
 function FeedSkeleton() {
   return (
@@ -24,7 +26,56 @@ type ContentProps = {
   locale: Locale;
   state: FeedState;
   onLoad: MouseEventHandler<HTMLButtonElement>;
+  filters?: FeedFilters;
+  onFilters?: (filters: FeedFilters) => void;
 };
+
+/** No results with filters on: suggest exactly which filters to drop. */
+function WidenSearch({
+  locale,
+  filters,
+  onFilters,
+}: {
+  locale: Locale;
+  filters: FeedFilters;
+  onFilters: (filters: FeedFilters) => void;
+}) {
+  const messages = getFeedMessages(locale);
+  return (
+    <div className="restaurant-feed-empty">
+      <FeedPlate />
+      <p>{messages.emptyFiltered}</p>
+      <p className="restaurant-feed-widen">{messages.widenHint}</p>
+      <ul className="restaurant-feed-widen-list" role="list">
+        {activeFilters(filters).map((filter) => (
+          <li key={filter.key}>
+            <button
+              type="button"
+              className="discovery-filter"
+              onClick={() => {
+                onFilters(without(filters, filter.key));
+              }}
+            >
+              {fillFeedMessage(messages.removeFilter, { name: filterLabel(messages, filter) })}
+            </button>
+          </li>
+        ))}
+        <li>
+          <button
+            type="button"
+            className="discovery-filter"
+            aria-pressed="true"
+            onClick={() => {
+              onFilters({});
+            }}
+          >
+            {messages.clearAll}
+          </button>
+        </li>
+      </ul>
+    </div>
+  );
+}
 
 function FeedActions({ locale, state, onLoad }: ContentProps) {
   const { restaurants, phase, nextCursor } = state;
@@ -50,7 +101,27 @@ function FeedActions({ locale, state, onLoad }: ContentProps) {
   );
 }
 
-export function FeedContent({ locale, state, onLoad }: ContentProps) {
+function EmptyResults({
+  locale,
+  filters,
+  onFilters,
+}: {
+  locale: Locale;
+  filters: FeedFilters;
+  onFilters: ((filters: FeedFilters) => void) | undefined;
+}) {
+  const messages = getFeedMessages(locale);
+  if (onFilters && activeFilters(filters).length > 0)
+    return <WidenSearch locale={locale} filters={filters} onFilters={onFilters} />;
+  return (
+    <div className="restaurant-feed-empty">
+      <FeedPlate />
+      <p>{messages.empty}</p>
+    </div>
+  );
+}
+
+export function FeedContent({ locale, state, onLoad, filters = {}, onFilters }: ContentProps) {
   const { restaurants, phase } = state;
   const messages = getFeedMessages(locale);
   const hasRestaurants = restaurants.length > 0;
@@ -72,10 +143,7 @@ export function FeedContent({ locale, state, onLoad }: ContentProps) {
       )}
       {!hasRestaurants && isLoading && <FeedSkeleton />}
       {!hasRestaurants && phase === "ready" && (
-        <div className="restaurant-feed-empty">
-          <FeedPlate />
-          <p>{messages.empty}</p>
-        </div>
+        <EmptyResults locale={locale} filters={filters} onFilters={onFilters} />
       )}
       <FeedActions locale={locale} state={state} onLoad={onLoad} />
     </>

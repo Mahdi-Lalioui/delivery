@@ -846,3 +846,236 @@
     grid-auto-columns: calc((100% - 3 * var(--space-12)) / 4);
   }
 }
+
+/* Filters button with its count. */
+.discovery-filter-sheet {
+  display: inline-flex;
+  gap: var(--space-8);
+  align-items: center;
+}
+
+.discovery-filter-count {
+  display: grid;
+  place-items: center;
+  min-inline-size: var(--space-20);
+  block-size: var(--space-20);
+  padding-inline: var(--space-4);
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: var(--font-size-micro);
+  font-variant-numeric: var(--font-variant-numeric-numbers);
+}
+
+.discovery-filter[aria-pressed="true"] svg {
+  margin-inline-start: var(--space-4);
+}
+
+/* Sort-and-filter bottom sheet. */
+.filter-sheet {
+  inline-size: min(100%, 32rem);
+  max-inline-size: none;
+  max-block-size: 90dvb;
+  margin: auto auto 0;
+  padding: 0;
+  overflow: auto;
+  border: 0;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-e3);
+}
+
+.filter-sheet[open] {
+  animation: filter-sheet-in var(--motion-slow) var(--ease-spring-gentle);
+}
+
+.filter-sheet::backdrop {
+  background: var(--color-scrim);
+}
+
+@keyframes filter-sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+.filter-sheet-header {
+  position: sticky;
+  z-index: 1;
+  inset-block-start: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-16) var(--space-20);
+  background: var(--color-surface);
+}
+
+.filter-sheet-header h2 {
+  font: var(--font-weight-h2) var(--font-size-h2) / var(--line-height-h2) var(--font-display);
+}
+
+.filter-sheet-group:first-child .filter-sheet-pills {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.filter-sheet-group:first-child .filter-sheet-pill,
+.filter-sheet-group:first-child .filter-sheet-pill span {
+  display: flex;
+  justify-content: center;
+}
+
+.filter-sheet-close:disabled {
+  color: var(--color-text-3);
+  cursor: default;
+}
+
+.filter-sheet-close {
+  min-block-size: var(--touch-target-min);
+  border: 0;
+  background: none;
+  color: var(--color-accent-strong);
+  font: inherit;
+  font-weight: var(--font-weight-h3);
+  cursor: pointer;
+}
+
+.filter-sheet-body {
+  display: grid;
+  gap: var(--space-24);
+  padding: 0 var(--space-20) var(--space-20);
+}
+
+.filter-sheet-group {
+  display: grid;
+  gap: var(--space-8);
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.filter-sheet-group legend {
+  margin-block-end: var(--space-8);
+  font-weight: var(--font-weight-h3);
+}
+
+.filter-sheet-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+}
+
+.filter-sheet-pill input,
+.filter-sheet-toggle input {
+  position: absolute;
+  opacity: 0;
+}
+
+.filter-sheet-pill span {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--touch-target-min);
+  padding-inline: var(--space-16);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--ease-standard),
+    color var(--motion-fast) var(--ease-standard);
+}
+
+.filter-sheet-pill input:checked + span {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.filter-sheet-pill input:focus-visible + span,
+.filter-sheet-toggle:has(input:focus-visible) {
+  outline: var(--focus-ring-width) solid var(--color-focus);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Switch rows: the track is drawn on the label so the native checkbox stays accessible. */
+.filter-sheet-toggle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-block-size: var(--touch-target-customer-primary);
+  border-block-end: 1px solid var(--color-border-subtle);
+  cursor: pointer;
+}
+
+.filter-sheet-toggle::after {
+  flex: none;
+  inline-size: 44px;
+  block-size: 26px;
+  border-radius: var(--radius-pill);
+  background:
+    radial-gradient(circle at 13px 50%, var(--color-surface) 10px, transparent 11px),
+    var(--color-border-strong);
+  transition: background-position var(--motion-base) var(--ease-standard);
+  content: "";
+}
+
+.filter-sheet-toggle:has(input:checked)::after {
+  background:
+    radial-gradient(circle at 31px 50%, var(--color-surface) 10px, transparent 11px),
+    var(--color-primary);
+}
+
+.filter-sheet-footer {
+  position: sticky;
+  inset-block-end: 0;
+  padding: var(--space-12) var(--space-20) calc(var(--space-12) + env(safe-area-inset-bottom));
+  background: var(--color-surface);
+  box-shadow: var(--shadow-e2);
+}
+
+.filter-sheet-footer .ui-button {
+  inline-size: 100%;
+}
+
+.restaurant-feed-widen {
+  font-weight: var(--font-weight-h3);
+}
+
+.restaurant-feed-widen-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  justify-content: center;
+  list-style: none;
+}
+
+@media (min-width: 640px) {
+  .filter-sheet {
+    margin: auto;
+    border-radius: var(--radius-xl);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .filter-sheet[open] {
+    animation: none;
+  }
+}
+
+[dir="rtl"] .filter-sheet-toggle::after {
+  background:
+    radial-gradient(circle at 31px 50%, var(--color-surface) 10px, transparent 11px),
+    var(--color-border-strong);
+}
+
+[dir="rtl"] .filter-sheet-toggle:has(input:checked)::after {
+  background:
+    radial-gradient(circle at 13px 50%, var(--color-surface) 10px, transparent 11px),
+    var(--color-primary);
+}
+
+.restaurant-feed-empty .restaurant-feed-plate {
+  inline-size: calc(var(--space-120) + var(--space-40));
+}
