@@ -62,7 +62,7 @@ async function readCourierJobs(
         'latitude', ST_Y(merchant.location::geometry), 'longitude', ST_X(merchant.location::geometry)))
        FROM public.merchants AS merchant WHERE merchant.id = orders.merchant_id) AS pickup,
       address_snapshot - ARRAY['addressId', 'label', 'isDefault'] AS dropoff,
-      (SELECT phone_e164 FROM public.users WHERE id = orders.customer_id
+      (SELECT coalesce(orders.contact_phone_e164, phone_e164) FROM public.users WHERE id = orders.customer_id
         AND deleted_at IS NULL AND blocked_at IS NULL) AS "customerPhone",
       (SELECT jsonb_build_object(
         'waitStartedAt', to_char(min(occurred_at) FILTER (WHERE action = 'start_wait') AT TIME ZONE 'UTC',

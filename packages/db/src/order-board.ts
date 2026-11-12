@@ -12,6 +12,7 @@ type TicketRow = OrderStateRow & {
   lines: StoredLine[];
   changeDzd: number;
   confirmByPhone: boolean;
+  customerPhone: string | null;
 };
 export type ReplayEventRow = Omit<Board["events"][number], "at"> & { at: Date };
 export type BoardRequest = { merchantId: string; accountId: string; after?: string | undefined };
@@ -20,7 +21,9 @@ export const replayLimit = 100;
 async function readTickets(sql: TransactionSql, merchantId: string): Promise<Ticket[]> {
   const rows = await sql<TicketRow[]>`
     SELECT ${orderStateColumns(sql)}, lines, paying_with_dzd - total_dzd AS "changeDzd",
-      confirm_by_phone AS "confirmByPhone"
+      confirm_by_phone AS "confirmByPhone",
+      (SELECT coalesce(orders.contact_phone_e164, phone_e164) FROM public.users
+       WHERE id = orders.customer_id AND deleted_at IS NULL AND blocked_at IS NULL) AS "customerPhone"
     FROM public.orders WHERE merchant_id = ${merchantId}
       AND status IN ('pending_acceptance', 'accepted', 'ready')
     ORDER BY placed_at, id
@@ -42,6 +45,7 @@ async function readTickets(sql: TransactionSql, merchantId: string): Promise<Tic
     })),
     changeDzd: row.changeDzd,
     confirmByPhone: row.confirmByPhone,
+    ...(row.customerPhone === null ? {} : { customerPhone: row.customerPhone }),
     courierId: row.courierId,
     canHandover: row.status === "ready" && row.fulfilment === "delivery" && row.courierId !== null,
   }));

@@ -202,5 +202,6 @@ export const customerPrivacyExportOutput = z.strictObject({
     }),
   ),
   orders: z.array(customerOrderReceiptOutput),
+  orderContacts: z.array(z.strictObject({ orderId: uuid, phoneE164 })).optional(),
   ratings: z.array(orderRatingOutput),
 });

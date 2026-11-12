@@ -20,6 +20,11 @@ async function exportAccount(sql: ISql, scope: PrivacyScope): Promise<PrivacyExp
   const identifiers = await readPrivacyIdentifiers(sql, scope);
   if (!identifiers) return undefined;
   const addresses = await listAddresses(sql, scope.userId);
+  const orderContacts = await sql<{ orderId: string; phoneE164: string }[]>`
+    SELECT id AS "orderId", contact_phone_e164 AS "phoneE164" FROM public.orders
+    WHERE customer_id = ${scope.userId} AND contact_phone_e164 IS NOT NULL
+    ORDER BY placed_at DESC, id DESC
+  `;
   return {
     profile: {
       accountId: scope.userId,
@@ -32,6 +37,7 @@ async function exportAccount(sql: ISql, scope: PrivacyScope): Promise<PrivacyExp
       instructions: address.instructions ?? null,
     })),
     orders: await readCustomerOrderReceipts(sql, scope.userId),
+    ...(orderContacts.length === 0 ? {} : { orderContacts }),
     ratings: await readCustomerRatings(sql, scope.userId),
   };
 }

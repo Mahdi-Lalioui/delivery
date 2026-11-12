@@ -111,7 +111,7 @@ async function clearPersonalData(
     SELECT id FROM public.orders WHERE customer_id = ${userId}
   ) OR courier_id IN (SELECT id FROM public.couriers WHERE user_id = ${userId})`;
   await sql`
-    UPDATE public.orders SET customer_id = NULL, address_snapshot = NULL, lines = (
+    UPDATE public.orders SET customer_id = NULL, address_snapshot = NULL, contact_phone_e164 = NULL, lines = (
       SELECT coalesce(jsonb_agg(line - 'note' ORDER BY index), '[]'::jsonb)
       FROM jsonb_array_elements(lines) WITH ORDINALITY AS item(line, index)
     ) WHERE customer_id = ${userId}

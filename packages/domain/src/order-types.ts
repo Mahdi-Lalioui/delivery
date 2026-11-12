@@ -54,7 +54,7 @@ type PlacementFacts = {
   readonly isInsideServiceArea: boolean;
   readonly isInsideDeliveryZone: boolean;
   readonly meetsMinimumOrder: boolean;
-  readonly hasVerifiedPhone: boolean;
+  readonly hasContactPhone: boolean;
   readonly isWithinCashLimit: boolean;
   readonly isCustomerBlocked: boolean;
   readonly schedule:

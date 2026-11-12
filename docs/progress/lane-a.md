@@ -296,3 +296,6 @@
 
 - 2026-11-12 · Ultra · Wired localized AWID OTP messages through Twilio, the existing webhook and Resend. Added the loopback email outbox and documented private provider settings. Passed 21 adapter/config/privacy cases, API typecheck, lint and OpenAPI.
   Next: preserve the cash cap for email-only checkout and store the unverified contact number only with its order.
+
+- 2026-11-12 · Ultra · Enabled email-only quotes and placement with a separate order contact. Merchant and courier reads are scoped, the cash cap still applies, and privacy export and erasure cover the contact. Passed 40 PostGIS and 107 domain/HTTP cases plus API, DB and web typecheck.
+  Next: finish the dual-method sign-in screen, then connect account identifier changes and checkout contact entry.

@@ -11,6 +11,7 @@ import { createMediaRepository } from "../src/media.ts";
 import { deriveDeliveryCode } from "../src/order-delivery-code.ts";
 import { createOrderQuoteRepository } from "../src/order-quotes.ts";
 import { createOrderRepository } from "../src/orders.ts";
+import { createPrivacyRepository } from "../src/privacy.ts";
 import { seedReadyPhoto } from "./ready-photo.ts";
 import { registerTestDatabase } from "./database.ts";
 
@@ -1027,4 +1028,57 @@ test("[NOT-01] a committed order update queues web push once for an opted-in cus
   expect(
     await sql`SELECT task_identifier FROM graphile_worker.jobs WHERE key = ${"order:push:" + orderId + ":2"}`,
   ).toEqual([{ task_identifier: "order.push" }]);
+});
+
+test("[CUS-10][MON-07] email-only checkout requires an order contact and keeps the cash cap", async () => {
+  const emailOnly = randomUUID();
+  const contactPhone = "+213600000040";
+  const { sql } = database.get();
+  await sql`INSERT INTO public.users (id, email, created_at) VALUES (${emailOnly}, 'checkout@example.test', ${now.toISOString()})`;
+  async function request(input = pickup) {
+    const priced = await repo().create({ customerId: emailOnly, input, now });
+    if (priced.kind !== "quoted") throw new Error("Expected an email account to receive a quote.");
+    return {
+      customerId: emailOnly,
+      now,
+      input: { quoteId: priced.quote.quoteId },
+      idempotencyKey: randomUUID(),
+    };
+  }
+  const missing = await request();
+  expect(await orders().place(missing)).toEqual({ kind: "contact_phone_required" });
+  const withContact = { ...missing, input: { ...missing.input, contactPhone } };
+  const placed = await orders().place(withContact);
+  if (placed.kind !== "placed") throw new Error("Expected an order with a contact phone.");
+  expect(await orders().place(withContact)).toEqual(placed);
+  expect(
+    await orders().place({
+      ...withContact,
+      input: { ...withContact.input, contactPhone: "+213600000041" },
+    }),
+  ).toEqual({ kind: "idempotency_conflict" });
+  const [stored] = await sql`
+    SELECT orders.contact_phone_e164, users.phone_e164 FROM public.orders
+    JOIN public.users ON users.id = orders.customer_id WHERE orders.id = ${placed.order.orderId}
+  `;
+  expect(stored).toEqual({ contact_phone_e164: contactPhone, phone_e164: null });
+  await sql`INSERT INTO public.merchant_members (merchant_id, user_id, role) VALUES (${merchantId}, ${otherId}, 'owner') ON CONFLICT DO NOTHING`;
+  const board = await orders().board({ merchantId, accountId: otherId });
+  expect(board?.orders.find(({ orderId }) => orderId === placed.order.orderId)?.customerPhone).toBe(
+    contactPhone,
+  );
+  const sessionId = await fixtureStandardSession(emailOnly, now);
+  const exported = await createPrivacyRepository(database.get()).exportAccount({
+    userId: emailOnly,
+    sessionId,
+    now,
+  });
+  expect(exported?.orderContacts).toEqual([
+    { orderId: placed.order.orderId, phoneE164: contactPhone },
+  ]);
+
+  const expensive = await request({ ...pickup, items: [{ itemId, quantity: 13, optionIds: [] }] });
+  expect(
+    await orders().place({ ...expensive, input: { ...expensive.input, contactPhone } }),
+  ).toEqual({ kind: "cash_limit" });
 });

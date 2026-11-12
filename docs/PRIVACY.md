@@ -6,6 +6,7 @@ Draft for the engineering team. Complete retention rules, processor agreements a
 |---|---|---|
 | Verified phone and email | Sign-in, account recovery and operational notifications | Export both and remove both on account erasure |
 | OTP challenges and sessions | Authenticate and revoke access | Confirm OTP and expired session cleanup in M7 |
+| Order contact phone | Allow the restaurant and assigned courier to call about an order | Keep separate from account identifiers, include in account export and clear on erasure |
 | Address, pin and voice note | Fulfill the customer's order | Apply the SPEC retention windows and prove deletion jobs |
 | Courier position events | Live tracking and delivery support | Assigned active driver writes only. Breadcrumbs expire after 30 days and customer account erasure removes its orders’ positions. |
 | Delivery proof photo | Resolve delivery without a recipient code | The active assigned driver can upload. After submission, access is limited to restaurant members. The worker purges the image and free-text reason after 30 days or on account erasure. |

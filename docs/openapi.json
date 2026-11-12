@@ -4383,6 +4383,28 @@
                         "additionalProperties": false
                       }
                     },
+                    "orderContacts": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "orderId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "phoneE164": {
+                            "type": "string",
+                            "pattern": "^\\+213[567][0-9]{8}$"
+                          }
+                        },
+                        "required": [
+                          "orderId",
+                          "phoneE164"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
                     "ratings": {
                       "type": "array",
                       "items": {
@@ -5949,6 +5971,12 @@
                       "fr",
                       "en"
                     ]
+                  },
+                  "contactPhone": {
+                    "type": "string",
+                    "minLength": 13,
+                    "maxLength": 13,
+                    "pattern": "^\\+213[567][0-9]{8}$"
                   }
                 },
                 "required": [
@@ -16659,6 +16687,12 @@
                           },
                           "confirmByPhone": {
                             "type": "boolean"
+                          },
+                          "customerPhone": {
+                            "type": "string",
+                            "minLength": 13,
+                            "maxLength": 13,
+                            "pattern": "^\\+213[567][0-9]{8}$"
                           },
                           "canHandover": {
                             "type": "boolean"

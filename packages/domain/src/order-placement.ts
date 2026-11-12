@@ -45,7 +45,7 @@ export function placeOrder(facts: Placement, now: number): PlacementResult<Order
     facts.isInsideServiceArea &&
     (facts.fulfilment === "pickup" || facts.isInsideDeliveryZone) &&
     facts.meetsMinimumOrder &&
-    facts.hasVerifiedPhone &&
+    facts.hasContactPhone &&
     facts.isWithinCashLimit &&
     !facts.isCustomerBlocked;
   if (!allowed) return fail("invalid_order_command");

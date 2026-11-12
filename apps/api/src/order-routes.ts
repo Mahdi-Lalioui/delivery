@@ -1,6 +1,6 @@
 import { idempotencyKeySchema } from "@zaafran/contracts/auth";
 import { problemResponseSchema } from "@zaafran/contracts/health";
-import { orderPlacementInput, orderSummary } from "@zaafran/contracts/orders";
+import { orderPlacementWithContactInput, orderSummary } from "@zaafran/contracts/orders";
 import type { createOrderRepository } from "@zaafran/db/orders";
 import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
@@ -31,7 +31,7 @@ export function registerOrderRoutes(api: FastifyInstance, services?: OrderServic
       },
       schema: {
         headers: z.object({ "idempotency-key": idempotencyKeySchema }),
-        body: orderPlacementInput,
+        body: orderPlacementWithContactInput,
         response: {
           201: orderSummary,
           400: problemResponseSchema,

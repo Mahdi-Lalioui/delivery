@@ -67,6 +67,11 @@ export function BoardTicket({
         {deadline !== null && <Countdown deadline={deadline} now={now} />}
       </div>
       {ticket.confirmByPhone && <p className="board-warning">{t("confirmByPhone")}</p>}
+      {ticket.customerPhone && (
+        <a className="ui-button ui-button-ghost ui-button-sm" href={`tel:${ticket.customerPhone}`}>
+          {t("callCustomer")}
+        </a>
+      )}
       <ul className="board-lines">
         {ticket.lines.map(({ itemId, names, quantity, options, note }, index) => (
           <li key={itemId + ":" + String(index)}>

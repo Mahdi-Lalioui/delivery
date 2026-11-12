@@ -1504,6 +1504,7 @@
     "pickup": "Pickup",
     "cashDue": "Cash due",
     "change": "Change",
+    "callCustomer": "Call customer",
     "confirmByPhone": "Confirm by phone",
     "accept": "Accept",
     "reject": "Reject",
