@@ -71,6 +71,7 @@ const commands: ReadonlyMap<string, readonly string[]> = new Map([
   ["property:1000", ["test:properties"]],
   ["authz:matrix", ["test:authz"]],
   ["bench:search", ["bench:search"]],
+  ["drill:restore", ["drill:restore"]],
 ]);
 
 const merchantCheckTags: ReadonlyMap<string, string> = new Map([

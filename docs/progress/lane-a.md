@@ -356,3 +356,6 @@
 
 - 2026-11-12 · Ultra · Added opt-in exact Discovery counts, pickup/delivery minimum-order filtering and first-publication data for the New rail on `codex/lane-a-feed-rails`. PostGIS proves count stability across cursors and that reopening preserves publication time.
   Next: merge the follow-up after its release check. Offers depend on promotion redemption.
+
+- 2026-11-12 · High · Merged Discovery count and rails at `944cde9` after hosted CI. Added the isolated encrypted restore command to the M9 gate. Real Docker tests covered four media references, missing or truncated files, unsafe links, corrupted ciphertext and cleanup failure. A synthetic production-format dump restored in 8 seconds.
+  Next: run the drill with a staging backup on the recovery host and verify the recovered application, then record the measured recovery time.
