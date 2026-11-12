@@ -15,6 +15,7 @@ import {
   type BadgeTone,
 } from "@zaafran/ui";
 import { useFormatter, useTranslations } from "next-intl";
+import { ContinueToCart } from "./continue-to-cart";
 import type { Favourite, OrderSummary, Receipt } from "./orders-http";
 import { useMyOrders, type MyOrdersState } from "./use-my-orders";
 
@@ -199,10 +200,11 @@ function ReorderSummary({ state, locale }: { state: MyOrdersState; locale: Local
           ))}
         </ul>
       )}
-      {/* TODO(M6-2): hand the draft to lane A's cart once the cart route exists. */}
-      <Button variant="primary" size="lg" isBlock disabled>
-        {translate("continueToCart")}
-      </Button>
+      <ContinueToCart
+        draft={result.reorder.draft}
+        merchantName={order.restaurantName}
+        locale={locale}
+      />
     </Card>
   );
 }

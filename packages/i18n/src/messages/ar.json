@@ -1389,7 +1389,12 @@
     "status_rejected": "مرفوضة",
     "status_expired": "منتهية",
     "status_cancelled": "ملغاة",
-    "status_delivery_failed": "فشل التوصيل"
+    "status_delivery_failed": "فشل التوصيل",
+    "reorderOffline": "هذا المطعم لا يستقبل الطلبات عبر الإنترنت حاليًا.",
+    "replaceCartPrompt": "سلّتك فيها أطباق من مطعم آخر. هل تستبدلها بهذا الطلب؟",
+    "replaceCart": "استبدل السلة",
+    "keepCart": "احتفظ بسلّتي",
+    "reorderNothing": "لا يمكن طلب أيّ من هذه الأطباق حاليًا."
   },
   "retentionAnalytics": {
     "title": "الإحصائيات",

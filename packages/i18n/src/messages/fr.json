@@ -1389,7 +1389,12 @@
     "status_rejected": "Refusée",
     "status_expired": "Expirée",
     "status_cancelled": "Annulée",
-    "status_delivery_failed": "Livraison échouée"
+    "status_delivery_failed": "Livraison échouée",
+    "reorderOffline": "Ce restaurant ne prend pas de commandes en ligne pour le moment.",
+    "replaceCartPrompt": "Votre panier contient des plats d’un autre restaurant. Les remplacer par cette commande ?",
+    "replaceCart": "Remplacer le panier",
+    "keepCart": "Garder mon panier",
+    "reorderNothing": "Aucun de ces plats ne peut être commandé pour le moment."
   },
   "retentionAnalytics": {
     "title": "Statistiques",

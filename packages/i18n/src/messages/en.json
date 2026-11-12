@@ -1389,7 +1389,12 @@
     "status_rejected": "Declined",
     "status_expired": "Expired",
     "status_cancelled": "Cancelled",
-    "status_delivery_failed": "Delivery failed"
+    "status_delivery_failed": "Delivery failed",
+    "reorderOffline": "This restaurant is not taking online orders right now.",
+    "replaceCartPrompt": "Your cart has dishes from another restaurant. Replace them with this order?",
+    "replaceCart": "Replace cart",
+    "keepCart": "Keep my cart",
+    "reorderNothing": "None of these dishes can be ordered right now."
   },
   "retentionAnalytics": {
     "title": "Analytics",

@@ -39,3 +39,11 @@ expired order at a public restaurant. Missing or ineligible orders return 404. T
 selections that still pass current menu rules. `priceChanges` compares configured prices per
 unit. Reorder leaves the cart and order unchanged. The cart still goes through the normal
 quote at checkout.
+
+## Lane B cart integration (2026-11-12)
+
+"Continue to cart" on My orders now rebuilds the draft in the browser cart from the live menu
+(`readRestaurantItem` with `draft.restaurantSlug` and `draft.menuRevision`), skips dishes or
+choices that no longer pass the menu rules, asks before replacing another restaurant's cart,
+and opens the restaurant page with the cart bar. A `null` slug shows "not taking online orders".
+The "Order again" home rail is next.
