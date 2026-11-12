@@ -2,7 +2,7 @@ import { formatDzd } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
 import { Icon } from "@zaafran/ui";
 import { useId } from "react";
-import { DishPhoto } from "./dish-card";
+import { DishPhoto, openFromCard } from "./dish-card";
 import { getRestaurantMessages } from "./restaurant-messages";
 import { localizeRestaurantText, type DishSelection } from "./restaurant-types";
 
@@ -28,7 +28,11 @@ export function PopularRow({
         {selections.map((selection) => {
           const name = localizeRestaurantText(selection.dish.names, locale);
           return (
-            <li key={selection.dish.itemId} className="restaurant-popular-card">
+            <li
+              key={selection.dish.itemId}
+              className="restaurant-popular-card"
+              onClick={openFromCard}
+            >
               <DishPhoto merchantId={merchantId} dish={selection.dish} />
               <div className="restaurant-popular-body">
                 <h3>

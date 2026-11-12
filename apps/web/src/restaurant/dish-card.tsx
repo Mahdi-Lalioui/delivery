@@ -1,11 +1,28 @@
 import { Badge, Icon } from "@zaafran/ui";
 import { formatDzd } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
-import { useState } from "react";
+import { useState, type MouseEvent } from "react";
 import { useLowData } from "../discovery/low-data";
 import { getRestaurantMessages } from "./restaurant-messages";
 import type { Stepper } from "./restaurant-screen";
 import { localizeRestaurantText, type RestaurantDish } from "./restaurant-types";
+
+/**
+ * The whole card opens the dish, as in the best delivery apps; the card's own add button stays
+ * the keyboard and screen-reader control, so the card click simply forwards to it.
+ */
+type Tapped = { closest: (selector: string) => unknown };
+type Card = { querySelector: (selector: string) => { click: () => void } | null };
+
+/** The add button a tap on the card should press, or null when the tap hit a control. */
+export function cardTapTarget(target: Tapped, card: Card) {
+  if (target.closest("button, a, input")) return null;
+  return card.querySelector(".restaurant-dish-add:enabled");
+}
+
+export function openFromCard({ target, currentTarget }: MouseEvent<HTMLElement>) {
+  if (target instanceof Element) cardTapTarget(target, currentTarget)?.click();
+}
 
 export function DishPhoto({ merchantId, dish }: { merchantId: string; dish: RestaurantDish }) {
   const width = useLowData() ? 320 : 640;
@@ -94,7 +111,12 @@ export function DishCard({
   const name = localizeRestaurantText(dish.names, locale);
   const label = messages.choose + messages.separator + name;
   return (
-    <article className="restaurant-dish" data-sold-out={!dish.isAvailable} data-dish={dish.itemId}>
+    <article
+      className="restaurant-dish"
+      data-sold-out={!dish.isAvailable}
+      data-dish={dish.itemId}
+      onClick={openFromCard}
+    >
       <div className="restaurant-dish-body">
         <h3>
           <bdi>{name}</bdi>

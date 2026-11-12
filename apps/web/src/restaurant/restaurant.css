@@ -1069,3 +1069,16 @@ body:has(.restaurant-cart-bar) .customer-tabs {
 .counting-dzd {
   font-variant-numeric: var(--font-variant-numeric-numbers);
 }
+
+/* Whole dish cards open the dish; they press down slightly so the tap feels physical. */
+.restaurant-dish:not([data-sold-out="true"]),
+.restaurant-popular-card {
+  cursor: pointer;
+  transition: transform var(--motion-fast) var(--ease-standard);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .restaurant-dish:not([data-sold-out="true"]):active,
+  .restaurant-popular-card:active {
+    transform: scale(0.98);
+  }
+}
