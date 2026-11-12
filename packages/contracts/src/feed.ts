@@ -30,6 +30,14 @@ export const publicFeedQuery = z.strictObject({
   fulfilment: z.enum(["delivery", "pickup"]).optional(),
   availableAt: z.iso.datetime().optional(),
   dietary: dietary.optional(),
+  includeCount: booleanParam.optional(),
+  newOnly: booleanParam.optional(),
+  maxMinimumOrderDzd: z
+    .string()
+    .regex(/^[0-9]{1,10}$/u)
+    .transform(Number)
+    .pipe(amount)
+    .optional(),
   freeDelivery: booleanParam.optional(),
   acceptsBaridiPay: booleanParam.optional(),
   acceptsTpe: booleanParam.optional(),
@@ -62,6 +70,7 @@ export const publicRestaurantCard = z.strictObject({
   deliveryFeeDzd: amount.nullable().optional(),
   distanceMeters: z.int().nonnegative().optional(),
   offersPickup: z.boolean().optional(),
+  isNew: z.boolean().optional(),
   pin: merchantApplicationInput.shape.pin.optional(),
   dietary: z.array(dietary).max(1).optional(),
   minimumOrderDzd: amount.nullable().optional(),
@@ -73,6 +82,7 @@ export const publicRestaurantCard = z.strictObject({
 export const publicFeedOutput = z.strictObject({
   restaurants: z.array(publicRestaurantCard).max(maxFeedPage),
   nextCursor: uuid.nullable(),
+  totalCount: z.int().nonnegative().optional(),
 });
 
 export const publicProfilePhotoParams = z.strictObject({

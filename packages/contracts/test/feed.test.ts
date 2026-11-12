@@ -132,3 +132,29 @@ test("[CUS-06:contract] parses pickup, scheduled opening and vegetarian filters"
     card,
   ]);
 });
+
+test("[CUS-06:contract] accepts exact counts, publication and budget filters", () => {
+  expect(
+    publicFeedQuery.parse({
+      includeCount: "true",
+      newOnly: "true",
+      maxMinimumOrderDzd: "1000",
+    }),
+  ).toEqual({ limit: 24, includeCount: true, newOnly: true, maxMinimumOrderDzd: 1000 });
+  for (const query of [
+    { includeCount: "yes" },
+    { newOnly: "1" },
+    { maxMinimumOrderDzd: "-1" },
+    { maxMinimumOrderDzd: "1000.50" },
+    { maxMinimumOrderDzd: "2147483648" },
+  ]) {
+    expect(publicFeedQuery.safeParse(query).success).toBe(false);
+  }
+  const page = {
+    restaurants: [{ ...restaurant, isNew: true }],
+    nextCursor: id,
+    totalCount: 2,
+  };
+  expect(publicFeedOutput.parse(page)).toEqual(page);
+  expect(publicFeedOutput.safeParse({ ...page, totalCount: -1 }).success).toBe(false);
+});
