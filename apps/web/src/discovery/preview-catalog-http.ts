@@ -88,6 +88,9 @@ const filterChecks: ((card: Card, query: FeedQuery) => boolean)[] = [
   (card, { openNow }) => openNow !== true || card.isOpen,
   (card, { freeDelivery }) => freeDelivery !== true || card.deliveryFeeDzd === 0,
   (card, { minRating }) => minRating === undefined || (card.rating ?? 0) >= minRating,
+  (card, { priceLevel }) => priceLevel === undefined || card.priceLevel === priceLevel,
+  (card, { acceptsBaridiPay }) => acceptsBaridiPay !== true || card.acceptsBaridiPay === true,
+  (card, { acceptsTpe }) => acceptsTpe !== true || card.acceptsTpe === true,
   (card, { maxEtaMinutes }) =>
     maxEtaMinutes === undefined || (card.etaMinutes?.max ?? Infinity) <= maxEtaMinutes,
 ];

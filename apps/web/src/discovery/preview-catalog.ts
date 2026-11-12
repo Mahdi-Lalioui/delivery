@@ -13,7 +13,13 @@ type MenuOptionGroup = MenuItemDetail["optionGroups"][number];
 type Names = RestaurantProfile["categories"][number]["names"];
 type FeedExtras = Pick<
   ReturnType<typeof publicRestaurantCard.parse>,
-  "rating" | "ratingCount" | "etaMinutes" | "deliveryFeeDzd"
+  | "rating"
+  | "ratingCount"
+  | "etaMinutes"
+  | "deliveryFeeDzd"
+  | "priceLevel"
+  | "acceptsBaridiPay"
+  | "acceptsTpe"
 >;
 
 interface PreviewRestaurant {
@@ -165,7 +171,15 @@ const grill: RestaurantSeed = {
   name: "L’Atelier Démo",
   cuisines: ["grill", "sandwiches"],
   cover: "chawarma",
-  feed: { rating: 4.6, ratingCount: 212, etaMinutes: { min: 20, max: 30 }, deliveryFeeDzd: 0 },
+  feed: {
+    rating: 4.6,
+    ratingCount: 212,
+    etaMinutes: { min: 20, max: 30 },
+    deliveryFeeDzd: 0,
+    priceLevel: 2,
+    acceptsBaridiPay: true,
+    acceptsTpe: false,
+  },
   categories: [
     {
       names: text("Grillades", "مشاوي", "Grill"),
@@ -229,7 +243,15 @@ const pizza: RestaurantSeed = {
   name: "Le Four Démo",
   cuisines: ["pizza"],
   cover: "pizza",
-  feed: { rating: 4.4, ratingCount: 87, etaMinutes: { min: 30, max: 45 }, deliveryFeeDzd: 150 },
+  feed: {
+    rating: 4.4,
+    ratingCount: 87,
+    etaMinutes: { min: 30, max: 45 },
+    deliveryFeeDzd: 150,
+    priceLevel: 2,
+    acceptsBaridiPay: false,
+    acceptsTpe: true,
+  },
   categories: [
     {
       names: text("Pizzas", "بيتزا", "Pizza"),
@@ -255,7 +277,15 @@ const darYemma: RestaurantSeed = {
   name: "Dar Yemma",
   cuisines: ["algerian"],
   cover: "chorba-table",
-  feed: { rating: 4.8, ratingCount: 431, etaMinutes: { min: 25, max: 35 }, deliveryFeeDzd: 100 },
+  feed: {
+    rating: 4.8,
+    ratingCount: 431,
+    etaMinutes: { min: 25, max: 35 },
+    deliveryFeeDzd: 100,
+    priceLevel: 2,
+    acceptsBaridiPay: true,
+    acceptsTpe: true,
+  },
   categories: [
     {
       names: text("Plats du jour", "أطباق اليوم", "Today’s dishes"),
@@ -319,7 +349,15 @@ const karantika: RestaurantSeed = {
   name: "Karantika Bab El Oued",
   cuisines: ["sandwiches"],
   cover: "karantika-sandwich",
-  feed: { rating: 4.7, ratingCount: 958, etaMinutes: { min: 10, max: 20 }, deliveryFeeDzd: 0 },
+  feed: {
+    rating: 4.7,
+    ratingCount: 958,
+    etaMinutes: { min: 10, max: 20 },
+    deliveryFeeDzd: 0,
+    priceLevel: 1,
+    acceptsBaridiPay: false,
+    acceptsTpe: false,
+  },
   categories: [
     {
       names: text("Karantika", "قرنطيطة", "Karantika"),
@@ -358,7 +396,15 @@ const cirta: RestaurantSeed = {
   name: "Pâtisserie Cirta",
   cuisines: ["pastry"],
   cover: "baklawa-tray",
-  feed: { rating: 4.9, ratingCount: 326, etaMinutes: { min: 30, max: 40 }, deliveryFeeDzd: 200 },
+  feed: {
+    rating: 4.9,
+    ratingCount: 326,
+    etaMinutes: { min: 30, max: 40 },
+    deliveryFeeDzd: 200,
+    priceLevel: 3,
+    acceptsBaridiPay: true,
+    acceptsTpe: true,
+  },
   categories: [
     {
       names: text("Gâteaux traditionnels", "حلويات تقليدية", "Traditional sweets"),
@@ -395,7 +441,15 @@ const msemen: RestaurantSeed = {
   name: "Msemen Wahran",
   cuisines: ["bakery"],
   cover: "msemen-griddle",
-  feed: { rating: 4.5, ratingCount: 143, etaMinutes: { min: 15, max: 25 }, deliveryFeeDzd: 50 },
+  feed: {
+    rating: 4.5,
+    ratingCount: 143,
+    etaMinutes: { min: 15, max: 25 },
+    deliveryFeeDzd: 50,
+    priceLevel: 1,
+    acceptsBaridiPay: false,
+    acceptsTpe: false,
+  },
   categories: [
     {
       names: text("Msemen", "مسمن", "Msemen"),
@@ -433,7 +487,15 @@ const bahdja: RestaurantSeed = {
   name: "Grill El Bahdja",
   cuisines: ["grill", "algerian"],
   cover: "grill-plate",
-  feed: { rating: 4.3, ratingCount: 61, etaMinutes: { min: 35, max: 50 }, deliveryFeeDzd: 0 },
+  feed: {
+    rating: 4.3,
+    ratingCount: 61,
+    etaMinutes: { min: 35, max: 50 },
+    deliveryFeeDzd: 0,
+    priceLevel: 2,
+    acceptsBaridiPay: false,
+    acceptsTpe: true,
+  },
   categories: [
     {
       names: text("Au charbon", "على الفحم", "Charcoal grill"),
@@ -460,7 +522,15 @@ const lalla: RestaurantSeed = {
   cuisines: ["algerian", "pastry"],
   cover: "couscous",
   isOpen: false,
-  feed: { rating: 4.7, ratingCount: 204, etaMinutes: { min: 40, max: 55 }, deliveryFeeDzd: 150 },
+  feed: {
+    rating: 4.7,
+    ratingCount: 204,
+    etaMinutes: { min: 40, max: 55 },
+    deliveryFeeDzd: 150,
+    priceLevel: 3,
+    acceptsBaridiPay: true,
+    acceptsTpe: false,
+  },
   categories: [
     {
       names: text("Spécialités de Tlemcen", "أطباق تلمسانية", "Tlemcen specialities"),

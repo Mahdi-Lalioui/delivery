@@ -170,7 +170,7 @@ function SearchDialog({
       <div className="discovery-search-header">
         <div className="discovery-search-shell">
           <div className="discovery-search-heading">
-            <div>
+            <div className="ui-visually-hidden">
               <h2 id={titleId}>{messages.heading}</h2>
               <p id={introId}>{messages.intro}</p>
             </div>
