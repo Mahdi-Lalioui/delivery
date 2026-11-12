@@ -39,7 +39,7 @@ test("team preview searches, configures and saves a synthetic dish without an AP
   request,
 }) => {
   await page.goto("/fr/discover");
-  await expect(page.getByRole("link", { name: "L’Atelier Démo", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "L’Atelier Sidi Yahia", exact: true })).toBeVisible();
   const cover = page.locator('img[src*="/profile/photos/"]').first();
   await cover.scrollIntoViewIfNeeded();
   await expect
@@ -52,7 +52,7 @@ test("team preview searches, configures and saves a synthetic dish without an AP
   const results = page.getByRole("dialog");
   await results.getByRole("searchbox", { name: search }).fill("shawarma");
   await results.getByRole("link", { name: "Chawarma maison", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "L’Atelier Démo" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "L’Atelier Sidi Yahia" })).toBeVisible();
   await page.getByRole("button", { name: "Choisir · Chawarma maison" }).click();
   const item = page.getByRole("dialog");
   const add = item.getByRole("button", { name: /^Ajouter/u });
