@@ -1764,7 +1764,19 @@
     "confirmedCode": "Commande {code}",
     "tracking": "Suivre ma commande",
     "unit": "DA",
-    "tooMuch": "Saisissez au plus {max}."
+    "tooMuch": "Saisissez au plus {max}.",
+    "promoOpen": "Ajouter un code promo",
+    "promoLabel": "Code promo",
+    "promoApply": "Appliquer",
+    "promoApplied": "Code {code}",
+    "promoRemove": "Retirer le code",
+    "discount": "Réduction",
+    "discountOffer": "Offre du restaurant",
+    "promo_promotion_expired": "Ce code a expiré. Essayez-en un autre ou commandez sans.",
+    "promo_promotion_below_minimum": "Ce code demande un panier un peu plus grand. Ajoutez un plat et réessayez.",
+    "promo_promotion_used_up": "Ce code a déjà été utilisé jusqu’au bout. Essayez-en un autre.",
+    "promo_promotion_wrong_restaurant": "Ce code ne marche pas ici. Vérifiez-le ou essayez-en un autre.",
+    "discountAmount": "−{amount}"
   },
   "tracking": {
     "title": "Votre commande",

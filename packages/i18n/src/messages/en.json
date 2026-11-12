@@ -1764,7 +1764,19 @@
     "confirmedCode": "Order {code}",
     "tracking": "Follow my order",
     "unit": "DA",
-    "tooMuch": "Enter at most {max}."
+    "tooMuch": "Enter at most {max}.",
+    "promoOpen": "Add a promo code",
+    "promoLabel": "Promo code",
+    "promoApply": "Apply",
+    "promoApplied": "Code {code}",
+    "promoRemove": "Remove code",
+    "discount": "Discount",
+    "discountOffer": "Restaurant offer",
+    "promo_promotion_expired": "This code has expired. Try another one or order without it.",
+    "promo_promotion_below_minimum": "This code needs a slightly bigger basket. Add a dish and try again.",
+    "promo_promotion_used_up": "This code has been fully used. Try another one.",
+    "promo_promotion_wrong_restaurant": "This code doesn’t work here. Check it or try another one.",
+    "discountAmount": "−{amount}"
   },
   "tracking": {
     "title": "Your order",

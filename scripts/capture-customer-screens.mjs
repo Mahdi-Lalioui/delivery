@@ -8,6 +8,7 @@ const [baseUrl = "http://127.0.0.1:3110", outDir = "docs/evidence/awid/jury", ..
   process.argv.slice(2);
 mkdirSync(outDir, { recursive: true });
 
+const stateScreens = {};
 const screens = {
   landing: "/",
   discover: "/discover",
@@ -24,12 +25,45 @@ const screens = {
   rating: "/dev/screens/rating",
   orders: "/dev/screens/orders",
 };
-const variants = [
+// States (design build fixtures), captured only when named on the command line.
+for (const state of [
+  "checkout-loading",
+  "checkout-error",
+  "checkout-empty",
+  "checkout-promo",
+  "checkout-offer",
+  "checkout-promo-rejected",
+  "tracking-loading",
+  "tracking-error",
+  "tracking-not-found",
+  "tracking-delivered",
+  "tracking-rejected",
+  "tracking-expired",
+  "tracking-cancelled",
+  "tracking-delivery-failed",
+  "orders-loading",
+  "orders-empty",
+  "orders-error",
+  "rating-loading",
+  "rating-error",
+]) {
+  stateScreens[state] = `/dev/screens/${state}`;
+}
+const allVariants = [
   { name: "ar-390", locale: "ar", width: 390, scheme: "light" },
   { name: "fr-390", locale: "fr", width: 390, scheme: "light" },
   { name: "fr-1280", locale: "fr", width: 1280, scheme: "light" },
   { name: "fr-390-dark", locale: "fr", width: 390, scheme: "dark" },
-].filter(({ name }) => only.length === 0 || only.includes(name));
+];
+const variantNames = new Set(allVariants.map(({ name }) => name));
+const askedVariants = only.filter((item) => variantNames.has(item));
+const askedScreens = only.filter((item) => !variantNames.has(item));
+const variants = allVariants.filter(
+  ({ name }) => askedVariants.length === 0 || askedVariants.includes(name),
+);
+const chosen = Object.entries({ ...screens, ...stateScreens }).filter(([name]) =>
+  askedScreens.length === 0 ? name in screens : askedScreens.includes(name),
+);
 
 const browser = await chromium.launch();
 for (const variant of variants) {
@@ -41,7 +75,7 @@ for (const variant of variants) {
     serviceWorkers: "block",
   });
   const page = await context.newPage();
-  for (const [name, path] of Object.entries(screens)) {
+  for (const [name, path] of chosen) {
     const prefix = variant.locale === "ar" ? "/ar" : `/${variant.locale}`;
     await page.goto(`${baseUrl}${prefix}${path === "/" ? "" : path}`);
     await page.waitForLoadState("networkidle").catch(() => undefined);
@@ -53,4 +87,4 @@ for (const variant of variants) {
   await context.close();
 }
 await browser.close();
-process.stdout.write(`captured ${String(variants.length * Object.keys(screens).length)}\n`);
+process.stdout.write(`captured ${String(variants.length * chosen.length)}\n`);

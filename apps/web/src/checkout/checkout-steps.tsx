@@ -17,6 +17,7 @@ import { useState } from "react";
 import { getCartSummary, type Cart } from "@zaafran/domain/cart";
 import { SlotPicker } from "../retention/slot-picker";
 import { localizeRestaurantText } from "../restaurant/restaurant-types";
+import { DiscountLine, PromoField } from "./checkout-promo";
 import type { CheckoutState } from "./use-checkout";
 import { maxChangeDzd, parseTender } from "./use-checkout";
 
@@ -216,6 +217,7 @@ function QuoteLines({ state, locale }: { state: CheckoutState; locale: Locale })
           <bdi>{formatDzd(subtotalDzd, locale)}</bdi>
         </dd>
       </div>
+      <DiscountLine state={state} locale={locale} />
       {fulfilment === "delivery" && (
         <div>
           <dt>{translate("deliveryFee")}</dt>
@@ -349,6 +351,7 @@ export function PaymentStep({ state, locale }: { state: CheckoutState; locale: L
           ))}
         </ul>
         <QuoteLines state={state} locale={locale} />
+        <PromoField state={state} />
       </div>
       <ContactPhone contact={state.contact} />
       <CashCard state={state} locale={locale} />

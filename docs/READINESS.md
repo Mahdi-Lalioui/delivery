@@ -15,7 +15,7 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 - [x] **Lane B** Maps in AWID colours with page-language labels, branded pin cards with clustering, retry inside the fallback; real streets and buildings on a production build with the national extract. [Screenshots and notes](evidence/awid/maps/README.md) (5afa5d3)
 - [x] **Lane B** No restaurant named "Démo" on any branch. [Request closed](requests/lane-b-realistic-demo-names.md)
 - [ ] **Lane B** Design and capture every state of every customer screen: loading, empty, error, offline, slow network, closed restaurant, sold-out dish, expired cart, offer no longer valid, cancelled or rejected order.
-- [ ] **Lane B** Offer badges in Discovery and the promo code field in checkout, designed and captured.
+- [x] **Lane B** Offer badges in Discovery and the promo code field in checkout, designed and captured. [Design notes and captures](evidence/awid/offers/README.md)
 
 ## Performance and offers
 

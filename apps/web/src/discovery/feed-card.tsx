@@ -7,6 +7,7 @@ import { tiltHandlers } from "./card-tilt";
 import { formatApproxDistance } from "./distance-format";
 import { readFavourites, toggleFavourite } from "./favourites";
 import { useLowData } from "./low-data";
+import { OfferBadge } from "./offer-badge";
 import type { FeedRestaurant } from "./feed-http";
 import { fillFeedMessage, getFeedCuisineLabel, getFeedMessages } from "./feed-messages";
 
@@ -279,6 +280,7 @@ export function FeedCard({ restaurant, locale }: { restaurant: FeedRestaurant; l
           />
         )}
         <FeedAvailability isOpen={isOpen} locale={locale} />
+        {restaurant.offer && <OfferBadge offer={restaurant.offer} locale={locale} />}
         {restaurant.isNew === true && (
           <span className="restaurant-feed-new">{getFeedMessages(locale).newBadge}</span>
         )}

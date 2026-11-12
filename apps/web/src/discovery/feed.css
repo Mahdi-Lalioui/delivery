@@ -1209,6 +1209,31 @@
   line-height: var(--line-height-caption);
 }
 
+/* Offer: the saving in harissa, its one condition beneath, tucked into the photo's corner. */
+.restaurant-feed-offer {
+  display: grid;
+  position: absolute;
+  inset-block-end: var(--space-12);
+  inset-inline-end: var(--space-12);
+  max-inline-size: 60%;
+  padding: var(--space-4) var(--space-12);
+  border-radius: var(--radius-md);
+  background: var(--color-harissa);
+  color: var(--color-on-harissa);
+  box-shadow: var(--shadow-e2);
+  line-height: var(--line-height-caption);
+  text-align: end;
+}
+
+.restaurant-feed-offer bdi:first-child {
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-h3);
+}
+
+.restaurant-feed-offer bdi + bdi {
+  font-size: var(--font-size-micro);
+}
+
 /* Delivery / Pickup: one pill, a thumb that slides under the chosen side. */
 .fulfilment-toggle {
   position: relative;

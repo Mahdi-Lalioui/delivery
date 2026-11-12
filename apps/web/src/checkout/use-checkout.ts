@@ -17,6 +17,7 @@ import {
   type Address,
   type AddressDraft,
   type PlacedOrder,
+  type PromotionRejection,
   type Quote,
   type Timing,
 } from "./checkout-http";
@@ -55,7 +56,13 @@ export interface CheckoutState {
   setTender: (tender: string) => void;
   retryQuote: () => void;
   submit: () => void;
+  /** The code the diner typed, applied to the quote, and why the last one was refused. */
+  promotion: Promotion;
+  applyCode: (code: string) => void;
+  removeCode: () => void;
 }
+
+type Promotion = { code: string | null; rejection: PromotionRejection | null };
 
 /** The scheduling contract has an Iftar slot; the quote only knows ASAP or an instant. */
 export function toTiming(slot: SlotChoice): Timing {
@@ -143,6 +150,7 @@ export function useCheckout(locale: Locale): CheckoutState {
   const [slot, setSlot] = useState<SlotChoice>({ kind: "asap" });
   const [quote, setQuote] = useState<QuoteState>({ kind: "idle" });
   const [quoteAttempt, setQuoteAttempt] = useState(0);
+  const [promotion, setPromotion] = useState<Promotion>({ code: null, rejection: null });
   const [tender, setTender] = useState("");
   const [place, setPlace] = useState<PlaceState>({ kind: "idle" });
   const [pin, setPin] = useState<CheckoutState["pin"]>(null);
@@ -167,16 +175,32 @@ export function useCheckout(locale: Locale): CheckoutState {
       fulfilment === "delivery" && addressId !== undefined
         ? { fulfilment, addressId }
         : { fulfilment: "pickup" as const };
-    void requestQuote(toQuoteInput(cart, target, toTiming(slot)), controller.signal).then(
-      (result) => {
-        if (!controller.signal.aborted)
-          setQuote(result.kind === "ready" ? { kind: "ready", quote: result.quote } : result);
-      },
-    );
+    const code = promotion.code;
+    const input = {
+      ...toQuoteInput(cart, target, toTiming(slot)),
+      ...(code !== null && { promotionCode: code }),
+    };
+    void requestQuote(input, controller.signal).then((result) => {
+      if (controller.signal.aborted) return;
+      // A refused code is dropped and the basket re-quoted without it; the reason stays shown.
+      if (result.kind === "promotion") {
+        setPromotion({ code: null, rejection: result.rejection });
+        return;
+      }
+      setQuote(result.kind === "ready" ? { kind: "ready", quote: result.quote } : result);
+    });
     return () => {
       controller.abort();
     };
-  }, [step, cart, fulfilment, addressId, slot, quoteAttempt]);
+  }, [step, cart, fulfilment, addressId, slot, quoteAttempt, promotion.code]);
+
+  const applyCode = useCallback((typed: string) => {
+    const code = typed.trim().toUpperCase();
+    if (code !== "") setPromotion({ code, rejection: null });
+  }, []);
+  const removeCode = useCallback(() => {
+    setPromotion({ code: null, rejection: null });
+  }, []);
 
   const addAddress = useCallback(
     async (draft: Omit<AddressDraft, "pin">) => {
@@ -244,5 +268,8 @@ export function useCheckout(locale: Locale): CheckoutState {
       setQuoteAttempt((value) => value + 1);
     },
     submit,
+    promotion,
+    applyCode,
+    removeCode,
   };
 }

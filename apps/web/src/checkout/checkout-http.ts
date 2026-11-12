@@ -2,6 +2,7 @@ import { addressInput, addressListOutput, addressOutput } from "@zaafran/contrac
 import type { orderPlacementWithContactInput, orderQuoteInput } from "@zaafran/contracts/orders";
 import { problemResponseSchema } from "@zaafran/contracts/health";
 import { orderQuoteOutput, orderSummary } from "@zaafran/contracts/orders";
+import { quotePromotionRejectionCode } from "@zaafran/contracts/promotions";
 import type { Cart } from "@zaafran/domain/cart";
 
 // CUS-13 / CUS-14 / ORD-01 checkout client on lane A's published order and address contracts
@@ -17,8 +18,19 @@ type Placement = ReturnType<typeof orderPlacementWithContactInput.parse>;
 export type Fulfilment = { fulfilment: "pickup" } | { fulfilment: "delivery"; addressId: string };
 export type Timing = QuoteInput["timing"];
 export type AddressLoad = { kind: "ready"; addresses: Address[] } | { kind: "sign-in" | "error" };
+export type PromotionRejection = ReturnType<typeof quotePromotionRejectionCode.parse>;
 export type QuoteResult =
-  { kind: "ready"; quote: Quote } | { kind: "sign-in" | "unavailable" | "error" };
+  | { kind: "ready"; quote: Quote }
+  | { kind: "promotion"; rejection: PromotionRejection }
+  | { kind: "sign-in" | "unavailable" | "error" };
+
+/** A 400 naming one of the published promotion codes: the code, not the basket, is the problem. */
+async function promotionRejection(response: Response): Promise<PromotionRejection | null> {
+  const problem = problemResponseSchema.safeParse(await response.json().catch(() => undefined));
+  if (!problem.success) return null;
+  const code = quotePromotionRejectionCode.safeParse(problem.data.code);
+  return code.success ? code.data : null;
+}
 export type PlaceResult =
   | { kind: "placed"; order: PlacedOrder }
   | { kind: "sign-in" | "expired" | "error" | "contact-required" | "cash-limit" };
@@ -92,6 +104,10 @@ export async function requestQuote(input: QuoteInput, signal?: AbortSignal): Pro
     const response = await fetch("/v1/quotes", { ...post(input), ...(signal && { signal }) });
     if (isAuthFailure(response.status)) return { kind: "sign-in" };
     if (response.status === 409 || response.status === 422) return { kind: "unavailable" };
+    if (response.status === 400) {
+      const rejection = await promotionRejection(response);
+      return rejection === null ? { kind: "error" } : { kind: "promotion", rejection };
+    }
     if (!response.ok) return { kind: "error" };
     const parsed = orderQuoteOutput.safeParse(await response.json());
     return parsed.success ? { kind: "ready", quote: parsed.data } : { kind: "error" };

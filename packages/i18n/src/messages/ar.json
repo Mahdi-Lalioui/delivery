@@ -1764,7 +1764,19 @@
     "confirmedCode": "الطلب {code}",
     "tracking": "تتبّع طلبي",
     "unit": "دج",
-    "tooMuch": "أدخل {max} على الأكثر."
+    "tooMuch": "أدخل {max} على الأكثر.",
+    "promoOpen": "إضافة رمز ترويجي",
+    "promoLabel": "الرمز الترويجي",
+    "promoApply": "تطبيق",
+    "promoApplied": "الرمز {code}",
+    "promoRemove": "إزالة الرمز",
+    "discount": "تخفيض",
+    "discountOffer": "عرض المطعم",
+    "promo_promotion_expired": "انتهت صلاحية هذا الرمز. جرّب رمزًا آخر أو اطلب بدونه.",
+    "promo_promotion_below_minimum": "هذا الرمز يتطلب سلة أكبر قليلًا. أضف طبقًا وأعد المحاولة.",
+    "promo_promotion_used_up": "استُعمل هذا الرمز حتى آخره. جرّب رمزًا آخر.",
+    "promo_promotion_wrong_restaurant": "هذا الرمز لا يعمل هنا. تحقّق منه أو جرّب رمزًا آخر.",
+    "discountAmount": "−{amount}"
   },
   "tracking": {
     "title": "طلبك",

@@ -25,6 +25,7 @@ type FeedExtras = Pick<
   | "minimumOrderDzd"
   | "offersPickup"
   | "pin"
+  | "offer"
 >;
 
 interface PreviewRestaurant {
@@ -252,6 +253,7 @@ const pizza: RestaurantSeed = {
   cuisines: ["pizza"],
   cover: "pizza",
   feed: {
+    offer: { kind: "free_delivery", minimumSubtotalDzd: 2000 },
     minimumOrderDzd: 1200,
     isNew: true,
     dietary: ["vegetarian"],
@@ -289,6 +291,7 @@ const darYemma: RestaurantSeed = {
   cuisines: ["algerian"],
   cover: "chorba-table",
   feed: {
+    offer: { kind: "percent", basisPoints: 1500, capDzd: 400, minimumSubtotalDzd: 0 },
     pin: { latitude: 36.7395, longitude: 3.087 },
     minimumOrderDzd: 1500,
     offersPickup: true,
@@ -415,6 +418,7 @@ const cirta: RestaurantSeed = {
   cuisines: ["pastry"],
   cover: "baklawa-tray",
   feed: {
+    offer: { kind: "fixed", amountDzd: 200, minimumSubtotalDzd: 1500 },
     pin: { latitude: 36.7525, longitude: 3.042 },
     minimumOrderDzd: 1000,
     isNew: true,

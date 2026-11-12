@@ -56,17 +56,30 @@ const slots = ["19:30", "19:45", "20:00", "20:15", "20:30"].map((time) => ({
 }));
 const noop = () => undefined;
 
+/** Promo stories: a typed code applied, the restaurant's automatic offer, or a refused code. */
+export type PromoStory = "code" | "automatic" | "rejected";
+
+function promotionFor(story: PromoStory | undefined): CheckoutState["promotion"] {
+  if (story === "code") return { code: "RAMADAN", rejection: null };
+  if (story === "rejected") return { code: null, rejection: "promotion_expired" };
+  return { code: null, rejection: null };
+}
+
 function fixture({
   mode,
   step,
   fulfilment,
   slot,
+  promo,
 }: {
   mode: Mode;
   step: CheckoutStep;
   fulfilment: FulfilmentKind;
   slot: SlotChoice;
+  promo: PromoStory | undefined;
 }) {
+  const discountDzd = promo === "code" || promo === "automatic" ? 300 : 0;
+  const feeDzd = fulfilment === "delivery" ? 100 : 0;
   const state: CheckoutState = {
     cart: mode === "loading" ? undefined : mode === "empty" ? null : cart,
     step,
@@ -91,8 +104,9 @@ function fixture({
               fulfilment,
               expiresAt: "2027-02-10T19:10:00.000Z",
               subtotalDzd: 3000,
-              deliveryFeeDzd: fulfilment === "delivery" ? 100 : 0,
-              totalDzd: fulfilment === "delivery" ? 3100 : 3000,
+              ...(discountDzd > 0 && { discountDzd }),
+              deliveryFeeDzd: feeDzd,
+              totalDzd: 3000 - discountDzd + feeDzd,
             },
           },
     contact: {
@@ -114,6 +128,9 @@ function fixture({
     setTender: noop,
     retryQuote: noop,
     submit: noop,
+    promotion: promotionFor(promo),
+    applyCode: noop,
+    removeCode: noop,
   };
   return state;
 }
@@ -124,17 +141,19 @@ export function CheckoutSample({
   locale,
   initialView,
   isBare = false,
+  promo,
 }: {
   mode: Mode;
   locale: Locale;
   initialView?: View;
   isBare?: boolean;
+  promo?: PromoStory;
 }) {
   const [view, setView] = useState<View>(initialView ?? (mode === "error" ? "3" : "1"));
   const [fulfilment, setFulfilment] = useState<FulfilmentKind>("delivery");
   const [slot, setSlot] = useState<SlotChoice>({ kind: "asap" });
   const state = {
-    ...fixture({ mode, step: steps[view], fulfilment, slot }),
+    ...fixture({ mode, step: steps[view], fulfilment, slot, promo }),
     setStep: (step: CheckoutStep) => {
       setView(views[step]);
     },
