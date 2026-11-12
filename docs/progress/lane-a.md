@@ -386,3 +386,6 @@
 
 - 2026-11-12 · Ultra · Added public Discovery offer filtering and badge data with no private codes or personal eligibility. Scoped first-order offers to the restaurant and prevented zero-saving code uses. All 40 targeted PostGIS tests and the OpenAPI check passed.
   Next: verify the offers routes in a connected checkout and have Lane B wire the customer controls. Continue the security and reliability readiness passes.
+
+- 2026-11-12 · High · Fixed structured log leakage of credential headers and order contact aliases. Six logger tests, 265 authorization tests, 13 auth/media PostGIS tests and the high-severity dependency audit passed. Two moderate advisories remain.
+  Next: continue the route isolation, session and upload review. See [security review](../SECURITY_REVIEW.md) for verified and pending scope.
