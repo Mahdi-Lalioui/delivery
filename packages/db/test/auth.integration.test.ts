@@ -8,6 +8,7 @@ import { registerTestDatabase } from "./database.ts";
 type Repository = ReturnType<typeof createAuthRepository>;
 type Transaction = Parameters<Parameters<Repository["transaction"]>[0]>[0];
 type OtpReservation = Parameters<Transaction["reserveOtpChallenge"]>[0];
+type PhoneOtpReservation = Extract<OtpReservation, { phoneE164: string }>;
 type SessionInsertion = Parameters<Transaction["insertSession"]>[0];
 
 const database = registerTestDatabase();
@@ -47,7 +48,10 @@ function repository() {
   return createAuthRepository(database.get());
 }
 
-function reservation(serial: number, overrides: Partial<OtpReservation> = {}): OtpReservation {
+function reservation(
+  serial: number,
+  overrides: Partial<PhoneOtpReservation> = {},
+): PhoneOtpReservation {
   return {
     id: fixtureId(serial),
     phoneE164: fixturePhone(serial),
@@ -109,10 +113,13 @@ function session(
   };
 }
 
-function createUser(serial: number) {
-  return repository().transaction((tx) =>
-    tx.getOrCreateUserForSignIn({ phoneE164: fixturePhone(serial), now: instant() }),
+async function createUser(serial: number) {
+  const phoneE164 = fixturePhone(serial);
+  const user = await repository().transaction((tx) =>
+    tx.getOrCreateUserForSignIn({ phoneE164, now: instant() }),
   );
+  expect(user.phoneE164).toBe(phoneE164);
+  return { ...user, phoneE164 };
 }
 
 async function enrollAdmin(userId: string) {
@@ -138,7 +145,7 @@ test("[AUTH-02:db] cooldown is shared across OTP purposes and ends after 45 seco
   const first = reservation(100);
   expect(await reserve(first)).toEqual({
     kind: "created",
-    challenge: { id: first.id, expiresAt: instant(5 * minute), resendAt: instant(45 * second) },
+    challenge: { id: first.id, expiresAt: instant(10 * minute), resendAt: instant(45 * second) },
   });
 
   const admin = reservation(101, { phoneE164: first.phoneE164, purpose: "admin_sign_in" });
@@ -161,7 +168,7 @@ test("[AUTH-02:db] replay preserves original OTP timing and refuses purpose chan
   });
   expect(await reserve(retry)).toEqual({
     kind: "replayed",
-    challenge: { id: first.id, expiresAt: instant(5 * minute), resendAt: instant(45 * second) },
+    challenge: { id: first.id, expiresAt: instant(10 * minute), resendAt: instant(45 * second) },
   });
   expect(await reserve({ ...retry, purpose: "admin_sign_in" })).toEqual({ kind: "conflict" });
   expect(await reserve({ ...retry, phoneE164: fixturePhone(201) })).toMatchObject({
@@ -188,7 +195,7 @@ test("[AUTH-02:db] a failed SMS callback leaves the same OTP deliverable", async
     repository().deliverOtp({ id: challenge.id, now: instant(second), send }),
   ).resolves.toBe(true);
   await expect(
-    repository().deliverOtp({ id: challenge.id, now: instant(5 * minute), send }),
+    repository().deliverOtp({ id: challenge.id, now: instant(10 * minute), send }),
   ).resolves.toBe(true);
   expect(send).toHaveBeenCalledTimes(2);
 });
@@ -218,7 +225,7 @@ test("[AUTH-02:db] an unsent OTP cannot be delivered at its deadline", async () 
   await expect(reserve(challenge)).resolves.toMatchObject({ kind: "created" });
   const send = vi.fn<() => void>();
   await expect(
-    repository().deliverOtp({ id: challenge.id, now: instant(5 * minute), send }),
+    repository().deliverOtp({ id: challenge.id, now: instant(10 * minute), send }),
   ).resolves.toBe(false);
   await expect(repository().deliverOtp({ id: fixtureId(231), now: instant(), send })).resolves.toBe(
     false,
@@ -317,12 +324,12 @@ test("[AUTH-01:db] OTP expires at five minutes, with the prior millisecond still
   expect(await reserve(valid)).toMatchObject({ kind: "created" });
   expect(await reserve(expired)).toMatchObject({ kind: "created" });
 
-  expect(await redeem(valid.id, instant(5 * minute - 1))).toEqual({
+  expect(await redeem(valid.id, instant(10 * minute - 1))).toEqual({
     kind: "verified",
     phoneE164: valid.phoneE164,
     purpose: "sign_in",
   });
-  expect(await redeem(expired.id, instant(5 * minute))).toEqual({ kind: "expired" });
+  expect(await redeem(expired.id, instant(10 * minute))).toEqual({ kind: "expired" });
 });
 
 test("[AUTH-01:db] only one connection can redeem the same challenge", async () => {
@@ -406,7 +413,7 @@ test.each([
       );
     }
 
-    const now = fixture.terminal === "expired" ? instant(5 * minute) : instant();
+    const now = fixture.terminal === "expired" ? instant(10 * minute) : instant();
     for (const attempt of freshVerificationKeys) {
       await expect(
         repository().transaction((tx) => tx.redeemOtp({ challengeId, now, matchesCode, attempt })),

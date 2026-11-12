@@ -5,6 +5,7 @@ import {
   getOrCreateUserForSignIn,
   insertSession,
   listSessions,
+  lockUserByEmail,
   lockUserByPhone,
   resolveSession,
   revokeSessions,
@@ -12,6 +13,7 @@ import {
 import type { DatabaseConnection } from "./database.js";
 
 export type {
+  AuthIdentifier,
   AuthPurpose,
   AuthTransport,
   AuthUser,
@@ -25,6 +27,7 @@ function createTransaction(sql: TransactionSql) {
     reserveOtpChallenge: reserveOtpChallenge.bind(undefined, sql),
     redeemOtp: redeemOtp.bind(undefined, sql),
     getOrCreateUserForSignIn: getOrCreateUserForSignIn.bind(undefined, sql),
+    lockUserByEmail: lockUserByEmail.bind(undefined, sql),
     lockUserByPhone: lockUserByPhone.bind(undefined, sql),
     insertAdminChallenge: insertAdminChallenge.bind(undefined, sql),
     redeemAdminChallenge: redeemAdminChallenge.bind(undefined, sql),

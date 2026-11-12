@@ -1,5 +1,6 @@
 import { createHash, createHmac, randomUUIDv7 } from "node:crypto";
 import type {
+  AuthIdentifier,
   AuthPurpose,
   AuthRepository,
   AuthTransaction,
@@ -18,24 +19,29 @@ import {
 } from "./auth-crypto.js";
 import { matchTotp, openTotpSecret } from "./auth-totp.js";
 
+type MessageLocale = "ar" | "fr" | "en";
+type OtpDelivery = { code: string; deliveryKey: string; locale?: MessageLocale };
+type DeliverSms = (message: OtpDelivery & { phone: string }) => Promise<void> | void;
+type DeliverEmail = (message: OtpDelivery & { email: string }) => Promise<void> | void;
+
 interface AuthOptions {
   readonly repository: AuthRepository;
   readonly otpKey: Uint8Array;
   readonly totpKey: Uint8Array;
   readonly now: () => Date;
-  readonly sendSms: (message: {
-    phone: string;
-    code: string;
-    deliveryKey: string;
-  }) => Promise<void> | void;
+  readonly sendSms: DeliverSms;
+  readonly sendEmail?: DeliverEmail | undefined;
 }
 
-interface OtpRequest {
-  readonly phone: string;
+type OtpRequest = (
+  | { readonly phone: string; readonly email?: never }
+  | { readonly email: string; readonly phone?: never }
+) & {
   readonly purpose: AuthPurpose;
   readonly requestIp: string;
   readonly idempotencyKey: string;
-}
+  readonly locale?: MessageLocale | undefined;
+};
 
 interface Verification {
   readonly challengeId: string;
@@ -113,9 +119,12 @@ async function issueSession(
 async function startAdminVerification(
   tx: AuthTransaction,
   input: Verification,
-  context: { phoneE164: string; now: Date },
+  context: AuthIdentifier & { now: Date },
 ): Promise<Result<Pending>> {
-  const user = await tx.lockUserByPhone(context.phoneE164);
+  const user =
+    context.email !== undefined
+      ? await tx.lockUserByEmail(context.email)
+      : await tx.lockUserByPhone(context.phoneE164);
   if (!canSignIn(user)) return fail("otp_invalid");
   const challengeId = randomUUIDv7();
   const created = await tx.insertAdminChallenge({
@@ -130,19 +139,25 @@ async function startAdminVerification(
     : fail("otp_invalid");
 }
 
+function sendOtpCode(options: AuthOptions, request: OtpRequest, message: OtpDelivery) {
+  if (request.email === undefined) return options.sendSms({ ...message, phone: request.phone });
+  if (!options.sendEmail) throw new Error("Email delivery is unavailable.");
+  return options.sendEmail({ ...message, email: request.email });
+}
+
 async function deliverOtp(
   options: AuthOptions,
-  { phone, challengeId, now }: { phone: string; challengeId: string; now: Date },
+  { request, challengeId, now }: { request: OtpRequest; challengeId: string; now: Date },
 ): Promise<Failure | undefined> {
   try {
     const sent = await options.repository.deliverOtp({
       id: challengeId,
       now,
       send: () =>
-        options.sendSms({
-          phone,
+        sendOtpCode(options, request, {
           code: createOtpCode({ key: options.otpKey, challengeId }),
           deliveryKey: challengeId,
+          ...(request.locale === undefined ? {} : { locale: request.locale }),
         }),
     });
     return sent ? undefined : fail("otp_expired");
@@ -158,11 +173,13 @@ export function createAuthService(options: AuthOptions) {
       const now = options.now();
       const id = randomUUIDv7();
       const code = createOtpCode({ key: options.otpKey, challengeId: id });
-      const { phone, purpose, requestIp, idempotencyKey } = input;
+      const { phone, email, purpose, requestIp, idempotencyKey } = input;
+      if (email !== undefined && !options.sendEmail) return fail("otp_delivery_unavailable");
+      const identifier = email !== undefined ? { email } : { phoneE164: phone };
       const reservation = await repository.transaction((tx) =>
         tx.reserveOtpChallenge({
           id,
-          phoneE164: phone,
+          ...identifier,
           purpose,
           requestIp,
           codeHmac: hashOtp({ key: options.otpKey, challengeId: id, code }),
@@ -178,7 +195,7 @@ export function createAuthService(options: AuthOptions) {
         };
       }
       const { id: challengeId, expiresAt, resendAt } = reservation.challenge;
-      const delivered = await deliverOtp(options, { phone, challengeId, now });
+      const delivered = await deliverOtp(options, { request: input, challengeId, now });
       if (delivered !== undefined) return delivered;
       return {
         ok: true as const,
@@ -203,10 +220,11 @@ export function createAuthService(options: AuthOptions) {
         });
         if (outcome.kind === "idempotency_conflict") return fail("idempotency_conflict");
         if (outcome.kind !== "verified") return fail(`otp_${outcome.kind}`);
-        const { phoneE164, purpose } = outcome;
+        const { purpose, email, phoneE164 } = outcome;
+        const identity = email === undefined ? { phoneE164 } : { email };
         if (purpose === "admin_sign_in")
-          return startAdminVerification(tx, input, { phoneE164, now });
-        const user = await tx.getOrCreateUserForSignIn({ phoneE164, now });
+          return startAdminVerification(tx, input, { ...identity, now });
+        const user = await tx.getOrCreateUserForSignIn({ ...identity, now });
         if (!canSignIn(user)) return fail("otp_invalid");
         return issueSession(tx, input, { userId: user.id, now, kind: "standard" });
       });

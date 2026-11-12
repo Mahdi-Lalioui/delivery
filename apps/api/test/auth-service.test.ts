@@ -5,7 +5,7 @@ import { createAuthService } from "../src/auth-service.ts";
 import { sealTotpSecret } from "../src/auth-totp.ts";
 
 const now = new Date("2026-11-07T12:00:00.000Z");
-const expiresAt = new Date("2026-11-07T12:05:00.000Z");
+const expiresAt = new Date("2026-11-07T12:10:00.000Z");
 const resendAt = new Date("2026-11-07T12:00:45.000Z");
 const challengeId = "01932f18-3150-7c33-8a7a-53acfd343001";
 const user = {
@@ -53,6 +53,7 @@ function fixture() {
     getOrCreateUserForSignIn: vi
       .fn<AuthTransaction["getOrCreateUserForSignIn"]>()
       .mockResolvedValue(user),
+    lockUserByEmail: vi.fn<AuthTransaction["lockUserByEmail"]>().mockResolvedValue(undefined),
     lockUserByPhone: vi.fn<AuthTransaction["lockUserByPhone"]>().mockResolvedValue(user),
     insertAdminChallenge: vi.fn<AuthTransaction["insertAdminChallenge"]>().mockResolvedValue(true),
     redeemAdminChallenge: vi.fn<AuthTransaction["redeemAdminChallenge"]>().mockResolvedValue({

@@ -2,7 +2,23 @@ import type { Writable } from "node:stream";
 import type { FastifyBaseLogger } from "fastify";
 import { pino } from "pino";
 
-const personalFields = new Set(["phone", "code", "token", "address", "location"]);
+const personalFields = new Set([
+  "phone",
+  "phonee164",
+  "phone_e164",
+  "contactphone",
+  "recipientphone",
+  "customerphone",
+  "email",
+  "emailaddress",
+  "email_address",
+  "verifiedemail",
+  "verifiedphone",
+  "code",
+  "token",
+  "address",
+  "location",
+]);
 const unsafeEntry = '{"level":50,"msg":"Unable to safely serialize log entry"}\n';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -13,7 +29,7 @@ function removePersonalFields(entry: Record<string, unknown>): void {
   const pending = [entry];
   for (let record = pending.pop(); record; record = pending.pop()) {
     for (const [key, value] of Object.entries(record)) {
-      if (personalFields.has(key)) {
+      if (personalFields.has(key.toLowerCase())) {
         Reflect.deleteProperty(record, key);
       } else if (isRecord(value)) {
         pending.push(value);

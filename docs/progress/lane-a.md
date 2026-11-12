@@ -284,3 +284,6 @@
 
 - 2026-11-12 · Ultra · Published additive phone/email OTP, identity linking and checkout contact contracts after merging the latest Lane B screens. All 207 contract tests, typecheck, build and lint passed.
   Next: extend the existing OTP transaction and rate limit to email, then verify ten-minute expiry, lockout and email TOTP against PostGIS.
+
+- 2026-11-12 · Ultra · Extended phone OTP to normalized email with ten-minute expiry, shared IP quotas and admin TOTP. Passed 32 PostGIS cases, 55 scoped unit/HTTP checks, DB/API typecheck, lint and OpenAPI check.
+  Next: extend privacy export and erasure to email and bind identifier changes to an active session. Production email remains disabled pending checkout and privacy support.

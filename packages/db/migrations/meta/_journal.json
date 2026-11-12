@@ -386,6 +386,13 @@
       "when": 1794145800000,
       "tag": "0054_merchant_review_commands",
       "breakpoints": true
+    },
+    {
+      "idx": 55,
+      "version": "7",
+      "when": 1794146400000,
+      "tag": "0055_auth_email",
+      "breakpoints": true
     }
   ]
 }

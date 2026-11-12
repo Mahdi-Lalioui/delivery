@@ -1,7 +1,7 @@
 import {
   idempotencyKeySchema,
   logoutInput,
-  requestOtpInput,
+  requestIdentifierOtpInput,
   requestOtpOutput,
   sessionIdParams,
   sessionListOutput,
@@ -96,7 +96,7 @@ function registerOtpRequest(api: FastifyInstance, { auth }: AuthAccess): void {
       config: { policy: publicPolicy, rateLimit: {} },
       schema: {
         headers: commandHeaders,
-        body: requestOtpInput,
+        body: requestIdentifierOtpInput,
         response: { 202: requestOtpOutput, ...authErrors },
       },
     },

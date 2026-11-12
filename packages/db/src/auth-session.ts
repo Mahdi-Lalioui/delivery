@@ -1,6 +1,7 @@
 import type { ISql, TransactionSql } from "postgres";
 import { timestampParsers } from "./timestamp-parsers.js";
 import type {
+  AuthIdentifier,
   AuthTransport,
   AuthUser,
   DeviceSession,
@@ -12,10 +13,7 @@ const hourMs = 3_600_000;
 const adminLifetimeMs = 12 * hourMs;
 const standardIdleMs = 30 * 24 * hourMs;
 
-interface UserSignIn {
-  readonly phoneE164: string;
-  readonly now: Date;
-}
+type UserSignIn = AuthIdentifier & { readonly now: Date };
 
 interface SessionInsertion {
   readonly id: string;
@@ -55,15 +53,38 @@ export async function lockUserByPhone(
   return user;
 }
 
-export async function getOrCreateUserForSignIn(
+export async function lockUserByEmail(
   sql: TransactionSql,
-  { phoneE164, now }: UserSignIn,
-): Promise<AuthUser> {
+  email: string,
+): Promise<AuthUser | undefined> {
+  const [user] = await sql<AuthUser[]>`
+    SELECT id, phone_e164 AS "phoneE164", email, blocked_at AS "blockedAt", deleted_at AS "deletedAt"
+    FROM public.users WHERE email = ${email} FOR UPDATE
+  `.parsers(timestampParsers);
+  return user;
+}
+
+async function insertSignInUser(sql: TransactionSql, input: UserSignIn) {
+  const createdAt = input.now.toISOString();
+  if (input.email !== undefined) {
+    await sql`
+      INSERT INTO public.users (email, created_at) VALUES (${input.email}, ${createdAt})
+      ON CONFLICT (email) DO NOTHING
+    `;
+    return lockUserByEmail(sql, input.email);
+  }
   await sql`
-    INSERT INTO public.users (phone_e164, created_at) VALUES (${phoneE164}, ${now.toISOString()})
+    INSERT INTO public.users (phone_e164, created_at) VALUES (${input.phoneE164}, ${createdAt})
     ON CONFLICT (phone_e164) DO NOTHING
   `;
-  const user = await lockUserByPhone(sql, phoneE164);
+  return lockUserByPhone(sql, input.phoneE164);
+}
+
+export async function getOrCreateUserForSignIn(
+  sql: TransactionSql,
+  input: UserSignIn,
+): Promise<AuthUser> {
+  const user = await insertSignInUser(sql, input);
   if (!user) throw new Error("Could not lock the authentication account.");
   return user;
 }

@@ -15,27 +15,67 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "phone": {
-                    "type": "string",
-                    "minLength": 13,
-                    "maxLength": 13,
-                    "pattern": "^\\+213[567][0-9]{8}$"
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "locale": {
+                        "type": "string",
+                        "enum": [
+                          "ar",
+                          "fr",
+                          "en"
+                        ]
+                      },
+                      "phone": {
+                        "type": "string",
+                        "minLength": 13,
+                        "maxLength": 13,
+                        "pattern": "^\\+213[567][0-9]{8}$"
+                      },
+                      "purpose": {
+                        "type": "string",
+                        "enum": [
+                          "sign_in",
+                          "admin_sign_in"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "phone",
+                      "purpose"
+                    ],
+                    "additionalProperties": false
                   },
-                  "purpose": {
-                    "type": "string",
-                    "enum": [
-                      "sign_in",
-                      "admin_sign_in"
-                    ]
+                  {
+                    "type": "object",
+                    "properties": {
+                      "locale": {
+                        "type": "string",
+                        "enum": [
+                          "ar",
+                          "fr",
+                          "en"
+                        ]
+                      },
+                      "email": {
+                        "type": "string"
+                      },
+                      "purpose": {
+                        "type": "string",
+                        "enum": [
+                          "sign_in",
+                          "admin_sign_in"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "email",
+                      "purpose"
+                    ],
+                    "additionalProperties": false
                   }
-                },
-                "required": [
-                  "phone",
-                  "purpose"
-                ],
-                "additionalProperties": false
+                ]
               }
             }
           }

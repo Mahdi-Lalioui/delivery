@@ -44,6 +44,7 @@ import { checkReadiness } from "./readiness.js";
 
 export interface StartOptions {
   readonly now?: () => Date;
+  readonly sendEmail?: NonNullable<Parameters<typeof createAuthService>[0]["sendEmail"]>;
   readonly sendSms?: Parameters<typeof createAuthService>[0]["sendSms"];
   readonly sendInvitation?: MerchantStaffServices["sendInvitation"];
   readonly configure?: (api: FastifyInstance) => void;
@@ -63,6 +64,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     totpKey: Buffer.from(environment.AUTH_TOTP_KEY, "hex"),
     now,
     sendSms,
+    sendEmail: options.sendEmail,
   });
   const merchantHours = createMerchantHoursRepository(database);
   const platform = createPlatformRepository(database);

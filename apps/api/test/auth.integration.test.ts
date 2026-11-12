@@ -22,6 +22,7 @@ const originHeaders = { origin: publicOrigin, "sec-fetch-site": "same-origin" };
 async function openAuthApi(at = Date.parse("2026-11-07T12:00:00Z")) {
   let time = at;
   const sent = new Map<string, string>();
+  const emails = new Map<string, { email: string; code: string }>();
   const attempts: string[] = [];
   let shouldFail = false;
   const api = await startApi({
@@ -40,6 +41,9 @@ async function openAuthApi(at = Date.parse("2026-11-07T12:00:00Z")) {
       }
       sent.set(deliveryKey, code);
     },
+    sendEmail({ deliveryKey, email, code }) {
+      emails.set(deliveryKey, { email, code });
+    },
     async listen(app) {
       await app.ready();
       return "http://127.0.0.1:3002";
@@ -48,6 +52,7 @@ async function openAuthApi(at = Date.parse("2026-11-07T12:00:00Z")) {
   return {
     api,
     sent,
+    emails,
     attempts,
     failNextDelivery() {
       shouldFail = true;
@@ -218,7 +223,7 @@ test("[CUS-10] distinguishes invalid, locked and expired codes through the real 
     }
     runtime.advance(45_000);
     const next = requestOtpOutput.parse((await requestOtp(api, phone)).json());
-    runtime.advance(300_000);
+    runtime.advance(600_000);
     const expired = await verifyOtp(api, { challengeId: next.challengeId, code: wrong });
     expect(expired.statusCode).toBe(410);
     expect(problemResponseSchema.parse(expired.json()).code).toBe("otp_expired");
@@ -291,6 +296,131 @@ test("[AUTH-01:replay] one wrong verification consumes one attempt across identi
     `;
     expect(challenge?.attempts).toBe(1);
     expect((await verifyOtp(api, { challengeId, code })).statusCode).toBe(200);
+  } finally {
+    await api.close();
+  }
+});
+
+test("[AUTH-01][AUTH-02] signs in by normalized email with one HMAC-protected OTP and a shared cooldown", async () => {
+  const runtime = await openAuthApi();
+  const { api, emails } = runtime;
+  const email = "buyer@example.test";
+  const start = (address: string) =>
+    api.inject({
+      method: "POST",
+      url: "/v1/auth/otp/request",
+      headers: { ...originHeaders, "idempotency-key": randomUUIDv7() },
+      payload: { email: address, purpose: "sign_in", locale: "fr" },
+    });
+  try {
+    const first = await start(" Buyer@EXAMPLE.TEST ");
+    expect(first.statusCode).toBe(202);
+    const { challengeId, expiresAt, resendAt } = requestOtpOutput.parse(first.json());
+    expect(expiresAt).toBe("2026-11-07T12:10:00.000Z");
+    expect(resendAt).toBe("2026-11-07T12:00:45.000Z");
+    expect(first.payload).not.toContain(email);
+    expect((await start(email)).statusCode).toBe(429);
+    const delivery = emails.get(challengeId);
+    expect(delivery?.email).toBe(email);
+    if (!delivery) throw new Error("Missing synthetic email OTP");
+    const [stored] = await database.get().sql<{ codeHmac: Buffer }[]>`
+      SELECT code_hmac AS "codeHmac" FROM otp_challenges WHERE id = ${challengeId}
+    `;
+    expect(stored?.codeHmac).toEqual(hashOtp({ key: otpKey, challengeId, code: delivery.code }));
+    const firstLogin = await verifyOtp(api, { challengeId, code: delivery.code });
+    expect(verifyOtpOutput.parse(firstLogin.json())).toEqual({
+      status: "authenticated",
+      transport: "web",
+    });
+    expect((await verifyOtp(api, { challengeId, code: delivery.code })).statusCode).toBe(409);
+    const accounts = await database.get().sql`SELECT phone_e164 FROM users WHERE email = ${email}`;
+    expect(accounts).toEqual([{ phone_e164: null }]);
+    runtime.advance(45_000);
+    const returning = await start(email);
+    expect(returning.statusCode).toBe(202);
+    expect(Object.keys(returning.json<Record<string, unknown>>()).sort()).toEqual(
+      Object.keys(first.json<Record<string, unknown>>()).sort(),
+    );
+  } finally {
+    await api.close();
+  }
+});
+
+test("[AUTH-01][AUTH-02] locks email OTP at five wrong codes and shares the IP quota with phone", async () => {
+  const runtime = await openAuthApi();
+  const { api, emails } = runtime;
+  const ip = "198.51.100.72";
+  async function start(target: { email: string } | { phone: string }) {
+    return api.inject({
+      method: "POST",
+      url: "/v1/auth/otp/request",
+      headers: { ...originHeaders, "idempotency-key": randomUUIDv7() },
+      remoteAddress: ip,
+      payload: { ...target, purpose: "sign_in" },
+    });
+  }
+  try {
+    const response = await start({ email: "locked@example.test" });
+    expect(response.statusCode).toBe(202);
+    const { challengeId } = requestOtpOutput.parse(response.json());
+    const message = emails.get(challengeId);
+    if (!message) throw new Error("Missing email delivery.");
+    const wrong = message.code === "000000" ? "111111" : "000000";
+    for (let index = 1; index <= 5; index++) {
+      const attempted = await verifyOtp(api, { challengeId, code: wrong });
+      expect(problemResponseSchema.parse(attempted.json()).code).toBe(
+        index < 5 ? "otp_invalid" : "otp_locked",
+      );
+    }
+    const denied = await verifyOtp(api, { challengeId, code: message.code });
+    expect(problemResponseSchema.parse(denied.json()).code).toBe("otp_locked");
+    for (let index = 1; index < 20; index++) {
+      const phone = "+2135" + String(400 + index).padStart(8, "0");
+      expect((await start({ phone })).statusCode).toBe(202);
+    }
+    expect((await start({ email: "another@example.test" })).statusCode).toBe(429);
+  } finally {
+    await api.close();
+  }
+});
+
+test("[AUTH-05] email-admin sign-in still requires enrolled TOTP", async () => {
+  const clock = 2_000_000_000_000;
+  const runtime = await openAuthApi(clock);
+  const { api, emails } = runtime;
+  const email = "admin@example.test";
+  const userId = randomUUIDv7();
+  const secret = Buffer.from("12345678901234567890");
+  const sealed = sealTotpSecret({ key: totpKey, userId, secret });
+  const { sql } = database.get();
+  try {
+    await sql`INSERT INTO public.users (id, email, created_at) VALUES (${userId}, ${email}, ${new Date(clock).toISOString()})`;
+    await sql`INSERT INTO public.admins (user_id, totp_secret_encrypted) VALUES (${userId}, ${sealed})`;
+    const start = await api.inject({
+      method: "POST",
+      url: "/v1/auth/otp/request",
+      headers: { ...originHeaders, "idempotency-key": randomUUIDv7() },
+      payload: { email: "ADMIN@example.test", purpose: "admin_sign_in" },
+    });
+    const { challengeId } = requestOtpOutput.parse(start.json());
+    const message = emails.get(challengeId);
+    if (!message) throw new Error("Missing email delivery.");
+    const firstFactor = await verifyOtp(api, {
+      challengeId,
+      code: message.code,
+      transport: "bearer",
+    });
+    expect(firstFactor.cookies).toHaveLength(0);
+    const pending = verifyOtpOutput.parse(firstFactor.json());
+    if (pending.status !== "totp_required") throw new Error("Expected TOTP for the email admin.");
+    const totp = await api.inject({
+      method: "POST",
+      url: "/v1/auth/totp/verify",
+      headers: { "idempotency-key": randomUUIDv7() },
+      payload: { challengeId: pending.challengeId, code: "279037", transport: "bearer" },
+    });
+    expect(totp.statusCode).toBe(200);
+    expect(verifyTotpOutput.parse(totp.json())).toMatchObject({ transport: "bearer" });
   } finally {
     await api.close();
   }

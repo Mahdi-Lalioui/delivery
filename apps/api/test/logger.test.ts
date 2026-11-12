@@ -120,3 +120,15 @@ test("[M0-6] removes personal fields from shadowed child bindings in raw output"
   expect(record).toMatchObject({ requestId: "shadowed-request", context: { status: "ok" } });
   expect(output).not.toContain("fixture-hidden-shadow");
 });
+
+test("[AUTH-01] strips nested phone and email identifiers and checkout contact numbers", () => {
+  const { logger, read } = captureLogger();
+  logger.info({
+    account: { email: "private@example.test", phoneE164: "+213500000019" },
+    order: { contactPhone: "+213500000020", customer: { emailAddress: "buyer@example.test" } },
+    id: "synthetic-id",
+  });
+  const { output, record } = read();
+  expect(record).toMatchObject({ id: "synthetic-id", account: {}, order: { customer: {} } });
+  expect(output).not.toMatch(/example\.test|\+2135000000/);
+});
