@@ -20,7 +20,3 @@ export function createOrderSmsAdapter({ url, token }: Gateway, send = fetch): Se
     if (!response.ok) throw new Error("SMS gateway rejected the request");
   };
 }
-
-export async function unavailableOrderSms(): Promise<never> {
-  return Promise.reject(new Error("Order SMS gateway is unavailable"));
-}

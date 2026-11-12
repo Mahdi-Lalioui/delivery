@@ -3,14 +3,16 @@ import { NextIntlClientProvider } from "next-intl";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, expect, test, vi } from "vitest";
 import type { SignInDestination } from "../src/auth/sign-in-intent";
-import { usePhoneSignIn, type PhoneSignIn } from "../src/auth/use-phone-sign-in";
+import { useSignIn, type SignInFlow } from "../src/auth/use-sign-in";
 import { SignInForm } from "../src/components/sign-in-form";
 
-vi.mock("../src/auth/use-phone-sign-in", () => ({ usePhoneSignIn: vi.fn() }));
+vi.mock("../src/auth/use-sign-in", () => ({ useSignIn: vi.fn() }));
 
-const initialFlow: PhoneSignIn = {
+const initialFlow: SignInFlow = {
   step: { kind: "phone" },
+  method: "phone",
   phone: "",
+  email: "",
   code: "",
   error: undefined,
   pending: undefined,
@@ -18,6 +20,8 @@ const initialFlow: PhoneSignIn = {
   resendSeconds: 0,
   canVerify: false,
   setPhone: vi.fn(),
+  setEmail: vi.fn(),
+  setMethod: vi.fn(),
   setCode: vi.fn(),
   sendCode: vi.fn(),
   verifyCode: vi.fn(),
@@ -25,18 +29,23 @@ const initialFlow: PhoneSignIn = {
 };
 
 function render(
-  flow: Partial<PhoneSignIn> = {},
+  flow: Partial<SignInFlow> = {},
   purpose: "sign_in" | "admin_sign_in" = "sign_in",
   destination?: SignInDestination,
 ) {
-  vi.mocked(usePhoneSignIn).mockReturnValue({ ...initialFlow, ...flow });
+  vi.mocked(useSignIn).mockReturnValue({ ...initialFlow, ...flow });
   return renderToStaticMarkup(
     <NextIntlClientProvider
       locale="ar-DZ"
       timeZone="Africa/Algiers"
       messages={{ auth: getMessages("ar").auth }}
     >
-      <SignInForm locale="ar" purpose={purpose} destination={destination} />
+      <SignInForm
+        locale="ar"
+        purpose={purpose}
+        destination={destination}
+        initialMethods={["phone", "email"]}
+      />
     </NextIntlClientProvider>,
   );
 }
@@ -146,4 +155,14 @@ test("[AUTH-05:focus] associates the authenticator instructions with the active 
   );
   expect(html).toMatch(/<p id="sign-in-code-description">/);
   expect(html).toMatch(/<input[^>]+aria-describedby="sign-in-code-description"/);
+});
+
+test("[AUTH-01] renders the configured email option and a labelled email field", () => {
+  const html = render({ method: "email", email: "buyer@example.test" });
+  expect(html).toContain(getMessages("ar").auth.phoneMethod);
+  expect(html).toContain(getMessages("ar").auth.emailMethod);
+  expect(html).toMatch(
+    /<input(?=[^>]*type="email")(?=[^>]*autocomplete="email")(?=[^>]*dir="ltr")/i,
+  );
+  expect(html).not.toMatch(/<input[^>]*type="tel"/i);
 });

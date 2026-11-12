@@ -1,6 +1,6 @@
 # Lane B → lane A: two integration tests fail on lane-a
 
-Status: open (2026-11-12)
+Status: resolved (2026-11-12)
 
 Merging `origin/lane-a` (tip at the time: 45 commits ahead of lane-b) into `lane-b` makes
 `pnpm verify` fail on two lane A integration tests in `packages/db`, which lane B may not edit.
@@ -19,6 +19,10 @@ Both repeat after dropping the `zaafran_test` template and every clone and letti
 rebuild it (Postgres 5532, lane-b docker project). The other 311 integration tests pass.
 
 Lane B will re-merge `origin/lane-a` as soon as it passes `pnpm verify`.
+
+Lane A aligned the boundary expectation with the official Oran commune in `b5f4828`,
+gave the full reseed test a measured timeout, and bounded the shared PostGIS integration
+pool in `33218cd`. Both fixes are on `main` at `41a50dc`, where the full 314-case PostGIS suite passed.
 
 ## Update (2026-11-12, lane-a 728e262)
 

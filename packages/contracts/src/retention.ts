@@ -1,4 +1,5 @@
-import { z } from "zod";
+import { z } from "./schema.js";
+import { normalizedEmail } from "./auth.js";
 import { menuImportInput } from "./menu-import.js";
 import { menuItemInput } from "./menu.js";
 import { pageLimit } from "./pagination.js";
@@ -177,7 +178,11 @@ export const customerPrivacyDeleteInput = z.strictObject({
   code: z.string().regex(/^[0-9]{6}$/),
 });
 export const customerPrivacyExportOutput = z.strictObject({
-  profile: z.strictObject({ accountId: uuid, phoneE164 }),
+  profile: z.strictObject({
+    accountId: uuid,
+    phoneE164: phoneE164.nullable(),
+    email: normalizedEmail.optional(),
+  }),
   addresses: z.array(
     z.strictObject({
       addressId: uuid,
@@ -197,5 +202,6 @@ export const customerPrivacyExportOutput = z.strictObject({
     }),
   ),
   orders: z.array(customerOrderReceiptOutput),
+  orderContacts: z.array(z.strictObject({ orderId: uuid, phoneE164 })).optional(),
   ratings: z.array(orderRatingOutput),
 });

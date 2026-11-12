@@ -192,6 +192,7 @@ async function startTestMediaWorker(resources: AsyncDisposableStack, databaseUrl
 export async function startAuthHarness(
   webOrigin: string,
   withMediaWorker = false,
+  protocol: "http" | "https" = "https",
 ): Promise<AuthHarness> {
   const compiled: unknown = await import(new URL("../dist/start.js", import.meta.url).href);
   if (!isCompiledApi(compiled)) throw new Error("Build the API before running browser auth tests.");
@@ -203,10 +204,11 @@ export async function startAuthHarness(
   await migrateDatabase(database);
   const mediaRoot = withMediaWorker ? await startTestMediaWorker(resources, clone.url) : undefined;
 
-  const proxy = await startAuthProxy(webOrigin);
+  const proxy = await startAuthProxy(webOrigin, protocol);
   resources.defer(proxy.close);
   const totpKey = randomBytes(32);
   const sms = new Map<string, string>();
+  const emailCodes = new Map<string, string>();
   const invitations = new Map<string, string>();
   let time = Date.now();
   const api = await compiled.startApi({
@@ -222,6 +224,9 @@ export async function startAuthHarness(
     now: () => new Date(time),
     sendSms({ phone, code }) {
       sms.set(phone, code);
+    },
+    sendEmail({ email, code }) {
+      emailCodes.set(email, code);
     },
     sendInvitation({ phone, token }) {
       invitations.set(phone, token);
@@ -267,6 +272,11 @@ export async function startAuthHarness(
     latestSms(phone: string) {
       const code = sms.get(phone);
       if (code === undefined) throw new Error("No SMS was sent to the synthetic test number.");
+      return code;
+    },
+    latestEmail(email: string) {
+      const code = emailCodes.get(email);
+      if (code === undefined) throw new Error("No email was sent to the synthetic test address.");
       return code;
     },
     latestInvitation(phone: string) {

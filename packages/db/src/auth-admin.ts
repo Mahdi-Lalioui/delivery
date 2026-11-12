@@ -54,7 +54,8 @@ export async function insertAdminChallenge(
       ${now.toISOString()}::timestamptz, ${expiresAt.toISOString()}::timestamptz
     FROM public.users AS account
     JOIN public.admins AS admin ON admin.user_id = account.id
-    JOIN public.otp_challenges AS otp ON otp.phone_e164 = account.phone_e164
+    JOIN public.otp_challenges AS otp
+      ON otp.phone_e164 = account.phone_e164 OR otp.email = account.email
     WHERE account.id = ${userId} AND account.blocked_at IS NULL AND account.deleted_at IS NULL
       AND otp.id = ${otpChallengeId} AND otp.purpose = 'admin_sign_in' AND otp.consumed_at IS NOT NULL
     ON CONFLICT (otp_challenge_id) DO NOTHING

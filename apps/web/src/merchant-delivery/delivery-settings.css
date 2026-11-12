@@ -2,6 +2,7 @@
 .delivery-form,
 .delivery-fields {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-20);
   min-inline-size: 0;
 }
@@ -9,6 +10,10 @@
 .delivery-settings {
   inline-size: min(100%, calc(8 * var(--space-120)));
   margin-inline: auto;
+}
+
+.delivery-settings .ui-field {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .delivery-fields,
@@ -21,6 +26,7 @@
 
 .delivery-fields > .ui-card {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-16);
 }
 

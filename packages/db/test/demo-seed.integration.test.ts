@@ -117,8 +117,16 @@ test("[MER-09:demo] seeds forty bilingual restaurants across eight cities and pr
     expect(contents.subarray(8, 12).toString("ascii")).toBe(format === "webp" ? "WEBP" : "avif");
   }
 
+  const [picture] = pictures;
+  if (!picture) throw new Error("No seeded photo variant to restore.");
+  await store.delete(picture.key);
+  expect(await store.get(picture.key)).toBeUndefined();
+
   await seedDemoRestaurants(connection, store);
+  const restored = await store.get(picture.key);
+  if (!restored) throw new Error("The seed did not restore the missing photo.");
+  expect((await buffer(restored.body)).length).toBe(picture.bytes);
   expect(await readDemo()).toEqual(before);
   expect(await sql`SELECT * FROM public.merchants WHERE NOT is_demo`).toEqual(unrelated);
   expect(await sql`SELECT id FROM public.merchants WHERE is_demo`).toHaveLength(40);
-}, 30_000);
+}, 60_000);

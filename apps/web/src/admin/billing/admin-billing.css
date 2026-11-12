@@ -2,12 +2,18 @@
 
 .billing-page {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-24);
   padding-block: var(--space-24) var(--space-64);
 }
 
+.billing-page .ui-field {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .billing-layout {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-24);
 }
 
@@ -172,6 +178,7 @@
 
 .billing-two-columns {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-24);
   align-items: start;
 }

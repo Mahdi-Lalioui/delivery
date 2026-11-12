@@ -1,6 +1,6 @@
-import { z } from "zod";
+import { z } from "./schema.js";
 import { addressOutput } from "./addresses.js";
-import { algerianMobilePhone } from "./auth.js";
+import { algerianMobilePhone, normalizedEmail } from "./auth.js";
 import { merchantApplicationInput } from "./merchant.js";
 import { orderSummary } from "./orders.js";
 
@@ -8,7 +8,11 @@ const pin = merchantApplicationInput.shape.pin;
 const instant = z.iso.datetime();
 const uuid = z.uuid();
 
-export const courierInviteInput = z.strictObject({ phone: algerianMobilePhone });
+const inviteLocale = z.enum(["ar", "fr", "en"]).optional();
+export const courierInviteInput = z.union([
+  z.strictObject({ phone: algerianMobilePhone, locale: inviteLocale }),
+  z.strictObject({ email: normalizedEmail, locale: inviteLocale }),
+]);
 export const courierInviteOutput = z.strictObject({ inviteId: uuid, expiresAt: instant });
 const displayName = z
   .string()

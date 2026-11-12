@@ -98,3 +98,69 @@
   background: var(--color-mint-pale);
   color: var(--color-accent-strong);
 }
+
+.account-identifiers,
+.account-identifier-form {
+  display: grid;
+  gap: var(--space-16);
+}
+
+.account-identifiers {
+  padding: var(--space-20);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-e1);
+}
+
+.account-identifiers h2 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-h3);
+}
+
+.account-identifiers p {
+  color: var(--color-text-2);
+}
+
+.account-identifier-list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.account-identifier-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding-block: var(--space-12);
+  border-block-start: 1px solid var(--color-border-subtle);
+}
+
+.account-identifier-value {
+  flex: 1 1 8rem;
+  min-inline-size: 0;
+}
+
+.account-identifier-label {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-4) var(--space-8);
+  margin-block-end: var(--space-4);
+}
+
+.account-identifier-value strong {
+  font-weight: var(--font-weight-h3);
+}
+
+.account-identifier-value p {
+  margin: 0;
+  color: var(--color-text-2);
+  overflow-wrap: anywhere;
+}
+
+.account-identifier-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+}

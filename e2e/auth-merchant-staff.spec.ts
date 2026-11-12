@@ -79,6 +79,9 @@ test("[MER-23:browser] an owner invites staff, revokes an invitation, and the in
     const { restaurantName } = await openTeam(page, auth);
 
     await test.step("Reject an invalid phone and focus it", async () => {
+      await page
+        .getByRole("radio", { name: new RegExp(`^${fr.merchantStaff.roleManager}`) })
+        .check();
       await page.getByLabel(fr.merchantStaff.invitePhone, { exact: true }).fill("12");
       await page.getByRole("button", { name: fr.merchantStaff.send }).click();
       await expect(page.getByText(fr.merchantStaff.phoneError)).toBeVisible();

@@ -111,12 +111,12 @@ async function persistQuote(sql: TransactionSql, request: QuoteRequest, evaluati
 }
 
 export async function lockOrderingCustomer(sql: TransactionSql, customerId: string) {
-  const [customer] = await sql`
-    SELECT FROM public.users WHERE id = ${customerId}
-      AND deleted_at IS NULL AND blocked_at IS NULL AND phone_e164 IS NOT NULL
+  const [customer] = await sql<{ phoneE164: string | null }[]>`
+    SELECT phone_e164 AS "phoneE164" FROM public.users WHERE id = ${customerId}
+      AND deleted_at IS NULL AND blocked_at IS NULL
     FOR UPDATE
   `;
-  return customer !== undefined;
+  return customer;
 }
 
 export async function evaluateQuote(sql: TransactionSql, request: QuoteRequest) {

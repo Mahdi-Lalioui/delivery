@@ -26,6 +26,27 @@ const workerEnvironment = z
       .max(2048)
       .regex(/^[!-~]+$/u)
       .optional(),
+    AUTH_TWILIO_ACCOUNT_SID: z
+      .string()
+      .regex(/^AC[0-9A-Fa-f]{32}$/)
+      .optional(),
+    AUTH_TWILIO_AUTH_TOKEN: z
+      .string()
+      .min(1)
+      .max(256)
+      .regex(/^[!-~]+$/u)
+      .optional(),
+    AUTH_TWILIO_FROM: z
+      .string()
+      .regex(/^(?:\+[1-9][0-9]{6,14}|[A-Za-z0-9 ]{1,11})$/u)
+      .optional(),
+    AUTH_RESEND_API_KEY: z
+      .string()
+      .min(1)
+      .max(256)
+      .regex(/^[!-~]+$/u)
+      .optional(),
+    AUTH_RESEND_FROM: z.email().max(254).optional(),
     VAPID_PUBLIC_KEY: pushPublicKey.optional(),
     VAPID_PRIVATE_KEY: z
       .string()
@@ -42,6 +63,20 @@ const workerEnvironment = z
     },
   )
   .refine(
+    ({ AUTH_TWILIO_ACCOUNT_SID: sid, AUTH_TWILIO_AUTH_TOKEN: token, AUTH_TWILIO_FROM: from }) => {
+      const count = [sid, token, from].filter(Boolean).length;
+      return count === 0 || count === 3;
+    },
+    { path: ["AUTH_TWILIO_ACCOUNT_SID"], message: "Set all Twilio settings or omit all of them." },
+  )
+  .refine(
+    ({ AUTH_RESEND_API_KEY: apiKey, AUTH_RESEND_FROM: from }) => Boolean(apiKey) === Boolean(from),
+    {
+      path: ["AUTH_RESEND_FROM"],
+      message: "Set both Resend settings or omit both.",
+    },
+  )
+  .refine(
     ({ VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT }) => {
       const count = [VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT].filter(Boolean).length;
       return count === 0 || count === 3;
@@ -49,9 +84,11 @@ const workerEnvironment = z
     { path: ["VAPID_PUBLIC_KEY"], message: "Set all VAPID variables or omit all three." },
   );
 
+export type WorkerEnvironment = z.output<typeof workerEnvironment>;
+
 export async function runWorkerCommand(
   command: "start" | "migrate",
-  execute: (environment: z.output<typeof workerEnvironment>) => Promise<void>,
+  execute: (environment: WorkerEnvironment) => Promise<void>,
 ): Promise<void> {
   const environment = workerEnvironment.safeParse(process.env);
   if (!environment.success) {

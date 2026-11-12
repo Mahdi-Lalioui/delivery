@@ -1,7 +1,9 @@
 "use client";
 
-import { useTranslations } from "next-intl";
-import { useEffect, useRef } from "react";
+import { isPublicLocale } from "@zaafran/i18n/locales";
+import { SegmentedControl } from "@zaafran/ui";
+import { useLocale, useTranslations } from "next-intl";
+import { useEffect, useRef, useState } from "react";
 import type { MerchantStaffControls } from "../use-merchant-staff";
 
 const roles = [
@@ -13,10 +15,12 @@ function readRole(value: FormDataEntryValue | null): "manager" | "staff" | "" {
   return value === "manager" || value === "staff" ? value : "";
 }
 
-/** MER-23: the owner invites one phone number to the manager or staff role. */
+/** MER-23: the owner invites a verified phone or email to the manager or staff role. */
 export function StaffInviteForm({ controls }: { controls: MerchantStaffControls }) {
   const translate = useTranslations("merchantStaff");
   const form = useRef<HTMLFormElement>(null);
+  const [locale] = useLocale().split("-");
+  const [method, setMethod] = useState<"phone" | "email">("phone");
   const { state, invalidField } = controls;
   const isBusy = state.kind === "ready" && state.pending !== undefined;
   const notice = state.kind === "ready" ? state.notice : undefined;
@@ -43,35 +47,25 @@ export function StaffInviteForm({ controls }: { controls: MerchantStaffControls 
         const phone = data.get("phone");
         controls.invite({
           phone: typeof phone === "string" ? phone : "",
+          method,
+          locale: isPublicLocale(locale) ? locale : undefined,
           role: readRole(data.get("role")),
         });
       }}
     >
       <h2 id="staff-invite-title">{translate("inviteTitle")}</h2>
-      <div className="menu-item-field">
-        <label htmlFor="staff-invite-phone">{translate("invitePhone")}</label>
-        <input
-          id="staff-invite-phone"
-          name="phone"
-          type="tel"
-          dir="ltr"
-          inputMode="tel"
-          autoComplete="off"
-          disabled={isBusy}
-          aria-invalid={isPhoneInvalid}
-          aria-describedby={
-            isPhoneInvalid
-              ? "staff-invite-phone-hint staff-invite-phone-error"
-              : "staff-invite-phone-hint"
-          }
-        />
-        <p id="staff-invite-phone-hint">{translate("invitePhoneHint")}</p>
-        {isPhoneInvalid && (
-          <p id="staff-invite-phone-error" className="hours-error">
-            {translate("phoneError")}
-          </p>
-        )}
-      </div>
+      <SegmentedControl
+        legend={translate("inviteMethod")}
+        name="staff-invite-method"
+        value={method}
+        onChange={setMethod}
+        disabled={isBusy}
+        options={[
+          { value: "phone", label: translate("inviteSmsMethod") },
+          { value: "email", label: translate("inviteEmailMethod") },
+        ]}
+      />
+      <InvitationDestination method={method} busy={isBusy} invalid={isPhoneInvalid} />
       <fieldset
         className="hours-ranges"
         disabled={isBusy}
@@ -95,5 +89,48 @@ export function StaffInviteForm({ controls }: { controls: MerchantStaffControls 
         {translate(state.kind === "ready" && state.pending === "invite" ? "sending" : "send")}
       </button>
     </form>
+  );
+}
+
+function InvitationDestination({
+  method,
+  busy,
+  invalid,
+}: {
+  method: "phone" | "email";
+  busy: boolean;
+  invalid: boolean;
+}) {
+  const translate = useTranslations("merchantStaff");
+  const isEmail = method === "email";
+  const inputMode = isEmail ? "email" : "tel";
+  return (
+    <div className="menu-item-field">
+      <label htmlFor="staff-invite-phone">
+        {translate(isEmail ? "inviteEmail" : "invitePhone")}
+      </label>
+      <input
+        id="staff-invite-phone"
+        name="phone"
+        key={method}
+        type={inputMode}
+        dir="ltr"
+        inputMode={inputMode}
+        autoComplete="off"
+        disabled={busy}
+        aria-invalid={invalid}
+        aria-describedby={
+          invalid ? "staff-invite-phone-hint staff-invite-phone-error" : "staff-invite-phone-hint"
+        }
+      />
+      <p id="staff-invite-phone-hint">
+        {translate(isEmail ? "inviteEmailHint" : "invitePhoneHint")}
+      </p>
+      {invalid && (
+        <p id="staff-invite-phone-error" className="hours-error">
+          {translate(isEmail ? "emailError" : "phoneError")}
+        </p>
+      )}
+    </div>
   );
 }

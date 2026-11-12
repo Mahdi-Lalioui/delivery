@@ -17,6 +17,8 @@ type Options = {
   otpKey: Uint8Array;
   now: () => Date;
   sendSms: Parameters<typeof createAuthService>[0]["sendSms"];
+  smsEnabled?: boolean;
+  sendEmail?: Parameters<typeof createAuthService>[0]["sendEmail"];
 };
 
 export function createPrivacyService({
@@ -24,6 +26,8 @@ export function createPrivacyService({
   otpKey,
   now,
   sendSms,
+  smsEnabled = true,
+  sendEmail,
 }: Options): PrivacyServices {
   const key = createHmac("sha256", otpKey).update("account-delete").digest();
   function digest(purpose: string, value: string) {
@@ -33,7 +37,7 @@ export function createPrivacyService({
     return hashOtp({ key, challengeId, code });
   }
   return {
-    async issue({ idempotencyKey, ...identity }) {
+    async issue({ idempotencyKey, locale, ...identity }) {
       const challengeId = randomUUIDv7();
       const code = createOtpCode({ key, challengeId });
       const result = await repository.issueDeletionChallenge({
@@ -53,12 +57,18 @@ export function createPrivacyService({
             sessionId: identity.sessionId,
             challengeId: result.challengeId,
             now: now(),
-            send: (phoneE164: string) =>
-              sendSms({
-                phone: phoneE164,
+            preferEmail: !smsEnabled && sendEmail !== undefined,
+            send(target) {
+              const message = {
                 code: issuedCode,
+                ...(locale === undefined ? {} : { locale }),
                 deliveryKey: "account-delete:" + result.challengeId,
-              }),
+              };
+              if (target.email === undefined)
+                return sendSms({ ...message, phone: target.phoneE164 });
+              if (!sendEmail) throw new Error("Email delivery is unavailable.");
+              return sendEmail({ ...message, email: target.email });
+            },
           });
           if (!delivered) return { kind: "unauthorized" };
         } catch {

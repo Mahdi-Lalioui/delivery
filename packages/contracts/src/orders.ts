@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./schema.js";
 import { algerianMobilePhone } from "./auth.js";
 import { menuItemInput } from "./menu.js";
 import { customerOrderHistoryOutput } from "./retention.js";
@@ -155,6 +155,7 @@ export const merchantBoardOutput = z.strictObject({
       lines: z.array(boardLine).max(50),
       changeDzd: z.int().min(0).max(10_000),
       confirmByPhone: z.boolean(),
+      customerPhone: algerianMobilePhone.optional(),
       canHandover: z.boolean(),
       courierId: uuid.nullable().optional(),
     }),

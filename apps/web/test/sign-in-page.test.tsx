@@ -31,7 +31,8 @@ test("[AUTH-05] Arabic admin sign-in localizes the page and keeps admin mode acr
   const html = await render(<ArabicSignIn {...props} />);
 
   expect(html).toContain(`<h1 id="sign-in-title">${auth.adminTitle}</h1>`);
-  expect(html).toContain(auth.phoneLabel);
+  expect(html).toContain(auth.methodsLoading);
+  expect(html).not.toContain(auth.phoneLabel);
   expect(html).toMatch(new RegExp(`<nav\\b[^>]*aria-label="${RegExp.escape(shell.languages)}"`));
   expect(html).toMatch(/<a\b[^>]*href="\/fr\/sign-in\?purpose=admin"[^>]*>Français<\/a>/);
   expect(html).toMatch(/<a\b[^>]*href="\/en\/sign-in\?purpose=admin"[^>]*>English<\/a>/);
@@ -51,7 +52,7 @@ test("[CUS-10] the French sign-in route treats an ambiguous admin query as ordin
   const html = await render(<LatinSignIn {...props} />);
 
   expect(html).toContain(`<h1 id="sign-in-title">${auth.title}</h1>`);
-  expect(html).toContain(auth.phoneDescription);
+  expect(html).toContain(auth.methodsLoading);
   expect(html).toMatch(/<a\b[^>]*href="\/ar\/sign-in"[^>]*>العربية<\/a>/);
   expect(html).not.toContain("?purpose=");
   expect(html).not.toContain(auth.adminTitle);

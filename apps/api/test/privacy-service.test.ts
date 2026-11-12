@@ -71,7 +71,7 @@ test("[CUS-24] resends the same pending delivery with a stable provider key afte
     needsDelivery: true,
   });
   repository.deliverDeletionChallenge.mockImplementation(async ({ send }) => {
-    await send(phoneE164);
+    await send({ phoneE164 });
     return true;
   });
   sendSms

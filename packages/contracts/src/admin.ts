@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./schema.js";
 import { communeListOutput, merchantApplicationInput } from "./merchant.js";
 import { pageLimit } from "./pagination.js";
 

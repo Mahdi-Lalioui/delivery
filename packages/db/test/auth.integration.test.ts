@@ -8,6 +8,7 @@ import { registerTestDatabase } from "./database.ts";
 type Repository = ReturnType<typeof createAuthRepository>;
 type Transaction = Parameters<Parameters<Repository["transaction"]>[0]>[0];
 type OtpReservation = Parameters<Transaction["reserveOtpChallenge"]>[0];
+type PhoneOtpReservation = Extract<OtpReservation, { phoneE164: string }>;
 type SessionInsertion = Parameters<Transaction["insertSession"]>[0];
 
 const database = registerTestDatabase();
@@ -47,7 +48,10 @@ function repository() {
   return createAuthRepository(database.get());
 }
 
-function reservation(serial: number, overrides: Partial<OtpReservation> = {}): OtpReservation {
+function reservation(
+  serial: number,
+  overrides: Partial<PhoneOtpReservation> = {},
+): PhoneOtpReservation {
   return {
     id: fixtureId(serial),
     phoneE164: fixturePhone(serial),
@@ -109,10 +113,13 @@ function session(
   };
 }
 
-function createUser(serial: number) {
-  return repository().transaction((tx) =>
-    tx.getOrCreateUserForSignIn({ phoneE164: fixturePhone(serial), now: instant() }),
+async function createUser(serial: number) {
+  const phoneE164 = fixturePhone(serial);
+  const user = await repository().transaction((tx) =>
+    tx.getOrCreateUserForSignIn({ phoneE164, now: instant() }),
   );
+  expect(user.phoneE164).toBe(phoneE164);
+  return { ...user, phoneE164 };
 }
 
 async function enrollAdmin(userId: string) {
@@ -138,7 +145,7 @@ test("[AUTH-02:db] cooldown is shared across OTP purposes and ends after 45 seco
   const first = reservation(100);
   expect(await reserve(first)).toEqual({
     kind: "created",
-    challenge: { id: first.id, expiresAt: instant(5 * minute), resendAt: instant(45 * second) },
+    challenge: { id: first.id, expiresAt: instant(10 * minute), resendAt: instant(45 * second) },
   });
 
   const admin = reservation(101, { phoneE164: first.phoneE164, purpose: "admin_sign_in" });
@@ -161,7 +168,7 @@ test("[AUTH-02:db] replay preserves original OTP timing and refuses purpose chan
   });
   expect(await reserve(retry)).toEqual({
     kind: "replayed",
-    challenge: { id: first.id, expiresAt: instant(5 * minute), resendAt: instant(45 * second) },
+    challenge: { id: first.id, expiresAt: instant(10 * minute), resendAt: instant(45 * second) },
   });
   expect(await reserve({ ...retry, purpose: "admin_sign_in" })).toEqual({ kind: "conflict" });
   expect(await reserve({ ...retry, phoneE164: fixturePhone(201) })).toMatchObject({
@@ -188,7 +195,7 @@ test("[AUTH-02:db] a failed SMS callback leaves the same OTP deliverable", async
     repository().deliverOtp({ id: challenge.id, now: instant(second), send }),
   ).resolves.toBe(true);
   await expect(
-    repository().deliverOtp({ id: challenge.id, now: instant(5 * minute), send }),
+    repository().deliverOtp({ id: challenge.id, now: instant(10 * minute), send }),
   ).resolves.toBe(true);
   expect(send).toHaveBeenCalledTimes(2);
 });
@@ -218,7 +225,7 @@ test("[AUTH-02:db] an unsent OTP cannot be delivered at its deadline", async () 
   await expect(reserve(challenge)).resolves.toMatchObject({ kind: "created" });
   const send = vi.fn<() => void>();
   await expect(
-    repository().deliverOtp({ id: challenge.id, now: instant(5 * minute), send }),
+    repository().deliverOtp({ id: challenge.id, now: instant(10 * minute), send }),
   ).resolves.toBe(false);
   await expect(repository().deliverOtp({ id: fixtureId(231), now: instant(), send })).resolves.toBe(
     false,
@@ -317,12 +324,12 @@ test("[AUTH-01:db] OTP expires at five minutes, with the prior millisecond still
   expect(await reserve(valid)).toMatchObject({ kind: "created" });
   expect(await reserve(expired)).toMatchObject({ kind: "created" });
 
-  expect(await redeem(valid.id, instant(5 * minute - 1))).toEqual({
+  expect(await redeem(valid.id, instant(10 * minute - 1))).toEqual({
     kind: "verified",
     phoneE164: valid.phoneE164,
     purpose: "sign_in",
   });
-  expect(await redeem(expired.id, instant(5 * minute))).toEqual({ kind: "expired" });
+  expect(await redeem(expired.id, instant(10 * minute))).toEqual({ kind: "expired" });
 });
 
 test("[AUTH-01:db] only one connection can redeem the same challenge", async () => {
@@ -406,7 +413,7 @@ test.each([
       );
     }
 
-    const now = fixture.terminal === "expired" ? instant(5 * minute) : instant();
+    const now = fixture.terminal === "expired" ? instant(10 * minute) : instant();
     for (const attempt of freshVerificationKeys) {
       await expect(
         repository().transaction((tx) => tx.redeemOtp({ challengeId, now, matchesCode, attempt })),
@@ -686,4 +693,104 @@ test("[AUTH-05:db] keyed TOTP retries share one failure and cannot issue a secon
     select key_hash from admin_verification_receipts where challenge_id = ${challengeId}
   `;
   expect(receipts).toHaveLength(2);
+});
+
+test("[AUTH-01] links a verified identifier only from the issuing session without merging accounts", async () => {
+  const auth = repository();
+  const owner = await createUser(1900);
+  const other = await createUser(1901);
+  const ownerSession = session(1900, owner.id);
+  const otherSession = session(1901, other.id);
+  const secondSession = session(1902, owner.id);
+  for (const entry of [ownerSession, otherSession, secondSession]) {
+    await auth.transaction((tx) => tx.insertSession(entry));
+  }
+  const scope = { userId: owner.id, sessionId: ownerSession.id, now: instant() };
+  const email = "link-test@example.test";
+  const { id, requestIp, idempotencyKeyHash } = reservation(1900);
+  const input = { id, requestIp, idempotencyKeyHash, codeHmac, now: instant(), email };
+  expect(await auth.transaction((tx) => tx.reserveIdentifierChange(input, scope))).toMatchObject({
+    kind: "created",
+  });
+  expect(await redeem(input.id)).toEqual({ kind: "invalid" });
+  const confirm = (sessionId: string, userId = owner.id) =>
+    auth.transaction((tx) =>
+      tx.confirmIdentifierChange({
+        ...scope,
+        userId,
+        sessionId,
+        challengeId: input.id,
+        matchesCode,
+      }),
+    );
+  expect(await confirm(otherSession.id, other.id)).toEqual({ kind: "invalid" });
+  expect(await confirm(secondSession.id)).toEqual({ kind: "invalid" });
+  expect(await confirm(ownerSession.id)).toMatchObject({
+    kind: "updated",
+    phone: owner.phoneE164,
+    email,
+  });
+  expect(await confirm(ownerSession.id)).toEqual({ kind: "consumed" });
+  const conflicting = {
+    ...input,
+    id: fixtureId(1901),
+    idempotencyKeyHash: hash("conflicting"),
+    now: instant(minute),
+  };
+  const otherScope = { userId: other.id, sessionId: otherSession.id, now: instant(minute) };
+  expect(
+    await auth.transaction((tx) => tx.reserveIdentifierChange(conflicting, otherScope)),
+  ).toMatchObject({ kind: "created" });
+  expect(
+    await auth.transaction((tx) =>
+      tx.confirmIdentifierChange({ ...otherScope, challengeId: conflicting.id, matchesCode }),
+    ),
+  ).toEqual({ kind: "identifier_unavailable" });
+  expect(await auth.readVerifiedIdentifiers(otherScope)).toEqual({
+    sessionId: otherSession.id,
+    phone: other.phoneE164,
+    email: null,
+  });
+  expect(await auth.readVerifiedIdentifiers(scope)).toEqual({
+    sessionId: ownerSession.id,
+    phone: owner.phoneE164,
+    email,
+  });
+});
+
+test("[AUTH-01] concurrent confirmations cannot attach one verified email to two accounts", async () => {
+  const auth = repository();
+  const email = "race-link@example.test";
+  const [first, second] = await Promise.all([createUser(1950), createUser(1951)]);
+  const a = session(1950, first.id);
+  const b = session(1951, second.id);
+  await auth.transaction(async (tx) => {
+    await tx.insertSession(a);
+    await tx.insertSession(b);
+  });
+  const attempt = async (entry: SessionInsertion, offset: number) => {
+    const now = instant(offset);
+    const scope = { userId: entry.userId, sessionId: entry.id, now };
+    const reservation = {
+      id: entry.id,
+      email,
+      requestIp: entry.requestIp,
+      codeHmac,
+      idempotencyKeyHash: hash(entry.id),
+      now,
+    };
+    expect(
+      await auth.transaction((tx) => tx.reserveIdentifierChange(reservation, scope)),
+    ).toMatchObject({ kind: "created" });
+    return { ...scope, challengeId: reservation.id, matchesCode, now: instant(minute) };
+  };
+  const aConfirm = await attempt(a, 0);
+  const bConfirm = await attempt(b, minute);
+  const results = await concurrently(
+    (tx) => tx.confirmIdentifierChange(aConfirm),
+    (tx) => tx.confirmIdentifierChange(bConfirm),
+  );
+  expect(results.map(({ kind }) => kind).sort()).toEqual(["identifier_unavailable", "updated"]);
+  const { sql } = database.get();
+  expect(await sql`SELECT id FROM public.users WHERE email = ${email}`).toHaveLength(1);
 });

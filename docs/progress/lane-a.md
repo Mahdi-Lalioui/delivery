@@ -282,5 +282,44 @@
 - 2026-11-12 · Ultra · Reproduced the nationwide geography findings and corrected the Oran boundary fixture to expect its official commune. Gave the full 1,541-boundary reseed test an explicit harness timeout. All nine focused PostGIS cases and trace passed.
   Next: rerun the full release checks and browser suites against the integrated build.
 
+- 2026-11-12 · Ultra · Isolated three release-suite timeouts to contention between concurrent PostGIS clones. All 314 integration tests passed with four workers. Pinned that concurrency for the shared database.
+  Next: complete the full verification run and both browser suites on the release candidate.
+
+- 2026-11-12 · Medium · Matched the mobile language control’s accessible name to its visible label and updated browser assertions for localized admin links, item options and the mobile cart. All 13 affected production-browser checks passed across the focused reruns.
+  Next: rerun the complete release and browser suites before merging the release candidate.
+
+- 2026-11-12 · High · Fixed the dark landing contrast and ran browser schemas without CSP-blocked code generation. Verified the map on Chromium and WebKit, offline caches and the responsive locale menu. Full verify passed with 1,961 unit and 314 PostGIS cases. Browser suites passed 68 authenticated and 98 general cases.
+  Next: use this release commit for a protected Vercel preview and backend staging when the host and provider credentials are available. Continue phone/email checkout and screens on lane-a.
+
 - 2026-11-12 · Ultra · Published additive phone/email OTP, identity linking and checkout contact contracts after merging the latest Lane B screens. All 207 contract tests, typecheck, build and lint passed.
   Next: extend the existing OTP transaction and rate limit to email, then verify ten-minute expiry, lockout and email TOTP against PostGIS.
+
+- 2026-11-12 · Ultra · Extended phone OTP to normalized email with ten-minute expiry, shared IP quotas and admin TOTP. Passed 32 PostGIS cases, 55 scoped unit/HTTP checks, DB/API typecheck, lint and OpenAPI check.
+  Next: extend privacy export and erasure to email and bind identifier changes to an active session. Production email remains disabled pending checkout and privacy support.
+
+- 2026-11-12 · Ultra · Added both verified identifiers to privacy export and erasure, and sent deletion OTP by email for email-only accounts. Passed 16 PostGIS privacy cases and 10 HTTP/service/contract cases, plus API/DB typecheck, lint and OpenAPI.
+  Next: bind add/change OTP to the issuing account and session and enforce exclusive ownership at confirmation.
+
+- 2026-11-12 · Ultra · Added enabled methods, verified identifier reads and session-bound add/change routes. Confirming an identifier already in use leaves both accounts intact. Passed 50 PostGIS cases, 55 authz/service cases, DB/API typecheck, lint and OpenAPI.
+  Next: configure Twilio and Resend delivery with localized messages and inspectable development outboxes.
+
+- 2026-11-12 · Ultra · Wired localized AWID OTP messages through Twilio, the existing webhook and Resend. Added the loopback email outbox and documented private provider settings. Passed 21 adapter/config/privacy cases, API typecheck, lint and OpenAPI.
+  Next: preserve the cash cap for email-only checkout and store the unverified contact number only with its order.
+
+- 2026-11-12 · Ultra · Enabled email-only quotes and placement with a separate order contact. Merchant and courier reads are scoped, the cash cap still applies, and privacy export and erasure cover the contact. Passed 40 PostGIS and 107 domain/HTTP cases plus API, DB and web typecheck.
+  Next: finish the dual-method sign-in screen, then connect account identifier changes and checkout contact entry.
+
+- 2026-11-12 · High · Connected the phone/email sign-in picker, verified account contact editor and email-only checkout contact. Passed 45 scoped UI checks and eight production-browser journeys. Saved 12 captures after two design rounds and added gallery links.
+  Next: finish the invitation and push-first notification checkpoint, then integrate the verified release baseline and rerun the full gate.
+
+- 2026-11-12 · Ultra · Completed phone/email invitations and push-first order notices. Notices fall back to verified SMS or email and never use checkout contact data. Passed 99 focused PostGIS cases, 262 authorization/HTTP checks, lint, typecheck and OpenAPI.
+  Next: merge the verified main baseline, run full verification and both production-browser suites, then publish the auth phase. Live provider and staging steps remain in HUMAN_TODO.
+
+- 2026-11-12 · Ultra · Integrated Lane B Discovery and Search, corrected invitation browser assertions and AWID font checks, and fixed CI budgets for production startup and national seeding tests. Passed pnpm verify (1,976 unit and 326 PostGIS), 72 authenticated and 98 general production browser checks, and a trusted HTTPS Docker upgrade.
+  Next: check the exact Lane A release on GitHub before advancing main. Continue with the open Discovery feed request, and use HUMAN_TODO for hosted staging and live provider verification.
+
+- 2026-11-12 · High · Fixed horizontal overflow in checkout, merchant delivery settings, promotions and share kit, and admin billing and platform. Reproduced all seven GitHub failures with the pinned Linux Chromium and passed all nine targeted production-browser tests on the fix. Reviewed the Arabic mobile checkout and delivery screens.
+  Next: wait for GitHub CI on this patch before advancing main. Hosted staging and live providers still need the inputs in HUMAN_TODO.
+
+- 2026-11-12 · High · Kept nationwide seed photo encoding results for repeats in the same process. PostGIS still proves 40 stable restaurant identities, rollback on storage failure, and republishing a missing photo. The focused run fell from 12.48s to 8.36s locally.
+  Next: wait for the updated GitHub run and advance main only after all checks pass.

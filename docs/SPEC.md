@@ -106,7 +106,7 @@ Roles: `customer`, `merchant_owner`, `merchant_manager`, `merchant_staff`, `cour
   2. review: full price breakdown with edit links for items, address, time and payment;
   3. an explicit button "Confirm order · 2 150 DA".
 
-  Use the account’s verified phone as the contact number. If the account has no verified phone, ask for an Algerian mobile number for this order. This number is unverified and can be used by the restaurant or assigned courier to call about the order. The first-order cash cap still applies.
+  Use the account’s verified phone as the contact number. If the account has no verified phone, ask for an Algerian mobile number for this order. This number is unverified and can be used by the restaurant or assigned courier to call about the order. Placement requires a reachable contact phone and a verified account identifier. The unverified order contact stays separate from account sign-in and notifications. The first-order cash cap still applies.
 
   No order exists before step 3.
 - **CUS-13** Timing and fulfilment:

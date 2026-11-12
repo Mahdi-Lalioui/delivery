@@ -60,6 +60,27 @@ const apiEnvironment = z
       .max(2048)
       .regex(/^[!-~]+$/u)
       .optional(),
+    AUTH_TWILIO_ACCOUNT_SID: z
+      .string()
+      .regex(/^AC[0-9A-Fa-f]{32}$/)
+      .optional(),
+    AUTH_TWILIO_AUTH_TOKEN: z
+      .string()
+      .min(1)
+      .max(256)
+      .regex(/^[!-~]+$/u)
+      .optional(),
+    AUTH_TWILIO_FROM: z
+      .string()
+      .regex(/^(?:\+[1-9][0-9]{6,14}|[A-Za-z0-9 ]{1,11})$/u)
+      .optional(),
+    AUTH_RESEND_API_KEY: z
+      .string()
+      .min(1)
+      .max(256)
+      .regex(/^[!-~]+$/u)
+      .optional(),
+    AUTH_RESEND_FROM: z.email().max(254).optional(),
     OSRM_INTERNAL_ORIGIN: z.string().refine(isInternalOsrmOrigin).optional(),
     VAPID_PUBLIC_KEY: pushPublicKey.optional(),
     AUTH_OTP_KEY: key,
@@ -79,6 +100,21 @@ const apiEnvironment = z
     {
       path: ["AUTH_SMS_WEBHOOK_URL"],
       message: "Set both authentication SMS variables or omit both.",
+    },
+  )
+  .refine(
+    ({ AUTH_TWILIO_ACCOUNT_SID: sid, AUTH_TWILIO_AUTH_TOKEN: token, AUTH_TWILIO_FROM: from }) =>
+      [sid, token, from].every(Boolean) || [sid, token, from].every((value) => value === undefined),
+    {
+      path: ["AUTH_TWILIO_ACCOUNT_SID"],
+      message: "Set all Twilio settings or omit all of them.",
+    },
+  )
+  .refine(
+    ({ AUTH_RESEND_API_KEY: apiKey, AUTH_RESEND_FROM: from }) => Boolean(apiKey) === Boolean(from),
+    {
+      path: ["AUTH_RESEND_FROM"],
+      message: "Set both Resend settings or omit both.",
     },
   );
 

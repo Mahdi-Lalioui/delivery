@@ -7,6 +7,7 @@ import {
   staffListOutput,
   staffRevokeOutput,
 } from "@zaafran/contracts/merchant-staff";
+import type { PublicLocale } from "@zaafran/i18n/locales";
 import { normalizeAlgerianPhone } from "@zaafran/i18n/phone";
 
 type StaffList = ReturnType<typeof staffListOutput.parse>;
@@ -79,23 +80,29 @@ export function prepareStaffInvitation(draft: {
   merchantId: string;
   expectedSessionId: string;
   phone: string;
+  method?: "phone" | "email" | undefined;
+  locale?: PublicLocale | undefined;
   role: InvitationInput["role"] | "";
   previous?: StaffInvitationAttempt | undefined;
 }):
   | { kind: "ready"; attempt: StaffInvitationAttempt }
   | { kind: "invalid"; field: "phone" | "role" } {
-  const phone = normalizeAlgerianPhone(draft.phone);
-  const result = staffInvitationInput.safeParse({ phone, role: draft.role });
-  if (!result.success) {
-    const field = result.error.issues[0]?.path[0] === "role" ? "role" : "phone";
-    return { kind: "invalid", field };
-  }
+  if (draft.role === "") return { kind: "invalid", field: "role" };
+  const destination =
+    draft.method === "email"
+      ? { email: draft.phone }
+      : { phone: normalizeAlgerianPhone(draft.phone) };
+  const result = staffInvitationInput.safeParse({
+    ...destination,
+    role: draft.role,
+    ...(draft.locale === undefined ? {} : { locale: draft.locale }),
+  });
+  if (!result.success) return { kind: "invalid", field: "phone" };
   const { merchantId, expectedSessionId, previous } = draft;
   const isSame =
     previous?.merchantId === merchantId &&
     previous.expectedSessionId === expectedSessionId &&
-    previous.input.phone === result.data.phone &&
-    previous.input.role === result.data.role;
+    JSON.stringify(previous.input) === JSON.stringify(result.data);
   if (previous && isSame) return { kind: "ready", attempt: previous };
   const attempt = { merchantId, expectedSessionId, input: result.data, key: crypto.randomUUID() };
   return { kind: "ready", attempt };

@@ -44,7 +44,8 @@ function canContinue(state: CheckoutState): boolean {
 }
 
 function canPlace(state: CheckoutState): boolean {
-  if (state.quote.kind !== "ready") return false;
+  if (state.quote.kind !== "ready" || state.contact.kind !== "ready") return false;
+  if (state.contact.required && state.contact.phone === undefined) return false;
   const tender = parseTender(state.tender);
   return tender === undefined || isTenderInRange(tender, state.quote.quote.totalDzd);
 }
@@ -153,7 +154,8 @@ function Blocked({ state, locale }: { state: CheckoutState; locale: Locale }) {
   const isSignIn =
     state.addresses.kind === "sign-in" ||
     state.quote.kind === "sign-in" ||
-    state.place.kind === "sign-in";
+    state.place.kind === "sign-in" ||
+    state.contact.kind === "sign-in";
   if (isSignIn)
     return (
       <EmptyState
@@ -190,6 +192,7 @@ function StepBody({ state, locale }: { state: CheckoutState; locale: Locale }) {
       {state.step === 2 && <TimingStep state={state} />}
       {state.step === 3 && <PaymentStep state={state} locale={locale} />}
       {place.kind === "expired" && <p role="alert">{translate("expired")}</p>}
+      {place.kind === "cash-limit" && <p role="alert">{translate("cashLimit")}</p>}
       {place.kind === "error" && <p role="alert">{translate("error")}</p>}
     </div>
   );
@@ -197,7 +200,9 @@ function StepBody({ state, locale }: { state: CheckoutState; locale: Locale }) {
 
 function isCheckoutBlocked(state: CheckoutState): boolean {
   if (state.cart === undefined || state.cart === null) return true;
-  return [state.addresses.kind, state.quote.kind, state.place.kind].includes("sign-in");
+  return [state.addresses.kind, state.quote.kind, state.place.kind, state.contact.kind].includes(
+    "sign-in",
+  );
 }
 
 /** CUS-13 / CUS-14 / ORD-01 checkout view (page and design gallery). */

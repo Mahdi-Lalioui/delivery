@@ -386,6 +386,34 @@
       "when": 1794145800000,
       "tag": "0054_merchant_review_commands",
       "breakpoints": true
+    },
+    {
+      "idx": 55,
+      "version": "7",
+      "when": 1794146400000,
+      "tag": "0055_auth_email",
+      "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "7",
+      "when": 1794146460000,
+      "tag": "0056_auth_identifier_change",
+      "breakpoints": true
+    },
+    {
+      "idx": 57,
+      "version": "7",
+      "when": 1794146520000,
+      "tag": "0057_order_contact_phone",
+      "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "7",
+      "when": 1794146580000,
+      "tag": "0058_email_invitations",
+      "breakpoints": true
     }
   ]
 }

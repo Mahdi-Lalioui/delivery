@@ -1,6 +1,6 @@
 import { localeDetails, type Locale } from "@zaafran/i18n/locales";
 import { getMessages } from "@zaafran/i18n/messages";
-import { ToastProvider } from "@zaafran/ui";
+import { ButtonLink, ToastProvider } from "@zaafran/ui";
 import "@zaafran/ui/ui.css";
 import { NextIntlClientProvider } from "next-intl";
 import { SiteShell } from "../../components/site-shell";
@@ -59,6 +59,17 @@ export function GalleryPage({
                 <p className="ui-page-intro">{messages.designGallery.intro}</p>
               </div>
             </header>
+            <nav className="ui-page-header" aria-label={messages.designGallery.screens}>
+              <ButtonLink variant="secondary" href={`/${locale}/sign-in`}>
+                {messages.auth.title}
+              </ButtonLink>
+              <ButtonLink variant="secondary" href={`/${locale}/account`}>
+                {messages.accountHub.title}
+              </ButtonLink>
+              <ButtonLink variant="secondary" href={`/${locale}/checkout`}>
+                {messages.checkout.title}
+              </ButtonLink>
+            </nav>
             <SystemShowcase copy={messages.designGallery} />
             <OperationsGallery
               locale={locale}

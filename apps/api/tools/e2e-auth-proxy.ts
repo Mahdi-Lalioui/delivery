@@ -1,8 +1,13 @@
 import { execFile } from "node:child_process";
 import { once } from "node:events";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
-import { request, type IncomingMessage, type ServerResponse } from "node:http";
-import { createServer } from "node:https";
+import {
+  createServer as createHttpServer,
+  request,
+  type IncomingMessage,
+  type ServerResponse,
+} from "node:http";
+import { createServer as createHttpsServer } from "node:https";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
@@ -39,7 +44,11 @@ async function certificate() {
   }
 }
 
-function forward(incoming: IncomingMessage, response: ServerResponse, target: URL): void {
+function forward(
+  incoming: IncomingMessage,
+  response: ServerResponse,
+  { target, protocol }: { target: URL; protocol: "http" | "https" },
+): void {
   const upstream = request(
     target,
     {
@@ -48,7 +57,7 @@ function forward(incoming: IncomingMessage, response: ServerResponse, target: UR
       headers: {
         ...incoming.headers,
         "x-forwarded-host": incoming.headers.host,
-        "x-forwarded-proto": "https",
+        "x-forwarded-proto": protocol,
       },
     },
     (result) => {
@@ -65,18 +74,22 @@ function forward(incoming: IncomingMessage, response: ServerResponse, target: UR
   incoming.pipe(upstream);
 }
 
-export async function startAuthProxy(webOrigin: string) {
+export async function startAuthProxy(webOrigin: string, protocol: "http" | "https" = "https") {
   const web = new URL(webOrigin);
   if (web.protocol !== "http:" || web.hostname !== loopback) {
     throw new Error("The authentication test proxy requires a loopback web server.");
   }
   let api: URL | undefined;
-  const server = createServer(await certificate(), (incoming, response) => {
+  const handle = (incoming: IncomingMessage, response: ServerResponse) => {
     const path = incoming.url?.split("?", 1)[0];
     const target = path === "/v1" || path?.startsWith("/v1/") ? api : web;
     if (target === undefined) response.writeHead(503).end();
-    else forward(incoming, response, target);
-  });
+    else forward(incoming, response, { target, protocol });
+  };
+  const server =
+    protocol === "https"
+      ? createHttpsServer(await certificate(), handle)
+      : createHttpServer(handle);
   server.listen(0, loopback);
   await once(server, "listening");
   const address = server.address();
@@ -85,7 +98,7 @@ export async function startAuthProxy(webOrigin: string) {
     throw new Error("The authentication test proxy has no TCP address.");
   }
   return {
-    origin: `https://${loopback}:${address.port.toString()}`,
+    origin: `${protocol}://${loopback}:${address.port.toString()}`,
     connectApi(port: number) {
       api = new URL(`http://${loopback}:${port.toString()}`);
     },

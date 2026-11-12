@@ -11,13 +11,18 @@ export function matchesDeletionDigest(stored: Uint8Array, supplied: Uint8Array):
   return stored.length === supplied.length && timingSafeEqual(stored, supplied);
 }
 
-export async function readPrivacyPhone(
+export interface PrivacyIdentifiers {
+  readonly phoneE164: string | null;
+  readonly email: string | null;
+}
+
+export async function readPrivacyIdentifiers(
   sql: ISql,
   { userId, sessionId, now }: PrivacyScope,
-): Promise<string | undefined> {
+): Promise<PrivacyIdentifiers | undefined> {
   const timestamp = now.toISOString();
-  const [row] = await sql<{ phoneE164: string }[]>`
-    SELECT account.phone_e164 AS "phoneE164"
+  const [row] = await sql<PrivacyIdentifiers[]>`
+    SELECT account.phone_e164 AS "phoneE164", account.email
     FROM public.users AS account
     JOIN public.sessions AS session ON session.user_id = account.id
     WHERE account.id = ${userId} AND account.blocked_at IS NULL AND account.deleted_at IS NULL
@@ -25,13 +30,13 @@ export async function readPrivacyPhone(
       AND session.revoked_at IS NULL
       AND session.created_at <= ${timestamp} AND session.expires_at > ${timestamp}
   `;
-  return row?.phoneE164;
+  return row;
 }
 
 async function lockPrivacyAccount(
   sql: TransactionSql,
   scope: PrivacyScope,
-): Promise<string | undefined> {
+): Promise<PrivacyIdentifiers | undefined> {
   // Account-wide revocation and session issuance use this lock as well.
   const [account] = await sql`
     SELECT id FROM public.users
@@ -39,15 +44,15 @@ async function lockPrivacyAccount(
     FOR UPDATE
   `;
   if (!account) return undefined;
-  return readPrivacyPhone(sql, scope);
+  return readPrivacyIdentifiers(sql, scope);
 }
 
 export async function lockDeletableAccount(
   sql: TransactionSql,
   scope: PrivacyScope,
-): Promise<string | undefined> {
-  const phone = await lockPrivacyAccount(sql, scope);
-  if (!phone) return undefined;
+): Promise<PrivacyIdentifiers | undefined> {
+  const identifiers = await lockPrivacyAccount(sql, scope);
+  if (!identifiers) return undefined;
   // A normal OTP can also start a standard session for a privileged account.
   const [privileged] = await sql`
     SELECT FROM public.admins WHERE user_id = ${scope.userId}
@@ -57,5 +62,5 @@ export async function lockDeletableAccount(
     SELECT FROM public.couriers WHERE user_id = ${scope.userId} AND active
     LIMIT 1
   `;
-  return privileged ? undefined : phone;
+  return privileged ? undefined : identifiers;
 }

@@ -1,10 +1,16 @@
 import type { TransactionSql } from "postgres";
 import { insertAdminChallenge, redeemAdminChallenge } from "./auth-admin.js";
+import {
+  confirmIdentifierChange,
+  readVerifiedIdentifiers,
+  reserveIdentifierChange,
+} from "./auth-identifiers.js";
 import { deliverOtp, redeemOtp, reserveOtpChallenge, type OtpDelivery } from "./auth-otp.js";
 import {
   getOrCreateUserForSignIn,
   insertSession,
   listSessions,
+  lockUserByEmail,
   lockUserByPhone,
   resolveSession,
   revokeSessions,
@@ -12,6 +18,7 @@ import {
 import type { DatabaseConnection } from "./database.js";
 
 export type {
+  AuthIdentifier,
   AuthPurpose,
   AuthTransport,
   AuthUser,
@@ -22,9 +29,12 @@ export type {
 
 function createTransaction(sql: TransactionSql) {
   return {
+    reserveIdentifierChange: reserveIdentifierChange.bind(undefined, sql),
+    confirmIdentifierChange: confirmIdentifierChange.bind(undefined, sql),
     reserveOtpChallenge: reserveOtpChallenge.bind(undefined, sql),
     redeemOtp: redeemOtp.bind(undefined, sql),
     getOrCreateUserForSignIn: getOrCreateUserForSignIn.bind(undefined, sql),
+    lockUserByEmail: lockUserByEmail.bind(undefined, sql),
     lockUserByPhone: lockUserByPhone.bind(undefined, sql),
     insertAdminChallenge: insertAdminChallenge.bind(undefined, sql),
     redeemAdminChallenge: redeemAdminChallenge.bind(undefined, sql),
@@ -47,6 +57,7 @@ export function createAuthRepository(database: DatabaseConnection) {
     deliverOtp(input: OtpDelivery): Promise<boolean> {
       return sql.begin((transaction) => deliverOtp(transaction, input));
     },
+    readVerifiedIdentifiers: readVerifiedIdentifiers.bind(undefined, sql),
     resolveSession: resolveSession.bind(undefined, sql),
     listSessions: listSessions.bind(undefined, sql),
   };

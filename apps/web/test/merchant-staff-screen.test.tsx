@@ -88,7 +88,10 @@ test("[MER-23:web] offers a labelled invite form with only the manager and staff
   expect(html).toMatch(
     /<input(?=[^>]*id="staff-invite-phone")(?=[^>]*type="tel")(?=[^>]*dir="ltr")/,
   );
-  expect(html.match(/type="radio"/g)).toHaveLength(2);
+  expect(html.match(/<input(?=[^>]*type="radio")(?=[^>]*name="role")[^>]*>/g)).toHaveLength(2);
+  expect(
+    html.match(/<input(?=[^>]*type="radio")(?=[^>]*name="staff-invite-method")[^>]*>/g),
+  ).toHaveLength(2);
   expect(html).toContain('value="manager"');
   expect(html).toContain('value="staff"');
   expect(html).not.toContain('value="owner"');

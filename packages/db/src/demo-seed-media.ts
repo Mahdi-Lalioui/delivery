@@ -18,12 +18,19 @@ export interface DemoPhoto {
   }[];
 }
 
-export async function publishDemoPhoto(
-  store: MediaStore,
-  menu: DemoMenu,
-  kind: DemoPhoto["kind"],
-): Promise<DemoPhoto> {
-  // Original synthetic illustrations are 640×480 PNGs kept with the seed.
+type PreparedPhoto = {
+  original: Buffer;
+  crop: Extract<Awaited<ReturnType<typeof cropPhoto>>, { status: "cropped" }>;
+};
+
+// Only checked-in seed fixtures are cached. Each run still republishes the immutable objects.
+const preparedPhotos = new Map<string, PreparedPhoto>();
+
+async function prepareDemoPhoto(menu: DemoMenu, kind: DemoPhoto["kind"]): Promise<PreparedPhoto> {
+  const key = `${kind}/${menu}`;
+  const prepared = preparedPhotos.get(key);
+  if (prepared) return prepared;
+
   const original = await readFile(new URL(`../fixtures/demo-menu/${menu}.png`, import.meta.url));
   const crop = await cropPhoto({
     bytes: original,
@@ -32,7 +39,17 @@ export async function publishDemoPhoto(
     crop: { focalX: 5000, focalY: 5000, zoomPercent: 100 },
   });
   if (crop.status !== "cropped") throw new Error(`Invalid demo menu image: ${menu}.`);
+  const photo = { original, crop };
+  preparedPhotos.set(key, photo);
+  return photo;
+}
 
+export async function publishDemoPhoto(
+  store: MediaStore,
+  menu: DemoMenu,
+  kind: DemoPhoto["kind"],
+): Promise<DemoPhoto> {
+  const { original, crop } = await prepareDemoPhoto(menu, kind);
   const variants = [];
   for (const { format, width, height, bytes } of crop.variants) {
     const digest = createHash("sha256").update(bytes).digest();

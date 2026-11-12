@@ -19,9 +19,19 @@ const locales = [
 
 function navigationLink(page: Page, href: string) {
   return page
+    .getByRole("banner")
     .getByRole("navigation")
     .getByRole("link")
     .and(page.locator(`a[href="${href}"]`));
+}
+
+async function openMobileLanguages(page: Page) {
+  const disclosure = page.getByRole("banner").locator("summary");
+  if (await disclosure.isVisible()) {
+    await disclosure.focus();
+    await expect(disclosure).toBeFocused();
+    await disclosure.press("Enter");
+  }
 }
 
 async function expectRootRedirect(
@@ -52,6 +62,7 @@ for (const { prefix, lang, dir } of locales) {
     await expect(page.locator("html")).toHaveAttribute("lang", lang);
     await expect(page.locator("html")).toHaveAttribute("dir", dir);
 
+    await openMobileLanguages(page);
     for (const alternate of locales) {
       const metadata = page.locator(`link[rel="alternate"][hreflang="${alternate.lang}"]`);
       await expect(metadata).toHaveAttribute("href", new RegExp(`/${alternate.prefix}/?$`));
@@ -83,6 +94,7 @@ test("[I18N-01] keyboard language navigation preserves the design guide path @sm
   page,
 }) => {
   await page.goto("/ar/dev/design");
+  await openMobileLanguages(page);
   const french = navigationLink(page, "/fr/dev/design");
   await expect(french).toBeVisible();
   expect(await french.evaluate((node) => node.tabIndex)).toBeGreaterThanOrEqual(0);
@@ -138,13 +150,39 @@ test("[M0-8] the Arabic and Latin guides load four self-hosted fonts @smoke", as
     page.on("response", recordFont);
     try {
       await page.goto(`/${locale}/dev/design`);
-      const loadedFamilies = await page.evaluate(async () => {
-        await document.fonts.ready;
-        return [...document.fonts]
-          .filter((font) => font.status === "loaded")
-          .map((font) => font.family);
+      const fonts = await page.evaluate(async (language) => {
+        const body = getComputedStyle(document.body);
+        const headingElement = document.querySelector("h1");
+        if (!headingElement) throw new Error("The design guide heading is missing.");
+        const heading = getComputedStyle(headingElement);
+        const family = body
+          .getPropertyValue(language === "ar" ? "--font-ibm-plex-sans-arabic" : "--font-poppins")
+          .split(",")[0]
+          ?.trim();
+        if (!family) throw new Error("The brand font variable is missing.");
+        const firstFamily = (value: string) => value.split(",")[0]?.trim().replace(/['"]/gu, "");
+        const sample = language === "ar" ? "مرحبا بكم" : "Bienvenue à Alger";
+        const bodyWeight = "400";
+        const headingWeight = language === "ar" ? "600" : "700";
+        const load = async (weight: string) =>
+          (await document.fonts.load(`${weight} 20px ${family}`, sample)).some(
+            (face) => face.weight === weight && face.status === "loaded",
+          );
+        return {
+          bodyUsesBrand: firstFamily(body.fontFamily) === firstFamily(family),
+          headingUsesBrand: Boolean(
+            family && firstFamily(heading.fontFamily) === firstFamily(family),
+          ),
+          bodyLoaded: await load(bodyWeight),
+          headingLoaded: await load(headingWeight),
+        };
+      }, locale);
+      expect(fonts).toEqual({
+        bodyUsesBrand: true,
+        headingUsesBrand: true,
+        bodyLoaded: true,
+        headingLoaded: true,
       });
-      expect(new Set(loadedFamilies).size).toBeGreaterThanOrEqual(2);
     } finally {
       page.off("response", recordFont);
     }
@@ -201,8 +239,8 @@ test("[M0-8] the public production build excludes both design guide routes @smok
 
 const themes: readonly ("light" | "dark")[] = ["light", "dark"];
 const backgrounds = {
-  light: { token: "#FBF8F3", painted: "rgb(251, 248, 243)" },
-  dark: { token: "#0E0C0A", painted: "rgb(14, 12, 10)" },
+  light: { token: "#FFFCF5", painted: "rgb(255, 252, 245)" },
+  dark: { token: "#05221A", painted: "rgb(5, 34, 26)" },
 };
 
 async function checkScreen(
@@ -214,7 +252,9 @@ async function checkScreen(
   const response = await page.goto(screen.path);
   expect(response?.status()).toBe(200);
   await expect(page.getByRole("banner")).toBeVisible();
-  await expect(page.getByRole("navigation")).toBeVisible();
+  await openMobileLanguages(page);
+  await expect(page.getByRole("banner").getByRole("navigation")).toBeVisible();
+  await openMobileLanguages(page);
   await expect(page.getByRole("main").getByRole("heading", { level: 1 })).toBeVisible();
 
   const background = await page.evaluate(() => {

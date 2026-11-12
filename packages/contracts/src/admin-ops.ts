@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./schema.js";
 import { adminMerchantReviewInput } from "./admin.js";
 import { adminBillingSettingsInput } from "./billing.js";
 import { pageLimit } from "./pagination.js";

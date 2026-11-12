@@ -1,5 +1,5 @@
 import type { TransactionSql } from "postgres";
-import { lockOtpPhone } from "./auth-otp-lock.js";
+import { lockOtpIdentifier } from "./auth-otp-lock.js";
 import type { DatabaseConnection } from "./database.js";
 
 type InvitedRole = "manager" | "staff";
@@ -9,19 +9,22 @@ interface OwnerScope {
   readonly merchantId: string;
 }
 
-export interface StaffInvitationCreate extends OwnerScope {
-  readonly phone: string;
-  readonly role: InvitedRole;
-  readonly tokenHash: Uint8Array;
-  readonly idempotencyKeyHash: Uint8Array;
-  readonly requestHash: Uint8Array;
-  readonly now: Date;
-}
+type Destination = { phone: string; email?: never } | { email: string; phone?: never };
+
+export type StaffInvitationCreate = OwnerScope &
+  Destination & {
+    readonly role: InvitedRole;
+    readonly tokenHash: Uint8Array;
+    readonly idempotencyKeyHash: Uint8Array;
+    readonly requestHash: Uint8Array;
+    readonly now: Date;
+  };
 
 interface StaffInvitation {
   readonly invitationId: string;
   readonly merchantId: string;
-  readonly phoneE164: string;
+  readonly phoneE164?: string;
+  readonly email?: string;
   readonly role: InvitedRole;
   readonly status: "pending";
   readonly expiresAt: string;
@@ -29,14 +32,16 @@ interface StaffInvitation {
 
 interface StaffMember {
   readonly userId: string;
-  readonly phoneE164: string;
+  readonly phoneE164?: string;
+  readonly email?: string;
   readonly role: "owner" | InvitedRole;
   readonly isSelf: boolean;
 }
 
 interface OpenInvitationRow {
   readonly invitationId: string;
-  readonly phoneE164: string;
+  readonly phoneE164?: string;
+  readonly email?: string;
   readonly role: InvitedRole;
   readonly createdAt: string;
   readonly expiresAt: string;
@@ -52,6 +57,22 @@ type CreateResult =
   | { readonly kind: "not_found" | "idempotency_conflict" | "already_member" | "already_invited" };
 
 const invitationDays = 7;
+
+type ContactRow<T> = Omit<T, "phoneE164" | "email"> & {
+  phoneE164: string | null;
+  email: string | null;
+};
+function presentContact<T>({
+  phoneE164,
+  email,
+  ...row
+}: T & { phoneE164: string | null; email: string | null }) {
+  return {
+    ...row,
+    ...(phoneE164 === null ? {} : { phoneE164 }),
+    ...(email === null ? {} : { email }),
+  };
+}
 
 /** D-015: only an owner of an approved, active or paused restaurant manages its staff. */
 async function lockOwnedMerchant(sql: TransactionSql, { accountId, merchantId }: OwnerScope) {
@@ -73,9 +94,9 @@ async function lockOwnedMerchant(sql: TransactionSql, { accountId, merchantId }:
 }
 
 async function readReplay(sql: TransactionSql, request: StaffInvitationCreate) {
-  const [row] = await sql<(StaffInvitation & { matches: boolean; isOpen: boolean })[]>`
+  const [row] = await sql<(ContactRow<StaffInvitation> & { matches: boolean; isOpen: boolean })[]>`
     SELECT request_hash = ${request.requestHash} AS matches, id AS "invitationId",
-      merchant_id AS "merchantId", phone_e164 AS "phoneE164", role, 'pending' AS status,
+      merchant_id AS "merchantId", phone_e164 AS "phoneE164", email, role, 'pending' AS status,
       to_char(expires_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS "expiresAt",
       (consumed_at IS NULL AND revoked_at IS NULL
         AND expires_at > ${request.now.toISOString()}::timestamptz) AS "isOpen"
@@ -94,40 +115,41 @@ async function readReplay(sql: TransactionSql, request: StaffInvitationCreate) {
       WHERE id = ${invitation.invitationId} AND token_hash IS DISTINCT FROM ${request.tokenHash}
     `;
   }
-  return { kind: "replayed" as const, invitation, isOpen };
+  return { kind: "replayed" as const, invitation: presentContact(invitation), isOpen };
 }
 
-async function isMember(sql: TransactionSql, { merchantId, phone }: StaffInvitationCreate) {
+async function isMember(sql: TransactionSql, { merchantId, phone, email }: StaffInvitationCreate) {
   const [member] = await sql`
     SELECT FROM public.merchant_members AS member
     JOIN public.users AS account ON account.id = member.user_id
-    WHERE member.merchant_id = ${merchantId} AND account.phone_e164 = ${phone}
+    WHERE member.merchant_id = ${merchantId} AND (account.phone_e164 = ${phone ?? null} OR account.email = ${email ?? null})
   `;
   return member !== undefined;
 }
 
 async function insertInvitation(sql: TransactionSql, request: StaffInvitationCreate) {
-  const { merchantId, phone, now } = request;
+  const { merchantId, now } = request;
+  const phone = request.phone ?? null;
+  const email = request.email ?? null;
   // An expired open invitation no longer holds the phone's open slot.
   await sql`
     UPDATE public.merchant_staff_invitations SET revoked_at = ${now.toISOString()}::timestamptz
-    WHERE merchant_id = ${merchantId} AND phone_e164 = ${phone}
+    WHERE merchant_id = ${merchantId} AND (phone_e164 = ${phone} OR email = ${email})
       AND consumed_at IS NULL AND revoked_at IS NULL AND expires_at <= ${now.toISOString()}::timestamptz
   `;
   const expiresAt = new Date(now.getTime() + invitationDays * 86_400_000).toISOString();
-  const [row] = await sql<StaffInvitation[]>`
+  const [row] = await sql<ContactRow<StaffInvitation>[]>`
     INSERT INTO public.merchant_staff_invitations
-      (merchant_id, phone_e164, role, token_hash, invited_by, key_hash, request_hash,
+      (merchant_id, phone_e164, email, role, token_hash, invited_by, key_hash, request_hash,
         created_at, expires_at)
-    VALUES (${merchantId}, ${phone}, ${request.role}, ${request.tokenHash}, ${request.accountId},
+    VALUES (${merchantId}, ${phone}, ${email}, ${request.role}, ${request.tokenHash}, ${request.accountId},
       ${request.idempotencyKeyHash}, ${request.requestHash}, ${now.toISOString()}::timestamptz,
       ${expiresAt}::timestamptz)
-    ON CONFLICT (merchant_id, phone_e164) WHERE consumed_at IS NULL AND revoked_at IS NULL
-      DO NOTHING
-    RETURNING id AS "invitationId", merchant_id AS "merchantId", phone_e164 AS "phoneE164",
+    ON CONFLICT DO NOTHING
+    RETURNING id AS "invitationId", merchant_id AS "merchantId", phone_e164 AS "phoneE164", email,
       role, 'pending' AS status, to_char(expires_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS "expiresAt"
   `;
-  return row;
+  return row && presentContact(row);
 }
 
 async function createInvitation(
@@ -135,7 +157,7 @@ async function createInvitation(
   request: StaffInvitationCreate,
 ): Promise<CreateResult> {
   // Account deletion clears invitations for the target phone under the same lock.
-  await lockOtpPhone(sql, request.phone);
+  await lockOtpIdentifier(sql, request.email ?? request.phone);
   if (!(await lockOwnedMerchant(sql, request))) return { kind: "not_found" };
   const replay = await readReplay(sql, request);
   if (replay) return replay;
@@ -155,8 +177,8 @@ async function listStaff(sql: TransactionSql, scope: OwnerScope & { readonly now
       AND account.blocked_at IS NULL AND account.deleted_at IS NULL
   `;
   if (!owner) return undefined;
-  const members = await sql<StaffMember[]>`
-    SELECT member.user_id AS "userId", account.phone_e164 AS "phoneE164", member.role,
+  const members = await sql<ContactRow<StaffMember>[]>`
+    SELECT member.user_id AS "userId", account.phone_e164 AS "phoneE164", CASE WHEN account.phone_e164 IS NULL THEN account.email END AS email, member.role,
       member.user_id = ${accountId} AS "isSelf"
     FROM public.merchant_members AS member
     JOIN public.users AS account ON account.id = member.user_id
@@ -164,8 +186,8 @@ async function listStaff(sql: TransactionSql, scope: OwnerScope & { readonly now
     ORDER BY array_position(array['owner', 'manager', 'staff'], member.role), member.user_id
     LIMIT 50
   `;
-  const invitations = await sql<OpenInvitationRow[]>`
-    SELECT id AS "invitationId", phone_e164 AS "phoneE164", role,
+  const invitations = await sql<ContactRow<OpenInvitationRow>[]>`
+    SELECT id AS "invitationId", phone_e164 AS "phoneE164", email, role,
       to_char(created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS "createdAt", to_char(expires_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS "expiresAt"
     FROM public.merchant_staff_invitations
     WHERE merchant_id = ${merchantId} AND consumed_at IS NULL AND revoked_at IS NULL
@@ -173,7 +195,7 @@ async function listStaff(sql: TransactionSql, scope: OwnerScope & { readonly now
     ORDER BY created_at, id
     LIMIT 50
   `;
-  return { members: [...members], invitations: [...invitations] };
+  return { members: members.map(presentContact), invitations: invitations.map(presentContact) };
 }
 
 type RevokeRequest = OwnerScope & { readonly invitationId: string; readonly now: Date };
@@ -223,8 +245,8 @@ async function acceptInvitation(
   request: AcceptRequest,
 ): Promise<AcceptResult> {
   const { accountId, tokenHash, now } = request;
-  const [account] = await sql<{ phone: string }[]>`
-    SELECT phone_e164 AS phone FROM public.users
+  const [account] = await sql<{ phone: string | null; email: string | null }[]>`
+    SELECT phone_e164 AS phone, email FROM public.users
     WHERE id = ${accountId} AND blocked_at IS NULL AND deleted_at IS NULL FOR SHARE
   `;
   if (!account) return { kind: "not_found" };
@@ -234,7 +256,7 @@ async function acceptInvitation(
       merchant.restaurant_name AS "restaurantName", invitation.role
     FROM public.merchant_staff_invitations AS invitation
     JOIN public.merchants AS merchant ON merchant.id = invitation.merchant_id
-    WHERE invitation.token_hash = ${tokenHash} AND invitation.phone_e164 = ${account.phone}
+    WHERE invitation.token_hash = ${tokenHash} AND (invitation.phone_e164 = ${account.phone} OR invitation.email = ${account.email})
       AND invitation.consumed_at IS NULL AND invitation.revoked_at IS NULL
       AND invitation.expires_at > ${now.toISOString()}::timestamptz
       AND merchant.status IN ('approved', 'active', 'paused')

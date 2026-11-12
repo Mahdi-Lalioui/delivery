@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./schema.js";
 import { publicRestaurantCard } from "./feed.js";
 import { menuItemInput } from "./menu.js";
 

@@ -1,7 +1,7 @@
 import type { TransactionSql } from "postgres";
 
-export async function lockOtpPhone(sql: TransactionSql, phoneE164: string): Promise<void> {
-  await sql`SELECT pg_advisory_xact_lock(63840, hashtext(${phoneE164}))`;
+export async function lockOtpIdentifier(sql: TransactionSql, value: string): Promise<void> {
+  await sql`SELECT pg_advisory_xact_lock(63840, hashtext(${value}))`;
 }
 
 export async function normalizeOtpIp(sql: TransactionSql, requestIp: string): Promise<string> {

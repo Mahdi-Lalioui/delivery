@@ -1,4 +1,4 @@
-import { orderQuoteInput, type orderPlacementInput } from "@zaafran/contracts/orders";
+import { orderQuoteInput, type orderPlacementWithContactInput } from "@zaafran/contracts/orders";
 import { dzd } from "@zaafran/domain/money";
 import { transition } from "@zaafran/domain/order-transition";
 import { calculateChange } from "@zaafran/domain/pricing";
@@ -55,7 +55,7 @@ import {
 
 type PlacementRequest = {
   customerId: string;
-  input: ReturnType<typeof orderPlacementInput.parse>;
+  input: ReturnType<typeof orderPlacementWithContactInput.parse>;
   idempotencyKey: string;
   now: Date;
 };
@@ -116,7 +116,8 @@ function checkTender(totalDzd: PricedQuote["price"]["totalDzd"], tender: number 
 
 async function placeOrder(sql: TransactionSql, request: PlacementRequest) {
   const { customerId, now, input, idempotencyKey } = request;
-  if (!(await lockOrderingCustomer(sql, customerId))) return { kind: "unauthorized" } as const;
+  const account = await lockOrderingCustomer(sql, customerId);
+  if (!account) return { kind: "unauthorized" } as const;
   const key = {
     customerId,
     now,
@@ -126,6 +127,7 @@ async function placeOrder(sql: TransactionSql, request: PlacementRequest) {
         input.quoteId.toLowerCase(),
         input.payingWithDzd ?? null,
         ...(input.locale && input.locale !== "fr" ? [input.locale] : []),
+        ...(input.contactPhone === undefined ? [] : [{ contactPhone: input.contactPhone }]),
       ]),
     ),
   };
@@ -137,7 +139,11 @@ async function placeOrder(sql: TransactionSql, request: PlacementRequest) {
 
   const quote = await loadPlacementQuote(sql, request);
   if (quote.kind !== "valid") return quote;
-  return completePlacement(sql, request, { quote, key });
+  return completePlacement(sql, request, {
+    quote,
+    key,
+    contactPhone: account.phoneE164 ?? input.contactPhone,
+  });
 }
 
 type ValidQuote = Extract<Awaited<ReturnType<typeof loadPlacementQuote>>, { kind: "valid" }>;
@@ -145,7 +151,15 @@ type ValidQuote = Extract<Awaited<ReturnType<typeof loadPlacementQuote>>, { kind
 async function completePlacement(
   sql: TransactionSql,
   request: PlacementRequest,
-  { quote, key }: { quote: ValidQuote; key: Parameters<typeof savePlacementReceipt>[1] },
+  {
+    quote,
+    key,
+    contactPhone,
+  }: {
+    quote: ValidQuote;
+    key: Parameters<typeof savePlacementReceipt>[1];
+    contactPhone: string | undefined;
+  },
 ) {
   const { customerId, now, input, idempotencyKey } = request;
   const { totalDzd } = quote.evaluated.price;
@@ -153,6 +167,7 @@ async function completePlacement(
   if (payingWithDzd === undefined) return { kind: "invalid_change" } as const;
   const policy = await readOrderPolicy(sql, customerId);
   if (!policy.hasCompleted && totalDzd > policy.cashCap) return { kind: "cash_limit" } as const;
+  if (contactPhone === undefined) return { kind: "contact_phone_required" } as const;
   const result = transition({
     order: null,
     actor: { kind: "customer", id: customerId },
@@ -172,7 +187,7 @@ async function completePlacement(
           isInsideServiceArea: true,
           isInsideDeliveryZone: quote.evaluated.address !== null,
           meetsMinimumOrder: true,
-          hasVerifiedPhone: true,
+          hasContactPhone: true,
           isWithinCashLimit: true,
           isCustomerBlocked: false,
           schedule: placementSchedule(quote.input.timing, now.getTime(), {
@@ -193,6 +208,7 @@ async function completePlacement(
     payingWithDzd,
     confirmByPhone: policy.confirmByPhone,
     locale: input.locale ?? "fr",
+    contactPhone,
   });
   await appendOrderEvent(sql, event);
   await enqueueOrderTimer(sql, order);

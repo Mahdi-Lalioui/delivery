@@ -4,7 +4,9 @@ Draft for the engineering team. Complete retention rules, processor agreements a
 
 | Data class | Intended use | Retention decision |
 |---|---|---|
+| Verified phone and email | Sign-in, account recovery and operational notifications | Export both and remove both on account erasure |
 | OTP challenges and sessions | Authenticate and revoke access | Confirm OTP and expired session cleanup in M7 |
+| Order contact phone | Allow the restaurant and assigned courier to call about an order | Keep separate from account identifiers, include in account export and clear on erasure |
 | Address, pin and voice note | Fulfill the customer's order | Apply the SPEC retention windows and prove deletion jobs |
 | Courier position events | Live tracking and delivery support | Assigned active driver writes only. Breadcrumbs expire after 30 days and customer account erasure removes its orders’ positions. |
 | Delivery proof photo | Resolve delivery without a recipient code | The active assigned driver can upload. After submission, access is limited to restaurant members. The worker purges the image and free-text reason after 30 days or on account erasure. |
@@ -16,14 +18,13 @@ Record each processor, the fields it receives, access controls, deletion behavio
 
 ## Customer account deletion
 
-The customer requests a fresh OTP for the phone already on the account. The challenge and
-its send receipt expire together. The server caps incorrect attempts and rate-limits sends
+The customer requests a fresh OTP for their verified phone when SMS is available, or for their verified email. The challenge and its send receipt expire together. The server caps incorrect attempts and rate-limits sends
 by account and keyed IP digest. A completed request can be replayed only with the original
 session credential, challenge and OTP for five minutes after deletion. This proof is
 separate from the challenge issuance key, which expires with the OTP.
 
-Successful deletion removes the account phone and revokes every stored web and bearer
-session. Deletion removes redeemable sign-in challenges while their keyed rate history
+Successful deletion removes both verified identifiers, revokes every stored web and
+bearer session and removes push subscriptions. Deletion removes redeemable sign-in challenges while their keyed rate history
 remains for the existing throttle windows. A worker removes unattached application
 media records and recorded objects after queued image processing, and prunes expired
 privacy proofs and rate history. The audit record keeps the opaque account ID, action

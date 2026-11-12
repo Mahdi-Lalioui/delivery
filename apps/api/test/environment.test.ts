@@ -113,3 +113,26 @@ test("accepts paired HTTPS authentication SMS credentials without embedded crede
     expect(() => readApiEnvironment({ ...base, ...sms, AUTH_SMS_WEBHOOK_URL: url })).toThrow();
   }
 });
+
+test("requires complete Twilio and Resend settings before enabling delivery", () => {
+  const base = {
+    DATABASE_URL: "postgresql://zaafran:fixture@127.0.0.1:5432/zaafran_test",
+    AUTH_PUBLIC_ORIGIN: "https://awid.example.test",
+    AUTH_OTP_KEY: "01".repeat(32),
+    AUTH_TOTP_KEY: "02".repeat(32),
+  };
+  const twilio = {
+    AUTH_TWILIO_ACCOUNT_SID: "AC" + "a".repeat(32),
+    AUTH_TWILIO_AUTH_TOKEN: "fixture",
+    AUTH_TWILIO_FROM: "AWID",
+  };
+  const resend = { AUTH_RESEND_API_KEY: "fixture", AUTH_RESEND_FROM: "auth@example.test" };
+  expect(readApiEnvironment({ ...base, ...twilio, ...resend })).toMatchObject({
+    ...twilio,
+    ...resend,
+  });
+  expect(() =>
+    readApiEnvironment({ ...base, ...twilio, AUTH_TWILIO_AUTH_TOKEN: undefined }),
+  ).toThrow();
+  expect(() => readApiEnvironment({ ...base, ...resend, AUTH_RESEND_FROM: undefined })).toThrow();
+});

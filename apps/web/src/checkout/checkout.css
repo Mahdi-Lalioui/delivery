@@ -1,9 +1,14 @@
 .checkout {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-20);
   max-inline-size: 40rem;
   margin-inline: auto;
   padding-block-end: calc(var(--touch-target-customer-primary) + var(--space-80));
+}
+
+.checkout .ui-field {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .checkout-header h1 {
@@ -116,6 +121,7 @@
 
 .checkout-body {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-20);
   animation: checkout-step-in var(--motion-base) var(--ease-standard);
 }
@@ -129,6 +135,7 @@
 
 .checkout-step {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-16);
 }
 
@@ -336,6 +343,18 @@
     opacity: 0.4;
     transform: scale(0.9);
   }
+}
+
+.checkout-contact {
+  padding: var(--space-16);
+  border-inline-start: 2px solid var(--color-focus);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-e1);
+}
+
+.checkout-contact .ui-field {
+  max-inline-size: 28rem;
 }
 
 .checkout-cash {

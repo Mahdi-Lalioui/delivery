@@ -1,5 +1,6 @@
 import { addressInput, addressListOutput, addressOutput } from "@zaafran/contracts/addresses";
-import type { orderPlacementInput, orderQuoteInput } from "@zaafran/contracts/orders";
+import type { orderPlacementWithContactInput, orderQuoteInput } from "@zaafran/contracts/orders";
+import { problemResponseSchema } from "@zaafran/contracts/health";
 import { orderQuoteOutput, orderSummary } from "@zaafran/contracts/orders";
 import type { Cart } from "@zaafran/domain/cart";
 
@@ -11,7 +12,7 @@ export type AddressDraft = ReturnType<typeof addressInput.parse>;
 export type Quote = ReturnType<typeof orderQuoteOutput.parse>;
 export type PlacedOrder = ReturnType<typeof orderSummary.parse>;
 type QuoteInput = ReturnType<typeof orderQuoteInput.parse>;
-type Placement = ReturnType<typeof orderPlacementInput.parse>;
+type Placement = ReturnType<typeof orderPlacementWithContactInput.parse>;
 
 export type Fulfilment = { fulfilment: "pickup" } | { fulfilment: "delivery"; addressId: string };
 export type Timing = QuoteInput["timing"];
@@ -19,7 +20,8 @@ export type AddressLoad = { kind: "ready"; addresses: Address[] } | { kind: "sig
 export type QuoteResult =
   { kind: "ready"; quote: Quote } | { kind: "sign-in" | "unavailable" | "error" };
 export type PlaceResult =
-  { kind: "placed"; order: PlacedOrder } | { kind: "sign-in" | "expired" | "error" };
+  | { kind: "placed"; order: PlacedOrder }
+  | { kind: "sign-in" | "expired" | "error" | "contact-required" | "cash-limit" };
 
 const base = {
   credentials: "same-origin",
@@ -98,13 +100,23 @@ export async function requestQuote(input: QuoteInput, signal?: AbortSignal): Pro
   }
 }
 
+async function placementError(response: Response): Promise<PlaceResult> {
+  if (isAuthFailure(response.status)) return { kind: "sign-in" };
+  if (response.status === 409 || response.status === 410) return { kind: "expired" };
+  if (response.status === 400) {
+    const problem = problemResponseSchema.safeParse(await response.json().catch(() => undefined));
+    if (problem.success && problem.data.code === "contact_phone_required")
+      return { kind: "contact-required" };
+    if (problem.success && problem.data.code === "cash_limit") return { kind: "cash-limit" };
+  }
+  return { kind: "error" };
+}
+
 /** Places the order; retry with the same key and body after a lost response (ORD-01). */
 export async function placeOrder(placement: Placement, key: string): Promise<PlaceResult> {
   try {
     const response = await fetch("/v1/orders", post(placement, key));
-    if (isAuthFailure(response.status)) return { kind: "sign-in" };
-    if (response.status === 409 || response.status === 410) return { kind: "expired" };
-    if (!response.ok) return { kind: "error" };
+    if (!response.ok) return await placementError(response);
     const parsed = orderSummary.safeParse(await response.json());
     return parsed.success ? { kind: "placed", order: parsed.data } : { kind: "error" };
   } catch {

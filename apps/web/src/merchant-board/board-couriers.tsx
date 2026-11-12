@@ -1,8 +1,10 @@
 "use client";
 
 import type { Locale } from "@zaafran/i18n/locales";
+import { courierInviteInput } from "@zaafran/contracts/courier";
+import { isPublicLocale } from "@zaafran/i18n/locales";
 import { normalizeAlgerianPhone } from "@zaafran/i18n/phone";
-import { Badge, Button, Icon, Skeleton, TextField } from "@zaafran/ui";
+import { Badge, Button, Icon, SegmentedControl, Skeleton, TextField } from "@zaafran/ui";
 import { useTranslations } from "next-intl";
 import { useEffect, useState, type SubmitEvent } from "react";
 import { listMerchantMemberships } from "../merchant/merchant-http";
@@ -151,6 +153,15 @@ export function BoardAssignCourier({
   );
 }
 
+function parseCourierContact(method: "phone" | "email", value: string, locale: Locale) {
+  const destination =
+    method === "email" ? { email: value } : { phone: normalizeAlgerianPhone(value) };
+  return courierInviteInput.safeParse({
+    ...destination,
+    locale: isPublicLocale(locale) ? locale : undefined,
+  });
+}
+
 function CourierInviteForm({
   merchantId,
   locale,
@@ -161,17 +172,19 @@ function CourierInviteForm({
   offline: boolean;
 }) {
   const t = useTranslations("merchantBoard");
-  const [phone, setPhone] = useState("");
+  const [method, setMethod] = useState<"phone" | "email">("phone");
+  const [contact, setContact] = useState("");
   const [link, setLink] = useState("");
   const [state, setState] = useState<"idle" | "sending" | "already" | "error" | "copied">("idle");
-  const normalized = normalizeAlgerianPhone(phone);
+  const normalized = parseCourierContact(method, contact, locale);
+  const inputMode = method === "email" ? "email" : "tel";
 
   async function create(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!normalized || offline || state === "sending") return;
+    if (!normalized.success || offline || state === "sending") return;
     setState("sending");
     setLink("");
-    const result = await inviteCourier(merchantId, normalized);
+    const result = await inviteCourier(merchantId, normalized.data);
     if (result.kind !== "ready") {
       setState(result.kind);
       return;
@@ -194,22 +207,35 @@ function CourierInviteForm({
 
   return (
     <form className="board-form board-invite-form" onSubmit={(event) => void create(event)}>
+      <SegmentedControl
+        legend={t("courierInviteMethod")}
+        name="courier-invite-method"
+        value={method}
+        onChange={(next) => {
+          setMethod(next);
+          setContact("");
+        }}
+        options={[
+          { value: "phone", label: t("courierSmsMethod") },
+          { value: "email", label: t("courierEmailMethod") },
+        ]}
+      />
       <TextField
-        label={t("courierPhone")}
-        inputMode="tel"
-        autoComplete="tel"
+        label={t(method === "email" ? "courierEmail" : "courierPhone")}
+        inputMode={inputMode}
+        autoComplete={inputMode}
         name="courierPhone"
         dir="ltr"
-        value={phone}
+        value={contact}
         onChange={(event) => {
-          setPhone(event.target.value);
+          setContact(event.target.value);
         }}
       />
       <Button
         variant="primary"
         type="submit"
         isLoading={state === "sending"}
-        disabled={offline || !normalized}
+        disabled={offline || !normalized.success}
       >
         {t("createCourierInvite")}
       </Button>

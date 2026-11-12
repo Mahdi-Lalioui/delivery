@@ -9,8 +9,14 @@ type ReadyStaff = Extract<StaffState, { kind: "ready" }>;
 
 const roleKeys = { owner: "roleOwner", manager: "roleManager", staff: "roleStaff" } as const;
 
-function Phone({ phoneE164 }: { phoneE164: string }) {
-  return <bdi dir="ltr">{formatAlgerianPhone(phoneE164) ?? phoneE164}</bdi>;
+function displayContact({
+  phoneE164,
+  email,
+}: {
+  phoneE164?: string | undefined;
+  email?: string | undefined;
+}) {
+  return phoneE164 === undefined ? (email ?? "") : (formatAlgerianPhone(phoneE164) ?? phoneE164);
 }
 
 function StaffMembers({ state }: { state: ReadyStaff }) {
@@ -21,7 +27,7 @@ function StaffMembers({ state }: { state: ReadyStaff }) {
       <ul className="hours-ranges">
         {state.list.members.map((member) => (
           <li key={member.userId} className="hours-pause-actions">
-            <Phone phoneE164={member.phoneE164} />
+            <bdi dir="ltr">{displayContact(member)}</bdi>
             <span className="hours-badge">{translate(roleKeys[member.role])}</span>
             {member.isSelf && <span>{translate("you")}</span>}
           </li>
@@ -47,13 +53,13 @@ function StaffInvitations({
       {invitations.length === 0 && <p>{translate("noInvitations")}</p>}
       <ul className="hours-ranges">
         {invitations.map((invitation) => {
-          const phone = formatAlgerianPhone(invitation.phoneE164) ?? invitation.phoneE164;
+          const phone = displayContact(invitation);
           const isRevoking =
             typeof state.pending === "object" &&
             state.pending.invitationId === invitation.invitationId;
           return (
             <li key={invitation.invitationId} className="hours-pause-actions">
-              <Phone phoneE164={invitation.phoneE164} />
+              <bdi dir="ltr">{phone}</bdi>
               <span className="hours-badge">{translate(roleKeys[invitation.role])}</span>
               <span>
                 {translate("expires")}{" "}

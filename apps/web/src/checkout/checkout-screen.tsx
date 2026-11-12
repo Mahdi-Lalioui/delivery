@@ -5,5 +5,5 @@ import { CheckoutView } from "./checkout-view";
 import { useCheckout } from "./use-checkout";
 
 export function CheckoutScreen({ locale }: { locale: Locale }) {
-  return <CheckoutView state={useCheckout()} locale={locale} />;
+  return <CheckoutView state={useCheckout(locale)} locale={locale} />;
 }

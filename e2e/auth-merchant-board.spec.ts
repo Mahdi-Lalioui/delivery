@@ -242,7 +242,7 @@ test("[COU-01][MER-03] owner creates a courier invitation and assigns the ready 
     }),
   );
   await page.route(`**/v1/merchants/${merchantId}/couriers/invites`, (route) => {
-    expect(route.request().postDataJSON()).toEqual({ phone: "+213500000007" });
+    expect(route.request().postDataJSON()).toEqual({ phone: "+213500000007", locale: "fr" });
     return route.fulfill({ status: 201, json: { inviteId, expiresAt: new Date().toISOString() } });
   });
   await page.route(`**/v1/orders/${merchantId}/assign`, (route) => {

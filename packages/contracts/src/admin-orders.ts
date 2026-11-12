@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./schema.js";
 import { algerianMobilePhone } from "./auth.js";
 import { orderStatus, orderSummary } from "./orders.js";
 

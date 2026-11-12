@@ -53,6 +53,10 @@ test("[M0-6] the built production process excludes debug routes and reports unav
     const readiness = await fetch(new URL("/readyz", origin));
     expect(readiness.status).toBe(503);
     expect(problemResponseSchema.parse(await readiness.json()).code).toBe("not_ready");
+    const methods = await fetch(new URL("/v1/auth/methods", origin));
+    expect(methods.status).toBe(200);
+    expect(methods.headers.get("cache-control")).toBe("no-store");
+    expect(await methods.json()).toEqual({ methods: [] });
     const authentication = await fetch(new URL("/v1/auth/otp/request", origin), {
       method: "POST",
       headers: { "content-type": "application/json", "idempotency-key": "compiled-api-fixture" },
@@ -109,4 +113,4 @@ test("[M0-6] the built production process excludes debug routes and reports unav
     child.kill("SIGTERM");
     await closed;
   }
-});
+}, 30_000);

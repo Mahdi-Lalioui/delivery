@@ -1,5 +1,9 @@
 import { afterEach, expect, test, vi } from "vitest";
-import { requestPhoneCode, verifyAuthenticatorCode, verifyPhoneCode } from "../src/auth/auth-http";
+import {
+  requestSignInCode,
+  verifyAuthenticatorCode,
+  verifySignInCode,
+} from "../src/auth/auth-http";
 
 const challengeId = "019d6abc-1234-7234-8234-123456789abc";
 const secondChallengeId = "019d6abc-1234-7234-8234-123456789def";
@@ -19,7 +23,7 @@ test("[CUS-10] requests the code with a same-origin JSON POST and returns server
   const fetch = vi.fn().mockResolvedValue(Response.json(response));
   vi.stubGlobal("fetch", fetch);
 
-  await expect(requestPhoneCode(request)).resolves.toEqual({ ok: true, data: response });
+  await expect(requestSignInCode(request)).resolves.toEqual({ ok: true, data: response });
   expect(fetch).toHaveBeenCalledWith("/v1/auth/otp/request", {
     method: "POST",
     body: JSON.stringify({ phone: request.phone, purpose: request.purpose }),
@@ -40,7 +44,7 @@ test("[AUTH-05] verifies OTP and TOTP with web transport and exposes only challe
   vi.stubGlobal("fetch", fetch);
 
   await expect(
-    verifyPhoneCode({ challengeId, code: "123456", idempotencyKey: verificationKey }),
+    verifySignInCode({ challengeId, code: "123456", idempotencyKey: verificationKey }),
   ).resolves.toEqual({
     ok: true,
     data: otp,
@@ -101,7 +105,7 @@ test.each([
       ),
     ),
   );
-  const verify = code.startsWith("totp") ? verifyAuthenticatorCode : verifyPhoneCode;
+  const verify = code.startsWith("totp") ? verifyAuthenticatorCode : verifySignInCode;
   await expect(
     verify({ challengeId, code: "123456", idempotencyKey: verificationKey }),
   ).resolves.toEqual({
@@ -119,13 +123,13 @@ test("[AUTH-02] distinguishes an uncertain delivery from a definitive rejection"
     .mockResolvedValueOnce(new Response("Bad gateway", { status: 502 }));
   vi.stubGlobal("fetch", fetch);
 
-  await expect(requestPhoneCode(request)).resolves.toEqual({
+  await expect(requestSignInCode(request)).resolves.toEqual({
     ok: false,
     error: "networkError",
     canRetrySameRequest: true,
   });
   for (let attempt = 0; attempt < 2; attempt++) {
-    await expect(requestPhoneCode(request)).resolves.toEqual({
+    await expect(requestSignInCode(request)).resolves.toEqual({
       ok: false,
       error: "unexpectedError",
       canRetrySameRequest: true,
@@ -138,7 +142,7 @@ test("[AUTH-03] rejects a bearer-mode response for a web verification", async ()
   vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json(bearer)));
 
   await expect(
-    verifyPhoneCode({ challengeId, code: "123456", idempotencyKey: verificationKey }),
+    verifySignInCode({ challengeId, code: "123456", idempotencyKey: verificationKey }),
   ).resolves.toMatchObject({
     ok: false,
     error: "unexpectedError",
@@ -162,7 +166,7 @@ test("[AUTH-02] treats failed SMS delivery as recoverable with the same request 
     ),
   );
 
-  await expect(requestPhoneCode(request)).resolves.toEqual({
+  await expect(requestSignInCode(request)).resolves.toEqual({
     ok: false,
     error: "otpDeliveryUnavailable",
     canRetrySameRequest: true,

@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./schema.js";
 
 export const pageLimit = z
   .string()

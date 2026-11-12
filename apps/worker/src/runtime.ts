@@ -15,11 +15,13 @@ import { defineJob } from "./jobs.js";
 import { queueLogger } from "./logger.js";
 import { createCropMediaJob } from "./media-crop.js";
 import { createPrepareMediaJob } from "./media-prepare.js";
-import { createOrderPushJob, orderPushTask } from "./order-push.js";
-import { unavailableOrderPush, type SendOrderPush } from "./order-push-adapter.js";
+import {
+  createOrderNotificationJob,
+  orderPushTask,
+  orderSmsTask,
+  type NotificationSenders,
+} from "./order-notification.js";
 import { pruneInactivePushSubscriptions } from "./order-push-delivery.js";
-import { createOrderSmsJob, orderSmsTask } from "./order-sms.js";
-import { unavailableOrderSms, type SendOrderSms } from "./order-sms-adapter.js";
 import { createDeliveryProofPurgeJob, createPrivacyMediaPurgeJob } from "./privacy-media.js";
 import { workerSchema } from "./migrate-worker.js";
 
@@ -37,16 +39,15 @@ const watchdogPayload = z.strictObject({ checkId: z.uuid() });
 export function createWorkerOptions(
   connectionString: string,
   database: DatabaseConnection,
-  options: {
+  options: NotificationSenders & {
     store: MediaStore;
     heicDecoderPath?: string | undefined;
-    orderSms?: SendOrderSms | undefined;
-    orderPush?: SendOrderPush | undefined;
   } = {
     store: createLocalMediaStore({ root: defaultMediaStorageRoot() }),
   },
 ) {
-  const { orderSms = unavailableOrderSms, orderPush = unavailableOrderPush, ...media } = options;
+  const { orderSms, orderPush, orderEmail, ...media } = options;
+  const notifyOrder = createOrderNotificationJob(database, { orderSms, orderPush, orderEmail });
   const privacy = createPrivacyRepository(database);
   const orders = createOrderRepository(database);
   const quotes = createOrderQuoteRepository(database);
@@ -78,8 +79,8 @@ export function createWorkerOptions(
       await pruneInactivePushSubscriptions(database.sql);
       await pruneCourierPositions(database.sql, now);
     }),
-    [orderPushTask]: createOrderPushJob(database, orderPush),
-    [orderSmsTask]: createOrderSmsJob(database, orderSms),
+    [orderPushTask]: notifyOrder,
+    [orderSmsTask]: notifyOrder,
     "order.timer": defineJob(orderTimerPayload, ({ orderId, action }) =>
       orders.runTimer(orderId, action, new Date()),
     ),

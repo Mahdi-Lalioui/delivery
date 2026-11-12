@@ -8,7 +8,7 @@ The backend runs as a pinned Docker Compose stack. Caddy terminates TLS and is t
 2. Check out the approved Git commit under `/srv/awid`. Install `curl`, `jq`, and the pinned go-pmtiles binary. Prepare and verify the national map data with [MAPS.md](../infra/MAPS.md). The build host needs enough memory and disk for OSRM preprocessing and the HEIC image build.
 3. Create a private directory such as `/etc/awid` with mode 0700. Generate two separate 32-byte hex passwords with `openssl rand -hex 32` and save them in `postgres-password` and `database-password`. Keep secret files in that directory. If the Postgres container cannot read its mounted secret, allow read access to the container user while keeping the host directory private.
 4. Write `database.env` with `DATABASE_URL=postgresql://awid:<database-password>@db:5432/awid`. The database initializer creates a database owner without superuser or role-creation privileges.
-5. Write `api.env` with the final web origin in `AUTH_PUBLIC_ORIGIN`, plus independent 32-byte hex values for `AUTH_OTP_KEY` and `AUTH_TOTP_KEY`. Keep the keys stable across releases. Set `AUTH_SMS_WEBHOOK_URL` and `AUTH_SMS_WEBHOOK_TOKEN` in `api.env` to enable sign-in and staff invitations. Write `worker.env` with the provider and push settings listed in [.env.example](../.env.example). The file may be empty for an infrastructure smoke test.
+5. Write `api.env` with the final web origin in `AUTH_PUBLIC_ORIGIN`, plus independent 32-byte hex values for `AUTH_OTP_KEY` and `AUTH_TOTP_KEY`. Keep the keys stable across releases. Set the delivery credentials below in `api.env`. Keep it mode 0600. Write `worker.env` with the provider and push settings listed in [.env.example](../.env.example). The file may be empty for an infrastructure smoke test.
 6. Write `/etc/awid/compose.env` with the paths below. Set `AWID_RELEASE_TAG` to the reviewed short Git SHA for each release.
 
 ```dotenv
@@ -30,7 +30,19 @@ Run one command after installing the files.
 
 The command validates Compose, builds the API and worker, waits for the data services, runs application and Graphile migrations, loads the public Algeria geography, starts Caddy, and checks TLS, API readiness, the 69 wilayas, a populated vector tile and the absence of a test route. The local-only restaurant seed stays outside this deployment command. Save the previous image tag and take an encrypted backup before deploying a database migration. Roll back by selecting the previous image only if it remains compatible with the migrated schema.
 
-## SMS gateway
+## Sign-in delivery
+
+`GET /v1/auth/methods` lists the configured sign-in methods. Leave a provider’s settings unset to disable its method. Use approved synthetic recipients for smoke tests and keep provider payloads, credentials and identifiers out of logs.
+
+- **SMS through Twilio** requires `AUTH_TWILIO_ACCOUNT_SID`, `AUTH_TWILIO_AUTH_TOKEN` and `AUTH_TWILIO_FROM`. Set the sender approved for Algeria. If both SMS adapters are configured, the API selects Twilio for sends. [Twilio Algeria SMS guidelines](https://www.twilio.com/en-us/guidelines/dz/sms)
+- **SMS through the HTTPS webhook** requires `AUTH_SMS_WEBHOOK_URL` and `AUTH_SMS_WEBHOOK_TOKEN`. Use this option by leaving all Twilio settings unset.
+- **Email through Resend** requires `AUTH_RESEND_API_KEY` and `AUTH_RESEND_FROM`, an address on a verified domain. Use a sending-only key scoped to that domain. Confirm SPF and DKIM and deliver one Arabic, French and English test message before enabling customer access. [Resend domains](https://resend.com/docs/dashboard/domains/introduction)
+
+Put the same Twilio and Resend settings in `worker.env` to deliver order notifications when push cannot deliver. If the worker uses the SMS webhook, set `ORDER_SMS_WEBHOOK_URL` and `ORDER_SMS_WEBHOOK_TOKEN` there. The worker prefers push, then a verified phone, then a verified email for email-only accounts.
+
+See [HUMAN_TODO](HUMAN_TODO.md) for provider setup.
+
+### SMS webhook
 
 The API posts `{to, text}` with a bearer credential and an `Idempotency-Key` header. Accept the message once per key and return 2xx only after accepting it. Keys use `otp:` or `invite:` plus the server delivery ID. OTP and invitation retries send the same payload. Keep destination and message text out of gateway logs. Verify delivery using approved provider test numbers before enabling signup.
 

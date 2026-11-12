@@ -50,13 +50,20 @@ function setup() {
     accept: vi.fn<StaffRepository["accept"]>(),
   } satisfies StaffRepository;
   const sendInvitation = vi.fn<MerchantStaffServices["sendInvitation"]>();
+  const sendEmailInvitation = vi.fn<NonNullable<MerchantStaffServices["sendEmailInvitation"]>>();
   const api = createApi({
     checkReadiness: () => Promise.resolve(),
     resolveActor: vi.fn(() => Promise.resolve(owner)),
-    merchantStaff: { repository, now: () => now, createToken: () => token, sendInvitation },
+    merchantStaff: {
+      repository,
+      now: () => now,
+      createToken: () => token,
+      sendInvitation,
+      sendEmailInvitation,
+    },
   });
   onTestFinished(() => api.close());
-  return { api, repository, sendInvitation };
+  return { api, repository, sendInvitation, sendEmailInvitation };
 }
 
 test("[MER-23:http] an owner invitation stores only the token hash and texts the token once", async () => {
@@ -75,6 +82,34 @@ test("[MER-23:http] an owner invitation stores only the token hash and texts the
     phone: "+213550000301",
     token,
     deliveryKey: invitationId,
+  });
+});
+
+test("[MER-23:http] email invitations normalize the address and use email delivery only", async () => {
+  const { api, repository, sendInvitation, sendEmailInvitation } = setup();
+  const email = "staff@example.test";
+  const emailInvitation = {
+    invitationId,
+    merchantId,
+    email,
+    role: invitation.role,
+    status: invitation.status,
+    expiresAt: invitation.expiresAt,
+  };
+  repository.create.mockResolvedValue({ kind: "applied", invitation: emailInvitation });
+  const response = await api.inject({
+    ...inviteRequest,
+    payload: { email: " STAFF@EXAMPLE.TEST ", role: "staff", locale: "ar" },
+  });
+  expect(response.statusCode).toBe(201);
+  expect(staffInvitationOutput.parse(response.json())).toEqual(emailInvitation);
+  expect(response.payload).not.toContain(token);
+  expect(sendInvitation).not.toHaveBeenCalled();
+  expect(sendEmailInvitation).toHaveBeenCalledExactlyOnceWith({
+    email,
+    token,
+    deliveryKey: invitationId,
+    locale: "ar",
   });
 });
 

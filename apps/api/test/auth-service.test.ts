@@ -5,7 +5,7 @@ import { createAuthService } from "../src/auth-service.ts";
 import { sealTotpSecret } from "../src/auth-totp.ts";
 
 const now = new Date("2026-11-07T12:00:00.000Z");
-const expiresAt = new Date("2026-11-07T12:05:00.000Z");
+const expiresAt = new Date("2026-11-07T12:10:00.000Z");
 const resendAt = new Date("2026-11-07T12:00:45.000Z");
 const challengeId = "01932f18-3150-7c33-8a7a-53acfd343001";
 const user = {
@@ -40,6 +40,8 @@ const request = {
 
 function fixture() {
   const transaction = {
+    reserveIdentifierChange: vi.fn<AuthTransaction["reserveIdentifierChange"]>(),
+    confirmIdentifierChange: vi.fn<AuthTransaction["confirmIdentifierChange"]>(),
     reserveOtpChallenge: vi
       .fn<AuthTransaction["reserveOtpChallenge"]>()
       .mockImplementation(({ id }) =>
@@ -53,6 +55,7 @@ function fixture() {
     getOrCreateUserForSignIn: vi
       .fn<AuthTransaction["getOrCreateUserForSignIn"]>()
       .mockResolvedValue(user),
+    lockUserByEmail: vi.fn<AuthTransaction["lockUserByEmail"]>().mockResolvedValue(undefined),
     lockUserByPhone: vi.fn<AuthTransaction["lockUserByPhone"]>().mockResolvedValue(user),
     insertAdminChallenge: vi.fn<AuthTransaction["insertAdminChallenge"]>().mockResolvedValue(true),
     redeemAdminChallenge: vi.fn<AuthTransaction["redeemAdminChallenge"]>().mockResolvedValue({
@@ -63,6 +66,7 @@ function fixture() {
     revokeSessions: vi.fn<AuthTransaction["revokeSessions"]>().mockResolvedValue(1),
   };
   const repository = {
+    readVerifiedIdentifiers: vi.fn<AuthRepository["readVerifiedIdentifiers"]>(),
     transaction: <Result>(run: (tx: AuthTransaction) => Promise<Result>) => run(transaction),
     deliverOtp: vi.fn<AuthRepository["deliverOtp"]>().mockImplementation(async ({ send }) => {
       await send();
