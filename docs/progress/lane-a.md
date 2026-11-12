@@ -299,3 +299,6 @@
 
 - 2026-11-12 · Ultra · Enabled email-only quotes and placement with a separate order contact. Merchant and courier reads are scoped, the cash cap still applies, and privacy export and erasure cover the contact. Passed 40 PostGIS and 107 domain/HTTP cases plus API, DB and web typecheck.
   Next: finish the dual-method sign-in screen, then connect account identifier changes and checkout contact entry.
+
+- 2026-11-12 · High · Connected the phone/email sign-in picker, verified account contact editor and email-only checkout contact. Passed 45 scoped UI checks and eight production-browser journeys. Saved 12 captures after two design rounds and added gallery links.
+  Next: finish the invitation and push-first notification checkpoint, then integrate the verified release baseline and rerun the full gate.

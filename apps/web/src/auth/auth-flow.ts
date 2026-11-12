@@ -1,8 +1,13 @@
-import type { AuthError, OtpAttempt, OtpPurpose, VerifyAttempt } from "./auth-http";
+import type {
+  AuthError,
+  OtpAttempt,
+  OtpPurpose,
+  SignInIdentifier,
+  VerifyAttempt,
+} from "./auth-http";
 
-type OtpStep = {
+type OtpStep = SignInIdentifier & {
   kind: "otp";
-  phone: string;
   challengeId: string;
   expiresAt: number;
   resendAt: number;
@@ -15,16 +20,21 @@ export function getSignInPurpose(value: string | string[] | undefined): OtpPurpo
 }
 
 export function chooseOtpAttempt({
-  phone,
   purpose,
   previous,
-}: {
-  phone: string;
+  ...identifier
+}: SignInIdentifier & {
   purpose: OtpPurpose;
   previous?: OtpAttempt | undefined;
 }): OtpAttempt {
-  if (previous?.phone === phone && previous.purpose === purpose) return previous;
-  return { phone, purpose, idempotencyKey: crypto.randomUUID() };
+  if (
+    previous &&
+    previous.purpose === purpose &&
+    previous.phone === identifier.phone &&
+    previous.email === identifier.email
+  )
+    return previous;
+  return { ...identifier, purpose, idempotencyKey: crypto.randomUUID() };
 }
 
 export function chooseVerificationAttempt({
@@ -63,11 +73,14 @@ const terminalErrors: ReadonlySet<AuthError> = new Set([
   "totpConsumed",
 ]);
 
-export function isTerminalCodeError(error: AuthError | "invalidCode" | "invalidPhone" | undefined) {
+export function isTerminalCodeError(
+  error: AuthError | "invalidCode" | "invalidPhone" | "invalidEmail" | undefined,
+) {
   return (
     error !== undefined &&
     error !== "invalidCode" &&
     error !== "invalidPhone" &&
+    error !== "invalidEmail" &&
     terminalErrors.has(error)
   );
 }

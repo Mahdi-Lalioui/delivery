@@ -1,5 +1,7 @@
 "use client";
 
+import { normalizedEmail } from "@zaafran/contracts/auth";
+import type { PublicLocale } from "@zaafran/i18n/locales";
 import { normalizeAlgerianPhone } from "@zaafran/i18n/phone";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -11,16 +13,18 @@ import {
   type SignInStep,
 } from "./auth-flow";
 import {
-  requestPhoneCode,
+  requestSignInCode,
   verifyAuthenticatorCode,
-  verifyPhoneCode,
+  verifySignInCode,
   type AuthError,
   type OtpAttempt,
   type OtpPurpose,
+  type SignInMethod,
+  type SignInIdentifier,
   type VerifyAttempt,
 } from "./auth-http";
 
-type FormError = AuthError | "invalidPhone" | "invalidCode";
+type FormError = AuthError | "invalidPhone" | "invalidEmail" | "invalidCode";
 type PendingAction = "send" | "verify";
 
 function getStepError(step: SignInStep, error: FormError | undefined, now: number) {
@@ -28,9 +32,33 @@ function getStepError(step: SignInStep, error: FormError | undefined, now: numbe
   return isTerminalCodeError(error) ? error : step.kind === "otp" ? "otpExpired" : "totpExpired";
 }
 
-export function usePhoneSignIn(purpose: OtpPurpose) {
+function readIdentifier(method: SignInMethod, value: string): SignInIdentifier | undefined {
+  if (method === "phone") {
+    const phone = normalizeAlgerianPhone(value);
+    return phone ? { phone } : undefined;
+  }
+  const email = normalizedEmail.safeParse(value);
+  return email.success ? { email: email.data } : undefined;
+}
+
+function otpIdentifier(step: Extract<SignInStep, { kind: "otp" }>): SignInIdentifier {
+  return step.email === undefined ? { phone: step.phone } : { email: step.email };
+}
+
+function canSendCode(step: SignInStep): boolean {
+  return step.kind === "phone" || (step.kind === "otp" && Date.now() >= step.resendAt);
+}
+
+export function useSignIn(
+  purpose: OtpPurpose,
+  methods: readonly SignInMethod[],
+  locale: PublicLocale | undefined,
+) {
   const [step, setStep] = useState<SignInStep>({ kind: "phone" });
+  const [preferredMethod, setPreferredMethod] = useState<SignInMethod>("phone");
+  const method = methods.includes(preferredMethod) ? preferredMethod : (methods[0] ?? "phone");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [error, setError] = useState<FormError>();
   const [now, setNow] = useState(0);
@@ -64,10 +92,25 @@ export function usePhoneSignIn(purpose: OtpPurpose) {
     setError(undefined);
   }
 
-  function updatePhone(value: string) {
-    setPhone(value);
+  function changeMethod(next: SignInMethod) {
+    if (inFlight.current || method === next) return;
+    restart();
+    setPreferredMethod(next);
+  }
+
+  function updateIdentifier(channel: SignInMethod, value: string) {
+    if (channel === "email") setEmail(value);
+    else setPhone(value);
     setError(undefined);
-    setRetryRequest(attempt.current?.phone === normalizeAlgerianPhone(value));
+    const updated = readIdentifier(channel, value);
+    setRetryRequest(
+      Boolean(
+        updated &&
+        attempt.current &&
+        updated.email === attempt.current.email &&
+        updated.phone === attempt.current.phone,
+      ),
+    );
   }
 
   function updateCode(value: string) {
@@ -76,20 +119,20 @@ export function usePhoneSignIn(purpose: OtpPurpose) {
   }
 
   async function sendCode() {
-    if (inFlight.current || (step.kind !== "phone" && step.kind !== "otp")) return;
-    if (step.kind === "otp" && Date.now() < step.resendAt) return;
+    if (inFlight.current || !canSendCode(step)) return;
 
-    const normalized = step.kind === "otp" ? step.phone : normalizeAlgerianPhone(phone);
-    if (!normalized) {
-      setError("invalidPhone");
+    const entered = method === "email" ? email : phone;
+    const identifier = step.kind === "otp" ? otpIdentifier(step) : readIdentifier(method, entered);
+    if (!identifier) {
+      setError(method === "email" ? "invalidEmail" : "invalidPhone");
       return;
     }
 
-    attempt.current = chooseOtpAttempt({ phone: normalized, purpose, previous: attempt.current });
+    attempt.current = chooseOtpAttempt({ ...identifier, purpose, previous: attempt.current });
     inFlight.current = true;
     setError(undefined);
     setPending("send");
-    const result = await requestPhoneCode(attempt.current);
+    const result = await requestSignInCode({ ...attempt.current, locale });
     inFlight.current = false;
     setPending(undefined);
     if (!result.ok) {
@@ -107,7 +150,7 @@ export function usePhoneSignIn(purpose: OtpPurpose) {
     setNow(Date.now());
     setStep({
       kind: "otp",
-      phone: normalized,
+      ...identifier,
       challengeId: result.data.challengeId,
       expiresAt: Date.parse(result.data.expiresAt),
       resendAt: Date.parse(result.data.resendAt),
@@ -130,7 +173,7 @@ export function usePhoneSignIn(purpose: OtpPurpose) {
       code,
       previous: verification.current,
     });
-    const verify = step.kind === "otp" ? verifyPhoneCode : verifyAuthenticatorCode;
+    const verify = step.kind === "otp" ? verifySignInCode : verifyAuthenticatorCode;
     const result = await verify(verification.current);
     inFlight.current = false;
     setPending(undefined);
@@ -159,14 +202,22 @@ export function usePhoneSignIn(purpose: OtpPurpose) {
   const stepError = getStepError(step, error, now);
   return {
     step,
+    method,
     phone,
+    email,
     code,
     error: stepError,
     pending,
     retryRequest,
     resendSeconds: step.kind === "otp" ? secondsUntil(step.resendAt, now) : 0,
     canVerify: (step.kind === "otp" || step.kind === "totp") && !isTerminalCodeError(stepError),
-    setPhone: updatePhone,
+    setMethod: changeMethod,
+    setPhone: (value: string) => {
+      updateIdentifier("phone", value);
+    },
+    setEmail: (value: string) => {
+      updateIdentifier("email", value);
+    },
     setCode: updateCode,
     sendCode,
     verifyCode,
@@ -174,4 +225,4 @@ export function usePhoneSignIn(purpose: OtpPurpose) {
   };
 }
 
-export type PhoneSignIn = ReturnType<typeof usePhoneSignIn>;
+export type SignInFlow = ReturnType<typeof useSignIn>;

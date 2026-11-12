@@ -5,7 +5,7 @@
 }
 
 .auth-photo {
-  block-size: 32svb;
+  block-size: 28svb;
   min-block-size: 12rem;
   margin: 0 calc(-1 * var(--page-padding));
   overflow: hidden;
@@ -54,6 +54,10 @@
 .auth-field {
   display: grid;
   gap: var(--space-8);
+}
+
+.auth-form .ui-segmented-track {
+  inline-size: 100%;
 }
 
 .auth-heading h1 {

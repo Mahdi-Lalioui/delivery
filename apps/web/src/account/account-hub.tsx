@@ -1,9 +1,12 @@
-import type { Locale } from "@zaafran/i18n/locales";
+import { localeDetails, type Locale } from "@zaafran/i18n/locales";
+import { getMessages } from "@zaafran/i18n/messages";
 import { Icon, type IconName } from "@zaafran/ui";
 import type { Metadata } from "next";
+import { NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { SiteShell } from "../components/site-shell";
 import { CustomerTabBar } from "../customer/tab-bar";
+import { IdentifierPanel } from "./identifier-panel";
 import "./account-hub.css";
 
 const entries: readonly {
@@ -25,6 +28,7 @@ export async function accountHubMetadata(locale: Locale): Promise<Metadata> {
 /** The Profile tab: every customer account page one tap away. */
 export async function AccountHub({ locale }: { locale: Locale }) {
   const translate = await getTranslations({ locale, namespace: "accountHub" });
+  const messages = getMessages(locale);
   return (
     <SiteShell locale={locale} subpath="/account">
       <section className="account-hub" aria-labelledby="account-title">
@@ -37,6 +41,13 @@ export async function AccountHub({ locale }: { locale: Locale }) {
             <p>{translate("intro")}</p>
           </div>
         </header>
+        <NextIntlClientProvider
+          locale={localeDetails[locale].tag}
+          timeZone="Africa/Algiers"
+          messages={{ accountHub: messages.accountHub, auth: messages.auth }}
+        >
+          <IdentifierPanel locale={locale} />
+        </NextIntlClientProvider>
         <ul className="account-hub-list" role="list">
           {entries.map(({ key, icon, path }) => (
             <li key={key}>
@@ -55,9 +66,6 @@ export async function AccountHub({ locale }: { locale: Locale }) {
             </li>
           ))}
         </ul>
-        <a className="ui-button ui-button-primary ui-button-lg" href={`/${locale}/sign-in`}>
-          {translate("signIn")}
-        </a>
         <a className="account-hub-pitch" href={`/${locale}/restaurants`}>
           <Icon name="store" size={24} />
           <span className="account-hub-text">

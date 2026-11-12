@@ -338,6 +338,18 @@
   }
 }
 
+.checkout-contact {
+  padding: var(--space-16);
+  border-inline-start: 2px solid var(--color-focus);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-e1);
+}
+
+.checkout-contact .ui-field {
+  max-inline-size: 28rem;
+}
+
 .checkout-cash {
   display: grid;
   gap: var(--space-12);

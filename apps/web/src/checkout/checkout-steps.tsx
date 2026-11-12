@@ -306,6 +306,33 @@ function CashCard({ state, locale }: { state: CheckoutState; locale: Locale }) {
   );
 }
 
+function ContactPhone({ contact }: { contact: CheckoutState["contact"] }) {
+  const t = useTranslations("checkout");
+  if (contact.kind === "loading") return <Skeleton label={t("contactLoading")} lines={1} />;
+  if (contact.kind === "error")
+    return <ErrorState title={t("contactError")} retryLabel={t("retry")} onRetry={contact.retry} />;
+  if (!contact.required) return null;
+  return (
+    <div className="checkout-contact">
+      <TextField
+        label={t("contactPhone")}
+        hint={t("contactPhoneHint")}
+        error={
+          contact.value !== "" && contact.phone === undefined ? t("contactPhoneInvalid") : undefined
+        }
+        type="tel"
+        required
+        autoComplete="tel"
+        dir="ltr"
+        value={contact.value}
+        onChange={(event) => {
+          contact.setValue(event.currentTarget.value);
+        }}
+      />
+    </div>
+  );
+}
+
 export function PaymentStep({ state, locale }: { state: CheckoutState; locale: Locale }) {
   const translate = useTranslations("checkout");
   return (
@@ -323,6 +350,7 @@ export function PaymentStep({ state, locale }: { state: CheckoutState; locale: L
         </ul>
         <QuoteLines state={state} locale={locale} />
       </div>
+      <ContactPhone contact={state.contact} />
       <CashCard state={state} locale={locale} />
     </div>
   );

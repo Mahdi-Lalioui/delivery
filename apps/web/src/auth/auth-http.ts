@@ -1,19 +1,32 @@
 import {
+  authMethodsOutput,
+  type changeIdentifierChallengeInput,
+  type changeIdentifierInput,
+  verifiedIdentifiersOutput,
   requestOtpOutput,
   verifyOtpOutput,
   verifyTotpOutput,
-  type requestOtpInput,
+  type requestIdentifierOtpInput,
   type verifyOtpInput,
 } from "@zaafran/contracts/auth";
 import { problemResponseSchema } from "@zaafran/contracts/health";
 
-type OtpRequest = ReturnType<typeof requestOtpInput.parse>;
+type SignInFields = Pick<ReturnType<typeof requestIdentifierOtpInput.parse>, "purpose" | "locale">;
+export type SignInIdentifier = { phone: string; email?: never } | { email: string; phone?: never };
+type OtpRequest = SignInIdentifier & SignInFields;
+export type SignInMethod = ReturnType<typeof authMethodsOutput.parse>["methods"][number];
 export type OtpPurpose = OtpRequest["purpose"];
 export type OtpAttempt = OtpRequest & { idempotencyKey: string };
+type LinkChallengeInput = ReturnType<typeof changeIdentifierChallengeInput.parse>;
+type LinkInput = ReturnType<typeof changeIdentifierInput.parse>;
 type VerifyInput = Omit<ReturnType<typeof verifyOtpInput.parse>, "transport">;
 export type VerifyAttempt = VerifyInput & { idempotencyKey: string };
 
 const errorMessages = [
+  ["identifier_unavailable", "identifierUnavailable"],
+  ["identifier_changed", "sessionChanged"],
+  ["session_changed", "sessionChanged"],
+  ["unauthenticated", "sessionChanged"],
   ["otp_invalid", "otpInvalid"],
   ["otp_expired", "otpExpired"],
   ["otp_locked", "otpLocked"],
@@ -38,7 +51,9 @@ type AuthResult<Output> = { ok: true; data: Output } | AuthFailure;
 
 interface AuthPost<Output> {
   path: string;
-  body: OtpRequest | (VerifyInput & { transport: "web" });
+  body: OtpRequest | LinkChallengeInput | LinkInput | (VerifyInput & { transport: "web" });
+  method?: "POST" | "PUT";
+  sessionId?: string;
   idempotencyKey: string;
   output: {
     safeParse(value: unknown): { success: true; data: Output } | { success: false };
@@ -61,11 +76,13 @@ async function postAuth<Output>({
   body,
   output,
   idempotencyKey,
+  method = "POST",
+  sessionId,
 }: AuthPost<Output>): Promise<AuthResult<Output>> {
   let response: Response;
   try {
     response = await fetch(path, {
-      method: "POST",
+      method,
       body: JSON.stringify(body),
       credentials: "same-origin",
       cache: "no-store",
@@ -73,6 +90,7 @@ async function postAuth<Output>({
       headers: {
         "Content-Type": "application/json",
         "Idempotency-Key": idempotencyKey,
+        ...(sessionId === undefined ? {} : { "X-Expected-Session-Id": sessionId }),
       },
     });
   } catch {
@@ -86,7 +104,50 @@ async function postAuth<Output>({
   return result.success ? { ok: true, data: result.data } : failure("unexpectedError", true);
 }
 
-export function requestPhoneCode({ idempotencyKey, ...body }: OtpAttempt) {
+export function requestIdentifierCode(
+  body: LinkChallengeInput,
+  sessionId: string,
+  idempotencyKey: string,
+) {
+  return postAuth({
+    path: "/v1/me/identifiers/challenge",
+    body,
+    sessionId,
+    idempotencyKey,
+    output: requestOtpOutput,
+  });
+}
+
+export function confirmIdentifierCode(
+  { idempotencyKey, ...body }: VerifyAttempt,
+  sessionId: string,
+) {
+  return postAuth({
+    path: "/v1/me/identifiers",
+    method: "PUT",
+    body,
+    sessionId,
+    idempotencyKey,
+    output: verifiedIdentifiersOutput,
+  });
+}
+
+export async function readSignInMethods(signal: AbortSignal): Promise<SignInMethod[] | undefined> {
+  try {
+    const response = await fetch("/v1/auth/methods", {
+      signal,
+      cache: "no-store",
+      redirect: "error",
+    });
+    if (!response.ok) return undefined;
+    const data = authMethodsOutput.safeParse(await response.json());
+    return data.success ? data.data.methods : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export function requestSignInCode({ idempotencyKey, ...body }: OtpAttempt) {
   return postAuth({
     path: "/v1/auth/otp/request",
     body,
@@ -95,7 +156,7 @@ export function requestPhoneCode({ idempotencyKey, ...body }: OtpAttempt) {
   });
 }
 
-export async function verifyPhoneCode({ idempotencyKey, ...input }: VerifyAttempt) {
+export async function verifySignInCode({ idempotencyKey, ...input }: VerifyAttempt) {
   const result = await postAuth({
     path: "/v1/auth/otp/verify",
     body: { ...input, transport: "web" },

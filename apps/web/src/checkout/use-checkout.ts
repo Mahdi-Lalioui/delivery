@@ -1,6 +1,7 @@
 "use client";
 
 import type { Cart } from "@zaafran/domain/cart";
+import { isPublicLocale, type Locale } from "@zaafran/i18n/locales";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { readSavedLocation } from "../discovery/location";
 import { loadSlots, type Slot } from "../retention/scheduling";
@@ -18,6 +19,7 @@ import {
   type Quote,
   type Timing,
 } from "./checkout-http";
+import { useCheckoutContact, type CheckoutContact } from "./use-checkout-contact";
 
 export type CheckoutStep = 1 | 2 | 3;
 export type FulfilmentKind = "delivery" | "pickup";
@@ -29,7 +31,7 @@ type QuoteState =
 type PlaceState =
   | { kind: "idle" | "placing" }
   | { kind: "placed"; order: PlacedOrder }
-  | { kind: "sign-in" | "expired" | "error" };
+  | { kind: "sign-in" | "expired" | "error" | "contact-required" | "cash-limit" };
 
 export interface CheckoutState {
   cart: Cart | null | undefined;
@@ -41,6 +43,7 @@ export interface CheckoutState {
   slot: SlotChoice;
   quote: QuoteState;
   tender: string;
+  contact: CheckoutContact;
   place: PlaceState;
   pin: { latitude: number; longitude: number } | null;
   setStep: (step: CheckoutStep) => void;
@@ -129,10 +132,12 @@ function readPin() {
   }
 }
 
-export function useCheckout(): CheckoutState {
+export function useCheckout(locale: Locale): CheckoutState {
   const basket = useBrowserCart();
   const [isRestored, setRestored] = useState(false);
   const [step, setStep] = useState<CheckoutStep>(1);
+  const contact = useCheckoutContact(step === 3);
+  const orderLocale = isPublicLocale(locale) ? locale : undefined;
   const [fulfilment, setFulfilment] = useState<FulfilmentKind>("delivery");
   const [slot, setSlot] = useState<SlotChoice>({ kind: "asap" });
   const [quote, setQuote] = useState<QuoteState>({ kind: "idle" });
@@ -189,9 +194,11 @@ export function useCheckout(): CheckoutState {
   );
 
   const submit = useCallback(() => {
-    if (quote.kind !== "ready" || place.kind === "placing") return;
+    if (quote.kind !== "ready" || place.kind === "placing" || contact.kind !== "ready") return;
+    const contactPhone = contact.phone;
+    if (contact.required && contactPhone === undefined) return;
     const payingWithDzd = parseTender(tender);
-    const identity = `${quote.quote.quoteId}\u0000${String(payingWithDzd)}`;
+    const identity = [quote.quote.quoteId, payingWithDzd, contactPhone, locale].join("\u0000");
     if (placementKey.current?.identity !== identity)
       placementKey.current = { identity, key: crypto.randomUUID() };
     const { key } = placementKey.current;
@@ -199,13 +206,16 @@ export function useCheckout(): CheckoutState {
     const placement = {
       quoteId: quote.quote.quoteId,
       ...(payingWithDzd !== undefined && { payingWithDzd }),
+      ...(contactPhone === undefined ? {} : { contactPhone }),
+      locale: orderLocale,
     };
     void placeOrder(placement, key).then((result) => {
       setPlace(result);
       if (result.kind === "placed") basket.save(null);
       if (result.kind === "expired") setQuoteAttempt((value) => value + 1);
+      if (result.kind === "contact-required") contact.retry();
     });
-  }, [quote, place.kind, tender, basket]);
+  }, [quote, place.kind, tender, contact, locale, orderLocale, basket]);
 
   return {
     cart: isRestored ? cart : undefined,
@@ -217,6 +227,7 @@ export function useCheckout(): CheckoutState {
     slot,
     quote,
     tender,
+    contact,
     place,
     pin,
     setStep,

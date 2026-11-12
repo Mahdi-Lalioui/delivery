@@ -16,6 +16,7 @@ export interface AuthHarness {
   close(): Promise<void>;
   advanceClock(milliseconds: number): void;
   latestSms(phone: string): string;
+  latestEmail(email: string): string;
   latestInvitation(phone: string): string;
   phoneForSession(sessionId: string): Promise<string | undefined>;
   seedOrderJourney(input: {
