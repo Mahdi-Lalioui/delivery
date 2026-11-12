@@ -20,7 +20,12 @@ import { RestaurantDialog } from "./restaurant-dialog";
 import { RestaurantHeader } from "./restaurant-header";
 import { readRestaurant } from "./restaurant-http";
 import { getRestaurantMessages } from "./restaurant-messages";
-import { localizeRestaurantText, type Restaurant, type DishSelection } from "./restaurant-types";
+import {
+  localizeRestaurantText,
+  type DishSelection,
+  type Restaurant,
+  type Stepper,
+} from "./restaurant-types";
 import { useDishOrigin } from "./photo-flight";
 import { useBrowserCart } from "./use-browser-cart";
 import "@zaafran/ui/ui.css";
@@ -257,8 +262,6 @@ function flyDishToCart(itemId: string) {
     if (source && target) void flyToCart(source, target);
   }, 60);
 }
-
-export type Stepper = { lineId: string; quantity: number };
 
 /** Dishes that sit in the cart as one plain line (no options, no note) get an inline stepper. */
 export function simpleLines(cart: Cart | null, merchantId: string): ReadonlyMap<string, Stepper> {

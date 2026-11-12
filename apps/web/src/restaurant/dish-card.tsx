@@ -4,7 +4,7 @@ import type { Locale } from "@zaafran/i18n/locales";
 import { useState, type MouseEvent } from "react";
 import { useLowData } from "../discovery/low-data";
 import { getRestaurantMessages } from "./restaurant-messages";
-import type { Stepper } from "./restaurant-screen";
+import type { Stepper } from "./restaurant-types";
 import { localizeRestaurantText, type RestaurantDish } from "./restaurant-types";
 
 /**

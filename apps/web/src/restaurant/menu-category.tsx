@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button, EmptyState, ErrorState, Skeleton } from "@zaafran/ui";
 import type { Locale } from "@zaafran/i18n/locales";
 import { DishCard } from "./dish-card";
-import type { Stepper } from "./restaurant-screen";
+import type { Stepper } from "./restaurant-types";
 import { readRestaurantItems } from "./restaurant-http";
 import { getRestaurantMessages } from "./restaurant-messages";
 import {
