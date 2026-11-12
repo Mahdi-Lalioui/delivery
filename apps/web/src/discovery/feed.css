@@ -1,19 +1,24 @@
 .restaurant-feed {
   display: grid;
-  gap: var(--space-24);
-  margin-block-start: clamp(var(--space-40), 5vi, var(--space-64));
+  gap: var(--space-20);
+  margin-block-start: var(--space-32);
+  scroll-margin-block-start: var(--space-80);
 }
 
 .restaurant-feed-header {
+  position: sticky;
+  z-index: 2;
+  inset-block-start: 0;
   display: grid;
-  gap: var(--space-4);
-  padding-block-end: var(--space-16);
-  border-block-end: 1px solid var(--color-border-subtle);
+  gap: var(--space-12);
+  margin-inline: calc(-1 * var(--page-padding));
+  padding: var(--space-12) var(--page-padding);
+  background: var(--color-bg);
 }
 
-.restaurant-feed-header h2 {
-  font: var(--font-weight-display) var(--font-size-display) / var(--line-height-display)
-    var(--font-display);
+.restaurant-feed-header h2,
+.discovery-section-title {
+  font: var(--font-weight-h2) var(--font-size-h2) / var(--line-height-h2) var(--font-display);
 }
 
 .restaurant-feed-grid {
@@ -37,32 +42,46 @@
 }
 
 .restaurant-feed-card {
+  position: relative;
   block-size: 100%;
   overflow: hidden;
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   background: var(--color-surface);
   box-shadow: var(--shadow-e1);
+  transition: transform var(--motion-fast) var(--ease-standard);
+}
+
+.restaurant-feed-card:has(h3 a:active) {
+  transform: scale(0.97);
+}
+
+/* The whole card is the restaurant link's target. */
+.restaurant-feed-identity h3 a::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+}
+
+.restaurant-feed-identity h3 a {
+  color: inherit;
+  text-decoration: none;
 }
 
 .restaurant-feed-cover {
   position: relative;
   display: grid;
   place-items: center;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
-  border-block-end: 1px solid var(--color-border-subtle);
-  background: radial-gradient(
-    ellipse at center,
-    color-mix(in srgb, var(--color-primary) 24%, var(--color-surface-2)),
-    var(--color-surface-2)
-  );
-  color: var(--color-harissa-text);
+  background: var(--color-mint-pale);
+  color: var(--color-accent-strong);
 }
 
-.restaurant-feed-cover:is([data-cuisine="healthy"], [data-cuisine="seafood"]) {
-  background: radial-gradient(ellipse at center, var(--color-info-bg), var(--color-surface-2));
-  color: var(--color-info);
+/* Without a photo: zellige pattern in brand greens with the plate mark. */
+.restaurant-feed-cover:not(:has(img)) {
+  background-color: var(--color-mint-pale);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cpath d='M24 4 44 24 24 44 4 24Z' fill='none' stroke='%2300A37A' stroke-opacity='.25' stroke-width='2'/%3E%3C/svg%3E");
+  background-size: 48px;
 }
 
 .restaurant-feed-plate {
@@ -94,11 +113,13 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-4);
+  inset-inline-end: auto;
+  inset-inline-start: var(--space-12);
   padding: var(--space-4) var(--space-8);
-  border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-pill);
   background: var(--color-surface);
   color: var(--color-text-2);
+  box-shadow: var(--shadow-e1);
   font-weight: var(--font-weight-h3);
   font-size: var(--font-size-caption);
   line-height: var(--line-height-caption);
@@ -118,8 +139,8 @@
 
 .restaurant-feed-card-body {
   display: grid;
-  gap: var(--space-12);
-  padding: var(--space-16);
+  gap: var(--space-8);
+  padding: var(--space-12) var(--space-16) var(--space-16);
 }
 
 .restaurant-feed-identity {
@@ -129,7 +150,11 @@
 }
 
 .restaurant-feed-identity h3 {
-  font: var(--font-weight-h2) var(--font-size-h2) / var(--line-height-h2) var(--font-display);
+  min-inline-size: 0;
+  overflow: hidden;
+  font: var(--font-weight-h3) var(--font-size-h3) / var(--line-height-h3) var(--font-display);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .restaurant-feed-logo {
@@ -139,10 +164,12 @@
   place-items: center;
   inline-size: var(--space-48);
   block-size: var(--space-48);
+  margin-block-start: calc(-1 * var(--space-32));
   overflow: hidden;
-  border: 1px solid var(--color-border-subtle);
+  border: 3px solid var(--color-surface);
   border-radius: var(--radius-md);
-  background: var(--color-surface-2);
+  background: var(--color-mint-pale);
+  box-shadow: var(--shadow-e1);
   color: var(--color-text);
   font: var(--font-weight-h2) var(--font-size-h2) / var(--line-height-h2) var(--font-display);
 }
@@ -158,10 +185,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-4);
-  padding: var(--space-4) var(--space-8);
-  border-radius: var(--radius-pill);
-  background: var(--color-surface-2);
-  color: var(--color-text-2);
+  color: var(--color-text-3);
   font-size: var(--font-size-caption);
   line-height: var(--line-height-caption);
 }
@@ -196,15 +220,21 @@
 
 .restaurant-feed-empty {
   padding: var(--space-32) var(--space-16);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface-2);
+  border-radius: var(--radius-xl);
+  background: var(--color-mint-pale);
   color: var(--color-text-2);
 }
 
-.restaurant-feed-empty .restaurant-feed-plate {
+.restaurant-feed-empty /* Without a photo: zellige pattern in brand greens with the plate mark. */
+.restaurant-feed-cover:not(:has(img)) {
+  background-color: var(--color-mint-pale);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cpath d='M24 4 44 24 24 44 4 24Z' fill='none' stroke='%2300A37A' stroke-opacity='.25' stroke-width='2'/%3E%3C/svg%3E");
+  background-size: 48px;
+}
+
+.restaurant-feed-plate {
   inline-size: var(--space-120);
-  color: var(--color-harissa-text);
+  color: var(--color-accent-strong);
 }
 
 .restaurant-feed-actions p {
@@ -213,9 +243,9 @@
 
 .restaurant-feed-button {
   min-block-size: var(--touch-target-min);
-  padding: var(--space-8) var(--space-20);
+  padding: var(--space-8) var(--space-24);
   border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-pill);
   background: var(--color-surface);
   color: var(--color-text);
   font-weight: var(--font-weight-h3);
@@ -272,4 +302,547 @@
 .restaurant-feed-identity h3 a:hover {
   text-decoration: underline;
   text-decoration-color: var(--color-primary);
+}
+
+/* Skeleton shimmer (off under reduced motion). */
+.restaurant-feed-skeleton .restaurant-feed-cover,
+.restaurant-feed-skeleton-title,
+.restaurant-feed-skeleton-chip {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-2),
+    var(--color-surface-3),
+    var(--color-surface-2)
+  );
+  background-size: 200% 100%;
+  animation: discovery-shimmer 1.4s linear infinite;
+}
+
+@keyframes discovery-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* Card meta: rating · time · fee. */
+.restaurant-feed-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4) var(--space-12);
+  color: var(--color-text-2);
+  font-size: var(--font-size-caption);
+  font-variant-numeric: var(--font-variant-numeric-numbers);
+  line-height: var(--line-height-caption);
+  list-style: none;
+}
+
+.restaurant-feed-meta li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.restaurant-feed-meta svg {
+  color: var(--color-accent-strong);
+}
+
+.restaurant-feed-rating {
+  color: var(--color-text);
+  font-weight: var(--font-weight-h3);
+}
+
+.restaurant-feed-rating svg {
+  color: var(--color-warning);
+  fill: currentColor;
+}
+
+.restaurant-feed-count {
+  color: var(--color-text-3);
+  font-weight: var(--font-weight-body);
+}
+
+.restaurant-feed-meta [data-free="true"] {
+  color: var(--color-success);
+  font-weight: var(--font-weight-h3);
+}
+
+/* Favourite heart with a burst when saved. */
+.restaurant-feed-favourite {
+  position: absolute;
+  z-index: 1;
+  inset-block-start: var(--space-8);
+  inset-inline-end: var(--space-8);
+  display: grid;
+  place-items: center;
+  inline-size: var(--touch-target-min);
+  block-size: var(--touch-target-min);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-e1);
+  color: var(--color-text-2);
+  cursor: pointer;
+  transition: transform var(--motion-fast) var(--ease-standard);
+}
+
+.restaurant-feed-favourite:active {
+  transform: scale(0.9);
+}
+
+.restaurant-feed-favourite[aria-pressed="true"] {
+  color: var(--color-danger);
+}
+
+.restaurant-feed-favourite[aria-pressed="true"] svg {
+  fill: currentColor;
+}
+
+.restaurant-feed-favourite[data-burst="true"] {
+  animation: discovery-heart var(--motion-slow) var(--ease-spring-bouncy);
+}
+
+.restaurant-feed-favourite[data-burst="true"]::after {
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--color-danger);
+  border-radius: inherit;
+  animation: discovery-ring var(--motion-slow) var(--ease-standard) forwards;
+  content: "";
+}
+
+@keyframes discovery-heart {
+  40% {
+    transform: scale(1.25);
+  }
+}
+
+@keyframes discovery-ring {
+  from {
+    opacity: 0.8;
+    transform: scale(0.6);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+
+/* Page top: location pill, greeting, search. */
+.discover-top {
+  display: grid;
+  gap: var(--space-12);
+  padding-block: 0 var(--space-8);
+}
+
+.discover-greeting {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.discover-greeting h1 {
+  font: var(--font-weight-display) var(--font-size-h2) / var(--line-height-h2) var(--font-display);
+}
+
+.discover-greeting p {
+  display: none;
+  color: var(--color-text-2);
+}
+
+@media (min-width: 640px) {
+  .discover-greeting p {
+    display: block;
+  }
+}
+
+/* Rails show the essentials only: name, rating, time, fee. */
+.discovery-rail .restaurant-feed-cuisines {
+  display: none;
+}
+
+.discovery-rail .restaurant-feed-meta {
+  flex-wrap: nowrap;
+}
+
+.discovery-rail .restaurant-feed-meta [data-free],
+.discovery-rail .restaurant-feed-count {
+  display: none;
+}
+
+.restaurant-feed-meta li {
+  white-space: nowrap;
+}
+
+/* Horizontal rails (collections and restaurant rows). */
+.discovery-rail,
+.discovery-cuisines {
+  display: grid;
+  gap: var(--space-8);
+  margin-block-start: var(--space-24);
+}
+
+.discovery-collections {
+  margin-block-start: var(--space-8);
+}
+
+.discovery-rail-list,
+.discovery-cuisine-list {
+  display: grid;
+  grid-auto-columns: min(78%, 20rem);
+  grid-auto-flow: column;
+  gap: var(--space-12);
+  margin-inline: calc(-1 * var(--page-padding));
+  padding: var(--space-4) var(--page-padding) var(--space-12);
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scroll-padding-inline: var(--page-padding);
+  scroll-snap-type: inline mandatory;
+  scrollbar-width: none;
+  list-style: none;
+}
+
+.discovery-rail-list > li,
+.discovery-cuisine-list > li {
+  scroll-snap-align: start;
+}
+
+.discovery-collection {
+  position: relative;
+  display: grid;
+  inline-size: 100%;
+  aspect-ratio: 2 / 1;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-xl);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition: transform var(--motion-fast) var(--ease-standard);
+}
+
+.discovery-collection:active {
+  transform: scale(0.97);
+}
+
+.discovery-collection img {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+.discovery-collection-text {
+  position: relative;
+  display: grid;
+  align-content: end;
+  gap: 2px;
+  padding: var(--space-16);
+  background: linear-gradient(transparent 45%, var(--color-photo-scrim));
+  color: var(--color-on-photo);
+}
+
+.discovery-collection-text > span:last-child {
+  font-size: var(--font-size-caption);
+  opacity: 0.9;
+}
+
+.discovery-collection-title {
+  font: var(--font-weight-display) var(--font-size-h3) / var(--line-height-h3) var(--font-display);
+}
+
+/* Cuisine chips with photos. */
+.discovery-cuisine-list {
+  grid-auto-columns: auto;
+  gap: var(--space-8);
+}
+
+.discovery-cuisine {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: var(--space-8);
+  inline-size: 5.5rem;
+  padding: var(--space-4);
+  border: 0;
+  background: none;
+  color: var(--color-text-2);
+  font: inherit;
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+  text-align: center;
+  cursor: pointer;
+}
+
+.discovery-cuisine > span:last-child {
+  max-inline-size: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.discovery-cuisine-all {
+  display: grid;
+  place-items: center;
+  inline-size: var(--space-64);
+  block-size: var(--space-64);
+  border: 3px solid transparent;
+  border-radius: var(--radius-pill);
+  background: var(--color-mint-pale);
+  color: var(--color-accent-strong);
+  box-shadow: var(--shadow-e1);
+}
+
+.discovery-cuisine[aria-pressed="true"] .discovery-cuisine-all {
+  border-color: var(--color-accent);
+}
+
+.discovery-cuisine img {
+  inline-size: var(--space-64);
+  block-size: var(--space-64);
+  border: 3px solid transparent;
+  border-radius: var(--radius-pill);
+  object-fit: cover;
+  box-shadow: var(--shadow-e1);
+  transition:
+    border-color var(--motion-fast) var(--ease-standard),
+    transform var(--motion-fast) var(--ease-standard);
+}
+
+.discovery-cuisine:active img {
+  transform: scale(0.94);
+}
+
+.discovery-cuisine[aria-pressed="true"] {
+  color: var(--color-text);
+  font-weight: var(--font-weight-h3);
+}
+
+.discovery-cuisine[aria-pressed="true"] img {
+  border-color: var(--color-accent);
+}
+
+/* Sticky filter and sort bar. */
+.discovery-filter-bar {
+  display: flex;
+  gap: var(--space-8);
+  align-items: center;
+  min-inline-size: 0;
+}
+
+.discovery-filter-list {
+  display: flex;
+  flex: 1;
+  gap: var(--space-8);
+  min-inline-size: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  list-style: none;
+}
+
+.discovery-filter,
+.discovery-sort select {
+  min-block-size: var(--touch-target-min);
+  padding-inline: var(--space-16);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--font-size-label);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--ease-standard),
+    transform var(--motion-fast) var(--ease-standard);
+}
+
+.discovery-filter:active {
+  transform: scale(0.97);
+}
+
+.discovery-filter[aria-pressed="true"] {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.discovery-sort {
+  position: relative;
+  flex: none;
+  color: var(--color-text-2);
+}
+
+.discovery-sort select {
+  appearance: none;
+  padding-inline-end: var(--space-40);
+}
+
+/* A token-coloured chevron instead of the browser's control arrow. */
+.discovery-sort::after {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-end: var(--space-16);
+  inline-size: var(--space-16);
+  block-size: var(--space-16);
+  background: currentColor;
+  transform: translateY(-50%);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  pointer-events: none;
+  content: "";
+}
+
+@media (min-width: 960px) {
+  .discovery-rail-list {
+    grid-auto-columns: calc((100% - 2 * var(--space-12)) / 3);
+    margin-inline: 0;
+    padding-inline: 0;
+  }
+
+  .discovery-collections .discovery-rail-list {
+    grid-auto-columns: calc((100% - 2 * var(--space-12)) / 3);
+  }
+
+  .discovery-cuisine-list {
+    justify-content: start;
+    gap: var(--space-20);
+  }
+
+  .discover-top {
+    grid-template-columns: minmax(0, 1fr) minmax(20rem, 30rem);
+    align-items: end;
+    gap: var(--space-12) var(--space-32);
+  }
+
+  .discover-top > .discovery-location {
+    grid-column: 2;
+    grid-row: 1;
+    justify-items: end;
+  }
+
+  .discover-top > .discover-greeting {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: end;
+  }
+
+  .discover-top > :last-child {
+    grid-column: 2;
+  }
+
+  .discover-greeting h1 {
+    font-size: var(--font-size-h1);
+    line-height: var(--line-height-h1);
+  }
+
+  .discover-top .discovery-search-trigger {
+    max-inline-size: none;
+  }
+
+  .discovery-collection {
+    aspect-ratio: 16 / 9;
+  }
+
+  .restaurant-feed-header {
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    margin-inline: 0;
+    padding-inline: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .restaurant-feed-skeleton .restaurant-feed-cover,
+  .restaurant-feed-skeleton-title,
+  .restaurant-feed-skeleton-chip,
+  .restaurant-feed-favourite[data-burst="true"],
+  .restaurant-feed-favourite[data-burst="true"]::after {
+    animation: none;
+  }
+}
+
+/* Cards rise in with a short stagger (first eight only). */
+@media (prefers-reduced-motion: no-preference) {
+  .restaurant-feed-grid > li,
+  .discovery-rail-list > li {
+    animation: discovery-rise var(--motion-slow) var(--ease-standard) both;
+  }
+
+  .restaurant-feed-grid > li:nth-child(2),
+  .discovery-rail-list > li:nth-child(2) {
+    animation-delay: 30ms;
+  }
+
+  .restaurant-feed-grid > li:nth-child(3),
+  .discovery-rail-list > li:nth-child(3) {
+    animation-delay: 60ms;
+  }
+
+  .restaurant-feed-grid > li:nth-child(4),
+  .discovery-rail-list > li:nth-child(4) {
+    animation-delay: 90ms;
+  }
+
+  .restaurant-feed-grid > li:nth-child(5),
+  .discovery-rail-list > li:nth-child(5) {
+    animation-delay: 120ms;
+  }
+
+  .restaurant-feed-grid > li:nth-child(n + 6),
+  .discovery-rail-list > li:nth-child(n + 6) {
+    animation-delay: 150ms;
+  }
+}
+
+@keyframes discovery-rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-12));
+  }
+}
+
+/* Only the exception gets a badge: open cards keep the status for screen readers only. */
+.restaurant-feed-badge[data-open="true"] {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Rails are a lighter, swipeable layer: smaller cards than the main list. */
+.discovery-rail .discovery-rail-list {
+  grid-auto-columns: min(64%, 15rem);
+}
+
+.discovery-rail .restaurant-feed-cover {
+  aspect-ratio: 4 / 3;
+}
+
+.discovery-rail .restaurant-feed-logo {
+  display: none;
+}
+
+.discovery-rail .restaurant-feed-card {
+  box-shadow: none;
+  background: none;
+}
+
+.discovery-rail .restaurant-feed-cover {
+  border-radius: var(--radius-xl);
+}
+
+.discovery-rail .restaurant-feed-card-body {
+  padding: var(--space-8) var(--space-4) 0;
+}
+
+@media (min-width: 960px) {
+  .discovery-rail .discovery-rail-list {
+    grid-auto-columns: calc((100% - 3 * var(--space-12)) / 4);
+  }
 }

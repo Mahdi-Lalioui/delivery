@@ -22,6 +22,7 @@ test("[CUS-07:web] sold-out dishes cannot be opened for ordering and have a text
       dish={{ ...detail.item, isAvailable: false }}
       merchantId="merchant"
       locale="fr"
+      quantityInCart={0}
       onChoose={noop}
     />,
   );
@@ -29,6 +30,21 @@ test("[CUS-07:web] sold-out dishes cannot be opened for ordering and have a text
   expect(html).toContain("disabled");
   expect(html).toContain("Chawarma");
   expect(html).toContain("400 DA");
+});
+
+test("[CUS-07:web] a dish already in the cart shows its quantity on the add button", () => {
+  const html = renderToStaticMarkup(
+    <DishCard
+      dish={detail.item}
+      merchantId="merchant"
+      locale="fr"
+      quantityInCart={2}
+      onChoose={noop}
+    />,
+  );
+  expect(html).toContain('data-in-cart="true"');
+  expect(html).toContain("×2");
+  expect(html).toContain('aria-label="Choisir · Chawarma');
 });
 
 test("[CUS-08:web] required radios block Add, show option deltas and expose quantity and note bounds", () => {
@@ -47,7 +63,8 @@ test("[CUS-08:web] required radios block Add, show option deltas and expose quan
   expect(html).toMatch(/aria-label="Réduire la quantité"[^>]*disabled/u);
   expect(html).toContain('<output aria-label="Quantité">1</output>');
   expect(html).toContain('maxLength="140"');
-  expect(html).toMatch(/<button[^>]*disabled[^>]*>[^<]*<span>Ajouter/u);
+  // Add stays disabled and names the unanswered required group.
+  expect(html).toMatch(/<button[^>]*disabled[^>]*>[^<]*<span>Choisissez : Taille/u);
   expect(html).toContain("Note pour la cuisine");
 });
 
@@ -98,4 +115,32 @@ test("[CUS-09:web] cart lines expose configured snapshots, quantity editing and 
   expect(html).toContain('<output aria-label="Quantité · Chawarma">1</output>');
   expect(html).toContain('aria-label="Augmenter la quantité · Chawarma"');
   expect(html).toMatch(/aria-label="Réduire la quantité · Chawarma"[^>]*disabled/u);
+});
+
+test("[CUS-07:web] lists popular dishes with a distinct add label and hides when there are none", async () => {
+  const { PopularRow } = await import("../src/restaurant/popular-row");
+  const selection = { dish: detail.item, revision: 1, categoryId: "category" };
+  const html = renderToStaticMarkup(
+    <PopularRow selections={[selection]} merchantId="merchant" locale="fr" onChoose={noop} />,
+  );
+  expect(html).toContain("Les plus commandés");
+  expect(html).toContain('aria-label="Les plus commandés · Chawarma');
+  expect(
+    renderToStaticMarkup(
+      <PopularRow selections={[]} merchantId="merchant" locale="fr" onChoose={noop} />,
+    ),
+  ).toBe("");
+});
+
+test("[CUS-07:web] most ordered lists tagged dishes first, tops up to three and never shows one", async () => {
+  const { pickPopular } = await import("../src/restaurant/restaurant-screen");
+  const dish = (id: string, tags: ("popular" | "spicy")[] = []) => ({
+    dish: { ...detail.item, itemId: id, tags },
+    revision: 1,
+    categoryId: "c",
+  });
+  expect(
+    pickPopular([dish("a"), dish("b", ["popular"]), dish("c")]).map((s) => s.dish.itemId),
+  ).toEqual(["b", "a", "c"]);
+  expect(pickPopular([dish("a", ["popular"]), dish("b")])).toEqual([]);
 });

@@ -56,7 +56,7 @@ export function SegmentedControl<Value extends string>(props: {
       <legend className={props.isLegendVisible === false ? "ui-visually-hidden" : "ui-field-label"}>
         {props.legend}
       </legend>
-      <div className="ui-segmented-track">
+      <div className="ui-segmented-track" data-count={props.options.length}>
         {props.options.map((option) => (
           <label key={option.value} className="ui-segment">
             <input

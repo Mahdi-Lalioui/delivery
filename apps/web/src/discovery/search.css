@@ -4,21 +4,34 @@
   gap: var(--space-12);
   inline-size: 100%;
   min-block-size: var(--touch-target-customer-primary);
-  padding: var(--space-8) var(--space-16) var(--space-8) var(--space-8);
-  padding-inline: var(--space-8) var(--space-16);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  padding-inline-end: var(--space-16);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-pill);
   background: var(--color-surface);
-  color: var(--color-text);
+  color: var(--color-text-3);
   box-shadow: var(--shadow-e1);
-  font-weight: var(--font-weight-h3);
   text-align: start;
   cursor: pointer;
+  transition: transform var(--motion-fast) var(--ease-standard);
+}
+
+.discovery-search-trigger > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .discovery-search-trigger:hover {
-  border-color: var(--color-harissa-text);
-  background: var(--color-surface-2);
+  border-color: var(--color-border-strong);
+}
+
+.discovery-search-trigger:active {
+  transform: scale(0.98);
+}
+
+.discovery-search-trigger .discovery-search-trigger-icon {
+  border-radius: var(--radius-pill);
 }
 
 .discovery-search-trigger-icon,

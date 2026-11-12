@@ -1,0 +1,574 @@
+.checkout {
+  display: grid;
+  gap: var(--space-20);
+  max-inline-size: 40rem;
+  margin-inline: auto;
+  padding-block-end: calc(var(--touch-target-customer-primary) + var(--space-80));
+}
+
+.checkout-header h1 {
+  font: var(--font-weight-display) var(--font-size-h1) / var(--line-height-h1) var(--font-display);
+}
+
+.checkout-merchant {
+  display: inline-flex;
+  gap: var(--space-8);
+  align-items: center;
+  margin-block-start: var(--space-4);
+  color: var(--color-text-2);
+  font-weight: var(--font-weight-h3);
+}
+
+.checkout-merchant > span {
+  display: grid;
+  place-items: center;
+  inline-size: var(--space-32);
+  block-size: var(--space-32);
+  border-radius: var(--radius-sm);
+  background: var(--color-mint-pale);
+  color: var(--color-accent-strong);
+  font-family: var(--font-display);
+}
+
+/* Progress: three dots joined by a bar that fills as you advance. */
+.checkout-progress {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  list-style: none;
+}
+
+.checkout-progress::before,
+.checkout-progress::after {
+  position: absolute;
+  inset-block-start: var(--space-16);
+  inset-inline: 16.66%;
+  block-size: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-3);
+  content: "";
+}
+
+.checkout-progress::after {
+  background: var(--color-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--motion-slow) var(--ease-standard);
+}
+
+[dir="rtl"] .checkout-progress::after {
+  transform-origin: right;
+}
+
+.checkout-progress[data-step="2"]::after {
+  transform: scaleX(0.5);
+}
+
+.checkout-progress[data-step="3"]::after {
+  transform: scaleX(1);
+}
+
+.checkout-progress li {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: var(--space-4);
+  color: var(--color-text-3);
+  font-size: var(--font-size-caption);
+}
+
+.checkout-progress-dot {
+  display: grid;
+  place-items: center;
+  inline-size: var(--space-32);
+  block-size: var(--space-32);
+  border: 2px solid var(--color-surface-3);
+  border-radius: var(--radius-pill);
+  background: var(--color-bg);
+  font-weight: var(--font-weight-h3);
+  font-variant-numeric: var(--font-variant-numeric-numbers);
+  transition:
+    background-color var(--motion-base) var(--ease-standard),
+    border-color var(--motion-base) var(--ease-standard);
+}
+
+.checkout-progress li[aria-current="step"] {
+  color: var(--color-text);
+  font-weight: var(--font-weight-h3);
+}
+
+.checkout-progress li[aria-current="step"] .checkout-progress-dot {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.checkout-progress li[data-done="true"] {
+  color: var(--color-text);
+}
+
+.checkout-progress li[data-done="true"] .checkout-progress-dot {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.checkout-body {
+  display: grid;
+  gap: var(--space-20);
+  animation: checkout-step-in var(--motion-base) var(--ease-standard);
+}
+
+@keyframes checkout-step-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-8));
+  }
+}
+
+.checkout-step {
+  display: grid;
+  gap: var(--space-16);
+}
+
+.checkout-step h2 {
+  font: var(--font-weight-h2) var(--font-size-h2) / var(--line-height-h2) var(--font-display);
+}
+
+.checkout-step .ui-segmented-track {
+  justify-self: stretch;
+}
+
+/* Address and option cards. */
+.checkout-addresses {
+  display: grid;
+  gap: var(--space-8);
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.checkout-addresses legend {
+  margin-block-end: var(--space-8);
+  font-weight: var(--font-weight-h3);
+}
+
+.checkout-option,
+.checkout-add,
+.checkout-pickup {
+  display: flex;
+  gap: var(--space-12);
+  align-items: center;
+  min-block-size: var(--touch-target-customer-primary);
+  padding: var(--space-12) var(--space-16);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-e1);
+}
+
+.checkout-option {
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color var(--motion-fast) var(--ease-standard);
+}
+
+.checkout-option:has(input:checked) {
+  border-color: var(--color-primary);
+  background: var(--color-mint-pale);
+}
+
+.checkout-option:has(input:focus-visible) {
+  outline: var(--focus-ring-width) solid var(--color-focus);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.checkout-option input {
+  position: absolute;
+  opacity: 0;
+}
+
+.checkout-option svg,
+.checkout-pickup svg {
+  flex: none;
+  color: var(--color-accent-strong);
+}
+
+.checkout-option span {
+  display: grid;
+  min-inline-size: 0;
+  color: var(--color-text-2);
+  font-size: var(--font-size-caption);
+}
+
+.checkout-option strong {
+  color: var(--color-text);
+  font-size: var(--font-size-body);
+}
+
+.checkout-add {
+  border: 2px dashed var(--color-border-strong);
+  background: none;
+  box-shadow: none;
+  color: var(--color-text);
+  font: inherit;
+  font-weight: var(--font-weight-h3);
+  cursor: pointer;
+}
+
+.checkout-pickup {
+  align-items: start;
+  background: var(--color-mint-pale);
+  box-shadow: none;
+}
+
+.checkout-pickup p,
+.checkout-note {
+  color: var(--color-text-2);
+  font-size: var(--font-size-caption);
+}
+
+.checkout-note {
+  display: flex;
+  gap: var(--space-8);
+  align-items: center;
+}
+
+.checkout-address-form {
+  display: grid;
+  gap: var(--space-16);
+  padding: var(--space-20);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-e1);
+}
+
+.checkout-pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+  gap: var(--space-12);
+}
+
+.checkout-inline-actions {
+  display: flex;
+  gap: var(--space-12);
+  justify-content: end;
+}
+
+/* Review: dish list, totals, cash. */
+/* Lines and totals read as one receipt. */
+.checkout-receipt {
+  display: grid;
+  gap: var(--space-16);
+  padding: var(--space-16);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-e1);
+}
+
+.checkout-lines {
+  display: grid;
+  gap: var(--space-8);
+  padding-block-end: var(--space-12);
+  border-block-end: 1px dashed var(--color-border-subtle);
+  list-style: none;
+}
+
+.checkout-line-price {
+  margin-inline-start: auto;
+  color: var(--color-text-2);
+  font-variant-numeric: var(--font-variant-numeric-numbers);
+  white-space: nowrap;
+}
+
+.checkout-lines li {
+  display: flex;
+  gap: var(--space-12);
+  align-items: center;
+}
+
+.checkout-qty {
+  display: grid;
+  place-items: center;
+  min-inline-size: var(--space-24);
+  block-size: var(--space-24);
+  border-radius: var(--radius-xs);
+  background: var(--color-mint-pale);
+  color: var(--color-accent-strong);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-h3);
+}
+
+.checkout-totals {
+  display: grid;
+  gap: var(--space-8);
+  margin: 0;
+}
+
+.checkout-totals > div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-12);
+  color: var(--color-text-2);
+}
+
+.checkout-totals dd {
+  margin: 0;
+  font-variant-numeric: var(--font-variant-numeric-numbers);
+}
+
+.checkout-totals dd[data-free="true"] {
+  color: var(--color-success);
+  font-weight: var(--font-weight-h3);
+}
+
+.checkout-total {
+  padding-block-start: var(--space-12);
+  border-block-start: 1px dashed var(--color-border-subtle);
+  color: var(--color-text);
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-display);
+}
+
+@keyframes checkout-pop {
+  from {
+    opacity: 0.4;
+    transform: scale(0.9);
+  }
+}
+
+.checkout-cash {
+  display: grid;
+  gap: var(--space-12);
+  padding: var(--space-16);
+  border-radius: var(--radius-lg);
+  background: var(--color-cream);
+}
+
+.checkout-cash > p:first-child {
+  display: flex;
+  gap: var(--space-8);
+  align-items: center;
+  font-weight: var(--font-weight-h3);
+}
+
+.checkout-change {
+  color: var(--color-success);
+  font-weight: var(--font-weight-h3);
+}
+
+/* Sticky action bar with the morphing primary button. */
+.checkout-actions {
+  position: fixed;
+  z-index: 21;
+  inset-block-end: 0;
+  inset-inline: 0;
+  display: flex;
+  gap: var(--space-12);
+  justify-content: center;
+  padding: var(--space-12) var(--page-padding) calc(var(--space-12) + env(safe-area-inset-bottom));
+  background: var(--color-bg);
+  box-shadow: var(--shadow-e2);
+}
+
+.checkout-back {
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: var(--touch-target-customer-primary);
+  block-size: var(--touch-target-customer-primary);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.checkout-back svg {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .checkout-back svg {
+  transform: none;
+}
+
+.checkout-primary {
+  display: inline-flex;
+  flex: 1;
+  gap: var(--space-8);
+  align-items: center;
+  justify-content: center;
+  max-inline-size: 32rem;
+  min-block-size: var(--touch-target-customer-primary);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font: inherit;
+  font-weight: var(--font-weight-h3);
+  font-variant-numeric: var(--font-variant-numeric-numbers);
+  cursor: pointer;
+  transition:
+    transform var(--motion-fast) var(--ease-standard),
+    background-color var(--motion-base) var(--ease-standard);
+}
+
+.checkout-primary:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.checkout-primary:disabled:not([aria-busy="true"]) {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.checkout-primary[aria-busy="true"] {
+  cursor: progress;
+}
+
+.checkout-primary[data-state="placed"] {
+  background: var(--color-success);
+}
+
+/* Order confirmed: a full-screen celebration. */
+.checkout-confirmed {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cpath d='M28 4 52 28 28 52 4 28Z' fill='none' stroke='%234DE3B4' stroke-opacity='.12' stroke-width='2'/%3E%3C/svg%3E");
+  position: fixed;
+  z-index: 30;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: var(--space-16);
+  padding: var(--page-padding);
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  text-align: center;
+}
+
+.checkout-confirmed::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: radial-gradient(circle at 50% 45%, var(--color-primary) 30%, transparent 75%);
+  content: "";
+}
+
+.checkout-confirmed {
+  isolation: isolate;
+}
+
+.checkout-confirmed .ui-button {
+  margin-block-start: var(--space-24);
+}
+
+/* The total rolls up into place whenever it changes (keyed re-mount). */
+.checkout-total-roll {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+
+.checkout-total-roll bdi {
+  display: inline-block;
+  animation: checkout-roll var(--motion-slow) var(--ease-standard);
+}
+
+@keyframes checkout-roll {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+}
+
+.checkout-confirmed h1 {
+  font: var(--font-weight-display) var(--font-size-display) / var(--line-height-display)
+    var(--font-display);
+}
+
+.checkout-confirmed p {
+  max-inline-size: 26rem;
+  opacity: 0.9;
+}
+
+.checkout-confirmed-code {
+  padding: var(--space-4) var(--space-16);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-on-primary) 14%, transparent);
+  font-weight: var(--font-weight-h3);
+  font-variant-numeric: var(--font-variant-numeric-numbers);
+  letter-spacing: 0.06em;
+}
+
+.checkout-confirmed .ui-button {
+  margin-block-start: var(--space-16);
+  background: var(--color-mint);
+  color: var(--color-on-accent);
+}
+
+.checkout-confirmed-burst {
+  position: relative;
+  display: grid;
+  place-items: center;
+  inline-size: 9rem;
+  block-size: 9rem;
+}
+
+.checkout-confirmed-burst::before,
+.checkout-confirmed-burst::after {
+  position: absolute;
+  inset: 0;
+  border: 3px solid var(--color-mint);
+  border-radius: var(--radius-pill);
+  animation: checkout-ring 1.2s var(--ease-standard) infinite;
+  content: "";
+}
+
+.checkout-confirmed-burst::after {
+  animation-delay: 0.4s;
+}
+
+.checkout-confirmed-check {
+  display: grid;
+  place-items: center;
+  inline-size: 6rem;
+  block-size: 6rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-mint);
+  color: var(--color-on-accent);
+  animation: checkout-check var(--motion-slow) var(--ease-spring-bouncy);
+}
+
+@keyframes checkout-check {
+  from {
+    transform: scale(0.3);
+  }
+}
+
+@keyframes checkout-ring {
+  from {
+    opacity: 0.9;
+    transform: scale(0.6);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .checkout-body,
+  .checkout-total-roll bdi,
+  .checkout-confirmed-check,
+  .checkout-confirmed-burst::before,
+  .checkout-confirmed-burst::after {
+    animation: none;
+  }
+
+  .checkout-progress::after,
+  .checkout-primary {
+    transition: none;
+  }
+}

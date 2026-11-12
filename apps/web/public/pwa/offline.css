@@ -1,7 +1,7 @@
 :root {
   color-scheme: light dark;
-  color: #16130f;
-  background: #fbf8f3;
+  color: #0b3d2e;
+  background: #fffcf5;
   font:
     1rem/1.5 system-ui,
     sans-serif;
@@ -13,39 +13,48 @@ body {
   place-items: center;
 }
 main {
-  max-inline-size: 30rem;
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+  max-inline-size: 26rem;
   padding: 2rem;
+  text-align: center;
 }
 .brand {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 700;
-}
-.brand span {
-  inline-size: 1rem;
-  block-size: 1rem;
-  border-radius: 100% 0.25rem;
-  background: #f29e1f;
+  border-radius: 24%;
+  box-shadow: 0 12px 32px rgb(11 61 46 / 0.12);
 }
 h1 {
-  margin-block: 1rem 0.5rem;
-  font-size: 2rem;
+  margin-block: 0.5rem 0;
+  font-size: 1.75rem;
   line-height: 1.2;
+}
+p {
+  margin: 0;
+  color: #2f5547;
 }
 a {
   display: inline-flex;
   align-items: center;
   min-block-size: 3.25rem;
-  padding-inline: 1rem;
+  margin-block-start: 0.75rem;
+  padding-inline: 1.5rem;
   border-radius: 99rem;
-  background: #f29e1f;
-  color: #16130f;
-  font-weight: 650;
+  background: #0b3d2e;
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    color: #f6f0e7;
-    background: #0e0c0a;
+    color: #f1fbf6;
+    background: #05221a;
+  }
+  p {
+    color: #c5ddd3;
+  }
+  a {
+    background: #4de3b4;
+    color: #05221a;
   }
 }

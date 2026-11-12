@@ -5,7 +5,10 @@ import { getTranslations } from "next-intl/server";
 import { CustomerWorker } from "../discovery/customer-worker";
 import { DiscoveryLocationSelector } from "../discovery/discovery-location-selector";
 import { DiscoveryFeed } from "../discovery/feed";
+import { getFeedMessages } from "../discovery/feed-messages";
 import { DiscoverySearch } from "../discovery/search";
+import { InstallPrompt } from "../customer/install-prompt";
+import { CustomerTabBar } from "../customer/tab-bar";
 import { SiteShell } from "./site-shell";
 
 export function homeMetadata(locale: Locale, subpath = ""): Metadata {
@@ -22,27 +25,30 @@ export function homeMetadata(locale: Locale, subpath = ""): Metadata {
 }
 
 export async function Home({ locale }: { locale: Locale }) {
-  const [translate, translateAuth, translateMerchant] = await Promise.all([
-    getTranslations({ locale, namespace: "home" }),
+  const [translateAuth, translateMerchant] = await Promise.all([
     getTranslations({ locale, namespace: "auth" }),
     getTranslations({ locale, namespace: "merchant" }),
   ]);
+  const feed = getFeedMessages(locale);
 
   return (
     <SiteShell locale={locale} subpath="/discover">
       <CustomerWorker />
-      <section className="hero">
-        <p className="eyebrow">{translate("eyebrow")}</p>
-        <h1>{locale === "ar" ? brand.arabicName : brand.name}</h1>
-        <p className="intro">{translate("description")}</p>
+      <section className="discover-top" aria-labelledby="discover-title">
         <DiscoveryLocationSelector locale={locale} />
-        <DiscoverySearch locale={locale} />
-        <div className="home-actions">
-          <a href={`/${locale}/sign-in`}>{translateAuth("title")}</a>
-          <a href={`/${locale}/merchant/apply`}>{translateMerchant("startApplication")}</a>
+        <div className="discover-greeting">
+          <h1 id="discover-title">{feed.greeting}</h1>
+          <p>{feed.greetingIntro}</p>
         </div>
+        <DiscoverySearch locale={locale} />
       </section>
       <DiscoveryFeed locale={locale} />
+      <div className="home-actions">
+        <a href={`/${locale}/sign-in`}>{translateAuth("title")}</a>
+        <a href={`/${locale}/merchant/apply`}>{translateMerchant("startApplication")}</a>
+      </div>
+      <InstallPrompt locale={locale} />
+      <CustomerTabBar locale={locale} current="home" />
     </SiteShell>
   );
 }

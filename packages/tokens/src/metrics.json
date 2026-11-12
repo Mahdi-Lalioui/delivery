@@ -15,9 +15,9 @@
       "120": "120px"
     },
     "radius": {
-      "xs": "6px",
-      "sm": "10px",
-      "md": "14px",
+      "xs": "8px",
+      "sm": "12px",
+      "md": "16px",
       "lg": "20px",
       "xl": "28px",
       "pill": "999px"
@@ -47,9 +47,9 @@
       "micro": "16px"
     },
     "font-weight": {
-      "display-xl": "600",
-      "display": "600",
-      "h1": "600",
+      "display-xl": "700",
+      "display": "700",
+      "h1": "700",
       "h2": "600",
       "h3": "600",
       "body-lg": "400",
@@ -60,9 +60,9 @@
     }
   },
   "common": {
-    "font-display": "var(--font-fraunces, Fraunces), Georgia, serif",
-    "font-ui": "var(--font-inter, Inter), system-ui, sans-serif",
-    "font-numbers": "var(--font-inter, Inter), system-ui, sans-serif",
+    "font-display": "var(--font-poppins, Poppins), var(--font-ibm-plex-sans-arabic, system-ui), system-ui, sans-serif",
+    "font-ui": "var(--font-poppins, Poppins), var(--font-ibm-plex-sans-arabic, system-ui), system-ui, sans-serif",
+    "font-numbers": "var(--font-poppins, Poppins), system-ui, sans-serif",
     "font-variant-numeric-numbers": "tabular-nums",
     "letter-spacing-display-xl": "-0.02em",
     "letter-spacing-micro": "0.04em",
@@ -77,30 +77,30 @@
     "focus-ring-offset": "2px",
     "link-underline-width": "2px",
     "link-underline-offset": "3px",
-    "gradient-golden-hour": "linear-gradient(#F6AE3E, #C2410C, #2A1E14)",
-    "gradient-route": "linear-gradient(var(--color-primary), var(--color-harissa))",
+    "gradient-golden-hour": "linear-gradient(160deg, #0B3D2E, #00A37A)",
+    "gradient-route": "linear-gradient(var(--color-accent), var(--color-mint))",
     "glass-blur": "16px",
     "glass-bg": "color-mix(in srgb, var(--color-bg) 72%, transparent)",
     "film-grain-opacity": "0.03"
   },
   "elevation": {
     "light": {
-      "shadow-e1": "0 1px 2px rgb(22 19 15 / .06)",
-      "shadow-e2": "0 1px 2px rgb(22 19 15 / .05), 0 8px 24px rgb(22 19 15 / .08)",
-      "shadow-e3": "0 2px 6px rgb(22 19 15 / .06), 0 24px 48px rgb(22 19 15 / .14)",
+      "shadow-e1": "0 1px 2px rgb(11 61 46 / .06), 0 2px 8px rgb(11 61 46 / .05)",
+      "shadow-e2": "0 2px 6px rgb(11 61 46 / .06), 0 12px 32px rgb(11 61 46 / .10)",
+      "shadow-e3": "0 4px 12px rgb(11 61 46 / .08), 0 28px 56px rgb(11 61 46 / .16)",
       "elevation-border-width": "0px"
     },
     "dark": {
-      "shadow-e1": "none",
-      "shadow-e2": "none",
-      "shadow-e3": "none",
+      "shadow-e1": "0 1px 2px rgb(0 0 0 / .4)",
+      "shadow-e2": "0 2px 6px rgb(0 0 0 / .35), 0 12px 32px rgb(0 0 0 / .35)",
+      "shadow-e3": "0 4px 12px rgb(0 0 0 / .4), 0 28px 56px rgb(0 0 0 / .5)",
       "elevation-border-width": "1px"
     }
   },
   "arabic": {
     "properties": {
-      "font-display": "var(--font-noto-naskh-arabic, 'Noto Naskh Arabic'), serif",
-      "font-ui": "var(--font-ibm-plex-sans-arabic, 'IBM Plex Sans Arabic'), system-ui, sans-serif",
+      "font-display": "var(--font-ibm-plex-sans-arabic, 'IBM Plex Sans Arabic'), var(--font-poppins, Poppins), system-ui, sans-serif",
+      "font-ui": "var(--font-ibm-plex-sans-arabic, 'IBM Plex Sans Arabic'), var(--font-poppins, Poppins), system-ui, sans-serif",
       "letter-spacing-display-xl": "normal",
       "letter-spacing-micro": "normal",
       "text-transform-micro": "none"

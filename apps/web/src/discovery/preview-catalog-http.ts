@@ -54,7 +54,7 @@ function parseQuery(params: URLSearchParams) {
   return Object.fromEntries(query);
 }
 
-const cards = previewCatalog.map(({ profile: { restaurant } }) => {
+const cards = previewCatalog.map(({ profile: { restaurant }, feed }) => {
   const {
     merchantId,
     slug,
@@ -76,19 +76,45 @@ const cards = previewCatalog.map(({ profile: { restaurant } }) => {
     logoMediaId,
     isOpen,
     nextOpensAt,
+    ...feed,
   };
 });
+
+type FeedQuery = ReturnType<typeof publicFeedQuery.parse>;
+type Card = (typeof cards)[number];
+
+const filterChecks: ((card: Card, query: FeedQuery) => boolean)[] = [
+  (card, { cuisine }) => cuisine === undefined || card.cuisines.includes(cuisine),
+  (card, { openNow }) => openNow !== true || card.isOpen,
+  (card, { freeDelivery }) => freeDelivery !== true || card.deliveryFeeDzd === 0,
+  (card, { minRating }) => minRating === undefined || (card.rating ?? 0) >= minRating,
+  (card, { maxEtaMinutes }) =>
+    maxEtaMinutes === undefined || (card.etaMinutes?.max ?? Infinity) <= maxEtaMinutes,
+];
+
+function matchesFilters(card: Card, query: FeedQuery) {
+  return filterChecks.every((check) => check(card, query));
+}
+
+const sorters: Record<string, (left: Card, right: Card) => number> = {
+  rating: (left, right) => (right.rating ?? 0) - (left.rating ?? 0),
+  eta: (left, right) => (left.etaMinutes?.max ?? 999) - (right.etaMinutes?.max ?? 999),
+};
 
 function feed(params: URLSearchParams) {
   const query = publicFeedQuery.safeParse(parseQuery(params));
   if (!query.success) return problem(400);
-  const { cursor, limit } = query.data;
-  const cursorIndex = cursor ? cards.findIndex(({ merchantId }) => merchantId === cursor) : -1;
+  const { cursor, limit, sort } = query.data;
+  const sorter = sort === undefined ? undefined : sorters[sort];
+  const matching = cards.filter((card) => matchesFilters(card, query.data));
+  const ordered = sorter === undefined ? matching : matching.toSorted(sorter);
+  const cursorIndex = cursor ? ordered.findIndex(({ merchantId }) => merchantId === cursor) : -1;
   if (cursor && cursorIndex === -1) return problem(400);
 
   const start = cursorIndex + 1;
-  const restaurants = cards.slice(start, start + limit);
-  const nextCursor = start + limit < cards.length ? (restaurants.at(-1)?.merchantId ?? null) : null;
+  const restaurants = ordered.slice(start, start + limit);
+  const nextCursor =
+    start + limit < ordered.length ? (restaurants.at(-1)?.merchantId ?? null) : null;
   return json(publicFeedOutput.parse({ restaurants, nextCursor }));
 }
 
@@ -148,13 +174,15 @@ function category(match: { slug: string; categoryId: string }, params: URLSearch
     return problem(404);
   }
 
-  return categoryPage(entry, query.data);
+  return categoryPage(entry, categoryId, query.data);
 }
 
 function categoryPage(
-  { profile: { revision }, menu }: (typeof previewCatalog)[number],
+  { profile: { revision }, menu: fullMenu, categoryOf }: (typeof previewCatalog)[number],
+  categoryId: string,
   { cursor, limit }: ReturnType<typeof publicRestaurantItemsQuery.parse>,
 ) {
+  const menu = fullMenu.filter(({ item }) => categoryOf.get(item.itemId) === categoryId);
   const position = cursor ? readMenuItemCursor(cursor) : undefined;
   if (position && position.revision !== revision) return problem(409);
   const cursorIndex = position

@@ -11,7 +11,7 @@ for (const locale of ["ar", "fr"] as const) {
     await page.getByRole("link", { name: messages.badge, exact: true }).click();
     await expect(page.getByRole("heading", { name: messages.title })).toBeVisible();
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/u);
-    const poster = page.locator('img[src="/preview-catalog/casbah.webp"]');
+    const poster = page.locator('img[src="/photos/algeria/algiers-casbah.webp"]');
     await expect
       .poll(() =>
         poster.evaluate((image) => image instanceof HTMLImageElement && image.naturalWidth > 0),

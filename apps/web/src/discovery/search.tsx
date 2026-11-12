@@ -69,6 +69,16 @@ export function DiscoverySearch({ locale }: { locale: Locale }) {
     setOpen(true);
   }
 
+  // The Search tab links here with ?search=open; open the dialog once, then drop the flag.
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("search") !== "open") return;
+    url.searchParams.delete("search");
+    window.history.replaceState(window.history.state, "", url);
+    setHistory(storedHistory());
+    setOpen(true);
+  }, []);
+
   function dismiss() {
     setOpen(false);
     trigger.current?.focus();

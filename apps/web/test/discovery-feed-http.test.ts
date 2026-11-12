@@ -39,3 +39,14 @@ test.each([
 
   await expect(readDiscoveryFeed(null, new AbortController().signal)).resolves.toBeNull();
 });
+
+test("[CUS-04][CUS-06] sends feed filters and sort with the cursor", async () => {
+  const fetchFeed = vi.fn().mockResolvedValue(Response.json(emptyPage));
+  vi.stubGlobal("fetch", fetchFeed);
+
+  const filters = { freeDelivery: "true", sort: "rating" };
+  await readDiscoveryFeed(cursor, new AbortController().signal, filters);
+  expect(fetchFeed.mock.calls[0]?.[0]).toBe(
+    `/v1/feed?freeDelivery=true&sort=rating&cursor=${cursor}`,
+  );
+});

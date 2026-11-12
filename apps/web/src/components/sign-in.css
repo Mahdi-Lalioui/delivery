@@ -1,13 +1,52 @@
+/* A food photo band with the sign-in panel lifted over it. */
+.auth-layout {
+  display: grid;
+  margin-block-start: calc(-1 * var(--space-32));
+}
+
+.auth-photo {
+  block-size: 32svb;
+  min-block-size: 12rem;
+  margin: 0 calc(-1 * var(--page-padding));
+  overflow: hidden;
+  background: var(--color-mint-pale);
+}
+
+.auth-photo img {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
 .auth-panel {
+  position: relative;
   display: grid;
   gap: var(--space-24);
   inline-size: min(100%, calc(4 * var(--space-120)));
-  margin-inline: auto;
-  padding: clamp(var(--space-16), 5vi, var(--space-40));
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
+  margin: calc(-1 * var(--space-48)) auto 0;
+  padding: clamp(var(--space-20), 5vi, var(--space-40));
+  border-radius: var(--radius-xl);
   background: var(--color-surface);
-  box-shadow: var(--shadow-e2);
+  box-shadow: var(--shadow-e3);
+}
+
+@media (min-width: 960px) {
+  .auth-layout {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-48);
+    align-items: center;
+    margin-block-start: 0;
+  }
+
+  .auth-photo {
+    block-size: 36rem;
+    margin: 0;
+    border-radius: var(--radius-xl);
+  }
+
+  .auth-panel {
+    margin: 0;
+  }
 }
 
 .auth-heading,
@@ -19,9 +58,9 @@
 
 .auth-heading h1 {
   font-family: var(--font-display);
-  font-size: var(--font-size-display);
+  font-size: var(--font-size-h1);
   font-weight: var(--font-weight-display);
-  line-height: var(--line-height-display);
+  line-height: var(--line-height-h1);
 }
 
 .auth-heading p {

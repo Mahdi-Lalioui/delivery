@@ -4,7 +4,7 @@ import type { Locale } from "@zaafran/i18n/locales";
 import { useEffect, useState } from "react";
 import { readSavedLocation, saveLocation, type SavedDiscoveryLocation } from "./location";
 import { LocationDialog } from "./location-dialog";
-import { getDiscoveryMessages, type DiscoveryMessages } from "./messages";
+import { getDiscoveryMessages } from "./messages";
 import "./discovery-location.css";
 
 export function DiscoveryLocationSelector({ locale }: { locale: Locale }) {
@@ -29,29 +29,17 @@ export function DiscoveryLocationSelector({ locale }: { locale: Locale }) {
     setSaved(location);
   }
 
+  const isOutside = saved !== null && saved.location.serviceAreaId === null;
   return (
     <section className="discovery-location">
-      <div className="discovery-location-summary">
-        <div className="discovery-location-emblem" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-            <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
-            <circle cx="12" cy="10" r="2.5" />
-          </svg>
-        </div>
-        <div aria-live="polite" className="discovery-location-summary-text">
-          <LocationSummary {...{ saved, locale, messages }} />
-        </div>
-      </div>
-      <button
-        type="button"
-        className={saved ? "discovery-location-secondary" : "discovery-location-primary"}
-        aria-haspopup="dialog"
-        onClick={() => {
+      <LocationPill
+        saved={saved}
+        locale={locale}
+        onOpen={() => {
           setOpen(true);
         }}
-      >
-        {saved ? messages.change : messages.open}
-      </button>
+      />
+      {isOutside && <p className="discovery-location-coverage">{messages.outside}</p>}
       {isOpen && (
         <LocationDialog
           locale={locale}
@@ -65,33 +53,49 @@ export function DiscoveryLocationSelector({ locale }: { locale: Locale }) {
   );
 }
 
-function LocationSummary({
+function LocationPill({
   saved,
   locale,
-  messages,
+  onOpen,
 }: {
   saved: SavedDiscoveryLocation | null;
   locale: Locale;
-  messages: DiscoveryMessages;
+  onOpen: () => void;
 }) {
-  if (!saved) {
-    return (
-      <>
-        <h2>{messages.heading}</h2>
-        <p>{messages.intro}</p>
-      </>
-    );
-  }
-
-  const isCovered = saved.location.serviceAreaId !== null;
-  const savedName = locale === "ar" ? saved.commune?.nameAr : saved.commune?.nameFr;
+  const messages = getDiscoveryMessages(locale);
+  const savedName = locale === "ar" ? saved?.commune?.nameAr : saved?.commune?.nameFr;
   return (
-    <>
-      <p className="discovery-location-summary-label">{messages.saved}</p>
-      <h2>{savedName ?? messages.savedPoint}</h2>
-      <p className="discovery-location-coverage" data-covered={isCovered}>
-        {isCovered ? messages.covered : messages.outside}
-      </p>
-    </>
+    <button
+      type="button"
+      className="discovery-location-pill"
+      aria-haspopup="dialog"
+      aria-label={saved ? messages.change : undefined}
+      onClick={onOpen}
+    >
+      <span className="discovery-location-emblem" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+          <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+          <circle cx="12" cy="10" r="2.5" />
+        </svg>
+      </span>
+      <span className="discovery-location-text" aria-live="polite">
+        <span className="discovery-location-label">
+          {saved ? messages.saved : messages.heading}
+        </span>
+        <span className="discovery-location-value">
+          {saved ? (savedName ?? messages.savedPoint) : messages.open}
+        </span>
+      </span>
+      <svg
+        className="discovery-location-chevron"
+        aria-hidden="true"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.75"
+      >
+        <path d="m6 9 6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </button>
   );
 }

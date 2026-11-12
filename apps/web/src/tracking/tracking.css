@@ -1,0 +1,526 @@
+/* Map on the top 60 %, a bottom sheet over it (SPRINT screen 7). */
+.tracking {
+  display: grid;
+  margin-inline: calc(-1 * var(--page-padding));
+  margin-block-start: calc(-1 * var(--space-32));
+}
+
+.tracking[data-map="false"] {
+  margin-block-start: 0;
+}
+
+.tracking-map {
+  position: relative;
+  block-size: 60svb;
+  min-block-size: 18rem;
+  max-block-size: 34rem;
+  margin: 0;
+  overflow: hidden;
+  background: var(--color-mint-pale);
+}
+
+.tracking-map svg {
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.tracking-map-loading {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-2),
+    var(--color-surface-3),
+    var(--color-surface-2)
+  );
+  background-size: 200% 100%;
+  animation: tracking-shimmer 1.4s linear infinite;
+}
+
+@keyframes tracking-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.tracking-map-ground {
+  fill: var(--color-cream);
+}
+
+.tracking-map-tile {
+  fill: none;
+  stroke: var(--color-mint-pale);
+  stroke-width: 1.5;
+}
+
+/* The route follows a street drawn beneath it. */
+.tracking-map-road {
+  fill: none;
+  stroke: var(--color-surface);
+  stroke-width: 18;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.tracking-map-block {
+  fill: var(--color-surface-2);
+}
+
+.tracking-map-street {
+  fill: none;
+  stroke: var(--color-surface);
+  stroke-width: 12;
+  stroke-linecap: round;
+}
+
+.tracking-map-start circle {
+  fill: var(--color-surface);
+  stroke: var(--color-primary);
+  stroke-width: 3;
+}
+
+.tracking-map-start path {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+
+.tracking-map-pin {
+  fill: var(--color-primary);
+}
+
+.tracking-map-home {
+  fill: var(--color-mint);
+}
+
+/* The route draws itself in. */
+.tracking-map-route {
+  fill: none;
+  stroke: var(--color-accent);
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  animation: tracking-route 1.4s var(--ease-standard) both;
+}
+
+@keyframes tracking-route {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+
+.tracking-map-destination circle {
+  fill: var(--color-primary);
+}
+
+.tracking-map-destination .tracking-map-halo {
+  fill: var(--color-mint);
+  opacity: 0.35;
+}
+
+.tracking-map-route-done {
+  fill: none;
+  stroke: var(--color-border-strong);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 2 9;
+}
+
+.tracking-map-courier-halo {
+  fill: var(--color-accent);
+  opacity: 0.2;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: tracking-pulse 1.8s var(--ease-standard) infinite;
+}
+
+.tracking-map-courier-dot {
+  fill: var(--color-accent);
+  stroke: var(--color-surface);
+  stroke-width: 3;
+}
+
+.tracking-map-courier-arrow {
+  fill: var(--color-on-primary);
+}
+
+@keyframes tracking-pulse {
+  50% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.tracking-sheet {
+  position: relative;
+  display: grid;
+  gap: var(--space-16);
+  margin-block-start: calc(-1 * var(--space-32));
+  padding: var(--space-12) var(--page-padding) var(--space-32);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-e3);
+}
+
+.tracking[data-map="false"] .tracking-sheet {
+  margin-block-start: 0;
+  border-radius: var(--radius-xl);
+}
+
+.tracking-grip {
+  justify-self: center;
+  inline-size: var(--space-40);
+  block-size: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-3);
+}
+
+.tracking-headline {
+  display: flex;
+  gap: var(--space-12);
+  align-items: start;
+  justify-content: space-between;
+}
+
+.tracking-headline h1 {
+  font: var(--font-weight-h3) var(--font-size-h3) / var(--line-height-h3) var(--font-display);
+}
+
+.tracking-code-line {
+  display: flex;
+  gap: var(--space-8);
+  color: var(--color-text-3);
+  font-size: var(--font-size-caption);
+  font-variant-numeric: var(--font-variant-numeric-numbers);
+}
+
+.tracking-code-line bdi::before {
+  margin-inline-end: var(--space-8);
+  content: "·";
+}
+
+/* The arrival time is the hero of the sheet. */
+.tracking-eta {
+  display: grid;
+  gap: 2px;
+  padding: var(--space-12) var(--space-16);
+  border-radius: var(--radius-lg);
+  background: var(--color-mint-pale);
+  font-variant-numeric: var(--font-variant-numeric-numbers);
+}
+
+.tracking-eta small {
+  display: flex;
+  gap: var(--space-8);
+  align-items: center;
+  color: var(--color-text-2);
+  font-size: var(--font-size-caption);
+}
+
+.tracking-eta strong {
+  font: var(--font-weight-display) var(--font-size-display) / var(--line-height-display)
+    var(--font-numbers);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+@media (min-width: 960px) {
+  .tracking-eta strong {
+    font-size: var(--font-size-h1);
+    line-height: var(--line-height-h1);
+  }
+}
+
+/* Dark mode: the code card stays a calm surface with mint figures. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .tracking-code {
+    background: var(--color-surface-2);
+    color: var(--color-text);
+  }
+
+  :root:not([data-theme="light"]) .tracking-code strong {
+    color: var(--color-mint);
+  }
+}
+
+:root[data-theme="dark"] .tracking-code {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+}
+
+:root[data-theme="dark"] .tracking-code strong {
+  color: var(--color-mint);
+}
+
+.tracking-eta svg {
+  color: var(--color-accent-strong);
+}
+
+/* Status timeline. */
+.tracking-timeline {
+  display: grid;
+  list-style: none;
+}
+
+.tracking-timeline li {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--space-24) 1fr auto;
+  gap: var(--space-12);
+  align-items: center;
+  min-block-size: var(--space-40);
+  color: var(--color-text-3);
+}
+
+.tracking-timeline li:not(:last-child)::after {
+  position: absolute;
+  inset-block: calc(50% + var(--space-12)) calc(-50% + var(--space-12));
+  inset-inline-start: calc(var(--space-12) - 1px);
+  inline-size: 2px;
+  background: var(--color-surface-3);
+  content: "";
+}
+
+.tracking-timeline li[data-state="done"]::after {
+  background: var(--color-accent);
+}
+
+.tracking-timeline-dot {
+  display: grid;
+  place-items: center;
+  inline-size: var(--space-24);
+  block-size: var(--space-24);
+  border: 2px solid var(--color-surface-3);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+}
+
+.tracking-timeline li[data-state="done"] {
+  color: var(--color-text-2);
+}
+
+.tracking-timeline li[data-state="done"] .tracking-timeline-dot {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.tracking-timeline li[data-state="current"] {
+  color: var(--color-text);
+  font-weight: var(--font-weight-h3);
+}
+
+.tracking-timeline li[data-state="current"] .tracking-timeline-dot {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px var(--color-mint-pale);
+}
+
+.tracking-timeline li[data-state="current"] .tracking-timeline-dot::after {
+  inline-size: var(--space-8);
+  block-size: var(--space-8);
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  content: "";
+}
+
+.tracking-timeline time {
+  font-size: var(--font-size-caption);
+  font-variant-numeric: var(--font-variant-numeric-numbers);
+}
+
+/* Delivery or pickup code. */
+.tracking-code {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-4);
+  padding: var(--space-16);
+  border-radius: var(--radius-lg);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  text-align: center;
+}
+
+.tracking-code strong {
+  font: var(--font-weight-display) var(--font-size-display) / var(--line-height-display)
+    var(--font-numbers);
+  font-variant-numeric: var(--font-variant-numeric-numbers);
+  letter-spacing: 0.12em;
+}
+
+.tracking-code small {
+  opacity: 0.85;
+}
+
+.tracking-note {
+  color: var(--color-text-2);
+  font-size: var(--font-size-caption);
+}
+
+.tracking-contacts {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.tracking-courier {
+  display: flex;
+  gap: var(--space-12);
+  align-items: center;
+  padding: var(--space-12);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-2);
+}
+
+.tracking-courier > div {
+  display: grid;
+  flex: 1;
+}
+
+.tracking-courier small {
+  color: var(--color-text-3);
+}
+
+.tracking-avatar,
+.tracking-call {
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: var(--touch-target-customer-primary);
+  block-size: var(--touch-target-customer-primary);
+  border-radius: var(--radius-pill);
+}
+
+.tracking-avatar {
+  background: var(--color-mint-pale);
+  color: var(--color-accent-strong);
+}
+
+.tracking-call {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.tracking-call-restaurant,
+.tracking-cancel {
+  display: inline-flex;
+  gap: var(--space-8);
+  align-items: center;
+  justify-content: center;
+  min-block-size: var(--touch-target-min);
+  color: var(--color-text);
+  font-weight: var(--font-weight-h3);
+  text-decoration: none;
+}
+
+.tracking-cancel {
+  justify-self: center;
+  border: 0;
+  background: none;
+  color: var(--color-danger);
+  font: inherit;
+  cursor: pointer;
+}
+
+.tracking-cancel-reasons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  margin: 0;
+  padding: var(--space-16);
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: var(--color-danger-bg);
+}
+
+.tracking-cancel-reasons legend {
+  float: inline-start;
+  inline-size: 100%;
+  margin-block-end: var(--space-8);
+  font-weight: var(--font-weight-h3);
+}
+
+.tracking-cancel-reasons button {
+  min-block-size: var(--touch-target-min);
+  padding-inline: var(--space-16);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-danger);
+  font: inherit;
+  cursor: pointer;
+}
+
+.tracking-cancel-reasons .tracking-keep {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+/* Push opt-in card. */
+.tracking-push {
+  display: flex;
+  gap: var(--space-12);
+  align-items: center;
+  padding: var(--space-12) var(--space-16);
+  border-radius: var(--radius-lg);
+  background: var(--color-cream);
+}
+
+.tracking-push > div {
+  display: grid;
+  flex: 1;
+  min-inline-size: 0;
+}
+
+.tracking-push p {
+  color: var(--color-text-2);
+  font-size: var(--font-size-caption);
+}
+
+.tracking-push > svg {
+  flex: none;
+  color: var(--color-accent-strong);
+}
+
+.tracking-push[data-state="on"] {
+  color: var(--color-success);
+  font-weight: var(--font-weight-h3);
+}
+
+@media (min-width: 960px) {
+  .tracking {
+    grid-template-columns: 1fr 26rem;
+    gap: var(--space-24);
+    align-items: start;
+    margin: 0;
+  }
+
+  .tracking {
+    align-items: stretch;
+  }
+
+  .tracking-map {
+    block-size: auto;
+    min-block-size: 36rem;
+    max-block-size: none;
+    border-radius: var(--radius-xl);
+  }
+
+  .tracking-sheet {
+    margin: 0;
+    border-radius: var(--radius-xl);
+  }
+
+  .tracking-grip {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tracking-map-route,
+  .tracking-map-courier-halo,
+  .tracking-map-loading {
+    animation: none;
+  }
+}

@@ -1,262 +1,125 @@
-# DESIGN — "Casbah Saffron"
+# DESIGN — AWID
 
-The product should feel like a beautiful, calm, expensive restaurant menu that happens to be the fastest app on the phone. The reference is not "another delivery app". It is editorial food magazines, premium hospitality brands, and the light of Algiers at golden hour: white Casbah walls, the Mediterranean, saffron and harissa.
+AWID ("You're in need, try AWID") should feel fresh, confident, appetising and unmistakably Algerian. Cream and white surfaces, deep green for structure, mint for energy, and food photography as the hero of every screen. Brand source: `docs/brand/awid-reference.jpg` (a starting point, not a layout to copy). Supersedes "Casbah Saffron" (DECISIONS D-B05).
 
 ## 1. Principles
 
-1. **Let the food be the colour.** The UI is warm ivory and ink; photos bring the colour. One saffron accent marks the next action.
-2. **Calm luxury.** Generous space, big editorial headlines, few borders, soft depth. No clutter, no shouting badges, no rainbow categories.
-3. **Fast is a feature.** Every animation explains a change or confirms an action, and never blocks input. Low-end Android over 4G is our default device.
-4. **Local, not generic.** Arabic is a first-class layout, not a mirrored afterthought. Prices look like Algerian prices (`1 450 DA`). Ramadan and iftar are part of the product.
-5. **One hand, one thumb.** Primary actions sit in the bottom third on mobile. Restaurant and driver screens use big targets for busy, greasy or gloved hands.
+1. **Food is the hero.** Every customer screen leads with a real, credited photo (`docs/PHOTO_CREDITS.md`). The UI stays cream, white and deep green around it.
+2. **One focal point per view.** One primary action, quiet or separated destructive actions, status as badges.
+3. **Fast is a feature.** Motion explains a change or confirms an action and never blocks input. Low-end Android over 4G is the default device.
+4. **Local, not generic.** Arabic is a first-class layout, checked rather than mirrored. Prices look like Algerian prices (`1 450 DA`).
+5. **One hand, one thumb.** Primary actions sit in the bottom third on mobile; restaurant and courier screens use big targets.
+6. **Never cheap.** No generic colour gradients, default browser controls, lorem ipsum, mixed radii or shadows, borders around everything, centred walls of text, tiny targets, layout shift, empty-looking pages or emoji icons.
 
-## 2. Why these colours (research summary)
+## 2. Brand
 
-- Findings that red "increases appetite" and blue "suppresses" it are **inconsistent**. Studies on food colour and plate colour disagree, and the red-plate effect did not hold up in a replication. So we don't pick colours for "appetite psychology". We pick them for contrast, distinctiveness and cultural fit, and we let real food photos do the appetite work.
-- The main local competitor owns **purple**. Global delivery brands own red, orange, green and teal. **Ink + ivory + saffron-gold** is unused in this market, reads premium, and is rooted in Maghreb cooking.
-- Every pair below was **checked against WCAG 2.2**: body text ≥ 7:1, all other text ≥ 4.5:1, UI boundaries and focus rings ≥ 3:1. `packages/tokens` must contain a unit test that recomputes these ratios, so a later colour tweak can't silently break accessibility.
+- **Name:** AWID, Arabic أويد until Mahdi confirms (`packages/config/src/brand.ts`). Package scopes and environment variables keep the `zaafran` names.
+- **Logo:** the wordmark (speed lines, the courier "A", the pin over the i, WID) and the app icon are SVGs traced from the brand board: `apps/web/public/brand/awid-logo.svg`, `awid-logo-dark.svg`, `awid-icon.svg`, `awid-icon-dark.svg`. `Logo` and `LogoMark` in `packages/ui` swap to the dark variant with the theme. Never recolour or redraw them by hand; replace them when Mahdi sends the vector originals.
+- **Motifs, used sparingly:** a zellige tile pattern (headers, empty states, loaders) and the soft wave from the icon as a section divider.
 
 ## 3. Colour tokens
 
-Names are semantic in code (`--color-primary`), brand names are for humans.
+Semantic names in code (`--color-primary`); source `packages/tokens/src/palettes.json`. `packages/tokens/test/contrast.test.ts` recomputes the WCAG ratios in both themes.
 
 ### 3.1 Light theme
 
-| Token | Hex | OKLCH | Brand name | Use |
-|---|---|---|---|---|
-| `bg` | `#FBF8F3` | 98.0% 0.007 80.7 | Casbah ivory | page background |
-| `surface` | `#FFFFFF` | 100% 0 0 | — | cards, sheets |
-| `surface-2` | `#F4EEE4` | 95.1% 0.015 80.7 | Sand | sunken areas, chips, inputs |
-| `surface-3` | `#EAE2D6` | 91.6% 0.018 78.2 | Dune | hover on sand, skeletons |
-| `border-subtle` | `#E4DACC` | 89.3% 0.022 76.5 | — | dividers (decorative only) |
-| `border-strong` | `#8A7F72` | 60.3% 0.023 72.0 | — | input and control boundaries (3.7:1) |
-| `text` | `#16130F` | 18.9% 0.009 75.1 | Ink | body and headlines (17.5:1) |
-| `text-2` | `#4A4239` | 38.4% 0.018 70.5 | — | secondary text (9.3:1) |
-| `text-3` | `#675D52` | 48.5% 0.021 69.9 | — | muted text, placeholders (6.1:1) |
-| `primary` | `#F29E1F` | 76.6% 0.159 69.9 | Saffron | primary buttons, active indicators, route line |
-| `primary-hover` | `#F6AE3E` | 80.1% 0.148 74.1 | — | hover |
-| `primary-pressed` | `#DD8A0C` | 70.4% 0.153 67.5 | — | pressed |
-| `on-primary` | `#16130F` | — | Ink | text and icons on saffron (8.5:1) |
-| `harissa` | `#C2410C` | 55.3% 0.174 38.4 | Harissa | LIVE, promo and "new order" accents (sparingly) |
-| `on-harissa` | `#FFFFFF` | — | — | text on harissa (5.2:1) |
-| `harissa-text` | `#B93E0B` | 53.5% 0.167 38.5 | — | harissa-coloured text (5.3:1) |
-| `info` / `info-bg` | `#1C5D85` / `#E6F0F6` | 45.8% 0.091 240.5 | Mediterranean | info, focus ring, map water accents |
-| `success` / `success-bg` | `#1E7146` / `#E5F2EA` | 48.8% 0.105 156.0 | Cedar | success, "open", free delivery |
-| `warning` / `warning-bg` | `#6F5A00` / `#F7F0D0` | 47.5% 0.097 93.0 | Mustard | warnings (always with an icon) |
-| `danger` / `danger-bg` | `#BE123C` / `#FCE8EC` | 51.4% 0.198 16.9 | Crimson | errors, destructive actions |
-| `focus` | `#1C5D85` | — | — | 2 px focus ring + 2 px offset in `bg` |
-| `link` | `#16130F` | — | — | link text, with a 2 px saffron underline (offset 3 px) |
-| `scrim` | `rgb(14 12 10 / 0.55)` | — | — | behind sheets and dialogs |
+| Token | Hex | Use |
+|---|---|---|
+| `bg` | `#FFFCF5` | page (warm white) |
+| `cream` | `#FFF8E6` | warm sections, landing bands |
+| `surface` | `#FFFFFF` | cards, sheets |
+| `surface-2` / `surface-3` | `#F1F8F3` / `#DCEFE4` | sunken areas, inputs / hover, skeletons |
+| `border-subtle` / `border-strong` | `#E1ECE5` / `#5F7D70` | dividers / control boundaries (≥ 3:1) |
+| `text` / `text-2` / `text-3` | `#0B3D2E` / `#2F5547` / `#4C6C60` | deep green body, secondary, muted |
+| `primary` (+ hover / pressed) | `#0B3D2E` (`#135443` / `#072A20`) | primary buttons, active states |
+| `on-primary` | `#FFFFFF` | text on primary |
+| `accent` / `accent-strong` | `#00A37A` / `#007A5A` | large shapes, icons, route line / accent text |
+| `mint` / `mint-pale` | `#4DE3B4` / `#D9FCE7` | energy: indicators, highlights / tinted panels |
+| `on-accent` | `#06231A` | text on accent or mint |
+| `success`, `info`, `warning`, `danger` (+ `-bg`) | `#0B6E4F`, `#1C5D85`, `#6F5A00`, `#BE123C` | status, always with icon + text |
+| `harissa` | `#C2410C` | LIVE and promo accents only |
+| `focus` | `#00775A` | 2 px ring, 2 px offset |
 
 ### 3.2 Dark theme
 
-| Token | Hex | OKLCH | Use |
-|---|---|---|---|
-| `bg` | `#0E0C0A` | 15.6% 0.005 67.4 | page |
-| `surface` | `#171411` | 19.4% 0.008 67.3 | cards |
-| `surface-2` | `#201C18` | 23.0% 0.010 67.3 | raised, inputs |
-| `surface-3` | `#2A2520` | 26.8% 0.012 67.3 | hover, skeleton |
-| `border-subtle` | `#2E2823` | 28.2% 0.013 62.1 | dividers |
-| `border-strong` | `#7A7064` | 55.1% 0.022 72.4 | control boundaries (4.0:1) |
-| `text` | `#F6F0E7` | 95.7% 0.014 78.3 | body (17.2:1) |
-| `text-2` | `#D3C9BC` | 84.0% 0.021 74.6 | secondary (12.0:1) |
-| `text-3` | `#A79C8E` | 69.8% 0.024 74.0 | muted (7.2:1) |
-| `primary` | `#F5AA35` | 79.2% 0.152 73.3 | primary |
-| `primary-hover` | `#F8BA5A` | 82.8% 0.133 75.9 | hover |
-| `primary-pressed` | `#E5961C` | 73.6% 0.152 70.4 | pressed |
-| `on-primary` | `#16130F` | — | 9.4:1 |
-| `harissa` / `on-harissa` | `#FF7A3D` / `#16130F` | 72.6% 0.178 43.2 | 7.1:1 |
-| `harissa-text` | `#FF8A55` | 75.2% 0.157 44.0 | 8.4:1 |
-| `info` / `info-bg` | `#6DB3DD` / `#10222E` | 73.7% 0.093 236.3 | |
-| `success` / `success-bg` | `#5BC48A` / `#0F2419` | 74.3% 0.130 156.9 | |
-| `warning` / `warning-bg` | `#E8CF5C` / `#262009` | 85.4% 0.137 97.1 | |
-| `danger` / `danger-bg` | `#FF6F8E` / `#2E1219` | 72.4% 0.177 9.3 | |
-| `focus` | `#6DB3DD` | — | |
-| `link` | `#F7B955` | 82.5% 0.136 76.7 | link text in dark (11.2:1) |
+Deep green night, not grey: `bg #05221A`, `surface #0A2D22`, `surface-2 #0F372A`, `surface-3 #164434`, `text #F1FBF6`, `primary #4DE3B4` with `on-primary #05221A`, `accent #00C994`, `focus #4DE3B4`. Dark mode keeps real (black) shadows.
 
-### 3.3 Contrast pairs the token test must check (both themes)
+### 3.3 Rules
 
-| Foreground | Background(s) | Minimum ratio |
-|---|---|---|
-| `text` | `bg`, `surface`, `surface-2` | 7 |
-| `text-2`, `text-3` | `bg`, `surface`, `surface-2` | 4.5 |
-| `on-primary` | `primary`, `primary-hover`, `primary-pressed` | 4.5 |
-| `on-harissa` | `harissa` | 4.5 |
-| `harissa-text`, `info`, `success`, `warning`, `danger` | `bg` | 4.5 |
-| `info`, `success`, `warning`, `danger` | their own `-bg` | 4.5 |
-| `link` | `bg`, `surface` | 4.5 |
-| `danger` | `surface` | 4.5 |
-| `border-strong`, `focus` | `bg`, `surface` | 3 |
-
-### 3.4 Rules
-
-- Saffron is never used for text on light backgrounds (only 2:1). Links are ink with a saffron underline.
-- Harissa is an accent, not a second brand colour: max one harissa element per screen region (LIVE pill, promo tag, new-order glow).
-- Status is never colour alone: always icon + text.
-- Theme follows the system by default, and users can override it. Both themes are designed screens, not inverted ones.
-- Gradients: the "golden hour" gradient `#F6AE3E → #C2410C → #2A1E14` appears only in the landing hero and the 3D sky. The route line is `primary → harissa`.
+- Text and primary buttons use deep green. `#00A37A` is for large shapes, icons and accents: white small text on it fails contrast.
+- Mint is energy, never body text on light backgrounds.
+- Status is never colour alone.
+- The only gradients are photo scrims (`transparent → rgb(4 26 19 / .7)`) and the icon's wave; no decorative colour gradients.
+- Theme follows the system; users can override. Both themes are designed, not inverted.
 
 ## 4. Typography
 
 | Role | Latin | Arabic |
 |---|---|---|
-| Display / headlines | **Fraunces** (variable, soft optical serif), 600 | **Noto Naskh Arabic** (variable), 600–700 |
-| UI / body | **Inter** (variable) | **IBM Plex Sans Arabic** 400 / 500 / 600 |
-| Numbers | Inter with `tabular-nums` for prices, timers, ETAs and codes, in every locale | same (Latin digits) |
+| Display / headlines | **Poppins** 700 | **IBM Plex Sans Arabic** 600 |
+| UI / body | Poppins 400 / 500 / 600 | IBM Plex Sans Arabic 400 / 500 / 600 |
+| Numbers | Poppins `tabular-nums` (prices, timers, ETAs, codes) | same, Latin digits |
 
-Self-host every font with `next/font/local`. Subset by script with `unicode-range` and use `font-display: swap`. Preload only the UI font of the current locale. No Google Fonts CDN at runtime.
+Self-hosted with `next/font/local` (`apps/web/src/fonts/`), `font-display: swap`, subset by `unicode-range`. Big confident headlines, comfortable body.
 
-Scale (mobile → desktop via `clamp`):
+| Token | Size / line |
+|---|---|
+| `display-xl` | 44/48 → 72/76, tracking −0.02em (landing) |
+| `display` | 34/40 → 52/56 |
+| `h1` / `h2` / `h3` | 28/34 · 22/28 · 18/24 |
+| `body-lg` / `body` | 17/26 · 15/22 |
+| `label` / `caption` / `micro` | 14/20 · 13/18 · 12/16 (micro uppercase in Latin only) |
 
-| Token | Size / line | Font |
-|---|---|---|
-| `display-xl` | 44/48 → 72/76, tracking −0.02em | display (landing only) |
-| `display` | 34/40 → 52/56 | display |
-| `h1` | 28/34 | display |
-| `h2` | 22/28 | UI 600 |
-| `h3` | 18/24 | UI 600 |
-| `body-lg` | 17/26 | UI 400 |
-| `body` | 15/22 | UI 400 |
-| `label` | 14/20 | UI 500 |
-| `caption` | 13/18 | UI 500 |
-| `micro` | 12/16 | UI 600, uppercase with +0.04em in Latin only |
-
-Arabic adjustments:
-- +1 px on `body`, `label` and `caption`; +15% line-height.
-- No letter-spacing, no italics, no uppercase.
-- Check that Arabic headings never clip ascenders or descenders.
+Arabic: no letter-spacing, italics or uppercase; check headings never clip.
 
 ## 5. Space, shape, depth
 
-- **Spacing** (4 px base): 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, 120. Mobile page padding 16 (20 from 400 px wide). Desktop container 1200 px. The restaurant board is full width.
-- **Radius:** `xs` 6, `sm` 10, `md` 14 (buttons, inputs), `lg` 20 (cards), `xl` 28 (sheets, top corners), `pill` 999 (chips).
-- **Touch targets:**
-  - minimum 44×44 everywhere;
-  - customer primary buttons 52 px tall;
-  - restaurant and driver primary actions 56 px with ≥ 12 px gaps.
-- **Elevation (light):**
-  - `e1`: `0 1px 2px rgb(22 19 15 / .06)`
-  - `e2`: `0 1px 2px rgb(22 19 15 / .05), 0 8px 24px rgb(22 19 15 / .08)`
-  - `e3`: `0 2px 6px rgb(22 19 15 / .06), 0 24px 48px rgb(22 19 15 / .14)` — sheets and dialogs only
-- **Elevation (dark):** no shadows. Raise with `surface-2`/`surface-3` plus a 1 px `border-subtle`.
-- **Materials:**
-  - Glass (backdrop blur 16 px, `bg` at 72% opacity): sticky headers and the bottom bar only, and only when `backdrop-filter` is supported and not in low-data mode. Otherwise solid.
-  - Film grain: an SVG noise overlay at 3% opacity on the landing hero only.
+- **Spacing:** 4/8 grid — 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, 120. Page padding 16 on mobile, container 1200 px.
+- **Radius:** controls and inputs `lg` 20, cards and sheets `xl` 28, chips and buttons `pill`. Small inner parts (skeleton lines, tiles inside cards) use `sm`/`md`. Nothing else.
+- **Touch targets:** ≥ 44 px everywhere; customer primary buttons 52 px; restaurant and courier primary actions 56 px with ≥ 12 px gaps.
+- **Depth:** soft layered shadows tinted deep green (`shadow-e1` cards, `e2` floating bars and toasts, `e3` sheets and dialogs). Cards separate by shadow, not borders.
 
 ## 6. Iconography and imagery
 
-- **Icons:**
-  - Lucide, 1.75 px stroke at 24 px, round caps.
-  - Mirror in RTL only icons that imply direction: back, forward, chevrons, arrows, send.
-  - Never mirror checkmarks, clocks, media or brand marks.
-- **Cuisine chips:** original duotone line icons (ink + saffron) drawn as SVG in-repo:
-  - tacos, pizza, shawarma, burger, traditional (couscous/tagine), grill, fish, sandwiches/mhadjeb, pastry, juice and coffee, healthy, Asian;
-  - seasonal: zlabia and qalb el louz, for Ramadan.
-- **Food photos:**
-  - 4:3 on cards and item sheets, 1:1 thumbnails, 16:9 restaurant covers.
-  - Thumbhash placeholder, then a fade-in over 180 ms. Explicit width and height (no layout shift).
-  - Text over photos only with a bottom ink gradient (`transparent → rgb(14 12 10 / .7)`).
-- **Restaurant photo guide** (shown in the uploader):
-  - natural light, 45° or top-down, no text on the image, no stock photos they don't own;
-  - the cropper enforces the ratio and a focal point.
-- **Demo data:** placeholder images are generated (gradient + dish icon + name). Never use web photos.
-- **Logo (working):** wordmark "Zaafran / زعفران" in the display font with a saffron dot. Original, replaceable via `brand.ts`.
+- **Icons:** one in-repo set (`packages/ui/src/icons.tsx`), 1.75 px stroke at 24 px, round caps. Mirror only directional icons in RTL.
+- **Photos:** Wikimedia Commons, Unsplash or Pexels only, each viewed before use, converted to WebP, credited in `docs/PHOTO_CREDITS.md`. 4:3 cards, 1:1 thumbnails, 16:9 covers; explicit width and height; text over photos only with the scrim.
+- **Empty states:** custom SVG illustrations in brand colours. No emoji as icons.
+- **Content:** realistic names, dishes, DA prices and reviews everywhere.
 
 ## 7. Motion system
 
-Motion must feel physical, quick and quiet. Library: `motion/react` on web, Reanimated 4 on native, with the same tokens.
-
 | Token | Value | Use |
 |---|---|---|
-| `instant` | 80 ms | colour/opacity feedback |
-| `fast` | 140 ms | pressed states, toggles |
-| `base` | 220 ms | most transitions |
-| `slow` | 320 ms | sheets, page transitions |
-| `emphasis` | 480 ms | success moments |
-| `scene` | 900–1 400 ms | signature moments only |
-| `ease-standard` | `cubic-bezier(0.2, 0, 0, 1)` | default |
-| `ease-decelerate` | `cubic-bezier(0.05, 0.7, 0.1, 1)` | entering |
-| `ease-accelerate` | `cubic-bezier(0.3, 0, 0.8, 0.15)` | exiting |
-| `spring-snappy` | stiffness 520, damping 34 | buttons, chips, tab indicator |
-| `spring-gentle` | stiffness 260, damping 28 | sheets, cards, map pin |
-| `spring-bouncy` | stiffness 380, damping 18 | celebrations only |
+| `fast` | 150 ms | press, toggles, colour feedback |
+| `base` | 250 ms | most transitions |
+| `slow` | 400 ms | sheets, page transitions, toasts |
+| `ease-standard` | `cubic-bezier(0.2, 0.8, 0.2, 1)` | everything by default |
+| `spring-*` | CSS overshoot curves / Motion springs | playful moments only (stars, heart burst, cart count) |
 
 Rules:
-- **Press feedback:** scale 0.98 and darken over `fast`. No ripple.
-- **Lists:** stagger 30 ms, at most the first 8 items; the rest appear instantly.
-- **Navigation:** shared-element continuity. A restaurant card expands into the restaurant header and an item thumbnail into the item sheet (Motion `layoutId`, or the View Transitions API where supported).
-- **Bottom sheets:** drag with velocity, rubber-band past the bounds, snap points (35% / 90%).
-- **Numbers that change** (cart total, ETA) roll like an odometer using tabular digits.
-- **Reduced motion:** replace movement with a ≤ 120 ms opacity fade. Turn off parallax, 3D auto-motion, camera flights (jump instead), steam, confetti and odometers.
-- **Restaurant and driver screens:** efficiency first. Nothing longer than `base` except the new-order arrival.
+- Transform and opacity only. Press scale 0.97.
+- View Transitions for page changes and shared elements (card photo → restaurant cover), with a plain fallback.
+- Staggered list entrances (30 ms, first 8 items), skeleton shimmer, numbers that roll when they change.
+- **Reduced motion:** everything off; at most a ≤ 120 ms fade.
+- Restaurant and courier screens: nothing longer than `base` except a new order arriving.
 
-### 7.1 Signature moments (the "wow")
+### 7.1 Signature moments
 
-1. **Landing hero — "Casbah at golden hour"** (§8.1).
-2. **Address pin drop:**
-   - the map tilts gently into 3D;
-   - the pin "lands" with `spring-gentle` and a saffron ripple;
-   - the accuracy circle breathes once.
-3. **Add to cart:**
-   - the item thumbnail arcs into the cart button along a curved path (~420 ms);
-   - the cart count springs;
-   - haptic tick on native.
-4. **Order confirmed — "the tagine":**
-   - a 3D tagine lid lifts and saffron steam rises (1.2–1.4 s);
-   - then the scene dissolves into the tracking screen.
-5. **Tracking:**
-   - the camera follows the driver with eased pitch and bearing;
-   - the route line draws progressively;
-   - ETA digits roll;
-   - the LIVE pill pulses (harissa).
-6. **New order on the board:**
-   - the card drops in with `spring-snappy`;
-   - a saffron glow pulses until acknowledged;
-   - a countdown ring shows the time left to accept.
-7. **Iftar countdown (Ramadan):**
-   - a slim banner with a softly glowing lantern line icon and a live countdown to Maghrib;
-   - the dark theme's warmth increases slightly after Maghrib.
-8. **Restaurant pitch calculator** (`/restaurants`):
-   - sliders for orders/day and average ticket;
-   - animated bars compare "typical commission app (20–30%)" with "Zaafran: 5 000 DA / month".
+1. **Landing:** full-screen Algeria photography with slow zoom and crossfade.
+2. **Favourite:** heart burst on restaurant cards.
+3. **Add to cart:** the Add button morphs into a quantity stepper; the cart bar slides up with an animated total.
+4. **Place order:** the button morphs loading → success, then a full-screen celebration that transitions into tracking.
+5. **Tracking:** the route line draws in, the scooter marker moves smoothly and rotates with its heading, ETA digits roll.
+6. **Rating:** spring-animated stars.
+7. **New order on the board:** pulse, sound and a countdown ring.
 
 ## 8. 3D (three.js via React Three Fiber; lazy and optional)
 
-### 8.1 Hero — "Casbah at golden hour"
-
-- **Scene (fully procedural; no downloaded models):**
-  - a terraced hillside from seeded noise;
-  - 1 500–2 500 **instanced** white cubic houses with slight size, rotation and tone variation;
-  - a few generic domes and a slender tower silhouette (generic, not a copy of a real skyline);
-  - the sea as a plane with a cheap fresnel and sun-glint shader;
-  - a gradient sky with a low sun;
-  - warm directional light plus hemisphere light;
-  - fake ambient occlusion through darker vertex colours at house bases.
-- **Story:**
-  - a saffron light trail (shader-animated tube along a Catmull-Rom curve over the roofs) travels from a "kitchen" to a "home";
-  - scrolling scrubs time from golden hour to blue hour;
-  - window lights (emissive instances) fade in — dinner time, iftar time.
-- **Interaction:** pointer parallax (±3°), slow idle drift. Tapping the home pin focuses the address field.
-- **Budgets and fallbacks:**
-  - the 3D chunk is loaded with `requestIdleCallback` after LCP;
-  - only when WebGL2 is available, `deviceMemory ≥ 4` (or unknown) and `hardwareConcurrency ≥ 4`, there is no Save-Data, and reduced motion is off;
-  - DPR capped at 1.25 on mobile and 1.75 on desktop;
-  - shadows on desktop only (one 1024 map);
-  - `frameloop="demand"` when idle; paused when off-screen or the tab is hidden;
-  - target 60 fps on a mid-range phone, never below 45;
-  - the fallback is an AVIF poster rendered from the same scene in CI (Playwright canvas screenshot), so the static and 3D versions match.
-
-### 8.2 Order confirmed — "the tagine"
-
-- `LatheGeometry` base and conical lid with a glazed terracotta material (harissa and saffron tints).
-- The lid lifts on `spring-bouncy`; ~60 instanced steam sprites rise.
-- The canvas mounts only for this moment and is disposed after it. Fallback: SVG + Motion version.
-
-### 8.3 Native
-
-Re-create 8.2 with React Three Fiber native only if it holds ≥ 55 fps on the test Android. Otherwise use a pre-rendered video (≤ 600 KB) or Lottie. The hero is web-only.
+At most one scene in the product. It must animate by itself without scrolling, hold 60 fps on a mid-range phone, and fall back to photo motion (slow zoom and crossfade). It loads after LCP only with WebGL2, `deviceMemory ≥ 4`, `hardwareConcurrency ≥ 4`, no Save-Data and motion allowed; DPR capped at 1.25 mobile / 1.75 desktop; paused off-screen. If it is not excellent after a bounded effort (SPRINT lane B task 8), it is removed.
 
 ## 9. Map style (generated from tokens in `packages/geo`)
+
+The AWID map uses cream land, pale-mint parks, deep-green labels and an `accent` route line; the table below is the lane A source until it is regenerated from the AWID tokens (docs/requests).
 
 | Layer | Light | Dark |
 |---|---|---|

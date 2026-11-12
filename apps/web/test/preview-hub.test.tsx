@@ -6,7 +6,7 @@ import { afterEach, expect, test, vi } from "vitest";
 import ArabicPreview, { metadata as arabicMetadata } from "../src/app/ar/preview/page";
 import LatinPreview, { metadata as latinMetadata } from "../src/app/[locale]/preview/page";
 
-import ArabicLaneBGallery from "../src/app/ar/dev/lane-b/page.design";
+import ArabicLaneBGallery from "../src/app/ar/dev/gallery/page.design";
 import { LaneBGallery } from "../src/admin/gallery/lane-b-gallery";
 
 afterEach(() => {
@@ -29,10 +29,10 @@ test.each([
     const html = renderToStaticMarkup(element);
 
     expect(html).toContain(label);
-    expect(html).toContain('src="/preview-catalog/casbah.webp"');
+    expect(html).toContain('src="/photos/algeria/algiers-casbah.webp"');
     expect(html).toContain(`href="/${locale}/discover"`);
-    expect(html).toContain(`href="/${locale}/dev/lane-b?screen=merchant-billing"`);
-    expect(html).toContain(`href="/${locale}/dev/lane-b?screen=admin-billing"`);
+    expect(html).toContain(`href="/${locale}/dev/gallery?screen=merchant-billing"`);
+    expect(html).toContain(`href="/${locale}/dev/gallery?screen=admin-billing"`);
     expect(html).toContain(`href="/${locale}/dev/moments"`);
     expect(html).toContain('href="/ar/preview"');
     expect(html).toContain('href="/en/preview"');

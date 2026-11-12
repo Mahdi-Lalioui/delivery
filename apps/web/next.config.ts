@@ -51,6 +51,7 @@ export default function config(phase: string): NextConfig {
     env: { ZAAFRAN_DESIGN_ENABLED: includeDesign ? "1" : "0" },
     pageExtensions: includeDesign ? ["design.tsx", "tsx", "ts"] : ["tsx", "ts"],
     poweredByHeader: false,
+    devIndicators: false,
     ...(beforeFiles.length && { rewrites: () => Promise.resolve({ beforeFiles }) }),
     transpilePackages: ["@zaafran/config", "@zaafran/i18n", "@zaafran/ui"],
   });

@@ -1,7 +1,7 @@
 import { getCartSummary, type Cart } from "@zaafran/domain/cart";
 import { formatDzd } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
-import { Button } from "@zaafran/ui";
+import { Icon } from "@zaafran/ui";
 import { RestaurantQuantity } from "./restaurant-quantity";
 import { localizeRestaurantText } from "./restaurant-types";
 import { getRestaurantMessages } from "./restaurant-messages";
@@ -21,17 +21,26 @@ export function CartContents({
   const summary = getCartSummary(cart);
   return (
     <div className="restaurant-cart-contents">
-      <p className="restaurant-muted">
+      <p className="restaurant-cart-merchant">
+        <Icon name="store" size={20} />
         <bdi>{cart.merchant.name}</bdi>
       </p>
       <ul className="restaurant-cart-lines" role="list">
         {cart.lines.map((line) => {
           const name = localizeRestaurantText(line.names, locale);
+          const lineTotal = getCartSummary({ ...cart, lines: [line] });
           return (
             <li key={line.lineId} className="restaurant-cart-line">
-              <h3>
-                <bdi>{name}</bdi>
-              </h3>
+              <div className="restaurant-cart-line-head">
+                <h3>
+                  <bdi>{name}</bdi>
+                </h3>
+                {lineTotal.ok && (
+                  <bdi className="restaurant-price">
+                    {formatDzd(lineTotal.value.subtotalDzd, locale)}
+                  </bdi>
+                )}
+              </div>
               {line.options.length > 0 && (
                 <ul className="restaurant-cart-options" role="list">
                   {line.options.map((option) => (
@@ -46,26 +55,26 @@ export function CartContents({
                   <bdi>{line.note}</bdi>
                 </p>
               )}
-              <RestaurantQuantity
-                label={messages.quantity + messages.separator + name}
-                decreaseLabel={messages.decreaseQuantity + messages.separator + name}
-                increaseLabel={messages.increaseQuantity + messages.separator + name}
-                quantity={line.quantity}
-                onChange={(quantity) => {
-                  onQuantity(line.lineId, quantity);
-                }}
-              />
-              <div className="restaurant-cart-remove">
-                <Button
-                  variant="danger-ghost"
-                  size="md"
+              <div className="restaurant-cart-line-actions">
+                <RestaurantQuantity
+                  label={messages.quantity + messages.separator + name}
+                  decreaseLabel={messages.decreaseQuantity + messages.separator + name}
+                  increaseLabel={messages.increaseQuantity + messages.separator + name}
+                  quantity={line.quantity}
+                  onChange={(quantity) => {
+                    onQuantity(line.lineId, quantity);
+                  }}
+                />
+                <button
+                  type="button"
+                  className="restaurant-cart-remove"
                   aria-label={messages.remove + messages.separator + name}
                   onClick={() => {
                     onRemove(line.lineId);
                   }}
                 >
                   {messages.remove}
-                </Button>
+                </button>
               </div>
             </li>
           );

@@ -19,7 +19,16 @@ export function CartControls({
   const [cartError, setCartError] = useState(false);
   const messages = getRestaurantMessages(locale);
   const { cart } = basket;
-  if (cart === null) return null;
+  if (cart === null)
+    return (
+      <aside className="restaurant-cart-panel" aria-label={messages.panelTitle}>
+        <h2>{messages.panelTitle}</h2>
+        <p className="restaurant-cart-panel-empty">
+          <Icon name="bag" size={32} />
+          {messages.panelEmpty}
+        </p>
+      </aside>
+    );
   const summary = getCartSummary(cart);
   if (!summary.ok) return null;
   const activeCart = cart;
@@ -57,12 +66,28 @@ export function CartControls({
           }}
         >
           <span>
-            <Icon name="bag" />
-            <bdi>{summary.value.itemCount}</bdi> {messages.viewCart}
+            <bdi className="restaurant-cart-count" key={summary.value.itemCount}>
+              {summary.value.itemCount}
+            </bdi>
+            {messages.viewCart}
           </span>
-          <bdi>{formatDzd(summary.value.subtotalDzd, locale)}</bdi>
+          <bdi className="restaurant-cart-total" key={summary.value.subtotalDzd}>
+            {formatDzd(summary.value.subtotalDzd, locale)}
+          </bdi>
         </button>
       </div>
+
+      <aside className="restaurant-cart-panel" aria-label={messages.panelTitle}>
+        <h2>{messages.panelTitle}</h2>
+        <CartContents cart={activeCart} locale={locale} onQuantity={edit} onRemove={remove} />
+        <a
+          className="ui-button ui-button-primary ui-button-lg restaurant-checkout"
+          href={`/${locale}/checkout`}
+        >
+          {messages.checkout}
+          <bdi>{formatDzd(summary.value.subtotalDzd, locale)}</bdi>
+        </a>
+      </aside>
 
       {cartVisible && (
         <RestaurantDialog
@@ -74,6 +99,13 @@ export function CartControls({
         >
           <CartContents cart={activeCart} locale={locale} onQuantity={edit} onRemove={remove} />
           {cartError && <p role="alert">{messages.cartError}</p>}
+          <a
+            className="ui-button ui-button-primary ui-button-lg restaurant-checkout"
+            href={`/${locale}/checkout`}
+          >
+            {messages.checkout}
+            <bdi>{formatDzd(summary.value.subtotalDzd, locale)}</bdi>
+          </a>
         </RestaurantDialog>
       )}
     </>

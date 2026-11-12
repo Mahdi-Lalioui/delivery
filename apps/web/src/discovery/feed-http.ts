@@ -7,11 +7,22 @@ export interface FeedState extends FeedPage {
   phase: "loading" | "ready" | "error" | "retrying";
 }
 
+/** Feed query parameters as the API reads them (`true` flags, enum strings). */
+export type FeedFilters = Readonly<Record<string, string>>;
+
+function feedUrl(cursor: string | null, filters: FeedFilters = {}): string {
+  const params = new URLSearchParams(filters);
+  if (cursor !== null) params.set("cursor", cursor);
+  const query = params.toString();
+  return query === "" ? "/v1/feed" : `/v1/feed?${query}`;
+}
+
 export async function readDiscoveryFeed(
   cursor: string | null,
   signal: AbortSignal,
+  filters: FeedFilters = {},
 ): Promise<FeedPage | null> {
-  const url = cursor === null ? "/v1/feed" : `/v1/feed?cursor=${encodeURIComponent(cursor)}`;
+  const url = feedUrl(cursor, filters);
   try {
     const response = await fetch(url, {
       method: "GET",
