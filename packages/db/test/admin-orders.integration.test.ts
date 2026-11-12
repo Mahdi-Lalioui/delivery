@@ -6,6 +6,8 @@ import {
   adminOrderSearchOutput,
 } from "@zaafran/contracts/admin-orders";
 import {
+  adminDashboardTodayOutput,
+  merchantAnalyticsOutput,
   customerOrderHistoryOutput,
   customerOrderHistoryQuery,
   customerOrderReceiptOutput,
@@ -299,4 +301,47 @@ test("[CUS-22][MER-20] paginates anonymous reviews and scopes merchant review ac
     await repository.merchantReviews({ ...scope, merchantId: otherMerchantId }),
   ).toBeUndefined();
   expect(await repository.merchantReviews({ ...scope, accountId: customerId })).toBeUndefined();
+});
+
+test("[MER-21][ADM-02] aggregates real tenant orders by Algerian business date and excludes synthetic demo orders", async () => {
+  const { sql } = database.get();
+  const merchantSession = randomUUID();
+  await sql`
+    INSERT INTO merchant_members (merchant_id, user_id, role)
+    VALUES (${merchantId}, ${otherId}, 'owner') ON CONFLICT DO NOTHING
+  `;
+  await sql`
+    INSERT INTO sessions (id, user_id, token_hash, transport, kind, request_ip, created_at, last_seen_at, expires_at)
+    VALUES (${merchantSession}, ${otherId}, decode(repeat('05', 32), 'hex'), 'web', 'standard',
+      '192.0.2.1', now(), now(), now() + interval '1 hour')
+  `;
+  const repository = createOrderRepository(database.get());
+  const date = "2026-11-11";
+  const query = {
+    merchantId,
+    accountId: otherId,
+    sessionId: merchantSession,
+    from: date,
+    to: date,
+  };
+  const result = merchantAnalyticsOutput.parse(await repository.merchantAnalytics(query));
+  expect(result.totals).toMatchObject({
+    orders: 2,
+    salesDzd: 900,
+    averageTicketDzd: 900,
+    acceptanceRate: 10_000,
+  });
+  expect(result.heatmap.flat().reduce((total, count) => total + count, 0)).toBe(2);
+  expect(
+    await repository.merchantAnalytics({ ...query, merchantId: otherMerchantId }),
+  ).toBeUndefined();
+  await sql`UPDATE users SET blocked_at = NULL WHERE id = ${adminId}`;
+  const request = { accountId: adminId, date, now: new Date(date), errorRate: 250 };
+  const dashboard = adminDashboardTodayOutput.parse(await repository.adminDashboard(request));
+  expect(dashboard).toMatchObject({
+    totals: { orders: 3, salesDzd: 900 },
+    errorRate: 250,
+    jobBacklog: 0,
+  });
+  expect(await repository.adminDashboard({ ...request, accountId: otherId })).toBeUndefined();
 });

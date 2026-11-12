@@ -263,3 +263,6 @@
 
 - 2026-11-12 · High · Added anonymous public restaurant reviews and owner/manager review reads with stars and precise cursors. Six PostGIS and 11 HTTP/authz/schema tests passed.
   Next: add merchant analytics and the admin dashboard API for route smoke. Review replies and reports remain open.
+
+- 2026-11-12 · High · Added live merchant analytics and the admin dashboard with indexed Algiers-day aggregates and worker backlog. The error rate covers requests observed by the current API process. Seven PostGIS and 11 HTTP/authz/schema checks passed.
+  Next: merge the analytics API into the production route sweep, then finish the remaining design and release checks.

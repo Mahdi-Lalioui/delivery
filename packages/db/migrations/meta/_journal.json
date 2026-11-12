@@ -372,6 +372,13 @@
       "when": 1794144600000,
       "tag": "0052_customer_favourites",
       "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "7",
+      "when": 1794145200000,
+      "tag": "0053_order_analytics",
+      "breakpoints": true
     }
   ]
 }
