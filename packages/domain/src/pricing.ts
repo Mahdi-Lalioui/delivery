@@ -75,6 +75,25 @@ function discount(subtotalDzd: Dzd, promo: Promo | undefined): Result<Dzd, Amoun
   return dzd(Math.min(Number(roundedDzd), capDzd));
 }
 
+/** Select the greatest positive automatic saving, with stable IDs breaking ties. */
+export function selectOrderOffer<T extends { id: string; promo: Promo }>(
+  price: Pick<Price, "subtotalDzd" | "deliveryFeeDzd">,
+  offers: readonly T[],
+): T | undefined {
+  let best: T | undefined;
+  let bestSaving = 0;
+  for (const offer of offers) {
+    const reduction = discount(price.subtotalDzd, offer.promo);
+    if (!reduction.ok) continue;
+    const saving = offer.promo.kind === "free_delivery" ? price.deliveryFeeDzd : reduction.value;
+    if (saving > bestSaving || (saving === bestSaving && best && offer.id < best.id)) {
+      best = offer;
+      bestSaving = saving;
+    }
+  }
+  return best;
+}
+
 function deliveryFee(input: {
   readonly fulfillment: Fulfillment;
   readonly netSubtotalDzd: number;

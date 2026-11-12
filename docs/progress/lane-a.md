@@ -374,3 +374,6 @@
 
 - 2026-11-12 · High · Deferred the pickup map and added a connected Android-profile production browser probe. Three Discovery samples measured 1.52–1.91 s LCP and Restaurant 1.37–1.41 s, with zero CLS on the small fixture. Added provisional gzip ceilings to authenticated browser CI.
   Next: verify the rich-catalog layout shift, tap feedback and frame pacing, reduce JS to the SPEC budget, then continue with promotion redemption. See [performance evidence](../evidence/awid/perf.md).
+
+- 2026-11-12 · High · Added deterministic single-offer selection using integer pricing. The best positive automatic saving wins, with stable ID tie-breaking. The 61 pricing and quote tests, domain typecheck and focused lint passed.
+  Next: add quote code and discount fields, then connect eligibility and atomic redemption to quote and placement before exposing offers in Discovery.

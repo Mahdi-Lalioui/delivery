@@ -14,6 +14,7 @@ type QuoteLine = {
 type QuoteInput = {
   readonly lines: readonly QuoteLine[];
   readonly minimumDzd: number;
+  readonly promo?: Parameters<typeof priceOrder>[0]["promo"];
   readonly fulfilment: { kind: "pickup" } | { kind: "delivery"; feeDzd: number };
 };
 
@@ -39,7 +40,7 @@ function snapshotLine({ item, groups, optionIds, quantity, note }: QuoteLine, in
   });
 }
 
-export function priceCashQuote({ lines, minimumDzd, fulfilment }: QuoteInput) {
+export function priceCashQuote({ lines, minimumDzd, fulfilment, promo }: QuoteInput) {
   const minimum = dzd(minimumDzd);
   if (!minimum.ok) return minimum;
   const fee = dzd(fulfilment.kind === "delivery" ? fulfilment.feeDzd : 0);
@@ -58,6 +59,7 @@ export function priceCashQuote({ lines, minimumDzd, fulfilment }: QuoteInput) {
       optionDeltasDzd: options.map(({ priceDeltaDzd }) => priceDeltaDzd),
     })),
     minimumDzd: minimum.value,
+    ...(promo === undefined ? {} : { promo }),
     fulfillment:
       fulfilment.kind === "delivery" ? { kind: "zone", feeDzd: fee.value } : { kind: "pickup" },
   });
