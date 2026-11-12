@@ -8,6 +8,10 @@
       "types": "./src/admin-moderation.ts",
       "default": "./dist/admin-moderation.js"
     },
+    "./admin-orders": {
+      "types": "./src/admin-orders.ts",
+      "default": "./dist/admin-orders.js"
+    },
     "./admin": {
       "types": "./src/admin.ts",
       "default": "./dist/admin.js"
@@ -51,6 +55,10 @@
     "./merchant-staff": {
       "types": "./src/merchant-staff.ts",
       "default": "./dist/merchant-staff.js"
+    },
+    "./merchant-delivery": {
+      "types": "./src/merchant-delivery.ts",
+      "default": "./dist/merchant-delivery.js"
     },
     "./merchant-hours": {
       "types": "./src/merchant-hours.ts",
@@ -103,6 +111,10 @@
     "./tracking": {
       "types": "./src/tracking.ts",
       "default": "./dist/tracking.js"
+    },
+    "./push": {
+      "types": "./src/push.ts",
+      "default": "./dist/push.js"
     }
   },
   "scripts": {

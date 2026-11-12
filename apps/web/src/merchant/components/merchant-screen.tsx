@@ -29,6 +29,8 @@ function MembershipList({
   memberships: readonly Membership[];
 }) {
   const translate = useTranslations("merchant");
+  const board = useTranslations("merchantBoard");
+  const delivery = useTranslations("merchantDelivery");
 
   return (
     <>
@@ -45,6 +47,11 @@ function MembershipList({
                 <span>{translate(roleLabels[role])}</span>
                 <span className="merchant-status">{translate(statusLabels[status])}</span>
               </div>
+              {status === "active" && (
+                <a className="merchant-primary" href={`/${locale}/merchant/${merchantId}/board`}>
+                  {board("title")}
+                </a>
+              )}
               {role !== "staff" && editableStatuses.has(status) && (
                 <div className="merchant-membership-actions">
                   <a
@@ -55,6 +62,12 @@ function MembershipList({
                   </a>
                   <a className="merchant-secondary" href={`/${locale}/merchant/${merchantId}/menu`}>
                     {translate("manageMenu")}
+                  </a>
+                  <a
+                    className="merchant-secondary"
+                    href={`/${locale}/merchant/${merchantId}/delivery-settings`}
+                  >
+                    {delivery("title")}
                   </a>
                   {role === "owner" && (
                     <a

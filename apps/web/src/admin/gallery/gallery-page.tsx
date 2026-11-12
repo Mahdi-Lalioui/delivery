@@ -6,9 +6,14 @@ import { NextIntlClientProvider } from "next-intl";
 import { SiteShell } from "../../components/site-shell";
 import "../billing/admin-billing.css";
 import "../../retention/retention.css";
+import { OperationsGallery } from "./operations-gallery";
 import { LaneBGallery } from "./lane-b-gallery";
 import { SystemShowcase } from "../../design/system-showcase";
 import "../../design/system-showcase.css";
+import "../../merchant-board/board.css";
+import "../../courier/courier.css";
+import "../orders/admin-orders.css";
+import "./operations-gallery.css";
 
 export const galleryMetadata = { robots: { index: false, follow: false } };
 
@@ -27,6 +32,9 @@ export function GalleryPage({
         timeZone="Africa/Algiers"
         messages={{
           designGallery: messages.designGallery,
+          merchantBoard: messages.merchantBoard,
+          courier: messages.courier,
+          adminOrders: messages.adminOrders,
           adminBilling: messages.adminBilling,
           merchantBilling: messages.merchantBilling,
           adminBillingSettings: messages.adminBillingSettings,
@@ -52,6 +60,14 @@ export function GalleryPage({
               </div>
             </header>
             <SystemShowcase copy={messages.designGallery} />
+            <OperationsGallery
+              locale={locale}
+              labels={{
+                merchant: messages.merchantBoard.heading,
+                courier: messages.courier.title,
+                admin: messages.adminOrders.queue,
+              }}
+            />
             <LaneBGallery
               locale={locale}
               initialScreen={initialScreen}

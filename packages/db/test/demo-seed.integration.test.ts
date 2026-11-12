@@ -21,6 +21,8 @@ async function readDemo() {
       inside: boolean;
       commune_code: string;
       owner_blocked: boolean;
+      cover_ready: boolean;
+      review_count: number;
       categories: string[];
       items: string[];
       photo_id: string;
@@ -35,9 +37,16 @@ async function readDemo() {
       (SELECT jsonb_agg(item.id ORDER BY item.id) FROM public.items AS item
         WHERE item.merchant_id = merchant.id AND item.names ?& ARRAY['ar', 'fr']
           AND item.descriptions ?& ARRAY['ar', 'fr'] AND item.moderation_status = 'unreviewed') AS items,
-      photo.id AS photo_id, photo.ready_variants AS variants
+      photo.id AS photo_id, photo.ready_variants AS variants,
+      EXISTS (SELECT FROM public.media_uploads AS cover WHERE cover.id = merchant.cover_photo_id
+        AND cover.merchant_id = merchant.id AND cover.status = 'ready' AND cover.kind = 'cover')
+        AS cover_ready,
+      (SELECT count(*)::int FROM public.orders AS purchase
+        JOIN public.ratings AS rating ON rating.order_id = purchase.id
+        WHERE purchase.merchant_id = merchant.id AND purchase.status = 'collected'
+          AND purchase.customer_id IS NULL AND rating.comment <> '') AS review_count
     FROM public.merchants AS merchant
-    JOIN public.communes AS commune ON commune.id = merchant.commune_id AND commune.wilaya_code = 16
+    JOIN public.communes AS commune ON commune.id = merchant.commune_id
     JOIN public.merchant_members AS member ON member.merchant_id = merchant.id AND member.role = 'owner'
     JOIN public.users AS owner ON owner.id = member.user_id
     JOIN public.media_uploads AS photo ON photo.merchant_id = merchant.id AND photo.owner_id = owner.id
@@ -49,7 +58,7 @@ async function readDemo() {
   `;
 }
 
-test("[MER-09:demo] seeds twelve bilingual Algiers restaurants and preserves identities on repeat", async () => {
+test("[MER-09:demo] seeds forty bilingual restaurants across eight cities and preserves identities on repeat", async () => {
   const connection = database.get();
   const { sql } = connection;
   const root = await mkdtemp(join(tmpdir(), "zaafran-demo-media-"));
@@ -74,11 +83,19 @@ test("[MER-09:demo] seeds twelve bilingual Algiers restaurants and preserves ide
 
   await seedDemoRestaurants(connection, store);
   const before = await readDemo();
-  expect(before).toHaveLength(12);
-  expect(new Set(before.map((row) => row.commune_code)).size).toBe(12);
-  expect(new Set(before.map((row) => row.restaurant_name)).size).toBe(12);
+  expect(before).toHaveLength(40);
+  expect(new Set(before.map((row) => row.commune_code.slice(0, 2)))).toEqual(
+    new Set(["06", "13", "16", "19", "23", "25", "31", "47"]),
+  );
+  expect(new Set(before.map((row) => row.restaurant_name)).size).toBe(40);
   for (const row of before) {
-    expect(row).toMatchObject({ inside: true, status: "approved", owner_blocked: true });
+    expect(row).toMatchObject({
+      inside: true,
+      status: "approved",
+      owner_blocked: true,
+      cover_ready: true,
+      review_count: 3,
+    });
     expect(row.restaurant_name).toMatch(/\p{Script=Arabic}/u);
     expect(row.restaurant_name).toMatch(/\p{Script=Latin}/u);
     expect(row.categories).toHaveLength(2);
@@ -103,5 +120,5 @@ test("[MER-09:demo] seeds twelve bilingual Algiers restaurants and preserves ide
   await seedDemoRestaurants(connection, store);
   expect(await readDemo()).toEqual(before);
   expect(await sql`SELECT * FROM public.merchants WHERE NOT is_demo`).toEqual(unrelated);
-  expect(await sql`SELECT id FROM public.merchants WHERE is_demo`).toHaveLength(12);
+  expect(await sql`SELECT id FROM public.merchants WHERE is_demo`).toHaveLength(40);
 }, 30_000);

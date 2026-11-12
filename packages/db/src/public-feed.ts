@@ -4,41 +4,18 @@ import type { z } from "zod";
 import type { DatabaseConnection } from "./database.js";
 import type { MediaStoredVariant } from "./media-types.js";
 import { getFeedAvailability, readFeedHours } from "./public-feed-hours.js";
-import { timestampParsers } from "./timestamp-parsers.js";
+import { readRestaurantRows, type FeedQuery } from "./public-feed-query.js";
 
 type FeedPage = z.infer<typeof publicFeedOutput>;
-type RestaurantRow = Omit<FeedPage["restaurants"][number], "isOpen" | "nextOpensAt"> & {
-  readonly pausedUntil: Date | null;
-};
-
-interface FeedQuery {
-  readonly limit: number;
-  readonly cursor?: string;
-  readonly now: Date;
-}
-
 type PhotoQuery = Pick<MediaStoredVariant, "format" | "width"> & {
   readonly merchantId: string;
   readonly mediaId: string;
 };
 
-async function readRestaurantRows(sql: TransactionSql, { cursor, limit }: FeedQuery) {
-  const after = cursor === undefined ? sql`` : sql`AND merchant.id > ${cursor}::uuid`;
-  return sql<RestaurantRow[]>`
-    SELECT merchant.id AS "merchantId", merchant.slug, merchant.restaurant_name AS name,
-      merchant.cuisines, merchant.commune_id AS "communeId", cover.id AS "coverMediaId",
-      logo.id AS "logoMediaId", merchant.hours_paused_until AS "pausedUntil"
-    FROM public.merchants AS merchant
-    LEFT JOIN public.media_uploads AS cover ON cover.id = merchant.cover_photo_id
-      AND cover.merchant_id = merchant.id AND cover.kind = 'cover' AND cover.status = 'ready'
-    LEFT JOIN public.media_uploads AS logo ON logo.id = merchant.logo_photo_id
-      AND logo.merchant_id = merchant.id AND logo.kind = 'logo' AND logo.status = 'ready'
-    WHERE merchant.status = 'active' AND NOT merchant.is_demo ${after}
-    ORDER BY merchant.id LIMIT ${limit + 1}
-  `.parsers(timestampParsers);
-}
-
 async function readPage(sql: TransactionSql, query: FeedQuery): Promise<FeedPage> {
+  // Checkout in this sprint supports cash. Payment filters cannot advertise unsupported methods.
+  if (query.acceptsBaridiPay === true || query.acceptsTpe === true)
+    return { restaurants: [], nextCursor: null };
   const rows = await readRestaurantRows(sql, query);
   const page = rows.slice(0, query.limit);
   const nextCursor = rows.length > query.limit ? (page.at(-1)?.merchantId ?? null) : null;
@@ -50,7 +27,7 @@ async function readPage(sql: TransactionSql, query: FeedQuery): Promise<FeedPage
     page.map(({ merchantId }) => merchantId),
     now,
   );
-  const restaurants = page.map(({ pausedUntil, ...restaurant }) => {
+  const restaurants = page.map(({ pausedUntil, metrics, ...restaurant }) => {
     const weekly = hours.weekly.get(restaurant.merchantId) ?? {};
     const special = hours.special.get(restaurant.merchantId) ?? {};
     const schedule =
@@ -61,7 +38,7 @@ async function readPage(sql: TransactionSql, query: FeedQuery): Promise<FeedPage
             special,
             pausedUntil: pausedUntil.getTime(),
           };
-    return { ...restaurant, ...getFeedAvailability(schedule, now) };
+    return { ...restaurant, ...metrics, ...getFeedAvailability(schedule, now) };
   });
   return { restaurants, nextCursor };
 }

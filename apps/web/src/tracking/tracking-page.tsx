@@ -4,6 +4,7 @@ import { getMessages } from "@zaafran/i18n/messages";
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { SiteShell } from "../components/site-shell";
+import { CustomerData } from "../discovery/customer-data";
 import { CustomerTabBar } from "../customer/tab-bar";
 import { TrackingScreen } from "./tracking-screen";
 
@@ -20,7 +21,9 @@ export function TrackingPage({ orderId, locale }: { orderId: string; locale: Loc
         timeZone="Africa/Algiers"
         messages={{ tracking: getMessages(locale).tracking }}
       >
-        <TrackingScreen orderId={orderId} locale={locale} />
+        <CustomerData>
+          <TrackingScreen orderId={orderId} locale={locale} />
+        </CustomerData>
       </NextIntlClientProvider>
       <CustomerTabBar locale={locale} current="orders" />
     </SiteShell>

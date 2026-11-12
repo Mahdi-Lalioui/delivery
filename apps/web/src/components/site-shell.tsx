@@ -24,6 +24,8 @@ interface SiteShellProps {
     | "/sign-in?continue=merchant-apply"
     | "/sign-in?continue=merchant-status"
     | "/sign-in?continue=staff-accept"
+    | "/sign-in?continue=courier"
+    | "/sign-in?continue=admin-orders"
     | "/sign-in?continue=admin-review"
     | "/sign-in?continue=admin-moderation"
     | "/account"
@@ -32,12 +34,15 @@ interface SiteShellProps {
     | "/merchant"
     | "/merchant/apply"
     | "/staff/accept"
+    | "/courier"
     | `/merchant/${string}/menu`
     | `/merchant/${string}/menu/options`
     | `/merchant/${string}/menu/${string}/items`
     | `/merchant/${string}/setup`
     | `/merchant/${string}/profile/photos`
     | `/merchant/${string}/hours`
+    | `/merchant/${string}/delivery-settings`
+    | `/merchant/${string}/board`
     | `/merchant/${string}/staff`
     | `/merchant/${string}/billing`
     | `/merchant/${string}/reviews`
@@ -54,19 +59,9 @@ interface SiteShellProps {
     | "/admin/billing"
     | "/admin/billing/settings"
     | "/admin/platform"
-    | "/admin/dashboard";
+    | "/admin/dashboard"
+    | "/admin/orders";
 }
-
-const adminSubpaths: ReadonlySet<string> = new Set([
-  "/admin/merchant-applications",
-  "/admin/menu-items",
-  "/admin/billing",
-  "/admin/billing/settings",
-  "/admin/platform",
-  "/admin/dashboard",
-  "/sign-in?continue=admin-review",
-  "/sign-in?continue=admin-moderation",
-]);
 
 function LanguageLinks({
   locale,
@@ -102,8 +97,6 @@ function LanguageLinks({
 
 export async function SiteShell({ children, locale, subpath }: SiteShellProps) {
   const translate = await getTranslations({ locale, namespace: "shell" });
-  const isAdmin = subpath !== undefined && adminSubpaths.has(subpath);
-  const languages = isAdmin ? publicLocales.filter((language) => language !== "ar") : publicLocales;
 
   return (
     <>
@@ -121,7 +114,7 @@ export async function SiteShell({ children, locale, subpath }: SiteShellProps) {
           </a>
           <LanguageLinks
             locale={locale}
-            languages={languages}
+            languages={publicLocales}
             subpath={subpath}
             label={translate("languages")}
           />
@@ -132,7 +125,7 @@ export async function SiteShell({ children, locale, subpath }: SiteShellProps) {
             </summary>
             <LanguageLinks
               locale={locale}
-              languages={languages}
+              languages={publicLocales}
               subpath={subpath}
               label={translate("languages")}
             />

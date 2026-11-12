@@ -3,10 +3,11 @@
 import { formatAlgiersDate, formatAlgiersTime } from "@zaafran/i18n/formats";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef } from "react";
+import { PendingApplicationsNotice } from "./pending-applications-notice";
 import { AdminMerchantReview } from "./admin-merchant-review";
 import { useAdminMerchantQueue, type AdminMerchantQueueState } from "./use-admin-merchant-queue";
 
-type AdminLocale = "fr" | "en";
+type AdminLocale = "ar" | "fr" | "en";
 
 function QueueNotice({ state }: { state: AdminMerchantQueueState }) {
   const translate = useTranslations("adminMerchant");
@@ -165,6 +166,7 @@ export function AdminMerchantQueue({ locale }: { locale: AdminLocale }) {
         </h1>
         <p>{translate("intro")}</p>
       </header>
+      <PendingApplicationsNotice state={state} />
       <QueueNotice state={state} />
       <QueueContent state={state} locale={locale} />
     </section>

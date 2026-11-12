@@ -10,6 +10,7 @@ import {
   menuOptionGroupWriteOutput,
   menuPreviewPageOutput,
 } from "../packages/contracts/src/menu.ts";
+import { adminItemQueueOutput } from "../packages/contracts/src/admin-moderation.ts";
 import { problemResponseSchema } from "../packages/contracts/src/health.ts";
 import ar from "../packages/i18n/src/messages/ar.json" with { type: "json" };
 import en from "../packages/i18n/src/messages/en.json" with { type: "json" };
@@ -347,5 +348,79 @@ test("[ADM-04:browser] an admin allows a held item and the owner sees it approve
     await test.step("Check the localized preview design matrix", async () => {
       await checkPreviewMatrix(page, info, editorUrl);
     });
+  });
+});
+
+test("[ADM-04] a stale moderation draft reloads the newly held text before retry", async ({
+  baseURL,
+  page,
+  browser,
+  ignoreHTTPSErrors,
+}) => {
+  await withAuthHarness(baseURL, async (auth) => {
+    const { merchantId, categoryId, heldItemId } = await createHeldItem(page, auth);
+    const adminContext = await browser.newContext({ ignoreHTTPSErrors });
+    try {
+      const adminPage = await adminContext.newPage();
+      await enterHeldQueue(adminPage, auth);
+      await adminPage.getByRole("button", { name: heldName, exact: true }).click();
+      const selected = adminPage.getByRole("region", { name: heldName });
+      await selected.getByRole("radio", { name: fr.adminModeration.approve }).check();
+      await selected.getByLabel(fr.adminModeration.reason).fill(reason);
+
+      const path = auth.origin + "/v1/admin/menu-items";
+      const queue = adminItemQueueOutput.parse(
+        await (await adminPage.request.get(path + "/held?includeReviewToken=1")).json(),
+      );
+      const token = queue.items.find(({ itemId }) => itemId === heldItemId)?.reviewToken;
+      expect(token).toMatch(/^[a-f0-9]{64}$/u);
+      expect(
+        (
+          await adminPage.request.post(`${path}/${heldItemId}/review`, {
+            headers: sameOrigin(auth.origin, queue.sessionId),
+            data: { decision: "approve", reason, reviewToken: token },
+          })
+        ).status(),
+      ).toBe(200);
+
+      const updatedName = "Bière artisanale sans alcool";
+      const menu = `${auth.origin}/v1/merchants/${merchantId}/menu/items`;
+      const snapshot = menuItemPageOutput.parse(
+        await (await page.request.get(menu + "?categoryId=" + categoryId)).json(),
+      );
+      const updated = await page.request.put(menu + "/" + heldItemId, {
+        headers: sameOrigin(auth.origin, snapshot.sessionId),
+        data: {
+          categoryId,
+          names: { fr: updatedName },
+          descriptions: { fr: "Nouvelle recette fictive" },
+          priceDzd: 250,
+          photoId: null,
+          tags: [],
+          extraPrepMinutes: 0,
+          optionGroupIds: [],
+          expectedRevision: snapshot.revision,
+        },
+      });
+      expect(updated.status()).toBe(200);
+      expect(menuItemWriteOutput.parse(await updated.json()).item.moderationStatus).toBe(
+        "blocked_pending_review",
+      );
+
+      const stale = adminPage.waitForResponse((response) => response.url().endsWith("/review"));
+      await selected.getByRole("button", { name: fr.adminModeration.confirm }).click();
+      expect((await stale).status()).toBe(409);
+      expect(problemResponseSchema.parse(await (await stale).json()).code).toBe("stale_review");
+      await expect(adminPage.getByText(fr.adminModeration.stale, { exact: true })).toBeVisible();
+      await adminPage.getByRole("button", { name: updatedName, exact: true }).click();
+      const current = adminPage.getByRole("region", { name: updatedName });
+      await expect(current.getByText("Nouvelle recette fictive", { exact: true })).toBeVisible();
+      await current.getByRole("radio", { name: fr.adminModeration.approve }).check();
+      await current.getByLabel(fr.adminModeration.reason).fill(reason);
+      await current.getByRole("button", { name: fr.adminModeration.confirm }).click();
+      await expect(adminPage.getByText(fr.adminModeration.approved, { exact: true })).toBeVisible();
+    } finally {
+      await adminContext.close();
+    }
   });
 });

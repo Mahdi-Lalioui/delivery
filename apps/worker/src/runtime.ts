@@ -1,5 +1,8 @@
+import { pruneCourierPositions } from "@zaafran/db/courier-retention";
 import type { DatabaseConnection } from "@zaafran/db/database";
 import { createDiscoverySearchRepository } from "@zaafran/db/discovery-search";
+import { createOrderRepository } from "@zaafran/db/orders";
+import { createOrderQuoteRepository } from "@zaafran/db/order-quotes";
 import { createPrivacyRepository } from "@zaafran/db/privacy";
 import { createMediaRepository } from "@zaafran/db/media";
 import { createLocalMediaStore, type MediaStore } from "@zaafran/media";
@@ -12,12 +15,21 @@ import { defineJob } from "./jobs.js";
 import { queueLogger } from "./logger.js";
 import { createCropMediaJob } from "./media-crop.js";
 import { createPrepareMediaJob } from "./media-prepare.js";
-import { createPrivacyMediaPurgeJob } from "./privacy-media.js";
+import { createOrderPushJob, orderPushTask } from "./order-push.js";
+import { unavailableOrderPush, type SendOrderPush } from "./order-push-adapter.js";
+import { pruneInactivePushSubscriptions } from "./order-push-delivery.js";
+import { createOrderSmsJob, orderSmsTask } from "./order-sms.js";
+import { unavailableOrderSms, type SendOrderSms } from "./order-sms-adapter.js";
+import { createDeliveryProofPurgeJob, createPrivacyMediaPurgeJob } from "./privacy-media.js";
 import { workerSchema } from "./migrate-worker.js";
 
 const mediaPayload = z.strictObject({ mediaId: z.uuid(), phase: z.enum(["prepare", "crop"]) });
 const cleanupPayload = z.strictObject({
   _cron: z.strictObject({ ts: z.iso.datetime(), backfilled: z.boolean() }).optional(),
+});
+const orderTimerPayload = z.strictObject({
+  orderId: z.uuid(),
+  action: z.enum(["expire", "release"]),
 });
 const watchdogIdentifier = "ops.watchdog";
 const watchdogPayload = z.strictObject({ checkId: z.uuid() });
@@ -25,11 +37,19 @@ const watchdogPayload = z.strictObject({ checkId: z.uuid() });
 export function createWorkerOptions(
   connectionString: string,
   database: DatabaseConnection,
-  media: { store: MediaStore; heicDecoderPath?: string | undefined } = {
+  options: {
+    store: MediaStore;
+    heicDecoderPath?: string | undefined;
+    orderSms?: SendOrderSms | undefined;
+    orderPush?: SendOrderPush | undefined;
+  } = {
     store: createLocalMediaStore({ root: defaultMediaStorageRoot() }),
   },
 ) {
+  const { orderSms = unavailableOrderSms, orderPush = unavailableOrderPush, ...media } = options;
   const privacy = createPrivacyRepository(database);
+  const orders = createOrderRepository(database);
+  const quotes = createOrderQuoteRepository(database);
   const mediaOptions = {
     repository: createMediaRepository(database),
     recordArtifact: privacy.recordApplicationMediaArtifact,
@@ -41,11 +61,28 @@ export function createWorkerOptions(
     "media.process": defineJob(mediaPayload, (payload) =>
       payload.phase === "prepare" ? prepare(payload) : crop(payload),
     ),
+    "privacy.purge_delivery_proof": createDeliveryProofPurgeJob({
+      repository: mediaOptions.repository,
+      store: media.store,
+    }),
     "privacy.purge_media": createPrivacyMediaPurgeJob({
       repository: privacy,
       store: media.store,
     }),
-    privacy_cleanup: defineJob(cleanupPayload, () => privacy.pruneDeletionState(new Date())),
+    privacy_cleanup: defineJob(cleanupPayload, async () => {
+      const now = new Date();
+      await privacy.pruneDeletionState(now);
+      await quotes.pruneExpired(now);
+      await orders.pruneRatingReceipts(now);
+      await orders.pruneMerchantReviewReceipts(now);
+      await pruneInactivePushSubscriptions(database.sql);
+      await pruneCourierPositions(database.sql, now);
+    }),
+    [orderPushTask]: createOrderPushJob(database, orderPush),
+    [orderSmsTask]: createOrderSmsJob(database, orderSms),
+    "order.timer": defineJob(orderTimerPayload, ({ orderId, action }) =>
+      orders.runTimer(orderId, action, new Date()),
+    ),
     search_refresh: createSearchRefreshJob(createDiscoverySearchRepository(database)),
     [watchdogIdentifier]: defineJob(watchdogPayload, async ({ checkId }) => {
       await runJobEffectOnce({

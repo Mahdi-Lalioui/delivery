@@ -3,7 +3,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "env": ["ZAAFRAN_API_ORIGIN", "ZAAFRAN_PREVIEW_DEMO", "VERCEL_ENV"],
+      "env": ["ZAAFRAN_API_ORIGIN", "ZAAFRAN_TILE_ORIGIN", "ZAAFRAN_PREVIEW_DEMO", "VERCEL_ENV"],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },
     "dev": {

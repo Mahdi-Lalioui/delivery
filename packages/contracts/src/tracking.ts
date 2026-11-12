@@ -16,6 +16,13 @@ export const publicTrackingOutput = z.strictObject({
   eta: orderEta.nullable(),
   timeline,
 });
+export const trackingPosition = pin.extend({
+  heading: z.number().min(0).lt(360).optional(),
+  capturedAt: z.iso.datetime(),
+});
+export const trackingPositionEvent = trackingPosition.extend({
+  orderId: orderSummary.shape.orderId,
+});
 const customerTracking = z.strictObject({
   order: orderSummary,
   timeline,
@@ -34,14 +41,9 @@ export const customerTrackingOutput = z.discriminatedUnion("fulfilment", [
     deliveryCode: deliveryCode.nullable(),
     courier: z
       .strictObject({
-        firstName: z.string().min(1).max(80),
+        firstName: z.string().min(1).max(80).nullable(),
         phone,
-        position: pin
-          .extend({
-            heading: z.number().min(0).lt(360).optional(),
-            capturedAt: z.iso.datetime(),
-          })
-          .nullable(),
+        position: trackingPosition.nullable(),
       })
       .nullable(),
     route: z.array(pin).max(5000).nullable(),

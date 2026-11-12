@@ -8,8 +8,12 @@
         "scripts/*.test.ts",
         "tooling/*.test.ts",
         "e2e/preview.config.ts",
+        "e2e/maps.config.ts",
         "e2e/team-preview.preview.ts"
       ]
+    },
+    "packages/db": {
+      "entry": ["src/deploy.ts"]
     },
     "apps/api": {
       "entry": ["src/server.ts", "test/**/*.test.ts"]

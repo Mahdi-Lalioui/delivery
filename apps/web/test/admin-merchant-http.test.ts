@@ -2,6 +2,7 @@ import { afterEach, expect, test, vi } from "vitest";
 import {
   listAdminMerchantApplications,
   prepareAdminReviewAttempt,
+  readAdminApplicationNotice,
   reviewAdminMerchantApplication,
 } from "../src/admin/admin-merchant-http";
 
@@ -192,4 +193,32 @@ test.each([
       ),
   );
   await expect(reviewAdminMerchantApplication(attempt)).resolves.toEqual({ kind });
+});
+
+test("[ADM-03] only shows a notice from the same admin session", async () => {
+  const fetcher = vi
+    .fn()
+    .mockResolvedValueOnce(
+      Response.json({ sessionId: otherSessionId, pendingCount: 3, latestMerchantId: id }),
+    )
+    .mockResolvedValueOnce(Response.json({ sessionId, pendingCount: 1, latestMerchantId: id }))
+    .mockResolvedValueOnce(Response.json({ sessionId, pendingCount: 0, latestMerchantId: null }));
+  vi.stubGlobal("fetch", fetcher);
+  const signal = new AbortController().signal;
+  await expect(readAdminApplicationNotice(sessionId, signal)).resolves.toBeUndefined();
+  await expect(readAdminApplicationNotice(sessionId, signal)).resolves.toMatchObject({
+    pendingCount: 1,
+    latestMerchantId: id,
+  });
+  await expect(readAdminApplicationNotice(sessionId, signal)).resolves.toMatchObject({
+    pendingCount: 0,
+    latestMerchantId: null,
+  });
+  expect(fetcher).toHaveBeenCalledWith(endpoint + "/notice", {
+    method: "GET",
+    credentials: "same-origin",
+    cache: "no-store",
+    redirect: "error",
+    signal,
+  });
 });

@@ -7,10 +7,11 @@ export const photoRatios = {
   cover: { width: 16, height: 9 },
   item: { width: 4, height: 3 },
   logo: { width: 1, height: 1 },
+  delivery_proof: { width: 16, height: 9 },
 } as const;
 
 const merchantPhotoKind = z.enum(["cover", "item", "logo"]);
-const photoKind = z.enum(["application", ...merchantPhotoKind.options]);
+const photoKind = z.enum(["application", "delivery_proof", ...merchantPhotoKind.options]);
 const uploadFields = {
   contentType: z.enum(["image/jpeg", "image/png", "image/heic", "image/webp"]),
   bytes: z.int().positive().max(photoUploadMaximumBytes),
@@ -19,6 +20,7 @@ const uploadFields = {
 export const mediaUploadInput = z.discriminatedUnion("kind", [
   z.strictObject({ ...uploadFields, kind: z.literal("application") }),
   z.strictObject({ ...uploadFields, kind: merchantPhotoKind, merchantId: z.uuid() }),
+  z.strictObject({ ...uploadFields, kind: z.literal("delivery_proof"), orderId: z.uuid() }),
 ]);
 
 const focalCoordinate = z.int().min(0).max(10_000);

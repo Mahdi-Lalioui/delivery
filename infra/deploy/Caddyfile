@@ -1,0 +1,31 @@
+{
+	admin off
+	skip_install_trust
+}
+
+{$AWID_API_HOST} {
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+
+	@tiles path_regexp ^/tiles/algeria/[0-9]{1,2}/[0-9]{1,5}/[0-9]{1,5}$
+	handle @tiles {
+		uri strip_prefix /tiles
+		reverse_proxy martin:3000 {
+			header_up -Cookie
+			header_up -Authorization
+		}
+	}
+
+	@api path /v1/* /healthz /readyz
+	handle @api {
+		reverse_proxy api:3002
+	}
+
+	handle {
+		respond 404
+	}
+}

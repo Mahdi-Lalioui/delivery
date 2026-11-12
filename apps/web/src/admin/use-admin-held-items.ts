@@ -115,14 +115,22 @@ export function useAdminHeldItems(): AdminHeldItemsState {
       return;
     }
     setNotice(kind);
+    if (kind === "stale" && view.kind === "ready") {
+      setView({ kind: "loading" });
+      setRequest({ expectedSessionId: view.sessionId });
+      return;
+    }
     setView((current) => withoutItem(current, itemId));
   }
 
   async function save(draft: HeldReviewDraft) {
     const isBlocked = isPaging || isReviewInFlight.current || notice === "stale";
-    if (!selected || view.kind !== "ready" || isBlocked) return;
+    if (view.kind !== "ready" || isBlocked) return;
+    const item = view.items.find(({ itemId }) => itemId === selected);
+    if (!item) return;
     const prepared = prepareHeldItemReview({
-      itemId: selected,
+      itemId: item.itemId,
+      reviewToken: item.reviewToken,
       expectedSessionId: view.sessionId,
       ...draft,
       previous: attempt.current,

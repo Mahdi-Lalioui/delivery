@@ -1,0 +1,11 @@
+# Optional full Algeria data overlay. Keep the small fixtures in the default development stack.
+services:
+  martin:
+    command: [/tiles/algeria.pmtiles]
+    volumes: !override
+      - "${ZAAFRAN_MAP_DATA_DIR:-./infra/data/maps}/algeria.pmtiles:/tiles/algeria.pmtiles:ro"
+
+  osrm:
+    entrypoint: [osrm-routed, --algorithm, mld, /data/algeria-261106.osrm]
+    volumes: !override
+      - "${ZAAFRAN_MAP_DATA_DIR:-./infra/data/maps}/osrm:/data:ro"

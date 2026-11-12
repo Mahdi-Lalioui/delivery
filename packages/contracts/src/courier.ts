@@ -10,18 +10,41 @@ const uuid = z.uuid();
 
 export const courierInviteInput = z.strictObject({ phone: algerianMobilePhone });
 export const courierInviteOutput = z.strictObject({ inviteId: uuid, expiresAt: instant });
-export const courierInviteAcceptInput = z.strictObject({ inviteId: uuid });
+const displayName = z
+  .string()
+  .trim()
+  .min(1)
+  .max(80)
+  .refine((name) => !name.includes("\0"));
+export const courierInviteAcceptInput = z.strictObject({
+  inviteId: uuid,
+  displayName: displayName.optional(),
+});
 export const courierInviteAcceptOutput = z.strictObject({ courierId: uuid, merchantId: uuid });
+export const courierRosterOutput = z.strictObject({
+  couriers: z.array(
+    z.strictObject({ courierId: uuid, displayName: displayName.nullable(), online: z.boolean() }),
+  ),
+});
+export const deliveryAttemptInput = z.strictObject({ action: z.enum(["start_wait", "call"]) });
+export const deliveryAttemptOutput = z.strictObject({
+  waitStartedAt: instant.nullable(),
+  callAttempts: z.int().min(0).max(20),
+});
 export const courierPresenceInput = z.strictObject({ online: z.boolean() });
 
 export const courierJobsOutput = z.strictObject({
+  courierId: uuid,
+  merchantId: uuid,
+  online: z.boolean(),
   jobs: z.array(
     z.strictObject({
       order: orderSummary,
       pickup: z.strictObject({ pin, restaurantName: z.string().min(1).max(120) }),
       dropoff: addressOutput.omit({ label: true, isDefault: true, addressId: true }),
-      customerFirstName: z.string().min(1).max(80),
+      customerFirstName: z.string().min(1).max(80).nullable(),
       customerPhone: algerianMobilePhone.nullable(),
+      deliveryAttempt: deliveryAttemptOutput,
       changeDzd: z.int().min(0).max(10_000),
     }),
   ),

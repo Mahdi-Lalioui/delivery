@@ -77,7 +77,9 @@ test("[GEO-01:db] covers an exact polygon boundary vertex only while the area is
   if (!area) throw new Error("Expected the boundary test area.");
 
   const pin = { kind: "point", longitude: -0.65, latitude: 35.69 } as const;
-  const location = { longitude: -0.65, latitude: 35.69, communeId: null };
+  const [oran] = await sql<{ id: string }[]>`SELECT id FROM public.communes WHERE code = '3101'`;
+  if (!oran) throw new Error("Expected the seeded Oran commune.");
+  const location = { longitude: -0.65, latitude: 35.69, communeId: oran.id };
   await expect(repository.resolve(pin)).resolves.toEqual({ ...location, serviceAreaId: area.id });
 
   await sql`UPDATE public.service_areas SET active = false WHERE id = ${area.id}`;

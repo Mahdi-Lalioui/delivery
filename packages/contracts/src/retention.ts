@@ -182,7 +182,12 @@ export const customerPrivacyExportOutput = z.strictObject({
     z.strictObject({
       addressId: uuid,
       label: z.string(),
-      communeId: uuid,
+      communeId: uuid.nullable(),
+      plusCode: z.string().optional(),
+      isDefault: z.boolean().optional(),
+      building: z.string().optional(),
+      floor: z.string().optional(),
+      apartment: z.string().optional(),
       pin: z.strictObject({
         latitude: z.number().min(-90).max(90),
         longitude: z.number().min(-180).max(180),

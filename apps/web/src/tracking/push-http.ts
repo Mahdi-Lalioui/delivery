@@ -1,8 +1,5 @@
-// CUS-20 web push opt-in on lane A's routes (docs/AWID_CONTRACTS.md, lane-a 5bf25b1/30097db).
-// The browser's own PushSubscription JSON is sent as-is and validated by the server's
-// pushSubscriptionInput; switch to importing @zaafran/contracts/push once it is on main.
+import { pushPublicKeyOutput, pushSubscriptionInput } from "@zaafran/contracts/push";
 
-const publicKeyPattern = /^B[A-Za-z0-9_-]{85}[AEIMQUYcgkosw048]$/u;
 const base = {
   credentials: "same-origin",
   cache: "no-store",
@@ -28,10 +25,8 @@ export function decodeKey(key: string): Uint8Array<ArrayBuffer> {
 async function readPublicKey(): Promise<string | null> {
   const response = await fetch("/v1/push/public-key", base);
   if (!response.ok) return null;
-  const body: unknown = await response.json();
-  if (typeof body !== "object" || body === null || !("publicKey" in body)) return null;
-  const { publicKey } = body;
-  return typeof publicKey === "string" && publicKeyPattern.test(publicKey) ? publicKey : null;
+  const output = pushPublicKeyOutput.safeParse(await response.json());
+  return output.success ? output.data.publicKey : null;
 }
 
 /** Asks permission, subscribes this browser and registers it with the session. */
@@ -47,11 +42,13 @@ export async function enablePush(): Promise<PushOutcome> {
       userVisibleOnly: true,
       applicationServerKey: decodeKey(publicKey),
     });
+    const payload = pushSubscriptionInput.safeParse(subscription.toJSON());
+    if (!payload.success) return "error";
     const response = await fetch("/v1/me/push-subscriptions", {
       ...base,
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(subscription.toJSON()),
+      body: JSON.stringify(payload.data),
     });
     return response.ok ? "on" : "error";
   } catch {

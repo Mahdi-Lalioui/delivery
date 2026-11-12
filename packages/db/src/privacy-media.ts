@@ -58,7 +58,7 @@ export async function recordApplicationMediaArtifact(
 ): Promise<void> {
   await sql`
     INSERT INTO public.application_media_artifacts (media_id, key)
-    SELECT id, ${key} FROM public.media_uploads WHERE id = ${mediaId} AND kind = 'application'
+    SELECT id, ${key} FROM public.media_uploads WHERE id = ${mediaId} AND kind IN ('application', 'delivery_proof')
     ON CONFLICT (media_id, key) DO NOTHING
   `;
 }

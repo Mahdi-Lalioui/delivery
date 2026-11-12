@@ -1,8 +1,9 @@
 import { afterEach, expect, test, vi } from "vitest";
 import { prepareMerchantAttempt } from "../src/merchant/merchant-application";
 import {
-  listAlgiersCommunes,
   listMerchantMemberships,
+  listWilayaCommunes,
+  listWilayas,
   submitMerchantApplication,
 } from "../src/merchant/merchant-http";
 
@@ -34,7 +35,7 @@ test("[MER-01:web] loads bounded Algiers commune pages with the public same-orig
   vi.stubGlobal("fetch", fetch);
   const signal = new AbortController().signal;
 
-  await expect(listAlgiersCommunes(signal)).resolves.toEqual({
+  await expect(listWilayaCommunes(16, signal)).resolves.toEqual({
     kind: "ready",
     data: [commune, second],
   });
@@ -221,4 +222,35 @@ test("[MER-01:web] a lost committed response followed by rate limiting keeps the
   expect(
     fetch.mock.calls.map(([, options]) => new Headers(options?.headers).get("idempotency-key")),
   ).toEqual([committedKey, committedKey, committedKey]);
+});
+
+test("[CUS-02:web] loads wilaya 69 and only its own communes", async () => {
+  const wilayas = [{ code: 69, nameAr: "الأبيض سيدي الشيخ", nameFr: "El Abiodh Sidi Cheikh" }];
+  const outsideAlgiers = {
+    ...commune,
+    id: merchantId,
+    code: "3207",
+    wilayaCode: 69,
+    ...{
+      nameAr: "الأبيض سيدي الشيخ",
+      nameFr: "El Abiodh Sidi Cheikh",
+    },
+  };
+  const fetch = vi
+    .fn<typeof globalThis.fetch>()
+    .mockResolvedValueOnce(Response.json({ wilayas }))
+    .mockResolvedValueOnce(
+      Response.json({ communes: [commune, outsideAlgiers], nextCursor: null }),
+    );
+  vi.stubGlobal("fetch", fetch);
+  const signal = new AbortController().signal;
+  await expect(listWilayas(signal)).resolves.toEqual({ kind: "ready", data: wilayas });
+  await expect(listWilayaCommunes(69, signal)).resolves.toEqual({
+    kind: "ready",
+    data: [outsideAlgiers],
+  });
+  expect(fetch.mock.calls.map(([url]) => url)).toEqual([
+    "/v1/wilayas",
+    "/v1/communes?wilayaCode=69&limit=100",
+  ]);
 });

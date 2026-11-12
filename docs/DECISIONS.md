@@ -249,6 +249,18 @@ Keep the Casbah marketing landing at the locale root. Its primary action opens t
 customer home at the localized `/discover` path. The address picker and feed stay together on
 that page, and locale switching and alternate metadata retain the discovery path.
 
+### D-028 — Keep route estimates separate from cash quotes (2026-11-11)
+
+Active buyer tracking sends a fresh courier fix and the destination to self-hosted OSRM. The API accepts loopback and Compose routing origins. It coalesces estimates for the same order for 30 seconds. A route failure uses great-circle distance × 1.35 at 24 km/h, with a 60-second breaker after three failures. The fallback provides an ETA without drawing a road line. Expired GPS fixes do not generate a new ETA. Quote totals, zone fees and accepted order prices remain independent of router availability. [OSRM route service](https://project-osrm.org/docs/v26.6.1/http.html)
+
+## D-029 · Use built-in Arabic map shaping
+
+Pinned MapLibre GL JS 6.16.0 shapes Arabic and reorders bidirectional text in its worker. Keep the worker and Noto Sans glyph ranges on the same origin and use Protomaps 5.7.2 for the geometry layers. This replaces the external RTL plugin for the web implementation of GEO-05. [MapLibre RTL API](https://maplibre.org/maplibre-gl-js/docs/API/functions/setRTLTextPlugin/) · [Protomaps assets](https://docs.protomaps.com/basemaps/maplibre)
+
+## D-030 · Encrypt nightly backups with age
+
+Use the exact age 1.3.2 release for streaming authenticated encryption. The backup server holds the recipient only. The recovery host holds the identity. Linux amd64 release SHA-256 is `cbe24006683f8eb669266162894b9a522a1af52f2665fbc63a4bb032ed26ac10`. [Official release](https://github.com/FiloSottile/age/releases/tag/v1.3.2)
+
 ### D-B05 — AWID design system supersedes "Casbah Saffron" (2026-11-11)
 
 Supersedes the colour, type, logo and motion sections of the earlier DESIGN. Per docs/SPRINT.md the brand is AWID: deep green #0B3D2E for text and primary actions, #00A37A for large shapes and accents, mint #4DE3B4, pale mint #D9FCE7 and cream #FFF8E6; Poppins with IBM Plex Sans Arabic, self-hosted; radii 20/28 px with green-tinted shadows instead of borders; motion 150/250/400 ms on cubic-bezier(0.2, 0.8, 0.2, 1) with a 0.97 press. The logo and app icon are SVGs traced from docs/brand/awid-reference.jpg with dark variants. Fraunces, Inter and Noto Naskh were removed.
@@ -256,3 +268,9 @@ Supersedes the colour, type, logo and motion sections of the earlier DESIGN. Per
 ### D-B06 — Remove the 3D Casbah hero; photography leads the landing (2026-11-11)
 
 Supersedes D-B03. SPRINT allows one 3D scene only if it is excellent after a bounded effort. The procedural Casbah hero read as crude boxes in the old saffron palette, so the landing now opens on credited Algeria photography with a slow zoom and crossfade (CSS only, off under reduced motion). `three`, `@react-three/fiber` and `@types/three` are removed from `apps/web`. Attribution for every photo is shown at `/[locale]/credits`.
+
+## D-031 · Support verified phone and email sign-in (2026-11-12)
+
+Mahdi approved both channels. Keep the existing session, CSRF and admin TOTP model. Extend its OTP machinery to verified phones and normalized emails, with one account per verified identifier and explicit, session-bound changes. OTPs are single-use, expire after 10 minutes and lock on the fifth incorrect attempt. Account creation and returning-account sign-in use the same public response.
+
+Configure Twilio or the existing SMS webhook and configure Resend for email. The public config publishes the methods backed by an enabled adapter. Keep checkout contact phones separate from verified login identifiers. Prefer push for order status delivery, with verified SMS or email as the fallback. Lane A owns sign-in, account and checkout from the latest Lane B design.

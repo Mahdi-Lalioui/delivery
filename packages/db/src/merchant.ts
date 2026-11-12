@@ -77,7 +77,7 @@ async function findEligibleCommune(sql: TransactionSql, input: MerchantApplicati
   const { communeId, pin } = input;
   const [commune] = await sql<{ covers: boolean }[]>`
     SELECT ST_Covers(boundary, ST_SetSRID(ST_MakePoint(${pin.longitude}, ${pin.latitude}), 4326)) AS covers
-    FROM public.communes WHERE id = ${communeId} AND wilaya_code = 16 AND boundary IS NOT NULL
+    FROM public.communes WHERE id = ${communeId} AND boundary IS NOT NULL
     FOR SHARE
   `;
   return commune;

@@ -1,10 +1,28 @@
-import { customerTrackingOutput } from "@zaafran/contracts/tracking";
-
-// CUS-18 / CUS-19 customer tracking on lane A's published contract (docs/AWID_CONTRACTS.md).
-// Polling every few seconds is the documented fallback; SSE replaces it once the order topic
-// lands on main (docs/requests/lane-b-tracking.md).
+import { trackingPositionEvent, customerTrackingOutput } from "@zaafran/contracts/tracking";
 
 export type Tracking = ReturnType<typeof customerTrackingOutput.parse>;
+export type TrackingPosition = ReturnType<typeof trackingPositionEvent.parse>;
+
+export function applyTrackingPosition(tracking: Tracking, frame: TrackingPosition): Tracking {
+  const { orderId, ...position } = frame;
+  if (tracking.order.orderId !== orderId || tracking.order.status !== "out_for_delivery")
+    return tracking;
+  if (tracking.fulfilment !== "delivery" || !tracking.courier) return tracking;
+  const last = tracking.courier.position;
+  if (last && Date.parse(last.capturedAt) >= Date.parse(position.capturedAt)) return tracking;
+  return { ...tracking, courier: { ...tracking.courier, position } };
+}
+
+export function parseTrackingPosition(data: unknown): TrackingPosition | undefined {
+  if (typeof data !== "string") return undefined;
+  try {
+    const raw: unknown = JSON.parse(data);
+    return trackingPositionEvent.safeParse(raw).data;
+  } catch {
+    return undefined;
+  }
+}
+
 export type OrderStatus = Tracking["order"]["status"];
 export type TrackingLoad =
   { kind: "ready"; tracking: Tracking } | { kind: "sign-in" | "not-found" | "error" };

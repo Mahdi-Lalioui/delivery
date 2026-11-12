@@ -6,6 +6,7 @@ import { Badge, ButtonLink, EmptyState, ErrorState, Icon, Skeleton } from "@zaaf
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { PushOptIn } from "./push-opt-in";
+import { TrackingLiveMap } from "./tracking-live-map";
 import { TrackingMap } from "./tracking-map-view";
 import {
   canCancel,
@@ -87,15 +88,21 @@ function Contacts({ tracking }: { tracking: Tracking }) {
           </span>
           <div>
             <small>{translate("courier")}</small>
-            <strong>
-              <bdi>{courier.firstName}</bdi>
-            </strong>
+            {courier.firstName && (
+              <strong>
+                <bdi>{courier.firstName}</bdi>
+              </strong>
+            )}
           </div>
           {courier.phone !== null && (
             <a
               className="tracking-call"
               href={`tel:${courier.phone}`}
-              aria-label={translate("callCourier", { name: courier.firstName })}
+              aria-label={
+                courier.firstName
+                  ? translate("callCourier", { name: courier.firstName })
+                  : translate("callUnnamedCourier")
+              }
             >
               <Icon name="phone" size={22} />
             </a>
@@ -196,7 +203,11 @@ function Ready({
   return (
     <div className="tracking" data-map={showMap}>
       {tracking.fulfilment === "delivery" ? (
-        <TrackingMap tracking={tracking} label={translate("map")} />
+        <TrackingLiveMap
+          tracking={tracking}
+          locale={locale}
+          fallback={<TrackingMap tracking={tracking} label={translate("map")} />}
+        />
       ) : null}
       <section className="tracking-sheet" aria-labelledby="tracking-status">
         <span className="tracking-grip" aria-hidden="true" />
