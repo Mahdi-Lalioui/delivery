@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./schema.js";
 import { merchantHoursInput } from "./merchant-hours.js";
 
 // Persisted amounts and limits fit a PostgreSQL integer (MON-01).

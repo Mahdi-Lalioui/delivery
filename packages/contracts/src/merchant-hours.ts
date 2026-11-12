@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./schema.js";
 
 const dayMinutes = 1440;
 const maxRangesPerDay = 4;

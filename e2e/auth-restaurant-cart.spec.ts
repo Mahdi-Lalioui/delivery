@@ -16,8 +16,10 @@ const labels = {
     increaseQuantity: "Augmenter la quantité",
     note: "Note pour la cuisine",
     add: /^Ajouter/u,
+    requiredChoice: "Choisissez : Choisir la sauce",
     cart: "Voir le panier",
     heading: "Panier",
+    checkout: /^Passer la commande/u,
   },
   ar: {
     search: "ابحث عن طبق أو مطعم",
@@ -31,8 +33,10 @@ const labels = {
     increaseQuantity: "زيادة الكمية",
     note: "ملاحظة للمطبخ",
     add: /^أضف/u,
+    requiredChoice: "اختر: اختر الصلصة",
     cart: "عرض السلة",
     heading: "السلة",
+    checkout: /^متابعة الطلب/u,
   },
 } as const;
 async function captureMatrix(page: Page, info: TestInfo, prefix: string) {
@@ -99,7 +103,9 @@ for (const locale of ["ar", "fr"] as const) {
         await choose.click();
         const item = page.getByRole("dialog");
         const add = item.getByRole("button", { name: copy.add });
-        await expect(add).toBeDisabled();
+        await expect(
+          item.getByRole("button", { name: copy.requiredChoice, exact: true }),
+        ).toBeDisabled();
         await item.getByRole("radio", { name: new RegExp(copy.sauce, "u") }).check();
         await item.getByRole("button", { name: copy.increaseQuantity }).click();
         await expect(add).toBeEnabled();
@@ -108,13 +114,16 @@ for (const locale of ["ar", "fr"] as const) {
         await expect(item.getByRole("textbox", { name: copy.note })).toBeVisible();
         await captureMatrix(page, info, "form-" + locale);
         await add.click();
+        await page.setViewportSize({ width: 390, height: 844 });
         await page.reload();
         await page.getByRole("button", { name: copy.cart, exact: true }).click();
         const cart = page.getByRole("dialog");
         await expect(cart.getByRole("heading", { name: copy.heading, exact: true })).toBeVisible();
         await expect(cart.getByText(copy.dish, { exact: true })).toBeVisible();
         await expect(cart.getByText(copy.sauce, { exact: true })).toBeVisible();
-        await expect(cart.getByText(formatDzd(1100, locale), { exact: true })).toBeVisible();
+        await expect(cart.getByRole("link", { name: copy.checkout })).toContainText(
+          formatDzd(1100, locale),
+        );
         await captureMatrix(page, info, "cart-" + locale);
       },
       true,

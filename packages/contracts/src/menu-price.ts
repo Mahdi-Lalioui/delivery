@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./schema.js";
 
 const uuid = z.uuid();
 const wholeDzd = z.int().min(0).max(2_147_483_647);

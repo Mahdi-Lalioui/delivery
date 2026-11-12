@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./schema.js";
 import { addressOutput } from "./addresses.js";
 import { algerianMobilePhone, normalizedEmail } from "./auth.js";
 import { merchantApplicationInput } from "./merchant.js";

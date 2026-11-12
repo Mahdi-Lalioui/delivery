@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./schema.js";
 
 /** MER-12: the template's columns, in the order the downloadable template lists them. */
 export const menuImportColumns = [

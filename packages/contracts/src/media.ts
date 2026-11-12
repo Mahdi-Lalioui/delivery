@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./schema.js";
 
 export const photoUploadMaximumBytes = 8 * 1024 * 1024;
 export const photoVariantWidths = [160, 320, 640, 960, 1280] as const;

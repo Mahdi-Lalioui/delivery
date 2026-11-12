@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./schema.js";
 import { photoVariantWidths } from "./media.js";
 
 const uuid = z.uuid();

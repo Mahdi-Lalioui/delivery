@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./schema.js";
 import { pageLimit } from "./pagination.js";
 
 // Unicode mode matches isolated surrogates while allowing valid supplementary characters.

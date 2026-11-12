@@ -7,6 +7,8 @@ export default defineConfig({
     ...integrationTestPatterns,
     globalSetup: ["./packages/db/test/global-setup.ts"],
     fileParallelism: true,
+    // Each worker clones and migrates a database on the shared PostGIS instance.
+    maxWorkers: 4,
     hookTimeout: 30_000,
   },
 });

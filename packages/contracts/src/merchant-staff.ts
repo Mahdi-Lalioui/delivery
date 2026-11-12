@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./schema.js";
 import { algerianMobilePhone, normalizedEmail } from "./auth.js";
 
 const uuid = z.uuid();

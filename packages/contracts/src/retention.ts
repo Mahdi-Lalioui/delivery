@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./schema.js";
 import { normalizedEmail } from "./auth.js";
 import { menuImportInput } from "./menu-import.js";
 import { menuItemInput } from "./menu.js";

@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./schema.js";
 import { merchantApplicationInput } from "./merchant.js";
 
 const coordinates = merchantApplicationInput.shape.pin;

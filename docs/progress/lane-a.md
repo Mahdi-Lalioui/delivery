@@ -282,6 +282,15 @@
 - 2026-11-12 · Ultra · Reproduced the nationwide geography findings and corrected the Oran boundary fixture to expect its official commune. Gave the full 1,541-boundary reseed test an explicit harness timeout. All nine focused PostGIS cases and trace passed.
   Next: rerun the full release checks and browser suites against the integrated build.
 
+- 2026-11-12 · Ultra · Isolated three release-suite timeouts to contention between concurrent PostGIS clones. All 314 integration tests passed with four workers. Pinned that concurrency for the shared database.
+  Next: complete the full verification run and both browser suites on the release candidate.
+
+- 2026-11-12 · Medium · Matched the mobile language control’s accessible name to its visible label and updated browser assertions for localized admin links, item options and the mobile cart. All 13 affected production-browser checks passed across the focused reruns.
+  Next: rerun the complete release and browser suites before merging the release candidate.
+
+- 2026-11-12 · High · Fixed the dark landing contrast and ran browser schemas without CSP-blocked code generation. Verified the map on Chromium and WebKit, offline caches and the responsive locale menu. Full verify passed with 1,961 unit and 314 PostGIS cases. Browser suites passed 68 authenticated and 98 general cases.
+  Next: use this release commit for a protected Vercel preview and backend staging when the host and provider credentials are available. Continue phone/email checkout and screens on lane-a.
+
 - 2026-11-12 · Ultra · Published additive phone/email OTP, identity linking and checkout contact contracts after merging the latest Lane B screens. All 207 contract tests, typecheck, build and lint passed.
   Next: extend the existing OTP transaction and rate limit to email, then verify ten-minute expiry, lockout and email TOTP against PostGIS.
 
