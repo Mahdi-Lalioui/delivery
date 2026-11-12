@@ -16,8 +16,8 @@ Customer orders (delivery or pickup, cash) → restaurant accepts on a live boar
 - Nothing from the demo branch's local-demo-* files or its auth-service code override reaches any lane or main.
 
 ## Lanes and ownership
-- Lane A, Codex 1, branch lane-a: packages/contracts, db, domain, geo; apps/api; apps/worker; infra and deployment; apps/web merchant, courier and admin screens; e2e tests.
-- Lane B, Claude Code, branch lane-b: packages/tokens and ui; apps/web marketing, discovery, restaurant, cart, checkout, tracking, retention; photos, motion, 3D. Lane B owns the design system and every other lane follows it.
+- Lane A, Codex 1, branch lane-a: packages/contracts, db, domain, geo; apps/api; apps/worker; infra and deployment; apps/web merchant, courier, admin, sign-in, account and checkout screens; e2e tests.
+- Lane B, Claude Code, branch lane-b: packages/tokens and ui; apps/web marketing, discovery, restaurant, cart, tracking, retention; photos, motion, 3D. Lane B owns the design system and every other lane follows it.
 - Lane C is paused. Lane A owns its work and proceeds without a second Codex.
 - Only lane A edits contracts and migrations; others ask in docs/requests/. Lane A publishes each contract before building behind it. Lane B builds on fixtures until the API lands.
 - Lane A merges lane-a, then lane-b into main at the end of each phase.
@@ -76,13 +76,20 @@ Loading skeleton, empty state, error state. 390 px Arabic and 1280 px French, li
 10. Restyle merchant, courier and admin screens with Lane B’s design system and run the design loop on each.
 11. Freeze. Fix findings and failing e2e until everything is green.
 
+### Next phase · Phone and email sign-in
+
+Lane A owns the backend, sign-in, account and checkout. Start from the latest Lane B screens and
+follow [the authentication handoff](requests/lane-a-auth-screens.md). Work at ultra effort for
+identity, OTP, adapters, migrations and permission checks. The sign-in, account and checkout screens
+use the existing AWID design system and pass the design loop before release.
+
 ## Lane B tasks (priority order)
 1. Rewrite docs/DESIGN.md for AWID from the brief above and record it in DECISIONS.md. New tokens, fonts, a clean SVG logo and app icon redrawn from the reference, every packages/ui component restyled, the gallery page.
 2. Choose and credit 15–20 photos of Algeria (Algiers with Maqam Echahid, Oran, Constantine, Ghardaïa, Tlemcen, Béjaïa, the Sahara, food and markets).
 3. Discovery, Restaurant and dish sheet, cart.
-4. Checkout, order confirmed, tracking, rating.
+4. Order confirmed, tracking, rating. Lane A owns subsequent checkout changes.
 5. Landing.
-6. Orders, receipt, profile, sign-in. Page transitions and micro-interactions throughout.
+6. Orders and receipt. Page transitions and micro-interactions throughout. Lane A owns subsequent account and sign-in changes.
 7. Installable app: icons, install prompt, offline shell, push opt-in.
 8. The 3D scene, under the rule above.
 9. Final sweep of every customer screen through the design loop.

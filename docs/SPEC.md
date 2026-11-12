@@ -92,10 +92,10 @@ Roles: `customer`, `merchant_owner`, `merchant_manager`, `merchant_staff`, `cour
   - edit quantities, remove lines;
   - progress to the minimum order: "Add 300 DA to reach the minimum";
   - an upsell row: up to 4 featured items not already in the cart.
-- **CUS-10** Phone OTP login:
+- **CUS-10** Phone or email OTP login:
   - Algerian mobiles only in v1 (`+213 5|6|7…`). Accepts `0550…`, `+213550…` and `00213550…`, and displays `0550 12 34 56`.
-  - 6-digit code; resend after 45 s.
-  - Distinct errors for wrong code, expired code and too many attempts, without revealing whether the number has an account.
+  - Offer only the enabled phone and email methods. Trim and lowercase email addresses. Use a six-digit code with paste, one-time-code autofill and a 45 s resend countdown.
+  - Distinct errors for wrong code, expired code and too many attempts, without revealing whether the phone or email has an account.
 - **CUS-11** Addresses:
   - add one by GPS, map pin or search;
   - fields: label, building/residence, floor, apartment, landmark, instructions, and an optional voice note ≤ 20 s;
@@ -105,6 +105,8 @@ Roles: `customer`, `merchant_owner`, `merchant_manager`, `merchant_staff`, `cour
   1. details, with the terms link visible;
   2. review: full price breakdown with edit links for items, address, time and payment;
   3. an explicit button "Confirm order · 2 150 DA".
+
+  Use the account’s verified phone as the contact number. If the account has no verified phone, ask for an Algerian mobile number for this order. This number is unverified and can be used by the restaurant or assigned courier to call about the order. The first-order cash cap still applies.
 
   No order exists before step 3.
 - **CUS-13** Timing and fulfilment:
@@ -126,7 +128,7 @@ Roles: `customer`, `merchant_owner`, `merchant_manager`, `merchant_staff`, `cour
   - buttons to call the restaurant and the driver; the 4-digit delivery code is visible;
   - a share link: read-only, shows first name only, expires 24 h after delivery.
 - **CUS-19** The customer can cancel in `scheduled` or `pending_acceptance` with one tap and a reason. After that the screen shows "Call the restaurant".
-- **CUS-20** Push notifications for accepted, ready (pickup), on the way, delivered, rejected, expired and cancelled. The last three also go by SMS.
+- **CUS-20** Push notifications for accepted, ready (pickup), on the way, delivered, rejected, expired and cancelled. For order status delivery, prefer push. If push is unavailable, use the verified phone by SMS, or the verified email when there is no verified phone.
 - **CUS-21** Order history:
   - status, plus a receipt (view/print) with restaurant, items, options, prices, fees, totals, date and code;
   - reorder in 2 taps: unavailable items are flagged and changed prices shown.
@@ -135,7 +137,7 @@ Roles: `customer`, `merchant_owner`, `merchant_manager`, `merchant_staff`, `cour
   - editable for 24 h; the restaurant's reply is visible.
 - **CUS-23** Favourite restaurants: a heart on cards and pages, plus a list in the profile.
 - **CUS-24** Profile:
-  - name; phone change (OTP to the new number); language; theme (system/light/dark); low-data mode; notifications; addresses;
+  - name; verified phone and email with Add or Change actions that require an OTP to the new identifier; language; theme (system/light/dark); low-data mode; notifications; addresses;
   - privacy: export my data (JSON), delete my account;
   - help: FAQ, plus a contact form linked to an order;
   - legal pages.
@@ -288,7 +290,7 @@ States: `scheduled`, `pending_acceptance`, `accepted` (shown as "Preparing"), `r
 
 | From | Command | Actor | To | Guards / side effects |
 |---|---|---|---|---|
-| — | `place` | customer | `pending_acceptance` or `scheduled` | **Guards:** valid quote; restaurant open (or valid slot); inside zone; min order; verified phone; cash cap (MON-08); not blocked; idempotent. **Effects:** notify the restaurant; enqueue timers. |
+| — | `place` | customer | `pending_acceptance` or `scheduled` | **Guards:** valid quote; restaurant open (or valid slot); inside zone; min order; verified sign-in identifier and a valid order contact phone; cash cap (MON-08); not blocked; idempotent. **Effects:** notify the restaurant; enqueue timers. |
 | `scheduled` | `release` | system | `pending_acceptance` | runs at slot − (prep + travel + 10 min) |
 | `scheduled`, `pending_acceptance` | `cancel` | customer | `cancelled` | reason required |
 | `pending_acceptance` | `accept(prepMin)` | merchant | `accepted` | prepMin 5–120; sets ETAs |
@@ -470,10 +472,11 @@ States: `scheduled`, `pending_acceptance`, `accepted` (shown as "Preparing"), `r
 ## 9. Auth, sessions, permissions
 
 - **AUTH-01** OTP:
-  - 6 digits, 5 min life, 5 attempts per challenge;
-  - stored as HMAC with a server secret; constant-time compare.
+  - Phone and email use the same six-digit, single-use OTP flow. Expire codes after 10 minutes and lock a challenge at five wrong attempts.
+  - Store a server-keyed HMAC of the code and compare it in constant time. Use the same public response whether or not an account exists.
+  - One account can hold a verified Algerian mobile and one verified email. Trim and lowercase email before lookup. Verify additions and changes against the current account and session. Each verified identifier belongs to one account. Account linking never merges accounts.
 - **AUTH-02** OTP limits:
-  - per phone: 3 per 15 min and 10 per day;
+  - per normalized phone or email: 3 per 15 min and 10 per day;
   - per IP: 20 per hour;
   - resend cooldown 45 s.
 - **AUTH-03** Sessions:
@@ -487,6 +490,10 @@ States: `scheduled`, `pending_acceptance`, `accepted` (shown as "Preparing"), `r
 - **AUTH-07** Merchant and courier scopes are applied in SQL, never trusted from client input.
 - **AUTH-08** The authorization matrix test (AGENTS.md §6) covers 100% of routes.
 - **AUTH-09** Prefer Better Auth (phone-number plugin + Expo plugin) if it meets AUTH-01…05 exactly. If not, build minimal sessions. Record the choice in DECISIONS.
+
+- The public auth config lists the methods with a configured adapter. SMS uses Twilio or the existing webhook. Email uses Resend. Use localized AWID messages in Arabic, French and English, with a plain-text email alternative. Development and tests can inspect a fake outbox.
+- Send codes to the selected channel. Staff and courier invitations accept a phone or email and can be redeemed only by the account that verified that identifier. Deletion uses a verified channel on the current account.
+- Include both identifiers in personal-data export and erasure. Keep them out of logs and push payloads.
 
 ## 10. Languages and formats
 

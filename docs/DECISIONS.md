@@ -268,3 +268,9 @@ Supersedes the colour, type, logo and motion sections of the earlier DESIGN. Per
 ### D-B06 — Remove the 3D Casbah hero; photography leads the landing (2026-11-11)
 
 Supersedes D-B03. SPRINT allows one 3D scene only if it is excellent after a bounded effort. The procedural Casbah hero read as crude boxes in the old saffron palette, so the landing now opens on credited Algeria photography with a slow zoom and crossfade (CSS only, off under reduced motion). `three`, `@react-three/fiber` and `@types/three` are removed from `apps/web`. Attribution for every photo is shown at `/[locale]/credits`.
+
+## D-031 · Support verified phone and email sign-in (2026-11-12)
+
+Mahdi approved both channels. Keep the existing session, CSRF and admin TOTP model. Extend its OTP machinery to verified phones and normalized emails, with one account per verified identifier and explicit, session-bound changes. OTPs are single-use, expire after 10 minutes and lock on the fifth incorrect attempt. Account creation and returning-account sign-in use the same public response.
+
+Configure Twilio or the existing SMS webhook and configure Resend for email. The public config publishes the methods backed by an enabled adapter. Keep checkout contact phones separate from verified login identifiers. Prefer push for order status delivery, with verified SMS or email as the fallback. Lane A owns sign-in, account and checkout from the latest Lane B design.
