@@ -1,6 +1,7 @@
 import { z } from "./schema.js";
 import { photoVariantWidths } from "./media.js";
 import { merchantApplicationInput } from "./merchant.js";
+import { promotionDiscount } from "./promotions.js";
 
 const uuid = z.uuid();
 const maxFeedPage = 50;
@@ -31,6 +32,7 @@ export const publicFeedQuery = z.strictObject({
   availableAt: z.iso.datetime().optional(),
   dietary: dietary.optional(),
   includeCount: booleanParam.optional(),
+  offers: booleanParam.optional(),
   newOnly: booleanParam.optional(),
   maxMinimumOrderDzd: z
     .string()
@@ -71,6 +73,9 @@ export const publicRestaurantCard = z.strictObject({
   distanceMeters: z.int().nonnegative().optional(),
   offersPickup: z.boolean().optional(),
   isNew: z.boolean().optional(),
+  offer: z
+    .union(promotionDiscount.options.map((kind) => kind.extend({ minimumSubtotalDzd: amount })))
+    .optional(),
   pin: merchantApplicationInput.shape.pin.optional(),
   dietary: z.array(dietary).max(1).optional(),
   minimumOrderDzd: amount.nullable().optional(),

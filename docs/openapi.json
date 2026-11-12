@@ -28620,6 +28620,18 @@
               ]
             },
             "in": "query",
+            "name": "offers",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ]
+            },
+            "in": "query",
             "name": "newOnly",
             "required": false
           },
@@ -28832,6 +28844,91 @@
                           },
                           "isNew": {
                             "type": "boolean"
+                          },
+                          "offer": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "percent"
+                                    ]
+                                  },
+                                  "basisPoints": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 10000
+                                  },
+                                  "capDzd": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 2147483647
+                                  },
+                                  "minimumSubtotalDzd": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 2147483647
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "basisPoints",
+                                  "capDzd",
+                                  "minimumSubtotalDzd"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "fixed"
+                                    ]
+                                  },
+                                  "amountDzd": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 2147483647
+                                  },
+                                  "minimumSubtotalDzd": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 2147483647
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "amountDzd",
+                                  "minimumSubtotalDzd"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "free_delivery"
+                                    ]
+                                  },
+                                  "minimumSubtotalDzd": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 2147483647
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "minimumSubtotalDzd"
+                                ],
+                                "additionalProperties": false
+                              }
+                            ]
                           },
                           "pin": {
                             "type": "object",
@@ -29443,6 +29540,91 @@
                         },
                         "isNew": {
                           "type": "boolean"
+                        },
+                        "offer": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "kind": {
+                                  "type": "string",
+                                  "enum": [
+                                    "percent"
+                                  ]
+                                },
+                                "basisPoints": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 10000
+                                },
+                                "capDzd": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 2147483647
+                                },
+                                "minimumSubtotalDzd": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 2147483647
+                                }
+                              },
+                              "required": [
+                                "kind",
+                                "basisPoints",
+                                "capDzd",
+                                "minimumSubtotalDzd"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "kind": {
+                                  "type": "string",
+                                  "enum": [
+                                    "fixed"
+                                  ]
+                                },
+                                "amountDzd": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 2147483647
+                                },
+                                "minimumSubtotalDzd": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 2147483647
+                                }
+                              },
+                              "required": [
+                                "kind",
+                                "amountDzd",
+                                "minimumSubtotalDzd"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "kind": {
+                                  "type": "string",
+                                  "enum": [
+                                    "free_delivery"
+                                  ]
+                                },
+                                "minimumSubtotalDzd": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 2147483647
+                                }
+                              },
+                              "required": [
+                                "kind",
+                                "minimumSubtotalDzd"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
                         },
                         "pin": {
                           "type": "object",

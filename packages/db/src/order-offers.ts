@@ -44,7 +44,7 @@ function pricingOffer(discount: Promotion["discount"]): Promo {
   }
 }
 
-function appliesOn(conditions: Promotion["conditions"], at: number) {
+export function promotionAppliesOn(conditions: Promotion["conditions"], at: number) {
   const { startsOn, endsOn, weekly } = conditions;
   const date = getAlgiersDate(at).isoDate;
   if ((startsOn && date < startsOn) || (endsOn && date > endsOn)) return false;
@@ -68,7 +68,8 @@ function limitReached(row: Candidate) {
 
 function rejection(row: Candidate, request: OfferRequest): Rejection | undefined {
   const { conditions } = row;
-  if (!row.isActive || !appliesOn(conditions, request.at.getTime())) return "promotion_expired";
+  if (!row.isActive || !promotionAppliesOn(conditions, request.at.getTime()))
+    return "promotion_expired";
   if (request.price.subtotalDzd < (conditions.minimumSubtotalDzd ?? 0))
     return "promotion_below_minimum";
   if (limitReached(row)) return "promotion_used_up";
@@ -80,7 +81,7 @@ export async function evaluateOrderOffer(sql: TransactionSql, request: OfferRequ
   const candidates = await sql<Candidate[]>`
     SELECT offer.id, offer.discount, offer.conditions, offer.is_active AS "isActive",
       usage.total AS "totalUses", usage.customer AS "customerUses",
-      EXISTS (SELECT FROM public.orders WHERE customer_id = ${customerId}) AS "hasOrdered"
+      EXISTS (SELECT FROM public.orders WHERE customer_id = ${customerId} AND merchant_id = ${merchantId}) AS "hasOrdered"
     FROM public.promotions AS offer
     CROSS JOIN LATERAL (
       SELECT count(*)::int AS total,
@@ -95,9 +96,11 @@ export async function evaluateOrderOffer(sql: TransactionSql, request: OfferRequ
     const row = candidates[0];
     if (!row) return { kind: "promotion_wrong_restaurant" } as const;
     const reason = rejection(row, request);
-    return reason
-      ? { kind: reason }
-      : { kind: "eligible" as const, offer: { id: row.id, promo: pricingOffer(row.discount) } };
+    if (reason) return { kind: reason };
+    const offer = selectOrderOffer(request.price, [
+      { id: row.id, promo: pricingOffer(row.discount) },
+    ]);
+    return { kind: "eligible" as const, offer };
   }
   const offers = candidates
     .filter((row) => rejection(row, request) === undefined)

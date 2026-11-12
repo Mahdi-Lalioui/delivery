@@ -3,6 +3,7 @@ import type { ISql, TransactionSql } from "postgres";
 import type { z } from "zod";
 import type { DatabaseConnection } from "./database.js";
 import type { MediaStoredVariant } from "./media-types.js";
+import { readPublicOffers } from "./public-feed-offers.js";
 import { readVegetarianMerchants } from "./public-feed-dietary.js";
 import { getFeedAvailability, readFeedHours } from "./public-feed-hours.js";
 import { countRestaurantRows, readRestaurantRows, type FeedQuery } from "./public-feed-query.js";
@@ -23,9 +24,17 @@ async function readFeedResults(
   matchingVegetarian: Set<string> | null,
 ) {
   const vegetarianIds = matchingVegetarian === null ? null : [...matchingVegetarian];
+  const offers =
+    query.offers === true
+      ? await readPublicOffers(
+          sql,
+          query.availableAt === undefined ? query.now : new Date(query.availableAt),
+        )
+      : "[]";
+  const scope = { vegetarianMerchantIds: vegetarianIds, offers };
   const [rows, count] = await Promise.all([
-    readRestaurantRows(sql, query, vegetarianIds),
-    query.includeCount === true ? countRestaurantRows(sql, query, vegetarianIds) : undefined,
+    readRestaurantRows(sql, query, scope),
+    query.includeCount === true ? countRestaurantRows(sql, query, scope) : undefined,
   ]);
   return { rows, metadata: countMetadata(count) };
 }

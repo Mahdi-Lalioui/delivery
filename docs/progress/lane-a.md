@@ -383,3 +383,6 @@
 
 - 2026-11-12 · Ultra · Wired offer eligibility, automatic selection and quote repricing. Placement serializes against merchant offer edits and records one redemption with the order. All 35 targeted PostGIS tests passed, including a concurrent final-use race and exact replay.
   Next: prove the remaining time and customer limit cases, publish safe public offer data and verify the complete feature in the connected build.
+
+- 2026-11-12 · Ultra · Added public Discovery offer filtering and badge data with no private codes or personal eligibility. Scoped first-order offers to the restaurant and prevented zero-saving code uses. All 40 targeted PostGIS tests and the OpenAPI check passed.
+  Next: verify the offers routes in a connected checkout and have Lane B wire the customer controls. Continue the security and reliability readiness passes.
