@@ -9,7 +9,7 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 - [x] **Lane B** Arabic, French and English copy pass. Errors give the customer a next step. [Copy changes](evidence/awid/copy.md) (17a477c)
 - [x] **Lane B** Audit spacing, type, radii, shadows, icons, buttons and colours on every customer screen. Record and fix deviations in `docs/evidence/awid/consistency.md`. [Consistency list, 21 fixed](evidence/awid/consistency.md) (fb5d002)
 - [ ] **Lane B** Remove content that distracts from the next action. Verify one focal point per screen.
-- [ ] **Lane B** Verify 44 px touch targets, visible focus, meaningful labels, contrast in both themes and keyboard journeys.
+- [x] **Lane B** Verify 44 px touch targets, visible focus, meaningful labels, contrast in both themes and keyboard journeys. [Audit rounds 1–5 and keyboard journeys](evidence/awid/a11y/README.md): 0 axe violations, 0 small targets, 0 invisible focus on 15 routes × 4 variants
 - [ ] **Lane B** Complete the final visual review on every customer screen. Record shortcomings, fixes and fresh captures.
 
 - [x] **Lane B** Maps in AWID colours with page-language labels, branded pin cards with clustering, retry inside the fallback; real streets and buildings on a production build with the national extract. [Screenshots and notes](evidence/awid/maps/README.md) (5afa5d3)

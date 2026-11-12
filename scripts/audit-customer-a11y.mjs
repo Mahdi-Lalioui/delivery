@@ -66,13 +66,15 @@ async function invisibleFocus(page) {
       const element = document.activeElement;
       if (!element || element === document.body) return null;
       const style = getComputedStyle(element);
-      const parent = element.closest("label, .filter-sheet-toggle, .fulfilment-option");
+      const holders = ["label", ".filter-sheet-toggle, .fulfilment-option", ".ui-input-box, .ui-select-box"]
+        .map((selector) => element.closest(selector))
+        .filter(Boolean);
       const ring = (node) => {
         const look = getComputedStyle(node);
         return look.outlineStyle !== "none" && parseFloat(look.outlineWidth) > 0 ||
           look.boxShadow !== "none";
       };
-      if (ring(element) || (parent && ring(parent)) || style.outlineStyle !== "none") return null;
+      if (ring(element) || holders.some(ring) || style.outlineStyle !== "none") return null;
       return element.tagName.toLowerCase() + " " + (element.className || element.id || "");
     })()`);
     if (miss) misses.add(miss);

@@ -42,7 +42,8 @@
     "lint:staged": "lint-staged",
     "test:mobile": "pnpm --filter @zaafran/mobile test",
     "evidence:maps": "node scripts/capture-awid-maps.mjs",
-    "audit:customer-a11y": "node scripts/audit-customer-a11y.mjs"
+    "audit:customer-a11y": "node scripts/audit-customer-a11y.mjs",
+    "audit:keyboard-journey": "node scripts/keyboard-journey.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",

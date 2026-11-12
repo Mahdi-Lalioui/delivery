@@ -41,7 +41,7 @@ function ItemOptions({
       ?.optionIds ?? [];
   const radio = group.maximum === 1;
   return (
-    <fieldset className="restaurant-options">
+    <fieldset className="restaurant-options" data-group={group.optionGroupId}>
       <legend>
         {localizeRestaurantText(group.names, locale)}{" "}
         <span>{group.minimum > 0 ? messages.required : messages.optional}</span>
@@ -101,17 +101,31 @@ function ItemOptions({
 }
 
 /** "Choose: Size" while a required group is still unanswered, so the disabled button explains itself. */
-function missingGroup(
-  detail: RestaurantItem,
-  draft: ItemDraft,
-  locale: Locale,
-): string | undefined {
-  const group = detail.optionGroups.find((candidate) => {
+function firstMissingGroup(detail: RestaurantItem, draft: ItemDraft) {
+  return detail.optionGroups.find((candidate) => {
     const chosen = draft.selections.find(
       (selection) => selection.optionGroupId === candidate.optionGroupId,
     );
     return (chosen?.optionIds.length ?? 0) < candidate.minimum;
   });
+}
+
+/** Moves focus to the first required choice the diner has not made yet. */
+function focusMissingChoice(form: HTMLFormElement, detail: RestaurantItem, draft: ItemDraft) {
+  const group = firstMissingGroup(detail, draft);
+  if (group === undefined) return;
+  const input = form.querySelector<HTMLInputElement>(
+    `fieldset[data-group="${group.optionGroupId}"] input`,
+  );
+  input?.focus();
+}
+
+function missingGroup(
+  detail: RestaurantItem,
+  draft: ItemDraft,
+  locale: Locale,
+): string | undefined {
+  const group = firstMissingGroup(detail, draft);
   if (group === undefined) return undefined;
   return getRestaurantMessages(locale).chooseGroup.replace(
     "{group}",
@@ -142,7 +156,11 @@ export function ItemForm({
       className="restaurant-item-form"
       onSubmit={(event) => {
         event.preventDefault();
-        if (valid) onAdd();
+        if (valid) {
+          onAdd();
+          return;
+        }
+        focusMissingChoice(event.currentTarget, detail, draft);
       }}
     >
       <div className="restaurant-item-scroll">
@@ -193,7 +211,8 @@ export function ItemForm({
           variant="primary"
           size="lg"
           isBlock
-          disabled={!valid || totalDzd === null}
+          // Focusable while incomplete, so keyboard and screen-reader users hear what is missing.
+          aria-disabled={!valid || totalDzd === null}
         >
           {missingGroup(detail, draft, locale) ?? (
             <>

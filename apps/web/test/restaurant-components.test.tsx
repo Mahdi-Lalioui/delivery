@@ -65,7 +65,7 @@ test("[CUS-08:web] required radios block Add, show option deltas and expose quan
   expect(html).toContain('<output aria-label="Quantité">1</output>');
   expect(html).toContain('maxLength="140"');
   // Add stays disabled and names the unanswered required group.
-  expect(html).toMatch(/<button[^>]*disabled[^>]*>[^<]*<span>Choisissez : Taille/u);
+  expect(html).toMatch(/<button[^>]*aria-disabled="true"[^>]*>[^<]*<span>Choisissez : Taille/u);
   expect(html).toContain("Note pour la cuisine");
 });
 
@@ -84,7 +84,9 @@ test("[CUS-08:web] satisfies the required choice and shows the safe live configu
   expect(html).toContain('أضف · <span class="ui-visually-hidden">940 دج</span>');
   expect(html).toContain('<span class="counting-dzd" aria-hidden="true">940 دج</span>');
   expect(html).toContain("الكمية");
-  expect(html).not.toMatch(/<button[^>]*disabled[^>]*>[^<]*<span>أضف/u);
+  expect(html).not.toMatch(
+    /<button[^>]*(?:\sdisabled=""|aria-disabled="true")[^>]*>[^<]*<span>أضف/u,
+  );
 });
 
 test("[CUS-09:web] cart lines expose configured snapshots, quantity editing and separate removal", () => {

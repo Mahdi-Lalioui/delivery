@@ -56,11 +56,12 @@
     transform var(--motion-fast) var(--ease-standard);
 }
 
-.ui-button:active:not(:disabled) {
+.ui-button:active:not(:disabled, [aria-disabled="true"]) {
   transform: scale(0.97);
 }
 
-.ui-button:disabled {
+.ui-button:disabled,
+.ui-button[aria-disabled="true"] {
   cursor: not-allowed;
   opacity: 0.55;
 }
@@ -92,10 +93,10 @@
   color: var(--color-on-primary);
 }
 
-.ui-button-primary:hover:not(:disabled) {
+.ui-button-primary:hover:not(:disabled, [aria-disabled="true"]) {
   background: var(--color-primary-hover);
 }
-.ui-button-primary:active:not(:disabled) {
+.ui-button-primary:active:not(:disabled, [aria-disabled="true"]) {
   background: var(--color-primary-pressed);
 }
 
@@ -105,7 +106,7 @@
   color: var(--color-text);
 }
 
-.ui-button-secondary:hover:not(:disabled) {
+.ui-button-secondary:hover:not(:disabled, [aria-disabled="true"]) {
   background: var(--color-surface-2);
 }
 
@@ -115,7 +116,7 @@
   padding-inline: var(--space-12);
 }
 
-.ui-button-ghost:hover:not(:disabled) {
+.ui-button-ghost:hover:not(:disabled, [aria-disabled="true"]) {
   background: var(--color-surface-2);
 }
 
@@ -125,7 +126,7 @@
   color: var(--color-danger);
 }
 
-.ui-button-destructive:hover:not(:disabled) {
+.ui-button-destructive:hover:not(:disabled, [aria-disabled="true"]) {
   background: var(--color-danger-bg);
 }
 
@@ -136,7 +137,7 @@
   color: var(--color-danger);
 }
 
-.ui-button-danger-ghost:hover:not(:disabled) {
+.ui-button-danger-ghost:hover:not(:disabled, [aria-disabled="true"]) {
   background: var(--color-danger-bg);
 }
 
@@ -233,9 +234,11 @@
   transition: border-color var(--motion-fast) var(--ease-standard);
 }
 
-.ui-input-box:focus-within,
-.ui-select-box:focus-within {
+/* A full ring, not just a border tint: focus must read at a glance (WCAG 2.4.11). */
+.ui-input-box:has(.ui-input:focus-visible),
+.ui-select-box:has(.ui-input:focus-visible) {
   border-color: var(--color-focus);
+  box-shadow: 0 0 0 var(--focus-ring-width) var(--color-focus);
 }
 
 .ui-field[data-invalid] .ui-input-box,
@@ -246,7 +249,7 @@
 .ui-input {
   flex: 1;
   min-inline-size: 0;
-  min-block-size: 48px;
+  min-block-size: var(--space-48);
   padding-inline: var(--space-12);
   border: 0;
   border-radius: inherit;
@@ -753,7 +756,7 @@
     transition: none;
   }
 
-  .ui-button:active:not(:disabled) {
+  .ui-button:active:not(:disabled, [aria-disabled="true"]) {
     transform: none;
   }
   .ui-skeleton-line {
