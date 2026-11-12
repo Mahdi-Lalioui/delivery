@@ -414,6 +414,13 @@
       "when": 1794146580000,
       "tag": "0058_email_invitations",
       "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "7",
+      "when": 1794146640000,
+      "tag": "0059_merchant_first_publication",
+      "breakpoints": true
     }
   ]
 }

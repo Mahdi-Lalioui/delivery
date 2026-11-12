@@ -14,18 +14,22 @@ for (const locale of ["ar", "fr"] as const) {
       baseURL,
       async (harness) => {
         const fixture = await harness.seedDiscoveryFeed();
-        const firstPage = await page.request.get(harness.origin + "/v1/feed?limit=1");
+        const firstPage = await page.request.get(
+          harness.origin + "/v1/feed?limit=1&includeCount=true",
+        );
         expect(firstPage.status()).toBe(200);
         const first = publicFeedOutput.parse(await firstPage.json());
         expect(first.restaurants).toHaveLength(1);
+        expect(first.totalCount).toBe(3);
         if (!first.nextCursor) throw new Error("Expected more seeded feed rows.");
         const nextPage = await page.request.get(
-          harness.origin + "/v1/feed?cursor=" + first.nextCursor,
+          harness.origin + "/v1/feed?includeCount=true&cursor=" + first.nextCursor,
         );
         expect(nextPage.status()).toBe(200);
         const next = publicFeedOutput.parse(await nextPage.json());
         expect(next.restaurants).toHaveLength(2);
         expect(next.nextCursor).toBeNull();
+        expect(next.totalCount).toBe(3);
         const published = [...first.restaurants, ...next.restaurants];
         expect(new Set(published.map(({ merchantId }) => merchantId)).size).toBe(3);
         expect(published.map(({ name }) => name)).toContain(fixture.publishedName);

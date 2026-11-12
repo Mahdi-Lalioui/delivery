@@ -100,3 +100,21 @@ test("[CUS-06:http] accepts scheduled pickup within three days and rejects inval
   }
   expect(list).toHaveBeenCalledTimes(1);
 });
+
+test("[CUS-06:http] returns the requested total with the matching rail filters", async () => {
+  const { api, list } = setup();
+  const page = { ...emptyPage, totalCount: 0 };
+  list.mockResolvedValue(page);
+  const response = await api.inject(
+    "/v1/feed?includeCount=true&newOnly=true&maxMinimumOrderDzd=1000",
+  );
+  expect(response.statusCode).toBe(200);
+  expect(response.json()).toEqual(page);
+  expect(list).toHaveBeenCalledExactlyOnceWith({
+    limit: 24,
+    includeCount: true,
+    newOnly: true,
+    maxMinimumOrderDzd: 1000,
+    now,
+  });
+});

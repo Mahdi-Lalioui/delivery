@@ -5,7 +5,7 @@ import type { DatabaseConnection } from "./database.js";
 import type { MediaStoredVariant } from "./media-types.js";
 import { readVegetarianMerchants } from "./public-feed-dietary.js";
 import { getFeedAvailability, readFeedHours } from "./public-feed-hours.js";
-import { readRestaurantRows, type FeedQuery } from "./public-feed-query.js";
+import { countRestaurantRows, readRestaurantRows, type FeedQuery } from "./public-feed-query.js";
 
 type FeedPage = z.infer<typeof publicFeedOutput>;
 type PhotoQuery = Pick<MediaStoredVariant, "format" | "width"> & {
@@ -13,21 +13,38 @@ type PhotoQuery = Pick<MediaStoredVariant, "format" | "width"> & {
   readonly mediaId: string;
 };
 
+function countMetadata(totalCount: number | undefined) {
+  return totalCount === undefined ? {} : { totalCount };
+}
+
+async function readFeedResults(
+  sql: TransactionSql,
+  query: FeedQuery,
+  matchingVegetarian: Set<string> | null,
+) {
+  const vegetarianIds = matchingVegetarian === null ? null : [...matchingVegetarian];
+  const [rows, count] = await Promise.all([
+    readRestaurantRows(sql, query, vegetarianIds),
+    query.includeCount === true ? countRestaurantRows(sql, query, vegetarianIds) : undefined,
+  ]);
+  return { rows, metadata: countMetadata(count) };
+}
+
 async function readPage(sql: TransactionSql, query: FeedQuery): Promise<FeedPage> {
   // Checkout in this sprint supports cash. Payment filters cannot advertise unsupported methods.
   if ([query.acceptsBaridiPay, query.acceptsTpe].includes(true))
-    return { restaurants: [], nextCursor: null };
+    return {
+      restaurants: [],
+      nextCursor: null,
+      ...countMetadata(query.includeCount === true ? 0 : undefined),
+    };
   const dietaryAt = query.availableAt === undefined ? query.now : new Date(query.availableAt);
   const matchingVegetarian =
     query.dietary === "vegetarian" ? await readVegetarianMerchants(sql, dietaryAt) : null;
-  const rows = await readRestaurantRows(
-    sql,
-    query,
-    matchingVegetarian === null ? null : [...matchingVegetarian],
-  );
+  const { rows, metadata } = await readFeedResults(sql, query, matchingVegetarian);
   const page = rows.slice(0, query.limit);
   const nextCursor = rows.length > query.limit ? (page.at(-1)?.merchantId ?? null) : null;
-  if (page.length === 0) return { restaurants: [], nextCursor };
+  if (page.length === 0) return { restaurants: [], nextCursor, ...metadata };
 
   const now = query.now.getTime();
   const ids = page.map(({ merchantId }) => merchantId);
@@ -53,7 +70,7 @@ async function readPage(sql: TransactionSql, query: FeedQuery): Promise<FeedPage
       ...(vegetarian.has(restaurant.merchantId) ? { dietary: ["vegetarian" as const] } : {}),
     };
   });
-  return { restaurants, nextCursor };
+  return { restaurants, nextCursor, ...metadata };
 }
 
 async function readPhoto(sql: ISql, { merchantId, mediaId, format, width }: PhotoQuery) {

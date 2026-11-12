@@ -1,6 +1,6 @@
 # Lane B → lane A: discovery feed fields for the new brief
 
-Status: pickup, scheduling, distance, dietary and fee order implemented (2026-11-12).
+Status: all requested feed data implemented except offers (2026-11-12).
 
 The new lane B brief asks for discovery features that have no data in the published feed
 contract on `main`. Lane B ships none of them until the data exists ("never ship a filter or
@@ -61,5 +61,18 @@ is selected. [Design and browser evidence](../evidence/awid/discovery-v2/README.
   expose `dietary: ["vegetarian"]` where applicable. With `availableAt` set, the dish’s
   availability is evaluated at that time.
 
-Offers are pending promotion redemption at checkout, which is outside the current
-sprint. Result count and the New and budget rails remain open.
+## Count and rails API handoff
+
+- `includeCount=true` adds `totalCount` across all pages of the same filters. The
+  count ignores the cursor and page size. Request it when the filter sheet needs
+  a result count.
+- `newOnly=true` limits results to restaurants first published on AWID in the last
+  30 days. This rail response marks its cards with `isNew: true`. Publication is recorded
+  going forward and reopening does not reset it. Older publication dates are unknown.
+- `maxMinimumOrderDzd=999` supports a minimum-order rail under 1,000 DA. The value
+  applies to pickup or the delivery zone for the chosen commune. Label the rail
+  by its minimum order. The threshold is inclusive.
+
+These filters use the connected API. The standalone preview catalog needs fixture support
+before the new controls are used there. Offers are pending promotion redemption at checkout,
+which is outside the current sprint.

@@ -426,3 +426,68 @@ test("[CUS-06:db] lists pickup locations, future openings and approved vegetaria
   await sql`UPDATE options SET names = '{"fr":"Vin"}' WHERE id = ${id(75)}`;
   expect((await repo.list({ now, limit: 10, dietary: "vegetarian" })).restaurants).toEqual([]);
 });
+
+test("[CUS-06:db] counts all matching restaurants across pages and uses the correct minimum order", async () => {
+  const { sql } = database.get();
+  for (const [merchantId, publishedAt, minimum] of [
+    [overnightId, "2026-11-06T12:00:00Z", 800],
+    [datedHoursId, "2026-10-10T12:00:00Z", 1000],
+    [noHoursId, "2026-10-06T12:00:00Z", 500],
+    [specialClosureId, "2026-11-06T12:00:00Z", 1001],
+  ] as const) {
+    await sql`UPDATE merchants SET first_published_at = ${publishedAt} WHERE id = ${merchantId}`;
+    await sql`INSERT INTO merchant_order_settings (merchant_id, pickup_enabled, pickup_minimum_dzd)
+      VALUES (${merchantId}, true, ${minimum})
+      ON CONFLICT (merchant_id) DO UPDATE SET pickup_enabled = true, pickup_minimum_dzd = ${minimum}`;
+  }
+  const repo = repository();
+  const query = {
+    now,
+    limit: 1,
+    fulfilment: "pickup",
+    newOnly: true,
+    maxMinimumOrderDzd: 1000,
+    includeCount: true,
+    sort: "rating",
+  } as const;
+  const first = publicFeedOutput.parse(await repo.list(query));
+  expect(first.restaurants).toMatchObject([
+    { merchantId: overnightId, isNew: true, minimumOrderDzd: 800 },
+  ]);
+  expect(first.nextCursor).toBe(overnightId);
+  expect(first.totalCount).toBe(2);
+  const second = await repo.list({ ...query, cursor: overnightId });
+  expect(second.restaurants).toMatchObject([
+    { merchantId: datedHoursId, isNew: true, minimumOrderDzd: 1000 },
+  ]);
+  expect(second.nextCursor).toBeNull();
+  expect(second.totalCount).toBe(2);
+  expect(await repo.list({ ...query, cursor: datedHoursId })).toEqual({
+    restaurants: [],
+    nextCursor: null,
+    totalCount: 2,
+  });
+  expect(await repo.list({ ...query, maxMinimumOrderDzd: 300 })).toEqual({
+    restaurants: [],
+    nextCursor: null,
+    totalCount: 0,
+  });
+  expect(await repo.list({ ...query, includeCount: false })).not.toHaveProperty("totalCount");
+  expect((await repo.list({ ...query, newOnly: false })).restaurants[0]).not.toHaveProperty(
+    "isNew",
+  );
+});
+
+test("[CUS-06:db] records the first public activation without resetting it on resumption", async () => {
+  const { sql } = database.get();
+  const publishedAt = () => sql<{ publishedAt: string | null }[]>`
+    SELECT first_published_at::text AS "publishedAt" FROM merchants WHERE id = ${approvedId}
+  `;
+  expect((await publishedAt())[0]?.publishedAt).toBeNull();
+  await sql`UPDATE merchants SET status = 'active' WHERE id = ${approvedId}`;
+  const first = (await publishedAt())[0]?.publishedAt;
+  expect(first).toBeTruthy();
+  await sql`UPDATE merchants SET status = 'suspended' WHERE id = ${approvedId}`;
+  await sql`UPDATE merchants SET status = 'active' WHERE id = ${approvedId}`;
+  expect((await publishedAt())[0]?.publishedAt).toBe(first);
+});

@@ -10,6 +10,7 @@ type MetricKeys =
   | "etaMinutes"
   | "deliveryFeeDzd"
   | "distanceMeters"
+  | "isNew"
   | "offersPickup"
   | "pin"
   | "minimumOrderDzd"
@@ -50,6 +51,8 @@ function selectCandidates(
     SELECT merchant.id, merchant.slug, merchant.restaurant_name, merchant.cuisines, merchant.commune_id,
       merchant.cover_photo_id, merchant.logo_photo_id, merchant.hours_paused_until, settings.price_level,
       stats.rating, stats.rating_count, zone.fee_dzd,
+      merchant.first_published_at BETWEEN ${now}::timestamptz - interval '720 hours'
+        AND ${now}::timestamptz AS is_new,
       CASE WHEN ${fulfilment}::text = 'pickup' THEN settings.pickup_minimum_dzd
         ELSE zone.minimum_dzd END AS minimum_dzd,
       CASE WHEN settings.pickup_enabled THEN jsonb_build_object(
@@ -93,22 +96,30 @@ function selectCandidates(
   `;
 }
 
-function filterAndPage(sql: TransactionSql, query: FeedQuery) {
+function matchingFilters(sql: TransactionSql, query: FeedQuery) {
   const {
     freeDelivery = null,
     minRating = null,
     maxEtaMinutes = null,
     priceLevel = null,
-    cursor = null,
+    maxMinimumOrderDzd = null,
+    newOnly = false,
   } = query;
-  const limit = query.limit + 1;
-  const order = orderBy(sql, query.sort);
-  const filter = sql`
+  return sql`
     (${freeDelivery}::boolean IS NULL OR (fee_dzd = 0) = ${freeDelivery})
     AND (${minRating}::numeric IS NULL OR rating >= ${minRating})
     AND (${maxEtaMinutes}::int IS NULL OR eta_max <= ${maxEtaMinutes})
     AND (${priceLevel}::smallint IS NULL OR price_level = ${priceLevel})
+    AND (${maxMinimumOrderDzd}::int IS NULL OR minimum_dzd <= ${maxMinimumOrderDzd})
+    AND (NOT ${newOnly}::boolean OR is_new)
   `;
+}
+
+function filterAndPage(sql: TransactionSql, query: FeedQuery) {
+  const { cursor = null } = query;
+  const limit = query.limit + 1;
+  const order = orderBy(sql, query.sort);
+  const filter = matchingFilters(sql, query);
   if (!query.sort || query.sort === "relevance") {
     return sql`SELECT * FROM candidates WHERE ${filter} ORDER BY id LIMIT ${limit}`;
   }
@@ -140,7 +151,8 @@ export function readRestaurantRows(
         'etaMinutes', CASE WHEN page.eta_max IS NOT NULL THEN jsonb_build_object('min', page.eta_min, 'max', page.eta_max) END,
         'deliveryFeeDzd', page.fee_dzd, 'distanceMeters', round(page.distance)::int,
         'minimumOrderDzd', page.minimum_dzd, 'priceLevel', page.price_level,
-        'offersPickup', CASE WHEN page.pickup_pin IS NOT NULL THEN true END, 'pin', page.pickup_pin
+        'offersPickup', CASE WHEN page.pickup_pin IS NOT NULL THEN true END, 'pin', page.pickup_pin,
+        'isNew', CASE WHEN ${query.newOnly === true} AND page.is_new THEN true END
       )) AS metrics
     FROM page
     LEFT JOIN public.media_uploads AS cover ON cover.id = page.cover_photo_id
@@ -149,4 +161,17 @@ export function readRestaurantRows(
       AND logo.merchant_id = page.id AND logo.kind = 'logo' AND logo.status = 'ready'
     ORDER BY ${order}
   `.parsers(timestampParsers);
+}
+
+export async function countRestaurantRows(
+  sql: TransactionSql,
+  query: FeedQuery,
+  vegetarianMerchantIds: string[] | null,
+) {
+  const candidates = selectCandidates(sql, { ...query, cursor: undefined }, vegetarianMerchantIds);
+  const [result] = await sql<{ total: number }[]>`
+    WITH candidates AS (${candidates})
+    SELECT count(*)::int AS total FROM candidates WHERE ${matchingFilters(sql, query)}
+  `;
+  return result?.total ?? 0;
 }

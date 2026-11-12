@@ -352,4 +352,7 @@
   Next: reconcile Lane B’s overlapping Discovery commit, then merge the release candidate after hosted CI. Offers still depend on checkout redemption.
 
 - 2026-11-12 · High · Integrated Lane B’s Discovery work. Fixed the review finding by applying public-menu moderation, timed availability and required option stock to vegetarian results. Deploy the updated web and API together because old clients reject new response fields.
-  Next: run GitHub checks on the integrated head, then update main. Lane B can wire reorder and pickup against the published API.
+  Merged `7afc38e` to main after [hosted CI](https://github.com/Mahdi-Lalioui/delivery/actions/runs/43277601224), CodeQL and all 72 local authenticated browser tests passed. Next: finish the count and rails handoff.
+
+- 2026-11-12 · Ultra · Added opt-in exact Discovery counts, pickup/delivery minimum-order filtering and first-publication data for the New rail on `codex/lane-a-feed-rails`. PostGIS proves count stability across cursors and that reopening preserves publication time.
+  Next: merge the follow-up after its release check. Offers depend on promotion redemption.
