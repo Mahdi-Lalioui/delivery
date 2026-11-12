@@ -278,3 +278,6 @@
 
 - 2026-11-12 · High · Finished two AWID design rounds on the live board, courier pickup and drop-off, and admin live orders. Passed 21 production-browser checks, including axe and overflow across 20 captures. Registered the screens in the design gallery.
   Next: run full verification and the browser release suite, fix findings, then begin the phone and email sign-in handoff.
+
+- 2026-11-12 · Ultra · Reproduced the nationwide geography findings and corrected the Oran boundary fixture to expect its official commune. Gave the full 1,541-boundary reseed test an explicit harness timeout. All nine focused PostGIS cases and trace passed.
+  Next: rerun the full release checks and browser suites against the integrated build.
