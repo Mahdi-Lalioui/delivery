@@ -146,7 +146,7 @@ function freeScene(scene: Scene) {
  * Builds the order-confirmed tagine on `canvas` and returns `render(ms)` to draw the scene at
  * any moment of its timeline, plus `dispose` to free the GPU resources.
  */
-export function createTagineScene(canvas: HTMLCanvasElement, colours: TagineColours) {
+function createTagineScene(canvas: HTMLCanvasElement, colours: TagineColours) {
   const renderer = makeRenderer(canvas);
   const scene = new Scene();
   const camera = new PerspectiveCamera(36, canvas.clientWidth / canvas.clientHeight, 0.1, 50);
