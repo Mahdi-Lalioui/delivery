@@ -5,13 +5,17 @@ import { useEffect, useId, useMemo, useRef, useState, type MouseEvent } from "re
 import { FeedContent } from "./feed-content";
 import { FeedFilterBar } from "./feed-filters";
 import { FulfilmentToggle } from "./fulfilment-toggle";
-import { PickupMap } from "./pickup-map";
+import dynamic from "next/dynamic";
 import { pickupPins } from "./pickup-pins";
 import { filtersFromSearch, filtersToSearch } from "./filter-state";
 import { readDiscoveryFeed, type FeedFilters, type FeedState } from "./feed-http";
 import { Collections, CuisineChips, FavouritesRail, FeedRail } from "./feed-sections";
 import { getFeedMessages } from "./feed-messages";
 import "./feed.css";
+
+const PickupMap = dynamic(() => import("./pickup-map").then((module) => module.PickupMap), {
+  ssr: false,
+});
 
 const initialState: FeedState = { phase: "loading", restaurants: [], nextCursor: null };
 

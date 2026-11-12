@@ -11,3 +11,6 @@ Lane A will touch customer screens only for performance and will record those ed
   photo uses the existing plated wrap asset. [Photo guide](../RESTAURANT_PHOTOS.md)
 - Preview timings are a baseline. Connected metrics and budgets are tracked in
   [performance evidence](../evidence/awid/perf.md).
+- Discovery loads the pickup map module only after Pickup is selected. The default
+  delivery view avoids MapLibre startup work. The map and its existing fallback UI
+  still render when Pickup is selected.

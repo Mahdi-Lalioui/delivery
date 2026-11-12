@@ -371,3 +371,6 @@
 
 - 2026-11-12 · Low · Recorded the local-only phase, Lane A/B ownership, photo and performance handoff and the evidence requirements in READINESS.
   Next: measure connected Discovery and Restaurant, fix first-screen cost and layout shift, and enforce route budgets.
+
+- 2026-11-12 · High · Deferred the pickup map and added a connected Android-profile production browser probe. Three Discovery samples measured 1.52–1.91 s LCP and Restaurant 1.37–1.41 s, with zero CLS on the small fixture. Added provisional gzip ceilings to authenticated browser CI.
+  Next: verify the rich-catalog layout shift, tap feedback and frame pacing, reduce JS to the SPEC budget, then continue with promotion redemption. See [performance evidence](../evidence/awid/perf.md).
