@@ -39,8 +39,12 @@ test("team preview searches, configures and saves a synthetic dish without an AP
   request,
 }) => {
   await page.goto("/fr/discover");
-  await expect(page.getByRole("link", { name: "L’Atelier Sidi Yahia", exact: true })).toBeVisible();
-  const cover = page.locator('img[src*="/profile/photos/"]').first();
+  const feedResults = page.getByRole("list", { name: "Tous les restaurants", exact: true });
+  const restaurant = feedResults.locator(":scope > li").filter({
+    has: page.getByRole("link", { name: "L’Atelier Sidi Yahia", exact: true }),
+  });
+  await expect(restaurant.getByRole("link", { name: "L’Atelier Sidi Yahia" })).toBeVisible();
+  const cover = restaurant.locator('img[src*="/profile/photos/"]');
   await cover.scrollIntoViewIfNeeded();
   await expect
     .poll(() =>
@@ -56,14 +60,12 @@ test("team preview searches, configures and saves a synthetic dish without an AP
   await page.getByRole("button", { name: "Choisir · Chawarma maison" }).click();
   const item = page.getByRole("dialog");
   const add = item.getByRole("button", { name: /^Ajouter/u });
-  await expect(add).toBeDisabled();
+  await expect(item.getByRole("button", { name: "Choisissez : Taille" })).toBeDisabled();
   await item.getByRole("radio", { name: /^Grande/u }).check();
   await expect(add).toContainText("800");
   await add.click();
   await page.reload();
-  await page.getByRole("button", { name: "Voir le panier", exact: true }).click();
-  await expect(
-    page.getByRole("dialog").getByText("Chawarma maison", { exact: true }),
-  ).toBeVisible();
+  const cart = page.getByRole("complementary", { name: "Votre panier" });
+  await expect(cart.getByRole("heading", { name: "Chawarma maison", exact: true })).toBeVisible();
   expect((await request.post("/v1/me/deletion-challenge")).status()).toBe(405);
 });
