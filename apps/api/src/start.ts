@@ -76,6 +76,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     addresses: createAddressRepository(database),
     orders: { repository: orders, now },
     orderHistory: orders,
+    favourites: { repository: orders, now },
     orderRatings: { repository: orders, now },
     orderActions: { repository: orders, now },
     adminOrders: createAdminOrdersRepository(database),

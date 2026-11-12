@@ -225,3 +225,38 @@ test("[CUS-22] scopes ratings, enforces fulfilment and deadlines, and replays th
     await sql`SELECT 1 FROM public.order_rating_receipts WHERE order_id = ${terminalId}`,
   ).toEqual([]);
 });
+
+test("[CUS-23] keeps favourites private, idempotent and limited to published restaurants", async () => {
+  const { sql } = database.get();
+  const favouriteSessionId = randomUUID();
+  await sql`
+    INSERT INTO sessions
+      (id, user_id, token_hash, transport, kind, request_ip, created_at, last_seen_at, expires_at)
+    VALUES (${favouriteSessionId}, ${customerId}, decode(repeat('03', 32), 'hex'), 'web', 'standard',
+      '192.0.2.1', now(), now(), now() + interval '1 hour')
+  `;
+  const repository = createOrderRepository(database.get());
+  const scope = { customerId, sessionId: favouriteSessionId, now: new Date() };
+  expect(await repository.favourites(scope)).toEqual({ restaurants: [] });
+  expect(await repository.favourites({ ...scope, customerId: otherId })).toBeUndefined();
+  const add = { ...scope, merchantId, isFavourite: true };
+  expect(await repository.setFavourite({ ...add, merchantId: demoMerchantId })).toBe("not_found");
+  expect(await Promise.all([repository.setFavourite(add), repository.setFavourite(add)])).toEqual([
+    "saved",
+    "saved",
+  ]);
+  expect(await repository.favourites(scope)).toEqual({
+    restaurants: [
+      {
+        merchantId,
+        name: "Cuisine 100% fictive",
+        slug: "fixture-" + merchantId,
+        coverMediaId: null,
+        isOpen: false,
+      },
+    ],
+  });
+  expect(await repository.setFavourite({ ...add, isFavourite: false })).toBe("saved");
+  expect(await repository.setFavourite({ ...add, isFavourite: false })).toBe("saved");
+  expect(await repository.favourites(scope)).toEqual({ restaurants: [] });
+});

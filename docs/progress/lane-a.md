@@ -257,3 +257,6 @@
 
 - 2026-11-12 · Ultra · Added session-scoped customer ratings for delivery and pickup with 24-hour edits, exactly-once retry, expiry cleanup, privacy export and erasure. Passed 257 authz/HTTP, 19 PostGIS and 12 API-schema and merchant-form checks.
   Next: run the real delivery, pickup, rejection, expiry and cancellation journeys on the integrated build, then complete the restaurant reviews handoff.
+
+- 2026-11-12 · High · Added private favourites with idempotent writes, publication checks, an account cap and deletion cleanup. Passed 20 PostGIS and 11 HTTP/authz/schema checks.
+  Next: integrate the favourites API into route smoke and add the public and merchant reviews reads.
