@@ -5,6 +5,7 @@ import type { Locale } from "@zaafran/i18n/locales";
 import { useState } from "react";
 import { useLowData } from "./low-data";
 import { FeedPlate } from "./feed-card";
+import { getFeedMessages } from "./feed-messages";
 import type { SearchPage } from "./search-http";
 import { getSearchMessages } from "./search-messages";
 
@@ -74,26 +75,45 @@ function SearchResults({ locale, page }: { locale: Locale; page: SearchPage }) {
         <div className="discovery-search-group">
           <h3>{messages.dishes}</h3>
           <ul role="list">
-            {page.dishes.map(({ itemId, merchantSlug, names, merchantName, priceDzd }) => (
-              <li className="discovery-search-result" key={itemId}>
-                <div className="discovery-search-art" data-dish aria-hidden="true">
-                  <FeedPlate />
-                </div>
-                <div>
-                  <p className="discovery-search-result-name">
-                    <a href={`/${locale}/restaurants/${encodeURIComponent(merchantSlug)}`}>
-                      <bdi>{getLocalizedContent(names, locale)}</bdi>
-                    </a>
+            {page.dishes.map(
+              ({
+                itemId,
+                merchantId,
+                merchantSlug,
+                names,
+                merchantName,
+                priceDzd,
+                photoMediaId,
+              }) => (
+                <li className="discovery-search-result" key={itemId}>
+                  <div className="discovery-search-art" data-dish aria-hidden="true">
+                    <FeedPlate />
+                    {photoMediaId !== null && (
+                      <img
+                        alt=""
+                        width="320"
+                        height="240"
+                        loading="lazy"
+                        src={`/v1/merchants/${merchantId}/items/${itemId}/photos/${photoMediaId}/variants/webp/320`}
+                      />
+                    )}
+                  </div>
+                  <div>
+                    <p className="discovery-search-result-name">
+                      <a href={`/${locale}/restaurants/${encodeURIComponent(merchantSlug)}`}>
+                        <bdi>{getLocalizedContent(names, locale)}</bdi>
+                      </a>
+                    </p>
+                    <p className="discovery-search-merchant">
+                      <bdi>{merchantName}</bdi>
+                    </p>
+                  </div>
+                  <p className="discovery-search-price">
+                    <bdi>{formatDzd(priceDzd, locale)}</bdi>
                   </p>
-                  <p className="discovery-search-merchant">
-                    <bdi>{merchantName}</bdi>
-                  </p>
-                </div>
-                <p className="discovery-search-price">
-                  <bdi>{formatDzd(priceDzd, locale)}</bdi>
-                </p>
-              </li>
-            ))}
+                </li>
+              ),
+            )}
           </ul>
         </div>
       )}
@@ -191,6 +211,43 @@ export function SearchContent({
         <h3>{messages.suggestions}</h3>
         <SearchChips queries={messages.suggestedQueries} onSelect={onSelect} />
       </div>
+      <BrowseCuisines locale={locale} />
+    </div>
+  );
+}
+
+const browseCuisines = [
+  ["algerian", "couscous"],
+  ["grill", "grill-plate"],
+  ["sandwiches", "karantika-sandwich"],
+  ["pizza", "pizza"],
+  ["pastry", "baklawa-tray"],
+  ["bakery", "msemen-griddle"],
+] as const;
+
+/** Before typing: browse by cuisine, with photos (each opens the filtered list). */
+function BrowseCuisines({ locale }: { locale: Locale }) {
+  const messages = getSearchMessages(locale);
+  const feed = getFeedMessages(locale);
+  return (
+    <div className="discovery-search-group">
+      <h3>{messages.browse}</h3>
+      <ul className="discovery-search-browse" role="list">
+        {browseCuisines.map(([cuisine, photo]) => (
+          <li key={cuisine}>
+            <a href={`/${locale}/discover?cuisine=${cuisine}`}>
+              <img
+                src={`/preview-catalog/${photo}-320.webp`}
+                alt=""
+                width="320"
+                height="240"
+                loading="lazy"
+              />
+              <span>{feed.chipNames[cuisine]}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
