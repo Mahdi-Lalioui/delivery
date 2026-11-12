@@ -90,6 +90,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     addresses: createAddressRepository(database),
     orders: { repository: orders, now },
     orderHistory: orders,
+    orderHistoryClock: now,
     reviews: orders,
     reviewCommands: { repository: orders, now },
     analytics: { repository: orders, now },

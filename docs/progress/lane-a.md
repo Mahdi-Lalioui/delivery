@@ -347,3 +347,6 @@
 
 - 2026-11-12 · High · Connected Discovery to the saved commune and added fee sorting, approximate distance, and a closest-first rail. Improved the search and filter hierarchy and reviewed five Arabic/French light/dark variants with zero Axe violations. Passed pnpm verify (2,000 unit and 326 PostGIS tests) and ten production browser checks.
   Next: merge the Discovery UI after hosted checks, then take up pickup availability, scheduled browsing, and reorder.
+
+- 2026-11-12 · Ultra · Added the live scoped reorder draft and order slugs, public pickup pins, scheduled opening and vegetarian filters. The 264 authorization tests and six focused production browser checks passed, including real cash pickup through reorder.
+  Next: reconcile Lane B’s overlapping Discovery commit, then merge the release candidate after hosted CI. Offers still depend on checkout redemption.

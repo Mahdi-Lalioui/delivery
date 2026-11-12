@@ -335,3 +335,63 @@ test("[CUS-06:db] distance uses the selected commune and stable ties", async () 
   expect(next.restaurants.at(-1)?.distanceMeters).toBeGreaterThan(39_000);
   expect(next.nextCursor).toBeNull();
 });
+
+test("[CUS-06:db] lists pickup locations, future openings and approved vegetarian dishes", async () => {
+  const { sql } = database.get();
+  await sql`
+    UPDATE merchants SET hours_paused_until = '2026-11-08T00:45:30.000Z',
+      location = ST_GeogFromText('SRID=4326;POINT(3.50 36.76)')
+    WHERE id = ${temporarilyPausedId}
+  `;
+  await sql`
+    INSERT INTO merchant_order_settings (merchant_id, pickup_enabled, pickup_minimum_dzd)
+    VALUES (${temporarilyPausedId}, true, 350), (${demoId}, true, 0)
+  `;
+  await sql`
+    INSERT INTO categories (id, merchant_id, names, sort)
+    VALUES (${id(70)}, ${temporarilyPausedId}, '{"fr":"Plats"}', 0),
+      (${id(71)}, ${noHoursId}, '{"fr":"Plats"}', 0)
+  `;
+  await sql`
+    INSERT INTO items (merchant_id, category_id, names, descriptions, price_dzd, tags,
+      prep_extra_min, moderation_status)
+    VALUES (${temporarilyPausedId}, ${id(70)}, '{"fr":"Légumes"}', '{"fr":"Légumes grillés"}',
+      350, ARRAY['vegetarian'], 0, 'approved'),
+      (${noHoursId}, ${id(71)}, '{"fr":"Plat"}', '{"fr":"Plat fictif"}',
+      350, ARRAY['vegetarian'], 0, 'blocked_pending_review')
+  `;
+  const repo = repository();
+  const pickup = await repo.list({ now, limit: 10, fulfilment: "pickup" });
+  expect(publicFeedOutput.parse(pickup).restaurants).toMatchObject([
+    {
+      merchantId: temporarilyPausedId,
+      offersPickup: true,
+      minimumOrderDzd: 350,
+      pin: { latitude: 36.76, longitude: 3.5 },
+      dietary: ["vegetarian"],
+      isOpen: false,
+    },
+  ]);
+  expect(pickup.restaurants).toHaveLength(1);
+  expect(pickup.restaurants[0]).not.toHaveProperty("deliveryFeeDzd");
+  expect(
+    (await repo.list({ now, limit: 10, fulfilment: "delivery", communeId })).restaurants.every(
+      ({ deliveryFeeDzd }) => deliveryFeeDzd !== undefined,
+    ),
+  ).toBe(true);
+  expect(
+    (await repo.list({ now, limit: 10, dietary: "vegetarian" })).restaurants.map(
+      ({ merchantId }) => merchantId,
+    ),
+  ).toEqual([temporarilyPausedId]);
+
+  const at = "2026-11-08T00:50:00.000Z";
+  const scheduled = await repo.list({ now, limit: 10, fulfilment: "pickup", availableAt: at });
+  expect(scheduled.restaurants.map(({ merchantId, isOpen }) => [merchantId, isOpen])).toEqual([
+    [temporarilyPausedId, false],
+  ]);
+  expect(
+    (await repo.list({ now, limit: 10, fulfilment: "pickup", availableAt: now.toISOString() }))
+      .restaurants,
+  ).toEqual([]);
+});

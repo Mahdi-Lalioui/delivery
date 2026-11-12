@@ -72,7 +72,9 @@ Roles: `customer`, `merchant_owner`, `merchant_manager`, `merchant_staff`, `cour
   - open now; rating ≥ 4; free delivery; max ETA (≤ 20 / ≤ 30 / ≤ 45);
   - price level; cuisine; accepts Baridi Pay QR; accepts card terminal (TPE).
 
-  Sorts: relevance, distance, rating, ETA. Filters live in the URL.
+  The feed supports delivery or pickup, opening at a future instant, and restaurants with an orderable vegetarian dish. Pickup cards carry the restaurant pin. Distances based on a commune centroid are approximate.
+
+  Sorts: relevance, distance, rating, ETA, delivery fee. Filters live in the URL.
 - **CUS-07** Restaurant page:
   - cover with gentle parallax;
   - info sheet: address, today's hours plus the week, distance, min order, fee rules, pay-at-door options, legal name;
@@ -131,7 +133,7 @@ Roles: `customer`, `merchant_owner`, `merchant_manager`, `merchant_staff`, `cour
 - **CUS-20** Push notifications for accepted, ready (pickup), on the way, delivered, rejected, expired and cancelled. For order status delivery, prefer push. If push is unavailable, use the verified phone by SMS, or the verified email when there is no verified phone.
 - **CUS-21** Order history:
   - status, plus a receipt (view/print) with restaurant, items, options, prices, fees, totals, date and code;
-  - reorder in 2 taps: unavailable items are flagged and changed prices shown.
+  - reorder in 2 taps: unavailable items are flagged and changed prices shown. Completed orders at public restaurants carry the current restaurant slug. The reorder response also includes the current menu revision.
 - **CUS-22** Rating after delivery or pickup, in-app and by push 30 min later:
   - food 1–5 stars, delivery 1–5 stars (delivery orders only), comment ≤ 500 chars;
   - editable for 24 h; the restaurant's reply is visible.
@@ -601,9 +603,9 @@ The generated OpenAPI spec is committed. CI runs `oasdiff` and fails on breaking
 | Area | Endpoints |
 |---|---|
 | Auth | `POST /v1/auth/otp/request`, `POST /v1/auth/otp/verify`, `POST /v1/auth/logout`, `GET /v1/me/sessions`, `DELETE /v1/me/sessions/:id` |
-| Me | `GET/PATCH/DELETE /v1/me`, `GET /v1/me/export`, addresses CRUD, favourites, `POST /v1/me/push-subscriptions`, `GET /v1/me/orders` |
+| Me | `GET/PATCH/DELETE /v1/me`, `GET /v1/me/export`, addresses CRUD, favourites, `POST /v1/me/push-subscriptions`, `GET /v1/me/orders`, `POST /v1/me/orders/:orderId/reorder` |
 | Discovery | `GET /v1/feed`, `GET /v1/search`, `GET /v1/merchants/:slug`, `GET /v1/merchants/:id/reviews`, `POST /v1/geo/serviceability`, `GET /v1/geo/reverse`, `GET /v1/geo/places`, `GET /v1/communes` |
-| Ordering | `POST /v1/quotes`, `POST /v1/orders`, `GET /v1/orders/:id`, `POST /v1/orders/:id/{cancel,accept,reject,ready,assign,pick-up,collect,deliver,fail}`, `POST /v1/orders/:id/rating`, `GET /v1/orders/:id/reorder`, `GET /v1/track/:token` (public, read-only) |
+| Ordering | `POST /v1/quotes`, `POST /v1/orders`, `GET /v1/orders/:id`, `POST /v1/orders/:id/{cancel,accept,reject,ready,assign,pick-up,collect,deliver,fail}`, `POST /v1/orders/:id/rating`, `GET /v1/track/:token` (public, read-only) |
 | Merchant | `POST /v1/merchant-applications`, profile, hours, ramadan rules, zones, categories, items, option groups, `POST /v1/merchants/:id/menu/bulk-price/{preview,apply,undo}`, `POST /v1/merchants/:id/menu/import/{preview,apply}`, `POST /v1/merchants/:id/menu/photo-import` (flag), staff, couriers, promotions, reviews reply, `POST /v1/merchants/:id/pause`, analytics, billing, `POST /v1/merchants/:id/test-order` |
 | Courier | `GET /v1/courier/jobs`, `POST /v1/courier/presence`, `POST /v1/courier/positions` (batch ≤ 50) |
 | Media | `POST /v1/media/uploads` (direct upload, size and type checked), `GET /v1/media/:id` |

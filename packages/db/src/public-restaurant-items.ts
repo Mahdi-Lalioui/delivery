@@ -1,7 +1,7 @@
 import { findProhibitedGoods } from "@zaafran/domain/moderation";
 import type { TransactionSql } from "postgres";
 import {
-  itemIsAvailable,
+  menuItemIsOrderable,
   type ItemPage,
   type ItemTarget,
   type MenuItem,
@@ -41,17 +41,10 @@ function attachedOptionTexts(sql: TransactionSql) {
 }
 
 function selectPreviewCandidates(sql: TransactionSql, now: Date) {
-  const localTime = sql`(${now.toISOString()}::timestamptz AT TIME ZONE 'Africa/Algiers')::time`;
   return sql`
     SELECT item.id AS "itemId", item.names, item.descriptions, item.price_dzd AS "priceDzd",
       photo.id AS "photoId", item.tags,
-      (${itemIsAvailable(sql, now)} AND (
-        category.available_from IS NULL OR CASE
-          WHEN category.available_from < category.available_to
-            THEN ${localTime} >= category.available_from AND ${localTime} < category.available_to
-          ELSE ${localTime} >= category.available_from OR ${localTime} < category.available_to
-        END
-      )) AS "isAvailable",
+      ${menuItemIsOrderable(sql, now)} AS "isAvailable",
       item.moderation_status AS "moderationStatus", ${attachedOptionTexts(sql)} AS "optionTexts"
     FROM public.items AS item
     JOIN public.categories AS category

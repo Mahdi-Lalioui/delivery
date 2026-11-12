@@ -4,6 +4,7 @@ import {
   customerOrderHistoryOutput,
   customerOrderHistoryQuery,
   customerOrderReceiptOutput,
+  customerReorderOutput,
 } from "@zaafran/contracts/retention";
 import type { createOrderRepository } from "@zaafran/db/orders";
 import type { FastifyContextConfig, FastifyInstance } from "fastify";
@@ -11,7 +12,10 @@ import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { getRequestActor } from "./policy.js";
 import { sendProblem } from "./problems.js";
 
-type HistoryRepository = Pick<ReturnType<typeof createOrderRepository>, "history" | "receipt">;
+type HistoryRepository = Pick<
+  ReturnType<typeof createOrderRepository>,
+  "history" | "receipt" | "reorder"
+>;
 const config = { policy: { kind: "roles", roles: ["customer"] } } satisfies FastifyContextConfig;
 const failures = {
   400: problemResponseSchema,
@@ -22,7 +26,11 @@ const failures = {
   503: problemResponseSchema,
 };
 
-export function registerOrderHistoryRoutes(api: FastifyInstance, repository?: HistoryRepository) {
+export function registerOrderHistoryRoutes(
+  api: FastifyInstance,
+  repository?: HistoryRepository,
+  now = () => new Date(),
+) {
   const routes = api.withTypeProvider<ZodTypeProvider>();
   routes.get(
     "/v1/me/orders",
@@ -66,6 +74,29 @@ export function registerOrderHistoryRoutes(api: FastifyInstance, repository?: Hi
         orderId: request.params.orderId,
       });
       return receipt ? reply.send(receipt) : sendProblem(reply, 404);
+    },
+  );
+  routes.post(
+    "/v1/me/orders/:orderId/reorder",
+    {
+      config,
+      schema: {
+        params: orderParams,
+        response: { 200: customerReorderOutput, ...failures },
+      },
+    },
+    async (request, reply) => {
+      reply.header("cache-control", "no-store");
+      const actor = getRequestActor(request);
+      if (!actor) return sendProblem(reply, 401);
+      if (!repository) return sendProblem(reply, 503);
+      const reorder = await repository.reorder({
+        customerId: actor.accountId,
+        sessionId: actor.sessionId,
+        orderId: request.params.orderId,
+        now: now(),
+      });
+      return reorder ? reply.send(reorder) : sendProblem(reply, 404);
     },
   );
 }

@@ -73,3 +73,30 @@ test("[CUS-06:http] sends validated URL filters and sorting to the repository", 
     now,
   });
 });
+
+test("[CUS-06:http] accepts scheduled pickup within three days and rejects invalid dates", async () => {
+  const { api, list } = setup();
+  const availableAt = "2026-11-10T17:00:00.000Z";
+  const request = await api.inject(
+    "/v1/feed?" +
+      new URLSearchParams({
+        fulfilment: "pickup",
+        dietary: "vegetarian",
+        availableAt,
+      }).toString(),
+  );
+  expect(request.statusCode).toBe(200);
+  expect(list).toHaveBeenCalledExactlyOnceWith({
+    limit: 24,
+    fulfilment: "pickup",
+    dietary: "vegetarian",
+    availableAt,
+    now,
+  });
+  for (const at of [now.toISOString(), "2026-11-12T17:00:00.000Z"]) {
+    expect((await api.inject("/v1/feed?availableAt=" + encodeURIComponent(at))).statusCode).toBe(
+      400,
+    );
+  }
+  expect(list).toHaveBeenCalledTimes(1);
+});

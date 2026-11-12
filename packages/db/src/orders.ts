@@ -34,6 +34,7 @@ import {
   type CustomerOrderScope,
   type OrderHistoryQuery,
 } from "./order-receipts.js";
+import { readCustomerReorder } from "./order-reorder.js";
 import { pruneOrderRatingReceipts, readOrderRating, saveOrderRating } from "./order-rating.js";
 import {
   pruneMerchantReviewReceipts,
@@ -287,6 +288,11 @@ export function createOrderRepository({ sql }: DatabaseConnection, deliveryKey?:
         if (!(await isActiveCustomer(tx, scope))) return undefined;
         const [receipt] = await readCustomerOrderReceipts(tx, scope.customerId, scope.orderId);
         return receipt;
+      }),
+    reorder: (scope: CustomerOrderScope & { orderId: string; now: Date }) =>
+      sql.begin("isolation level repeatable read read only", async (tx) => {
+        if (await isActiveCustomer(tx, scope)) return readCustomerReorder(tx, scope);
+        return undefined;
       }),
     tracking: (request: CustomerTrackingScope) =>
       sql.begin("isolation level repeatable read read only", (tx) =>

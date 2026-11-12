@@ -133,7 +133,7 @@ export function FeedContent({ locale, state, onLoad, filters = {}, onFilters }: 
         {isLoading && (hasRestaurants ? messages.loadingMore : messages.loading)}
       </p>
       {hasRestaurants && (
-        <ul className="restaurant-feed-grid" role="list">
+        <ul className="restaurant-feed-grid" role="list" aria-label={messages.heading}>
           {restaurants.map((restaurant) => (
             <li key={restaurant.merchantId} data-feed-restaurant={restaurant.merchantId}>
               <FeedCard restaurant={restaurant} locale={locale} />

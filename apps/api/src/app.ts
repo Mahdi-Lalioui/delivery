@@ -139,6 +139,7 @@ interface ApiOptions {
   readonly reviewCommands?: Parameters<typeof registerReviewCommands>[1];
   readonly reviews?: Parameters<typeof registerReviewsRoutes>[1];
   readonly orderRatings?: Parameters<typeof registerOrderRatingRoutes>[1];
+  readonly orderHistoryClock?: () => Date;
   readonly orderHistory?: Parameters<typeof registerOrderHistoryRoutes>[1];
   readonly orderActions?: Parameters<typeof registerOrderActionRoutes>[1];
   readonly orders?: Parameters<typeof registerOrderRoutes>[1];
@@ -203,7 +204,7 @@ export function createApi(options: ApiOptions): FastifyInstance {
     registerOrderQuoteRoutes(api, options.orderQuotes);
     registerOrderRoutes(api, options.orders);
     registerFavouriteRoutes(api, options.favourites);
-    registerOrderHistoryRoutes(api, options.orderHistory);
+    registerOrderHistoryRoutes(api, options.orderHistory, options.orderHistoryClock);
     registerOrderRatingRoutes(api, options.orderRatings);
     registerReviewsRoutes(api, options.reviews);
     registerReviewCommands(api, options.reviewCommands);

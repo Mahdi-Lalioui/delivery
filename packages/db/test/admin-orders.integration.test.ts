@@ -11,6 +11,7 @@ import {
   customerOrderHistoryOutput,
   customerOrderHistoryQuery,
   customerOrderReceiptOutput,
+  customerReorderOutput,
 } from "@zaafran/contracts/retention";
 import { orderRatingOutput, publicReviewPageOutput } from "@zaafran/contracts/ratings";
 import { createOrderRepository } from "../src/orders.ts";
@@ -140,7 +141,10 @@ test("[CUS-21] paginates only the active customer's orders and returns a scoped 
   const first = customerOrderHistoryOutput.parse(
     await repository.history({ ...scope, query: { limit: 2 } }),
   );
-  expect(first.orders.map(({ orderId }) => orderId)).toEqual([demoOrderId, activeId]);
+  expect(first.orders.map(({ orderId, restaurantSlug }) => [orderId, restaurantSlug])).toEqual([
+    [demoOrderId, null],
+    [activeId, `fixture-${merchantId}`],
+  ]);
   expect(first.nextCursor).toBe(`2026-11-11T12:00:00.000124Z~${activeId}`);
   const second = customerOrderHistoryOutput.parse(
     await repository.history({
@@ -400,4 +404,68 @@ test("[MER-20] scopes one editable reply and one report to the restaurant with r
   expect(await sql`SELECT reason FROM public.rating_reports WHERE rating_id = ${row.id}`).toEqual([
     { reason: report.reason },
   ]);
+});
+
+test("[CUS-21:db] reorders only owned completed orders, flags missing selections and uses current prices", async () => {
+  const { sql } = database.get();
+  const customerSessionId = randomUUID();
+  const otherSessionId = randomUUID();
+  const categoryId = randomUUID();
+  const itemId = randomUUID();
+  const soldOutId = randomUUID();
+  const removedOptionItemId = randomUUID();
+  const names = { fr: "Plat de test" };
+  const snapshot = (id: string, optionIds: string[] = []) => ({
+    itemId: id,
+    names,
+    unitPriceDzd: 400,
+    quantity: 2,
+    note: "",
+    options: optionIds.map((optionId) => ({ optionId, names, priceDeltaDzd: 20 })),
+  });
+  await sql`INSERT INTO sessions
+    (id, user_id, token_hash, transport, kind, request_ip, created_at, last_seen_at, expires_at)
+    VALUES (${customerSessionId}, ${customerId}, decode(repeat('08', 32), 'hex'), 'web', 'standard',
+      '192.0.2.1', now(), now(), now() + interval '1 hour'),
+      (${otherSessionId}, ${otherId}, decode(repeat('09', 32), 'hex'), 'web', 'standard',
+      '192.0.2.1', now(), now(), now() + interval '1 hour')`;
+  await sql`INSERT INTO categories (id, merchant_id, names, sort)
+    VALUES (${categoryId}, ${merchantId}, '{"fr":"Plats"}', 0)`;
+  for (const id of [itemId, soldOutId, removedOptionItemId]) {
+    await sql`INSERT INTO items (id, merchant_id, category_id, names, descriptions, price_dzd,
+      tags, prep_extra_min, is_available, moderation_status)
+      VALUES (${id}, ${merchantId}, ${categoryId}, ${JSON.stringify(names)}::jsonb, '{"fr":"Plat"}',
+        520, '{}', 0, ${id !== soldOutId}, 'approved')`;
+  }
+  const lines = [
+    snapshot(itemId),
+    snapshot(soldOutId),
+    snapshot(removedOptionItemId, [randomUUID()]),
+  ];
+  await sql`UPDATE orders SET lines = ${JSON.stringify(lines)}::jsonb WHERE id = ${terminalId}`;
+  const repository = createOrderRepository(database.get());
+  const scope = { customerId, sessionId: customerSessionId, orderId: terminalId, now: new Date() };
+  const [merchant] = await sql<{ revision: number }[]>`
+    SELECT menu_revision::double precision AS revision FROM merchants WHERE id = ${merchantId}
+  `;
+  if (!merchant) throw new Error("Missing fixture merchant");
+  const draft = customerReorderOutput.parse(await repository.reorder(scope));
+  expect(draft).toEqual({
+    draft: {
+      merchantId,
+      restaurantSlug: `fixture-${merchantId}`,
+      menuRevision: merchant.revision,
+      items: [{ itemId, quantity: 2, optionIds: [] }],
+    },
+    unavailable: [soldOutId, removedOptionItemId],
+    priceChanges: [{ itemId, oldDzd: 400, newDzd: 520 }],
+  });
+  expect(await repository.reorder(scope)).toEqual(draft);
+  expect(await repository.reorder({ ...scope, orderId: activeId })).toBeUndefined();
+  expect(await repository.reorder({ ...scope, orderId: secondId })).toBeUndefined();
+  expect(
+    await repository.reorder({ ...scope, customerId: otherId, sessionId: otherSessionId }),
+  ).toBeUndefined();
+  await sql`UPDATE sessions SET revoked_at = now() WHERE id = ${customerSessionId}`;
+  expect(await repository.reorder(scope)).toBeUndefined();
 });

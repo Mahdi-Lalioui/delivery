@@ -429,6 +429,12 @@ const matrix: readonly MatrixRoute[] = [
   },
   {
     method: "POST",
+    url: "/v1/me/orders/:orderId/reorder",
+    requestUrl: "/v1/me/orders/" + challengeId + "/reorder",
+    expected: { customer: 503 },
+  },
+  {
+    method: "POST",
     url: "/v1/orders",
     payload: { quoteId: challengeId },
     expected: { customer: 503 },

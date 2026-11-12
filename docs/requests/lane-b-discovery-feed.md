@@ -1,6 +1,6 @@
 # Lane B → lane A: discovery feed fields for the new brief
 
-Status: open (2026-11-12)
+Status: pickup, scheduling, distance, dietary and fee order implemented (2026-11-12).
 
 The new lane B brief asks for discovery features that have no data in the published feed
 contract on `main`. Lane B ships none of them until the data exists ("never ship a filter or
@@ -45,4 +45,21 @@ The filter sheet exposes lowest delivery fee and persists the choice in the URL.
 cards label the centroid distance as approximate. A closest-first rail appears when a commune
 is selected. [Design and browser evidence](../evidence/awid/discovery-v2/README.md)
 
-Fulfilment, scheduling, offers, dietary tags, result count and the New and budget rails remain open.
+## Pickup, scheduling and dietary API handoff
+
+- `fulfilment=pickup` lists public restaurants that enabled pickup. Use the card’s
+  `pin.latitude` and `pin.longitude` for the pickup map and `offersPickup === true`
+  to show the pickup option. In pickup mode the minimum is the pickup minimum.
+  Delivery fees and delivery ETAs are absent.
+- `fulfilment=delivery` requires an active delivery zone. Supply the selected
+  `communeId` to filter by its centroid. The exact pin is checked when quoting.
+- `availableAt=<UTC ISO instant>` filters by opening hours at that instant, including
+  overnight hours, exceptions and pauses. The API accepts a future instant up to
+  three days out. `isOpen` still reports current status. The quote validates prep,
+  delivery travel and actual slot availability.
+- `dietary=vegetarian` requires an approved, orderable dish tagged vegetarian. Cards
+  expose `dietary: ["vegetarian"]` where applicable. With `availableAt` set, the dish’s
+  availability is evaluated at that time.
+
+Offers are pending promotion redemption at checkout, which is outside the current
+sprint. Result count and the New and budget rails remain open.

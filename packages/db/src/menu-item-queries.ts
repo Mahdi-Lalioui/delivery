@@ -52,9 +52,20 @@ export interface ItemPage extends MenuScope {
 
 type ItemRow = Omit<MenuItem, "soldOutUntil"> & { readonly soldOutUntil: Date | null };
 
-export function itemIsAvailable(sql: TransactionSql, now: Date) {
+function itemIsAvailable(sql: TransactionSql, now: Date) {
   return sql`CASE WHEN item.sold_out_until <= ${now.toISOString()}::timestamptz THEN true
     ELSE item.is_available END`;
+}
+
+export function menuItemIsOrderable(sql: TransactionSql, now: Date) {
+  const localTime = sql`(${now.toISOString()}::timestamptz AT TIME ZONE 'Africa/Algiers')::time`;
+  return sql`(${itemIsAvailable(sql, now)} AND (
+    category.available_from IS NULL OR CASE
+      WHEN category.available_from < category.available_to
+        THEN ${localTime} >= category.available_from AND ${localTime} < category.available_to
+      ELSE ${localTime} >= category.available_from OR ${localTime} < category.available_to
+    END
+  ))`;
 }
 
 function itemColumns(sql: TransactionSql, now: Date) {

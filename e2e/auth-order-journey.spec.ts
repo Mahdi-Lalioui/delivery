@@ -1,5 +1,10 @@
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 import type { AuthHarness } from "../apps/api/tools/e2e-auth-types.ts";
+import { publicFeedOutput } from "../packages/contracts/src/feed.ts";
+import {
+  customerOrderHistoryOutput,
+  customerReorderOutput,
+} from "../packages/contracts/src/retention.ts";
 import { orderSummary } from "../packages/contracts/src/orders.ts";
 import { orderRatingOutput } from "../packages/contracts/src/ratings.ts";
 import { customerTrackingOutput } from "../packages/contracts/src/tracking.ts";
@@ -107,6 +112,18 @@ async function rate(page: Page, order: Order) {
   ).toBeChecked();
 }
 
+async function verifyScheduledPickup(page: Page, harness: AuthHarness, fixture: Journey) {
+  const when = new Date(Date.now() + 60 * 60_000).toISOString();
+  const url = new URL("/v1/feed", harness.origin);
+  url.searchParams.set("fulfilment", "pickup");
+  url.searchParams.set("availableAt", when);
+  const response = await page.request.get(url.href);
+  expect(response.status()).toBe(200);
+  expect(publicFeedOutput.parse(await response.json()).restaurants).toMatchObject([
+    { merchantId: fixture.merchantId, offersPickup: true, pin: fixture.commune.pin },
+  ]);
+}
+
 test.describe.configure({ mode: "parallel" });
 
 for (const flow of ["delivery", "pickup", "reject", "expire", "cancel"] as const) {
@@ -160,6 +177,7 @@ for (const flow of ["delivery", "pickup", "reject", "expire", "cancel"] as const
             await ticket(board, order).getByRole("button", { name: merchant.markReady }).click();
             await customerStatus(page, tracking.status_ready);
             if (flow === "pickup") {
+              await verifyScheduledPickup(page, harness, fixture);
               await expect(page.getByText(tracking.pickupCodeHint)).toBeVisible();
               await ticket(board, order).getByRole("button", { name: merchant.collect }).click();
               await customerStatus(page, tracking.status_collected);
@@ -179,6 +197,34 @@ for (const flow of ["delivery", "pickup", "reject", "expire", "cancel"] as const
             const card = page.locator(".orders-card").filter({ hasText: order.shortCode });
             await card.getByRole("button", { name: fr.retentionOrders.receipt }).click();
             await expect(card.getByText("Chawarma poulet", { exact: false })).toBeVisible();
+            if (flow === "pickup") {
+              const response = await page.request.get(harness.origin + "/v1/me/orders");
+              expect(response.status()).toBe(200);
+              expect(
+                customerOrderHistoryOutput.parse(await response.json()).orders[0],
+              ).toMatchObject({
+                orderId: order.orderId,
+                restaurantSlug: fixture.slug,
+              });
+              const request = page.waitForResponse(
+                (result) =>
+                  result.request().method() === "POST" && result.url().endsWith("/reorder"),
+              );
+              await card.getByRole("button", { name: fr.retentionOrders.orderAgain }).click();
+              const reorder = await request;
+              expect(reorder.status()).toBe(200);
+              expect(customerReorderOutput.parse(await reorder.json())).toMatchObject({
+                draft: {
+                  merchantId: fixture.merchantId,
+                  restaurantSlug: fixture.slug,
+                  menuRevision: expect.any(Number),
+                  items: [{ quantity: 1, optionIds: [expect.any(String)] }],
+                },
+                unavailable: [],
+                priceChanges: [],
+              });
+              await expect(page.getByText(fr.retentionOrders.reorderSame)).toBeVisible();
+            }
           }
           await expect(ticket(board, order)).toHaveCount(0);
         } finally {

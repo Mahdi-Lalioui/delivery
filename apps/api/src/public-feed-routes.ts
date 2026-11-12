@@ -4,6 +4,7 @@ import {
   publicProfilePhotoParams,
 } from "@zaafran/contracts/feed";
 import { problemResponseSchema } from "@zaafran/contracts/health";
+import { dayMs } from "@zaafran/domain/hours";
 import type { MediaStore } from "@zaafran/media";
 import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
@@ -46,12 +47,19 @@ export function registerPublicFeedRoutes(api: FastifyInstance, services?: Public
     },
     async (request, reply) => {
       if (!services) return sendProblem(reply, 503);
-      const { cursor, ...filters } = request.query;
+      const { cursor, availableAt, ...filters } = request.query;
+      const now = services.now();
+      if (availableAt !== undefined) {
+        const at = Date.parse(availableAt);
+        if (!Number.isFinite(at) || at <= now.getTime() || at > now.getTime() + 3 * dayMs)
+          return sendProblem(reply, 400);
+      }
       return reply.send(
         await services.repository.list({
           ...filters,
           ...(cursor ? { cursor: cursor.toLowerCase() } : {}),
-          now: services.now(),
+          ...(availableAt === undefined ? {} : { availableAt }),
+          now,
         }),
       );
     },

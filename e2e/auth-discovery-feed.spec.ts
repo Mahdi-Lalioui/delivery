@@ -36,9 +36,11 @@ for (const locale of ["ar", "fr"] as const) {
           .click();
         await expect(page).toHaveURL(harness.origin + "/" + locale + "/discover");
         const feed = page.getByRole("region", { name: headings[locale] });
-        await expect(feed.getByText(fixture.publishedName, { exact: true })).toBeVisible();
+        const results = feed.getByRole("list", { name: headings[locale] });
+        await expect(results.getByText(fixture.publishedName, { exact: true })).toBeVisible();
+        await expect(results.locator(":scope > li")).toHaveCount(3);
         await expect(feed.getByText(fixture.hiddenName, { exact: true })).toHaveCount(0);
-        const photo = feed.locator("img").first();
+        const photo = results.locator("img").first();
         await expect
           .poll(() =>
             photo.evaluate((element) =>

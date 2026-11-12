@@ -76,12 +76,17 @@ export async function readCustomerOrderHistory(
 ): Promise<HistoryPage> {
   const cursor = query.cursor === undefined ? undefined : readOrderHistoryCursor(query.cursor);
   const rows = await sql<HistoryPage["orders"]>`
-    SELECT id AS "orderId", merchant_id AS "merchantId", restaurant_name AS "restaurantName",
-      short_code AS "shortCode", status, fulfilment, total_dzd AS "totalDzd",
-      to_char(placed_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "placedAt"
-    FROM public.orders WHERE customer_id = ${customerId}
-      ${cursor ? sql`AND (placed_at, id) < (${cursor.placedAt}::timestamptz, ${cursor.orderId}::uuid)` : sql``}
-    ORDER BY placed_at DESC, id DESC LIMIT ${query.limit + 1}
+    SELECT purchase.id AS "orderId", purchase.merchant_id AS "merchantId",
+      purchase.restaurant_name AS "restaurantName", merchant.slug AS "restaurantSlug",
+      purchase.short_code AS "shortCode", purchase.status, purchase.fulfilment,
+      purchase.total_dzd AS "totalDzd",
+      to_char(purchase.placed_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "placedAt"
+    FROM public.orders AS purchase
+    LEFT JOIN public.merchants AS merchant ON merchant.id = purchase.merchant_id
+      AND merchant.status = 'active' AND NOT merchant.is_demo
+    WHERE purchase.customer_id = ${customerId}
+      ${cursor ? sql`AND (purchase.placed_at, purchase.id) < (${cursor.placedAt}::timestamptz, ${cursor.orderId}::uuid)` : sql``}
+    ORDER BY purchase.placed_at DESC, purchase.id DESC LIMIT ${query.limit + 1}
   `;
   const orders = rows.slice(0, query.limit);
   const last = orders.at(-1);
