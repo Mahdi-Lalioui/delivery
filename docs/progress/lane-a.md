@@ -389,3 +389,6 @@
 
 - 2026-11-12 · High · Fixed structured log leakage of credential headers and order contact aliases. Six logger tests, 265 authorization tests, 13 auth/media PostGIS tests and the high-severity dependency audit passed. Two moderate advisories remain.
   Next: continue the route isolation, session and upload review. See [security review](../SECURITY_REVIEW.md) for verified and pending scope.
+
+- 2026-11-12 · High · The offers candidate passed full workspace verification with 2,028 unit and 336 integration tests. Published incident runbooks and fresh encrypted restore evidence. The local production stack recovered its HTTPS smoke checks after API, worker and PostgreSQL restarts.
+  Next: exercise restarts during a real order on a fresh local production build, then test network replay, one-effect timers and pilot load. Continue the remaining security and performance checks.

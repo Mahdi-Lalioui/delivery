@@ -12,3 +12,9 @@ and cleaned scratch data after a simulated Docker cleanup error.
 
 The smoke run used an existing local stack image. Restart drills and full order
 journeys against a freshly built production Compose image remain open.
+
+The disposable `awid-deploy-test` project recovered through Caddy after restarting
+API, worker and PostgreSQL one at a time. The API and database restarts briefly
+returned 502 and 503 respectively before the entire HTTPS smoke command passed again.
+This smoke test exercised readiness and reference data. The stack had no in-flight
+order fixture for this run.
