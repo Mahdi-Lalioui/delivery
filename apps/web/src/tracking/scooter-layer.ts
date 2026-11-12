@@ -55,8 +55,16 @@ function buildScooter(map: Map) {
   return scooter;
 }
 
-/** Ten times life size so the scooter reads at street zoom without hiding the road. */
-const scale = 10;
+/** The model is about 1.9 m long; it is drawn this many CSS pixels long at any zoom. */
+const modelMeters = 1.9;
+const targetPixels = 46;
+
+/** How much to enlarge the life-size model so it stays legible; never smaller than life. */
+export function scooterScale(zoom: number, latitude: number): number {
+  const metersPerPixel =
+    (40_075_016.686 * Math.cos((latitude * Math.PI) / 180)) / (512 * 2 ** zoom);
+  return Math.max(1, (targetPixels * metersPerPixel) / modelMeters);
+}
 
 const glideMs = 850;
 
@@ -103,7 +111,8 @@ export function scooterLayer(initial: ScooterPose) {
       const current = blend(from, pose, progress);
       if (progress < 1) map.triggerRepaint();
       const origin = MercatorCoordinate.fromLngLat([current.longitude, current.latitude], 0);
-      const meters = origin.meterInMercatorCoordinateUnits() * scale;
+      const meters =
+        origin.meterInMercatorCoordinateUnits() * scooterScale(map.getZoom(), current.latitude);
       const transform = new Matrix4()
         .makeTranslation(origin.x, origin.y, origin.z)
         .scale(new Vector3(meters, -meters, meters))

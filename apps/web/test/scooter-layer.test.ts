@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { blend } from "../src/tracking/scooter-layer";
+import { blend, scooterScale } from "../src/tracking/scooter-layer";
 
 const north = { longitude: 3, latitude: 36, heading: 350 };
 
@@ -14,5 +14,17 @@ describe("scooter glide", () => {
   it("[CUS-18] turns the short way across north", () => {
     const pose = blend(north, { ...north, heading: 10 }, 1);
     expect(pose.heading).toBe(370);
+  });
+});
+
+describe("scooter size", () => {
+  it("[CUS-18] stays about the same on screen as the map zooms", () => {
+    const near = scooterScale(18, 36.77);
+    const far = scooterScale(16, 36.77);
+    expect(far / near).toBeCloseTo(4, 5);
+  });
+
+  it("[CUS-18] never draws the scooter smaller than life size", () => {
+    expect(scooterScale(24, 36.77)).toBe(1);
   });
 });
