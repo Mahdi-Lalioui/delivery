@@ -28,3 +28,7 @@ GEO-01 and MER-01 now pass (b5f4828). A third test now fails on every run:
    (`apps/api/test/production.integration.test.ts`): "Test timed out in 5000ms" (5 002 ms twice).
    It calls `seedGeography` for the full nationwide directory before starting the built API,
    which no longer fits the 5 s default. The other 313 integration tests pass.
+
+## Update 2026-11-12 (second run)
+
+`pnpm verify` on lane-b (with origin/lane-a merged) also times out at 5 000 ms in `packages/db/test/concurrent-migrations.integration.test.ts` [M0-5] and `packages/db/test/service-area.integration.test.ts` [GEO-01:db], with [CUS-02:db] failing after it. Same cause as [M0-6]: the nationwide geography seed is too slow for the default test timeout.
