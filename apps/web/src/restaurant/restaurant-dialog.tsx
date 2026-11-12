@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, type ReactNode } from "react";
 import { IconButton } from "@zaafran/ui";
 import type { Locale } from "@zaafran/i18n/locales";
+import { flyPhoto } from "./photo-flight";
 import { getRestaurantMessages } from "./restaurant-messages";
 
 export function RestaurantDialog({
@@ -18,7 +19,9 @@ export function RestaurantDialog({
   const id = useId();
   useEffect(() => {
     const dialog = ref.current;
-    if (dialog && !dialog.open) dialog.showModal();
+    if (!dialog || dialog.open) return;
+    dialog.showModal();
+    flyPhoto(dialog);
   }, []);
   return (
     <dialog ref={ref} className="restaurant-dialog" aria-labelledby={id} onClose={onClose}>

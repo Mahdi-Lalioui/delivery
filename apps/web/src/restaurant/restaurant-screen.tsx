@@ -21,6 +21,7 @@ import { RestaurantHeader } from "./restaurant-header";
 import { readRestaurant } from "./restaurant-http";
 import { getRestaurantMessages } from "./restaurant-messages";
 import { localizeRestaurantText, type Restaurant, type DishSelection } from "./restaurant-types";
+import { useDishOrigin } from "./photo-flight";
 import { useBrowserCart } from "./use-browser-cart";
 import "@zaafran/ui/ui.css";
 import "./restaurant.css";
@@ -29,6 +30,7 @@ type State = { phase: "loading" } | { phase: "error" } | { phase: "ready"; data:
 
 export function RestaurantScreen({ slug, locale }: { slug: string; locale: Locale }) {
   const basket = useBrowserCart();
+  useDishOrigin();
   return <RestaurantLoader key={slug} slug={slug} locale={locale} basket={basket} />;
 }
 
