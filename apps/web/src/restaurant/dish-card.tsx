@@ -4,6 +4,7 @@ import type { Locale } from "@zaafran/i18n/locales";
 import { useState } from "react";
 import { useLowData } from "../discovery/low-data";
 import { getRestaurantMessages } from "./restaurant-messages";
+import type { Stepper } from "./restaurant-screen";
 import { localizeRestaurantText, type RestaurantDish } from "./restaurant-types";
 
 export function DishPhoto({ merchantId, dish }: { merchantId: string; dish: RestaurantDish }) {
@@ -31,17 +32,62 @@ export function DishPhoto({ merchantId, dish }: { merchantId: string; dish: Rest
   );
 }
 
+/** The + morphs into − n + once a plain dish is in the cart (the brief's add-to-stepper). */
+function DishStepper({
+  name,
+  stepper,
+  onStep,
+  locale,
+}: {
+  name: string;
+  stepper: Stepper;
+  onStep: (lineId: string, quantity: number) => void;
+  locale: Locale;
+}) {
+  const messages = getRestaurantMessages(locale);
+  return (
+    <div className="restaurant-dish-stepper" role="group" aria-label={name}>
+      <button
+        type="button"
+        aria-label={messages.decreaseQuantity + messages.separator + name}
+        onClick={() => {
+          onStep(stepper.lineId, stepper.quantity - 1);
+        }}
+      >
+        <Icon name={stepper.quantity === 1 ? "close" : "minus"} size={18} />
+      </button>
+      <output key={stepper.quantity} aria-live="polite">
+        {stepper.quantity}
+      </output>
+      <button
+        type="button"
+        aria-label={messages.increaseQuantity + messages.separator + name}
+        disabled={stepper.quantity >= 20}
+        onClick={() => {
+          onStep(stepper.lineId, stepper.quantity + 1);
+        }}
+      >
+        <Icon name="plus" size={18} />
+      </button>
+    </div>
+  );
+}
+
 export function DishCard({
   dish,
   merchantId,
   locale,
   quantityInCart,
+  stepper,
+  onStep,
   onChoose,
 }: {
   dish: RestaurantDish;
   merchantId: string;
   locale: Locale;
   quantityInCart: number;
+  stepper?: Stepper | undefined;
+  onStep?: (lineId: string, quantity: number) => void;
   onChoose: (dish: RestaurantDish) => void;
 }) {
   const messages = getRestaurantMessages(locale);
@@ -61,7 +107,9 @@ export function DishCard({
       </div>
       <div className="restaurant-dish-media">
         <DishPhoto merchantId={merchantId} dish={dish} />
-        {
+        {stepper && onStep ? (
+          <DishStepper name={name} stepper={stepper} onStep={onStep} locale={locale} />
+        ) : (
           <button
             type="button"
             className="restaurant-dish-add"
@@ -80,7 +128,7 @@ export function DishCard({
               <Icon name="plus" size={20} />
             )}
           </button>
-        }
+        )}
       </div>
     </article>
   );

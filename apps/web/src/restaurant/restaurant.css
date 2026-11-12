@@ -949,3 +949,93 @@ body:has(.restaurant-cart-bar) .customer-tabs {
     aspect-ratio: 16 / 9;
   }
 }
+/* Add-to-stepper morph: a pill that grows out of the round + (transform and opacity only). */
+.restaurant-dish-stepper {
+  position: absolute;
+  inset-block-end: calc(-1 * var(--space-4));
+  inset-inline-end: calc(-1 * var(--space-4));
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 3px solid var(--color-surface);
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  box-shadow: var(--shadow-e2);
+  transform-origin: right center;
+  animation: restaurant-stepper-in var(--motion-base) var(--ease-spring-snappy);
+}
+[dir="rtl"] .restaurant-dish-stepper {
+  transform-origin: left center;
+}
+.restaurant-dish-stepper button {
+  display: grid;
+  place-items: center;
+  inline-size: var(--touch-target-min);
+  block-size: var(--touch-target-min);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.restaurant-dish-stepper button:active:not(:disabled) {
+  transform: scale(0.9);
+}
+.restaurant-dish-stepper output {
+  min-inline-size: var(--space-20);
+  font-weight: var(--font-weight-h3);
+  text-align: center;
+  font-variant-numeric: var(--font-variant-numeric-numbers);
+  animation: restaurant-pop var(--motion-base) var(--ease-spring-bouncy);
+}
+@keyframes restaurant-stepper-in {
+  from {
+    opacity: 0;
+    transform: scaleX(0.4);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .restaurant-dish-stepper,
+  .restaurant-dish-stepper output {
+    animation: none;
+  }
+}
+.restaurant-menu-search {
+  display: flex;
+  gap: var(--space-8);
+  align-items: center;
+  min-block-size: var(--touch-target-min);
+  padding-inline: var(--space-16);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text-3);
+}
+.restaurant-menu-search:focus-within {
+  outline: var(--focus-ring-width) solid var(--color-focus);
+  outline-offset: var(--focus-ring-offset);
+}
+.restaurant-menu-search input {
+  flex: 1;
+  min-inline-size: 0;
+  min-block-size: var(--touch-target-min);
+  border: 0;
+  background: none;
+  color: var(--color-text);
+  font: inherit;
+}
+.restaurant-menu-search input:focus {
+  outline: none;
+}
+.restaurant-menu-empty {
+  padding: var(--space-24);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-2);
+  color: var(--color-text-2);
+  text-align: center;
+}
+.restaurant-menu-search input::-webkit-search-cancel-button {
+  display: none;
+}

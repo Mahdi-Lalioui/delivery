@@ -19,3 +19,12 @@ Both repeat after dropping the `zaafran_test` template and every clone and letti
 rebuild it (Postgres 5532, lane-b docker project). The other 311 integration tests pass.
 
 Lane B will re-merge `origin/lane-a` as soon as it passes `pnpm verify`.
+
+## Update (2026-11-12, lane-a 728e262)
+
+GEO-01 and MER-01 now pass (b5f4828). A third test now fails on every run:
+
+3. **[M0-6] the built production process excludes debug routes and reports unavailable jobs**
+   (`apps/api/test/production.integration.test.ts`): "Test timed out in 5000ms" (5 002 ms twice).
+   It calls `seedGeography` for the full nationwide directory before starting the built API,
+   which no longer fits the 5 s default. The other 313 integration tests pass.

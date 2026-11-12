@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button, EmptyState, ErrorState, Skeleton } from "@zaafran/ui";
 import type { Locale } from "@zaafran/i18n/locales";
 import { DishCard } from "./dish-card";
+import type { Stepper } from "./restaurant-screen";
 import { readRestaurantItems } from "./restaurant-http";
 import { getRestaurantMessages } from "./restaurant-messages";
 import {
@@ -18,6 +19,22 @@ type State = {
   revision: number | null;
 };
 
+function normalize(text: string): string {
+  return text
+    .normalize("NFKD")
+    .replace(/\p{Mark}/gu, "")
+    .toLowerCase();
+}
+
+/** Accent- and case-insensitive match on any language of the name or description. */
+export function matchesDish(dish: RestaurantDish, query: string): boolean {
+  const needle = normalize(query.trim());
+  if (needle === "") return true;
+  return [...Object.values(dish.names), ...Object.values(dish.descriptions)].some(
+    (text) => text !== undefined && normalize(text).includes(needle),
+  );
+}
+
 export function MenuCategory({
   slug,
   merchantId,
@@ -29,6 +46,9 @@ export function MenuCategory({
   onStale,
   onDishes,
   inCart,
+  steppers,
+  onStep,
+  query = "",
 }: {
   slug: string;
   merchantId: string;
@@ -41,6 +61,10 @@ export function MenuCategory({
   /** Reports the dishes loaded so far, for the Popular row. */
   onDishes: (selections: readonly DishSelection[]) => void;
   inCart: ReadonlyMap<string, number>;
+  steppers: ReadonlyMap<string, Stepper>;
+  onStep: (lineId: string, quantity: number) => void;
+  /** Menu search: only dishes whose name or description matches are shown. */
+  query?: string;
 }) {
   const [state, setState] = useState<State>({
     phase: "idle",
@@ -137,9 +161,14 @@ export function MenuCategory({
       controller.abort();
     };
   }, [state, slug, category.categoryId, shouldLoad, onStale]);
+  const isHiddenBySearch =
+    query.trim() !== "" &&
+    state.phase === "ready" &&
+    !state.dishes.some((dish) => matchesDish(dish, query));
   return (
     <section
       ref={section}
+      hidden={isHiddenBySearch}
       id={"category-" + category.categoryId}
       className="restaurant-category"
       aria-labelledby={"heading-" + category.categoryId}
@@ -148,23 +177,27 @@ export function MenuCategory({
         {localizeRestaurantText(category.names, locale)}
       </h2>
       <div className="restaurant-dish-grid">
-        {state.dishes.map((dish) => (
-          <DishCard
-            key={dish.itemId}
-            dish={dish}
-            merchantId={merchantId}
-            locale={locale}
-            quantityInCart={inCart.get(dish.itemId) ?? 0}
-            onChoose={(chosen) => {
-              if (state.revision !== null)
-                onChoose({
-                  dish: chosen,
-                  revision: state.revision,
-                  categoryId: category.categoryId,
-                });
-            }}
-          />
-        ))}
+        {state.dishes
+          .filter((dish) => matchesDish(dish, query))
+          .map((dish) => (
+            <DishCard
+              key={dish.itemId}
+              dish={dish}
+              merchantId={merchantId}
+              locale={locale}
+              quantityInCart={inCart.get(dish.itemId) ?? 0}
+              stepper={steppers.get(dish.itemId)}
+              onStep={onStep}
+              onChoose={(chosen) => {
+                if (state.revision !== null)
+                  onChoose({
+                    dish: chosen,
+                    revision: state.revision,
+                    categoryId: category.categoryId,
+                  });
+              }}
+            />
+          ))}
       </div>
       <CategoryActions
         state={state}
