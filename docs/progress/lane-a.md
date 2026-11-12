@@ -266,3 +266,6 @@
 
 - 2026-11-12 · High · Added live merchant analytics and the admin dashboard with indexed Algiers-day aggregates and worker backlog. The error rate covers requests observed by the current API process. Seven PostGIS and 11 HTTP/authz/schema checks passed.
   Next: merge the analytics API into the production route sweep, then finish the remaining design and release checks.
+
+- 2026-11-12 · High · Integrated customer SSE tracking and the Algeria basemap. Five real production-browser journeys passed with PostGIS: delivery and GPS, pickup, rejection, expiry and cancellation. Delivery and pickup cover rating and receipt.
+  Next: finish the production route sweep across Arabic and French, then run full verification and the merchant, courier and admin design pass.

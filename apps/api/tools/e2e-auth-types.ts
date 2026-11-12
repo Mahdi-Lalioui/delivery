@@ -18,6 +18,16 @@ export interface AuthHarness {
   latestSms(phone: string): string;
   latestInvitation(phone: string): string;
   phoneForSession(sessionId: string): Promise<string | undefined>;
+  seedOrderJourney(input: {
+    ownerPhone: string;
+    courierPhone?: string;
+    timeoutSeconds: number;
+  }): Promise<{
+    merchantId: string;
+    categoryId: string;
+    commune: AlgiersCommune;
+    slug: string;
+  }>;
   seedAdminOrder(): Promise<{ orderId: string; shortCode: string; restaurantName: string }>;
   seedAdmin(phone: string): Promise<() => string>;
   seedAlgiersCommune(): Promise<AlgiersCommune>;

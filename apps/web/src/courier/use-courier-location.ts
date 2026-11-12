@@ -13,6 +13,7 @@ function watchDelivery(orderId: string, report: (state: LocationState) => void) 
   let lock: WakeLockSentinel | undefined;
   let lastFix: Position | undefined;
   let sending = false;
+  let hasAccepted = false;
 
   function stopWatch() {
     if (watcher !== undefined) {
@@ -31,7 +32,8 @@ function watchDelivery(orderId: string, report: (state: LocationState) => void) 
     if (result.kind === "ready") {
       const sentThrough = batch.at(-1)?.capturedAt ?? "";
       while (queue[0] && queue[0].capturedAt <= sentThrough) queue.shift();
-      report("sending");
+      hasAccepted ||= result.data.accepted > 0;
+      report(hasAccepted ? "sending" : "unavailable");
     } else if (result.kind === "retry") {
       report("buffered");
     } else {

@@ -14,6 +14,7 @@ import { sealTotpSecret } from "../src/auth-totp.ts";
 import type { startApi } from "../src/start.ts";
 import { seedAdminOrder } from "./e2e-admin-order.ts";
 import { seedDiscoveryFeed } from "./e2e-discovery-feed.ts";
+import { configureOrderJourney } from "./e2e-order-journey.ts";
 import { startAuthProxy } from "./e2e-auth-proxy.ts";
 import type { AlgiersCommune, AuthHarness, MenuMembershipFixture } from "./e2e-auth-types.ts";
 
@@ -246,6 +247,10 @@ export async function startAuthHarness(
       });
     },
     seedMenuMemberships: (phone) => seedMenuMemberships(database, phone, new Date(time)),
+    async seedOrderJourney(input) {
+      const commune = await seedDiscoverySearch(database);
+      return configureOrderJourney(database, { ...input, commune });
+    },
     async seedAdminOrder() {
       return seedAdminOrder(database, {
         commune: await seedAlgiersCommune(database),

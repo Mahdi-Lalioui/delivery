@@ -4,6 +4,7 @@ import type { Locale } from "@zaafran/i18n/locales";
 import { Map, Marker, setWorkerUrl } from "maplibre-gl";
 import { useEffect, useEffectEvent, useRef, type RefObject } from "react";
 import { accuracyRing, algeriaMapStyle, type MapPoint } from "./algeria-map-style";
+import { useDeliveryOverlay, type DeliveryOverlay } from "./delivery-overlay";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 setWorkerUrl(new URL("maplibre-gl/dist/maplibre-gl-worker.mjs", import.meta.url).toString());
@@ -16,6 +17,7 @@ interface MapCanvasProps {
   selected: MapPoint | undefined;
   accuracy: number | undefined;
   choose: boolean;
+  delivery?: DeliveryOverlay;
   label: string;
   mapRef: RefObject<Map | null>;
   onState: (state: MapState) => void;
@@ -131,5 +133,11 @@ function useMap({
 
 export function MapCanvas(props: MapCanvasProps) {
   const container = useMap(props);
+  useDeliveryOverlay({
+    mapRef: props.mapRef,
+    overlay: props.delivery,
+    destination: props.initial,
+    generation: props.locale + props.label,
+  });
   return <div ref={container} className="awid-map-canvas" />;
 }

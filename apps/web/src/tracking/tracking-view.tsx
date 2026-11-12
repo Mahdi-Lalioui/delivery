@@ -6,6 +6,7 @@ import { Badge, ButtonLink, EmptyState, ErrorState, Icon, Skeleton } from "@zaaf
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { PushOptIn } from "./push-opt-in";
+import { TrackingLiveMap } from "./tracking-live-map";
 import { TrackingMap } from "./tracking-map-view";
 import {
   canCancel,
@@ -202,7 +203,11 @@ function Ready({
   return (
     <div className="tracking" data-map={showMap}>
       {tracking.fulfilment === "delivery" ? (
-        <TrackingMap tracking={tracking} label={translate("map")} />
+        <TrackingLiveMap
+          tracking={tracking}
+          locale={locale}
+          fallback={<TrackingMap tracking={tracking} label={translate("map")} />}
+        />
       ) : null}
       <section className="tracking-sheet" aria-labelledby="tracking-status">
         <span className="tracking-grip" aria-hidden="true" />

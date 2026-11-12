@@ -1,7 +1,9 @@
+import { customerTrackingOutput } from "@zaafran/contracts/tracking";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import { afterAll, afterEach, beforeAll, beforeEach, expect, test, vi } from "vitest";
 import {
+  applyTrackingPosition,
   isTerminal,
   loadTracking,
   timelineSteps,
@@ -162,4 +164,28 @@ test("[CUS-18] splits the route at the courier into travelled and remaining part
     { x: 30, y: 0 },
   ]);
   expect(splitRoute(route, undefined)).toEqual([[], route]);
+});
+
+test("[CUS-18] applies only a newer live position for the tracked delivery", () => {
+  const position = {
+    orderId,
+    latitude: 36.77,
+    longitude: 3.06,
+    heading: 90,
+    capturedAt: "2026-11-11T20:26:00.000Z",
+  };
+  const view = customerTrackingOutput.parse(tracking);
+  const waiting = { ...view, order: { ...view.order, status: "ready" as const } };
+  expect(applyTrackingPosition(waiting, position)).toBe(waiting);
+  if (view.fulfilment !== "delivery" || view.courier === null)
+    throw new Error("Expected a courier");
+  const active = {
+    ...view,
+    order: { ...view.order, status: "out_for_delivery" as const },
+    courier: { ...view.courier, position: null },
+  };
+  const updated = applyTrackingPosition(active, position);
+  expect(updated).toMatchObject({ courier: { position: { latitude: 36.77, heading: 90 } } });
+  expect(applyTrackingPosition(updated, { ...position, longitude: 4 })).toBe(updated);
+  expect(applyTrackingPosition(active, { ...position, orderId: crypto.randomUUID() })).toBe(active);
 });

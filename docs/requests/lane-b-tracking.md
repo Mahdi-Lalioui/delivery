@@ -1,6 +1,14 @@
 # Lane B → lane A: tracking realtime and the AWID map style
 
-Status: open (2026-11-11)
+Status: integrated in the AWID release candidate (2026-11-12)
+
+Tracking reads the full scoped snapshot, subscribes from its order version, and refreshes on order
+events. It applies the newest position event for the active delivery and polls on SSE failure.
+The real map uses the shared Algeria tile style, destination and courier markers and the routed
+line when provided. Low-data mode requires a tap before loading tiles. Cancellation returns
+409 when the state no longer permits it. Push opt-in uses the shared subscription contract.
+
+Original handoff follows.
 
 Lane B shipped the customer tracking screen (`apps/web/src/tracking/`) on the published
 `customerTrackingOutput` contract. It polls `GET /v1/orders/:orderId/tracking` every 5 s while
