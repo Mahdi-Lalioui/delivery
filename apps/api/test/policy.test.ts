@@ -382,6 +382,29 @@ const matrix: readonly MatrixRoute[] = [
     requestUrl: "/v1/me/favourites/" + challengeId,
     expected: { customer: 503 },
   },
+  {
+    method: "GET",
+    url: "/v1/restaurants/:slug/reviews",
+    requestUrl: "/v1/restaurants/sample/reviews",
+    expected: 503,
+  },
+  {
+    method: "GET",
+    url: "/v1/merchants/:merchantId/reviews",
+    requestUrl: "/v1/merchants/" + challengeId + "/reviews",
+    expected: menuRoles,
+  },
+  {
+    method: "GET",
+    url: "/v1/admin/dashboard/today",
+    expected: adminRole,
+  },
+  {
+    method: "GET",
+    url: "/v1/merchants/:merchantId/analytics",
+    requestUrl: "/v1/merchants/" + challengeId + "/analytics?from=2026-11-11&to=2026-11-12",
+    expected: menuRoles,
+  },
   { method: "GET", url: "/v1/me/orders", expected: { customer: 503 } },
   {
     method: "GET",

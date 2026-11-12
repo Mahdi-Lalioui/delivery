@@ -6,11 +6,13 @@ import {
   adminOrderSearchOutput,
 } from "@zaafran/contracts/admin-orders";
 import {
+  adminDashboardTodayOutput,
+  merchantAnalyticsOutput,
   customerOrderHistoryOutput,
   customerOrderHistoryQuery,
   customerOrderReceiptOutput,
 } from "@zaafran/contracts/retention";
-import { orderRatingOutput } from "@zaafran/contracts/ratings";
+import { orderRatingOutput, publicReviewPageOutput } from "@zaafran/contracts/ratings";
 import { createOrderRepository } from "../src/orders.ts";
 import { createAdminOrdersRepository } from "../src/admin-orders.ts";
 import { registerTestDatabase } from "./database.ts";
@@ -259,4 +261,87 @@ test("[CUS-23] keeps favourites private, idempotent and limited to published res
   expect(await repository.setFavourite({ ...add, isFavourite: false })).toBe("saved");
   expect(await repository.setFavourite({ ...add, isFavourite: false })).toBe("saved");
   expect(await repository.favourites(scope)).toEqual({ restaurants: [] });
+});
+
+test("[CUS-22][MER-20] paginates anonymous reviews and scopes merchant review access", async () => {
+  const { sql } = database.get();
+  const reviewOwnerSession = randomUUID();
+  await sql`
+    INSERT INTO merchant_members (merchant_id, user_id, role) VALUES (${merchantId}, ${otherId}, 'owner')
+  `;
+  await sql`
+    INSERT INTO sessions
+      (id, user_id, token_hash, transport, kind, request_ip, created_at, last_seen_at, expires_at)
+    VALUES (${reviewOwnerSession}, ${otherId}, decode(repeat('04', 32), 'hex'), 'web', 'standard',
+      '192.0.2.1', now(), now(), now() + interval '1 hour')
+  `;
+  const [rating] = await sql<{ id: string }[]>`
+    INSERT INTO public.ratings (order_id, food_stars, comment, created_at)
+    VALUES (${terminalId}, 4, 'Repas fictif', '2026-11-11T12:03:00Z')
+    ON CONFLICT (order_id) DO UPDATE SET food_stars = excluded.food_stars, comment = excluded.comment
+    RETURNING id
+  `;
+  const repository = createOrderRepository(database.get());
+  const page = await repository.publicReviews({ slug: "fixture-" + merchantId, limit: 1 });
+  expect(publicReviewPageOutput.parse(page)).toMatchObject({
+    reviews: [{ ratingId: rating?.id, foodStars: 4, comment: "Repas fictif", reply: null }],
+    nextCursor: null,
+  });
+  expect(page?.reviews[0]).not.toHaveProperty("orderId");
+  expect(
+    await repository.publicReviews({ slug: "fixture-" + demoMerchantId, limit: 20 }),
+  ).toBeUndefined();
+  const scope = { accountId: otherId, sessionId: reviewOwnerSession, merchantId, limit: 20 };
+  expect(await repository.merchantReviews({ ...scope, stars: 5 })).toEqual({
+    reviews: [],
+    nextCursor: null,
+  });
+  expect(await repository.merchantReviews({ ...scope, stars: 4 })).toEqual(page);
+  expect(
+    await repository.merchantReviews({ ...scope, merchantId: otherMerchantId }),
+  ).toBeUndefined();
+  expect(await repository.merchantReviews({ ...scope, accountId: customerId })).toBeUndefined();
+});
+
+test("[MER-21][ADM-02] aggregates real tenant orders by Algerian business date and excludes synthetic demo orders", async () => {
+  const { sql } = database.get();
+  const merchantSession = randomUUID();
+  await sql`
+    INSERT INTO merchant_members (merchant_id, user_id, role)
+    VALUES (${merchantId}, ${otherId}, 'owner') ON CONFLICT DO NOTHING
+  `;
+  await sql`
+    INSERT INTO sessions (id, user_id, token_hash, transport, kind, request_ip, created_at, last_seen_at, expires_at)
+    VALUES (${merchantSession}, ${otherId}, decode(repeat('05', 32), 'hex'), 'web', 'standard',
+      '192.0.2.1', now(), now(), now() + interval '1 hour')
+  `;
+  const repository = createOrderRepository(database.get());
+  const date = "2026-11-11";
+  const query = {
+    merchantId,
+    accountId: otherId,
+    sessionId: merchantSession,
+    from: date,
+    to: date,
+  };
+  const result = merchantAnalyticsOutput.parse(await repository.merchantAnalytics(query));
+  expect(result.totals).toMatchObject({
+    orders: 2,
+    salesDzd: 900,
+    averageTicketDzd: 900,
+    acceptanceRate: 10_000,
+  });
+  expect(result.heatmap.flat().reduce((total, count) => total + count, 0)).toBe(2);
+  expect(
+    await repository.merchantAnalytics({ ...query, merchantId: otherMerchantId }),
+  ).toBeUndefined();
+  await sql`UPDATE users SET blocked_at = NULL WHERE id = ${adminId}`;
+  const request = { accountId: adminId, date, now: new Date(date), errorRate: 250 };
+  const dashboard = adminDashboardTodayOutput.parse(await repository.adminDashboard(request));
+  expect(dashboard).toMatchObject({
+    totals: { orders: 3, salesDzd: 900 },
+    errorRate: 250,
+    jobBacklog: 0,
+  });
+  expect(await repository.adminDashboard({ ...request, accountId: otherId })).toBeUndefined();
 });
