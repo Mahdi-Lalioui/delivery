@@ -10,7 +10,7 @@ import {
   customerOrderHistoryQuery,
   customerOrderReceiptOutput,
 } from "@zaafran/contracts/retention";
-import { orderRatingOutput } from "@zaafran/contracts/ratings";
+import { orderRatingOutput, publicReviewPageOutput } from "@zaafran/contracts/ratings";
 import { createOrderRepository } from "../src/orders.ts";
 import { createAdminOrdersRepository } from "../src/admin-orders.ts";
 import { registerTestDatabase } from "./database.ts";
@@ -259,4 +259,44 @@ test("[CUS-23] keeps favourites private, idempotent and limited to published res
   expect(await repository.setFavourite({ ...add, isFavourite: false })).toBe("saved");
   expect(await repository.setFavourite({ ...add, isFavourite: false })).toBe("saved");
   expect(await repository.favourites(scope)).toEqual({ restaurants: [] });
+});
+
+test("[CUS-22][MER-20] paginates anonymous reviews and scopes merchant review access", async () => {
+  const { sql } = database.get();
+  const reviewOwnerSession = randomUUID();
+  await sql`
+    INSERT INTO merchant_members (merchant_id, user_id, role) VALUES (${merchantId}, ${otherId}, 'owner')
+  `;
+  await sql`
+    INSERT INTO sessions
+      (id, user_id, token_hash, transport, kind, request_ip, created_at, last_seen_at, expires_at)
+    VALUES (${reviewOwnerSession}, ${otherId}, decode(repeat('04', 32), 'hex'), 'web', 'standard',
+      '192.0.2.1', now(), now(), now() + interval '1 hour')
+  `;
+  const [rating] = await sql<{ id: string }[]>`
+    INSERT INTO public.ratings (order_id, food_stars, comment, created_at)
+    VALUES (${terminalId}, 4, 'Repas fictif', '2026-11-11T12:03:00Z')
+    ON CONFLICT (order_id) DO UPDATE SET food_stars = excluded.food_stars, comment = excluded.comment
+    RETURNING id
+  `;
+  const repository = createOrderRepository(database.get());
+  const page = await repository.publicReviews({ slug: "fixture-" + merchantId, limit: 1 });
+  expect(publicReviewPageOutput.parse(page)).toMatchObject({
+    reviews: [{ ratingId: rating?.id, foodStars: 4, comment: "Repas fictif", reply: null }],
+    nextCursor: null,
+  });
+  expect(page?.reviews[0]).not.toHaveProperty("orderId");
+  expect(
+    await repository.publicReviews({ slug: "fixture-" + demoMerchantId, limit: 20 }),
+  ).toBeUndefined();
+  const scope = { accountId: otherId, sessionId: reviewOwnerSession, merchantId, limit: 20 };
+  expect(await repository.merchantReviews({ ...scope, stars: 5 })).toEqual({
+    reviews: [],
+    nextCursor: null,
+  });
+  expect(await repository.merchantReviews({ ...scope, stars: 4 })).toEqual(page);
+  expect(
+    await repository.merchantReviews({ ...scope, merchantId: otherMerchantId }),
+  ).toBeUndefined();
+  expect(await repository.merchantReviews({ ...scope, accountId: customerId })).toBeUndefined();
 });

@@ -260,3 +260,6 @@
 
 - 2026-11-12 · High · Added private favourites with idempotent writes, publication checks, an account cap and deletion cleanup. Passed 20 PostGIS and 11 HTTP/authz/schema checks.
   Next: integrate the favourites API into route smoke and add the public and merchant reviews reads.
+
+- 2026-11-12 · High · Added anonymous public restaurant reviews and owner/manager review reads with stars and precise cursors. Six PostGIS and 11 HTTP/authz/schema tests passed.
+  Next: add merchant analytics and the admin dashboard API for route smoke. Review replies and reports remain open.

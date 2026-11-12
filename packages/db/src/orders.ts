@@ -35,6 +35,7 @@ import {
   type OrderHistoryQuery,
 } from "./order-receipts.js";
 import { pruneOrderRatingReceipts, readOrderRating, saveOrderRating } from "./order-rating.js";
+import { readMerchantReviews, readPublicReviews } from "./order-reviews.js";
 import { readCustomerTracking, type CustomerTrackingScope } from "./order-tracking.js";
 import { readOrderReplay, type OrderReplayRequest } from "./order-replay.js";
 import { evaluateQuote, lockOrderingCustomer, quoteBreakdown } from "./order-quotes.js";
@@ -231,6 +232,12 @@ export function createOrderRepository({ sql }: DatabaseConnection, deliveryKey?:
       ),
     setFavourite: (command: Parameters<typeof changeCustomerFavourite>[1]) =>
       sql.begin((tx) => changeCustomerFavourite(tx, command)),
+    publicReviews: (query: Parameters<typeof readPublicReviews>[1]) =>
+      sql.begin("isolation level repeatable read read only", (tx) => readPublicReviews(tx, query)),
+    merchantReviews: (query: Parameters<typeof readMerchantReviews>[1]) =>
+      sql.begin("isolation level repeatable read read only", (tx) =>
+        readMerchantReviews(tx, query),
+      ),
     rating: (scope: Parameters<typeof readOrderRating>[1]) =>
       sql.begin("isolation level repeatable read read only", (tx) => readOrderRating(tx, scope)),
     rate: (command: Parameters<typeof saveOrderRating>[1]) =>
