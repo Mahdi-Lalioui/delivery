@@ -43,3 +43,5 @@ The M0 gate runs the workspace, browser smoke, contrast and PR checks. The full 
 - If a browser is missing, run `pnpm exec playwright install chromium webkit`. If using a custom `PLAYWRIGHT_BROWSERS_PATH`, use the same value during install and testing.
 - If the design guide is 404, start the explicit design profile with `pnpm --filter @zaafran/web build:design` and `pnpm --filter @zaafran/web start:design`.
 - To rebuild a disposable local development database, stop processes using it, run `pnpm db:reset --confirm`, then run `pnpm db:migrate`. Reset discards `zaafran_dev` data and refuses other database targets. Seed currently applies the development baseline. Restaurant fixtures start in M2.
+
+See [service incidents](service-incidents.md) for deploy, rollback, recovery, peak operations and incident response.
