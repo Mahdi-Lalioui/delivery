@@ -73,6 +73,7 @@ export function createWorkerOptions(
       const now = new Date();
       await privacy.pruneDeletionState(now);
       await quotes.pruneExpired(now);
+      await orders.pruneRatingReceipts(now);
       await pruneInactivePushSubscriptions(database.sql);
       await pruneCourierPositions(database.sql, now);
     }),
