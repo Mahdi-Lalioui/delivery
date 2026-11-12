@@ -4,6 +4,7 @@ import { formatDzd } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
 import { Icon } from "@zaafran/ui";
 import { CartContents } from "./cart-contents";
+import { CountingDzd } from "./counting-dzd";
 import { RestaurantDialog } from "./restaurant-dialog";
 import { getRestaurantMessages } from "./restaurant-messages";
 import type { useBrowserCart } from "./use-browser-cart";
@@ -66,13 +67,20 @@ export function CartControls({
           }}
         >
           <span>
+            <span
+              className="restaurant-cart-bag"
+              key={`bag-${String(summary.value.itemCount)}`}
+              aria-hidden="true"
+            >
+              <Icon name="bag" size={22} />
+            </span>
             <bdi className="restaurant-cart-count" key={summary.value.itemCount}>
               {summary.value.itemCount}
             </bdi>
             {messages.viewCart}
           </span>
-          <bdi className="restaurant-cart-total" key={summary.value.subtotalDzd}>
-            {formatDzd(summary.value.subtotalDzd, locale)}
+          <bdi className="restaurant-cart-total">
+            <CountingDzd value={summary.value.subtotalDzd} locale={locale} />
           </bdi>
         </button>
       </div>

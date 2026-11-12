@@ -1,4 +1,5 @@
 import { photoRatios } from "@zaafran/contracts/media";
+import { StateArt } from "../customer/state-art";
 import { getLocalizedContent } from "@zaafran/i18n/content";
 import { formatDzd } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
@@ -192,7 +193,7 @@ export function SearchContent({
     <div className="discovery-search-prompts">
       {state.phase === "ready" && (
         <div className="discovery-search-empty" role="status">
-          <FeedPlate />
+          <StateArt kind="search" />
           <p>{messages.empty}</p>
         </div>
       )}

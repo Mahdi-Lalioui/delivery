@@ -661,8 +661,9 @@
   min-inline-size: var(--space-32);
   block-size: var(--space-32);
   border-radius: var(--radius-pill);
-  background: var(--color-mint);
-  color: var(--color-on-accent);
+  /* A tint of the bar's own text colour, so the pill reads on the green bar and the mint one. */
+  background: color-mix(in oklab, var(--color-on-primary) 18%, transparent);
+  color: var(--color-on-primary);
   font-variant-numeric: var(--font-variant-numeric-numbers);
 }
 .restaurant-cart-contents,
@@ -799,7 +800,10 @@
     border-end-end-radius: 0;
   }
   .restaurant-dialog[open] {
-    animation: restaurant-sheet-in var(--motion-slow) var(--ease-standard);
+    animation: restaurant-sheet-in var(--motion-emphasis) var(--ease-spring-gentle);
+  }
+  .restaurant-dialog[open]::backdrop {
+    animation: restaurant-scrim-in var(--motion-base) var(--ease-decelerate);
   }
 }
 @media (prefers-reduced-motion: no-preference) {
@@ -947,5 +951,169 @@ body:has(.restaurant-cart-bar) .customer-tabs {
   }
   .restaurant-popular-card .restaurant-dish-photo {
     aspect-ratio: 16 / 9;
+  }
+}
+/* Add-to-stepper morph: a pill that grows out of the round + (transform and opacity only). */
+.restaurant-dish-stepper {
+  position: absolute;
+  inset-block-end: calc(-1 * var(--space-4));
+  inset-inline-end: calc(-1 * var(--space-4));
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 3px solid var(--color-surface);
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  box-shadow: var(--shadow-e2);
+  transform-origin: right center;
+  animation: restaurant-stepper-in var(--motion-base) var(--ease-spring-snappy);
+}
+[dir="rtl"] .restaurant-dish-stepper {
+  transform-origin: left center;
+}
+.restaurant-dish-stepper button {
+  display: grid;
+  place-items: center;
+  inline-size: var(--touch-target-min);
+  block-size: var(--touch-target-min);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.restaurant-dish-stepper button:active:not(:disabled) {
+  transform: scale(0.9);
+}
+.restaurant-dish-stepper output {
+  min-inline-size: var(--space-20);
+  font-weight: var(--font-weight-h3);
+  text-align: center;
+  font-variant-numeric: var(--font-variant-numeric-numbers);
+  animation: restaurant-pop var(--motion-base) var(--ease-spring-bouncy);
+}
+@keyframes restaurant-stepper-in {
+  from {
+    opacity: 0;
+    transform: scaleX(0.4);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .restaurant-dish-stepper,
+  .restaurant-dish-stepper output {
+    animation: none;
+  }
+}
+.restaurant-menu-search {
+  display: flex;
+  gap: var(--space-8);
+  align-items: center;
+  min-block-size: var(--touch-target-min);
+  padding-inline: var(--space-16);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text-3);
+}
+.restaurant-menu-search:focus-within {
+  outline: var(--focus-ring-width) solid var(--color-focus);
+  outline-offset: var(--focus-ring-offset);
+}
+.restaurant-menu-search input {
+  flex: 1;
+  min-inline-size: 0;
+  min-block-size: var(--touch-target-min);
+  border: 0;
+  background: none;
+  color: var(--color-text);
+  font: inherit;
+}
+.restaurant-menu-search input:focus {
+  outline: none;
+}
+.restaurant-menu-empty {
+  padding: var(--space-24);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-2);
+  color: var(--color-text-2);
+  text-align: center;
+}
+.restaurant-menu-search input::-webkit-search-cancel-button {
+  display: none;
+}
+
+/* The bag tips and bounces each time the item count changes (keyed re-mount). */
+.restaurant-cart-bag {
+  display: inline-grid;
+  transform-origin: 50% 90%;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .restaurant-cart-bag {
+    animation: restaurant-bag-bounce var(--motion-slow) var(--ease-spring-bouncy);
+  }
+}
+@keyframes restaurant-bag-bounce {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+  30% {
+    transform: translateY(calc(var(--space-4) * -1)) rotate(-12deg);
+  }
+  60% {
+    transform: translateY(0) rotate(8deg) scale(1.08, 0.92);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+/* Counting prices keep a steady width while digits change. */
+.counting-dzd {
+  font-variant-numeric: var(--font-variant-numeric-numbers);
+}
+
+/* Whole dish cards open the dish; they press down slightly so the tap feels physical. */
+.restaurant-dish:not([data-sold-out="true"]),
+.restaurant-popular-card {
+  cursor: pointer;
+  transition: transform var(--motion-fast) var(--ease-standard);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .restaurant-dish:not([data-sold-out="true"]):active,
+  .restaurant-popular-card:active {
+    transform: scale(0.98);
+  }
+}
+
+@keyframes restaurant-scrim-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Dishes rise in one after another when a category loads (capped so long menus stay quick). */
+@media (prefers-reduced-motion: no-preference) {
+  .restaurant-dish-grid > .restaurant-dish {
+    animation: restaurant-dish-rise var(--motion-slow) var(--ease-decelerate) backwards;
+  }
+  .restaurant-dish-grid > .restaurant-dish:nth-child(2) {
+    animation-delay: 40ms;
+  }
+  .restaurant-dish-grid > .restaurant-dish:nth-child(3) {
+    animation-delay: 80ms;
+  }
+  .restaurant-dish-grid > .restaurant-dish:nth-child(4) {
+    animation-delay: 120ms;
+  }
+  .restaurant-dish-grid > .restaurant-dish:nth-child(n + 5) {
+    animation-delay: 160ms;
+  }
+}
+@keyframes restaurant-dish-rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-12));
   }
 }

@@ -1,5 +1,6 @@
 import { Button, TextAreaField } from "@zaafran/ui";
 import { formatDzd } from "@zaafran/i18n/formats";
+import { CountingDzd } from "./counting-dzd";
 import type { Locale } from "@zaafran/i18n/locales";
 import { useId, type ReactNode } from "react";
 import { RestaurantQuantity } from "./restaurant-quantity";
@@ -194,9 +195,17 @@ export function ItemForm({
           isBlock
           disabled={!valid || totalDzd === null}
         >
-          {missingGroup(detail, draft, locale) ??
-            messages.add +
-              (totalDzd === null ? "" : messages.separator + formatDzd(totalDzd, locale))}
+          {missingGroup(detail, draft, locale) ?? (
+            <>
+              {messages.add}
+              {totalDzd !== null && (
+                <>
+                  {messages.separator}
+                  <CountingDzd value={totalDzd} locale={locale} />
+                </>
+              )}
+            </>
+          )}
         </Button>
       </div>
     </form>

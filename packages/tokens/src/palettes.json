@@ -34,6 +34,8 @@
     "cream": "#FFF8E6",
     "on-accent": "#06231A",
     "on-photo": "#FFFFFF",
+    "food-couscous": "#E9C46A",
+    "food-saffron": "#F2A900",
     "photo-scrim": "rgb(4 26 19 / 0.72)"
   },
   "dark": {
@@ -71,6 +73,8 @@
     "cream": "#1A3A2E",
     "on-accent": "#05221A",
     "on-photo": "#FFFFFF",
+    "food-couscous": "#E9C46A",
+    "food-saffron": "#F2A900",
     "photo-scrim": "rgb(4 26 19 / 0.72)"
   }
 }

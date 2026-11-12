@@ -1,20 +1,33 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { addCartLine, type Cart, type CartLine } from "@zaafran/domain/cart";
+import {
+  addCartLine,
+  removeCartLine,
+  setCartQuantity,
+  type Cart,
+  type CartLine,
+} from "@zaafran/domain/cart";
 import type { Locale } from "@zaafran/i18n/locales";
-import { Button, EmptyState, ErrorState, Skeleton } from "@zaafran/ui";
+import { Button, EmptyState, ErrorState, Icon, Skeleton } from "@zaafran/ui";
 import { CartControls } from "./cart-controls";
 import { ItemDialog } from "./item-dialog";
-import { MenuCategory } from "./menu-category";
+import { matchesDish, MenuCategory } from "./menu-category";
 import { PopularRow } from "./popular-row";
+import { StateArt } from "../customer/state-art";
 import { flyToCart } from "../marketing/moments/fly-to-cart";
 import "../marketing/moments/moments.css";
 import { RestaurantDialog } from "./restaurant-dialog";
 import { RestaurantHeader } from "./restaurant-header";
 import { readRestaurant } from "./restaurant-http";
 import { getRestaurantMessages } from "./restaurant-messages";
-import { localizeRestaurantText, type Restaurant, type DishSelection } from "./restaurant-types";
+import {
+  localizeRestaurantText,
+  type DishSelection,
+  type Restaurant,
+  type Stepper,
+} from "./restaurant-types";
+import { useDishOrigin } from "./photo-flight";
 import { useBrowserCart } from "./use-browser-cart";
 import "@zaafran/ui/ui.css";
 import "./restaurant.css";
@@ -23,6 +36,7 @@ type State = { phase: "loading" } | { phase: "error" } | { phase: "ready"; data:
 
 export function RestaurantScreen({ slug, locale }: { slug: string; locale: Locale }) {
   const basket = useBrowserCart();
+  useDishOrigin();
   return <RestaurantLoader key={slug} slug={slug} locale={locale} basket={basket} />;
 }
 
@@ -67,6 +81,7 @@ function RestaurantLoader({
       {state.phase === "loading" && <Skeleton label={messages.loading} lines={5} />}
       {state.phase === "error" && (
         <ErrorState
+          art={<StateArt kind="error" />}
           title={messages.error}
           retryLabel={messages.retry}
           onRetry={() => {
@@ -113,6 +128,23 @@ function RestaurantLoaded({
     if (selected !== null) onStale(selected.categoryId);
   }, [selected, onStale]);
 
+  /** Inline stepper on a dish row: change the quantity, or remove the line at zero. */
+  function step(lineId: string, quantity: number) {
+    const cart = basket.cart;
+    if (cart === null) return;
+    const result =
+      quantity <= 0
+        ? removeCartLine({ cart, lineId, now: Date.now() })
+        : setCartQuantity({ cart, lineId, quantity, now: Date.now() });
+    if (!result.ok) {
+      setCartError(true);
+      return;
+    }
+    basket.save(result.value);
+    setCartError(false);
+    setAnnouncement(messages.updatedQuantity);
+  }
+
   function add(line: CartLine, confirmMerchantChange = false) {
     const result = addCartLine({
       cart: basket.cart,
@@ -146,6 +178,10 @@ function RestaurantLoaded({
         locale={locale}
         data={data}
         inCart={cartQuantities(basket.cart, data.restaurant.merchantId)}
+        steppers={simpleLines(basket.cart, data.restaurant.merchantId)}
+        onStep={(lineId, quantity) => {
+          step(lineId, quantity);
+        }}
         refreshedCategory={refreshedCategory}
         onChoose={setSelected}
         onStale={onStale}
@@ -213,6 +249,11 @@ export function pickPopular(selections: readonly DishSelection[]): DishSelection
   return row.length >= 3 ? row : [];
 }
 
+function hasNoMatch(loaded: ReadonlyMap<string, readonly DishSelection[]>, query: string) {
+  if (query.trim() === "") return false;
+  return ![...loaded.values()].flat().some(({ dish }) => matchesDish(dish, query));
+}
+
 /** The memorable add: the dish photo arcs into the cart bar, whose count springs. */
 function flyDishToCart(itemId: string) {
   window.setTimeout(() => {
@@ -222,6 +263,20 @@ function flyDishToCart(itemId: string) {
     const target = document.querySelector<HTMLElement>(".restaurant-cart-count");
     if (source && target) void flyToCart(source, target);
   }, 60);
+}
+
+/** Dishes that sit in the cart as one plain line (no options, no note) get an inline stepper. */
+export function simpleLines(cart: Cart | null, merchantId: string): ReadonlyMap<string, Stepper> {
+  const steppers = new Map<string, Stepper>();
+  if (cart?.merchant.merchantId !== merchantId) return steppers;
+  const counts = new Map<string, number>();
+  for (const line of cart.lines) counts.set(line.itemId, (counts.get(line.itemId) ?? 0) + 1);
+  for (const line of cart.lines) {
+    const isPlain = line.options.length === 0 && line.note === "";
+    if (isPlain && counts.get(line.itemId) === 1)
+      steppers.set(line.itemId, { lineId: line.lineId, quantity: line.quantity });
+  }
+  return steppers;
 }
 
 /** Quantity of each dish already in the cart for this restaurant, by item ID. */
@@ -239,6 +294,8 @@ function RestaurantMenu({
   locale,
   data,
   inCart,
+  steppers,
+  onStep,
   refreshedCategory,
   onChoose,
   onStale,
@@ -247,6 +304,8 @@ function RestaurantMenu({
   locale: Locale;
   data: Restaurant;
   inCart: ReadonlyMap<string, number>;
+  steppers: ReadonlyMap<string, Stepper>;
+  onStep: (lineId: string, quantity: number) => void;
   refreshedCategory: string | null;
   onChoose: (selection: DishSelection) => void;
   onStale: (categoryId: string) => void;
@@ -258,23 +317,47 @@ function RestaurantMenu({
       "",
   );
   const messages = getRestaurantMessages(locale);
+  const [query, setQuery] = useState("");
   const [loaded, setLoaded] = useState<ReadonlyMap<string, readonly DishSelection[]>>(new Map());
   const recordDishes = useCallback((selections: readonly DishSelection[]) => {
     const categoryId = selections[0]?.categoryId;
     if (categoryId === undefined) return;
     setLoaded((previous) => new Map(previous).set(categoryId, selections));
   }, []);
-  if (data.categories.length === 0) return <EmptyState title={messages.empty} />;
+  if (data.categories.length === 0)
+    return <EmptyState art={<StateArt kind="plate" />} title={messages.empty} />;
   const popular = pickPopular([...loaded.values()].flat());
   return (
     <>
       <PopularRow
-        selections={popular}
+        selections={query.trim() === "" ? popular : []}
         merchantId={data.restaurant.merchantId}
         locale={locale}
         onChoose={onChoose}
       />
-      <nav className="restaurant-category-tabs" aria-label={messages.menu}>
+      <label className="restaurant-menu-search">
+        <Icon name="search" size={18} />
+        <span className="ui-visually-hidden">{messages.menuSearch}</span>
+        <input
+          type="search"
+          dir="auto"
+          placeholder={messages.menuSearch}
+          value={query}
+          onChange={(event) => {
+            setQuery(event.currentTarget.value);
+          }}
+        />
+      </label>
+      {hasNoMatch(loaded, query) && (
+        <p className="restaurant-menu-empty" role="status">
+          {messages.menuSearchEmpty.replace("{query}", query.trim())}
+        </p>
+      )}
+      <nav
+        className="restaurant-category-tabs"
+        aria-label={messages.menu}
+        hidden={query.trim() !== ""}
+      >
         <span className="restaurant-sticky-name" aria-hidden="true">
           <bdi>{data.restaurant.name}</bdi>
         </span>
@@ -305,6 +388,9 @@ function RestaurantMenu({
             onStale={onStale}
             onDishes={recordDishes}
             inCart={inCart}
+            steppers={steppers}
+            onStep={onStep}
+            query={query}
           />
         ))}
       </div>

@@ -274,3 +274,7 @@ Supersedes D-B03. SPRINT allows one 3D scene only if it is excellent after a bou
 Mahdi approved both channels. Keep the existing session, CSRF and admin TOTP model. Extend its OTP machinery to verified phones and normalized emails, with one account per verified identifier and explicit, session-bound changes. OTPs are single-use, expire after 10 minutes and lock on the fifth incorrect attempt. Account creation and returning-account sign-in use the same public response.
 
 Configure Twilio or the existing SMS webhook and configure Resend for email. The public config publishes the methods backed by an enabled adapter. Keep checkout contact phones separate from verified login identifiers. Prefer push for order status delivery, with verified SMS or email as the fallback. Lane A owns sign-in, account and checkout from the latest Lane B design.
+
+## D-032 · three.js for the live tracking scooter (2026-11-12)
+
+Add `three` 0.187.0 (MIT, no runtime deps) to `apps/web` for the procedural scooter drawn as a MapLibre custom layer on the 3D tracking map. It loads through a dynamic import only once the map is ready, never under reduced motion; the flat rider marker stays as the fallback.

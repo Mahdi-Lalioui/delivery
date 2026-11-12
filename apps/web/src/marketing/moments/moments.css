@@ -265,3 +265,9 @@
   gap: var(--space-16);
   align-items: center;
 }
+
+.tagine-3d {
+  display: block;
+  inline-size: min(70vw, 18rem);
+  aspect-ratio: 1;
+}

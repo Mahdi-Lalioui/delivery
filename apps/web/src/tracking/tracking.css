@@ -570,3 +570,8 @@
   clip-path: polygon(50% 0%, 100% 100%, 50% 75%, 0% 100%);
   content: "";
 }
+
+/* The 3D scooter replaces the flat rider marker once three.js has loaded. */
+[data-scooter="true"] .tracking-map-rider {
+  visibility: hidden;
+}

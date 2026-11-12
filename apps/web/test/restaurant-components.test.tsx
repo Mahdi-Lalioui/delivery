@@ -5,7 +5,8 @@ import { ItemForm } from "../src/restaurant/item-form";
 import { DishCard } from "../src/restaurant/dish-card";
 import { CartContents } from "../src/restaurant/cart-contents";
 import { createItemDraft, prepareItemLine } from "../src/restaurant/item-draft";
-import { addCartLine } from "@zaafran/domain/cart";
+import { addCartLine, type Cart } from "@zaafran/domain/cart";
+import { dzd } from "@zaafran/domain/money";
 import { detail } from "./restaurant-fixture";
 
 const noop = () => undefined;
@@ -80,7 +81,7 @@ test("[CUS-08:web] satisfies the required choice and shows the safe live configu
   const html = renderToStaticMarkup(
     <ItemForm detail={detail} locale="ar" draft={draft} onDraft={noop} onAdd={noop} />,
   );
-  expect(html).toContain("أضف · 940 دج");
+  expect(html.replace(/<[^>]+>/gu, "")).toContain("أضف · 940 دج");
   expect(html).toContain("الكمية");
   expect(html).not.toMatch(/<button[^>]*disabled[^>]*>[^<]*<span>أضف/u);
 });
@@ -143,4 +144,52 @@ test("[CUS-07:web] most ordered lists tagged dishes first, tops up to three and 
     pickPopular([dish("a"), dish("b", ["popular"]), dish("c")]).map((s) => s.dish.itemId),
   ).toEqual(["b", "a", "c"]);
   expect(pickPopular([dish("a", ["popular"]), dish("b")])).toEqual([]);
+});
+
+test("[CUS-07:web] only a single plain cart line of a dish gets the inline stepper", async () => {
+  const { simpleLines } = await import("../src/restaurant/restaurant-screen");
+  const price = dzd(100);
+  if (!price.ok) throw new Error("bad amount");
+  const base = { names: { fr: "x" }, unitPriceDzd: price.value, quantity: 2, note: "" };
+  const cart: Cart = {
+    version: 1,
+    merchant: { merchantId: "m", name: "M", minimumDzd: 0 },
+    expiresAt: Date.now() + 60_000,
+    lines: [
+      { ...base, lineId: "l1", itemId: "plain", options: [] },
+      { ...base, lineId: "l2", itemId: "noted", options: [], note: "sans oignon" },
+      { ...base, lineId: "l3", itemId: "twice", options: [] },
+      { ...base, lineId: "l4", itemId: "twice", options: [] },
+    ],
+  };
+  const steppers = simpleLines(cart, "m");
+  expect([...steppers.keys()]).toEqual(["plain"]);
+  expect(steppers.get("plain")).toEqual({ lineId: "l1", quantity: 2 });
+  expect(simpleLines(cart, "other").size).toBe(0);
+});
+
+test("[CUS-07:web] menu search matches names and descriptions without accents or case", async () => {
+  const { matchesDish } = await import("../src/restaurant/menu-category");
+  expect(matchesDish(detail.item, "chaw")).toBe(true);
+  expect(matchesDish(detail.item, "GRILLADE")).toBe(true);
+  expect(matchesDish(detail.item, "شاورما")).toBe(true);
+  expect(matchesDish(detail.item, "pizza")).toBe(false);
+  expect(matchesDish(detail.item, "  ")).toBe(true);
+});
+
+test("[CUS-07:web] a plain dish already in the cart shows a − n + stepper instead of +", () => {
+  const html = renderToStaticMarkup(
+    <DishCard
+      dish={detail.item}
+      merchantId="merchant"
+      locale="fr"
+      quantityInCart={2}
+      stepper={{ lineId: "l1", quantity: 2 }}
+      onStep={noop}
+      onChoose={noop}
+    />,
+  );
+  expect(html).toContain('class="restaurant-dish-stepper"');
+  expect(html).toContain('aria-label="Réduire la quantité · Chawarma"');
+  expect(html).not.toContain('class="restaurant-dish-add"');
 });

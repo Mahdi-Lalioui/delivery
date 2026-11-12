@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import { useMemo, useRef, useState, type ReactNode } from "react";
 import { useLowData } from "../discovery/low-data";
 import type { Tracking } from "./tracking-http";
+import { useTrackingScene } from "./use-tracking-scene";
 
 const MapCanvas = dynamic(() => import("../maps/map-canvas").then(({ MapCanvas }) => MapCanvas), {
   ssr: false,
@@ -32,6 +33,8 @@ export function TrackingLiveMap({
   const { courier, route } = tracking;
   const { latitude, longitude } = tracking.destination;
   const destination = useMemo(() => ({ latitude, longitude }), [latitude, longitude]);
+  const position = courier ? courier.position : null;
+  useTrackingScene(map, state === "ready", position);
   const canShow = requested || !lowData;
   const canRender = canShow && state !== "error";
   return (
@@ -47,7 +50,7 @@ export function TrackingLiveMap({
             label={trackingCopy("map")}
             mapRef={map}
             onState={setState}
-            delivery={{ route, courier: courier?.position ?? null }}
+            delivery={{ route, courier: position }}
           />
         )}
         {(!canRender || state === "loading") && fallback}

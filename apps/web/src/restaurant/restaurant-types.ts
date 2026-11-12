@@ -21,3 +21,6 @@ export function localizeRestaurantText(names: CartNames, locale: Locale): string
   const preferred = locale === "en-XA" ? "en" : locale;
   return names[preferred] ?? names.fr ?? names.ar ?? names.en ?? "";
 }
+
+/** A plain cart line shown as a quantity stepper on its dish card. */
+export type Stepper = { lineId: string; quantity: number };

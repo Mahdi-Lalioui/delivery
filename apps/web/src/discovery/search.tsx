@@ -7,6 +7,7 @@ import { SearchContent } from "./search-content";
 import { addRecentSearch, readRecentSearches, searchHistoryKey } from "./search-history";
 import { scheduleDiscoverySearch, type SearchPage } from "./search-http";
 import { getSearchMessages } from "./search-messages";
+import { searchFromUrl, searchUrl } from "./search-url";
 import "./search.css";
 
 function SearchIcon() {
@@ -64,24 +65,59 @@ export function DiscoverySearch({ locale }: { locale: Locale }) {
     }
   }, [history]);
 
-  function open() {
+  const [initialQuery, setInitialQuery] = useState("");
+
+  // True while search sits on a history entry we pushed, so closing it can step back over it.
+  const pushed = useRef(false);
+
+  function show(isTap: boolean, query: string) {
     if (history === null) setHistory(storedHistory());
+    setInitialQuery(query);
+    const url = searchUrl(window.location.href, { isOpen: true, query });
+    pushed.current = isTap;
+    if (isTap) window.history.pushState(window.history.state, "", url);
+    else window.history.replaceState(window.history.state, "", url);
     setOpen(true);
   }
 
-  // The Search tab links here with ?search=open; open the dialog once, then drop the flag.
+  function restoreFocus() {
+    window.requestAnimationFrame(() => {
+      trigger.current?.focus();
+    });
+  }
+
+  // A shared or reloaded address (and the Search tab's ?search=open) opens search in place.
   useEffect(() => {
-    const url = new URL(window.location.href);
-    if (url.searchParams.get("search") !== "open") return;
-    url.searchParams.delete("search");
-    window.history.replaceState(window.history.state, "", url);
-    setHistory(storedHistory());
-    setOpen(true);
+    const requested = searchFromUrl(window.location.href);
+    if (requested.isOpen) show(false, requested.query);
+    // Runs once on arrival; `show` only reads state that is still empty here.
   }, []);
+
+  // The phone's Back button closes search instead of leaving the page.
+  useEffect(() => {
+    if (!isOpen) return;
+    const onBack = () => {
+      if (searchFromUrl(window.location.href).isOpen) return;
+      pushed.current = false;
+      setOpen(false);
+      restoreFocus();
+    };
+    window.addEventListener("popstate", onBack);
+    return () => {
+      window.removeEventListener("popstate", onBack);
+    };
+  }, [isOpen]);
 
   function dismiss() {
     setOpen(false);
-    trigger.current?.focus();
+    restoreFocus();
+    if (pushed.current) {
+      pushed.current = false;
+      window.history.back();
+      return;
+    }
+    const url = searchUrl(window.location.href, { isOpen: false });
+    if (url !== window.location.href) window.history.replaceState(window.history.state, "", url);
   }
 
   return (
@@ -91,14 +127,18 @@ export function DiscoverySearch({ locale }: { locale: Locale }) {
         ref={trigger}
         aria-haspopup="dialog"
         className="discovery-search-trigger"
-        onClick={open}
+        onClick={() => {
+          show(true, "");
+        }}
       >
         <span className="discovery-search-trigger-icon">
           <SearchIcon />
         </span>
         <span>{label}</span>
       </button>
-      {isOpen && <SearchDialog {...{ locale, history, setHistory }} onDismiss={dismiss} />}
+      {isOpen && (
+        <SearchDialog {...{ locale, history, setHistory, initialQuery }} onDismiss={dismiss} />
+      )}
     </>
   );
 }
@@ -107,11 +147,13 @@ function SearchDialog({
   locale,
   history,
   setHistory,
+  initialQuery,
   onDismiss,
 }: {
   locale: Locale;
   history: SearchHistory;
   setHistory: Dispatch<SetStateAction<SearchHistory>>;
+  initialQuery: string;
   onDismiss: () => void;
 }) {
   const messages = getSearchMessages(locale);
@@ -119,7 +161,7 @@ function SearchDialog({
   const introId = useId();
   const dialog = useRef<HTMLDialogElement>(null);
   const field = useRef<HTMLInputElement>(null);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
   const [settled, setSettled] = useState<{ query: string; page: SearchPage | null }>();
   const [attempt, setAttempt] = useState(0);
   const trimmed = query.trim();
@@ -134,6 +176,13 @@ function SearchDialog({
       field.current?.focus();
     }
   }, []);
+
+  // The settled query lives in the address so a search can be shared or survive a reload.
+  useEffect(() => {
+    if (!searchFromUrl(window.location.href).isOpen) return;
+    const url = searchUrl(window.location.href, { isOpen: true, query: requestQuery ?? "" });
+    if (url !== window.location.href) window.history.replaceState(window.history.state, "", url);
+  }, [requestQuery]);
 
   useEffect(() => {
     if (requestQuery === null) return;

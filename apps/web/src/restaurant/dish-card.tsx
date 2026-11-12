@@ -1,10 +1,28 @@
 import { Badge, Icon } from "@zaafran/ui";
 import { formatDzd } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
-import { useState } from "react";
+import { useState, type MouseEvent } from "react";
 import { useLowData } from "../discovery/low-data";
 import { getRestaurantMessages } from "./restaurant-messages";
+import type { Stepper } from "./restaurant-types";
 import { localizeRestaurantText, type RestaurantDish } from "./restaurant-types";
+
+/**
+ * The whole card opens the dish, as in the best delivery apps; the card's own add button stays
+ * the keyboard and screen-reader control, so the card click simply forwards to it.
+ */
+type Tapped = { closest: (selector: string) => unknown };
+type Card = { querySelector: (selector: string) => { click: () => void } | null };
+
+/** The add button a tap on the card should press, or null when the tap hit a control. */
+export function cardTapTarget(target: Tapped, card: Card) {
+  if (target.closest("button, a, input")) return null;
+  return card.querySelector(".restaurant-dish-add:enabled");
+}
+
+export function openFromCard({ target, currentTarget }: MouseEvent<HTMLElement>) {
+  if (target instanceof Element) cardTapTarget(target, currentTarget)?.click();
+}
 
 export function DishPhoto({ merchantId, dish }: { merchantId: string; dish: RestaurantDish }) {
   const width = useLowData() ? 320 : 640;
@@ -31,24 +49,74 @@ export function DishPhoto({ merchantId, dish }: { merchantId: string; dish: Rest
   );
 }
 
+/** The + morphs into − n + once a plain dish is in the cart (the brief's add-to-stepper). */
+function DishStepper({
+  name,
+  stepper,
+  onStep,
+  locale,
+}: {
+  name: string;
+  stepper: Stepper;
+  onStep: (lineId: string, quantity: number) => void;
+  locale: Locale;
+}) {
+  const messages = getRestaurantMessages(locale);
+  return (
+    <div className="restaurant-dish-stepper" role="group" aria-label={name}>
+      <button
+        type="button"
+        aria-label={messages.decreaseQuantity + messages.separator + name}
+        onClick={() => {
+          onStep(stepper.lineId, stepper.quantity - 1);
+        }}
+      >
+        <Icon name={stepper.quantity === 1 ? "close" : "minus"} size={18} />
+      </button>
+      <output key={stepper.quantity} aria-live="polite">
+        {stepper.quantity}
+      </output>
+      <button
+        type="button"
+        aria-label={messages.increaseQuantity + messages.separator + name}
+        disabled={stepper.quantity >= 20}
+        onClick={() => {
+          onStep(stepper.lineId, stepper.quantity + 1);
+        }}
+      >
+        <Icon name="plus" size={18} />
+      </button>
+    </div>
+  );
+}
+
 export function DishCard({
   dish,
   merchantId,
   locale,
   quantityInCart,
+  stepper,
+  onStep,
   onChoose,
 }: {
   dish: RestaurantDish;
   merchantId: string;
   locale: Locale;
   quantityInCart: number;
+  stepper?: Stepper | undefined;
+  onStep?: (lineId: string, quantity: number) => void;
   onChoose: (dish: RestaurantDish) => void;
 }) {
   const messages = getRestaurantMessages(locale);
   const name = localizeRestaurantText(dish.names, locale);
   const label = messages.choose + messages.separator + name;
   return (
-    <article className="restaurant-dish" data-sold-out={!dish.isAvailable} data-dish={dish.itemId}>
+    <article
+      className="restaurant-dish"
+      data-sold-out={!dish.isAvailable}
+      data-dish={dish.itemId}
+      onClick={openFromCard}
+    >
       <div className="restaurant-dish-body">
         <h3>
           <bdi>{name}</bdi>
@@ -61,7 +129,9 @@ export function DishCard({
       </div>
       <div className="restaurant-dish-media">
         <DishPhoto merchantId={merchantId} dish={dish} />
-        {
+        {stepper && onStep ? (
+          <DishStepper name={name} stepper={stepper} onStep={onStep} locale={locale} />
+        ) : (
           <button
             type="button"
             className="restaurant-dish-add"
@@ -80,7 +150,7 @@ export function DishCard({
               <Icon name="plus" size={20} />
             )}
           </button>
-        }
+        )}
       </div>
     </article>
   );
