@@ -7,6 +7,7 @@ const head = "0123456789abcdef0123456789abcdef01234567";
 function passingPr() {
   const checkNames = [
     ["CI", "Verify"],
+    ["CI", "Domain mutation"],
     ["CI", "Browser smoke"],
     ["CI", "Compose smoke"],
     ["CI", "Gitleaks"],
@@ -124,4 +125,12 @@ void test("[M0-11] rejects unavailable GitHub check evidence", () => {
       checkPr({ head, worktreeStatus: "", pr });
     });
   }
+});
+
+void test("[M0-11] requires the standalone domain mutation job to pass", () => {
+  const pr = passingPr();
+  const withoutMutation = pr.statusCheckRollup.filter(({ name }) => name !== "Domain mutation");
+  assert.throws(() => {
+    checkPr({ head, worktreeStatus: "", pr: { ...pr, statusCheckRollup: withoutMutation } });
+  }, /Missing check CI \/ Domain mutation/u);
 });

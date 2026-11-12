@@ -1,5 +1,6 @@
 const requiredChecks = [
   { workflow: "CI", name: "Verify" },
+  { workflow: "CI", name: "Domain mutation" },
   { workflow: "CI", name: "Browser smoke" },
   { workflow: "CI", name: "Compose smoke" },
   { workflow: "CI", name: "Gitleaks" },

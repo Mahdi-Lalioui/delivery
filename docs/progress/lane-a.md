@@ -335,3 +335,6 @@
 
 - 2026-11-12 · Medium · GitHub CodeQL flagged HTML tag stripping in a restaurant price test. Replaced it with direct assertions for the accessible amount and the hidden animated digits. All 11 component cases, lint and formatting passed.
   Next: verify the consolidated motion and fee API release on PR #6 before advancing main. PR #7's Discovery commits are included in that candidate.
+
+- 2026-11-12 · Medium · GitHub cancelled the serial Verify job at its 20-minute limit during authenticated browser checks. Moved mutation testing to a parallel CI job and made it a required PR check. All 16 release-gate tests passed and the product's 170 local browser checks were already green.
+  Next: check the exact new PR #6 head and advance main once Verify, Domain mutation, browser smoke and CodeQL pass.
