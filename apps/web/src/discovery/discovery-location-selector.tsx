@@ -1,34 +1,23 @@
 "use client";
 
 import type { Locale } from "@zaafran/i18n/locales";
-import { useEffect, useState } from "react";
-import { readSavedLocation, saveLocation, type SavedDiscoveryLocation } from "./location";
+import { useState } from "react";
+import type { SavedDiscoveryLocation } from "./location";
 import { LocationDialog } from "./location-dialog";
 import { getDiscoveryMessages } from "./messages";
 import "./discovery-location.css";
 
-export function DiscoveryLocationSelector({ locale }: { locale: Locale }) {
+export function DiscoveryLocationSelector({
+  locale,
+  saved,
+  onConfirm,
+}: {
+  locale: Locale;
+  saved: SavedDiscoveryLocation | null;
+  onConfirm: (location: SavedDiscoveryLocation) => void;
+}) {
   const messages = getDiscoveryMessages(locale);
-  const [saved, setSaved] = useState<SavedDiscoveryLocation | null>(null);
   const [isOpen, setOpen] = useState(false);
-
-  useEffect(() => {
-    try {
-      setSaved(readSavedLocation(window.localStorage));
-    } catch {
-      // Some browsers block access to the storage object itself.
-    }
-  }, []);
-
-  function confirm(location: SavedDiscoveryLocation) {
-    try {
-      saveLocation(window.localStorage, location);
-    } catch {
-      // The selector remains usable for this visit.
-    }
-    setSaved(location);
-  }
-
   const isOutside = saved !== null && saved.location.serviceAreaId === null;
   return (
     <section className="discovery-location">
@@ -43,7 +32,7 @@ export function DiscoveryLocationSelector({ locale }: { locale: Locale }) {
       {isOpen && (
         <LocationDialog
           locale={locale}
-          onConfirm={confirm}
+          onConfirm={onConfirm}
           onDismiss={() => {
             setOpen(false);
           }}
@@ -69,7 +58,6 @@ function LocationPill({
       type="button"
       className="discovery-location-pill"
       aria-haspopup="dialog"
-      aria-label={saved ? messages.change : undefined}
       onClick={onOpen}
     >
       <span className="discovery-location-emblem" aria-hidden="true">
@@ -78,6 +66,7 @@ function LocationPill({
           <circle cx="12" cy="10" r="2.5" />
         </svg>
       </span>
+      {saved && <span className="ui-visually-hidden">{messages.change}</span>}
       <span className="discovery-location-text" aria-live="polite">
         <span className="discovery-location-label">
           {saved ? messages.saved : messages.heading}

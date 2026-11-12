@@ -9,12 +9,18 @@ const labels = {
     search: "Rechercher une commune",
     save: "Confirmer le lieu de livraison",
     saved: "Lieu de livraison enregistré",
+    filters: "Filtres",
+    fee: "Frais les plus bas",
+    apply: "Voir les restaurants",
   },
   ar: {
     open: "اختيار عنوان",
     search: "البحث عن بلدية",
     save: "تأكيد موقع التوصيل",
     saved: "تم حفظ موقع التوصيل",
+    filters: "التصفية",
+    fee: "أقل رسوم توصيل",
+    apply: "اعرض المطاعم",
   },
 } as const;
 
@@ -57,6 +63,17 @@ for (const locale of ["ar", "fr"] as const) {
           response.request().method() === "POST" &&
           new URL(response.url()).pathname === "/v1/geo/serviceability",
       );
+      const feed = page.waitForRequest(
+        (request) => {
+          const url = new URL(request.url());
+          return (
+            url.pathname === "/v1/feed" &&
+            url.searchParams.get("communeId") === commune.id &&
+            url.searchParams.size === 1
+          );
+        },
+        { timeout: 5_000 },
+      );
       await page.getByRole("button", { name: copy.save }).click();
       const response = await lookup;
       expect(response.status()).toBe(200);
@@ -64,8 +81,33 @@ for (const locale of ["ar", "fr"] as const) {
       expect(location.communeId).toBe(commune.id);
       expect(location.serviceAreaId).not.toBeNull();
       await expect(page.getByText(copy.saved, { exact: true })).toBeVisible();
+      const requestUrl = new URL((await feed).url());
+      expect([...requestUrl.searchParams.keys()]).toEqual(["communeId"]);
+      const reloadFeed = page.waitForRequest((request) => {
+        const url = new URL(request.url());
+        return (
+          url.pathname === "/v1/feed" &&
+          url.searchParams.get("communeId") === commune.id &&
+          url.searchParams.size === 1
+        );
+      });
       await page.reload();
+      await reloadFeed;
       await expect(page.getByText(copy.saved, { exact: true })).toBeVisible();
+      await page.getByRole("button", { name: copy.filters, exact: true }).click();
+      await dialog.getByRole("radio", { name: copy.fee, exact: true }).check();
+      const sorted = page.waitForRequest((request) => {
+        const url = new URL(request.url());
+        return (
+          url.pathname === "/v1/feed" &&
+          url.searchParams.get("sort") === "fee" &&
+          url.searchParams.get("communeId") === commune.id &&
+          url.searchParams.size === 2
+        );
+      });
+      await dialog.getByRole("button", { name: copy.apply }).click();
+      await sorted;
+      await expect(page).toHaveURL(/[?&]sort=fee$/u);
     });
   });
 }

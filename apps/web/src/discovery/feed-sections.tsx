@@ -103,6 +103,9 @@ export function Collections({
                 <span className="discovery-collection-title">{collection.title}</span>
                 <span>{collection.body}</span>
               </span>
+              <span className="discovery-collection-arrow" aria-hidden="true">
+                <Icon name="chevron" size={16} />
+              </span>
             </button>
           </li>
         ))}
@@ -114,10 +117,19 @@ export function Collections({
 type RailState = { phase: "loading" } | { phase: "ready"; restaurants: FeedRestaurant[] };
 
 /** Restaurants saved with the heart on this device, in feed order; hidden when there are none. */
-export function FavouritesRail({ locale }: { locale: Locale }) {
+export function FavouritesRail({
+  locale,
+  communeId,
+  enabled,
+}: {
+  locale: Locale;
+  communeId: string | null;
+  enabled: boolean;
+}) {
   const [restaurants, setRestaurants] = useState<FeedRestaurant[]>([]);
   const headingId = useId();
   useEffect(() => {
+    if (!enabled) return;
     let favourites: Set<string>;
     try {
       favourites = readFavourites(window.localStorage);
@@ -126,14 +138,17 @@ export function FavouritesRail({ locale }: { locale: Locale }) {
     }
     if (favourites.size === 0) return;
     const controller = new AbortController();
-    void readDiscoveryFeed(null, controller.signal, { limit: "50" }).then((page) => {
+    void readDiscoveryFeed(null, controller.signal, {
+      limit: "50",
+      ...(communeId === null ? {} : { communeId }),
+    }).then((page) => {
       if (!controller.signal.aborted && page)
         setRestaurants(page.restaurants.filter(({ merchantId }) => favourites.has(merchantId)));
     });
     return () => {
       controller.abort();
     };
-  }, []);
+  }, [communeId, enabled]);
   if (restaurants.length === 0) return null;
   const messages = getFeedMessages(locale);
   return (
@@ -157,15 +172,18 @@ export function FeedRail({
   locale,
   title,
   filters,
+  enabled = true,
 }: {
   locale: Locale;
   title: string;
   filters: FeedFilters;
+  enabled?: boolean;
 }) {
   const [state, setState] = useState<RailState>({ phase: "loading" });
   const headingId = useId();
   const query = new URLSearchParams({ ...filters, limit: "8" }).toString();
   useEffect(() => {
+    if (!enabled) return;
     const controller = new AbortController();
     void readDiscoveryFeed(
       null,
@@ -178,7 +196,7 @@ export function FeedRail({
     return () => {
       controller.abort();
     };
-  }, [query]);
+  }, [enabled, query]);
   if (state.phase === "ready" && state.restaurants.length === 0) return null;
   return (
     <section

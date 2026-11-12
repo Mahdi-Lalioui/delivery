@@ -38,4 +38,11 @@ to accept a commune ID only. The current screen saves the location separately fr
 so the UI should pass the selected commune ID on list and rail requests, reset pagination
 when it changes, and label the distance as approximate.
 
-The remaining feed additions and the Discovery controls are open.
+## Customer screen
+
+The restaurant list and curated rails use the saved commune ID and restart when it changes.
+The filter sheet exposes lowest delivery fee and persists the choice in the URL. Restaurant
+cards label the centroid distance as approximate. A closest-first rail appears when a commune
+is selected. [Design and browser evidence](../evidence/awid/discovery-v2/README.md)
+
+Fulfilment, scheduling, offers, dietary tags, result count and the New and budget rails remain open.

@@ -2,11 +2,8 @@ import { brand } from "@zaafran/config/brand";
 import { localeDetails, publicLocales, type Locale } from "@zaafran/i18n/locales";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { DiscoveryExperience } from "../discovery/discovery-experience";
 import { CustomerWorker } from "../discovery/customer-worker";
-import { DiscoveryLocationSelector } from "../discovery/discovery-location-selector";
-import { DiscoveryFeed } from "../discovery/feed";
-import { getFeedMessages } from "../discovery/feed-messages";
-import { DiscoverySearch } from "../discovery/search";
 import { InstallPrompt } from "../customer/install-prompt";
 import { CustomerTabBar } from "../customer/tab-bar";
 import { SiteShell } from "./site-shell";
@@ -29,20 +26,11 @@ export async function Home({ locale }: { locale: Locale }) {
     getTranslations({ locale, namespace: "auth" }),
     getTranslations({ locale, namespace: "merchant" }),
   ]);
-  const feed = getFeedMessages(locale);
 
   return (
     <SiteShell locale={locale} subpath="/discover">
       <CustomerWorker />
-      <section className="discover-top" aria-labelledby="discover-title">
-        <DiscoveryLocationSelector locale={locale} />
-        <div className="discover-greeting">
-          <h1 id="discover-title">{feed.greeting}</h1>
-          <p>{feed.greetingIntro}</p>
-        </div>
-        <DiscoverySearch locale={locale} />
-      </section>
-      <DiscoveryFeed locale={locale} />
+      <DiscoveryExperience locale={locale} />
       <div className="home-actions">
         <a href={`/${locale}/sign-in`}>{translateAuth("title")}</a>
         <a href={`/${locale}/merchant/apply`}>{translateMerchant("startApplication")}</a>

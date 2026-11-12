@@ -19,6 +19,7 @@ const sorts = [
   ["distance", "sortDistance"],
   ["rating", "sortRating"],
   ["eta", "sortEta"],
+  ["fee", "sortFee"],
 ] as const;
 
 const sheetToggles = [
@@ -119,21 +120,19 @@ function SheetBody({
       />
       <fieldset className="filter-sheet-group">
         <legend>{messages.filtersTitle}</legend>
-        {[...sheetToggles, ...payToggles.map(([key, label]) => [key, "true", label] as const)].map(
-          ([key, value, label]) => (
-            <label key={key} className="filter-sheet-toggle">
-              <span>{messages[label]}</span>
-              <input
-                type="checkbox"
-                role="switch"
-                checked={draft[key] === value}
-                onChange={(event) => {
-                  setDraft(withValue(draft, key, event.currentTarget.checked ? value : undefined));
-                }}
-              />
-            </label>
-          ),
-        )}
+        {sheetToggles.map(([key, value, label]) => (
+          <label key={key} className="filter-sheet-toggle">
+            <span>{messages[label]}</span>
+            <input
+              type="checkbox"
+              role="switch"
+              checked={draft[key] === value}
+              onChange={(event) => {
+                setDraft(withValue(draft, key, event.currentTarget.checked ? value : undefined));
+              }}
+            />
+          </label>
+        ))}
       </fieldset>
       <SegmentRow
         legend={messages.maxEtaTitle}
@@ -240,7 +239,8 @@ export function FeedFilterBar({
   const active = activeFilters(filters);
   const quickKeys = new Set<string>(quickToggles.map(([key]) => key));
   const extra = active.filter(({ key }) => !quickKeys.has(key));
-  const count = active.length + (filters.sort === undefined ? 0 : 1);
+  const sort = sorts.find(([value]) => value === filters.sort);
+  const count = active.length + (sort === undefined ? 0 : 1);
   return (
     <div className="discovery-filter-bar" role="group" aria-label={messages.filters}>
       <ul className="discovery-filter-list" role="list">
@@ -259,6 +259,22 @@ export function FeedFilterBar({
             {count > 0 && <span className="discovery-filter-count">{count}</span>}
           </button>
         </li>
+        {sort && (
+          <li>
+            <button
+              type="button"
+              className="discovery-filter"
+              aria-pressed="true"
+              aria-label={fillFeedMessage(messages.removeFilter, { name: messages[sort[1]] })}
+              onClick={() => {
+                onChange(without(filters, "sort"));
+              }}
+            >
+              {messages[sort[1]]}
+              <Icon name="close" size={14} />
+            </button>
+          </li>
+        )}
         {quickToggles.map(([key, value, label]) => {
           const isOn = filters[key] === value;
           return (

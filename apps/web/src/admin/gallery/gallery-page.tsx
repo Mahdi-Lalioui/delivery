@@ -4,6 +4,7 @@ import { ButtonLink, ToastProvider } from "@zaafran/ui";
 import "@zaafran/ui/ui.css";
 import { NextIntlClientProvider } from "next-intl";
 import { SiteShell } from "../../components/site-shell";
+import { getFeedMessages } from "../../discovery/feed-messages";
 import "../billing/admin-billing.css";
 import "../../retention/retention.css";
 import { OperationsGallery } from "./operations-gallery";
@@ -60,6 +61,9 @@ export function GalleryPage({
               </div>
             </header>
             <nav className="ui-page-header" aria-label={messages.designGallery.screens}>
+              <ButtonLink variant="secondary" href={`/${locale}/discover`}>
+                {getFeedMessages(locale).heading}
+              </ButtonLink>
               <ButtonLink variant="secondary" href={`/${locale}/sign-in`}>
                 {messages.auth.title}
               </ButtonLink>

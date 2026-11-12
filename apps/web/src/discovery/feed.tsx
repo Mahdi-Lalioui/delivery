@@ -12,7 +12,15 @@ import "./feed.css";
 
 const initialState: FeedState = { phase: "loading", restaurants: [], nextCursor: null };
 
-export function DiscoveryFeed({ locale }: { locale: Locale }) {
+export function DiscoveryFeed({
+  locale,
+  communeId = null,
+  locationReady = true,
+}: {
+  locale: Locale;
+  communeId?: string | null;
+  locationReady?: boolean;
+}) {
   const [state, setState] = useState(initialState);
   const [filters, setFilters] = useState<FeedFilters>({});
   const filtersRef = useRef(filters);
@@ -32,11 +40,14 @@ export function DiscoveryFeed({ locale }: { locale: Locale }) {
   const messages = getFeedMessages(locale);
 
   useEffect(() => {
-    if (state.phase !== "loading" && state.phase !== "retrying") return;
+    if (!locationReady || (state.phase !== "loading" && state.phase !== "retrying")) return;
 
     const controller = new AbortController();
     async function load() {
-      const page = await readDiscoveryFeed(state.nextCursor, controller.signal, filtersRef.current);
+      const page = await readDiscoveryFeed(state.nextCursor, controller.signal, {
+        ...filtersRef.current,
+        ...(communeId === null ? {} : { communeId }),
+      });
       if (controller.signal.aborted) return;
       if (page === null || (page.nextCursor !== null && page.nextCursor === state.nextCursor)) {
         setState({ ...state, phase: "error" });
@@ -59,7 +70,7 @@ export function DiscoveryFeed({ locale }: { locale: Locale }) {
     return () => {
       controller.abort();
     };
-  }, [state]);
+  }, [communeId, locationReady, state]);
 
   useEffect(() => {
     if (state.phase !== "ready") return;
@@ -101,14 +112,11 @@ export function DiscoveryFeed({ locale }: { locale: Locale }) {
     section.current?.scrollIntoView({ block: "start" });
   }
 
+  const location = communeId === null ? {} : { communeId };
   return (
     <>
       <Collections locale={locale} onChoose={chooseCuisine} />
       <CuisineChips locale={locale} value={filters.cuisine} onChange={chooseCuisine} />
-      <FavouritesRail locale={locale} />
-      <FeedRail locale={locale} title={messages.topRated} filters={{ sort: "rating" }} />
-      <FeedRail locale={locale} title={messages.freeDelivery} filters={{ freeDelivery: "true" }} />
-      <FeedRail locale={locale} title={messages.fastest} filters={{ sort: "eta" }} />
       <section className="restaurant-feed" aria-labelledby={headingId} ref={section}>
         <header className="restaurant-feed-header">
           <h2 id={headingId} tabIndex={-1}>
@@ -116,6 +124,36 @@ export function DiscoveryFeed({ locale }: { locale: Locale }) {
           </h2>
           <FeedFilterBar locale={locale} filters={filters} onChange={changeFilters} />
         </header>
+        {Object.keys(filters).length === 0 && (
+          <div className="discovery-curated">
+            <FavouritesRail locale={locale} communeId={communeId} enabled={locationReady} />
+            {communeId !== null && (
+              <FeedRail
+                locale={locale}
+                title={messages.nearby}
+                filters={{ ...location, sort: "distance" }}
+              />
+            )}
+            <FeedRail
+              locale={locale}
+              title={messages.topRated}
+              filters={{ ...location, sort: "rating" }}
+              enabled={locationReady}
+            />
+            <FeedRail
+              locale={locale}
+              title={messages.freeDelivery}
+              filters={{ ...location, freeDelivery: "true" }}
+              enabled={locationReady}
+            />
+            <FeedRail
+              locale={locale}
+              title={messages.fastest}
+              filters={{ ...location, sort: "eta" }}
+              enabled={locationReady}
+            />
+          </div>
+        )}
         <FeedContent
           locale={locale}
           state={state}

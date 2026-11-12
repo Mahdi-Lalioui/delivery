@@ -344,3 +344,6 @@
 
 - 2026-11-12 · High · Advanced main to `06b9015` after [all hosted checks](https://github.com/Mahdi-Lalioui/delivery/actions/runs/43246522487), CodeQL and the exact-commit PR gate passed. Includes the latest Lane B motion and design evidence, the live tagine, fee and distance API, and Linux Arabic layout fix.
   Next: connect the Discovery screen to the saved commune and fee ordering with Lane B, then pick up the remaining feed and reorder handoffs.
+
+- 2026-11-12 · High · Connected Discovery to the saved commune and added fee sorting, approximate distance, and a closest-first rail. Improved the search and filter hierarchy and reviewed five Arabic/French light/dark variants with zero Axe violations. Passed pnpm verify (2,000 unit and 326 PostGIS tests) and ten production browser checks.
+  Next: merge the Discovery UI after hosted checks, then take up pickup availability, scheduled browsing, and reorder.

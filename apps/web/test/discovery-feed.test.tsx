@@ -126,3 +126,29 @@ test("[CUS-01] keeps the retry button in place while the initial retry is pendin
   expect(html).toMatch(/<button[^>]+aria-disabled="true"[^>]*>Try again<\/button>/u);
   expect(html).toContain("Loading restaurants…");
 });
+
+test("[CUS-04] shows approximate distance with the card’s rating, ETA and fee", () => {
+  const html = renderToStaticMarkup(
+    <FeedContent
+      locale="en"
+      state={{
+        phase: "ready",
+        restaurants: [
+          {
+            ...openRestaurant,
+            distanceMeters: 1750,
+            rating: 4.6,
+            ratingCount: 30,
+            etaMinutes: { min: 15, max: 25 },
+            deliveryFeeDzd: 0,
+          },
+        ],
+        nextCursor: null,
+      }}
+      onLoad={onLoad}
+    />,
+  );
+  expect(html).toContain("Approximate distance");
+  expect(html).toContain("1.8 km");
+  expect(html).toContain('data-free="true"');
+});

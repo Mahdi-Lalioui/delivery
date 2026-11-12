@@ -198,17 +198,45 @@ function FeeItem({ feeDzd, locale }: { feeDzd: number; locale: Locale }) {
   );
 }
 
+function DistanceItem({ metres, locale }: { metres: number; locale: Locale }) {
+  const useKilometres = metres >= 1000;
+  const approximation = "≈ ";
+  const distance = new Intl.NumberFormat(locale, {
+    style: "unit",
+    unit: useKilometres ? "kilometer" : "meter",
+    unitDisplay: "short",
+    maximumFractionDigits: useKilometres ? 1 : 0,
+  }).format(useKilometres ? metres / 1000 : metres);
+
+  return (
+    <li className="restaurant-feed-distance">
+      <Icon name="pin" size={16} />
+      <span className="ui-visually-hidden">{getFeedMessages(locale).distanceLabel}</span>
+      <bdi>
+        <span aria-hidden="true">{approximation}</span>
+        {distance}
+      </bdi>
+    </li>
+  );
+}
+
 export function FeedMeta({
   restaurant,
   locale,
 }: {
-  restaurant: Pick<FeedRestaurant, "rating" | "ratingCount" | "etaMinutes" | "deliveryFeeDzd">;
+  restaurant: Pick<
+    FeedRestaurant,
+    "rating" | "ratingCount" | "etaMinutes" | "deliveryFeeDzd" | "distanceMeters"
+  >;
   locale: Locale;
 }) {
   const messages = getFeedMessages(locale);
-  const { rating, ratingCount, etaMinutes, deliveryFeeDzd } = restaurant;
+  const { rating, ratingCount, etaMinutes, deliveryFeeDzd, distanceMeters } = restaurant;
   const hasAny =
-    typeof rating === "number" || Boolean(etaMinutes) || typeof deliveryFeeDzd === "number";
+    typeof rating === "number" ||
+    Boolean(etaMinutes) ||
+    typeof deliveryFeeDzd === "number" ||
+    distanceMeters !== undefined;
   if (!hasAny) return null;
   return (
     <ul className="restaurant-feed-meta" role="list">
@@ -227,6 +255,7 @@ export function FeedMeta({
         </li>
       )}
       {typeof deliveryFeeDzd === "number" && <FeeItem feeDzd={deliveryFeeDzd} locale={locale} />}
+      {distanceMeters !== undefined && <DistanceItem metres={distanceMeters} locale={locale} />}
     </ul>
   );
 }
