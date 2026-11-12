@@ -77,6 +77,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     orders: { repository: orders, now },
     orderHistory: orders,
     reviews: orders,
+    reviewCommands: { repository: orders, now },
     analytics: { repository: orders, now },
     favourites: { repository: orders, now },
     orderRatings: { repository: orders, now },

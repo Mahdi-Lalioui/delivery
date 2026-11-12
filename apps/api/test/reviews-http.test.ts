@@ -32,3 +32,45 @@ test("[CUS-22][MER-20:http] public reviews use a slug and merchant reviews use t
     limit: 50,
   });
 });
+
+test("[MER-20:http] validates keyed review commands and preserves the edit-window conflict", async () => {
+  const ratingId = "01932f18-3150-7c33-8a7a-53acfd343004";
+  const now = new Date();
+  const replyToReview = vi.fn<ReturnType<typeof createOrderRepository>["replyToReview"]>();
+  const reportReview = vi.fn<ReturnType<typeof createOrderRepository>["reportReview"]>();
+  replyToReview.mockResolvedValue({ kind: "edit_window_closed" });
+  reportReview.mockResolvedValue({
+    kind: "saved",
+    output: { ratingId, reportedAt: now.toISOString() },
+  });
+  const api = createApi({
+    checkReadiness: () => Promise.resolve(),
+    resolveActor: () => Promise.resolve({ role: "merchant_owner", accountId, sessionId }),
+    reviewCommands: { repository: { replyToReview, reportReview }, now: () => now },
+  });
+  onTestFinished(() => api.close());
+  const path = `/v1/merchants/${merchantId}/reviews/${ratingId}`;
+  const command = { method: "PUT", url: path + "/reply", payload: { body: "Merci" } } as const;
+  expect((await api.inject(command)).statusCode).toBe(400);
+  const headers = { "idempotency-key": "review-command" };
+  const closed = await api.inject({ ...command, headers });
+  expect(closed.statusCode).toBe(409);
+  expect(closed.json()).toMatchObject({ code: "edit_window_closed" });
+  expect(replyToReview).toHaveBeenCalledExactlyOnceWith({
+    ratingId,
+    merchantId,
+    accountId,
+    sessionId,
+    now,
+    body: "Merci",
+    idempotencyKey: "review-command",
+  });
+  const reported = await api.inject({
+    method: "POST",
+    url: path + "/report",
+    headers,
+    payload: { reason: "Test" },
+  });
+  expect(reported.statusCode).toBe(200);
+  expect(reported.json()).toEqual({ ratingId, reportedAt: now.toISOString() });
+});

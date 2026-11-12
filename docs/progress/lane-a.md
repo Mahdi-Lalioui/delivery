@@ -266,3 +266,6 @@
 
 - 2026-11-12 · High · Added live merchant analytics and the admin dashboard with indexed Algiers-day aggregates and worker backlog. The error rate covers requests observed by the current API process. Seven PostGIS and 11 HTTP/authz/schema checks passed.
   Next: merge the analytics API into the production route sweep, then finish the remaining design and release checks.
+
+- 2026-11-12 · High · Added tenant-scoped merchant review replies and report submissions, with a 24-hour reply window and keyed replay. Passed 261 authz/HTTP and 23 PostGIS cases. Reports are retained for admin review.
+  Next: integrate review commands into the release candidate and verify the final partner/admin design and release gates.

@@ -379,6 +379,13 @@
       "when": 1794145200000,
       "tag": "0053_order_analytics",
       "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "7",
+      "when": 1794145800000,
+      "tag": "0054_merchant_review_commands",
+      "breakpoints": true
     }
   ]
 }
