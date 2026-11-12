@@ -306,6 +306,7 @@ function SignInCommandForm({
   return (
     <form
       method="post"
+      noValidate
       className="auth-form"
       aria-busy={flow.pending !== undefined}
       onSubmit={(event) => {

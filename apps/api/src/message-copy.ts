@@ -14,7 +14,7 @@ export function otpCopy(locale: PublicLocale = "fr", code: string) {
 }
 
 export type InvitationKind = "staff" | "courier";
-export type InvitationCopyInput = {
+type InvitationCopyInput = {
   locale?: PublicLocale | undefined;
   publicOrigin: string;
   token: string;

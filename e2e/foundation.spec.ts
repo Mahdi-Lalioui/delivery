@@ -150,13 +150,39 @@ test("[M0-8] the Arabic and Latin guides load four self-hosted fonts @smoke", as
     page.on("response", recordFont);
     try {
       await page.goto(`/${locale}/dev/design`);
-      const loadedFamilies = await page.evaluate(async () => {
-        await document.fonts.ready;
-        return [...document.fonts]
-          .filter((font) => font.status === "loaded")
-          .map((font) => font.family);
+      const fonts = await page.evaluate(async (language) => {
+        const body = getComputedStyle(document.body);
+        const headingElement = document.querySelector("h1");
+        if (!headingElement) throw new Error("The design guide heading is missing.");
+        const heading = getComputedStyle(headingElement);
+        const family = body
+          .getPropertyValue(language === "ar" ? "--font-ibm-plex-sans-arabic" : "--font-poppins")
+          .split(",")[0]
+          ?.trim();
+        if (!family) throw new Error("The brand font variable is missing.");
+        const firstFamily = (value: string) => value.split(",")[0]?.trim().replace(/['"]/gu, "");
+        const sample = language === "ar" ? "مرحبا بكم" : "Bienvenue à Alger";
+        const bodyWeight = "400";
+        const headingWeight = language === "ar" ? "600" : "700";
+        const load = async (weight: string) =>
+          (await document.fonts.load(`${weight} 20px ${family}`, sample)).some(
+            (face) => face.weight === weight && face.status === "loaded",
+          );
+        return {
+          bodyUsesBrand: firstFamily(body.fontFamily) === firstFamily(family),
+          headingUsesBrand: Boolean(
+            family && firstFamily(heading.fontFamily) === firstFamily(family),
+          ),
+          bodyLoaded: await load(bodyWeight),
+          headingLoaded: await load(headingWeight),
+        };
+      }, locale);
+      expect(fonts).toEqual({
+        bodyUsesBrand: true,
+        headingUsesBrand: true,
+        bodyLoaded: true,
+        headingLoaded: true,
       });
-      expect(new Set(loadedFamilies).size).toBeGreaterThanOrEqual(2);
     } finally {
       page.off("response", recordFont);
     }

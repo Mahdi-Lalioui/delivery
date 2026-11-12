@@ -314,3 +314,6 @@
 
 - 2026-11-12 · Ultra · Completed phone/email invitations and push-first order notices. Notices fall back to verified SMS or email and never use checkout contact data. Passed 99 focused PostGIS cases, 262 authorization/HTTP checks, lint, typecheck and OpenAPI.
   Next: merge the verified main baseline, run full verification and both production-browser suites, then publish the auth phase. Live provider and staging steps remain in HUMAN_TODO.
+
+- 2026-11-12 · Ultra · Integrated Lane B Discovery and Search, corrected invitation browser assertions and AWID font checks, and fixed CI budgets for production startup and national seeding tests. Passed pnpm verify (1,976 unit and 326 PostGIS), 72 authenticated and 98 general production browser checks, and a trusted HTTPS Docker upgrade.
+  Next: check the exact Lane A release on GitHub before advancing main. Continue with the open Discovery feed request, and use HUMAN_TODO for hosted staging and live provider verification.

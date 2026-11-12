@@ -712,7 +712,7 @@
     "inviteEmailHint": "Utilisez l’adresse que votre collègue utilisera pour se connecter.",
     "emailError": "Saisissez une adresse e-mail valide.",
     "title": "Équipe",
-    "intro": "Invitez des gérants et des employés avec leur numéro de mobile. Le lien reçu par SMS ne fonctionne qu’une fois.",
+    "intro": "Invitez des gérants et des employés par SMS ou e-mail. Chaque lien d’invitation fonctionne une seule fois.",
     "backToRestaurants": "Mes restaurants",
     "loading": "Chargement de l’équipe…",
     "signInRequired": "Connectez-vous avec le compte du propriétaire pour gérer l’équipe.",

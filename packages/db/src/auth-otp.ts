@@ -36,7 +36,7 @@ interface OtpChallengeSummary {
 
 type OtpPurpose = AuthPurpose | "identifier_change";
 
-export type ReservationResult =
+type ReservationResult =
   | { readonly kind: "created" | "replayed"; readonly challenge: OtpChallengeSummary }
   | { readonly kind: "conflict" }
   | { readonly kind: "rate_limited"; readonly retryAt: Date };

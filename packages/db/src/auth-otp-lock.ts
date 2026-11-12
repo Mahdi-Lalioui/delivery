@@ -4,8 +4,6 @@ export async function lockOtpIdentifier(sql: TransactionSql, value: string): Pro
   await sql`SELECT pg_advisory_xact_lock(63840, hashtext(${value}))`;
 }
 
-export const lockOtpPhone = lockOtpIdentifier;
-
 export async function normalizeOtpIp(sql: TransactionSql, requestIp: string): Promise<string> {
   const [address] = await sql<{ ip: string }[]>`
     SELECT host(

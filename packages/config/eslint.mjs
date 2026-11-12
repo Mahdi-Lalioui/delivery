@@ -23,6 +23,7 @@ export function createEslintConfig(tsconfigRootDir) {
         "**/test-results/**",
         "**/next-env.d.ts",
         ".worktrees/**",
+        "infra/data/**",
       ],
     },
     eslint.configs.recommended,

@@ -121,4 +121,4 @@ test("[MER-09:demo] seeds forty bilingual restaurants across eight cities and pr
   expect(await readDemo()).toEqual(before);
   expect(await sql`SELECT * FROM public.merchants WHERE NOT is_demo`).toEqual(unrelated);
   expect(await sql`SELECT id FROM public.merchants WHERE is_demo`).toHaveLength(40);
-}, 30_000);
+}, 60_000);

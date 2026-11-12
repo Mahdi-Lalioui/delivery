@@ -712,7 +712,7 @@
     "inviteEmailHint": "Use the address your teammate will sign in with.",
     "emailError": "Enter a valid email address.",
     "title": "Team",
-    "intro": "Invite managers and staff by mobile number. The SMS link works only once.",
+    "intro": "Invite managers and staff by SMS or email. Each invitation link works once.",
     "backToRestaurants": "My restaurants",
     "loading": "Loading the team…",
     "signInRequired": "Sign in with the owner's account to manage the team.",

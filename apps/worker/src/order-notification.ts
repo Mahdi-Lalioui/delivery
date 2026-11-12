@@ -22,7 +22,7 @@ type Delivery = {
   locale: OrderLocale;
   status: Status;
 };
-export type SendOrderEmail = ReturnType<typeof createResendSender>;
+type SendOrderEmail = ReturnType<typeof createResendSender>;
 export type NotificationSenders = {
   orderPush?: SendOrderPush | undefined;
   orderSms?: SendOrderSms | undefined;
