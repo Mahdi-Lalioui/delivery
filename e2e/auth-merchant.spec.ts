@@ -270,7 +270,9 @@ test("[MER-01:browser] [ADM-03:browser] submits and reviews an Algiers merchant 
           await approveApplication(adminPage, merchantId, communeName);
           await expectApplicationNotice(adminPage, auth.origin, null);
           await expect(pendingNotice).toHaveCount(0);
-          await expect(adminPage.locator('a[hreflang="ar-DZ"]')).toHaveCount(0);
+          await expect(
+            adminPage.getByRole("link", { name: "العربية", exact: true }),
+          ).toHaveAttribute("href", "/ar/admin/merchant-applications");
         });
         await test.step("The applicant sees approval but cannot read the admin queue", async () => {
           await page.reload();

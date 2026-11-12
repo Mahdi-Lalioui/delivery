@@ -284,3 +284,6 @@
 
 - 2026-11-12 · Ultra · Isolated three release-suite timeouts to contention between concurrent PostGIS clones. All 314 integration tests passed with four workers. Pinned that concurrency for the shared database.
   Next: complete the full verification run and both browser suites on the release candidate.
+
+- 2026-11-12 · Medium · Matched the mobile language control’s accessible name to its visible label and updated browser assertions for localized admin links, item options and the mobile cart. All 13 affected production-browser checks passed across the focused reruns.
+  Next: rerun the complete release and browser suites before merging the release candidate.

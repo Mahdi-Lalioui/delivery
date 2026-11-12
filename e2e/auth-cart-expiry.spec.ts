@@ -36,6 +36,7 @@ test("[CUS-09:browser] an old expiry timer preserves a renewed cart and clears i
     baseURL,
     async (harness) => {
       await harness.seedDiscoverySearch();
+      await page.setViewportSize({ width: 390, height: 844 });
       await page.clock.install({ time: start });
       await page.clock.pauseAt(start + 1_000);
       await page.addInitScript(

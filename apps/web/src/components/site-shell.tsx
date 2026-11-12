@@ -97,6 +97,7 @@ function LanguageLinks({
 
 export async function SiteShell({ children, locale, subpath }: SiteShellProps) {
   const translate = await getTranslations({ locale, namespace: "shell" });
+  const currentLanguage = localeDetails[isPublicLocale(locale) ? locale : "en"].name;
 
   return (
     <>
@@ -119,9 +120,9 @@ export async function SiteShell({ children, locale, subpath }: SiteShellProps) {
             label={translate("languages")}
           />
           <details className="language-menu">
-            <summary aria-label={translate("languages")}>
+            <summary aria-label={[translate("languages"), currentLanguage].join(" · ")}>
               <Icon name="globe" size={20} />
-              <span>{localeDetails[isPublicLocale(locale) ? locale : "en"].name}</span>
+              <span>{currentLanguage}</span>
             </summary>
             <LanguageLinks
               locale={locale}
