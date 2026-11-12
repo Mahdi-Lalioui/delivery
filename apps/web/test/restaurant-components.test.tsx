@@ -81,7 +81,8 @@ test("[CUS-08:web] satisfies the required choice and shows the safe live configu
   const html = renderToStaticMarkup(
     <ItemForm detail={detail} locale="ar" draft={draft} onDraft={noop} onAdd={noop} />,
   );
-  expect(html.replace(/<[^>]+>/gu, "")).toContain("أضف · 940 دج");
+  expect(html).toContain('أضف · <span class="ui-visually-hidden">940 دج</span>');
+  expect(html).toContain('<span class="counting-dzd" aria-hidden="true">940 دج</span>');
   expect(html).toContain("الكمية");
   expect(html).not.toMatch(/<button[^>]*disabled[^>]*>[^<]*<span>أضف/u);
 });

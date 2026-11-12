@@ -332,3 +332,6 @@
 
 - 2026-11-12 · High · Added delivery-fee ordering and approximate commune distance to the public feed. PostGIS verifies fee order across cursors, unknown fees last, and omission without a commune. Passed five contract tests, nine focused PostGIS tests and full pnpm verify.
   Next: keep this slice on `codex/awid-discovery-contract` until the motion PR is merged, then connect the saved commune and fee choice in the Discovery UI. Pickup, scheduling and reorder are still open.
+
+- 2026-11-12 · Medium · GitHub CodeQL flagged HTML tag stripping in a restaurant price test. Replaced it with direct assertions for the accessible amount and the hidden animated digits. All 11 component cases, lint and formatting passed.
+  Next: verify the consolidated motion and fee API release on PR #6 before advancing main. PR #7's Discovery commits are included in that candidate.
