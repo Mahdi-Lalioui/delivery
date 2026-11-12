@@ -1479,6 +1479,7 @@
     "dismiss": "Dismiss"
   },
   "merchantBoard": {
+    "queueNavigation": "Order stages",
     "handover": "Hand to courier",
     "quantity": "{count}×",
     "loading": "Loading orders",

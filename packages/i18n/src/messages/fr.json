@@ -1479,6 +1479,7 @@
     "dismiss": "Fermer"
   },
   "merchantBoard": {
+    "queueNavigation": "Étapes des commandes",
     "handover": "Remettre au livreur",
     "quantity": "{count}×",
     "loading": "Chargement des commandes",

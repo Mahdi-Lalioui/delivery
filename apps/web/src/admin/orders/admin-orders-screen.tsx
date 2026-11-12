@@ -20,7 +20,21 @@ import { OrderTimeline } from "./order-timeline";
 import type { AdminOrderPage, OrderQuery } from "./orders-http";
 import { useAdminOrders } from "./use-admin-orders";
 
-function OrderList({
+const statusTones = {
+  scheduled: "neutral",
+  pending_acceptance: "warning",
+  accepted: "info",
+  ready: "success",
+  out_for_delivery: "info",
+  delivered: "success",
+  collected: "success",
+  rejected: "danger",
+  expired: "danger",
+  cancelled: "danger",
+  delivery_failed: "danger",
+} as const;
+
+export function OrderList({
   page,
   selected,
   locale,
@@ -57,7 +71,7 @@ function OrderList({
                 </span>
               </span>
               <span className="admin-orders-ticket-meta">
-                <Badge>{orders(`status_${status}`)}</Badge>
+                <Badge tone={statusTones[status]}>{orders(`status_${status}`)}</Badge>
                 <span>
                   <bdi>{formatDzd(totalDzd, locale)}</bdi>{" "}
                   <span aria-hidden="true">{t("separator")}</span>{" "}

@@ -89,8 +89,10 @@ function JobAddress({
           )}
         </>
       )}
-      <AlgeriaMap locale={locale} selected={active ? dropoff.pin : pickup.pin} />
-      <CourierNavigation pin={active ? dropoff.pin : pickup.pin} />
+      <div className="courier-map-actions">
+        <AlgeriaMap locale={locale} selected={active ? dropoff.pin : pickup.pin} />
+        <CourierNavigation pin={active ? dropoff.pin : pickup.pin} />
+      </div>
     </section>
   );
 }

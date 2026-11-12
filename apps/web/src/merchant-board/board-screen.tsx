@@ -1,5 +1,6 @@
 "use client";
 
+import { Icon } from "@zaafran/ui";
 import type { Locale } from "@zaafran/i18n/locales";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -32,7 +33,7 @@ function BoardSkeleton() {
   );
 }
 
-function BoardColumns({
+export function BoardColumns({
   board,
   locale,
   offline,
@@ -90,6 +91,20 @@ function BoardColumns({
   );
 }
 
+function BoardStageLinks({ board }: { board: Board }) {
+  const t = useTranslations("merchantBoard");
+  return (
+    <nav className="board-stage-links" aria-label={t("queueNavigation")}>
+      {columns.map(({ status, title }) => (
+        <a key={status} href={"#board-" + status} data-status={status}>
+          {t(title)}
+          <bdi>{board.orders.filter((order) => order.status === status).length}</bdi>
+        </a>
+      ))}
+    </nav>
+  );
+}
+
 function BoardBody({
   view,
   merchantId,
@@ -136,6 +151,7 @@ function BoardBody({
               {t("offline")}
             </p>
           )}
+          <BoardStageLinks board={view.data} />
           <BoardCourierTeam merchantId={merchantId} locale={locale} offline={view.offline} />
           <BoardColumns
             board={view.data}
@@ -182,7 +198,7 @@ export function MerchantBoardScreen({
             aria-pressed={sound.enabled}
             onClick={() => void sound.toggle()}
           >
-            <span className="board-sound-dot" aria-hidden="true" />
+            <Icon name={sound.enabled ? "check" : "bell"} size={18} />
             {t(sound.enabled ? "soundOn" : "soundOff")}
           </button>
         )}

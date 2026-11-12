@@ -1,0 +1,29 @@
+.operations-gallery {
+  display: grid;
+  gap: var(--space-12);
+  margin-block: var(--space-24);
+}
+
+.operations-gallery > details {
+  min-inline-size: 0;
+  padding-inline: var(--space-16);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-e1);
+}
+
+.operations-gallery > details[open] {
+  padding-block-end: var(--space-16);
+}
+
+.operations-gallery > details > summary {
+  align-content: center;
+  min-block-size: var(--touch-target-min);
+  color: var(--color-text);
+  font-weight: var(--font-weight-label);
+  cursor: pointer;
+}
+
+.operations-gallery > details[open] > summary {
+  margin-block-end: var(--space-12);
+}

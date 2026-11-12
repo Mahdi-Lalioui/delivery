@@ -1479,6 +1479,7 @@
     "dismiss": "إغلاق"
   },
   "merchantBoard": {
+    "queueNavigation": "مراحل الطلبات",
     "handover": "سلّم الطلب للموصّل",
     "quantity": "{count}×",
     "loading": "جارٍ تحميل الطلبات",

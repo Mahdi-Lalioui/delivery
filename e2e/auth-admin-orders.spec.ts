@@ -48,6 +48,7 @@ test("[ADM-05] opens a live queue, receives an order, and audits an explicit for
         ["ar", 390, "light"],
         ["ar", 390, "dark"],
         ["fr", 390, "light"],
+        ["fr", 1280, "light"],
         ["fr", 1280, "dark"],
       ] as const) {
         await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });

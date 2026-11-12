@@ -275,3 +275,6 @@
 
 - 2026-11-12 · High · Added tenant-scoped merchant review replies and report submissions, with a 24-hour reply window and keyed replay. Passed 261 authz/HTTP and 23 PostGIS cases. Reports are retained for admin review.
   Next: integrate review commands into the release candidate and verify the final partner/admin design and release gates.
+
+- 2026-11-12 · High · Finished two AWID design rounds on the live board, courier pickup and drop-off, and admin live orders. Passed 21 production-browser checks, including axe and overflow across 20 captures. Registered the screens in the design gallery.
+  Next: run full verification and the browser release suite, fix findings, then begin the phone and email sign-in handoff.

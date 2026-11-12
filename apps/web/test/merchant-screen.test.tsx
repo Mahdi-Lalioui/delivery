@@ -192,3 +192,41 @@ test("[MER-23:web] links only an approved owner membership to the team page", ()
   expect(html).not.toContain(`href="/ar/merchant/${commune.id}/staff"`);
   expect(html).not.toContain(`href="/ar/merchant/${pendingId}/staff"`);
 });
+
+test.each(["loading", "error"] as const)(
+  "[MER-01:web] the wilaya field keeps the location form safe while its directory is %s",
+  (kind) => {
+    resource
+      .mockReturnValueOnce({
+        view: { kind: "ready", data: { sessionId: commune.id, memberships: [] } },
+        retry,
+      })
+      .mockReturnValueOnce({ view: { kind: "ready", data: [commune] }, retry })
+      .mockReturnValueOnce({ view: { kind }, retry });
+    const html = render("application");
+    const copy = getMessages("ar").merchant;
+    expect(html).toMatch(/<select\b(?=[^>]*name="wilayaCode")(?=[^>]*disabled)/);
+    if (kind === "loading") {
+      expect(html).toContain(copy.wilayasLoading);
+      expect(html).not.toContain(copy.wilayasError);
+    } else {
+      expect(html).toContain(copy.wilayasError);
+      expect(html).toContain(copy.retry);
+    }
+  },
+);
+
+test.each([
+  ["loading", "loading", "status"],
+  ["forbidden", "forbidden", "alert"],
+  ["error", "loadError", "alert"],
+] as const)(
+  "[MER-09:web] renders the merchant list %s state with its accessible role",
+  (kind, key, role) => {
+    resource.mockReturnValueOnce({ view: { kind }, retry });
+    const html = render("status");
+    expect(html).toContain(`role="${role}"`);
+    expect(html).toContain(getMessages("ar").merchant[key]);
+    if (kind === "error") expect(html).toContain(getMessages("ar").merchant.retry);
+  },
+);

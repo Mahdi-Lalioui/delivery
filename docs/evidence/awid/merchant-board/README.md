@@ -18,3 +18,9 @@ the last cursor, no console errors in the four layout captures, and no horizonta
 overflow.
 
 The courier pass checked owner invitation, assigning a ready ticket and opening a private proof photo. The second visual pass uses a compact delivery-team disclosure with a mirrored chevron, an assignment status badge, and separate desktop roster and invite columns. The four screenshots show the updated board.
+
+## AWID design pass, 2026-11-12
+
+The first AWID build buried the Ready and Preparing stages below the first ticket on mobile, gave no counts above the fold, made new tickets blend into ready work, treated the sound action as an unlabeled colour dot, and gave the cash due and change equal emphasis. The second pass adds mobile stage links with counts, a harissa edge for new tickets, a labelled bell with a checked state, and a grouped cash amount with stronger type. The French desktop keeps the three columns in view.
+
+Final captures cover Arabic 390 px light and dark, French 390 px light, and French 1280 px light and dark. Playwright checks horizontal overflow, console errors and axe in each variant.

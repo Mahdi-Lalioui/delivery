@@ -1,3 +1,4 @@
+import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
 const merchantId = "01932f18-3150-7c33-8a7a-53acfd343001";
@@ -201,6 +202,7 @@ test("[COU-06] reports an unavailable recipient after the server records the wai
 
 for (const { locale, width, scheme } of [
   { locale: "ar", width: 390, scheme: "light" },
+  { locale: "ar", width: 390, scheme: "dark" },
   { locale: "fr", width: 390, scheme: "light" },
   { locale: "fr", width: 1280, scheme: "light" },
   { locale: "fr", width: 1280, scheme: "dark" },
@@ -224,6 +226,10 @@ for (const { locale, width, scheme } of [
     });
     expect((await confirm.boundingBox())?.height).toBeGreaterThanOrEqual(56);
     expect(errors).toEqual([]);
+    const audit = await new AxeBuilder({ page })
+      .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+      .analyze();
+    expect(audit.violations.map(({ id }) => id)).toEqual([]);
     await page.screenshot({
       path: info.outputPath(`courier-${locale}-${String(width)}-${scheme}.png`),
       fullPage: true,
@@ -238,6 +244,10 @@ for (const { locale, width, scheme } of [
       width,
     );
     expect(errors).toEqual([]);
+    const deliveryAudit = await new AxeBuilder({ page })
+      .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+      .analyze();
+    expect(deliveryAudit.violations.map(({ id }) => id)).toEqual([]);
     await page.screenshot({
       path: info.outputPath(`courier-dropoff-${locale}-${String(width)}-${scheme}.png`),
       fullPage: true,
