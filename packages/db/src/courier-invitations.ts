@@ -1,6 +1,6 @@
 import type { TransactionSql } from "postgres";
 import { lockOtpPhone } from "./auth-otp-lock.js";
-import { readPrivacyPhone } from "./privacy-account.js";
+import { readPrivacyIdentifiers } from "./privacy-account.js";
 import { timestampParsers } from "./timestamp-parsers.js";
 
 export type CourierScope = { userId: string; sessionId: string };
@@ -71,11 +71,11 @@ export async function inviteCourier(sql: TransactionSql, request: InviteRequest)
 }
 
 async function lockInvitePhone(sql: TransactionSql, request: AcceptRequest) {
-  const phone = await readPrivacyPhone(sql, request);
+  const phone = (await readPrivacyIdentifiers(sql, request))?.phoneE164;
   if (!phone) return undefined;
   await lockOtpPhone(sql, phone);
   await sql`SELECT FROM public.users WHERE id = ${request.userId} FOR UPDATE`;
-  const current = await readPrivacyPhone(sql, request);
+  const current = (await readPrivacyIdentifiers(sql, request))?.phoneE164;
   return current === phone ? phone : undefined;
 }
 

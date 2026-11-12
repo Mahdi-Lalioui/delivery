@@ -287,3 +287,6 @@
 
 - 2026-11-12 · Ultra · Extended phone OTP to normalized email with ten-minute expiry, shared IP quotas and admin TOTP. Passed 32 PostGIS cases, 55 scoped unit/HTTP checks, DB/API typecheck, lint and OpenAPI check.
   Next: extend privacy export and erasure to email and bind identifier changes to an active session. Production email remains disabled pending checkout and privacy support.
+
+- 2026-11-12 · Ultra · Added both verified identifiers to privacy export and erasure, and sent deletion OTP by email for email-only accounts. Passed 16 PostGIS privacy cases and 10 HTTP/service/contract cases, plus API/DB typecheck, lint and OpenAPI.
+  Next: bind add/change OTP to the issuing account and session and enforce exclusive ownership at confirmation.

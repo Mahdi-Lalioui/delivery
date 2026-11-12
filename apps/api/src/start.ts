@@ -105,6 +105,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
       otpKey,
       now,
       sendSms,
+      sendEmail: options.sendEmail,
     }),
     merchant: { repository: createMerchantRepository(database), now },
     merchantDelivery: { repository: createMerchantDeliveryRepository(database), now },

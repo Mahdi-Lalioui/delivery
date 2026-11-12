@@ -1,10 +1,11 @@
 import { queueDeliveryProofErasure } from "./delivery-proof-retention.js";
 import type { ISql, TransactionSql } from "postgres";
-import { lockOtpPhone } from "./auth-otp-lock.js";
+import { lockOtpIdentifier } from "./auth-otp-lock.js";
 import type { AuthTransport } from "./auth-types.js";
 import {
   lockDeletableAccount,
   matchesDeletionDigest,
+  type PrivacyIdentifiers,
   type PrivacyScope,
 } from "./privacy-account.js";
 import { queueErasureMedia } from "./privacy-media.js";
@@ -62,21 +63,24 @@ export async function replayDeletion(sql: ISql, input: ReplayDeletion): Promise<
 }
 
 async function lockAccountForDeletion(sql: TransactionSql, input: ConfirmDeletion) {
-  const [account] = await sql<{ phone: string }[]>`
-    SELECT phone_e164 AS phone FROM public.users
+  const [account] = await sql<PrivacyIdentifiers[]>`
+    SELECT phone_e164 AS "phoneE164", email FROM public.users
     WHERE id = ${input.userId} AND deleted_at IS NULL AND blocked_at IS NULL
   `;
   if (!account) return undefined;
   // Sign-in challenge reservation and redemption both take this lock before touching the account.
-  await lockOtpPhone(sql, account.phone);
-  const phone = await lockDeletableAccount(sql, input);
-  return phone === account.phone ? phone : undefined;
+  const identifiers = [account.phoneE164, account.email].filter((value) => value !== null).sort();
+  for (const identifier of identifiers) await lockOtpIdentifier(sql, identifier);
+  const locked = await lockDeletableAccount(sql, input);
+  return locked?.phoneE164 === account.phoneE164 && locked.email === account.email
+    ? locked
+    : undefined;
 }
 
 async function clearPersonalData(
   sql: TransactionSql,
   { userId, now }: ConfirmDeletion,
-  phoneE164: string,
+  { phoneE164, email }: PrivacyIdentifiers,
 ): Promise<void> {
   await sql`
     UPDATE public.sessions
@@ -86,11 +90,12 @@ async function clearPersonalData(
   `;
   await sql`
     WITH discarded AS (
-      DELETE FROM public.otp_challenges WHERE phone_e164 = ${phoneE164}
-      RETURNING phone_e164, request_ip, requested_at
+      DELETE FROM public.otp_challenges WHERE phone_e164 = ${phoneE164} OR email = ${email}
+      RETURNING phone_e164, email, request_ip, requested_at
     )
     INSERT INTO public.auth_otp_rate_history (phone_hash, ip_hash, requested_at)
-    SELECT public.auth_otp_rate_digest('phone', phone_e164),
+    SELECT CASE WHEN phone_e164 IS NULL THEN public.auth_otp_rate_digest('email', email)
+      ELSE public.auth_otp_rate_digest('phone', phone_e164) END,
       public.auth_otp_rate_digest('ip', host(request_ip)), requested_at
     FROM discarded WHERE requested_at > ${now.toISOString()}::timestamptz - interval '24 hours'
   `;
@@ -129,7 +134,7 @@ async function clearPersonalData(
     WHERE user_id = ${userId}
   `;
   await sql`
-    UPDATE public.users SET phone_e164 = NULL, deleted_at = ${now.toISOString()} WHERE id = ${userId}
+    UPDATE public.users SET phone_e164 = NULL, email = NULL, deleted_at = ${now.toISOString()} WHERE id = ${userId}
   `;
 }
 
@@ -172,8 +177,8 @@ export async function deleteAccount(
   sql: TransactionSql,
   input: ConfirmDeletion,
 ): Promise<DeletionResult> {
-  const phone = await lockAccountForDeletion(sql, input);
-  if (!phone) {
+  const account = await lockAccountForDeletion(sql, input);
+  if (!account) {
     const proof = await readProof(sql, input);
     return proof?.userId === input.userId && proof.sessionId === input.sessionId
       ? "deleted"
@@ -183,7 +188,7 @@ export async function deleteAccount(
   const verdict = await confirmChallenge(sql, input);
   if (verdict !== "verified") return verdict;
 
-  await clearPersonalData(sql, input, phone);
+  await clearPersonalData(sql, input, account);
   await recordDeletion(sql, input);
   await queueErasureMedia(sql, input.userId);
   return "deleted";

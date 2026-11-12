@@ -4,7 +4,7 @@ import { listAddresses } from "./addresses.js";
 import type { DatabaseConnection } from "./database.js";
 import { readCustomerRatings } from "./order-rating.js";
 import { readCustomerOrderReceipts } from "./order-receipts.js";
-import { readPrivacyPhone, type PrivacyScope } from "./privacy-account.js";
+import { readPrivacyIdentifiers, type PrivacyScope } from "./privacy-account.js";
 import { deliverDeletionChallenge, issueDeletionChallenge } from "./privacy-challenge.js";
 import { deleteAccount, replayDeletion } from "./privacy-deletion.js";
 import {
@@ -17,11 +17,15 @@ import { pruneDeletionState } from "./privacy-retention.js";
 type PrivacyExport = ReturnType<typeof customerPrivacyExportOutput.parse>;
 
 async function exportAccount(sql: ISql, scope: PrivacyScope): Promise<PrivacyExport | undefined> {
-  const phoneE164 = await readPrivacyPhone(sql, scope);
-  if (!phoneE164) return undefined;
+  const identifiers = await readPrivacyIdentifiers(sql, scope);
+  if (!identifiers) return undefined;
   const addresses = await listAddresses(sql, scope.userId);
   return {
-    profile: { accountId: scope.userId, phoneE164 },
+    profile: {
+      accountId: scope.userId,
+      phoneE164: identifiers.phoneE164,
+      ...(identifiers.email === null ? {} : { email: identifiers.email }),
+    },
     addresses: addresses.map((address) => ({
       ...address,
       landmark: address.landmark ?? null,

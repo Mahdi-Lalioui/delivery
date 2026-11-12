@@ -593,3 +593,48 @@ test("[CUS-24] exports only owned orders and erases order PII without losing acc
     { actor_id: null },
   ]);
 });
+
+test("[CUS-24] exports both verified identifiers and erases an email-only account", async () => {
+  const repo = createPrivacyRepository(database.get());
+  const auth = createAuthRepository(database.get());
+  const { sql } = database.get();
+  const linked = await customer();
+  const linkedEmail = "linked-privacy@example.test";
+  await sql`UPDATE public.users SET email = ${linkedEmail} WHERE id = ${linked.userId}`;
+  expect((await repo.exportAccount({ ...linked, now }))?.profile).toEqual({
+    accountId: linked.userId,
+    phoneE164: linked.phoneE164,
+    email: linkedEmail,
+  });
+  const email = "email-only-privacy@example.test";
+  const { id: userId } = await auth.transaction((tx) =>
+    tx.getOrCreateUserForSignIn({ email, now }),
+  );
+  const account = { userId, ...(await addSession({ userId, transport: "web" })) };
+  expect((await repo.exportAccount({ ...account, now }))?.profile).toEqual({
+    accountId: userId,
+    phoneE164: null,
+    email,
+  });
+  const input = challenge(account, "192.0.2.185");
+  expect(await repo.issueDeletionChallenge(input)).toMatchObject({ kind: "issued" });
+  let destination: unknown;
+  expect(
+    await repo.deliverDeletionChallenge({
+      ...input,
+      send(target) {
+        destination = target;
+      },
+    }),
+  ).toBe(true);
+  expect(destination).toEqual({ email });
+  expect(await repo.deleteAccount(input)).toBe("deleted");
+  expect(await repo.exportAccount({ ...account, now })).toBeUndefined();
+  const [deleted] =
+    await sql`SELECT phone_e164, email, deleted_at FROM public.users WHERE id = ${userId}`;
+  expect(deleted).toMatchObject({ phone_e164: null, email: null });
+  expect(deleted?.deleted_at).toBeTruthy();
+  expect(
+    await repo.replayDeletion({ ...input, tokenHash: account.tokenHash, transport: "web" }),
+  ).toBe(true);
+});

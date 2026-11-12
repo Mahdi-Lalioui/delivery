@@ -1,4 +1,5 @@
 import type { TransactionSql } from "postgres";
+import type { AuthIdentifier } from "./auth-types.js";
 import { normalizeOtpIp } from "./auth-otp-lock.js";
 import { lockDeletableAccount, type PrivacyScope } from "./privacy-account.js";
 import { timestampParsers } from "./timestamp-parsers.js";
@@ -20,7 +21,7 @@ type ChallengeResult =
   | {
       readonly kind: "issued";
       readonly challengeId: string;
-      readonly phoneE164: string;
+      readonly phoneE164: string | null;
       readonly expiresAt: Date;
       readonly needsDelivery: boolean;
     }
@@ -28,7 +29,7 @@ type ChallengeResult =
   | { readonly kind: "unauthorized" };
 
 interface DeliverChallenge extends ChallengeScope {
-  readonly send: (phoneE164: string) => Promise<void> | void;
+  readonly send: (target: AuthIdentifier) => Promise<void> | void;
 }
 
 async function findRetryAt(
@@ -74,8 +75,9 @@ export async function issueDeletionChallenge(
   sql: TransactionSql,
   input: IssueChallenge,
 ): Promise<ChallengeResult> {
-  const phoneE164 = await lockDeletableAccount(sql, input);
-  if (!phoneE164) return { kind: "unauthorized" };
+  const account = await lockDeletableAccount(sql, input);
+  if (!account) return { kind: "unauthorized" };
+  const { phoneE164 } = account;
   const receipt = await findReceipt(sql, input);
   if (receipt) return { kind: "issued", phoneE164, ...receipt };
 
@@ -102,8 +104,9 @@ export async function deliverDeletionChallenge(
   sql: TransactionSql,
   input: DeliverChallenge,
 ): Promise<boolean> {
-  const phoneE164 = await lockDeletableAccount(sql, input);
-  if (!phoneE164) return false;
+  const account = await lockDeletableAccount(sql, input);
+  if (!account) return false;
+  const { phoneE164, email } = account;
   const { userId, challengeId, now, send } = input;
   const timestamp = now.toISOString();
   const [challenge] = await sql<{ delivered: boolean }[]>`
@@ -115,7 +118,9 @@ export async function deliverDeletionChallenge(
   if (!challenge) return false;
   if (challenge.delivered) return true;
 
-  await send(phoneE164);
+  if (phoneE164 !== null) await send({ phoneE164 });
+  else if (email !== null) await send({ email });
+  else return false;
   await sql`
     UPDATE public.account_deletion_challenges SET delivered_at = ${timestamp}
     WHERE id = ${challengeId}
