@@ -28,6 +28,9 @@ export async function CreditsPage({ locale }: { locale: Locale }) {
                   {credit.title.replace(/\.(jpe?g|png|webp)$/iu, "").replaceAll("_", " ")}
                 </strong>
                 <span>{credit.author}</span>
+                {credit.file.startsWith("/preview-catalog/") && (
+                  <span dir="auto">{translate("creditsFoodEdits")}</span>
+                )}
                 <span>
                   {credit.licenceUrl === null ? (
                     credit.licence

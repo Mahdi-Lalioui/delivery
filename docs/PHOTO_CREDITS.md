@@ -1,6 +1,6 @@
 # Photo credits
 
-Every photo below was viewed before use, downscaled to at most 1600 px on the long side and converted to WebP (quality 76). Files live in `apps/web/public/photos/algeria/` (places) and `apps/web/public/preview-catalog/` (dishes, with 320 px variants). Attribution-licensed photos must keep this credit (shown on the landing footer's credits link); share-alike photos are used unmodified apart from scaling and cropping.
+Every photo below was viewed before use, downscaled to at most 1600 px on the long side and converted to WebP (quality 76). Files live in `apps/web/public/photos/algeria/` (places) and `apps/web/public/preview-catalog/` (dishes, with 320 px variants). Attribution-licensed photos must keep this credit (shown on the landing footer's credits link); Algeria place photos are scaled and cropped. Dish photos also carry the AWID colour grade. Each adapted dish image remains under its listed source licence.
 
 | File | Size | Source (Wikimedia Commons) | Author | Licence |
 |---|---|---|---|---|
@@ -36,4 +36,3 @@ Every photo below was viewed before use, downscaled to at most 1600 px on the lo
 | `preview-catalog/karantika-sandwich.webp` | 1200×688 | [5 e 5.jpg](https://commons.wikimedia.org/wiki/File:5_e_5.jpg) | Tomberys | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
 | `preview-catalog/msemen.webp` | 1600×1061 | [Smen msemmen.jpg](https://commons.wikimedia.org/wiki/File:Smen_msemmen.jpg) | Lucyin | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
 | `preview-catalog/msemen-griddle.webp` | 1600×1200 | [Msemmem.jpg](https://commons.wikimedia.org/wiki/File:Msemmem.jpg) | Popo le Chien | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
-| `preview-catalog/shawarma.webp` | 1600×1200 | [Shawarma in central Aleppo, Syria.jpg](https://commons.wikimedia.org/wiki/File:Shawarma_in_central_Aleppo,_Syria.jpg) | Vyacheslav Argenberg | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) |

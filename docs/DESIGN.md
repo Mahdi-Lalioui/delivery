@@ -82,7 +82,7 @@ Arabic: no letter-spacing, italics or uppercase; check headings never clip.
 ## 6. Iconography and imagery
 
 - **Icons:** one in-repo set (`packages/ui/src/icons.tsx`), 1.75 px stroke at 24 px, round caps. Mirror only directional icons in RTL.
-- **Photos:** Wikimedia Commons, Unsplash or Pexels only, each viewed before use, converted to WebP, credited in `docs/PHOTO_CREDITS.md`. 4:3 cards, 1:1 thumbnails, 16:9 covers; explicit width and height; text over photos only with the scrim.
+- **Photos:** Wikimedia Commons, Unsplash or Pexels only, each viewed before use, converted to WebP, credited in `docs/PHOTO_CREDITS.md`. 4:3 cards and dish crops, 1:1 thumbnails and logos, 16:9 covers; use the shared warm grade for dishes and covers. See the [restaurant photo guide](RESTAURANT_PHOTOS.md). Use explicit width and height; text over photos only with the scrim.
 - **Empty states:** custom SVG illustrations in brand colours. No emoji as icons.
 - **Content:** realistic names, dishes, DA prices and reviews everywhere.
 

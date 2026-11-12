@@ -362,3 +362,6 @@
 
 - 2026-11-12 · High · Merged the restore drill at `00501d9` after hosted CI. Integrated Lane B through `3fd6340`, including live reorder, pickup map, Discovery counts and filters, the new tagine and tracking fallback. Full workspace verification, the cash-pickup-to-cart journey and ten production browser checks passed.
   Next: verify the team preview and hosted checks on the integrated head. Lane B still has the scheduling control and Order again home rail. Staging recovery and release gates remain open.
+
+- 2026-11-12 · High · Merged customer PR #11 after hosted CI. Added a shared warm grade and sharpening to published dishes and covers, graded the fictional preview catalog, replaced its dim shawarma photo and documented restaurant capture guidance. All 29 focused tests and web and media typechecks passed.
+  Next: profile Discovery and Restaurant over throttled 4G, then work through haptics, copy, consistency, accessibility and the final visual review.

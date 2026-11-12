@@ -238,7 +238,7 @@ const grill: RestaurantSeed = {
             "Flatbread, roast chicken, pickles.",
           ),
           priceDzd: 450,
-          photo: "shawarma",
+          photo: "chawarma",
         },
       ],
     },

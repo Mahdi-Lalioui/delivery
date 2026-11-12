@@ -5,6 +5,7 @@ import { rgbaToThumbHash } from "thumbhash";
 import type { DecodedRgba } from "./heic-decoder.js";
 import { decodePhoto, rawImage } from "./photo-decode.js";
 import type { PhotoInput, RejectedPhoto } from "./photo-decode.js";
+import { gradeFoodPhoto } from "./photo-style.js";
 
 type PhotoCrop = ReturnType<typeof mediaCropInput.parse>;
 type PhotoKind = keyof typeof photoRatios;
@@ -48,11 +49,11 @@ async function decodeCrop(input: CropPhotoInput, ratio: Dimensions) {
   if ("status" in rgba) return rgba;
 
   const height = (maximumVariantWidth * ratio.height) / ratio.width;
-  const bytes = await rawImage(rgba)
+  const crop = rawImage(rgba)
     .extract(cropRegion(rgba, ratio, input.crop))
-    .resize(maximumVariantWidth, height, { fit: "fill" })
-    .raw()
-    .toBuffer();
+    .resize(maximumVariantWidth, height, { fit: "fill" });
+  const photo = input.kind === "item" || input.kind === "cover" ? gradeFoodPhoto(crop) : crop;
+  const bytes = await photo.raw().toBuffer();
   return { bytes, width: maximumVariantWidth, height };
 }
 

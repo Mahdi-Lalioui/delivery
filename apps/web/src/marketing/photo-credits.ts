@@ -221,12 +221,4 @@ export const photoCredits = [
     licenceUrl: "https://creativecommons.org/licenses/by-sa/3.0",
     source: "https://commons.wikimedia.org/wiki/File:Smen_msemmen.jpg",
   },
-  {
-    file: "/preview-catalog/shawarma.webp",
-    title: "Shawarma in central Aleppo, Syria.jpg",
-    author: "Vyacheslav Argenberg",
-    licence: "CC BY 4.0",
-    licenceUrl: "https://creativecommons.org/licenses/by/4.0",
-    source: "https://commons.wikimedia.org/wiki/File:Shawarma_in_central_Aleppo,_Syria.jpg",
-  },
 ] as const;
