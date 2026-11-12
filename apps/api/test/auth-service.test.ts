@@ -40,6 +40,8 @@ const request = {
 
 function fixture() {
   const transaction = {
+    reserveIdentifierChange: vi.fn<AuthTransaction["reserveIdentifierChange"]>(),
+    confirmIdentifierChange: vi.fn<AuthTransaction["confirmIdentifierChange"]>(),
     reserveOtpChallenge: vi
       .fn<AuthTransaction["reserveOtpChallenge"]>()
       .mockImplementation(({ id }) =>
@@ -64,6 +66,7 @@ function fixture() {
     revokeSessions: vi.fn<AuthTransaction["revokeSessions"]>().mockResolvedValue(1),
   };
   const repository = {
+    readVerifiedIdentifiers: vi.fn<AuthRepository["readVerifiedIdentifiers"]>(),
     transaction: <Result>(run: (tx: AuthTransaction) => Promise<Result>) => run(transaction),
     deliverOtp: vi.fn<AuthRepository["deliverOtp"]>().mockImplementation(async ({ send }) => {
       await send();

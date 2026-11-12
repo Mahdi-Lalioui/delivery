@@ -14,10 +14,15 @@ const resendMs = 45_000;
 const otpLifetimeMs = 10 * minuteMs;
 const attemptLimit = 5;
 
-type OtpReservation = AuthIdentifier & {
+export interface OtpBinding {
+  readonly userId: string;
+  readonly sessionId: string;
+}
+
+export type OtpReservation = AuthIdentifier & {
   readonly id: string;
   readonly requestIp: string;
-  readonly purpose: AuthPurpose;
+  readonly purpose: OtpPurpose;
   readonly codeHmac: Uint8Array;
   readonly idempotencyKeyHash: Uint8Array;
   readonly now: Date;
@@ -29,19 +34,21 @@ interface OtpChallengeSummary {
   readonly resendAt: Date;
 }
 
-type ReservationResult =
+type OtpPurpose = AuthPurpose | "identifier_change";
+
+export type ReservationResult =
   | { readonly kind: "created" | "replayed"; readonly challenge: OtpChallengeSummary }
   | { readonly kind: "conflict" }
   | { readonly kind: "rate_limited"; readonly retryAt: Date };
 
 interface OtpReceipt {
   readonly id: string;
-  readonly purpose: AuthPurpose;
+  readonly purpose: OtpPurpose;
   readonly requestedAt: Date;
   readonly expiresAt: Date;
 }
 
-interface OtpVerification {
+export interface OtpVerification {
   readonly challengeId: string;
   readonly now: Date;
   readonly matchesCode: (storedHmac: Uint8Array) => boolean;
@@ -51,7 +58,7 @@ interface OtpVerification {
 type StoredIdentifier = { phoneE164: string | null; email: string | null };
 
 interface StoredOtp extends StoredIdentifier {
-  readonly purpose: AuthPurpose;
+  readonly purpose: OtpPurpose;
   readonly codeHmac: Uint8Array;
   readonly requestedAt: Date;
   readonly expiresAt: Date;
@@ -60,13 +67,13 @@ interface StoredOtp extends StoredIdentifier {
 }
 
 type OtpAttemptResult =
-  | (AuthIdentifier & { readonly kind: "verified"; readonly purpose: AuthPurpose })
+  | (AuthIdentifier & { readonly kind: "verified"; readonly purpose: OtpPurpose })
   | { readonly kind: "invalid" | "locked" };
 
 type OtpChallengeResult =
   OtpAttemptResult | { readonly kind: "expired" | "consumed" | "idempotency_conflict" };
 
-function replayOtp(receipt: OtpReceipt, purpose: AuthPurpose): ReservationResult {
+function replayOtp(receipt: OtpReceipt, purpose: OtpPurpose): ReservationResult {
   if (receipt.purpose !== purpose) return { kind: "conflict" };
   return {
     kind: "replayed",
@@ -88,6 +95,11 @@ function identifierScope(sql: TransactionSql, identity: AuthIdentifier) {
   return identity.email !== undefined
     ? sql`email = ${identity.email}`
     : sql`phone_e164 = ${identity.phoneE164}`;
+}
+
+function bindingScope(sql: TransactionSql, binding: OtpBinding | undefined) {
+  return sql`binding_user_id IS NOT DISTINCT FROM ${binding?.userId ?? null}::uuid
+    AND binding_session_id IS NOT DISTINCT FROM ${binding?.sessionId ?? null}::uuid`;
 }
 
 async function findRetryAt(
@@ -134,14 +146,26 @@ async function findRetryAt(
 export async function reserveOtpChallenge(
   sql: TransactionSql,
   input: OtpReservation,
+  binding?: OtpBinding,
 ): Promise<ReservationResult> {
-  const { id, phoneE164, email, requestIp, purpose, codeHmac, idempotencyKeyHash, now } = input;
+  const {
+    id,
+    phoneE164 = null,
+    email = null,
+    requestIp,
+    purpose,
+    codeHmac,
+    idempotencyKeyHash,
+    now,
+  } = input;
+  const { userId = null, sessionId = null } = binding ?? {};
   // Acquire the identifier namespace before the IP namespace.
-  await lockOtpIdentifier(sql, email ?? phoneE164);
+  await lockOtpIdentifier(sql, input.email ?? input.phoneE164);
   const [receipt] = await sql<OtpReceipt[]>`
     SELECT id, purpose, requested_at AS "requestedAt", expires_at AS "expiresAt"
     FROM public.otp_challenges
     WHERE ${identifierScope(sql, input)} AND idempotency_key_hash = ${idempotencyKeyHash}
+      AND ${bindingScope(sql, binding)}
   `.parsers(timestampParsers);
   if (receipt) return replayOtp(receipt, purpose);
 
@@ -153,8 +177,8 @@ export async function reserveOtpChallenge(
   const expiresAt = new Date(now.getTime() + otpLifetimeMs);
   await sql`
     INSERT INTO public.otp_challenges
-      (id, phone_e164, email, request_ip, purpose, code_hmac, idempotency_key_hash, requested_at, expires_at)
-    VALUES (${id}, ${phoneE164 ?? null}, ${email ?? null}, ${ip}::inet, ${purpose}, ${codeHmac}, ${idempotencyKeyHash}, ${now.toISOString()}, ${expiresAt.toISOString()})
+      (id, phone_e164, email, request_ip, purpose, code_hmac, idempotency_key_hash, requested_at, expires_at, binding_user_id, binding_session_id)
+    VALUES (${id}, ${phoneE164}, ${email}, ${ip}::inet, ${purpose}, ${codeHmac}, ${idempotencyKeyHash}, ${now.toISOString()}, ${expiresAt.toISOString()}, ${userId}, ${sessionId})
   `;
   return {
     kind: "created",
@@ -206,11 +230,13 @@ async function verifyLockedOtp(
 export async function redeemOtp(
   sql: TransactionSql,
   input: OtpVerification,
+  binding?: OtpBinding,
 ): Promise<OtpChallengeResult> {
   const { challengeId, attempt, now } = input;
   // Account changes and deletion share the identifier lock with verification.
   const [unlocked] = await sql<StoredIdentifier[]>`
     SELECT phone_e164 AS "phoneE164", email FROM public.otp_challenges WHERE id = ${challengeId}
+      AND ${bindingScope(sql, binding)}
   `;
   if (!unlocked) return { kind: "invalid" };
   const identity = readIdentifier(unlocked);

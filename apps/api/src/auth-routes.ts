@@ -1,10 +1,15 @@
 import {
+  authMethodsOutput,
+  changeIdentifierChallengeInput,
+  changeIdentifierInput,
   idempotencyKeySchema,
   logoutInput,
   requestIdentifierOtpInput,
   requestOtpOutput,
+  sessionBoundCommandHeaders,
   sessionIdParams,
   sessionListOutput,
+  verifiedIdentifiersOutput,
   verifyOtpInput,
   verifyOtpOutput,
   verifyTotpInput,
@@ -48,7 +53,7 @@ const authErrors = {
 
 function failureStatus(code: AuthFailure["code"]): number {
   if (code === "otp_delivery_unavailable") return 503;
-  if (code.endsWith("_invalid")) return 401;
+  if (code === "unauthenticated" || code.endsWith("_invalid")) return 401;
   if (code.endsWith("_expired")) return 410;
   if (code.endsWith("_locked") || code === "otp_rate_limited") return 429;
   return 409;
@@ -215,8 +220,87 @@ function registerLogout(api: FastifyInstance, { auth, getSession }: AuthAccess):
   );
 }
 
+function registerIdentifierRoutes(api: FastifyInstance, { auth, getSession }: AuthAccess): void {
+  const routes = api.withTypeProvider<ZodTypeProvider>();
+  routes.get(
+    "/v1/auth/methods",
+    {
+      config: { policy: publicPolicy },
+      schema: { response: { 200: authMethodsOutput } },
+    },
+    (_request, reply) => {
+      noStore(reply);
+      return auth?.service.methods() ?? { methods: [] };
+    },
+  );
+  routes.get(
+    "/v1/me/identifiers",
+    {
+      config: sessionConfig,
+      schema: { response: { 200: verifiedIdentifiersOutput, ...authErrors } },
+    },
+    async (request, reply) => {
+      noStore(reply);
+      const session = getSession(request);
+      if (!auth || !session) return sendProblem(reply, 401);
+      const identifiers = await auth.service.readIdentifiers(session);
+      return identifiers ? reply.send(identifiers) : sendProblem(reply, 401);
+    },
+  );
+  routes.post(
+    "/v1/me/identifiers/challenge",
+    {
+      config: sessionConfig,
+      schema: {
+        headers: sessionBoundCommandHeaders,
+        body: changeIdentifierChallengeInput,
+        response: { 202: requestOtpOutput, ...authErrors },
+      },
+    },
+    async (request, reply) => {
+      noStore(reply);
+      const session = getSession(request);
+      if (!auth || !session) return sendProblem(reply, 401);
+      if (request.headers["x-expected-session-id"].toLowerCase() !== session.id)
+        return sendProblem(reply, 409, "session_changed");
+      const result = await auth.service.requestIdentifierChange({
+        ...request.body,
+        session,
+        requestIp: request.ip,
+        idempotencyKey: request.headers["idempotency-key"],
+      });
+      return result.ok ? reply.code(202).send(result.value) : sendAuthFailure(reply, result);
+    },
+  );
+  routes.put(
+    "/v1/me/identifiers",
+    {
+      config: sessionConfig,
+      schema: {
+        headers: sessionBoundCommandHeaders,
+        body: changeIdentifierInput,
+        response: { 200: verifiedIdentifiersOutput, ...authErrors },
+      },
+    },
+    async (request, reply) => {
+      noStore(reply);
+      const session = getSession(request);
+      if (!auth || !session) return sendProblem(reply, 401);
+      if (request.headers["x-expected-session-id"].toLowerCase() !== session.id)
+        return sendProblem(reply, 409, "session_changed");
+      const result = await auth.service.confirmIdentifierChange(session, {
+        ...request.body,
+        challengeId: request.body.challengeId.toLowerCase(),
+        idempotencyKey: request.headers["idempotency-key"],
+      });
+      return result.ok ? reply.send(result.value) : sendAuthFailure(reply, result);
+    },
+  );
+}
+
 export function registerAuthRoutes(api: FastifyInstance, access: AuthAccess): void {
   registerOtpRequest(api, access);
+  registerIdentifierRoutes(api, access);
   registerVerification(api, access, "otp");
   registerVerification(api, access, "totp");
   registerDeviceRoutes(api, access);

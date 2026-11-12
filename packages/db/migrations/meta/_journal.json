@@ -393,6 +393,13 @@
       "when": 1794146400000,
       "tag": "0055_auth_email",
       "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "7",
+      "when": 1794146460000,
+      "tag": "0056_auth_identifier_change",
+      "breakpoints": true
     }
   ]
 }

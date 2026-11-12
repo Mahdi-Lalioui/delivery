@@ -694,3 +694,66 @@ test("[AUTH-05:db] keyed TOTP retries share one failure and cannot issue a secon
   `;
   expect(receipts).toHaveLength(2);
 });
+
+test("[AUTH-01] links a verified identifier only from the issuing session without merging accounts", async () => {
+  const auth = repository();
+  const owner = await createUser(1900);
+  const other = await createUser(1901);
+  const ownerSession = session(1900, owner.id);
+  const otherSession = session(1901, other.id);
+  const secondSession = session(1902, owner.id);
+  for (const entry of [ownerSession, otherSession, secondSession]) {
+    await auth.transaction((tx) => tx.insertSession(entry));
+  }
+  const scope = { userId: owner.id, sessionId: ownerSession.id, now: instant() };
+  const email = "link-test@example.test";
+  const { id, requestIp, idempotencyKeyHash } = reservation(1900);
+  const input = { id, requestIp, idempotencyKeyHash, codeHmac, now: instant(), email };
+  expect(await auth.transaction((tx) => tx.reserveIdentifierChange(input, scope))).toMatchObject({
+    kind: "created",
+  });
+  expect(await redeem(input.id)).toEqual({ kind: "invalid" });
+  const confirm = (sessionId: string, userId = owner.id) =>
+    auth.transaction((tx) =>
+      tx.confirmIdentifierChange({
+        ...scope,
+        userId,
+        sessionId,
+        challengeId: input.id,
+        matchesCode,
+      }),
+    );
+  expect(await confirm(otherSession.id, other.id)).toEqual({ kind: "invalid" });
+  expect(await confirm(secondSession.id)).toEqual({ kind: "invalid" });
+  expect(await confirm(ownerSession.id)).toMatchObject({
+    kind: "updated",
+    phone: owner.phoneE164,
+    email,
+  });
+  expect(await confirm(ownerSession.id)).toEqual({ kind: "consumed" });
+  const conflicting = {
+    ...input,
+    id: fixtureId(1901),
+    idempotencyKeyHash: hash("conflicting"),
+    now: instant(minute),
+  };
+  const otherScope = { userId: other.id, sessionId: otherSession.id, now: instant(minute) };
+  expect(
+    await auth.transaction((tx) => tx.reserveIdentifierChange(conflicting, otherScope)),
+  ).toMatchObject({ kind: "created" });
+  expect(
+    await auth.transaction((tx) =>
+      tx.confirmIdentifierChange({ ...otherScope, challengeId: conflicting.id, matchesCode }),
+    ),
+  ).toEqual({ kind: "identifier_unavailable" });
+  expect(await auth.readVerifiedIdentifiers(otherScope)).toEqual({
+    sessionId: otherSession.id,
+    phone: other.phoneE164,
+    email: null,
+  });
+  expect(await auth.readVerifiedIdentifiers(scope)).toEqual({
+    sessionId: ownerSession.id,
+    phone: owner.phoneE164,
+    email,
+  });
+});

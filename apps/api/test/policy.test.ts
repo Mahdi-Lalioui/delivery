@@ -201,6 +201,7 @@ const matrix: readonly MatrixRoute[] = [
     payload: { phone: "+213500000000", purpose: "sign_in" },
     expected: 503,
   },
+  { method: "GET", url: "/v1/auth/methods", expected: 200 },
   { method: "POST", url: "/v1/auth/otp/verify", payload: verification, expected: 503 },
   { method: "POST", url: "/v1/auth/totp/verify", payload: verification, expected: 503 },
   {
@@ -488,6 +489,19 @@ const matrix: readonly MatrixRoute[] = [
     expected: { customer: 503 },
   },
   { method: "GET", url: "/v1/me/sessions", expected: 401 },
+  { method: "GET", url: "/v1/me/identifiers", expected: 401 },
+  {
+    method: "POST",
+    url: "/v1/me/identifiers/challenge",
+    payload: { email: "test@example.test" },
+    expected: 401,
+  },
+  {
+    method: "PUT",
+    url: "/v1/me/identifiers",
+    payload: { challengeId, code: "012345" },
+    expected: 401,
+  },
   {
     method: "DELETE",
     url: "/v1/me/sessions/:sessionId",

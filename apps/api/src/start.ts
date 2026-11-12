@@ -57,13 +57,14 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
   const database = openDatabase(environment.DATABASE_URL);
   const now = options.now ?? (() => new Date());
   const otpKey = Buffer.from(environment.AUTH_OTP_KEY, "hex");
-  const { sendSms, sendInvitation } = smsServices(environment, options);
+  const { sendSms, sendInvitation, smsEnabled } = smsServices(environment, options);
   const service = createAuthService({
     repository: createAuthRepository(database),
     otpKey,
     totpKey: Buffer.from(environment.AUTH_TOTP_KEY, "hex"),
     now,
     sendSms,
+    smsEnabled,
     sendEmail: options.sendEmail,
   });
   const merchantHours = createMerchantHoursRepository(database);
@@ -176,6 +177,7 @@ function smsServices(environment: ReturnType<typeof readApiEnvironment>, options
       ? createAuthSmsAdapter({ url, token, publicOrigin: AUTH_PUBLIC_ORIGIN })
       : undefined;
   return {
+    smsEnabled: Boolean(options.sendSms ?? configured),
     sendSms: options.sendSms ?? configured?.sendOtp ?? unavailableSms,
     sendInvitation: options.sendInvitation ?? configured?.sendInvitation ?? unavailableSms,
   };

@@ -290,3 +290,6 @@
 
 - 2026-11-12 · Ultra · Added both verified identifiers to privacy export and erasure, and sent deletion OTP by email for email-only accounts. Passed 16 PostGIS privacy cases and 10 HTTP/service/contract cases, plus API/DB typecheck, lint and OpenAPI.
   Next: bind add/change OTP to the issuing account and session and enforce exclusive ownership at confirmation.
+
+- 2026-11-12 · Ultra · Added enabled methods, verified identifier reads and session-bound add/change routes. Confirming an identifier already in use leaves both accounts intact. Passed 50 PostGIS cases, 55 authz/service cases, DB/API typecheck, lint and OpenAPI.
+  Next: configure Twilio and Resend delivery with localized messages and inspectable development outboxes.

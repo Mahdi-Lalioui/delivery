@@ -425,3 +425,50 @@ test("[AUTH-05] email-admin sign-in still requires enrolled TOTP", async () => {
     await api.close();
   }
 });
+
+test("[AUTH-01] links an email with a code and preserves the authenticated phone account", async () => {
+  const { api, emails, sent } = await openAuthApi();
+  const phone = "+213500000042";
+  const email = "linked@example.test";
+  try {
+    expect((await api.inject({ url: "/v1/auth/methods" })).json()).toEqual({
+      methods: ["phone", "email"],
+    });
+    const { cookie } = await loginWeb(api, sent, phone);
+    const sessionHeaders = { ...originHeaders, cookie: "__Host-session=" + cookie.value };
+    const initial = await api.inject({ url: "/v1/me/identifiers", headers: sessionHeaders });
+    expect(initial.statusCode).toBe(200);
+    const profile = initial.json<{ sessionId: string; phone: string; email: string | null }>();
+    expect(profile).toMatchObject({ phone, email: null });
+    const commandHeaders = {
+      ...sessionHeaders,
+      "x-expected-session-id": profile.sessionId,
+      "idempotency-key": randomUUIDv7(),
+    };
+    const challenge = await api.inject({
+      method: "POST",
+      url: "/v1/me/identifiers/challenge",
+      headers: commandHeaders,
+      payload: { email: " Linked@EXAMPLE.TEST ", locale: "ar" },
+    });
+    expect(challenge.statusCode).toBe(202);
+    const { challengeId } = requestOtpOutput.parse(challenge.json());
+    const message = emails.get(challengeId);
+    if (!message) throw new Error("Missing identifier change code.");
+    expect(message.email).toBe(email);
+    expect((await verifyOtp(api, { challengeId, code: message.code })).statusCode).toBe(401);
+    const confirm = await api.inject({
+      method: "PUT",
+      url: "/v1/me/identifiers",
+      headers: { ...commandHeaders, "idempotency-key": randomUUIDv7() },
+      payload: { challengeId, code: message.code },
+    });
+    expect(confirm.statusCode).toBe(200);
+    expect(confirm.json()).toEqual({ ...profile, email });
+    const rows = await database.get()
+      .sql`SELECT id FROM public.users WHERE phone_e164 = ${phone} OR email = ${email}`;
+    expect(rows).toHaveLength(1);
+  } finally {
+    await api.close();
+  }
+});

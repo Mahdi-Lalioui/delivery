@@ -91,6 +91,7 @@ async function clearPersonalData(
   await sql`
     WITH discarded AS (
       DELETE FROM public.otp_challenges WHERE phone_e164 = ${phoneE164} OR email = ${email}
+        OR binding_user_id = ${userId}
       RETURNING phone_e164, email, request_ip, requested_at
     )
     INSERT INTO public.auth_otp_rate_history (phone_hash, ip_hash, requested_at)

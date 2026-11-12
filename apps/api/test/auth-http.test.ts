@@ -65,6 +65,10 @@ function expectWebCookie(response: LightMyRequestResponse, value: string, maxAge
 
 function setup(options?: Pick<Parameters<typeof createApi>[0], "rateLimit">) {
   const service = {
+    methods: vi.fn<AuthService["methods"]>().mockReturnValue({ methods: ["phone"] }),
+    requestIdentifierChange: vi.fn<AuthService["requestIdentifierChange"]>(),
+    readIdentifiers: vi.fn<AuthService["readIdentifiers"]>(),
+    confirmIdentifierChange: vi.fn<AuthService["confirmIdentifierChange"]>(),
     requestOtp: vi.fn<AuthService["requestOtp"]>(),
     verifyOtp: vi.fn<AuthService["verifyOtp"]>(),
     verifyTotp: vi.fn<AuthService["verifyTotp"]>(),
