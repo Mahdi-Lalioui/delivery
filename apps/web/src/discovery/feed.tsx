@@ -6,7 +6,7 @@ import { FeedContent } from "./feed-content";
 import { FeedFilterBar } from "./feed-filters";
 import { filtersFromSearch, filtersToSearch } from "./filter-state";
 import { readDiscoveryFeed, type FeedFilters, type FeedState } from "./feed-http";
-import { Collections, CuisineChips, FeedRail } from "./feed-sections";
+import { Collections, CuisineChips, FavouritesRail, FeedRail } from "./feed-sections";
 import { getFeedMessages } from "./feed-messages";
 import "./feed.css";
 
@@ -105,6 +105,7 @@ export function DiscoveryFeed({ locale }: { locale: Locale }) {
     <>
       <Collections locale={locale} onChoose={chooseCuisine} />
       <CuisineChips locale={locale} value={filters.cuisine} onChange={chooseCuisine} />
+      <FavouritesRail locale={locale} />
       <FeedRail locale={locale} title={messages.topRated} filters={{ sort: "rating" }} />
       <FeedRail locale={locale} title={messages.freeDelivery} filters={{ freeDelivery: "true" }} />
       <FeedRail locale={locale} title={messages.fastest} filters={{ sort: "eta" }} />

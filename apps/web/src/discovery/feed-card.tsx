@@ -3,6 +3,7 @@ import { formatAlgiersDate, formatAlgiersTime, formatDzd } from "@zaafran/i18n/f
 import type { Locale } from "@zaafran/i18n/locales";
 import { Icon } from "@zaafran/ui";
 import { useEffect, useState, type MouseEvent } from "react";
+import { tiltHandlers } from "./card-tilt";
 import { readFavourites, toggleFavourite } from "./favourites";
 import { useLowData } from "./low-data";
 import type { FeedRestaurant } from "./feed-http";
@@ -242,7 +243,7 @@ export function FeedCard({ restaurant, locale }: { restaurant: FeedRestaurant; l
   const { name, merchantId, coverMediaId, logoMediaId, cuisines, isOpen, nextOpensAt } = restaurant;
   const cuisineLabels = new Set(cuisines.map((cuisine) => getFeedCuisineLabel(locale, cuisine)));
   return (
-    <article className="restaurant-feed-card">
+    <article className="restaurant-feed-card" {...tiltHandlers}>
       <div className="restaurant-feed-cover" data-cuisine={cuisines[0]}>
         <FeedPlate />
         {coverMediaId && (

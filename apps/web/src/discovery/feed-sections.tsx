@@ -3,6 +3,7 @@
 import type { Locale } from "@zaafran/i18n/locales";
 import { Icon } from "@zaafran/ui";
 import { useEffect, useId, useState } from "react";
+import { readFavourites } from "./favourites";
 import { FeedCard } from "./feed-card";
 import { readDiscoveryFeed, type FeedFilters, type FeedRestaurant } from "./feed-http";
 import { getFeedMessages } from "./feed-messages";
@@ -111,6 +112,45 @@ export function Collections({
 }
 
 type RailState = { phase: "loading" } | { phase: "ready"; restaurants: FeedRestaurant[] };
+
+/** Restaurants saved with the heart on this device, in feed order; hidden when there are none. */
+export function FavouritesRail({ locale }: { locale: Locale }) {
+  const [restaurants, setRestaurants] = useState<FeedRestaurant[]>([]);
+  const headingId = useId();
+  useEffect(() => {
+    let favourites: Set<string>;
+    try {
+      favourites = readFavourites(window.localStorage);
+    } catch {
+      return;
+    }
+    if (favourites.size === 0) return;
+    const controller = new AbortController();
+    void readDiscoveryFeed(null, controller.signal, { limit: "50" }).then((page) => {
+      if (!controller.signal.aborted && page)
+        setRestaurants(page.restaurants.filter(({ merchantId }) => favourites.has(merchantId)));
+    });
+    return () => {
+      controller.abort();
+    };
+  }, []);
+  if (restaurants.length === 0) return null;
+  const messages = getFeedMessages(locale);
+  return (
+    <section className="discovery-rail discovery-rail-compact" aria-labelledby={headingId}>
+      <h2 id={headingId} className="discovery-section-title">
+        {messages.favouritesRail}
+      </h2>
+      <ul className="discovery-rail-list" role="list">
+        {restaurants.map((restaurant) => (
+          <li key={restaurant.merchantId}>
+            <FeedCard restaurant={restaurant} locale={locale} />
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
 
 /** A horizontally scrolling row of restaurants for one feed query; hidden when it has none. */
 export function FeedRail({
