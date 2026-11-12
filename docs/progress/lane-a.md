@@ -269,3 +269,6 @@
 
 - 2026-11-12 · High · Integrated customer SSE tracking and the Algeria basemap. Five real production-browser journeys passed with PostGIS: delivery and GPS, pickup, rejection, expiry and cancellation. Delivery and pickup cover rating and receipt.
   Next: finish the production route sweep across Arabic and French, then run full verification and the merchant, courier and admin design pass.
+
+- 2026-11-12 · Medium · Added Arabic routes for the full admin console and localized TOTP return paths. Passed the four production route smoke runs across Arabic and French at 390 and 1280 px with real role sessions and PostGIS.
+  Next: merge the latest Lane B design work, run full workspace verification and capture the final partner and admin layouts.

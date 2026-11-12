@@ -63,17 +63,6 @@ interface SiteShellProps {
     | "/admin/orders";
 }
 
-const adminSubpaths: ReadonlySet<string> = new Set([
-  "/admin/merchant-applications",
-  "/admin/menu-items",
-  "/admin/billing",
-  "/admin/billing/settings",
-  "/admin/platform",
-  "/admin/dashboard",
-  "/sign-in?continue=admin-review",
-  "/sign-in?continue=admin-moderation",
-]);
-
 function LanguageLinks({
   locale,
   languages,
@@ -108,8 +97,6 @@ function LanguageLinks({
 
 export async function SiteShell({ children, locale, subpath }: SiteShellProps) {
   const translate = await getTranslations({ locale, namespace: "shell" });
-  const isAdmin = subpath !== undefined && adminSubpaths.has(subpath);
-  const languages = isAdmin ? publicLocales.filter((language) => language !== "ar") : publicLocales;
 
   return (
     <>
@@ -127,7 +114,7 @@ export async function SiteShell({ children, locale, subpath }: SiteShellProps) {
           </a>
           <LanguageLinks
             locale={locale}
-            languages={languages}
+            languages={publicLocales}
             subpath={subpath}
             label={translate("languages")}
           />
@@ -138,7 +125,7 @@ export async function SiteShell({ children, locale, subpath }: SiteShellProps) {
             </summary>
             <LanguageLinks
               locale={locale}
-              languages={languages}
+              languages={publicLocales}
               subpath={subpath}
               label={translate("languages")}
             />

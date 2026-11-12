@@ -9,27 +9,29 @@ test("[MER-01:web] uses standard phone verification for a localized restaurant s
   });
 });
 
-test("[ADM-03:web] requires admin verification for the French and English review queue", () => {
+test("[ADM-03:web] requires admin verification for the localized review queue", () => {
   expect(readSignInIntent({ continue: "admin-review" }, "fr")).toEqual({
     purpose: "admin_sign_in",
     subpath: "/sign-in?continue=admin-review",
     destination: { href: "/fr/admin/merchant-applications", label: "continueReview" },
   });
   expect(readSignInIntent({ continue: "admin-review" }, "ar")).toEqual({
-    purpose: "sign_in",
-    subpath: "/sign-in",
+    purpose: "admin_sign_in",
+    subpath: "/sign-in?continue=admin-review",
+    destination: { href: "/ar/admin/merchant-applications", label: "continueReview" },
   });
 });
 
-test("[ADM-04:web] requires admin verification for the French and English held-item queue", () => {
+test("[ADM-04:web] requires admin verification for the localized held-item queue", () => {
   expect(readSignInIntent({ continue: "admin-moderation" }, "en")).toEqual({
     purpose: "admin_sign_in",
     subpath: "/sign-in?continue=admin-moderation",
     destination: { href: "/en/admin/menu-items", label: "continueModeration" },
   });
   expect(readSignInIntent({ continue: "admin-moderation" }, "ar")).toEqual({
-    purpose: "sign_in",
-    subpath: "/sign-in",
+    purpose: "admin_sign_in",
+    subpath: "/sign-in?continue=admin-moderation",
+    destination: { href: "/ar/admin/menu-items", label: "continueModeration" },
   });
 });
 

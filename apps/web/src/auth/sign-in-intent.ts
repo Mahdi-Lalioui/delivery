@@ -9,8 +9,8 @@ export interface SignInDestination {
     | `/${Locale}/staff/accept`
     | `/${Locale}/courier`
     | `/${Locale}/admin/orders`
-    | `/${Exclude<Locale, "ar">}/admin/merchant-applications`
-    | `/${Exclude<Locale, "ar">}/admin/menu-items`;
+    | `/${Locale}/admin/merchant-applications`
+    | `/${Locale}/admin/menu-items`;
   readonly label:
     | "continueApplication"
     | "continueRestaurants"
@@ -47,14 +47,14 @@ function adminIntent(
       destination: { href: `/${locale}/admin/orders`, label: "continueAdminOrders" },
     };
   }
-  if (destination === "admin-review" && locale !== "ar") {
+  if (destination === "admin-review") {
     return {
       purpose: "admin_sign_in",
       subpath: "/sign-in?continue=admin-review",
       destination: { href: `/${locale}/admin/merchant-applications`, label: "continueReview" },
     };
   }
-  if (destination === "admin-moderation" && locale !== "ar") {
+  if (destination === "admin-moderation") {
     return {
       purpose: "admin_sign_in",
       subpath: "/sign-in?continue=admin-moderation",

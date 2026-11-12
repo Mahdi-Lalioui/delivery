@@ -1,47 +1,20 @@
-import { localeDetails } from "@zaafran/i18n/locales";
-import { getMessages } from "@zaafran/i18n/messages";
-import type { Metadata } from "next";
-import { NextIntlClientProvider } from "next-intl";
-import { getTranslations } from "next-intl/server";
-import { notFound } from "next/navigation";
-import { ButtonLink, ToastProvider } from "@zaafran/ui";
-import { AdminDashboard } from "../../../../retention/analytics/analytics-views";
-import { SiteShell } from "../../../../components/site-shell";
+import { AdminDashboardPage, pageMetadata } from "../../../../admin/dashboard-page";
 import { requireLatinLocale, type LatinPageProps } from "../../../../i18n/latin-locale";
+import { notFound } from "next/navigation";
 import "@zaafran/ui/ui.css";
 import "../../../../admin/billing/admin-billing.css";
 import "../../../../retention/retention.css";
 
-async function requireAdminLocale(props: LatinPageProps): Promise<"en" | "fr"> {
+async function adminLocale(props: LatinPageProps) {
   const locale = await requireLatinLocale(props);
-  if (locale === "en" || locale === "fr") return locale;
+  if (locale === "fr" || locale === "en") return locale;
   notFound();
 }
 
-export async function generateMetadata(props: LatinPageProps): Promise<Metadata> {
-  const locale = await requireAdminLocale(props);
-  const translate = await getTranslations({ locale, namespace: "retentionAnalytics" });
-  return { title: translate("dashboardTitle"), robots: { index: false, follow: false } };
+export async function generateMetadata(props: LatinPageProps) {
+  return pageMetadata(await adminLocale(props));
 }
 
-export default async function AdminDashboardPage(props: LatinPageProps) {
-  const locale = await requireAdminLocale(props);
-  const { retentionAnalytics, adminOrders } = getMessages(locale);
-
-  return (
-    <SiteShell locale={locale} subpath="/admin/dashboard">
-      <NextIntlClientProvider
-        locale={localeDetails[locale].tag}
-        messages={{ retentionAnalytics }}
-        timeZone="Africa/Algiers"
-      >
-        <ButtonLink href={`/${locale}/admin/orders`} variant="ghost">
-          {adminOrders.title}
-        </ButtonLink>
-        <ToastProvider closeLabel={retentionAnalytics.closeToast}>
-          <AdminDashboard locale={locale} />
-        </ToastProvider>
-      </NextIntlClientProvider>
-    </SiteShell>
-  );
+export default async function Page(props: LatinPageProps) {
+  return <AdminDashboardPage locale={await adminLocale(props)} />;
 }
