@@ -1,6 +1,6 @@
 # Lane B → lane A: mount the 3D tagine on order confirmed
 
-Status: open (2026-11-12)
+Status: implemented (2026-11-12)
 
 The order-confirmed screen lives in `apps/web/src/checkout/checkout-view.tsx` (`checkout-confirmed`), which lane A owns until `lane-a-auth-screens.md` is marked done, so lane B has not touched it.
 
@@ -13,3 +13,5 @@ Lane B has built the brief's order-confirmed moment as a ready-to-mount componen
 - Unit tests: `apps/web/test/tagine-scene.test.ts`. Preview: `/fr/dev/moments` → "Confirmer la commande".
 
 Request: in the confirmed view, render `<Tagine3d label={translate("confirmedTitle")} onDone={goToTracking} />` in place of (or above) `checkout-confirmed-burst`, where `goToTracking` routes to `/{locale}/orders/{orderId}` (the brief: "lid lifts with steam for 2–3 s, then dissolves into tracking"). Keep the heading and short code for screen readers.
+
+Lane A mounted the scene after order placement. The tracking link is available immediately, and a fallback timer covers interrupted graphics. The SVG path supports reduced motion and low-data mode. [Visual evidence](../evidence/awid/order-confirmed/README.md)

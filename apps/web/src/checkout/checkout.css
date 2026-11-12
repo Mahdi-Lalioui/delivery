@@ -452,15 +452,16 @@
 
 /* Order confirmed: a full-screen celebration. */
 .checkout-confirmed {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cpath d='M28 4 52 28 28 52 4 28Z' fill='none' stroke='%234DE3B4' stroke-opacity='.12' stroke-width='2'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cpath d='M28 4 52 28 28 52 4 28Z' fill='none' stroke='%234DE3B4' stroke-opacity='.07' stroke-width='2'/%3E%3C/svg%3E");
   position: fixed;
   z-index: 30;
   inset: 0;
   display: grid;
-  align-content: center;
+  align-content: safe center;
   justify-items: center;
   gap: var(--space-16);
   padding: var(--page-padding);
+  overflow-y: auto;
   background-color: var(--color-primary);
   color: var(--color-on-primary);
   text-align: center;
@@ -476,10 +477,6 @@
 
 .checkout-confirmed {
   isolation: isolate;
-}
-
-.checkout-confirmed .ui-button {
-  margin-block-start: var(--space-24);
 }
 
 /* The total rolls up into place whenever it changes (keyed re-mount). */
@@ -514,7 +511,7 @@
 .checkout-confirmed-code {
   padding: var(--space-4) var(--space-16);
   border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--color-on-primary) 14%, transparent);
+  background: color-mix(in srgb, currentColor 14%, transparent);
   font-weight: var(--font-weight-h3);
   font-variant-numeric: var(--font-variant-numeric-numbers);
   letter-spacing: 0.06em;
@@ -526,63 +523,22 @@
   color: var(--color-on-accent);
 }
 
-.checkout-confirmed-burst {
-  position: relative;
+.checkout-confirmed-scene {
   display: grid;
   place-items: center;
-  inline-size: 9rem;
-  block-size: 9rem;
-}
-
-.checkout-confirmed-burst::before,
-.checkout-confirmed-burst::after {
-  position: absolute;
-  inset: 0;
-  border: 3px solid var(--color-mint);
+  inline-size: min(72vi, 42svh, 18rem);
+  aspect-ratio: 1;
   border-radius: var(--radius-pill);
-  animation: checkout-ring 1.2s var(--ease-standard) infinite;
-  content: "";
+  background: color-mix(in srgb, var(--color-mint) 12%, transparent);
 }
 
-.checkout-confirmed-burst::after {
-  animation-delay: 0.4s;
-}
-
-.checkout-confirmed-check {
-  display: grid;
-  place-items: center;
-  inline-size: 6rem;
-  block-size: 6rem;
-  border-radius: var(--radius-pill);
-  background: var(--color-mint);
-  color: var(--color-on-accent);
-  animation: checkout-check var(--motion-slow) var(--ease-spring-bouncy);
-}
-
-@keyframes checkout-check {
-  from {
-    transform: scale(0.3);
-  }
-}
-
-@keyframes checkout-ring {
-  from {
-    opacity: 0.9;
-    transform: scale(0.6);
-  }
-
-  to {
-    opacity: 0;
-    transform: scale(1.5);
-  }
+.checkout-confirmed-scene :is(.tagine-3d, .tagine-moment) {
+  inline-size: 100%;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .checkout-body,
-  .checkout-total-roll bdi,
-  .checkout-confirmed-check,
-  .checkout-confirmed-burst::before,
-  .checkout-confirmed-burst::after {
+  .checkout-total-roll bdi {
     animation: none;
   }
 

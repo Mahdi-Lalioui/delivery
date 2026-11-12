@@ -7,7 +7,7 @@ import { useEffect } from "react";
 // replace this later; this one is also the reduced-motion and low-end path.
 
 const sceneMs = 1300;
-const reducedMs = 120;
+const reducedMs = 1600;
 const steamCount = 8;
 
 export function TagineMoment({ label, onDone }: { label: string; onDone: () => void }) {
@@ -36,7 +36,7 @@ export function TagineMoment({ label, onDone }: { label: string; onDone: () => v
       <path className="tagine-base" d="M40 140 Q100 170 160 140 L150 128 Q100 146 50 128 Z" />
       <g className="tagine-lid">
         <path className="tagine-lid-body" d="M50 128 Q100 30 150 128 Z" />
-        <circle className="tagine-lid-knob" cx={100} cy={58} r={8} />
+        <circle className="tagine-lid-knob" cx={100} cy={74} r={8} />
       </g>
     </svg>
   );

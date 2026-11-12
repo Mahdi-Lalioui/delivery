@@ -54,7 +54,10 @@ for (const locale of ["ar", "fr"] as const) {
             );
           }
         }
+        await expect(page).toHaveURL(/[?&]search=open/u);
         await dialog.getByRole("button", { name: labels.close }).click();
+        await expect(dialog).toHaveCount(0);
+        await expect(page).toHaveURL(harness.origin + "/" + locale + "/discover");
         await page.reload();
         await page.getByRole("button", { name: labels.search }).click();
         const history = dialog.locator(".discovery-search-group").filter({
@@ -65,6 +68,9 @@ for (const locale of ["ar", "fr"] as const) {
         ).toBeVisible();
         await dialog.getByRole("button", { name: labels.clear }).click();
         await expect(dialog.getByRole("button", { name: labels.clear })).toHaveCount(0);
+        await page.goBack();
+        await expect(dialog).toHaveCount(0);
+        await expect(page).toHaveURL(harness.origin + "/" + locale + "/discover");
       },
       true,
     );

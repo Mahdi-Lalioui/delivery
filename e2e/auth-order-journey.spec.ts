@@ -66,6 +66,10 @@ async function place(
   const order = orderSummary.parse(await response.json());
   expect(order).toMatchObject({ fulfilment, status: "pending_acceptance", totalDzd: due });
   await expect(page.getByRole("heading", { name: checkout.confirmedTitle })).toBeVisible();
+  await expect(page.getByRole("img", { name: checkout.confirmedTitle })).toBeVisible();
+  await expect(
+    page.getByText(checkout.confirmedCode.replace("{code}", order.shortCode)),
+  ).toBeVisible();
   await expect(page).toHaveURL(harness.origin + "/fr/orders/" + order.orderId);
   return order;
 }

@@ -326,3 +326,6 @@
 
 - 2026-11-12 · Ultra · Released phone and email sign-in and Lane B Discovery/Search to main at `758f845`. [Hosted CI](https://github.com/Mahdi-Lalioui/delivery/actions/runs/43230946494) and CodeQL passed on that exact commit before the fast-forward, including mutation and authenticated browser tests.
   Next: handle [Lane B's Discovery feed request](../requests/lane-b-discovery-feed.md). Hosted staging and live SMS/email verification need the server, Vercel project and provider inputs in HUMAN_TODO.
+
+- 2026-11-12 · High · Integrated Lane B's search URLs, dish sheet and cart transitions, and 3D tracking. Mounted AWID's tagine after live checkout with low-data and reduced-motion paths. Workspace verification passed with 1,997 unit and 326 PostGIS tests. Reviewed [five confirmation captures](../evidence/awid/order-confirmed/README.md) and verified real delivery, pickup and search history.
+  Next: finish browser and GitHub checks on the integration branch before advancing main. Continue the Discovery feed and reorder handoffs from docs/requests.

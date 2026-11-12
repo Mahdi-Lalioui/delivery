@@ -4,7 +4,11 @@ import { formatDzd } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
 import { ButtonLink, EmptyState, Icon, Skeleton } from "@zaafran/ui";
 import { useTranslations } from "next-intl";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
+import { useLowData } from "../discovery/low-data";
+import { Tagine3d } from "../marketing/moments/tagine-3d";
+import { TagineMoment } from "../marketing/moments/tagine-moment";
+import "../marketing/moments/moments.css";
 import { FulfilmentStep, PaymentStep, TimingStep } from "./checkout-steps";
 import {
   isTenderInRange,
@@ -108,7 +112,7 @@ export function OrderConfirmed({
   orderId,
   shortCode,
   restaurant,
-  redirectMs = 2600,
+  redirectMs = 4500,
 }: {
   locale: Locale;
   orderId: string;
@@ -118,27 +122,35 @@ export function OrderConfirmed({
 }) {
   const translate = useTranslations("checkout");
   const href = `/${locale}/orders/${orderId}`;
+  const lowData = useLowData();
+  const title = translate("confirmedTitle");
+  const goToTracking = useCallback(() => {
+    if (redirectMs !== null) window.location.assign(href);
+  }, [href, redirectMs]);
+
   useEffect(() => {
     if (redirectMs === null) return;
-    const timer = window.setTimeout(() => {
-      window.location.assign(href);
-    }, redirectMs);
+    // Tracking stays reachable if a graphics import stalls or the context is lost.
+    const timer = window.setTimeout(goToTracking, redirectMs);
     return () => {
       window.clearTimeout(timer);
     };
-  }, [href, redirectMs]);
+  }, [goToTracking, redirectMs]);
+
   return (
     <section
       className="checkout-confirmed"
       aria-labelledby="checkout-confirmed-title"
       role="status"
     >
-      <div className="checkout-confirmed-burst" aria-hidden="true">
-        <span className="checkout-confirmed-check">
-          <Icon name="check" size={48} />
-        </span>
+      <div className="checkout-confirmed-scene">
+        {lowData ? (
+          <TagineMoment label={title} onDone={goToTracking} />
+        ) : (
+          <Tagine3d label={title} onDone={goToTracking} />
+        )}
       </div>
-      <h1 id="checkout-confirmed-title">{translate("confirmedTitle")}</h1>
+      <h1 id="checkout-confirmed-title">{title}</h1>
       <p>{translate("confirmedBody", { restaurant })}</p>
       <p className="checkout-confirmed-code">{translate("confirmedCode", { code: shortCode })}</p>
       <ButtonLink variant="primary" href={href}>

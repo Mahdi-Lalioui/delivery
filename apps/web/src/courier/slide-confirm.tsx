@@ -65,7 +65,9 @@ export function SlideConfirm({
     >
       <span
         className="courier-slide-thumb"
-        style={{ transform: "translateX(" + String(direction * offset) + "px)" }}
+        style={
+          offset === 0 ? undefined : { transform: `translateX(${String(direction * offset)}px)` }
+        }
       >
         <Icon name="chevron" size={24} />
       </span>

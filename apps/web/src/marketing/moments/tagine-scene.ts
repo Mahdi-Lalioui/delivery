@@ -139,12 +139,12 @@ export function playTagine(canvas: HTMLCanvasElement, colours: Colours, onDone: 
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
   const scene = new Scene();
-  const camera = new PerspectiveCamera(32, canvas.clientWidth / canvas.clientHeight, 0.1, 50);
+  const camera = new PerspectiveCamera(39, canvas.clientWidth / canvas.clientHeight, 0.1, 50);
   camera.position.set(0, 3.4, 6.2);
   camera.lookAt(0, 0.9, 0);
-  const sun = new DirectionalLight(0xffffff, 2.2);
+  const sun = new DirectionalLight(0xffffff, 1.45);
   sun.position.set(-3, 6, 4);
-  scene.add(new AmbientLight(0xffffff, 0.9), sun);
+  scene.add(new AmbientLight(0xffffff, 0.55), sun);
   const { base, lid } = buildTagine(colours);
   const steam = buildSteam(colours.steam, 9);
   const dish = buildDish(colours);
