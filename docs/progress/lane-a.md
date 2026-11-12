@@ -338,3 +338,6 @@
 
 - 2026-11-12 · Medium · GitHub cancelled the serial Verify job at its 20-minute limit during authenticated browser checks. Moved mutation testing to a parallel CI job and made it a required PR check. All 16 release-gate tests passed and the product's 170 local browser checks were already green.
   Next: check the exact new PR #6 head and advance main once Verify, Domain mutation, browser smoke and CodeQL pass.
+
+- 2026-11-12 · High · Fixed the Arabic restaurant's 17 px horizontal overflow on Linux Chromium by allowing the menu and full-bleed header grids to shrink. Reproduced the failure, then passed all four Arabic/French route matrices and both restaurant cart journeys on Linux.
+  Next: finish the hosted gate on this exact layout patch before advancing main.
