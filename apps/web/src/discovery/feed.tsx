@@ -122,7 +122,12 @@ export function DiscoveryFeed({
           <h2 id={headingId} tabIndex={-1}>
             {messages.heading}
           </h2>
-          <FeedFilterBar locale={locale} filters={filters} onChange={changeFilters} />
+          <FeedFilterBar
+            locale={locale}
+            filters={filters}
+            scope={location}
+            onChange={changeFilters}
+          />
         </header>
         {Object.keys(filters).length === 0 && (
           <div className="discovery-curated">
@@ -150,6 +155,18 @@ export function DiscoveryFeed({
               locale={locale}
               title={messages.fastest}
               filters={{ ...location, sort: "eta" }}
+              enabled={locationReady}
+            />
+            <FeedRail
+              locale={locale}
+              title={messages.newRail}
+              filters={{ ...location, newOnly: "true" }}
+              enabled={locationReady}
+            />
+            <FeedRail
+              locale={locale}
+              title={messages.smallMinimumRail}
+              filters={{ ...location, maxMinimumOrderDzd: "1000" }}
               enabled={locationReady}
             />
           </div>

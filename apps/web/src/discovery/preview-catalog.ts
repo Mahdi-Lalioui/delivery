@@ -20,6 +20,10 @@ type FeedExtras = Pick<
   | "priceLevel"
   | "acceptsBaridiPay"
   | "acceptsTpe"
+  | "isNew"
+  | "dietary"
+  | "minimumOrderDzd"
+  | "offersPickup"
 >;
 
 interface PreviewRestaurant {
@@ -172,6 +176,8 @@ const grill: RestaurantSeed = {
   cuisines: ["grill", "sandwiches"],
   cover: "chawarma",
   feed: {
+    minimumOrderDzd: 800,
+    offersPickup: true,
     rating: 4.6,
     ratingCount: 212,
     etaMinutes: { min: 20, max: 30 },
@@ -244,6 +250,9 @@ const pizza: RestaurantSeed = {
   cuisines: ["pizza"],
   cover: "pizza",
   feed: {
+    minimumOrderDzd: 1200,
+    isNew: true,
+    dietary: ["vegetarian"],
     rating: 4.4,
     ratingCount: 87,
     etaMinutes: { min: 30, max: 45 },
@@ -278,6 +287,9 @@ const darYemma: RestaurantSeed = {
   cuisines: ["algerian"],
   cover: "chorba-table",
   feed: {
+    minimumOrderDzd: 1500,
+    offersPickup: true,
+    dietary: ["vegetarian"],
     rating: 4.8,
     ratingCount: 431,
     etaMinutes: { min: 25, max: 35 },
@@ -350,6 +362,8 @@ const karantika: RestaurantSeed = {
   cuisines: ["sandwiches"],
   cover: "karantika-sandwich",
   feed: {
+    minimumOrderDzd: 500,
+    offersPickup: true,
     rating: 4.7,
     ratingCount: 958,
     etaMinutes: { min: 10, max: 20 },
@@ -397,6 +411,10 @@ const cirta: RestaurantSeed = {
   cuisines: ["pastry"],
   cover: "baklawa-tray",
   feed: {
+    minimumOrderDzd: 1000,
+    isNew: true,
+    offersPickup: true,
+    dietary: ["vegetarian"],
     rating: 4.9,
     ratingCount: 326,
     etaMinutes: { min: 30, max: 40 },
@@ -442,6 +460,9 @@ const msemen: RestaurantSeed = {
   cuisines: ["bakery"],
   cover: "msemen-griddle",
   feed: {
+    minimumOrderDzd: 600,
+    isNew: true,
+    dietary: ["vegetarian"],
     rating: 4.5,
     ratingCount: 143,
     etaMinutes: { min: 15, max: 25 },
@@ -488,6 +509,7 @@ const bahdja: RestaurantSeed = {
   cuisines: ["grill", "algerian"],
   cover: "grill-plate",
   feed: {
+    minimumOrderDzd: 2000,
     rating: 4.3,
     ratingCount: 61,
     etaMinutes: { min: 35, max: 50 },
@@ -523,6 +545,8 @@ const lalla: RestaurantSeed = {
   cover: "couscous",
   isOpen: false,
   feed: {
+    minimumOrderDzd: 1800,
+    offersPickup: true,
     rating: 4.7,
     ratingCount: 204,
     etaMinutes: { min: 40, max: 55 },

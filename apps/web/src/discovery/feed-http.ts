@@ -38,3 +38,16 @@ export async function readDiscoveryFeed(
     return null;
   }
 }
+
+/** How many restaurants match `filters`, for the filter sheet's "Show N restaurants". */
+export async function readFeedCount(
+  filters: FeedFilters,
+  signal: AbortSignal,
+): Promise<number | null> {
+  const page = await readDiscoveryFeed(null, signal, {
+    ...filters,
+    limit: "1",
+    includeCount: "true",
+  });
+  return page?.totalCount ?? null;
+}

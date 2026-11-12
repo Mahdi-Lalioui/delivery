@@ -76,3 +76,11 @@ is selected. [Design and browser evidence](../evidence/awid/discovery-v2/README.
 These filters use the connected API. The standalone preview catalog needs fixture support
 before the new controls are used there. Offers are pending promotion redemption at checkout,
 which is outside the current sprint.
+
+## Lane B follow-up 2 (2026-11-12)
+
+Shipped on `lane-b`: a vegetarian switch in the filter sheet (`dietary=vegetarian`, kept in the
+URL); a live "Show N restaurants" count on the sheet button (`includeCount=true&limit=1`, with
+the saved commune); "New on AWID" (`newOnly`) and "Order from 1 000 DA or less"
+(`maxMinimumOrderDzd=1000`) rails; and a "New" badge on cards with `isNew`. The preview catalog
+honours these fields with fictional values. Pickup toggle, pickup map and scheduling are next.

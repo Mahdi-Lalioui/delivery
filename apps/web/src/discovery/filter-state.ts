@@ -12,6 +12,7 @@ const allowed: Readonly<Record<string, readonly string[] | RegExp>> = {
   priceLevel: ["1", "2", "3"],
   acceptsBaridiPay: ["true"],
   acceptsTpe: ["true"],
+  dietary: ["vegetarian"],
   cuisine: /^[a-z0-9]+(?:-[a-z0-9]+)*$/u,
 };
 
