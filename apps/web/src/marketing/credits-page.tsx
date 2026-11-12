@@ -24,7 +24,9 @@ export async function CreditsPage({ locale }: { locale: Locale }) {
             <li key={credit.file}>
               <img src={credit.file} alt="" width="160" height="120" loading="lazy" />
               <div dir="ltr">
-                <strong>{credit.title}</strong>
+                <strong>
+                  {credit.title.replace(/\.(jpe?g|png|webp)$/iu, "").replaceAll("_", " ")}
+                </strong>
                 <span>{credit.author}</span>
                 <span>
                   {credit.licenceUrl === null ? (

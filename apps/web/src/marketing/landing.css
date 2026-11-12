@@ -458,7 +458,7 @@
 
 .landing-credits li {
   display: grid;
-  grid-template-columns: 6rem 1fr;
+  grid-template-columns: 7rem 1fr;
   gap: var(--space-16);
   align-items: center;
   padding: var(--space-12);
@@ -468,8 +468,8 @@
 }
 
 .landing-credits img {
-  inline-size: 6rem;
-  block-size: 4.5rem;
+  inline-size: 7rem;
+  block-size: 5.25rem;
   border-radius: var(--radius-sm);
   object-fit: cover;
 }
@@ -559,4 +559,23 @@
   .landing-photo-card img {
     transition: none;
   }
+}
+
+/* Round 1: a quieter secondary action on the photo, balanced headline, legible credit. */
+.landing-actions .ui-button-secondary {
+  border-color: color-mix(in srgb, var(--color-on-photo) 60%, transparent);
+  background: color-mix(in srgb, var(--color-on-photo) 12%, transparent);
+  color: var(--color-on-photo);
+  backdrop-filter: blur(8px);
+}
+
+.landing-slide figcaption {
+  padding: 2px var(--space-8);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-primary) 55%, transparent);
+  opacity: 1;
+}
+
+.landing-hero-copy h1 {
+  text-wrap: balance;
 }

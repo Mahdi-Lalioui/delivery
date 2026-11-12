@@ -41,7 +41,7 @@
   "auth": {
     "title": "تسجيل الدخول",
     "adminTitle": "تسجيل دخول المشرف",
-    "phoneDescription": "أدخل رقم هاتفك المحمول الجزائري. سنرسل إليك رمزًا عبر رسالة نصية.",
+    "phoneDescription": "بدون كلمة سر: نرسل لك رمزًا عبر رسالة.",
     "phoneLabel": "رقم الهاتف المحمول",
     "phoneHint": "مثلًا، ⁦05XX XX XX XX⁩.",
     "invalidPhone": "أدخل رقم هاتف محمول جزائريًا صالحًا.",
@@ -82,7 +82,8 @@
     "continueReview": "فتح قائمة الطلبات",
     "continueRestaurants": "متابعة إلى مطاعمك",
     "continueModeration": "فتح الأصناف المعلّقة",
-    "continueInvitation": "فتح الدعوة"
+    "continueInvitation": "فتح الدعوة",
+    "phonePlaceholder": "05XX XX XX XX"
   },
   "sessions": {
     "title": "الأجهزة المسجّل دخولها",
@@ -1139,7 +1140,7 @@
   },
   "marketingLanding": {
     "title": "محتاج؟ جرّب {brand}",
-    "intro": "أحسن مطابخ مدينتك، توصلك سخونة. ادفع نقدًا عند الباب وتابع الموصل حتى شارعك.",
+    "intro": "اطلب من أحسن مطابخ مدينتك وادفع نقدًا عند الباب.",
     "start": "ابحث عن أكل قربي",
     "heroCredit": "الصورة: {place}",
     "slide_maqam": "مقام الشهيد، الجزائر العاصمة",

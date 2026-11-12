@@ -1,5 +1,5 @@
 import type { Locale } from "@zaafran/i18n/locales";
-import { Icon, LogoMark, type IconName } from "@zaafran/ui";
+import { Icon, type IconName } from "@zaafran/ui";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { SiteShell } from "../components/site-shell";
@@ -29,7 +29,9 @@ export async function AccountHub({ locale }: { locale: Locale }) {
     <SiteShell locale={locale} subpath="/account">
       <section className="account-hub" aria-labelledby="account-title">
         <header className="account-hub-header">
-          <LogoMark size={64} />
+          <span className="account-hub-avatar" aria-hidden="true">
+            <Icon name="user" size={32} />
+          </span>
           <div>
             <h1 id="account-title">{translate("title")}</h1>
             <p>{translate("intro")}</p>
@@ -53,15 +55,15 @@ export async function AccountHub({ locale }: { locale: Locale }) {
             </li>
           ))}
         </ul>
+        <a className="ui-button ui-button-primary ui-button-lg" href={`/${locale}/sign-in`}>
+          {translate("signIn")}
+        </a>
         <a className="account-hub-pitch" href={`/${locale}/restaurants`}>
           <Icon name="store" size={24} />
           <span className="account-hub-text">
             <strong>{translate("restaurants")}</strong>
             <span>{translate("restaurantsBody")}</span>
           </span>
-        </a>
-        <a className="ui-button ui-button-secondary ui-button-lg" href={`/${locale}/sign-in`}>
-          {translate("signIn")}
         </a>
       </section>
       <CustomerTabBar locale={locale} current="profile" />

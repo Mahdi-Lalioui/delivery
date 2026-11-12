@@ -41,7 +41,7 @@
   "auth": {
     "title": "Sign in",
     "adminTitle": "Admin sign-in",
-    "phoneDescription": "Enter your Algerian mobile number. We’ll send you a code by SMS.",
+    "phoneDescription": "No password: we text you a 6-digit code.",
     "phoneLabel": "Mobile number",
     "phoneHint": "For example, 05XX XX XX XX.",
     "invalidPhone": "Enter a valid Algerian mobile number.",
@@ -82,7 +82,8 @@
     "continueReview": "Open review queue",
     "continueRestaurants": "Continue to your restaurants",
     "continueModeration": "Open held items",
-    "continueInvitation": "Open the invitation"
+    "continueInvitation": "Open the invitation",
+    "phonePlaceholder": "05XX XX XX XX"
   },
   "sessions": {
     "title": "Signed-in devices",
@@ -1139,7 +1140,7 @@
   },
   "marketingLanding": {
     "title": "You're in need, try {brand}",
-    "intro": "The best kitchens of your city, delivered hot. Pay cash at the door and follow your courier to your street.",
+    "intro": "Order from the best kitchens in your city and pay cash at the door.",
     "start": "Find food near me",
     "heroCredit": "Photo: {place}",
     "slide_maqam": "Maqam Echahid, Algiers",

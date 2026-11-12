@@ -41,7 +41,7 @@
   "auth": {
     "title": "Se connecter",
     "adminTitle": "Connexion administrateur",
-    "phoneDescription": "Saisissez votre numéro de mobile algérien. Nous vous enverrons un code par SMS.",
+    "phoneDescription": "Pas de mot de passe : on vous envoie un code par SMS.",
     "phoneLabel": "Numéro de mobile",
     "phoneHint": "Par exemple, 05XX XX XX XX.",
     "invalidPhone": "Saisissez un numéro de mobile algérien valide.",
@@ -82,7 +82,8 @@
     "continueReview": "Ouvrir la liste des demandes",
     "continueRestaurants": "Accéder à vos restaurants",
     "continueModeration": "Ouvrir les articles retenus",
-    "continueInvitation": "Ouvrir l’invitation"
+    "continueInvitation": "Ouvrir l’invitation",
+    "phonePlaceholder": "05XX XX XX XX"
   },
   "sessions": {
     "title": "Appareils connectés",
@@ -1139,7 +1140,7 @@
   },
   "marketingLanding": {
     "title": "Un besoin ? Essayez {brand}",
-    "intro": "Les meilleures cuisines de votre ville, livrées bien chaudes. Payez en espèces à la porte et suivez votre livreur jusqu’à votre rue.",
+    "intro": "Commandez dans les meilleures cuisines de votre ville, payez en espèces à la porte.",
     "start": "Trouver à manger",
     "heroCredit": "Photo : {place}",
     "slide_maqam": "Maqam Echahid, Alger",
