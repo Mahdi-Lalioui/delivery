@@ -18,8 +18,7 @@ Record each processor, the fields it receives, access controls, deletion behavio
 
 ## Customer account deletion
 
-The customer requests a fresh OTP for their verified phone or, for an email-only
-account, their verified email. The challenge and its send receipt expire together. The server caps incorrect attempts and rate-limits sends
+The customer requests a fresh OTP for their verified phone when SMS is available, or for their verified email. The challenge and its send receipt expire together. The server caps incorrect attempts and rate-limits sends
 by account and keyed IP digest. A completed request can be replayed only with the original
 session credential, challenge and OTP for five minutes after deletion. This proof is
 separate from the challenge issuance key, which expires with the OTP.

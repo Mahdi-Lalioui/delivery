@@ -1,5 +1,6 @@
 import type { createCourierRepository } from "@zaafran/db/couriers";
 import { expect, onTestFinished, test, vi } from "vitest";
+import type { CourierServices } from "../src/courier-routes.ts";
 import { createApi } from "../src/app.ts";
 
 const merchantId = "01932f18-3150-7c33-8a7a-53acfd343001";
@@ -17,7 +18,8 @@ test("[COU-01:http] invites and accepts using the signed-in standard session", a
     .fn<ReturnType<typeof createCourierRepository>["invite"]>()
     .mockResolvedValueOnce({ kind: "invited", invite: { inviteId, expiresAt } })
     .mockResolvedValueOnce({ kind: "not_found" })
-    .mockResolvedValueOnce({ kind: "courier_already_registered" });
+    .mockResolvedValueOnce({ kind: "courier_already_registered" })
+    .mockResolvedValueOnce({ kind: "invited", invite: { inviteId, expiresAt } });
   const accept = vi
     .fn<ReturnType<typeof createCourierRepository>["accept"]>()
     .mockResolvedValueOnce({ kind: "accepted", courier: { courierId, merchantId } })
@@ -46,6 +48,7 @@ test("[COU-01:http] invites and accepts using the signed-in standard session", a
       state: { waitStartedAt: now.toISOString(), callAttempts: 0 },
     })
     .mockResolvedValueOnce({ kind: "idempotency_conflict" });
+  const sendInvitation = vi.fn<NonNullable<CourierServices["sendInvitation"]>>();
   const api = createApi({
     checkReadiness: () => Promise.resolve(),
     resolveActor: () => Promise.resolve({ role: "customer", accountId, sessionId }),
@@ -60,6 +63,7 @@ test("[COU-01:http] invites and accepts using the signed-in standard session", a
         recordDeliveryAttempt,
       },
       now: () => now,
+      sendInvitation,
     },
   });
   onTestFinished(() => api.close());
@@ -71,6 +75,16 @@ test("[COU-01:http] invites and accepts using the signed-in standard session", a
   expect(invite).toHaveBeenCalledWith({ merchantId, phone, userId: accountId, sessionId, now });
   expect((await send(rosterPath + "/invites", { phone })).statusCode).toBe(404);
   expect((await send(rosterPath + "/invites", { phone })).statusCode).toBe(409);
+
+  const email = "courier@example.test";
+  expect(
+    (await send(rosterPath + "/invites", { email: " COURIER@EXAMPLE.TEST ", locale: "en" }))
+      .statusCode,
+  ).toBe(201);
+  expect(sendInvitation.mock.calls).toEqual([
+    [{ phone, token: inviteId, deliveryKey: inviteId }],
+    [{ email, token: inviteId, deliveryKey: inviteId, locale: "en" }],
+  ]);
 
   const accepted = await send("/v1/courier/invites/accept", { inviteId, displayName: " Sami " });
   expect(accepted.statusCode).toBe(200);

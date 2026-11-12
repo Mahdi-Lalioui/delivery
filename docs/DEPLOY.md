@@ -38,6 +38,8 @@ The command validates Compose, builds the API and worker, waits for the data ser
 - **SMS through the HTTPS webhook** requires `AUTH_SMS_WEBHOOK_URL` and `AUTH_SMS_WEBHOOK_TOKEN`. Use this option by leaving all Twilio settings unset.
 - **Email through Resend** requires `AUTH_RESEND_API_KEY` and `AUTH_RESEND_FROM`, an address on a verified domain. Use a sending-only key scoped to that domain. Confirm SPF and DKIM and deliver one Arabic, French and English test message before enabling customer access. [Resend domains](https://resend.com/docs/dashboard/domains/introduction)
 
+Put the same Twilio and Resend settings in `worker.env` to deliver order notifications when push cannot deliver. If the worker uses the SMS webhook, set `ORDER_SMS_WEBHOOK_URL` and `ORDER_SMS_WEBHOOK_TOKEN` there. The worker prefers push, then a verified phone, then a verified email for email-only accounts.
+
 See [HUMAN_TODO](HUMAN_TODO.md) for provider setup.
 
 ### SMS webhook

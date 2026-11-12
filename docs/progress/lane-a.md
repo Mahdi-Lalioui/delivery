@@ -302,3 +302,6 @@
 
 - 2026-11-12 · High · Connected the phone/email sign-in picker, verified account contact editor and email-only checkout contact. Passed 45 scoped UI checks and eight production-browser journeys. Saved 12 captures after two design rounds and added gallery links.
   Next: finish the invitation and push-first notification checkpoint, then integrate the verified release baseline and rerun the full gate.
+
+- 2026-11-12 · Ultra · Completed phone/email invitations and push-first order notices. Notices fall back to verified SMS or email and never use checkout contact data. Passed 99 focused PostGIS cases, 262 authorization/HTTP checks, lint, typecheck and OpenAPI.
+  Next: merge the verified main baseline, run full verification and both production-browser suites, then publish the auth phase. Live provider and staging steps remain in HUMAN_TODO.

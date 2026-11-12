@@ -59,7 +59,7 @@ export function GalleryPage({
                 <p className="ui-page-intro">{messages.designGallery.intro}</p>
               </div>
             </header>
-            <nav className="ui-toolbar" aria-label={messages.designGallery.screens}>
+            <nav className="ui-page-header" aria-label={messages.designGallery.screens}>
               <ButtonLink variant="secondary" href={`/${locale}/sign-in`}>
                 {messages.auth.title}
               </ButtonLink>

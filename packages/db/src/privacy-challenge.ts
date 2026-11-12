@@ -29,6 +29,7 @@ type ChallengeResult =
   | { readonly kind: "unauthorized" };
 
 interface DeliverChallenge extends ChallengeScope {
+  readonly preferEmail?: boolean;
   readonly send: (target: AuthIdentifier) => Promise<void> | void;
 }
 
@@ -118,8 +119,8 @@ export async function deliverDeletionChallenge(
   if (!challenge) return false;
   if (challenge.delivered) return true;
 
-  if (phoneE164 !== null) await send({ phoneE164 });
-  else if (email !== null) await send({ email });
+  if (email !== null && (input.preferEmail || phoneE164 === null)) await send({ email });
+  else if (phoneE164 !== null) await send({ phoneE164 });
   else return false;
   await sql`
     UPDATE public.account_deletion_challenges SET delivered_at = ${timestamp}

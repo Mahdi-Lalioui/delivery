@@ -13,18 +13,22 @@ export function otpCopy(locale: PublicLocale = "fr", code: string) {
   return { subject, text, html };
 }
 
-export function staffInvitationText({
-  locale = "fr",
-  publicOrigin,
-  token,
-}: {
+export type InvitationKind = "staff" | "courier";
+export type InvitationCopyInput = {
   locale?: PublicLocale | undefined;
   publicOrigin: string;
   token: string;
-}) {
-  const url = new URL(`/${locale}/staff/accept`, publicOrigin);
-  url.hash = new URLSearchParams({ token }).toString();
-  return `AWID · ${messages[locale].invitation} ${url.href}`;
+  kind: InvitationKind;
+};
+
+export function invitationCopy({ locale = "fr", publicOrigin, token, kind }: InvitationCopyInput) {
+  const url = new URL(`/${locale}/${kind === "staff" ? "staff/accept" : "courier"}`, publicOrigin);
+  url.hash = new URLSearchParams({ [kind === "staff" ? "token" : "invite"]: token }).toString();
+  const label = messages[locale].invitation;
+  const subject = `AWID · ${label.replace(/\s*:$/u, "")}`;
+  const text = `AWID · ${label} ${url.href}`;
+  const html = `<p lang="${locale}" dir="auto"><a href="${url.href}">${subject}</a></p>`;
+  return { subject, text, html };
 }
 
 export function messageLocale(language: string | undefined): PublicLocale {

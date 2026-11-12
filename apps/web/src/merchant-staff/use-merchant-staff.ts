@@ -1,5 +1,7 @@
 "use client";
 
+import type { PublicLocale } from "@zaafran/i18n/locales";
+
 import { useEffect, useReducer, useRef, useState } from "react";
 import { initialStaffState, reduceStaff, staffRevokeKey, type StaffState } from "./staff-flow";
 import type { StaffRevokeAttempt } from "./staff-flow";
@@ -11,7 +13,12 @@ import {
   type StaffInvitationAttempt,
 } from "./staff-http";
 
-type InviteDraft = { phone: string; role: "manager" | "staff" | "" };
+type InviteDraft = {
+  phone: string;
+  method?: "phone" | "email";
+  locale?: PublicLocale | undefined;
+  role: "manager" | "staff" | "";
+};
 
 export interface MerchantStaffControls {
   readonly state: StaffState;

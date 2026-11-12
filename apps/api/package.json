@@ -20,6 +20,7 @@
     "@zaafran/geo": "workspace:*",
     "@zaafran/i18n": "workspace:*",
     "@zaafran/media": "workspace:*",
+    "@zaafran/notifications": "workspace:*",
     "fastify": "5.12.8",
     "fastify-type-provider-zod": "7.0.0",
     "openapi-types": "12.1.3",

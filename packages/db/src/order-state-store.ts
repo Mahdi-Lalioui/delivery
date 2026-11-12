@@ -1,5 +1,5 @@
 import { customerPushStatus } from "@zaafran/contracts/push";
-import { customerSmsStatus, type orderSummary } from "@zaafran/contracts/orders";
+import type { orderSummary } from "@zaafran/contracts/orders";
 import type { OrderEvent, OrderSnapshot } from "@zaafran/domain/order-types";
 import type { TransactionSql } from "postgres";
 import { timestampParsers } from "./timestamp-parsers.js";
@@ -37,37 +37,29 @@ export async function appendOrderEvent(sql: TransactionSql, event: OrderEvent) {
       ${event.actor.id}, ${JSON.stringify(event.payload)}::jsonb, ${iso(event.at)}
     )
   `;
-  if (event.from === event.to) return;
-  if (customerSmsStatus.safeParse(event.to).success) await enqueueOrderSms(sql, event);
-  if (customerPushStatus.safeParse(event.to).success) await enqueueOrderPush(sql, event);
+  if (event.from === event.to || !customerPushStatus.safeParse(event.to).success) return;
+  await enqueueOrderNotification(sql, event);
 }
 
-async function enqueueOrderSms(sql: TransactionSql, event: OrderEvent) {
-  const key = ["order", "sms", event.orderId, String(event.version)].join(":");
+async function enqueueOrderNotification(sql: TransactionSql, event: OrderEvent) {
+  const queue = ["order", "notification", event.orderId].join(":");
   await sql`
+    WITH channel AS (
+      SELECT CASE WHEN EXISTS (
+        SELECT FROM public.push_subscriptions AS subscription
+        JOIN public.sessions AS session ON session.id = subscription.session_id
+        WHERE subscription.user_id = orders.customer_id AND session.revoked_at IS NULL
+          AND session.expires_at > statement_timestamp()
+          AND (subscription.expires_ms IS NULL OR subscription.expires_ms > extract(epoch FROM statement_timestamp()) * 1000)
+      ) THEN 'push' ELSE 'sms' END AS preferred
+      FROM public.orders WHERE id = ${event.orderId} AND customer_id IS NOT NULL
+        AND (${event.to} <> 'ready' OR fulfilment = 'pickup')
+    )
     SELECT graphile_worker.add_job(
-      'order.sms', json_build_object('orderId', ${event.orderId}::uuid, 'version', ${event.version}::int),
-      job_key => ${key}, max_attempts => 8
-    )
-  `;
-}
-
-async function enqueueOrderPush(sql: TransactionSql, event: OrderEvent) {
-  const queue = ["order", "push", event.orderId].join(":");
-  const key = [queue, String(event.version)].join(":");
-  await sql`
-    SELECT graphile_worker.add_job(
-      'order.push', json_build_object('orderId', ${event.orderId}::uuid, 'version', ${event.version}::int),
-      queue_name => ${queue}, job_key => ${key}, max_attempts => 8
-    )
-    WHERE EXISTS (
-      SELECT FROM public.orders AS orders
-      JOIN public.push_subscriptions AS subscription ON subscription.user_id = orders.customer_id
-      JOIN public.sessions AS session ON session.id = subscription.session_id
-      WHERE orders.id = ${event.orderId} AND (${event.to} <> 'ready' OR orders.fulfilment = 'pickup')
-        AND session.revoked_at IS NULL AND session.expires_at > statement_timestamp()
-        AND (subscription.expires_ms IS NULL OR subscription.expires_ms > extract(epoch FROM statement_timestamp()) * 1000)
-    )
+      'order.' || preferred, json_build_object('orderId', ${event.orderId}::uuid, 'version', ${event.version}::int),
+      queue_name => ${queue}, job_key => 'order:' || preferred || ':' || ${event.orderId} || ':' || ${event.version}::text,
+      max_attempts => 8
+    ) FROM channel
   `;
 }
 

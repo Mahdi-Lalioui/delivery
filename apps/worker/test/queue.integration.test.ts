@@ -134,98 +134,150 @@ test("[CUS-24:job] the retention worker clears expired deletion secrets without 
   ).toEqual([{ key_hash: null, code_hmac: null }]);
 });
 
-test("[NOT-01][NOT-02] the worker sends localized SMS and push once per order event and drops expired endpoints", async () => {
-  const connection = database.get();
-  const { sql } = connection;
-  await migrateWorker(database.url());
-  const orderId = randomUUID();
-  const quoteId = randomUUID();
-  await sql`
+const noticeScenarios = [
+  {
+    name: "push takes priority over verified SMS",
+    pushOutcome: "sent",
+    phone: "+213500000258",
+    email: null,
+    fallback: "none",
+  },
+  {
+    name: "a gone endpoint falls back to verified SMS",
+    pushOutcome: "gone",
+    phone: "+213500000259",
+    email: "sms-notice@example.test",
+    fallback: "sms",
+  },
+  {
+    name: "an email-only account receives email instead of a contact-phone SMS",
+    pushOutcome: "gone",
+    phone: null,
+    email: "email-notice@example.test",
+    fallback: "email",
+  },
+] as const;
+
+test.each(noticeScenarios)(
+  "[NOT-01][NOT-02] $name",
+  async ({ pushOutcome, phone, email, fallback }) => {
+    const connection = database.get();
+    const { sql } = connection;
+    await migrateWorker(database.url());
+    const orderId = randomUUID();
+    const quoteId = randomUUID();
+    await sql`
     INSERT INTO public.wilayas (code, name_ar, name_fr)
     VALUES (16, 'الجزائر', 'Alger') ON CONFLICT DO NOTHING
   `;
-  await sql`
+    await sql`
     WITH account AS (
-      INSERT INTO users (phone_e164, created_at) VALUES ('+213500000258', now()) RETURNING id
+      INSERT INTO users (phone_e164, email, created_at) VALUES (${phone}, ${email}, now()) RETURNING id
     ), commune AS (
       INSERT INTO communes (code, wilaya_code, name_ar, name_fr, centroid)
-      VALUES ('1698', 16, 'تجريبي', 'Test', ST_GeogFromText('SRID=4326;POINT(3 36)')) RETURNING id
+      VALUES ('1698', 16, 'تجريبي', 'Test', ST_GeogFromText('SRID=4326;POINT(3 36)'))
+      ON CONFLICT (code) DO UPDATE SET name_fr = excluded.name_fr RETURNING id
     ), merchant AS (
       INSERT INTO merchants (slug, restaurant_name, owner_name, phone_e164, commune_id,
         location, cuisines, status, created_at)
-      SELECT 'fixture-sms', 'Test', 'Synthetic owner', '+213500000000', id,
+      SELECT ${"fixture-notice-" + orderId}, 'Test', 'Synthetic owner', '+213500000000', id,
         ST_GeogFromText('SRID=4326;POINT(3 36)'), ARRAY['algerian'], 'active', now()
       FROM commune RETURNING id
     )
     INSERT INTO orders (
       id, quote_id, customer_id, merchant_id, restaurant_name, short_code, order_day, status,
       fulfilment, version, placed_at, last_event_at, subtotal_dzd, delivery_fee_dzd, total_dzd,
-      paying_with_dzd, lines, customer_locale
+      paying_with_dzd, lines, customer_locale, contact_phone_e164
     )
     SELECT ${orderId}, ${quoteId}, account.id, merchant.id, 'Test', 'AAA-222', current_date,
-      'expired', 'pickup', 2, now(), now(), 1000, 0, 1000, 1000, '[]', 'en'
+      'expired', 'pickup', 2, now(), now(), 1000, 0, 1000, 1000, '[]', 'en', '+213500000299'
     FROM account, merchant
   `;
-  await sql`
+    await sql`
     INSERT INTO order_events (order_id, version, from_status, to_status, actor_kind, payload, occurred_at)
     VALUES (${orderId}, 2, 'pending_acceptance', 'expired', 'system', '{"kind":"expire"}', now())
   `;
-  await sql`
+    await sql`
     SELECT graphile_worker.add_job('order.sms', json_build_object('orderId', ${orderId}::uuid, 'version', 2))
     FROM generate_series(1, 2)
   `;
-  const [order] = await sql<{ userId: string }[]>`
+    const [order] = await sql<{ userId: string }[]>`
     SELECT customer_id AS "userId" FROM public.orders WHERE id = ${orderId}
   `;
-  if (!order) throw new Error("Expected a customer order");
-  const sessionId = randomUUID();
-  await createAuthRepository(connection).transaction((tx) =>
-    tx.insertSession({
-      id: sessionId,
-      userId: order.userId,
-      tokenHash: randomBytes(32),
-      transport: "web",
-      kind: "standard",
-      requestIp: "192.0.2.4",
-      deviceName: "Fixture",
-      now: new Date(),
-    }),
-  );
-  const endpoint = "https://fcm.googleapis.com/fcm/send/fixture";
-  const keys = { p256dh: "B" + "A".repeat(86), auth: "A".repeat(22) };
-  await sql`
+    if (!order) throw new Error("Expected a customer order");
+    const sessionId = randomUUID();
+    await createAuthRepository(connection).transaction((tx) =>
+      tx.insertSession({
+        id: sessionId,
+        userId: order.userId,
+        tokenHash: randomBytes(32),
+        transport: "web",
+        kind: "standard",
+        requestIp: "192.0.2.4",
+        deviceName: "Fixture",
+        now: new Date(),
+      }),
+    );
+    const endpoint = "https://fcm.googleapis.com/fcm/send/" + orderId;
+    const keys = { p256dh: "B" + "A".repeat(86), auth: "A".repeat(22) };
+    await sql`
     INSERT INTO push_subscriptions (endpoint, user_id, session_id, p256dh, auth_key)
     VALUES (${endpoint}, ${order.userId}, ${sessionId}, ${keys.p256dh}, ${keys.auth})
   `;
-  await sql`
+    await sql`
     SELECT graphile_worker.add_job('order.push', json_build_object('orderId', ${orderId}::uuid, 'version', 2))
     FROM generate_series(1, 2)
   `;
-  const orderPush = vi.fn<SendOrderPush>().mockResolvedValue("gone");
-  const orderSms = vi
-    .fn<(message: { recipient: string; key: string; text: string }) => Promise<void>>()
-    .mockResolvedValue(undefined);
-  const worker = createWorkerOptions(database.url(), connection, {
-    store: createLocalMediaStore({ root: tmpdir() }),
-    orderSms,
-    orderPush,
-  });
-  await runOnce({ ...worker, noHandleSignals: true });
-  expect(orderSms).toHaveBeenCalledExactlyOnceWith({
-    recipient: "+213500000258",
-    key: "order:sms:" + orderId + ":2",
-    text: "AWID · Order expired · AAA-222",
-  });
-  expect(orderPush).toHaveBeenCalledExactlyOnceWith(
-    { endpoint, keys },
-    {
-      id: orderId + ":2",
-      status: "expired",
-      code: "AAA-222",
-      title: "AWID",
-      body: "Order expired",
-      url: "/en/orders",
-    },
-  );
-  expect(await sql`SELECT FROM push_subscriptions WHERE endpoint = ${endpoint}`).toHaveLength(0);
-});
+    const orderPush = vi.fn<SendOrderPush>().mockResolvedValue(pushOutcome);
+    const orderSms = vi
+      .fn<(message: { recipient: string; key: string; text: string }) => Promise<void>>()
+      .mockResolvedValue(undefined);
+    const orderEmail = vi
+      .fn<
+        (message: {
+          to: string;
+          key: string;
+          subject: string;
+          text: string;
+          html: string;
+        }) => Promise<void>
+      >()
+      .mockResolvedValue(undefined);
+    const worker = createWorkerOptions(database.url(), connection, {
+      store: createLocalMediaStore({ root: tmpdir() }),
+      orderSms,
+      orderPush,
+      orderEmail,
+    });
+    await runOnce({ ...worker, noHandleSignals: true });
+    if (fallback === "sms") {
+      expect(orderSms).toHaveBeenCalledExactlyOnceWith({
+        recipient: phone,
+        key: "order:sms:" + orderId + ":2",
+        text: "AWID · Order expired · AAA-222",
+      });
+    } else expect(orderSms).not.toHaveBeenCalled();
+    if (fallback === "email") {
+      expect(orderEmail).toHaveBeenCalledOnce();
+      expect(orderEmail.mock.calls[0]?.[0]).toMatchObject({
+        to: email,
+        key: "order:email:" + orderId + ":2",
+        text: "AWID · Order expired · AAA-222",
+      });
+    } else expect(orderEmail).not.toHaveBeenCalled();
+    expect(orderPush).toHaveBeenCalledExactlyOnceWith(
+      { endpoint, keys },
+      {
+        id: orderId + ":2",
+        status: "expired",
+        code: "AAA-222",
+        title: "AWID",
+        body: "Order expired",
+        url: "/en/orders",
+      },
+    );
+    expect(await sql`SELECT FROM push_subscriptions WHERE endpoint = ${endpoint}`).toHaveLength(
+      pushOutcome === "gone" ? 0 : 1,
+    );
+  },
+);

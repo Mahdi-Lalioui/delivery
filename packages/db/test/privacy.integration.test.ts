@@ -606,6 +606,19 @@ test("[CUS-24] exports both verified identifiers and erases an email-only accoun
     phoneE164: linked.phoneE164,
     email: linkedEmail,
   });
+  const linkedChallenge = challenge(linked, "192.0.2.184");
+  expect(await repo.issueDeletionChallenge(linkedChallenge)).toMatchObject({ kind: "issued" });
+  let linkedTarget: unknown;
+  expect(
+    await repo.deliverDeletionChallenge({
+      ...linkedChallenge,
+      preferEmail: true,
+      send(target) {
+        linkedTarget = target;
+      },
+    }),
+  ).toBe(true);
+  expect(linkedTarget).toEqual({ email: linkedEmail });
   const email = "email-only-privacy@example.test";
   const { id: userId } = await auth.transaction((tx) =>
     tx.getOrCreateUserForSignIn({ email, now }),

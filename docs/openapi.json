@@ -13550,19 +13550,51 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "phone": {
-                    "type": "string",
-                    "minLength": 13,
-                    "maxLength": 13,
-                    "pattern": "^\\+213[567][0-9]{8}$"
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "phone": {
+                        "type": "string",
+                        "minLength": 13,
+                        "maxLength": 13,
+                        "pattern": "^\\+213[567][0-9]{8}$"
+                      },
+                      "locale": {
+                        "type": "string",
+                        "enum": [
+                          "ar",
+                          "fr",
+                          "en"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "phone"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "email": {
+                        "type": "string"
+                      },
+                      "locale": {
+                        "type": "string",
+                        "enum": [
+                          "ar",
+                          "fr",
+                          "en"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "email"
+                    ],
+                    "additionalProperties": false
                   }
-                },
-                "required": [
-                  "phone"
-                ],
-                "additionalProperties": false
+                ]
               }
             }
           }
@@ -52165,6 +52197,12 @@
                             "maxLength": 13,
                             "pattern": "^\\+213[567][0-9]{8}$"
                           },
+                          "email": {
+                            "type": "string",
+                            "maxLength": 254,
+                            "format": "email",
+                            "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                          },
                           "role": {
                             "type": "string",
                             "enum": [
@@ -52179,7 +52217,6 @@
                         },
                         "required": [
                           "userId",
-                          "phoneE164",
                           "role",
                           "isSelf"
                         ],
@@ -52203,6 +52240,12 @@
                             "maxLength": 13,
                             "pattern": "^\\+213[567][0-9]{8}$"
                           },
+                          "email": {
+                            "type": "string",
+                            "maxLength": 254,
+                            "format": "email",
+                            "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                          },
                           "role": {
                             "type": "string",
                             "enum": [
@@ -52223,7 +52266,6 @@
                         },
                         "required": [
                           "invitationId",
-                          "phoneE164",
                           "role",
                           "createdAt",
                           "expiresAt"
@@ -52568,27 +52610,67 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "phone": {
-                    "type": "string",
-                    "minLength": 13,
-                    "maxLength": 13,
-                    "pattern": "^\\+213[567][0-9]{8}$"
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "phone": {
+                        "type": "string",
+                        "minLength": 13,
+                        "maxLength": 13,
+                        "pattern": "^\\+213[567][0-9]{8}$"
+                      },
+                      "role": {
+                        "type": "string",
+                        "enum": [
+                          "manager",
+                          "staff"
+                        ]
+                      },
+                      "locale": {
+                        "type": "string",
+                        "enum": [
+                          "ar",
+                          "fr",
+                          "en"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "phone",
+                      "role"
+                    ],
+                    "additionalProperties": false
                   },
-                  "role": {
-                    "type": "string",
-                    "enum": [
-                      "manager",
-                      "staff"
-                    ]
+                  {
+                    "type": "object",
+                    "properties": {
+                      "email": {
+                        "type": "string"
+                      },
+                      "role": {
+                        "type": "string",
+                        "enum": [
+                          "manager",
+                          "staff"
+                        ]
+                      },
+                      "locale": {
+                        "type": "string",
+                        "enum": [
+                          "ar",
+                          "fr",
+                          "en"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "email",
+                      "role"
+                    ],
+                    "additionalProperties": false
                   }
-                },
-                "required": [
-                  "phone",
-                  "role"
-                ],
-                "additionalProperties": false
+                ]
               }
             }
           }
@@ -52650,6 +52732,12 @@
                       "maxLength": 13,
                       "pattern": "^\\+213[567][0-9]{8}$"
                     },
+                    "email": {
+                      "type": "string",
+                      "maxLength": 254,
+                      "format": "email",
+                      "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                    },
                     "role": {
                       "type": "string",
                       "enum": [
@@ -52672,7 +52760,6 @@
                   "required": [
                     "invitationId",
                     "merchantId",
-                    "phoneE164",
                     "role",
                     "status",
                     "expiresAt"

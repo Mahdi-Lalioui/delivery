@@ -238,6 +238,9 @@ importers:
       '@zaafran/media':
         specifier: workspace:*
         version: link:../../packages/media
+      '@zaafran/notifications':
+        specifier: workspace:*
+        version: link:../../packages/notifications
       fastify:
         specifier: 5.12.8
         version: 5.12.8
@@ -451,6 +454,9 @@ importers:
       '@zaafran/media':
         specifier: workspace:*
         version: link:../../packages/media
+      '@zaafran/notifications':
+        specifier: workspace:*
+        version: link:../../packages/notifications
       graphile-worker:
         specifier: 0.18.0
         version: 0.18.0(supports-color@7.2.0)(typescript@6.0.3)
@@ -640,6 +646,18 @@ importers:
       vitest:
         specifier: 5.1.0
         version: 5.1.0(@types/node@26.6.6)(@vitest/coverage-v8@5.1.0)(jsdom@26.1.0(supports-color@7.2.0))(msw@3.0.3(@types/node@26.6.6)(supports-color@7.2.0)(typescript@6.0.3)(vite@8.3.6(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)))(vite@8.3.6(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
+
+  packages/notifications:
+    devDependencies:
+      '@types/node':
+        specifier: 26.6.6
+        version: 26.6.6
+      '@zaafran/config':
+        specifier: workspace:*
+        version: link:../config
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
 
   packages/tokens:
     devDependencies:

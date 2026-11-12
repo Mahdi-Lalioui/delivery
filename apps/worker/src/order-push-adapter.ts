@@ -39,7 +39,3 @@ export function createOrderPushAdapter(
     }
   };
 }
-
-export function unavailableOrderPush(): Promise<never> {
-  return Promise.reject(new Error("Web Push gateway is unavailable"));
-}

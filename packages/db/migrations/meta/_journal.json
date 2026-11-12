@@ -407,6 +407,13 @@
       "when": 1794146520000,
       "tag": "0057_order_contact_phone",
       "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "7",
+      "when": 1794146580000,
+      "tag": "0058_email_invitations",
+      "breakpoints": true
     }
   ]
 }

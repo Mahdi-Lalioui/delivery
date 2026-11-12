@@ -36,10 +36,11 @@ import { createOrderRealtimeSignals } from "./order-realtime-signals.js";
 import { createPrivacyService } from "./privacy-service.js";
 import { createStaffInvitationToken } from "./auth-crypto.js";
 import { createAuthSmsAdapter, createSmsMessages } from "./auth-sms-adapter.js";
-import { createResendSender, createTwilioSender } from "./message-adapters.js";
-import { otpCopy } from "./message-copy.js";
+import { createResendSender, createTwilioSender } from "@zaafran/notifications";
+import { invitationCopy, otpCopy, type InvitationKind } from "./message-copy.js";
 import { createAuthService } from "./auth-service.js";
-import type { MerchantStaffServices } from "./merchant-staff-routes.js";
+import type { CourierServices } from "./courier-routes.js";
+import type { InvitationMessage, MerchantStaffServices } from "./merchant-staff-routes.js";
 import { readApiEnvironment } from "./environment.js";
 import { createRoutedTracking } from "./routed-tracking.js";
 import { checkReadiness } from "./readiness.js";
@@ -49,6 +50,10 @@ export interface StartOptions {
   readonly sendEmail?: NonNullable<Parameters<typeof createAuthService>[0]["sendEmail"]>;
   readonly sendSms?: Parameters<typeof createAuthService>[0]["sendSms"];
   readonly sendInvitation?: MerchantStaffServices["sendInvitation"];
+  readonly sendCourierInvitation?: MerchantStaffServices["sendInvitation"];
+  readonly sendEmailInvitation?: (
+    message: InvitationMessage & { email: string; kind: InvitationKind },
+  ) => Promise<void> | void;
   readonly configure?: (api: FastifyInstance) => void;
   readonly environment?: Readonly<Record<string, string | undefined>>;
   readonly listen?: (api: FastifyInstance, options: FastifyListenOptions) => Promise<string>;
@@ -59,8 +64,11 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
   const database = openDatabase(environment.DATABASE_URL);
   const now = options.now ?? (() => new Date());
   const otpKey = Buffer.from(environment.AUTH_OTP_KEY, "hex");
-  const { sendSms, sendInvitation, smsEnabled } = smsServices(environment, options);
-  const sendEmail = options.sendEmail ?? configureEmail(environment);
+  const { sendSms, sendInvitation, sendCourierInvitation, smsEnabled } = smsServices(
+    environment,
+    options,
+  );
+  const { sendEmail, sendEmailInvitation } = emailServices(environment, options);
   const service = createAuthService({
     repository: createAuthRepository(database),
     otpKey,
@@ -89,7 +97,11 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     orderRatings: { repository: orders, now },
     orderActions: { repository: orders, now },
     adminOrders: createAdminOrdersRepository(database),
-    couriers: { repository: createCourierRepository(database), now },
+    couriers: {
+      repository: createCourierRepository(database),
+      now,
+      sendInvitation: courierDelivery(sendCourierInvitation, sendEmailInvitation),
+    },
     merchantBoard: orders,
     orderTracking: createRoutedTracking({
       read: orders.tracking,
@@ -109,6 +121,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
       otpKey,
       now,
       sendSms,
+      smsEnabled,
       sendEmail,
     }),
     merchant: { repository: createMerchantRepository(database), now },
@@ -152,6 +165,8 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
       now,
       createToken: (scope) => createStaffInvitationToken({ ...scope, key: otpKey }),
       sendInvitation,
+      sendEmailInvitation:
+        sendEmailInvitation && ((message) => sendEmailInvitation({ ...message, kind: "staff" })),
     },
   });
   api.addHook("onClose", () => database.close());
@@ -190,17 +205,49 @@ function smsServices(environment: ReturnType<typeof readApiEnvironment>, options
     smsEnabled: Boolean(options.sendSms ?? configured),
     sendSms: options.sendSms ?? configured?.sendOtp ?? unavailableSms,
     sendInvitation: options.sendInvitation ?? configured?.sendInvitation ?? unavailableSms,
+    sendCourierInvitation: options.sendCourierInvitation ?? configured?.sendCourierInvitation,
   };
 }
 
 function configureEmail({
   AUTH_RESEND_API_KEY: apiKey,
   AUTH_RESEND_FROM: from,
-}: ReturnType<typeof readApiEnvironment>): StartOptions["sendEmail"] {
-  if (!apiKey || !from) return undefined;
-  const send = createResendSender({ apiKey, from: `AWID <${from}>` });
-  return ({ email, code, deliveryKey, locale }) =>
-    send({ ...otpCopy(locale, code), to: email, key: `otp:${deliveryKey}` });
+}: ReturnType<typeof readApiEnvironment>) {
+  return apiKey && from ? createResendSender({ apiKey, from: `AWID <${from}>` }) : undefined;
+}
+
+function emailServices(environment: ReturnType<typeof readApiEnvironment>, options: StartOptions) {
+  const send = configureEmail(environment);
+  const sendOtp: StartOptions["sendEmail"] =
+    send &&
+    (({ email, code, deliveryKey, locale }) =>
+      send({ ...otpCopy(locale, code), to: email, key: `otp:${deliveryKey}` }));
+  const sendInvite: StartOptions["sendEmailInvitation"] =
+    send &&
+    (({ email, token, deliveryKey, locale, kind }) =>
+      send({
+        ...invitationCopy({ publicOrigin: environment.AUTH_PUBLIC_ORIGIN, token, locale, kind }),
+        to: email,
+        key: `${kind}-invite:${deliveryKey}`,
+      }));
+  return {
+    sendEmail: options.sendEmail ?? sendOtp,
+    sendEmailInvitation: options.sendEmailInvitation ?? sendInvite,
+  };
+}
+
+function courierDelivery(
+  sendSms: MerchantStaffServices["sendInvitation"] | undefined,
+  sendEmail: StartOptions["sendEmailInvitation"],
+): NonNullable<CourierServices["sendInvitation"]> {
+  return (message) => {
+    if (message.email === undefined) {
+      if (!sendSms) return unavailableSms();
+      return sendSms(message);
+    }
+    if (!sendEmail) throw new Error("Email delivery is unavailable.");
+    return sendEmail({ ...message, kind: "courier" });
+  };
 }
 
 function unavailableSms(): never {

@@ -15,6 +15,12 @@ await serveApi({
     const { subject, text } = otpCopy(locale, code);
     outbox.sendEmail({ recipientRef: email, subject, text });
   },
+  sendCourierInvitation: ({ phone, token }) => {
+    outbox.sendSms({ recipientRef: phone, text: token });
+  },
+  sendEmailInvitation: ({ email, token }) => {
+    outbox.sendEmail({ recipientRef: email, subject: "AWID", text: token });
+  },
   sendInvitation: ({ phone, token }) => {
     outbox.sendSms({ recipientRef: phone, text: token });
   },

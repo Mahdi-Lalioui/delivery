@@ -1,6 +1,6 @@
 import { randomBytes, randomUUID } from "node:crypto";
 import { beforeAll, expect, test } from "vitest";
-import { createAuthRepository } from "../src/auth.ts";
+import { createAuthRepository, type AuthIdentifier } from "../src/auth.ts";
 import { createCourierRepository } from "../src/couriers.ts";
 import { lockDeletableAccount } from "../src/privacy-account.ts";
 import { registerTestDatabase } from "./database.ts";
@@ -17,9 +17,14 @@ let owner: Awaited<ReturnType<typeof account>>;
 let other: Awaited<ReturnType<typeof account>>;
 let courier: Awaited<ReturnType<typeof account>>;
 
-async function account(phoneE164: string) {
+async function account(identifier: string | AuthIdentifier) {
   const auth = createAuthRepository(database.get());
-  const user = await auth.transaction((tx) => tx.getOrCreateUserForSignIn({ phoneE164, now }));
+  const user = await auth.transaction((tx) =>
+    tx.getOrCreateUserForSignIn({
+      ...(typeof identifier === "string" ? { phoneE164: identifier } : identifier),
+      now,
+    }),
+  );
   const sessionId = randomUUID();
   await auth.transaction((tx) =>
     tx.insertSession({
@@ -100,4 +105,19 @@ test("[COU-01] expired invitation cannot grant courier access", async () => {
   const { sql } = database.get();
   await sql`UPDATE public.sessions SET revoked_at = now() WHERE id = ${driver.sessionId}`;
   expect(await repo().accept({ ...driver, inviteId, now })).toEqual({ kind: "unauthorized" });
+});
+
+test("[COU-01] an email invite is scoped to the verified courier account", async () => {
+  const email = "courier-invite@example.test";
+  const driver = await account({ email });
+  const input = { ...owner, merchantId, email, now };
+  const invited = await repo().invite(input);
+  if (invited.kind !== "invited") throw new Error("Expected an email invite");
+  expect(await repo().invite(input)).toEqual(invited);
+  const { inviteId } = invited.invite;
+  expect(await repo().accept({ ...other, inviteId, now })).toEqual({ kind: "not_found" });
+  expect(await repo().accept({ ...driver, inviteId, now })).toMatchObject({
+    kind: "accepted",
+    courier: { merchantId },
+  });
 });

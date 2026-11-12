@@ -1,10 +1,11 @@
 import type { TransactionSql } from "postgres";
-import { lockOtpPhone } from "./auth-otp-lock.js";
+import { lockOtpIdentifier } from "./auth-otp-lock.js";
 import { readPrivacyIdentifiers } from "./privacy-account.js";
 import { timestampParsers } from "./timestamp-parsers.js";
 
 export type CourierScope = { userId: string; sessionId: string };
-export type InviteRequest = CourierScope & { merchantId: string; phone: string; now: Date };
+type Destination = { phone: string; email?: never } | { email: string; phone?: never };
+export type InviteRequest = CourierScope & Destination & { merchantId: string; now: Date };
 export type AcceptRequest = CourierScope & {
   inviteId: string;
   displayName?: string | undefined;
@@ -37,46 +38,58 @@ async function canInvite(
   return member !== undefined;
 }
 
-async function createInvitation(
-  sql: TransactionSql,
-  { merchantId, userId, phone, now }: InviteRequest,
-) {
+async function createInvitation(sql: TransactionSql, request: InviteRequest) {
+  const { merchantId, userId, now } = request;
+  const phone = request.phone ?? null;
+  const email = request.email ?? null;
   const timestamp = now.toISOString();
   await sql`
     UPDATE public.courier_invitations SET revoked_at = ${timestamp}
-    WHERE merchant_id = ${merchantId} AND phone_e164 = ${phone}
+    WHERE merchant_id = ${merchantId} AND (phone_e164 = ${phone} OR email = ${email})
       AND accepted_at IS NULL AND revoked_at IS NULL AND expires_at <= ${timestamp}
   `;
-  const [invite] = await sql<Invitation[]>`
-    INSERT INTO public.courier_invitations (merchant_id, invited_by, phone_e164, created_at, expires_at)
-    VALUES (${merchantId}, ${userId}, ${phone}, ${timestamp},
+  const [created] = await sql<Invitation[]>`
+    INSERT INTO public.courier_invitations (merchant_id, invited_by, phone_e164, email, created_at, expires_at)
+    VALUES (${merchantId}, ${userId}, ${phone}, ${email}, ${timestamp},
       ${new Date(now.getTime() + invitationLifetime).toISOString()})
-    ON CONFLICT (merchant_id, phone_e164) WHERE accepted_at IS NULL AND revoked_at IS NULL
-    DO UPDATE SET expires_at = courier_invitations.expires_at
+    ON CONFLICT DO NOTHING
     RETURNING id AS "inviteId", expires_at AS "expiresAt"
   `.parsers(timestampParsers);
-  if (!invite) throw new Error("Invitation insert returned no row");
-  return inviteReceipt(invite);
+  if (created) return inviteReceipt(created);
+  const [existing] = await sql<Invitation[]>`
+    SELECT id AS "inviteId", expires_at AS "expiresAt" FROM public.courier_invitations
+    WHERE merchant_id = ${merchantId} AND (phone_e164 = ${phone} OR email = ${email})
+      AND accepted_at IS NULL AND revoked_at IS NULL
+  `.parsers(timestampParsers);
+  if (!existing) throw new Error("Invitation insert returned no row");
+  return inviteReceipt(existing);
 }
 
 export async function inviteCourier(sql: TransactionSql, request: InviteRequest) {
-  await lockOtpPhone(sql, request.phone);
+  await lockOtpIdentifier(sql, request.email ?? request.phone);
   if (!(await canInvite(sql, request))) return { kind: "not_found" } as const;
   const [registered] = await sql`
     SELECT FROM public.couriers AS courier JOIN public.users AS account ON account.id = courier.user_id
-    WHERE account.phone_e164 = ${request.phone} AND courier.active
+    WHERE (account.phone_e164 = ${request.phone ?? null} OR account.email = ${request.email ?? null})
+      AND courier.active
   `;
   if (registered) return { kind: "courier_already_registered" } as const;
   return createInvitation(sql, request);
 }
 
-async function lockInvitePhone(sql: TransactionSql, request: AcceptRequest) {
-  const phone = (await readPrivacyIdentifiers(sql, request))?.phoneE164;
-  if (!phone) return undefined;
-  await lockOtpPhone(sql, phone);
+async function lockInviteIdentity(sql: TransactionSql, request: AcceptRequest) {
+  const account = await readPrivacyIdentifiers(sql, request);
+  if (!account) return undefined;
+  for (const identifier of [account.phoneE164, account.email]
+    .filter((value) => value !== null)
+    .sort()) {
+    await lockOtpIdentifier(sql, identifier);
+  }
   await sql`SELECT FROM public.users WHERE id = ${request.userId} FOR UPDATE`;
-  const current = (await readPrivacyIdentifiers(sql, request))?.phoneE164;
-  return current === phone ? phone : undefined;
+  const current = await readPrivacyIdentifiers(sql, request);
+  return current?.phoneE164 === account.phoneE164 && current.email === account.email
+    ? current
+    : undefined;
 }
 
 async function activateCourier(sql: TransactionSql, request: AcceptRequest, merchantId: string) {
@@ -91,15 +104,16 @@ async function activateCourier(sql: TransactionSql, request: AcceptRequest, merc
 }
 
 export async function acceptCourierInvitation(sql: TransactionSql, request: AcceptRequest) {
-  const phone = await lockInvitePhone(sql, request);
-  if (!phone) return { kind: "unauthorized" } as const;
+  const account = await lockInviteIdentity(sql, request);
+  if (!account) return { kind: "unauthorized" } as const;
   const [invite] = await sql<{ merchantId: string; acceptedBy: string | null; expired: boolean }[]>`
     SELECT invite.merchant_id AS "merchantId", invite.accepted_by AS "acceptedBy",
       (invite.expires_at <= ${request.now.toISOString()}) AS expired
     FROM public.courier_invitations AS invite
     JOIN public.merchants AS merchant ON merchant.id = invite.merchant_id AND NOT merchant.is_demo
       AND merchant.status IN ('approved', 'active', 'paused')
-    WHERE invite.id = ${request.inviteId} AND invite.phone_e164 = ${phone} AND invite.revoked_at IS NULL
+    WHERE invite.id = ${request.inviteId} AND (invite.phone_e164 = ${account.phoneE164} OR invite.email = ${account.email})
+      AND invite.revoked_at IS NULL
     FOR UPDATE OF invite
   `;
   if (!invite) return { kind: "not_found" } as const;

@@ -33,7 +33,9 @@ function hash(value: string) {
   return createHash("sha256").update(value).digest();
 }
 
-function invite(overrides: Partial<StaffInvitationCreate> = {}): StaffInvitationCreate {
+type PhoneInvitation = Extract<StaffInvitationCreate, { phone: string }>;
+
+function invite(overrides: Partial<PhoneInvitation> = {}): PhoneInvitation {
   return {
     accountId: ownerId,
     merchantId: merchantA,
@@ -340,4 +342,38 @@ test("[MER-23:db] an open replay rotates the token so only the newest SMS link w
   expect(await staff.create({ ...first, tokenHash: hash("rot-4"), now: later })).toMatchObject({
     isOpen: false,
   });
+});
+
+test("[MER-23] an email invite is redeemable only by the account with that verified email", async () => {
+  const { sql } = database.get();
+  const repository = createMerchantStaffRepository(database.get());
+  const email = "staff-invite@example.test";
+  const userId = fixtureId(170);
+  await sql`INSERT INTO public.users (id, email, created_at) VALUES (${userId}, ${email}, ${now.toISOString()})`;
+  const tokenHash = hash("email-invite-token");
+  const request = {
+    accountId: ownerId,
+    merchantId: merchantA,
+    email,
+    role: "staff" as const,
+    tokenHash,
+    idempotencyKeyHash: hash("email-invite-key"),
+    requestHash: hash(email),
+    now,
+  };
+  expect(await repository.create(request)).toMatchObject({
+    kind: "applied",
+    invitation: { email },
+  });
+  expect(await repository.accept({ accountId: staffId, tokenHash, now })).toEqual({
+    kind: "not_found",
+  });
+  expect(await repository.accept({ accountId: userId, tokenHash, now })).toMatchObject({
+    kind: "accepted",
+    merchantId: merchantA,
+    role: "staff",
+  });
+  expect(
+    (await repository.list({ accountId: ownerId, merchantId: merchantA, now }))?.members,
+  ).toContainEqual({ userId, email, role: "staff", isSelf: false });
 });

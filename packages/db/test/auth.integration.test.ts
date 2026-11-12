@@ -757,3 +757,40 @@ test("[AUTH-01] links a verified identifier only from the issuing session withou
     email,
   });
 });
+
+test("[AUTH-01] concurrent confirmations cannot attach one verified email to two accounts", async () => {
+  const auth = repository();
+  const email = "race-link@example.test";
+  const [first, second] = await Promise.all([createUser(1950), createUser(1951)]);
+  const a = session(1950, first.id);
+  const b = session(1951, second.id);
+  await auth.transaction(async (tx) => {
+    await tx.insertSession(a);
+    await tx.insertSession(b);
+  });
+  const attempt = async (entry: SessionInsertion, offset: number) => {
+    const now = instant(offset);
+    const scope = { userId: entry.userId, sessionId: entry.id, now };
+    const reservation = {
+      id: entry.id,
+      email,
+      requestIp: entry.requestIp,
+      codeHmac,
+      idempotencyKeyHash: hash(entry.id),
+      now,
+    };
+    expect(
+      await auth.transaction((tx) => tx.reserveIdentifierChange(reservation, scope)),
+    ).toMatchObject({ kind: "created" });
+    return { ...scope, challengeId: reservation.id, matchesCode, now: instant(minute) };
+  };
+  const aConfirm = await attempt(a, 0);
+  const bConfirm = await attempt(b, minute);
+  const results = await concurrently(
+    (tx) => tx.confirmIdentifierChange(aConfirm),
+    (tx) => tx.confirmIdentifierChange(bConfirm),
+  );
+  expect(results.map(({ kind }) => kind).sort()).toEqual(["identifier_unavailable", "updated"]);
+  const { sql } = database.get();
+  expect(await sql`SELECT id FROM public.users WHERE email = ${email}`).toHaveLength(1);
+});

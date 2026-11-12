@@ -17,6 +17,7 @@ type Options = {
   otpKey: Uint8Array;
   now: () => Date;
   sendSms: Parameters<typeof createAuthService>[0]["sendSms"];
+  smsEnabled?: boolean;
   sendEmail?: Parameters<typeof createAuthService>[0]["sendEmail"];
 };
 
@@ -25,6 +26,7 @@ export function createPrivacyService({
   otpKey,
   now,
   sendSms,
+  smsEnabled = true,
   sendEmail,
 }: Options): PrivacyServices {
   const key = createHmac("sha256", otpKey).update("account-delete").digest();
@@ -55,6 +57,7 @@ export function createPrivacyService({
             sessionId: identity.sessionId,
             challengeId: result.challengeId,
             now: now(),
+            preferEmail: !smsEnabled && sendEmail !== undefined,
             send(target) {
               const message = {
                 code: issuedCode,

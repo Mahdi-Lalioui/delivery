@@ -18,10 +18,18 @@ import type { createCourierRepository } from "@zaafran/db/couriers";
 import type { onSendAsyncHookHandler, FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
+import type { InvitationMessage } from "./merchant-staff-routes.js";
 import { getRequestActor, type Actor } from "./policy.js";
 import { sendProblem } from "./problems.js";
 
-type CourierServices = { repository: ReturnType<typeof createCourierRepository>; now: () => Date };
+type InviteDestination = { phone: string; email?: never } | { email: string; phone?: never };
+
+export type CourierServices = {
+  repository: ReturnType<typeof createCourierRepository>;
+  now: () => Date;
+  sendInvitation?:
+    ((message: InvitationMessage & InviteDestination) => Promise<void> | void) | undefined;
+};
 const merchantParams = z.strictObject({ merchantId: z.uuid() });
 const errors = {
   400: problemResponseSchema,
@@ -41,6 +49,26 @@ const noStore: onSendAsyncHookHandler = (_request, reply, payload) => {
   reply.header("cache-control", "no-store");
   return Promise.resolve(payload);
 };
+
+async function deliverCourierInvitation(
+  services: CourierServices,
+  input: InviteDestination & { inviteId: string; locale?: InvitationMessage["locale"] },
+) {
+  if (!services.sendInvitation) return true;
+  const { inviteId, locale } = input;
+  const destination = input.email === undefined ? { phone: input.phone } : { email: input.email };
+  try {
+    await services.sendInvitation({
+      ...destination,
+      token: inviteId,
+      deliveryKey: inviteId,
+      ...(locale === undefined ? {} : { locale }),
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 export function registerCourierRoutes(api: FastifyInstance, services?: CourierServices) {
   const routes = api.withTypeProvider<ZodTypeProvider>();
@@ -69,6 +97,8 @@ export function registerCourierRoutes(api: FastifyInstance, services?: CourierSe
       });
       if (result.kind === "not_found") return sendProblem(reply, 404);
       if (result.kind === "courier_already_registered") return sendProblem(reply, 409, result.kind);
+      if (!(await deliverCourierInvitation(services, { ...request.body, ...result.invite })))
+        return sendProblem(reply, 503, "invitation_delivery_unavailable");
       return reply.code(201).send(result.invite);
     },
   );

@@ -12,7 +12,7 @@ The Twilio and Resend account and DNS steps are in [HUMAN_TODO](../HUMAN_TODO.md
 
 ## Published contracts
 
-The new schemas are available on Lane A. Route wiring follows in the authentication phase.
+Lane A wired these routes and verified the phone and email journeys, the three screens, and invitation and order-notice routing using synthetic providers. Live credentials and the staging origin are tracked in HUMAN_TODO.
 
 | Endpoint | Contract |
 | --- | --- |

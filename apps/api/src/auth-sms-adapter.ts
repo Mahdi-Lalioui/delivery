@@ -1,5 +1,5 @@
 import type { PublicLocale } from "@zaafran/i18n/locales";
-import { otpCopy, staffInvitationText } from "./message-copy.js";
+import { invitationCopy, otpCopy } from "./message-copy.js";
 
 type Gateway = { url: string; token: string; publicOrigin: string };
 type Delivery = { phone: string; deliveryKey: string; locale?: PublicLocale };
@@ -32,8 +32,14 @@ export function createSmsMessages(deliver: (message: Sms) => Promise<void>, publ
     sendInvitation: ({ phone, token, deliveryKey, locale }: Delivery & { token: string }) =>
       deliver({
         to: phone,
-        text: staffInvitationText({ publicOrigin, token, locale }),
+        text: invitationCopy({ publicOrigin, token, locale, kind: "staff" }).text,
         key: "invite:" + deliveryKey,
+      }),
+    sendCourierInvitation: ({ phone, token, deliveryKey, locale }: Delivery & { token: string }) =>
+      deliver({
+        to: phone,
+        text: invitationCopy({ publicOrigin, token, locale, kind: "courier" }).text,
+        key: "courier-invite:" + deliveryKey,
       }),
   };
 }
