@@ -1,6 +1,8 @@
 # Lane B → lane A: realistic fictional restaurant names
 
-Status: open (2026-11-12)
+Status: done (2026-11-12). Lane B checked `packages/db/src`, the seeds and `infra/` on
+`origin/main`, `origin/lane-a`, `origin/demo` and `origin/codex/awid-integration`: no display
+name contains "Démo" or "Demo". Only the preview catalog had them, renamed below.
 
 Mahdi's review: restaurant names containing "Démo" break the illusion in screenshots and demos.
 

@@ -10,7 +10,9 @@
     "zoomOut": "Zoom out",
     "attribution": "© OpenStreetMap",
     "plus": "+",
-    "minus": "−"
+    "minus": "−",
+    "streetsMissing": "The street map didn’t load. Your order is still on its way.",
+    "dataSaver": "Map hidden to save your data."
   },
   "shell": {
     "skip": "Skip to content",

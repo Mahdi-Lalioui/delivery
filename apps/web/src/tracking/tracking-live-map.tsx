@@ -103,17 +103,22 @@ function MapControls({
 }) {
   const copy = getMessages(locale).maps;
   if (state === "loading") return null;
-  return (
-    <div className="tracking-map-attribution">
-      {state === "ready" ? (
+  if (state === "ready") {
+    return (
+      <div className="tracking-map-attribution">
         <a href="https://www.openstreetmap.org/copyright" lang="en" dir="ltr">
           {copy.attribution}
         </a>
-      ) : (
-        <button className="awid-map-action" type="button" onClick={onOpen}>
-          {state === "error" ? copy.retry : copy.show}
-        </button>
-      )}
+      </div>
+    );
+  }
+  // The designed map stays visible; this card says why and offers the one useful action.
+  return (
+    <div className="tracking-map-notice" role="status">
+      <p>{state === "error" ? copy.streetsMissing : copy.dataSaver}</p>
+      <button className="awid-map-action" type="button" onClick={onOpen}>
+        {state === "error" ? copy.retry : copy.show}
+      </button>
     </div>
   );
 }

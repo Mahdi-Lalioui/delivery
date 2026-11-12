@@ -1,27 +1,41 @@
-import { DARK, LIGHT, layers } from "@protomaps/basemaps";
+import { layers } from "@protomaps/basemaps";
 import type { Locale } from "@zaafran/i18n/locales";
 import palettes from "@zaafran/tokens/palettes.json" with { type: "json" };
-import type { StyleSpecification } from "maplibre-gl";
+import type { StyleSpecification, SymbolLayerSpecification } from "maplibre-gl";
+import { awidFlavor } from "./awid-map-flavor";
 
 export interface MapPoint {
   latitude: number;
   longitude: number;
 }
 
+/**
+ * Protomaps falls back to English and stacks a second local-script line. We want one name, in
+ * the page language when OpenStreetMap has it, else the local name: never English.
+ */
+function localName(layer: SymbolLayerSpecification, locale: Locale): SymbolLayerSpecification {
+  const field = layer.layout?.["text-field"];
+  if (field === undefined || !JSON.stringify(field).includes("name")) return layer;
+  return {
+    ...layer,
+    layout: {
+      ...layer.layout,
+      "text-field": ["coalesce", ["get", `name:${locale}`], ["get", "name"]],
+    },
+  };
+}
+
+/** Overlays (routes, accuracy rings) go just under this layer so street names stay on top. */
+export const labelAnchorId = "awid-labels";
+
 export function algeriaMapStyle(locale: Locale, dark: boolean): StyleSpecification {
   const palette = dark ? palettes.dark : palettes.light;
-  const flavor = {
-    ...(dark ? DARK : LIGHT),
-    background: palette["info-bg"],
-    water: palette["info-bg"],
-    earth: palette.bg,
-    park_a: palette["success-bg"],
-    park_b: palette["success-bg"],
-    buildings: palette["surface-3"],
-    major: palette.surface,
-    minor_a: palette.surface,
-    boundaries: palette["border-strong"],
-  };
+  // Labels follow the page language: French names on French screens, Arabic on Arabic.
+  const base = layers("algeria", awidFlavor(dark), { lang: locale });
+  const shapes = base.filter((layer) => layer.type !== "symbol");
+  const names = base.flatMap((layer) =>
+    layer.type === "symbol" ? [localName(layer, locale)] : [],
+  );
   return {
     version: 8,
     glyphs: "/map-assets/fonts/{fontstack}/{range}.pbf",
@@ -34,35 +48,24 @@ export function algeriaMapStyle(locale: Locale, dark: boolean): StyleSpecificati
       },
     },
     layers: [
-      ...layers("algeria", flavor),
+      ...shapes,
       {
         id: "awid-buildings",
         type: "fill-extrusion",
         source: "algeria",
         "source-layer": "buildings",
-        minzoom: 15,
+        minzoom: 14,
         paint: {
-          "fill-extrusion-color": palette["surface-3"],
-          "fill-extrusion-height": ["coalesce", ["get", "height"], 5],
+          // Strong border tone, softened: blocks read as volume on both themes without glare.
+          "fill-extrusion-color": palette["border-strong"],
+          "fill-extrusion-height": ["coalesce", ["get", "height"], 9],
           "fill-extrusion-base": ["coalesce", ["get", "min_height"], 0],
+          "fill-extrusion-opacity": 0.32,
+          "fill-extrusion-vertical-gradient": true,
         },
       },
-      {
-        id: "awid-places",
-        type: "symbol",
-        source: "algeria",
-        "source-layer": "places",
-        layout: {
-          "text-field": ["coalesce", ["get", `name:${locale}`], ["get", "name"]],
-          "text-font": ["Noto Sans Regular"],
-          "text-size": ["interpolate", ["linear"], ["zoom"], 4, 11, 14, 15],
-        },
-        paint: {
-          "text-color": palette.text,
-          "text-halo-color": palette.bg,
-          "text-halo-width": 1.5,
-        },
-      },
+      { id: labelAnchorId, type: "background", layout: { visibility: "none" } },
+      ...names,
     ],
   };
 }

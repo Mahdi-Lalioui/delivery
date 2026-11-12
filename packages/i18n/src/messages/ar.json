@@ -10,7 +10,9 @@
     "zoomOut": "تصغير",
     "attribution": "© OpenStreetMap",
     "plus": "+",
-    "minus": "−"
+    "minus": "−",
+    "streetsMissing": "لم تُحمَّل خريطة الشوارع. طلبك يتقدّم رغم ذلك.",
+    "dataSaver": "أخفينا الخريطة لتوفير بياناتك."
   },
   "shell": {
     "skip": "انتقل إلى المحتوى",

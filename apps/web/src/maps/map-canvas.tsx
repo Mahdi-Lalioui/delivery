@@ -3,7 +3,7 @@
 import type { Locale } from "@zaafran/i18n/locales";
 import { Map, Marker, setWorkerUrl } from "maplibre-gl";
 import { useEffect, useEffectEvent, useRef, type RefObject } from "react";
-import { accuracyRing, algeriaMapStyle, type MapPoint } from "./algeria-map-style";
+import { accuracyRing, algeriaMapStyle, labelAnchorId, type MapPoint } from "./algeria-map-style";
 import { useDeliveryOverlay, type DeliveryOverlay } from "./delivery-overlay";
 import "maplibre-gl/dist/maplibre-gl.css";
 
@@ -22,6 +22,8 @@ interface MapCanvasProps {
   mapRef: RefObject<Map | null>;
   onState: (state: MapState) => void;
 }
+
+const loadTimeoutMs = 12_000;
 
 function camera(point: MapPoint): [number, number] {
   return [point.longitude, point.latitude];
@@ -43,7 +45,7 @@ function applyAccuracy(map: Map, point: MapPoint | undefined, meters: number | u
         "fill-opacity": 0.2,
       },
     },
-    "awid-places",
+    labelAnchorId,
   );
 }
 
@@ -91,9 +93,12 @@ function useMap({
     const canvas = map.getCanvas();
     canvas.setAttribute("aria-label", label);
     mapRef.current = map;
-    const timeout = window.setTimeout(() => {
-      latest().onState("error");
-    }, 12_000);
+    // Hidden tabs pause rendering, so only give up on a map the diner can actually see.
+    const giveUp = () => {
+      if (document.hidden) timeout = window.setTimeout(giveUp, loadTimeoutMs);
+      else latest().onState("error");
+    };
+    let timeout = window.setTimeout(giveUp, loadTimeoutMs);
     map.on("error", () => {
       latest().onState("error");
     });

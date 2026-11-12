@@ -545,6 +545,30 @@
   inset-block-end: var(--space-16);
 }
 
+.tracking-map-notice {
+  display: flex;
+  position: absolute;
+  z-index: 1;
+  inset-inline: var(--space-12);
+  inset-block-end: var(--space-12);
+  flex-wrap: wrap;
+  gap: var(--space-8) var(--space-12);
+  align-items: center;
+  justify-content: space-between;
+  padding-block: var(--space-8);
+  padding-inline: var(--space-16) var(--space-8);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-e2);
+}
+
+.tracking-map-notice p {
+  flex: 1 1 12rem;
+  margin: 0;
+  color: var(--color-text-2);
+  font-size: var(--font-size-caption);
+}
+
 .tracking-map-attribution a {
   display: inline-block;
   padding: var(--space-4) var(--space-8);

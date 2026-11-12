@@ -1,6 +1,6 @@
 import { LngLatBounds, Marker, type GeoJSONSource, type Map } from "maplibre-gl";
 import { useEffect, useRef, type RefObject } from "react";
-import type { MapPoint } from "./algeria-map-style";
+import { labelAnchorId, type MapPoint } from "./algeria-map-style";
 
 export type DeliveryOverlay = {
   route: readonly MapPoint[] | null;
@@ -42,7 +42,7 @@ function drawRoute(map: Map, route: DeliveryOverlay["route"]) {
       layout: { "line-cap": "round", "line-join": "round" },
       paint: { "line-color": palette.getPropertyValue("--color-primary"), "line-width": 5 },
     },
-    "awid-places",
+    labelAnchorId,
   );
 }
 

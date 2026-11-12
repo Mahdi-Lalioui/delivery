@@ -10,7 +10,9 @@
     "zoomOut": "Zoom arrière",
     "attribution": "© OpenStreetMap",
     "plus": "+",
-    "minus": "−"
+    "minus": "−",
+    "streetsMissing": "Le plan des rues n’a pas chargé. Votre commande avance quand même.",
+    "dataSaver": "Plan masqué pour économiser vos données."
   },
   "shell": {
     "skip": "Aller au contenu",

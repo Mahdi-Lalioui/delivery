@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { algeriaMapStyle, accuracyRing } from "../src/maps/algeria-map-style";
+import palettes from "@zaafran/tokens/palettes.json" with { type: "json" };
+import { algeriaMapStyle, accuracyRing, labelAnchorId } from "../src/maps/algeria-map-style";
 import { mapTileDestination } from "../src/preview-settings";
 
 describe("Algeria maps", () => {
@@ -10,15 +11,41 @@ describe("Algeria maps", () => {
       maxzoom: 15,
     });
     expect(style.glyphs).toBe("/map-assets/fonts/{fontstack}/{range}.pbf");
-    const places = style.layers.find((layer) => layer.id === "awid-places");
-    expect(places).toMatchObject({
-      layout: { "text-field": ["coalesce", ["get", "name:ar"], ["get", "name"]] },
-    });
     const dark = algeriaMapStyle("fr", true);
     expect(dark.layers[0]).not.toEqual(style.layers[0]);
     expect(dark.layers).toContainEqual(
-      expect.objectContaining({ type: "fill-extrusion", minzoom: 15 }),
+      expect.objectContaining({ type: "fill-extrusion", minzoom: 14 }),
     );
+  });
+
+  it("[CUS-18] names streets in the page language, never English, in fonts we ship", () => {
+    for (const locale of ["fr", "ar"] as const) {
+      const labels = algeriaMapStyle(locale, false).layers.filter(
+        (layer) => layer.type === "symbol",
+      );
+      const text = JSON.stringify(labels);
+      expect(text).toContain(`name:${locale}`);
+      expect(text).not.toContain("name:en");
+      expect(text).not.toMatch(/Noto Sans (Medium|Italic|Bold)/);
+    }
+  });
+
+  it("keeps every label above the buildings and overlays", () => {
+    const layers = algeriaMapStyle("fr", true).layers;
+    const anchor = layers.findIndex((layer) => layer.id === labelAnchorId);
+    const firstLabel = layers.findIndex((layer) => layer.type === "symbol");
+    const buildings = layers.findIndex((layer) => layer.type === "fill-extrusion");
+    expect(buildings).toBeLessThan(anchor);
+    expect(anchor).toBeLessThan(firstLabel);
+    expect(layers.slice(anchor + 1).every((layer) => layer.type === "symbol")).toBe(true);
+  });
+
+  it("paints the basemap from AWID tokens, not the stock grey", () => {
+    const style = algeriaMapStyle("fr", false);
+    const text = JSON.stringify(style.layers);
+    expect(text).toContain(palettes.light["surface-2"]);
+    expect(text).toContain(palettes.light["info-bg"]);
+    expect(text).not.toMatch(/"pois"/);
   });
 
   it("renders a closed accuracy boundary in longitude/latitude order", () => {
