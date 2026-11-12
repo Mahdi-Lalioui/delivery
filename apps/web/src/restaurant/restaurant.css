@@ -661,8 +661,9 @@
   min-inline-size: var(--space-32);
   block-size: var(--space-32);
   border-radius: var(--radius-pill);
-  background: var(--color-mint);
-  color: var(--color-on-accent);
+  /* A tint of the bar's own text colour, so the pill reads on the green bar and the mint one. */
+  background: color-mix(in oklab, var(--color-on-primary) 18%, transparent);
+  color: var(--color-on-primary);
   font-variant-numeric: var(--font-variant-numeric-numbers);
 }
 .restaurant-cart-contents,
