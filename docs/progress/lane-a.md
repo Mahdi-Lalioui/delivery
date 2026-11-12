@@ -323,3 +323,6 @@
 
 - 2026-11-12 · High · Kept nationwide seed photo encoding results for repeats in the same process. PostGIS still proves 40 stable restaurant identities, rollback on storage failure, and republishing a missing photo. The focused run fell from 12.48s to 8.36s locally.
   Next: wait for the updated GitHub run and advance main only after all checks pass.
+
+- 2026-11-12 · Ultra · Released phone and email sign-in and Lane B Discovery/Search to main at `758f845`. [Hosted CI](https://github.com/Mahdi-Lalioui/delivery/actions/runs/43230946494) and CodeQL passed on that exact commit before the fast-forward, including mutation and authenticated browser tests.
+  Next: handle [Lane B's Discovery feed request](../requests/lane-b-discovery-feed.md). Hosted staging and live SMS/email verification need the server, Vercel project and provider inputs in HUMAN_TODO.
