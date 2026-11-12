@@ -13,6 +13,7 @@ const allowed: Readonly<Record<string, readonly string[] | RegExp>> = {
   acceptsBaridiPay: ["true"],
   acceptsTpe: ["true"],
   dietary: ["vegetarian"],
+  fulfilment: ["pickup"],
   cuisine: /^[a-z0-9]+(?:-[a-z0-9]+)*$/u,
 };
 
@@ -38,9 +39,12 @@ export function filtersToSearch(search: string, filters: FeedFilters): string {
 
 export type ActiveFilter = { key: string; value: string };
 
-/** Filters shown as removable chips; the sort order is a choice, not a filter. */
+// The sort order and Delivery/Pickup are choices with their own controls, not removable filters.
+const choiceKeys = new Set(["sort", "cuisine", "fulfilment"]);
+
+/** Filters shown as removable chips. */
 export function activeFilters(filters: FeedFilters): ActiveFilter[] {
   return Object.entries(filters)
-    .filter(([key]) => key !== "sort" && key !== "cuisine")
+    .filter(([key]) => !choiceKeys.has(key))
     .map(([key, value]) => ({ key, value }));
 }

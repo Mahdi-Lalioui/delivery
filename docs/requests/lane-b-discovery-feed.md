@@ -84,3 +84,9 @@ URL); a live "Show N restaurants" count on the sheet button (`includeCount=true&
 the saved commune); "New on AWID" (`newOnly`) and "Order from 1 000 DA or less"
 (`maxMinimumOrderDzd=1000`) rails; and a "New" badge on cards with `isNew`. The preview catalog
 honours these fields with fictional values. Pickup toggle, pickup map and scheduling are next.
+
+## Lane B follow-up 3 (2026-11-12)
+
+Shipped: Delivery / Pickup switch (`fulfilment=pickup`, kept in the URL) and a pickup map whose
+named pins (from `pin` + `offersPickup`) rise in turn and open the restaurant. Scheduling
+(`availableAt`) is the remaining unused field.

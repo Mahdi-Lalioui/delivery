@@ -33,12 +33,12 @@ test("[CUS-04] counts matches only when asked, for Show N restaurants", async ()
 
 test("[CUS-04] the New and small-minimum rails list only matching restaurants", async () => {
   expect((await previewFeed("newOnly=true")).restaurants.toSorted()).toEqual([
-    "four-demo",
+    "four-belcourt",
     "msemen-wahran",
     "patisserie-cirta",
   ]);
   expect((await previewFeed("maxMinimumOrderDzd=1000")).restaurants.toSorted()).toEqual([
-    "atelier-demo",
+    "atelier-sidi-yahia",
     "karantika-bab-el-oued",
     "msemen-wahran",
     "patisserie-cirta",

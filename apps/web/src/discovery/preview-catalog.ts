@@ -24,6 +24,7 @@ type FeedExtras = Pick<
   | "dietary"
   | "minimumOrderDzd"
   | "offersPickup"
+  | "pin"
 >;
 
 interface PreviewRestaurant {
@@ -171,11 +172,12 @@ const portion: MenuOptionGroup = {
 
 const grill: RestaurantSeed = {
   id: 10,
-  slug: "atelier-demo",
-  name: "L’Atelier Démo",
+  slug: "atelier-sidi-yahia",
+  name: "L’Atelier Sidi Yahia",
   cuisines: ["grill", "sandwiches"],
   cover: "chawarma",
   feed: {
+    pin: { latitude: 36.765, longitude: 3.051 },
     minimumOrderDzd: 800,
     offersPickup: true,
     rating: 4.6,
@@ -245,8 +247,8 @@ const grill: RestaurantSeed = {
 
 const pizza: RestaurantSeed = {
   id: 20,
-  slug: "four-demo",
-  name: "Le Four Démo",
+  slug: "four-belcourt",
+  name: "Le Four de Belcourt",
   cuisines: ["pizza"],
   cover: "pizza",
   feed: {
@@ -287,6 +289,7 @@ const darYemma: RestaurantSeed = {
   cuisines: ["algerian"],
   cover: "chorba-table",
   feed: {
+    pin: { latitude: 36.7395, longitude: 3.087 },
     minimumOrderDzd: 1500,
     offersPickup: true,
     dietary: ["vegetarian"],
@@ -362,6 +365,7 @@ const karantika: RestaurantSeed = {
   cuisines: ["sandwiches"],
   cover: "karantika-sandwich",
   feed: {
+    pin: { latitude: 36.7905, longitude: 3.048 },
     minimumOrderDzd: 500,
     offersPickup: true,
     rating: 4.7,
@@ -411,6 +415,7 @@ const cirta: RestaurantSeed = {
   cuisines: ["pastry"],
   cover: "baklawa-tray",
   feed: {
+    pin: { latitude: 36.7525, longitude: 3.042 },
     minimumOrderDzd: 1000,
     isNew: true,
     offersPickup: true,
@@ -545,6 +550,7 @@ const lalla: RestaurantSeed = {
   cover: "couscous",
   isOpen: false,
   feed: {
+    pin: { latitude: 36.729, longitude: 3.069 },
     minimumOrderDzd: 1800,
     offersPickup: true,
     rating: 4.7,

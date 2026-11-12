@@ -32,7 +32,7 @@ test.each([
   expect(response.headers.get("cache-control")).toBe("no-store");
 });
 
-test.each(["auth/session", "merchants/atelier-demo/staff", "orders"])(
+test.each(["auth/session", "merchants/atelier-sidi-yahia/staff", "orders"])(
   "returns an uncached 404 for %s",
   (path) => {
     const response = GET(request(path));
@@ -50,14 +50,14 @@ test("rejects mutations with an uncached response", () => {
 test("[CUS-01] pages through synthetic restaurants using the public feed cursor", async () => {
   const first = publicFeedOutput.parse(await GET(request("feed?limit=1")).json());
   expect(first.restaurants).toHaveLength(1);
-  expect(first.restaurants[0]?.slug).toBe("atelier-demo");
+  expect(first.restaurants[0]?.slug).toBe("atelier-sidi-yahia");
   expect(first.nextCursor).toEqual(first.restaurants[0]?.merchantId);
 
   const second = publicFeedOutput.parse(
     await GET(request(`feed?limit=1&cursor=${first.nextCursor ?? ""}`)).json(),
   );
   expect(second.restaurants).toHaveLength(1);
-  expect(second.restaurants[0]?.slug).not.toBe("atelier-demo");
+  expect(second.restaurants[0]?.slug).not.toBe("atelier-sidi-yahia");
 });
 
 test.each(["chawarma", "شاورما", "shawarma", "chawérma"])(
@@ -66,7 +66,7 @@ test.each(["chawarma", "شاورما", "shawarma", "chawérma"])(
     const response = GET(request("search?" + new URLSearchParams({ q: query }).toString()));
     expect(response.status).toBe(200);
     expect(publicSearchOutput.parse(await response.json()).dishes[0]).toMatchObject({
-      merchantSlug: "atelier-demo",
+      merchantSlug: "atelier-sidi-yahia",
       names: { fr: "Chawarma maison" },
     });
   },
@@ -78,7 +78,7 @@ test("[CUS-05] returns empty results for a query with no matches", async () => {
 });
 
 test("[CUS-07][CUS-08] opens a synthetic restaurant category and reads priced item options", async () => {
-  const path = "merchants/atelier-demo";
+  const path = "merchants/atelier-sidi-yahia";
   const profile = publicRestaurantOutput.parse(await GET(request(path)).json());
   const categoryId = profile.categories[0]?.categoryId;
   const categoryPath = `${path}/categories/${categoryId ?? ""}/items`;
@@ -111,7 +111,9 @@ test.each(["feed?limit=0", "search", "search?q=one&q=two"])(
 );
 
 test("serves a synthetic cover at supported variant widths", async () => {
-  const profile = publicRestaurantOutput.parse(await GET(request("merchants/atelier-demo")).json());
+  const profile = publicRestaurantOutput.parse(
+    await GET(request("merchants/atelier-sidi-yahia")).json(),
+  );
   const { merchantId, coverMediaId } = profile.restaurant;
   const coverPath = `merchants/${merchantId}/profile/photos/${coverMediaId ?? ""}/variants`;
   const cover = GET(request(coverPath + "/avif/640"));
@@ -122,11 +124,15 @@ test("serves a synthetic cover at supported variant widths", async () => {
 });
 
 test("serves a synthetic dish photo only for the associated menu item", async () => {
-  const profile = publicRestaurantOutput.parse(await GET(request("merchants/atelier-demo")).json());
+  const profile = publicRestaurantOutput.parse(
+    await GET(request("merchants/atelier-sidi-yahia")).json(),
+  );
   const { merchantId } = profile.restaurant;
   const list = publicRestaurantItemsOutput.parse(
     await GET(
-      request(`merchants/atelier-demo/categories/${profile.categories[0]?.categoryId ?? ""}/items`),
+      request(
+        `merchants/atelier-sidi-yahia/categories/${profile.categories[0]?.categoryId ?? ""}/items`,
+      ),
     ).json(),
   );
   const [dish, otherDish] = list.items;
