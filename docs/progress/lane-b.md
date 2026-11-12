@@ -82,3 +82,5 @@
   Next: T9 — final sweep of every customer screen through the design loop (390 ar, 390 fr, 1280 fr, dark), fix what fails, push.
 - 2026-11-11 · AWID T9 final sweep: 10 customer screens × (ar 390 light/dark, fr 390, fr 1280) — no overflow, no console errors beyond dev tools; contact sheets in docs/evidence/awid/sweep. Lane B sprint list complete.
   Next: follow-ups only — SSE + AWID basemap + push contract import when lane A merges them (docs/requests/lane-b-tracking.md); restaurant reviews on the restaurant page once a public reviews route exists.
+- 2026-11-12 · Mahdi review redone: design loop with written flaws per round — Discovery, Restaurant + dish sheet, Tracking ×3 rounds; Checkout, Rating, Orders, Landing, Sign-in, Account, Credits ×2 rounds. Compact phone language menu, 48 px logo, "most ordered" never a lone card, fly-to-cart, rolling total, gliding marker with travelled/remaining route, desktop cart panel. Sweep redone on a production build with real screens (docs/evidence/awid/sweep): 48/48 clean.
+  Next: follow-ups only (SSE, AWID basemap and push contract import when lane A merges them).
