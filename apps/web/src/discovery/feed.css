@@ -1177,3 +1177,140 @@
     opacity: 0;
   }
 }
+
+/* "New" sits on the cover's lower start corner, clear of the open badge and the heart. */
+.restaurant-feed-new {
+  position: absolute;
+  inset-block-end: var(--space-12);
+  inset-inline-start: var(--space-12);
+  padding: var(--space-4) var(--space-8);
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  box-shadow: var(--shadow-e1);
+  font-weight: var(--font-weight-h3);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+}
+
+/* Delivery / Pickup: one pill, a thumb that slides under the chosen side. */
+.fulfilment-toggle {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 0;
+  padding: var(--space-4);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-2);
+  isolation: isolate;
+}
+
+.fulfilment-toggle::before {
+  content: "";
+  position: absolute;
+  inset-block: var(--space-4);
+  inset-inline-start: var(--space-4);
+  inline-size: calc(50% - var(--space-4));
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-e1);
+  transition: translate var(--motion-emphasis) var(--ease-spring-gentle);
+  z-index: -1;
+}
+
+.fulfilment-toggle[data-mode="pickup"]::before {
+  translate: 100% 0;
+}
+
+.fulfilment-toggle[data-mode="pickup"]:dir(rtl)::before {
+  translate: -100% 0;
+}
+
+.fulfilment-option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+  min-block-size: var(--touch-target-min);
+  border-radius: var(--radius-pill);
+  color: var(--color-text-2);
+  font-weight: var(--font-weight-h3);
+  cursor: pointer;
+}
+
+.fulfilment-option:has(input:checked) {
+  color: var(--color-text-1);
+}
+
+.fulfilment-option:has(input:focus-visible) {
+  outline: var(--focus-ring-width) solid var(--color-focus);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.fulfilment-option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Pickup map: named pins rise into place one after another. */
+.pickup-map {
+  position: relative;
+  block-size: clamp(calc(var(--space-48) * 5), 42vh, calc(var(--space-48) * 9));
+  margin-block-end: var(--space-16);
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-e1);
+}
+
+.pickup-map .awid-map-canvas {
+  block-size: 100%;
+}
+
+.pickup-pin {
+  display: inline-flex;
+  align-items: center;
+  max-inline-size: calc(var(--space-40) * 4);
+  padding: var(--space-4) var(--space-12);
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  box-shadow: var(--shadow-e2);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-h3);
+  text-decoration: none;
+  white-space: nowrap;
+  animation: pickup-pin-rise var(--motion-emphasis) var(--ease-spring-gentle) both;
+}
+
+.pickup-pin bdi {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pickup-pin[data-open="false"] {
+  background: var(--color-surface);
+  color: var(--color-text-2);
+}
+
+.pickup-pin:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus);
+  outline-offset: var(--focus-ring-offset);
+}
+
+@keyframes pickup-pin-rise {
+  from {
+    opacity: 0;
+    translate: 0 var(--space-24);
+    scale: 0.6;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pickup-pin,
+  .fulfilment-toggle::before {
+    animation: none;
+    transition: none;
+  }
+}

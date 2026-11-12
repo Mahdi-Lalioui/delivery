@@ -279,6 +279,9 @@ export function FeedCard({ restaurant, locale }: { restaurant: FeedRestaurant; l
           />
         )}
         <FeedAvailability isOpen={isOpen} locale={locale} />
+        {restaurant.isNew === true && (
+          <span className="restaurant-feed-new">{getFeedMessages(locale).newBadge}</span>
+        )}
         <FavouriteButton merchantId={merchantId} name={name} locale={locale} />
       </div>
       <div className="restaurant-feed-card-body">

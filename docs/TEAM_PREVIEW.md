@@ -1,7 +1,7 @@
 # Zaafran team preview
 
 Open `/fr/preview` (or `/ar/preview`, `/en/preview`) from the Preview deployment. Start with
-the Casbah scene, then search for “shawarma”, open L’Atelier Démo, pick Grande, and add the
+the Casbah scene, then search for “shawarma”, open L’Atelier Sidi Yahia, pick Grande, and add the
 800 DZD dish to the cart. Reload to show the cart persists. The hub also links to restaurant
 billing, promotions, reviews and analytics, admin billing and operations, and the delivery
 and cart motion studies. The interface labels the gallery screens as examples.

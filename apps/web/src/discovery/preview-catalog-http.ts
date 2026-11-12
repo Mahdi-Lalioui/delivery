@@ -91,6 +91,11 @@ const filterChecks: ((card: Card, query: FeedQuery) => boolean)[] = [
   (card, { priceLevel }) => priceLevel === undefined || card.priceLevel === priceLevel,
   (card, { acceptsBaridiPay }) => acceptsBaridiPay !== true || card.acceptsBaridiPay === true,
   (card, { acceptsTpe }) => acceptsTpe !== true || card.acceptsTpe === true,
+  (card, { dietary }) => dietary === undefined || (card.dietary ?? []).includes(dietary),
+  (card, { newOnly }) => newOnly !== true || card.isNew === true,
+  (card, { fulfilment }) => fulfilment !== "pickup" || card.offersPickup === true,
+  (card, { maxMinimumOrderDzd: most }) =>
+    most === undefined || (card.minimumOrderDzd ?? Infinity) <= most,
   (card, { maxEtaMinutes }) =>
     maxEtaMinutes === undefined || (card.etaMinutes?.max ?? Infinity) <= maxEtaMinutes,
 ];
@@ -107,10 +112,14 @@ const sorters: Record<string, (left: Card, right: Card) => number> = {
     (right.deliveryFeeDzd ?? Number.MAX_SAFE_INTEGER),
 };
 
+function countOf(cards: readonly Card[], isWanted: boolean | undefined) {
+  return isWanted === true ? { totalCount: cards.length } : {};
+}
+
 function feed(params: URLSearchParams) {
   const query = publicFeedQuery.safeParse(parseQuery(params));
   if (!query.success) return problem(400);
-  const { cursor, limit, sort } = query.data;
+  const { cursor, limit, sort, includeCount } = query.data;
   const sorter = sort === undefined ? undefined : sorters[sort];
   const matching = cards.filter((card) => matchesFilters(card, query.data));
   const ordered = sorter === undefined ? matching : matching.toSorted(sorter);
@@ -121,7 +130,9 @@ function feed(params: URLSearchParams) {
   const restaurants = ordered.slice(start, start + limit);
   const nextCursor =
     start + limit < ordered.length ? (restaurants.at(-1)?.merchantId ?? null) : null;
-  return json(publicFeedOutput.parse({ restaurants, nextCursor }));
+  return json(
+    publicFeedOutput.parse({ restaurants, nextCursor, ...countOf(ordered, includeCount) }),
+  );
 }
 
 const aliasGroups = Object.values(synonyms).map((terms) => terms.map(normalize));

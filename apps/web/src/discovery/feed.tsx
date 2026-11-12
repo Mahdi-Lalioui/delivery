@@ -1,9 +1,12 @@
 "use client";
 
 import type { Locale } from "@zaafran/i18n/locales";
-import { useEffect, useId, useRef, useState, type MouseEvent } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type MouseEvent } from "react";
 import { FeedContent } from "./feed-content";
 import { FeedFilterBar } from "./feed-filters";
+import { FulfilmentToggle } from "./fulfilment-toggle";
+import { PickupMap } from "./pickup-map";
+import { pickupPins } from "./pickup-pins";
 import { filtersFromSearch, filtersToSearch } from "./filter-state";
 import { readDiscoveryFeed, type FeedFilters, type FeedState } from "./feed-http";
 import { Collections, CuisineChips, FavouritesRail, FeedRail } from "./feed-sections";
@@ -113,6 +116,7 @@ export function DiscoveryFeed({
   }
 
   const location = communeId === null ? {} : { communeId };
+  const pins = useMemo(() => pickupPins(state.restaurants), [state.restaurants]);
   return (
     <>
       <Collections locale={locale} onChoose={chooseCuisine} />
@@ -122,7 +126,13 @@ export function DiscoveryFeed({
           <h2 id={headingId} tabIndex={-1}>
             {messages.heading}
           </h2>
-          <FeedFilterBar locale={locale} filters={filters} onChange={changeFilters} />
+          <FulfilmentToggle locale={locale} filters={filters} onChange={changeFilters} />
+          <FeedFilterBar
+            locale={locale}
+            filters={filters}
+            scope={location}
+            onChange={changeFilters}
+          />
         </header>
         {Object.keys(filters).length === 0 && (
           <div className="discovery-curated">
@@ -152,8 +162,21 @@ export function DiscoveryFeed({
               filters={{ ...location, sort: "eta" }}
               enabled={locationReady}
             />
+            <FeedRail
+              locale={locale}
+              title={messages.newRail}
+              filters={{ ...location, newOnly: "true" }}
+              enabled={locationReady}
+            />
+            <FeedRail
+              locale={locale}
+              title={messages.smallMinimumRail}
+              filters={{ ...location, maxMinimumOrderDzd: "1000" }}
+              enabled={locationReady}
+            />
           </div>
         )}
+        {filters.fulfilment === "pickup" && <PickupMap locale={locale} pins={pins} />}
         <FeedContent
           locale={locale}
           state={state}

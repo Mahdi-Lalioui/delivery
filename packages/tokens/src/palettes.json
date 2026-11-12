@@ -36,6 +36,7 @@
     "on-photo": "#FFFFFF",
     "food-couscous": "#E9C46A",
     "food-saffron": "#F2A900",
+    "food-steam": "#FFF7E8",
     "photo-scrim": "rgb(4 26 19 / 0.72)"
   },
   "dark": {
@@ -75,6 +76,7 @@
     "on-photo": "#FFFFFF",
     "food-couscous": "#E9C46A",
     "food-saffron": "#F2A900",
+    "food-steam": "#FFF7E8",
     "photo-scrim": "rgb(4 26 19 / 0.72)"
   }
 }

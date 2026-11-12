@@ -20,7 +20,8 @@ function tokenColours(element: HTMLElement) {
     glaze: token("--color-primary"),
     saffron: token("--color-food-saffron"),
     couscous: token("--color-food-couscous"),
-    steam: token("--color-surface"),
+    steam: token("--color-food-steam"),
+    mist: token("--color-text-3"),
   };
 }
 

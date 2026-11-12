@@ -359,3 +359,6 @@
 
 - 2026-11-12 · High · Merged Discovery count and rails at `944cde9` after hosted CI. Added the isolated encrypted restore command to the M9 gate. Real Docker tests covered four media references, missing or truncated files, unsafe links, corrupted ciphertext and cleanup failure. A synthetic production-format dump restored in 8 seconds.
   Next: run the drill with a staging backup on the recovery host and verify the recovered application, then record the measured recovery time.
+
+- 2026-11-12 · High · Merged the restore drill at `00501d9` after hosted CI. Integrated Lane B through `3fd6340`, including live reorder, pickup map, Discovery counts and filters, the new tagine and tracking fallback. Full workspace verification, the cash-pickup-to-cart journey and ten production browser checks passed.
+  Next: verify the team preview and hosted checks on the integrated head. Lane B still has the scheduling control and Order again home rail. Staging recovery and release gates remain open.

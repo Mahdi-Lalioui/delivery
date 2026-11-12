@@ -224,6 +224,12 @@ for (const flow of ["delivery", "pickup", "reject", "expire", "cancel"] as const
                 priceChanges: [],
               });
               await expect(page.getByText(fr.retentionOrders.reorderSame)).toBeVisible();
+              await page.getByRole("button", { name: fr.retentionOrders.continueToCart }).click();
+              await expect(page).toHaveURL(harness.origin + "/fr/restaurants/" + fixture.slug);
+              await page.getByRole("button", { name: "Voir le panier" }).click();
+              const cart = page.getByRole("dialog");
+              await expect(cart.getByText("Chawarma poulet", { exact: true })).toBeVisible();
+              await expect(cart.getByText(/Sauce blanche/u)).toBeVisible();
             }
           }
           await expect(ticket(board, order)).toHaveCount(0);

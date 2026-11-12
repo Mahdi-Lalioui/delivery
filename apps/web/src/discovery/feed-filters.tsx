@@ -3,7 +3,7 @@
 import type { Locale } from "@zaafran/i18n/locales";
 import { Icon } from "@zaafran/ui";
 import { useEffect, useRef, useState } from "react";
-import type { FeedFilters } from "./feed-http";
+import { readFeedCount, type FeedFilters } from "./feed-http";
 import { fillFeedMessage, getFeedMessages, type FeedMessages } from "./feed-messages";
 import { activeFilters, type ActiveFilter } from "./filter-state";
 
@@ -26,6 +26,7 @@ const sheetToggles = [
   ["openNow", "true", "filterOpenNow"],
   ["freeDelivery", "true", "filterFree"],
   ["minRating", "4", "filterRating"],
+  ["dietary", "vegetarian", "filterVegetarian"],
 ] as const;
 
 const payToggles = [
@@ -54,6 +55,7 @@ export function filterLabel(messages: FeedMessages, { key, value }: ActiveFilter
   if (key === "priceLevel")
     return messages[priceOptions.find(([level]) => level === value)?.[1] ?? "price1"];
   const toggle = [
+    ...sheetToggles,
     ...quickToggles,
     ...payToggles.map(([name, label]) => [name, "true", label] as const),
   ].find(([name]) => name === key);
@@ -164,15 +166,44 @@ function SheetBody({
   );
 }
 
+/** The number of restaurants the draft filters match, refreshed shortly after each change. */
+function useMatchCount(draft: FeedFilters): number | null {
+  const [count, setCount] = useState<number | null>(null);
+  const key = new URLSearchParams(draft).toString();
+  useEffect(() => {
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => {
+      void readFeedCount(Object.fromEntries(new URLSearchParams(key)), controller.signal).then(
+        (total) => {
+          if (!controller.signal.aborted) setCount(total);
+        },
+      );
+    }, 200);
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [key]);
+  return count;
+}
+
+function applyLabel(messages: FeedMessages, count: number | null): string {
+  if (count === null) return messages.apply;
+  if (count === 0) return messages.applyNone;
+  return fillFeedMessage(messages.applyCount, { count: String(count) });
+}
+
 /** The full sort-and-filter bottom sheet; changes apply together with "Show restaurants". */
 function FilterSheet({
   locale,
   filters,
+  scope,
   onApply,
   onClose,
 }: {
   locale: Locale;
   filters: FeedFilters;
+  scope: FeedFilters;
   onApply: (filters: FeedFilters) => void;
   onClose: () => void;
 }) {
@@ -180,6 +211,7 @@ function FilterSheet({
   const [draft, setDraft] = useState(filters);
   const dialog = useRef<HTMLDialogElement>(null);
   const draftCount = activeFilters(draft).length + (draft.sort === undefined ? 0 : 1);
+  const count = useMatchCount({ ...scope, ...draft });
   useEffect(() => {
     const element = dialog.current;
     if (element && !element.open) element.showModal();
@@ -217,7 +249,7 @@ function FilterSheet({
             dialog.current?.close();
           }}
         >
-          {messages.apply}
+          {applyLabel(messages, count)}
         </button>
       </footer>
     </dialog>
@@ -228,10 +260,13 @@ function FilterSheet({
 export function FeedFilterBar({
   locale,
   filters,
+  scope = {},
   onChange,
 }: {
   locale: Locale;
   filters: FeedFilters;
+  /** Query parts that are not filters (the saved commune) but change what matches. */
+  scope?: FeedFilters;
   onChange: (filters: FeedFilters) => void;
 }) {
   const messages = getFeedMessages(locale);
@@ -315,6 +350,7 @@ export function FeedFilterBar({
         <FilterSheet
           locale={locale}
           filters={filters}
+          scope={scope}
           onApply={onChange}
           onClose={() => {
             setSheetOpen(false);
