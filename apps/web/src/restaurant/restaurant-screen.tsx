@@ -1,5 +1,6 @@
 "use client";
 
+import { brand } from "@zaafran/config/brand";
 import { useCallback, useEffect, useState } from "react";
 import {
   addCartLine,
@@ -34,6 +35,10 @@ import "./restaurant.css";
 
 type State = { phase: "loading" } | { phase: "error" } | { phase: "ready"; data: Restaurant };
 
+function brandFor(locale: string) {
+  return locale === "ar" ? brand.arabicName : brand.name;
+}
+
 export function RestaurantScreen({ slug, locale }: { slug: string; locale: Locale }) {
   const basket = useBrowserCart();
   useDishOrigin();
@@ -66,6 +71,8 @@ function RestaurantLoader({
       const data = await readRestaurant(slug, controller.signal);
       if (controller.signal.aborted) return;
       setState(data === null ? { phase: "error" } : { phase: "ready", data });
+      // The tab and screen readers name the restaurant, not just the brand.
+      if (data !== null) document.title = `${data.restaurant.name} · ${brandFor(locale)}`;
     }
     void load();
     return () => {

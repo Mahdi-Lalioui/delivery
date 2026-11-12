@@ -350,6 +350,9 @@
 }
 
 .landing-pitch-link {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--touch-target-min);
   color: inherit;
   font-weight: var(--font-weight-h3);
   text-decoration-color: var(--color-mint);
