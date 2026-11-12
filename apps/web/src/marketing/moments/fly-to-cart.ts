@@ -31,6 +31,38 @@ function centre(rect: DOMRect): PointXY {
   return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
 }
 
+/** Pins the clone exactly over its source, out of the page flow, whatever the source's own CSS. */
+function pinOver(ghost: HTMLElement, rect: DOMRect) {
+  const { style } = ghost; // CSSOM writes are allowed by the CSP; inline attributes are not
+  style.position = "fixed";
+  style.left = `${String(rect.left)}px`;
+  style.top = `${String(rect.top)}px`;
+  style.width = `${String(rect.width)}px`;
+  style.height = `${String(rect.height)}px`;
+  style.margin = "0";
+}
+
+/**
+ * Where `target` will be once the animations moving it (such as the cart bar sliding in for the
+ * first item) have finished, so the arc lands on the bar rather than chasing it.
+ */
+function settledRect(target: HTMLElement): DOMRect {
+  const moving = document.getAnimations().filter((animation) => {
+    const element = animation.effect instanceof KeyframeEffect ? animation.effect.target : null;
+    return element instanceof Element && element.contains(target);
+  });
+  const saved = moving.map((animation) => animation.currentTime);
+  for (const animation of moving) {
+    const end = animation.effect?.getComputedTiming().endTime;
+    if (typeof end === "number" && Number.isFinite(end)) animation.currentTime = end;
+  }
+  const rect = target.getBoundingClientRect();
+  moving.forEach((animation, index) => {
+    animation.currentTime = saved[index] ?? null;
+  });
+  return rect;
+}
+
 /** Flies a clone of `source` into `target`; resolves when it lands. Reduced motion just fades. */
 export async function flyToCart(source: HTMLElement, target: HTMLElement): Promise<void> {
   const isReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -39,19 +71,27 @@ export async function flyToCart(source: HTMLElement, target: HTMLElement): Promi
   const from = source.getBoundingClientRect();
   ghost.classList.add("fly-to-cart-ghost");
   ghost.setAttribute("aria-hidden", "true");
-  source.after(ghost);
+  pinOver(ghost, from);
+  document.body.append(ghost);
   const animation = isReduced
     ? ghost.animate([{ opacity: 1 }, { opacity: 0 }], { duration: reducedMs })
     : ghost.animate(
-        arcKeyframes({ from: centre(from), to: centre(target.getBoundingClientRect()), steps: 12 }),
+        arcKeyframes({ from: centre(from), to: centre(settledRect(target)), steps: 12 }),
         {
           duration: durationMs,
           easing: "cubic-bezier(0.3, 0, 0.8, 0.15)",
         },
       );
+  // Frames pause in background tabs; never leave the clone floating over the page.
+  const cleanup = window.setTimeout(() => {
+    animation.cancel();
+  }, durationMs + 300);
   try {
     await animation.finished;
+  } catch {
+    // Cancelled by the timeout above: the clone is removed below all the same.
   } finally {
+    window.clearTimeout(cleanup);
     ghost.remove();
     target.classList.remove("cart-count-spring");
     // Restart the spring on the cart count (DESIGN: "the cart count springs").
