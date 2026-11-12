@@ -138,6 +138,7 @@ export function DiscoveryFeed({
             onChange={changeFilters}
           />
         </header>
+        {/* Two curated rails at most: free delivery, fastest and small minimum live in filters. */}
         {Object.keys(filters).length === 0 && (
           <div className="discovery-curated">
             <FavouritesRail locale={locale} communeId={communeId} enabled={locationReady} />
@@ -156,26 +157,8 @@ export function DiscoveryFeed({
             />
             <FeedRail
               locale={locale}
-              title={messages.freeDelivery}
-              filters={{ ...location, freeDelivery: "true" }}
-              enabled={locationReady}
-            />
-            <FeedRail
-              locale={locale}
-              title={messages.fastest}
-              filters={{ ...location, sort: "eta" }}
-              enabled={locationReady}
-            />
-            <FeedRail
-              locale={locale}
               title={messages.newRail}
               filters={{ ...location, newOnly: "true" }}
-              enabled={locationReady}
-            />
-            <FeedRail
-              locale={locale}
-              title={messages.smallMinimumRail}
-              filters={{ ...location, maxMinimumOrderDzd: "1000" }}
               enabled={locationReady}
             />
           </div>

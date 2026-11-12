@@ -8,7 +8,7 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 - [x] **Lane B** Short haptics for add-to-cart, order placement and acceptance. Optional acceptance sound, mute preference and reduced-motion support. [Haptics and mute note](evidence/awid/feel/README.md) (393969e)
 - [x] **Lane B** Arabic, French and English copy pass. Errors give the customer a next step. [Copy changes](evidence/awid/copy.md) (17a477c)
 - [x] **Lane B** Audit spacing, type, radii, shadows, icons, buttons and colours on every customer screen. Record and fix deviations in `docs/evidence/awid/consistency.md`. [Consistency list, 21 fixed](evidence/awid/consistency.md) (fb5d002)
-- [ ] **Lane B** Remove content that distracts from the next action. Verify one focal point per screen.
+- [x] **Lane B** Remove content that distracts from the next action. Verify one focal point per screen. [Screen-by-screen verdicts, before and after](evidence/awid/reduce/README.md)
 - [x] **Lane B** Verify 44 px touch targets, visible focus, meaningful labels, contrast in both themes and keyboard journeys. [Audit rounds 1–5 and keyboard journeys](evidence/awid/a11y/README.md): 0 axe violations, 0 small targets, 0 invisible focus on 15 routes × 4 variants
 - [ ] **Lane B** Complete the final visual review on every customer screen. Record shortcomings, fixes and fresh captures.
 
