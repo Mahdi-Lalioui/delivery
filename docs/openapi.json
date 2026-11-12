@@ -28225,7 +28225,8 @@
                 "relevance",
                 "distance",
                 "rating",
-                "eta"
+                "eta",
+                "fee"
               ]
             },
             "in": "query",
@@ -28333,6 +28334,11 @@
                             "type": "integer",
                             "minimum": 0,
                             "maximum": 2147483647
+                          },
+                          "distanceMeters": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
                           },
                           "minimumOrderDzd": {
                             "nullable": true,
@@ -28898,6 +28904,11 @@
                           "type": "integer",
                           "minimum": 0,
                           "maximum": 2147483647
+                        },
+                        "distanceMeters": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
                         },
                         "minimumOrderDzd": {
                           "nullable": true,

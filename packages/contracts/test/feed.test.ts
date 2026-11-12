@@ -91,3 +91,21 @@ test("[CUS-04:contract] publishes bounded rating, ETA and delivery costs", () =>
     }).success,
   ).toBe(false);
 });
+
+test("[CUS-06:contract] accepts fee ordering and public distance in whole metres", () => {
+  expect(publicFeedQuery.parse({ sort: "fee", communeId: id })).toEqual({
+    limit: 24,
+    sort: "fee",
+    communeId: id,
+  });
+  const page = { restaurants: [{ ...restaurant, distanceMeters: 1750 }], nextCursor: null };
+  expect(publicFeedOutput.parse(page)).toEqual(page);
+  for (const distanceMeters of [-1, 1.5]) {
+    expect(
+      publicFeedOutput.safeParse({
+        ...page,
+        restaurants: [{ ...restaurant, distanceMeters }],
+      }).success,
+    ).toBe(false);
+  }
+});

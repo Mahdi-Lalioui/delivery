@@ -38,7 +38,7 @@ export const publicFeedQuery = z.strictObject({
     .pipe(z.literal([20, 30, 45]))
     .optional(),
   priceLevel: z.enum(["1", "2", "3"]).transform(Number).pipe(priceLevel).optional(),
-  sort: z.enum(["relevance", "distance", "rating", "eta"]).optional(),
+  sort: z.enum(["relevance", "distance", "rating", "eta", "fee"]).optional(),
 });
 
 export const publicRestaurantCard = z.strictObject({
@@ -55,6 +55,7 @@ export const publicRestaurantCard = z.strictObject({
   ratingCount: z.int().nonnegative().optional(),
   etaMinutes: etaMinutes.nullable().optional(),
   deliveryFeeDzd: amount.nullable().optional(),
+  distanceMeters: z.int().nonnegative().optional(),
   minimumOrderDzd: amount.nullable().optional(),
   priceLevel: priceLevel.nullable().optional(),
   acceptsBaridiPay: z.boolean().optional(),
