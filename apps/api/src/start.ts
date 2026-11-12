@@ -75,6 +75,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     auth: { service, publicOrigin: environment.AUTH_PUBLIC_ORIGIN },
     addresses: createAddressRepository(database),
     orders: { repository: orders, now },
+    orderHistory: orders,
     orderActions: { repository: orders, now },
     adminOrders: createAdminOrdersRepository(database),
     couriers: { repository: createCourierRepository(database), now },

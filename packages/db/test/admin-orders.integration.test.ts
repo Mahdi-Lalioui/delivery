@@ -5,6 +5,12 @@ import {
   adminOrderSearchInput,
   adminOrderSearchOutput,
 } from "@zaafran/contracts/admin-orders";
+import {
+  customerOrderHistoryOutput,
+  customerOrderHistoryQuery,
+  customerOrderReceiptOutput,
+} from "@zaafran/contracts/retention";
+import { createOrderRepository } from "../src/orders.ts";
 import { createAdminOrdersRepository } from "../src/admin-orders.ts";
 import { registerTestDatabase } from "./database.ts";
 
@@ -114,4 +120,39 @@ test("[ADM-05] exposes only admin-scoped timeline events and denies a blocked ad
   await sql`UPDATE users SET blocked_at = now() WHERE id = ${adminId}`;
   expect(await search({})).toBeUndefined();
   expect(await repository().detail({ accountId: adminId, orderId: activeId })).toBeUndefined();
+});
+
+test("[CUS-21] paginates only the active customer's orders and returns a scoped receipt", async () => {
+  const { sql } = database.get();
+  const customerSessionId = randomUUID();
+  await sql`
+    INSERT INTO sessions
+      (id, user_id, token_hash, transport, kind, request_ip, created_at, last_seen_at, expires_at)
+    VALUES (${customerSessionId}, ${customerId}, decode(repeat('01', 32), 'hex'), 'web', 'standard',
+      '192.0.2.1', now(), now(), now() + interval '1 hour')
+  `;
+  await sql`UPDATE orders SET placed_at = '2026-11-11T12:00:00.000123Z', last_event_at = '2026-11-11T12:00:00.000123Z' WHERE id = ${terminalId}`;
+  const repository = createOrderRepository(database.get());
+  const scope = { customerId, sessionId: customerSessionId };
+  const first = customerOrderHistoryOutput.parse(
+    await repository.history({ ...scope, query: { limit: 2 } }),
+  );
+  expect(first.orders.map(({ orderId }) => orderId)).toEqual([demoOrderId, activeId]);
+  expect(first.nextCursor).toBe(`2026-11-11T12:00:00.000124Z~${activeId}`);
+  const second = customerOrderHistoryOutput.parse(
+    await repository.history({
+      ...scope,
+      query: customerOrderHistoryQuery.parse({ cursor: first.nextCursor, limit: "2" }),
+    }),
+  );
+  expect(second.orders.map(({ orderId }) => orderId)).toEqual([terminalId]);
+  expect(second.nextCursor).toBeNull();
+  const receipt = customerOrderReceiptOutput.parse(
+    await repository.receipt({ ...scope, orderId: terminalId }),
+  );
+  expect(receipt).toMatchObject({ orderId: terminalId, totalDzd: 900, deliveryFeeDzd: 0 });
+  expect(await repository.receipt({ ...scope, orderId: secondId })).toBeUndefined();
+  await sql`UPDATE sessions SET revoked_at = now() WHERE id = ${customerSessionId}`;
+  expect(await repository.history({ ...scope, query: { limit: 20 } })).toBeUndefined();
+  expect(await repository.receipt({ ...scope, orderId: terminalId })).toBeUndefined();
 });

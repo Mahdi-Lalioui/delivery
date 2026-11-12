@@ -26,6 +26,13 @@ import {
   savePlacementReceipt,
   type PricedQuote,
 } from "./order-placement-store.js";
+import {
+  isActiveCustomer,
+  readCustomerOrderHistory,
+  readCustomerOrderReceipts,
+  type CustomerOrderScope,
+  type OrderHistoryQuery,
+} from "./order-receipts.js";
 import { readCustomerTracking, type CustomerTrackingScope } from "./order-tracking.js";
 import { readOrderReplay, type OrderReplayRequest } from "./order-replay.js";
 import { evaluateQuote, lockOrderingCustomer, quoteBreakdown } from "./order-quotes.js";
@@ -216,6 +223,18 @@ async function runTimer(
 
 export function createOrderRepository({ sql }: DatabaseConnection, deliveryKey?: Uint8Array) {
   return {
+    history: (scope: CustomerOrderScope & { query: OrderHistoryQuery }) =>
+      sql.begin("isolation level repeatable read read only", async (tx) => {
+        if (await isActiveCustomer(tx, scope))
+          return readCustomerOrderHistory(tx, scope.customerId, scope.query);
+        return undefined;
+      }),
+    receipt: (scope: CustomerOrderScope & { orderId: string }) =>
+      sql.begin("isolation level repeatable read read only", async (tx) => {
+        if (!(await isActiveCustomer(tx, scope))) return undefined;
+        const [receipt] = await readCustomerOrderReceipts(tx, scope.customerId, scope.orderId);
+        return receipt;
+      }),
     tracking: (request: CustomerTrackingScope) =>
       sql.begin("isolation level repeatable read read only", (tx) =>
         readCustomerTracking(tx, request, deliveryKey),

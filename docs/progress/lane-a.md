@@ -251,3 +251,6 @@
 
 - 2026-11-12 · Medium · Shipped admin live orders, merchant application notices and repeat-moderation review tokens. Six production-browser journeys and 83 scoped tests passed. Screenshots and layout notes in docs/evidence/awid/admin-orders/.
   Next: integrate Lane B and close the real customer history, receipt, rating and tracking gaps before running the order journeys.
+
+- 2026-11-12 · High · Added private order history and receipts on the existing contract, with precise cursor paging and active-session scoping. Passed 256 authz/HTTP tests and three PostGIS cases. OpenAPI matches.
+  Next: implement the customer rating read and write against the published contract, then exercise delivery and pickup against real routes.
