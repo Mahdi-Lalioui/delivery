@@ -15,6 +15,7 @@ interface SiteShellProps {
     | "/sign-in?continue=merchant-status"
     | "/sign-in?continue=staff-accept"
     | "/sign-in?continue=courier"
+    | "/sign-in?continue=admin-orders"
     | "/sign-in?continue=admin-review"
     | "/sign-in?continue=admin-moderation"
     | "/account/sessions"
@@ -46,7 +47,8 @@ interface SiteShellProps {
     | "/admin/billing"
     | "/admin/billing/settings"
     | "/admin/platform"
-    | "/admin/dashboard";
+    | "/admin/dashboard"
+    | "/admin/orders";
 }
 
 const adminSubpaths: ReadonlySet<string> = new Set([

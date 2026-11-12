@@ -8,6 +8,7 @@ export interface SignInDestination {
     | `/${Locale}/merchant/apply`
     | `/${Locale}/staff/accept`
     | `/${Locale}/courier`
+    | `/${Locale}/admin/orders`
     | `/${Exclude<Locale, "ar">}/admin/merchant-applications`
     | `/${Exclude<Locale, "ar">}/admin/menu-items`;
   readonly label:
@@ -15,6 +16,7 @@ export interface SignInDestination {
     | "continueRestaurants"
     | "continueInvitation"
     | "continueCourier"
+    | "continueAdminOrders"
     | "continueReview"
     | "continueModeration";
 }
@@ -28,9 +30,38 @@ interface SignInIntent {
     | "/sign-in?continue=merchant-status"
     | "/sign-in?continue=staff-accept"
     | "/sign-in?continue=courier"
+    | "/sign-in?continue=admin-orders"
     | "/sign-in?continue=admin-review"
     | "/sign-in?continue=admin-moderation";
   readonly destination?: SignInDestination;
+}
+
+function adminIntent(
+  destination: string | string[] | undefined,
+  locale: Locale,
+): SignInIntent | undefined {
+  if (destination === "admin-orders") {
+    return {
+      purpose: "admin_sign_in",
+      subpath: "/sign-in?continue=admin-orders",
+      destination: { href: `/${locale}/admin/orders`, label: "continueAdminOrders" },
+    };
+  }
+  if (destination === "admin-review" && locale !== "ar") {
+    return {
+      purpose: "admin_sign_in",
+      subpath: "/sign-in?continue=admin-review",
+      destination: { href: `/${locale}/admin/merchant-applications`, label: "continueReview" },
+    };
+  }
+  if (destination === "admin-moderation" && locale !== "ar") {
+    return {
+      purpose: "admin_sign_in",
+      subpath: "/sign-in?continue=admin-moderation",
+      destination: { href: `/${locale}/admin/menu-items`, label: "continueModeration" },
+    };
+  }
+  return undefined;
 }
 
 export function readSignInIntent(
@@ -65,20 +96,8 @@ export function readSignInIntent(
       destination: { href: `/${locale}/courier`, label: "continueCourier" },
     };
   }
-  if (query.continue === "admin-review" && locale !== "ar") {
-    return {
-      purpose: "admin_sign_in",
-      subpath: "/sign-in?continue=admin-review",
-      destination: { href: `/${locale}/admin/merchant-applications`, label: "continueReview" },
-    };
-  }
-  if (query.continue === "admin-moderation" && locale !== "ar") {
-    return {
-      purpose: "admin_sign_in",
-      subpath: "/sign-in?continue=admin-moderation",
-      destination: { href: `/${locale}/admin/menu-items`, label: "continueModeration" },
-    };
-  }
+  const admin = adminIntent(query.continue, locale);
+  if (admin) return admin;
 
   const purpose = getSignInPurpose(query.purpose);
   return { purpose, subpath: purpose === "admin_sign_in" ? "/sign-in?purpose=admin" : "/sign-in" };

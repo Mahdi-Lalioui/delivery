@@ -1,4 +1,5 @@
 import {
+  adminMerchantNoticeOutput,
   adminMerchantReviewInput,
   adminMerchantReviewOutput,
   adminReviewQueueOutput,
@@ -31,6 +32,22 @@ const requestOptions = {
   cache: "no-store",
   redirect: "error",
 } satisfies RequestInit;
+
+export async function readAdminApplicationNotice(expectedSessionId: string, signal: AbortSignal) {
+  try {
+    const response = await fetch(queuePath + "/notice", {
+      ...requestOptions,
+      method: "GET",
+      signal,
+    });
+    if (!response.ok) return undefined;
+    const payload: unknown = await response.json();
+    const result = adminMerchantNoticeOutput.safeParse(payload);
+    return result.success && result.data.sessionId === expectedSessionId ? result.data : undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 async function readQueuePage(
   response: Response,

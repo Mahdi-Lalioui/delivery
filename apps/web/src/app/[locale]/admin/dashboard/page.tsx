@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { ToastProvider } from "@zaafran/ui";
+import { ButtonLink, ToastProvider } from "@zaafran/ui";
 import { AdminDashboard } from "../../../../retention/analytics/analytics-views";
 import { SiteShell } from "../../../../components/site-shell";
 import { requireLatinLocale, type LatinPageProps } from "../../../../i18n/latin-locale";
@@ -26,7 +26,7 @@ export async function generateMetadata(props: LatinPageProps): Promise<Metadata>
 
 export default async function AdminDashboardPage(props: LatinPageProps) {
   const locale = await requireAdminLocale(props);
-  const { retentionAnalytics } = getMessages(locale);
+  const { retentionAnalytics, adminOrders } = getMessages(locale);
 
   return (
     <SiteShell locale={locale} subpath="/admin/dashboard">
@@ -35,6 +35,9 @@ export default async function AdminDashboardPage(props: LatinPageProps) {
         messages={{ retentionAnalytics }}
         timeZone="Africa/Algiers"
       >
+        <ButtonLink href={`/${locale}/admin/orders`} variant="ghost">
+          {adminOrders.title}
+        </ButtonLink>
         <ToastProvider closeLabel={retentionAnalytics.closeToast}>
           <AdminDashboard locale={locale} />
         </ToastProvider>

@@ -223,44 +223,53 @@ test("[MER-01:browser] [ADM-03:browser] submits and reviews an Algiers merchant 
   await withAuthHarness(
     baseURL,
     async (auth) => {
-      const { merchantId, communeName } =
-        await test.step("The Arabic applicant submits an eligible location", async () => {
-          const commune = await enterMerchantApplication(page, auth);
-          const invalid = await submitPin(page, { latitude: 0, longitude: 0 });
-          expect(invalid.status()).toBe(422);
-          expect(problemResponseSchema.parse(await invalid.json()).code).toBe("outside_commune");
-          await expect(
-            page.getByRole("alert").filter({ hasText: ar.merchant.outsideCommune }),
-          ).toBeVisible();
-
-          const photoId = await attachPhoto(page, ar.mediaPhoto);
-          const response = await submitPin(page, commune.pin);
-          expect(response.status()).toBe(201);
-          expect(response.request().postDataJSON()).toMatchObject({
-            communeId: commune.id,
-            pin: commune.pin,
-            photoIds: [photoId],
-          });
-          const created = merchantApplicationOutput.parse(await response.json());
-          await expect(
-            page.getByRole("heading", { name: ar.merchant.submittedTitle }),
-          ).toBeVisible();
-          await page.getByRole("link", { name: ar.merchant.viewStatus }).click();
-          await expectMembership(page, auth, {
-            merchantId: created.merchantId,
-            status: "pending_review",
-          });
-          return { merchantId: created.merchantId, communeName: commune.nameFr };
-        });
-
       const adminContext = await browser.newContext({ ignoreHTTPSErrors });
       try {
+        const adminPage = await adminContext.newPage();
+        await enterAdminQueue(adminPage, auth);
+        await expectApplicationNotice(adminPage, auth.origin, null);
+        await expect(adminPage.getByText(fr.adminMerchant.empty, { exact: true })).toBeVisible();
+        await page.bringToFront();
+        const { merchantId, communeName } =
+          await test.step("The Arabic applicant submits an eligible location", async () => {
+            const commune = await enterMerchantApplication(page, auth);
+            const invalid = await submitPin(page, { latitude: 0, longitude: 0 });
+            expect(invalid.status()).toBe(422);
+            expect(problemResponseSchema.parse(await invalid.json()).code).toBe("outside_commune");
+            await expect(
+              page.getByRole("alert").filter({ hasText: ar.merchant.outsideCommune }),
+            ).toBeVisible();
+
+            const photoId = await attachPhoto(page, ar.mediaPhoto);
+            const response = await submitPin(page, commune.pin);
+            expect(response.status()).toBe(201);
+            expect(response.request().postDataJSON()).toMatchObject({
+              communeId: commune.id,
+              pin: commune.pin,
+              photoIds: [photoId],
+            });
+            const created = merchantApplicationOutput.parse(await response.json());
+            await expect(
+              page.getByRole("heading", { name: ar.merchant.submittedTitle }),
+            ).toBeVisible();
+            await page.getByRole("link", { name: ar.merchant.viewStatus }).click();
+            await expectMembership(page, auth, {
+              merchantId: created.merchantId,
+              status: "pending_review",
+            });
+            return { merchantId: created.merchantId, communeName: commune.nameFr };
+          });
         await test.step("A separate French administrator approves the application", async () => {
-          const adminPage = await adminContext.newPage();
-          await enterAdminQueue(adminPage, auth);
+          await adminPage.bringToFront();
+          const pendingNotice = adminPage
+            .getByRole("status")
+            .filter({ hasText: "1 demande en attente" });
+          await expect(pendingNotice).toBeVisible({ timeout: 10_000 });
+          await adminPage.getByRole("button", { name: fr.adminMerchant.refreshPending }).click();
           await expectApplicationNotice(adminPage, auth.origin, merchantId);
           await approveApplication(adminPage, merchantId, communeName);
           await expectApplicationNotice(adminPage, auth.origin, null);
+          await expect(pendingNotice).toHaveCount(0);
           await expect(adminPage.locator('a[hreflang="ar-DZ"]')).toHaveCount(0);
         });
         await test.step("The applicant sees approval but cannot read the admin queue", async () => {
@@ -271,10 +280,10 @@ test("[MER-01:browser] [ADM-03:browser] submits and reviews an Algiers merchant 
           expect(problemResponseSchema.parse(await denied.json()).code).toBe("forbidden");
           expect((await page.request.get(auth.origin + noticeEndpoint)).status()).toBe(403);
         });
+        await completeOnboardingMenu(page, auth.origin, merchantId);
       } finally {
         await adminContext.close();
       }
-      await completeOnboardingMenu(page, auth.origin, merchantId);
     },
     true,
   );

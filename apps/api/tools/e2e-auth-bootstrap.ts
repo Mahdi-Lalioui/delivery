@@ -12,6 +12,7 @@ import { migrateDatabase } from "@zaafran/db/migrate";
 import { createTestClone } from "../../../packages/db/test/clone.ts";
 import { sealTotpSecret } from "../src/auth-totp.ts";
 import type { startApi } from "../src/start.ts";
+import { seedAdminOrder } from "./e2e-admin-order.ts";
 import { seedDiscoveryFeed } from "./e2e-discovery-feed.ts";
 import { startAuthProxy } from "./e2e-auth-proxy.ts";
 import type { AlgiersCommune, AuthHarness, MenuMembershipFixture } from "./e2e-auth-types.ts";
@@ -245,6 +246,12 @@ export async function startAuthHarness(
       });
     },
     seedMenuMemberships: (phone) => seedMenuMemberships(database, phone, new Date(time)),
+    async seedAdminOrder() {
+      return seedAdminOrder(database, {
+        commune: await seedAlgiersCommune(database),
+        now: new Date(time),
+      });
+    },
     seedOnboardingProgress: (merchantId) => seedOnboardingProgress(database, merchantId),
     advanceClock(milliseconds: number) {
       if (!Number.isSafeInteger(milliseconds) || milliseconds < 0) {

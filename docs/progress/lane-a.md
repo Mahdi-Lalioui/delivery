@@ -248,3 +248,6 @@
 
 - 2026-11-11 · Ultra · Added admin-only indexed live search and bounded timelines, session-bound force commands and exactly-once audit rows. Passed 255 authz/HTTP tests, 24 PostGIS cases and OpenAPI validation.
   Next: implement and verify the admin order console, then connect the merchant notice and moderation token handoffs.
+
+- 2026-11-12 · Medium · Shipped admin live orders, merchant application notices and repeat-moderation review tokens. Six production-browser journeys and 83 scoped tests passed. Screenshots and layout notes in docs/evidence/awid/admin-orders/.
+  Next: integrate Lane B and close the real customer history, receipt, rating and tracking gaps before running the order journeys.
