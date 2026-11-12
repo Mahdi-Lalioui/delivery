@@ -5,7 +5,8 @@ import { getMessages } from "@zaafran/i18n/messages";
 import type { Map } from "maplibre-gl";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
-import { useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { checkBasemap } from "./basemap-check";
 import { useLowData } from "../discovery/low-data";
 import type { Tracking } from "./tracking-http";
 import { useTrackingScene } from "./use-tracking-scene";
@@ -27,7 +28,27 @@ export function TrackingLiveMap({
 }) {
   const trackingCopy = useTranslations("tracking");
   const map = useRef<Map>(null);
-  const [state, setState] = useState<"loading" | "ready" | "error">("loading");
+  const [state, setState] = useState<"loading" | "ready" | "empty" | "error">("loading");
+  const stopCheck = useRef<(() => void) | null>(null);
+  useEffect(
+    () => () => {
+      stopCheck.current?.();
+    },
+    [],
+  );
+  // "Loaded" is not enough: the designed map stays up until real streets are drawn.
+  function onMapState(next: "loading" | "ready" | "error") {
+    stopCheck.current?.();
+    stopCheck.current = null;
+    const current = map.current;
+    if (next !== "ready" || current === null) {
+      setState(next);
+      return;
+    }
+    stopCheck.current = checkBasemap(current, (isDrawn) => {
+      setState(isDrawn ? "ready" : "empty");
+    });
+  }
   const [requested, setRequested] = useState(false);
   const lowData = useLowData();
   const { courier, route } = tracking;
@@ -36,7 +57,7 @@ export function TrackingLiveMap({
   const position = courier ? courier.position : null;
   useTrackingScene(map, state === "ready", position);
   const canShow = requested || !lowData;
-  const canRender = canShow && state !== "error";
+  const canRender = canShow && state !== "error" && state !== "empty";
   return (
     <div className="tracking-basemap">
       <div className="tracking-map tracking-map-real" role="group" aria-label={trackingCopy("map")}>
@@ -49,15 +70,15 @@ export function TrackingLiveMap({
             choose={false}
             label={trackingCopy("map")}
             mapRef={map}
-            onState={setState}
+            onState={onMapState}
             delivery={{ route, courier: position }}
           />
         )}
-        {(!canRender || state === "loading") && fallback}
+        {state !== "ready" && fallback}
       </div>
       <MapControls
         locale={locale}
-        state={canShow ? state : "closed"}
+        state={canShow ? controlState(state) : "closed"}
         onOpen={() => {
           setState("loading");
           setRequested(true);
@@ -65,6 +86,10 @@ export function TrackingLiveMap({
       />
     </div>
   );
+}
+
+function controlState(state: "loading" | "ready" | "empty" | "error") {
+  return state === "empty" ? "error" : state;
 }
 
 function MapControls({
