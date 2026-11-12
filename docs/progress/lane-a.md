@@ -365,3 +365,6 @@
 
 - 2026-11-12 · High · Merged customer PR #11 after hosted CI. Added a shared warm grade and sharpening to published dishes and covers, graded the fictional preview catalog, replaced its dim shawarma photo and documented restaurant capture guidance. All 29 focused tests and web and media typechecks passed.
   Next: profile Discovery and Restaurant over throttled 4G, then work through haptics, copy, consistency, accessibility and the final visual review.
+
+- 2026-11-12 · High · Added responsive preview variants and ran six cold samples per build under the same Android profile. Restaurant preview LCP dropped to 1.96–1.97 s, with CLS 0.080. Discovery remains at 4.44–4.48 s. All 19 preview API tests passed.
+  Next: isolate Discovery’s initial rail traffic and stabilize Restaurant’s async Popular row. Recheck without scrolling on a connected build. See [performance evidence](../evidence/awid/perf.md).

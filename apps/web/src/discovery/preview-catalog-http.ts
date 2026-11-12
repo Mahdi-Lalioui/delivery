@@ -257,7 +257,8 @@ function photoRoute(pathname: string) {
     : entry?.profile.restaurant.coverMediaId;
   const name = photoId === parsed.data.mediaId ? previewPhotos.get(photoId) : undefined;
   if (!name) return problem(404);
-  const suffix = parsed.data.width <= 320 ? "-320" : "";
+  const variantWidth = parsed.data.width;
+  const suffix = variantWidth === 1280 ? "" : "-" + String(Math.max(320, variantWidth));
   const location = `/preview-catalog/${name}${suffix}.webp`;
   return new Response(null, { status: 307, headers: { ...noStore, location } });
 }
