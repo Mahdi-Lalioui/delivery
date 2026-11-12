@@ -1064,3 +1064,8 @@ body:has(.restaurant-cart-bar) .customer-tabs {
     transform: none;
   }
 }
+
+/* Counting prices keep a steady width while digits change. */
+.counting-dzd {
+  font-variant-numeric: var(--font-variant-numeric-numbers);
+}
