@@ -1,5 +1,14 @@
 # Sprint: AWID — a complete, deployed, reliable web app for all of Algeria, with an exceptional interface
 
+## Local readiness phase
+
+The [readiness checklist](READINESS.md) governs the current phase. Deployment is paused until
+Mahdi changes that instruction. Lane A owns performance, the photo pipeline, offers, security,
+local reliability, operations and integration. Lane B owns the remaining customer UI and UX work,
+including sign-in, account and checkout polish, tap feedback, frame pacing and CLS. Lane A edits customer screens only for performance
+and records those edits in the [customer handoff](requests/lane-a-readiness-customer.md).
+This phase includes promotion redemption and local k6 testing.
+
 ## Goal
 Customer orders (delivery or pickup, cash) → restaurant accepts on a live board → courier delivers and is visible on the customer's map → customer rates. Web on Vercel, backend on one server. People who open it should be impressed within five seconds, and nothing may look broken, empty or generic.
 
@@ -8,7 +17,7 @@ Customer orders (delivery or pickup, cash) → restaurant accepts on a live boar
 - Choose your own effort level per task, and decide yourself when a sub-agent is worth it. Spend more on order state, money, security and on design-critical screens; less on mechanical work.
 - Commit and push after every task. Keep progress entries to 2 lines; the last line always says exactly what to do next, so a fresh session can resume.
 - Run the affected package's tests, typecheck and lint as you go. Full pnpm verify at every phase merge.
-- Out of scope: native apps, partner app, billing automation, promotions redemption, Ramadan features, menu photo import, benchmarks, mutation tests, k6.
+- Out of scope: native apps, partner app, billing automation, Ramadan features, menu photo import and unrelated benchmarks.
 - Mahdi's external reviewer reads the repo every evening; fix its P0/P1 findings first when they are pasted.
 
 ## Never skipped

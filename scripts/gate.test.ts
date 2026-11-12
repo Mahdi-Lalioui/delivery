@@ -150,3 +150,7 @@ void test("[SRCH-06] runs discovery journeys and the search benchmark from the M
   ]);
   assert.deepEqual(gateCommand("m3", "bench:search"), ["bench:search"]);
 });
+
+void test("[NFR-04] runs the encrypted restore drill from the web release gate", () => {
+  assert.deepEqual(gateCommand("m9", "drill:restore"), ["drill:restore"]);
+});

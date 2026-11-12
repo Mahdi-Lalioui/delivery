@@ -11,6 +11,7 @@ type MetricKeys =
   | "deliveryFeeDzd"
   | "distanceMeters"
   | "isNew"
+  | "offer"
   | "offersPickup"
   | "pin"
   | "minimumOrderDzd"
@@ -38,8 +39,9 @@ function orderBy(sql: TransactionSql, sort: FeedQuery["sort"]) {
 function selectCandidates(
   sql: TransactionSql,
   query: FeedQuery,
-  vegetarianMerchantIds: string[] | null,
+  scope: { vegetarianMerchantIds: string[] | null; offers: string },
 ) {
+  const { vegetarianMerchantIds, offers } = scope;
   const now = query.now.toISOString();
   const commune = query.communeId ?? null;
   const cuisine = query.cuisine ?? null;
@@ -50,7 +52,7 @@ function selectCandidates(
   return sql`
     SELECT merchant.id, merchant.slug, merchant.restaurant_name, merchant.cuisines, merchant.commune_id,
       merchant.cover_photo_id, merchant.logo_photo_id, merchant.hours_paused_until, settings.price_level,
-      stats.rating, stats.rating_count, zone.fee_dzd,
+      stats.rating, stats.rating_count, zone.fee_dzd, promotion.badge AS offer,
       merchant.first_published_at BETWEEN ${now}::timestamptz - interval '720 hours'
         AND ${now}::timestamptz AS is_new,
       CASE WHEN ${fulfilment}::text = 'pickup' THEN settings.pickup_minimum_dzd
@@ -84,7 +86,15 @@ function selectCandidates(
         zone.priority DESC, zone.id
       LIMIT 1
     ) AS zone ON true
+    LEFT JOIN LATERAL (
+      SELECT entry.badge FROM ROWS FROM (jsonb_to_recordset(${offers}::jsonb) AS (merchant_id uuid, badge jsonb))
+        WITH ORDINALITY AS entry(merchant_id, badge, ordinality)
+      WHERE entry.merchant_id = merchant.id
+        AND (entry.badge->>'kind' <> 'free_delivery' OR zone.fee_dzd > 0)
+      ORDER BY entry.ordinality LIMIT 1
+    ) AS promotion ON true
     WHERE merchant.status = 'active' AND NOT merchant.is_demo
+      AND (NOT ${query.offers === true}::boolean OR promotion.badge IS NOT NULL)
       AND (${vegetarianMerchantIds}::uuid[] IS NULL OR merchant.id = ANY(${vegetarianMerchantIds}::uuid[]))
       AND (${fulfilment}::text IS DISTINCT FROM 'pickup' OR settings.pickup_enabled)
       AND (${fulfilment}::text IS DISTINCT FROM 'delivery' OR zone.fee_dzd IS NOT NULL)
@@ -138,11 +148,11 @@ function filterAndPage(sql: TransactionSql, query: FeedQuery) {
 export function readRestaurantRows(
   sql: TransactionSql,
   query: FeedQuery,
-  vegetarianMerchantIds: string[] | null,
+  scope: { vegetarianMerchantIds: string[] | null; offers: string },
 ) {
   const order = query.sort && query.sort !== "relevance" ? sql`page.position` : sql`page.id`;
   return sql<RestaurantRow[]>`
-    WITH candidates AS (${selectCandidates(sql, query, vegetarianMerchantIds)}), page AS (${filterAndPage(sql, query)})
+    WITH candidates AS (${selectCandidates(sql, query, scope)}), page AS (${filterAndPage(sql, query)})
     SELECT page.id AS "merchantId", page.slug, page.restaurant_name AS name,
       page.cuisines, page.commune_id AS "communeId", cover.id AS "coverMediaId", logo.id AS "logoMediaId",
       page.hours_paused_until AS "pausedUntil",
@@ -152,6 +162,7 @@ export function readRestaurantRows(
         'deliveryFeeDzd', page.fee_dzd, 'distanceMeters', round(page.distance)::int,
         'minimumOrderDzd', page.minimum_dzd, 'priceLevel', page.price_level,
         'offersPickup', CASE WHEN page.pickup_pin IS NOT NULL THEN true END, 'pin', page.pickup_pin,
+        'offer', page.offer,
         'isNew', CASE WHEN ${query.newOnly === true} AND page.is_new THEN true END
       )) AS metrics
     FROM page
@@ -166,9 +177,9 @@ export function readRestaurantRows(
 export async function countRestaurantRows(
   sql: TransactionSql,
   query: FeedQuery,
-  vegetarianMerchantIds: string[] | null,
+  scope: { vegetarianMerchantIds: string[] | null; offers: string },
 ) {
-  const candidates = selectCandidates(sql, { ...query, cursor: undefined }, vegetarianMerchantIds);
+  const candidates = selectCandidates(sql, { ...query, cursor: undefined }, scope);
   const [result] = await sql<{ total: number }[]>`
     WITH candidates AS (${candidates})
     SELECT count(*)::int AS total FROM candidates WHERE ${matchingFilters(sql, query)}

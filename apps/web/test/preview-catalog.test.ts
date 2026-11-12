@@ -118,7 +118,10 @@ test("serves a synthetic cover at supported variant widths", async () => {
   const coverPath = `merchants/${merchantId}/profile/photos/${coverMediaId ?? ""}/variants`;
   const cover = GET(request(coverPath + "/avif/640"));
   expect(cover.status).toBe(307);
-  expect(cover.headers.get("location")).toBe("/preview-catalog/chawarma.webp");
+  expect(cover.headers.get("location")).toBe("/preview-catalog/chawarma-640.webp");
+  expect(GET(request(coverPath + "/webp/960")).headers.get("location")).toBe(
+    "/preview-catalog/chawarma-960.webp",
+  );
   expect(cover.headers.get("cache-control")).toBe("no-store");
   expect(GET(request(coverPath + "/webp/1")).status).toBe(400);
 });

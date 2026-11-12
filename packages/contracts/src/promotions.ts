@@ -17,7 +17,7 @@ const activation = z.discriminatedUnion("kind", [
 ]);
 
 // These variants match the pricing domain's Promo input (MON-03).
-const discount = z.discriminatedUnion("kind", [
+export const promotionDiscount = z.discriminatedUnion("kind", [
   z.strictObject({
     kind: z.literal("percent"),
     basisPoints: z.int().min(0).max(10_000),
@@ -43,7 +43,11 @@ const conditions = z
     { path: ["endsOn"], message: "The end date cannot precede the start date." },
   );
 
-export const merchantPromotionInput = z.strictObject({ activation, discount, conditions });
+export const merchantPromotionInput = z.strictObject({
+  activation,
+  discount: promotionDiscount,
+  conditions,
+});
 
 export const merchantPromotionOutput = merchantPromotionInput.extend({
   promotionId: z.uuid(),

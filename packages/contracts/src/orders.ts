@@ -1,5 +1,6 @@
 import { z } from "./schema.js";
 import { algerianMobilePhone } from "./auth.js";
+import { promotionCode } from "./promotions.js";
 import { menuItemInput } from "./menu.js";
 import { customerOrderHistoryOutput } from "./retention.js";
 
@@ -24,6 +25,7 @@ const timing = z.discriminatedUnion("kind", [
 const quote = z.strictObject({
   merchantId: uuid,
   timing,
+  promotionCode: z.string().trim().pipe(promotionCode).optional(),
   items: z
     .array(
       z.strictObject({
@@ -47,12 +49,14 @@ export const orderQuoteOutput = z
     fulfilment: z.enum(["pickup", "delivery"]),
     expiresAt: instant,
     subtotalDzd: dzd,
+    discountDzd: dzd.optional(),
     deliveryFeeDzd: dzd,
     totalDzd: dzd,
   })
   .refine(
-    ({ fulfilment, subtotalDzd, deliveryFeeDzd, totalDzd }) =>
-      totalDzd === subtotalDzd + deliveryFeeDzd &&
+    ({ fulfilment, subtotalDzd, discountDzd = 0, deliveryFeeDzd, totalDzd }) =>
+      discountDzd <= subtotalDzd &&
+      totalDzd === subtotalDzd - discountDzd + deliveryFeeDzd &&
       (fulfilment === "delivery" || deliveryFeeDzd === 0),
     { path: ["totalDzd"] },
   );

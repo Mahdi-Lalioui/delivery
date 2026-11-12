@@ -10,7 +10,7 @@ import { activeStandardSession } from "./standard-session.js";
 import { timestampParsers } from "./timestamp-parsers.js";
 
 type Receipt = ReturnType<typeof customerOrderReceiptOutput.parse>;
-type StoredReceipt = Omit<Receipt, "placedAt" | "lines" | "discountDzd"> & {
+type StoredReceipt = Omit<Receipt, "placedAt" | "lines"> & {
   placedAt: Date;
   lines: PricedQuote["price"]["lines"];
 };
@@ -45,7 +45,7 @@ export async function readCustomerOrderReceipts(
   const rows = await sql<StoredReceipt[]>`
     SELECT id AS "orderId", merchant_id AS "merchantId", restaurant_name AS "restaurantName",
       short_code AS "shortCode", status, fulfilment, total_dzd AS "totalDzd", placed_at AS "placedAt",
-      subtotal_dzd AS "subtotalDzd", delivery_fee_dzd AS "deliveryFeeDzd", lines
+      subtotal_dzd AS "subtotalDzd", discount_dzd AS "discountDzd", delivery_fee_dzd AS "deliveryFeeDzd", lines
     FROM public.orders WHERE customer_id = ${customerId}
     ${orderId ? sql`AND id = ${orderId}` : sql``}
     ORDER BY placed_at DESC, id DESC
@@ -54,7 +54,6 @@ export async function readCustomerOrderReceipts(
     ...receipt,
     placedAt: placedAt.toISOString(),
     lines: lines.map(presentLine),
-    discountDzd: 0,
   }));
 }
 

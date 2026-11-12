@@ -469,3 +469,32 @@ test("[CUS-21:db] reorders only owned completed orders, flags missing selections
   await sql`UPDATE sessions SET revoked_at = now() WHERE id = ${customerSessionId}`;
   expect(await repository.reorder(scope)).toBeUndefined();
 });
+
+test("[MON-05] preserves legacy receipts and enforces discounted order totals", async () => {
+  const { sql } = database.get();
+  const repository = createOrderRepository(database.get());
+  const session = randomUUID();
+  await sql`INSERT INTO sessions
+    (id, user_id, token_hash, transport, kind, request_ip, created_at, last_seen_at, expires_at)
+    VALUES (${session}, ${customerId}, decode(repeat('17', 32), 'hex'), 'web', 'standard',
+      '192.0.2.1', now(), now(), now() + interval '1 hour')`;
+  const receipt = () => repository.receipt({ customerId, sessionId: session, orderId: terminalId });
+  expect(await receipt()).toMatchObject({ discountDzd: 0 });
+  await expect(
+    sql`UPDATE orders SET discount_dzd = 200 WHERE id = ${terminalId}`,
+  ).rejects.toMatchObject({
+    code: "23514",
+  });
+  await sql`UPDATE orders SET discount_dzd = 200, total_dzd = 700 WHERE id = ${terminalId}`;
+  expect(await receipt()).toMatchObject({ discountDzd: 200, totalDzd: 700 });
+  await expect(
+    sql`UPDATE orders SET paying_with_dzd = 699 WHERE id = ${terminalId}`,
+  ).rejects.toMatchObject({
+    code: "23514",
+  });
+  await expect(
+    sql`UPDATE orders SET last_event_at = placed_at - interval '1 second' WHERE id = ${terminalId}`,
+  ).rejects.toMatchObject({
+    code: "23514",
+  });
+});

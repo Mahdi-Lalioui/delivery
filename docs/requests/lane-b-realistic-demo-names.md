@@ -1,6 +1,6 @@
 # Lane B → lane A: realistic fictional restaurant names
 
-Status: done (2026-11-12). Lane B checked `packages/db/src`, the seeds and `infra/` on
+Status: integrated by lane A (2026-11-12). Lane B checked `packages/db/src`, the seeds and `infra/` on
 `origin/main`, `origin/lane-a`, `origin/demo` and `origin/codex/awid-integration`: no display
 name contains "Démo" or "Demo". Only the preview catalog had them, renamed below.
 
@@ -17,3 +17,8 @@ Asked of lane A:
    "Demo", "Test" or similar, and rename them to realistic fictional Algerian names (keep
    `is_demo` true, keep them clearly fictional, no real restaurant names).
 2. Keep any lane A e2e or doc references in step with the new names when merging `lane-b`.
+
+Lane A checked all 40 entries in `packages/db/src/demo-seed-menu.ts`. They already have
+fictional French and Arabic display names without demo markers. The reserved owner account,
+internal slugs and `is_demo` continue to identify these records as synthetic. The preview
+catalog tests and preview journey use the new names and slugs.

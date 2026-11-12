@@ -491,3 +491,24 @@ test("[CUS-06:db] records the first public activation without resetting it on re
   await sql`UPDATE merchants SET status = 'active' WHERE id = ${approvedId}`;
   expect((await publishedAt())[0]?.publishedAt).toBe(first);
 });
+
+test("[CUS-06] public offers exclude codes and unavailable promotions and count only matches", async () => {
+  const { sql } = database.get();
+  await sql`
+    INSERT INTO promotions (merchant_id, code, discount, conditions, created_at, updated_at)
+    VALUES
+      (${overnightId}, NULL, '{"kind":"fixed","amountDzd":150}', '{"minimumSubtotalDzd":600}', now(), now()),
+      (${noHoursId}, 'PRIVATE', '{"kind":"fixed","amountDzd":500}', '{}', now(), now()),
+      (${noHoursId}, NULL, '{"kind":"fixed","amountDzd":250}', '{"maxUsesTotal":0}', now(), now()),
+      (${specialClosureId}, NULL, '{"kind":"fixed","amountDzd":100}', '{"endsOn":"2026-11-07"}', now(), now())
+  `;
+  const repo = repository();
+  const result = await repo.list({ now, limit: 2, offers: true, includeCount: true });
+  expect(result.totalCount).toBe(1);
+  expect(result.restaurants).toMatchObject([
+    { merchantId: overnightId, offer: { kind: "fixed", amountDzd: 150, minimumSubtotalDzd: 600 } },
+  ]);
+  expect(
+    (await repo.list({ now, limit: 10 })).restaurants.every(({ offer }) => offer === undefined),
+  ).toBe(true);
+});

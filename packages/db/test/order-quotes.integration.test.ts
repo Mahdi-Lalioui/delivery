@@ -1082,3 +1082,124 @@ test("[CUS-10][MON-07] email-only checkout requires an order contact and keeps t
     await orders().place({ ...expensive, input: { ...expensive.input, contactPhone } }),
   ).toEqual({ kind: "cash_limit" });
 });
+
+test("[CUS-16][MON-03] reserves the last use once across customers and replays placement", async () => {
+  const { sql } = database.get();
+  const offerId = randomUUID();
+  await sql`INSERT INTO promotions (id, merchant_id, code, discount, conditions, created_at, updated_at)
+    VALUES (${offerId}, ${merchantId}, 'AWID', '{"kind":"fixed","amountDzd":200}',
+      '{"maxUsesTotal":1}', ${now.toISOString()}, ${now.toISOString()})`;
+  const input = { ...pickup, promotionCode: "awid" };
+  const customers = [customerId, otherId];
+  const requests = await Promise.all(
+    customers.map(async (customerId) => {
+      const result = await repo().create({ customerId, input, now });
+      expect(result).toMatchObject({ kind: "quoted", quote: { discountDzd: 200, totalDzd: 800 } });
+      if (result.kind !== "quoted") throw new Error("Expected discounted quote");
+      return {
+        customerId,
+        input: { quoteId: result.quote.quoteId },
+        now,
+        idempotencyKey: randomUUID(),
+      };
+    }),
+  );
+  const results = await Promise.all(requests.map((request) => orders().place(request)));
+  expect(results.map(({ kind }) => kind).sort()).toEqual(["placed", "quote_changed"]);
+  const winner = requests[results.findIndex(({ kind }) => kind === "placed")];
+  if (!winner) throw new Error("Expected a winning placement");
+  expect(await orders().place(winner)).toEqual(results.find(({ kind }) => kind === "placed"));
+  expect(
+    await sql`SELECT sales_dzd FROM promotion_redemptions WHERE promotion_id = ${offerId}`,
+  ).toEqual([{ sales_dzd: 800 }]);
+  expect(await repo().create({ customerId, input, now })).toEqual({ kind: "promotion_used_up" });
+});
+
+test("[CUS-16] checks offer conditions and applies only the best automatic saving", async () => {
+  const { sql } = database.get();
+  const cases = [
+    ["EXPIRED", { endsOn: "2026-11-10" }, "promotion_expired"],
+    ["MINIMUM", { minimumSubtotalDzd: 1001 }, "promotion_below_minimum"],
+    ["PERSONAL", { maxUsesPerCustomer: 0 }, "promotion_used_up"],
+    ["UNKNOWN", null, "promotion_wrong_restaurant"],
+  ] as const;
+  for (const [code, conditions, kind] of cases) {
+    if (conditions !== null) {
+      await sql`INSERT INTO promotions (merchant_id, code, discount, conditions, created_at, updated_at)
+        VALUES (${merchantId}, ${code}, '{"kind":"fixed","amountDzd":200}',
+          ${JSON.stringify(conditions)}::jsonb, ${now.toISOString()}, ${now.toISOString()})`;
+    }
+    expect(
+      await repo().create({ customerId, input: { ...pickup, promotionCode: code }, now }),
+    ).toEqual({ kind });
+  }
+  await sql`INSERT INTO promotions (merchant_id, discount, conditions, created_at, updated_at)
+    VALUES (${merchantId}, '{"kind":"fixed","amountDzd":100}', '{}', now(), now()),
+      (${merchantId}, '{"kind":"percent","basisPoints":3000,"capDzd":250}', '{}', now(), now()),
+      (${merchantId}, '{"kind":"free_delivery"}', '{}', now(), now())`;
+  expect(await repo().create({ customerId, input: pickup, now })).toMatchObject({
+    kind: "quoted",
+    quote: { discountDzd: 250, totalDzd: 750 },
+  });
+});
+
+test("[MON-03] a free delivery code does not spend its last use on pickup", async () => {
+  const { sql } = database.get();
+  const offerId = randomUUID();
+  await sql`INSERT INTO promotions (id, merchant_id, code, discount, conditions, created_at, updated_at)
+    VALUES (${offerId}, ${merchantId}, 'SHIP', '{"kind":"free_delivery"}', '{"maxUsesTotal":1}', now(), now())`;
+  const request = async (input: z.infer<typeof orderQuoteInput>) => {
+    const result = await repo().create({
+      customerId,
+      input: { ...input, promotionCode: "SHIP" },
+      now,
+    });
+    if (result.kind !== "quoted") throw new Error("Expected quote");
+    const order = await orders().place({
+      customerId,
+      input: { quoteId: result.quote.quoteId },
+      now,
+      idempotencyKey: randomUUID(),
+    });
+    expect(order.kind).toBe("placed");
+    return result.quote;
+  };
+  expect(await request(pickup)).toMatchObject({ totalDzd: 1000 });
+  expect(await sql`SELECT 1 FROM promotion_redemptions WHERE promotion_id = ${offerId}`).toEqual(
+    [],
+  );
+  const addressId = await saveAddress(36.751);
+  expect(await request({ ...pickup, fulfilment: "delivery", addressId })).toMatchObject({
+    deliveryFeeDzd: 0,
+    totalDzd: 1000,
+  });
+  expect(
+    await sql`SELECT 1 FROM promotion_redemptions WHERE promotion_id = ${offerId}`,
+  ).toHaveLength(1);
+});
+
+test("[CUS-16] first-order eligibility ignores orders at other restaurants", async () => {
+  const { sql } = database.get();
+  const newcomer = randomUUID();
+  const foreignMerchant = randomUUID();
+  await sql`INSERT INTO users (id, phone_e164, created_at) VALUES (${newcomer}, '+213500000031', now())`;
+  await sql`INSERT INTO merchants (id, slug, restaurant_name, owner_name, phone_e164, commune_id,
+    location, cuisines, status, created_at)
+    SELECT ${foreignMerchant}, 'fixture-other-order', 'Table ailleurs', owner_name, phone_e164, commune_id,
+      location, cuisines, status, created_at FROM merchants WHERE id = ${merchantId}`;
+  const seedOrder = async (restaurant: string, shortCode: string) => {
+    await sql`INSERT INTO orders (id, quote_id, customer_id, merchant_id, restaurant_name, short_code,
+      order_day, status, fulfilment, version, placed_at, last_event_at, subtotal_dzd,
+      delivery_fee_dzd, total_dzd, paying_with_dzd, lines)
+      VALUES (${randomUUID()}, ${randomUUID()}, ${newcomer}, ${restaurant}, 'Fixture', ${shortCode},
+        '2026-11-11', 'collected', 'pickup', 1, now(), now(), 500, 0, 500, 500, '[]')`;
+  };
+  await seedOrder(foreignMerchant, "AWD-3A3");
+  await sql`INSERT INTO promotions (merchant_id, code, discount, conditions, created_at, updated_at)
+    VALUES (${merchantId}, 'FIRST', '{"kind":"fixed","amountDzd":200}', '{"firstOrderOnly":true}', now(), now())`;
+  const quote = () =>
+    repo().create({ customerId: newcomer, input: { ...pickup, promotionCode: "FIRST" }, now });
+  expect(await quote()).toMatchObject({ kind: "quoted", quote: { totalDzd: 800 } });
+  await seedOrder(merchantId, "AWD-3A4");
+  expect(await quote()).toEqual({ kind: "promotion_used_up" });
+});

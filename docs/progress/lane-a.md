@@ -356,3 +356,39 @@
 
 - 2026-11-12 · Ultra · Added opt-in exact Discovery counts, pickup/delivery minimum-order filtering and first-publication data for the New rail on `codex/lane-a-feed-rails`. PostGIS proves count stability across cursors and that reopening preserves publication time.
   Next: merge the follow-up after its release check. Offers depend on promotion redemption.
+
+- 2026-11-12 · High · Merged Discovery count and rails at `944cde9` after hosted CI. Added the isolated encrypted restore command to the M9 gate. Real Docker tests covered four media references, missing or truncated files, unsafe links, corrupted ciphertext and cleanup failure. A synthetic production-format dump restored in 8 seconds.
+  Next: run the drill with a staging backup on the recovery host and verify the recovered application, then record the measured recovery time.
+
+- 2026-11-12 · High · Merged the restore drill at `00501d9` after hosted CI. Integrated Lane B through `3fd6340`, including live reorder, pickup map, Discovery counts and filters, the new tagine and tracking fallback. Full workspace verification, the cash-pickup-to-cart journey and ten production browser checks passed.
+  Next: verify the team preview and hosted checks on the integrated head. Lane B still has the scheduling control and Order again home rail. Staging recovery and release gates remain open.
+
+- 2026-11-12 · High · Merged customer PR #11 after hosted CI. Added a shared warm grade and sharpening to published dishes and covers, graded the fictional preview catalog, replaced its dim shawarma photo and documented restaurant capture guidance. All 29 focused tests and web and media typechecks passed.
+  Next: profile Discovery and Restaurant over throttled 4G, then work through haptics, copy, consistency, accessibility and the final visual review.
+
+- 2026-11-12 · High · Added responsive preview variants and ran six cold samples per build under the same Android profile. Restaurant preview LCP dropped to 1.96–1.97 s, with CLS 0.080. Discovery remains at 4.44–4.48 s. All 19 preview API tests passed.
+  Next: isolate Discovery’s initial rail traffic and stabilize Restaurant’s async Popular row. Recheck without scrolling on a connected build. See [performance evidence](../evidence/awid/perf.md).
+
+- 2026-11-12 · Low · Recorded the local-only phase, Lane A/B ownership, photo and performance handoff and the evidence requirements in READINESS.
+  Next: measure connected Discovery and Restaurant, fix first-screen cost and layout shift, and enforce route budgets.
+
+- 2026-11-12 · High · Deferred the pickup map and added a connected Android-profile production browser probe. Three Discovery samples measured 1.52–1.91 s LCP and Restaurant 1.37–1.41 s, with zero CLS on the small fixture. Added provisional gzip ceilings to authenticated browser CI.
+  Next: verify the rich-catalog layout shift, tap feedback and frame pacing, reduce JS to the SPEC budget, then continue with promotion redemption. See [performance evidence](../evidence/awid/perf.md).
+
+- 2026-11-12 · High · Added deterministic single-offer selection using integer pricing. The best positive automatic saving wins, with stable ID tie-breaking. The 61 pricing and quote tests, domain typecheck and focused lint passed.
+  Next: add quote code and discount fields, then connect eligibility and atomic redemption to quote and placement before exposing offers in Discovery.
+
+- 2026-11-12 · Ultra · Published the quote code and discount contract and added persistent discounts to order totals and receipts. The PostGIS regression covers zero-discount legacy orders, incorrect totals, underpayment and chronology. All 10 targeted integration tests and DB typecheck passed.
+  Next: evaluate offer eligibility in quote and recheck it under a promotion row lock at placement. Write the redemption in the order transaction, then prove retries and contention before publishing Discovery badges.
+
+- 2026-11-12 · Ultra · Wired offer eligibility, automatic selection and quote repricing. Placement serializes against merchant offer edits and records one redemption with the order. All 35 targeted PostGIS tests passed, including a concurrent final-use race and exact replay.
+  Next: prove the remaining time and customer limit cases, publish safe public offer data and verify the complete feature in the connected build.
+
+- 2026-11-12 · Ultra · Added public Discovery offer filtering and badge data with no private codes or personal eligibility. Scoped first-order offers to the restaurant and prevented zero-saving code uses. All 40 targeted PostGIS tests and the OpenAPI check passed.
+  Next: verify the offers routes in a connected checkout and have Lane B wire the customer controls. Continue the security and reliability readiness passes.
+
+- 2026-11-12 · High · Fixed structured log leakage of credential headers and order contact aliases. Six logger tests, 265 authorization tests, 13 auth/media PostGIS tests and the high-severity dependency audit passed. Two moderate advisories remain.
+  Next: continue the route isolation, session and upload review. See [security review](../SECURITY_REVIEW.md) for verified and pending scope.
+
+- 2026-11-12 · High · The offers candidate passed full workspace verification with 2,028 unit and 336 integration tests. Published incident runbooks and fresh encrypted restore evidence. The local production stack recovered its HTTPS smoke checks after API, worker and PostgreSQL restarts.
+  Next: exercise restarts during a real order on a fresh local production build, then test network replay, one-effect timers and pilot load. Continue the remaining security and performance checks.

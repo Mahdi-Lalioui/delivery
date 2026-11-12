@@ -74,7 +74,21 @@ sudo systemctl enable --now awid-backup.timer
 sudo systemctl list-timers awid-backup.timer
 ```
 
-The script streams a PostgreSQL custom-format dump and the private media tar directly into encryption and publishes the pair only after both succeed. Database and file snapshots are sequential. Run the restore drill in isolation, check attached-media references, and document any missing object before promotion. Decrypt the database archive into `pg_restore` and the media archive into `tar` on the recovery host. Use a separate non-production stack for recovery verification.
+The script streams a PostgreSQL custom-format dump and the private media tar directly into encryption and publishes the pair only after both succeed. Database and file snapshots are sequential.
+
+### Restore drill
+
+On the recovery host, install Docker, `age`, and Python 3. Use encrypted storage for Docker’s data directory and for `TMPDIR`, with room for the database and extracted media. Select an encrypted backup from the separate backup location and run:
+
+```sh
+infra/deploy/restore-drill.sh /path/to/encrypted/awid-backup /path/to/recovery-identity
+```
+
+For the web release gate, provide the same paths through `AWID_RESTORE_BACKUP` and `AWID_RESTORE_IDENTITY`.
+
+The drill restores the database into a fresh PostGIS container with networking disabled, then extracts the media to private scratch space. It checks live media references and recorded lengths. It reports elapsed time and the number of verified objects, then removes the container, its database volume and scratch files. Record the duration and outcome against the two-hour recovery target. Investigate missing objects before promotion. A full staging recovery also needs the application stack and its configuration.
+
+Use `bash infra/deploy/test-restore-drill.sh` with `age` and `age-keygen` on the path to exercise the drill against disposable synthetic backups.
 
 ## Local deployment evidence
 

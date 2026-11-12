@@ -75,7 +75,7 @@ is selected. [Design and browser evidence](../evidence/awid/discovery-v2/README.
 
 These filters use the connected API. The standalone preview catalog needs fixture support
 before the new controls are used there. Offers are pending promotion redemption at checkout,
-which is outside the current sprint.
+which Lane A now owns in the local readiness phase.
 
 ## Lane B follow-up 2 (2026-11-12)
 
