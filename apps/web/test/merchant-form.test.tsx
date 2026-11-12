@@ -59,12 +59,13 @@ function readyCommune() {
   });
 }
 
-test("[MER-01:web] an outside-commune rejection describes both editable coordinates", () => {
+test("[MER-01:web] an outside-commune rejection describes the map pin control", () => {
   readyCommune();
   const html = render({ error: "outsideCommune" });
   const { merchant } = getMessages("fr");
   expect(html).toContain(merchant.outsideCommune);
-  expect(html.match(/aria-describedby="merchant-application-error"/g)).toHaveLength(2);
+  expect(html).toContain('aria-describedby="merchant-pin-hint merchant-application-error"');
+  expect(html).not.toMatch(/<input[^>]*name="(latitude|longitude)"/u);
 });
 
 test("[MER-01:web] failed commune loading offers a retry and keeps submission unavailable", () => {
@@ -84,7 +85,7 @@ test("[MER-01:web] incomplete fields expose localized errors through their label
   expect(html).toContain(merchant.fixErrors);
   expect(html).toContain(merchant.invalidName);
   expect(html).toContain(merchant.invalidCommune);
-  expect(html).toContain(merchant.invalidLatitude);
+  expect(html).toContain(merchant.pinRequired);
   expect(html).toContain(merchant.invalidCuisines);
   expect(html).toContain('aria-describedby="merchant-restaurantName-error"');
   expect(html).toContain('aria-describedby="merchant-commune-error"');

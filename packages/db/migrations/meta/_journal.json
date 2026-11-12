@@ -232,6 +232,132 @@
       "when": 1794132600000,
       "tag": "0032_account_privacy",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1794133200000,
+      "tag": "0033_customer_addresses",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1794133800000,
+      "tag": "0034_order_quotes",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1794134400000,
+      "tag": "0035_orders",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1794135000000,
+      "tag": "0036_order_actions",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1794135600000,
+      "tag": "0037_feed_metadata",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1794136200000,
+      "tag": "0038_order_board_replay",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1794136800000,
+      "tag": "0039_order_realtime",
+      "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1794137400000,
+      "tag": "0040_order_status_realtime",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1794138000000,
+      "tag": "0041_order_message_locale",
+      "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1794138600000,
+      "tag": "0042_push_subscriptions",
+      "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1794139200000,
+      "tag": "0043_couriers",
+      "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1794139800000,
+      "tag": "0044_order_courier_assignment",
+      "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1794140400000,
+      "tag": "0045_courier_positions",
+      "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1794141000000,
+      "tag": "0046_order_delivery_proof",
+      "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1794141600000,
+      "tag": "0047_delivery_attempts",
+      "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1794142200000,
+      "tag": "0048_delivery_photo_proof",
+      "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "7",
+      "when": 1794142800000,
+      "tag": "0049_merchant_delivery_radius",
+      "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1794143400000,
+      "tag": "0050_admin_orders",
+      "breakpoints": true
     }
   ]
 }

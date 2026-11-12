@@ -12,9 +12,23 @@ import {
 import { createAuthAccess } from "./auth-access.js";
 import { registerBillingReadRoutes, type BillingRepository } from "./billing-read-routes.js";
 import { registerBillingWriteRoutes, type BillingWriteServices } from "./billing-write-routes.js";
+import { registerPushSubscriptionRoutes } from "./push-subscription-routes.js";
+import { registerRealtimeRoutes } from "./realtime-routes.js";
+import { registerTrackingRoutes } from "./tracking-routes.js";
+import { registerCourierRoutes } from "./courier-routes.js";
+import { registerMerchantBoardRoutes } from "./merchant-board-routes.js";
+import { registerAdminOrdersRoutes } from "./admin-orders-routes.js";
+import { registerOrderActionRoutes } from "./order-action-routes.js";
+import { registerOrderRoutes } from "./order-routes.js";
+import { registerOrderQuoteRoutes } from "./order-quote-routes.js";
+import { registerAddressRoutes } from "./address-routes.js";
 import { registerPrivacyRoutes, type PrivacyServices } from "./privacy-routes.js";
 import { registerAuthRoutes } from "./auth-routes.js";
-import { registerDiscoveryRoutes, type DiscoveryServices } from "./discovery-routes.js";
+import {
+  registerDiscoveryRoutes,
+  type DiscoveryServices,
+  type ReadWilayas,
+} from "./discovery-routes.js";
 import {
   registerDiscoverySearchRoutes,
   type DiscoverySearchServices,
@@ -60,6 +74,10 @@ import {
   type MerchantHoursPreviewServices,
 } from "./merchant-hours-preview-routes.js";
 import {
+  registerMerchantDeliveryRoutes,
+  type MerchantDeliveryServices,
+} from "./merchant-delivery-routes.js";
+import {
   registerMerchantHoursRoutes,
   type MerchantHoursServices,
 } from "./merchant-hours-routes.js";
@@ -81,6 +99,7 @@ interface ApiOptions {
   readonly platform?: PlatformServices;
   readonly ramadan?: RamadanServices;
   readonly discovery?: DiscoveryServices;
+  readonly wilayas?: ReadWilayas;
   readonly discoverySearch?: DiscoverySearchServices;
   readonly publicFeed?: PublicFeedServices;
   readonly publicRestaurant?: PublicRestaurantServices;
@@ -95,11 +114,23 @@ interface ApiOptions {
   readonly menuImport?: MenuImportServices;
   readonly menuOptionGroup?: MenuOptionGroupServices;
   readonly menuPrice?: MenuPriceServices;
+  readonly merchantDelivery?: MerchantDeliveryServices;
   readonly merchantHours?: MerchantHoursServices;
   readonly merchantHoursPreview?: MerchantHoursPreviewServices;
   readonly merchantStaff?: MerchantStaffServices;
   readonly trustedProxy?: string | undefined;
   readonly privacy?: PrivacyServices;
+  readonly addresses?: Parameters<typeof registerAddressRoutes>[1];
+  readonly pushPublicKey?: string | undefined;
+  readonly pushSubscriptions?: Parameters<typeof registerPushSubscriptionRoutes>[1];
+  readonly realtime?: Parameters<typeof registerRealtimeRoutes>[1];
+  readonly orderTracking?: Parameters<typeof registerTrackingRoutes>[1];
+  readonly couriers?: Parameters<typeof registerCourierRoutes>[1];
+  readonly merchantBoard?: Parameters<typeof registerMerchantBoardRoutes>[1];
+  readonly adminOrders?: Parameters<typeof registerAdminOrdersRoutes>[1];
+  readonly orderActions?: Parameters<typeof registerOrderActionRoutes>[1];
+  readonly orders?: Parameters<typeof registerOrderRoutes>[1];
+  readonly orderQuotes?: Parameters<typeof registerOrderQuoteRoutes>[1];
   readonly auth?: Parameters<typeof createAuthAccess>[0];
   readonly resolveActor?: ResolveActor;
   readonly rateLimit?: { readonly max: number; readonly timeWindow: number };
@@ -156,12 +187,22 @@ export function createApi(options: ApiOptions): FastifyInstance {
     });
     registerAuthRoutes(api, access);
     registerPrivacyRoutes(api, options.privacy);
+    registerAddressRoutes(api, options.addresses);
+    registerOrderQuoteRoutes(api, options.orderQuotes);
+    registerOrderRoutes(api, options.orders);
+    registerOrderActionRoutes(api, options.orderActions);
+    registerAdminOrdersRoutes(api, options.adminOrders);
+    registerTrackingRoutes(api, options.orderTracking);
+    registerCourierRoutes(api, options.couriers);
+    registerMerchantBoardRoutes(api, options.merchantBoard);
+    registerRealtimeRoutes(api, options.realtime);
+    registerPushSubscriptionRoutes(api, options.pushSubscriptions, options.pushPublicKey);
     registerMerchantRoutes(api, options.merchant);
     registerBillingReadRoutes(api, options.billing);
     registerBillingWriteRoutes(api, options.billingWrites);
     registerPlatformRoutes(api, options.platform);
     registerRamadanRoutes(api, options.ramadan);
-    registerDiscoveryRoutes(api, options.discovery);
+    registerDiscoveryRoutes(api, options.discovery, options.wilayas);
     registerDiscoverySearchRoutes(api, options.discoverySearch);
     registerPublicFeedRoutes(api, options.publicFeed);
     registerPublicRestaurantRoutes(api, options.publicRestaurant);
@@ -176,6 +217,7 @@ export function createApi(options: ApiOptions): FastifyInstance {
     registerMenuImportRoutes(api, options.menuImport);
     registerMenuOptionGroupRoutes(api, options.menuOptionGroup);
     registerMenuPriceRoutes(api, options.menuPrice);
+    registerMerchantDeliveryRoutes(api, options.merchantDelivery);
     registerMerchantHoursRoutes(api, options.merchantHours);
     registerMerchantHoursPreviewRoute(api, options.merchantHoursPreview);
     registerMerchantStaffRoutes(api, options.merchantStaff);

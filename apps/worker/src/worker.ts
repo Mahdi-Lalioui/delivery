@@ -2,6 +2,8 @@ import { openDatabase } from "@zaafran/db/database";
 import { createLocalMediaStore } from "@zaafran/media";
 import { run } from "graphile-worker";
 import { runWorkerCommand } from "./command.js";
+import { createOrderPushAdapter } from "./order-push-adapter.js";
+import { createOrderSmsAdapter } from "./order-sms-adapter.js";
 import { workerLogger } from "./logger.js";
 import { createWorkerOptions } from "./runtime.js";
 
@@ -38,9 +40,32 @@ async function serveWorker(
   }
 }
 
-await runWorkerCommand("start", ({ DATABASE_URL, MEDIA_STORAGE_ROOT, HEIC_DECODER_PATH }) =>
-  serveWorker(DATABASE_URL, {
-    store: createLocalMediaStore({ root: MEDIA_STORAGE_ROOT }),
-    heicDecoderPath: HEIC_DECODER_PATH,
-  }),
+await runWorkerCommand(
+  "start",
+  ({
+    DATABASE_URL,
+    MEDIA_STORAGE_ROOT,
+    HEIC_DECODER_PATH,
+    ORDER_SMS_WEBHOOK_URL,
+    ORDER_SMS_WEBHOOK_TOKEN,
+    VAPID_PUBLIC_KEY,
+    VAPID_PRIVATE_KEY,
+    VAPID_SUBJECT,
+  }) =>
+    serveWorker(DATABASE_URL, {
+      store: createLocalMediaStore({ root: MEDIA_STORAGE_ROOT }),
+      heicDecoderPath: HEIC_DECODER_PATH,
+      orderPush:
+        VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY && VAPID_SUBJECT
+          ? createOrderPushAdapter({
+              subject: VAPID_SUBJECT,
+              publicKey: VAPID_PUBLIC_KEY,
+              privateKey: VAPID_PRIVATE_KEY,
+            })
+          : undefined,
+      orderSms:
+        ORDER_SMS_WEBHOOK_URL && ORDER_SMS_WEBHOOK_TOKEN
+          ? createOrderSmsAdapter({ url: ORDER_SMS_WEBHOOK_URL, token: ORDER_SMS_WEBHOOK_TOKEN })
+          : undefined,
+    }),
 );

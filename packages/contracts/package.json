@@ -8,6 +8,10 @@
       "types": "./src/admin-moderation.ts",
       "default": "./dist/admin-moderation.js"
     },
+    "./admin-orders": {
+      "types": "./src/admin-orders.ts",
+      "default": "./dist/admin-orders.js"
+    },
     "./admin": {
       "types": "./src/admin.ts",
       "default": "./dist/admin.js"
@@ -52,6 +56,10 @@
       "types": "./src/merchant-staff.ts",
       "default": "./dist/merchant-staff.js"
     },
+    "./merchant-delivery": {
+      "types": "./src/merchant-delivery.ts",
+      "default": "./dist/merchant-delivery.js"
+    },
     "./merchant-hours": {
       "types": "./src/merchant-hours.ts",
       "default": "./dist/merchant-hours.js"
@@ -87,6 +95,26 @@
     "./scheduling": {
       "types": "./src/scheduling.ts",
       "default": "./dist/scheduling.js"
+    },
+    "./addresses": {
+      "types": "./src/addresses.ts",
+      "default": "./dist/addresses.js"
+    },
+    "./courier": {
+      "types": "./src/courier.ts",
+      "default": "./dist/courier.js"
+    },
+    "./orders": {
+      "types": "./src/orders.ts",
+      "default": "./dist/orders.js"
+    },
+    "./tracking": {
+      "types": "./src/tracking.ts",
+      "default": "./dist/tracking.js"
+    },
+    "./push": {
+      "types": "./src/push.ts",
+      "default": "./dist/push.js"
     }
   },
   "scripts": {

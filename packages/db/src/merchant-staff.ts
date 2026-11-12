@@ -87,11 +87,11 @@ async function readReplay(sql: TransactionSql, request: StaffInvitationCreate) {
   if (!row) return undefined;
   const { matches, isOpen, ...invitation } = row;
   if (!matches) return { kind: "idempotency_conflict" as const };
-  // A retry after a lost or failed SMS gets a fresh link; the previous token stops working.
+  // Update legacy or explicitly rotated tokens while preserving a stable delivery retry.
   if (isOpen) {
     await sql`
       UPDATE public.merchant_staff_invitations SET token_hash = ${request.tokenHash}
-      WHERE id = ${invitation.invitationId}
+      WHERE id = ${invitation.invitationId} AND token_hash IS DISTINCT FROM ${request.tokenHash}
     `;
   }
   return { kind: "replayed" as const, invitation, isOpen };

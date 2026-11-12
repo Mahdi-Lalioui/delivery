@@ -37,10 +37,57 @@ test("[CUS-04:contract] returns only public card fields and a continuation curso
   for (const extra of [
     { ownerName: "Private" },
     { storageKey: "private/example" },
-    { rating: 5 },
+    { rating: 5.1 },
   ]) {
     expect(
       publicFeedOutput.safeParse({ ...page, restaurants: [{ ...restaurant, ...extra }] }).success,
     ).toBe(false);
   }
+});
+
+test("[CUS-06:contract] parses public filters and rejects arbitrary inputs", () => {
+  expect(
+    publicFeedQuery.parse({
+      cuisine: "algerian",
+      openNow: "false",
+      freeDelivery: "true",
+      maxEtaMinutes: "30",
+      minRating: "4",
+      priceLevel: "2",
+      sort: "eta",
+      communeId: id,
+    }),
+  ).toEqual({
+    limit: 24,
+    cuisine: "algerian",
+    openNow: false,
+    freeDelivery: true,
+    maxEtaMinutes: 30,
+    minRating: 4,
+    priceLevel: 2,
+    sort: "eta",
+    communeId: id,
+  });
+  for (const query of [{ openNow: "yes" }, { maxEtaMinutes: "25" }, { sort: "name" }]) {
+    expect(publicFeedQuery.safeParse(query).success).toBe(false);
+  }
+});
+
+test("[CUS-04:contract] publishes bounded rating, ETA and delivery costs", () => {
+  const card = {
+    ...restaurant,
+    rating: 4.6,
+    ratingCount: 71,
+    etaMinutes: { min: 20, max: 30 },
+    deliveryFeeDzd: 0,
+  };
+  expect(publicFeedOutput.parse({ restaurants: [card], nextCursor: null }).restaurants).toEqual([
+    card,
+  ]);
+  expect(
+    publicFeedOutput.safeParse({
+      restaurants: [{ ...card, etaMinutes: { min: 30, max: 20 } }],
+      nextCursor: null,
+    }).success,
+  ).toBe(false);
 });

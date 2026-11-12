@@ -254,6 +254,7 @@ function expectedDiscount(promo: PricingInput["promo"], subtotal: bigint): bigin
 function expectedFee(input: PricingInput, netSubtotal: bigint): bigint {
   const { fulfillment, promo } = input;
   if (fulfillment.kind === "pickup" || promo?.kind === "free_delivery") return 0n;
+  if (fulfillment.kind === "zone") return BigInt(fulfillment.feeDzd);
   if (fulfillment.freeOverDzd !== undefined && netSubtotal >= BigInt(fulfillment.freeOverDzd)) {
     return 0n;
   }
@@ -286,6 +287,7 @@ test("[MON-10] generated prices match an integer oracle for every amount @proper
   );
   const fulfillment = fc.oneof(
     fc.constant({ kind: "pickup" } as const),
+    fc.record({ kind: fc.constant("zone" as const), feeDzd: amounts }),
     fc.record(
       {
         kind: fc.constant("delivery" as const),

@@ -1,6 +1,7 @@
 import type { Locale } from "@zaafran/i18n/locales";
 import { useEffect, useId, useState } from "react";
-import { listAlgiersCommunes, type Commune } from "../merchant/merchant-http";
+import { WilayaField } from "../merchant/components/wilaya-field";
+import { listWilayaCommunes, type Commune } from "../merchant/merchant-http";
 import { filterCommunes } from "./location";
 import type { DiscoveryMessages } from "./messages";
 
@@ -26,13 +27,14 @@ export function CommunePicker({
   const queryId = useId();
   const hintId = useId();
   const [query, setQuery] = useState("");
+  const [wilaya, setWilaya] = useState(16);
   const [attempt, setAttempt] = useState(0);
   const [list, setList] = useState<ListState>({ kind: "loading" });
 
   useEffect(() => {
     const request = new AbortController();
     const signal = AbortSignal.any([request.signal, AbortSignal.timeout(15_000)]);
-    void listAlgiersCommunes(signal).then((result) => {
+    void listWilayaCommunes(wilaya, signal).then((result) => {
       if (request.signal.aborted) return;
       if (result.kind !== "ready" || signal.aborted) {
         setList({ kind: "error" });
@@ -49,7 +51,7 @@ export function CommunePicker({
     return () => {
       request.abort();
     };
-  }, [attempt, locale, onLoad]);
+  }, [attempt, locale, onLoad, wilaya]);
 
   function retry() {
     setList({ kind: "loading" });
@@ -59,6 +61,20 @@ export function CommunePicker({
   return (
     <fieldset className="discovery-location-communes" disabled={isDisabled}>
       <legend>{messages.searchHeading}</legend>
+      <WilayaField
+        locale={locale}
+        value={wilaya}
+        label={messages.wilaya}
+        loadingText={messages.wilayasLoading}
+        errorText={messages.wilayasError}
+        retryText={messages.retry}
+        onChange={(code) => {
+          setWilaya(code);
+          setQuery("");
+          setList({ kind: "loading" });
+          onSearch();
+        }}
+      />
       <label htmlFor={queryId}>{messages.search}</label>
       <input
         id={queryId}

@@ -55,3 +55,21 @@ test("[CUS-04:http] streams only repository-authorized current profile variants"
   expect(get).toHaveBeenCalledExactlyOnceWith("fixture/profile/cover.webp");
   expect((await api.inject(photoUrl.replace(/320$/u, "321"))).statusCode).toBe(400);
 });
+
+test("[CUS-06:http] sends validated URL filters and sorting to the repository", async () => {
+  const { api, list } = setup();
+  const response = await api.inject(
+    "/v1/feed?cuisine=algerian&openNow=true&freeDelivery=true&maxEtaMinutes=30&priceLevel=2&sort=eta",
+  );
+  expect(response.statusCode).toBe(200);
+  expect(list).toHaveBeenCalledExactlyOnceWith({
+    limit: 24,
+    cuisine: "algerian",
+    openNow: true,
+    freeDelivery: true,
+    maxEtaMinutes: 30,
+    priceLevel: 2,
+    sort: "eta",
+    now,
+  });
+});

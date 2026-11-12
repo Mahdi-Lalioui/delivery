@@ -1,6 +1,6 @@
 # Lane B handoff for merchant application notices
 
-Lane A owns the shared contract, repository, and API. Lane B owns the admin console and its localized messages.
+Implemented by Lane A on 2026-11-12, including the admin console and localized messages. The production-browser merchant application test opens the admin queue before submission and checks that the notice appears and clears.
 
 - Read `GET /v1/admin/merchant-applications/notice` with the existing admin session. Parse with `adminMerchantNoticeOutput` from `@zaafran/contracts/admin`. The response is uncached and includes `sessionId`, `pendingCount`, and `latestMerchantId`. Compare the session with the queue session before showing the notice. A zero count has a null latest ID.
 - Show a localized, accessible pending notice in the admin console. Refresh it while the console is visible and after an approval or rejection. Keep it independent of the queue rows and the review form so a new application preserves a review in progress.

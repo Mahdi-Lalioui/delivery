@@ -1,0 +1,17 @@
+.git
+**/.git
+**/node_modules
+**/.pnpm-store
+**/.turbo
+**/.next*
+**/dist
+**/build
+**/coverage
+**/test-results
+**/playwright-report
+**/.expo
+**/.env
+**/.env.*
+**/*.log
+docs/evidence
+infra/data

@@ -1,0 +1,117 @@
+import { randomUUID } from "node:crypto";
+import { beforeAll, expect, test } from "vitest";
+import {
+  adminOrderDetailOutput,
+  adminOrderSearchInput,
+  adminOrderSearchOutput,
+} from "@zaafran/contracts/admin-orders";
+import { createAdminOrdersRepository } from "../src/admin-orders.ts";
+import { registerTestDatabase } from "./database.ts";
+
+const database = registerTestDatabase();
+const adminId = randomUUID();
+const customerId = randomUUID();
+const otherId = randomUUID();
+const sessionId = randomUUID();
+const merchantId = randomUUID();
+const otherMerchantId = randomUUID();
+const demoMerchantId = randomUUID();
+const activeId = randomUUID();
+const secondId = randomUUID();
+const terminalId = randomUUID();
+const demoOrderId = randomUUID();
+const phone = "+213550000001";
+const repository = () => createAdminOrdersRepository(database.get());
+
+beforeAll(async () => {
+  const { sql } = database.get();
+  const communeId = randomUUID();
+  await sql`INSERT INTO wilayas VALUES (16, 'الجزائر', 'Alger')`;
+  await sql`INSERT INTO communes (id, code, wilaya_code, name_ar, name_fr, centroid)
+    VALUES (${communeId}, '1699', 16, 'الجزائر', 'Alger', ST_GeogFromText('SRID=4326;POINT(3.06 36.75)'))`;
+  await sql`INSERT INTO users (id, phone_e164, created_at) VALUES
+    (${customerId}, ${phone}, now()), (${otherId}, '+213550000002', now()),
+    (${adminId}, '+213550000003', now())`;
+  await sql`INSERT INTO admins (user_id, totp_secret_encrypted) VALUES (${adminId}, decode('00', 'hex'))`;
+  const merchants = [
+    { id: merchantId, restaurant_name: "Cuisine 100% fictive", is_demo: false },
+    { id: otherMerchantId, restaurant_name: "Cuisine 100x fictive", is_demo: false },
+    { id: demoMerchantId, restaurant_name: "Restaurant démo", is_demo: true },
+  ];
+  await sql`
+    INSERT INTO merchants (id, slug, restaurant_name, owner_name, phone_e164, commune_id, location,
+      cuisines, status, created_at, is_demo)
+    SELECT fixture.id, 'fixture-' || fixture.id, fixture.restaurant_name, 'Équipe fictive',
+      '+213550000004', commune.id, commune.centroid, ARRAY['algerian'], 'active', now(), fixture.is_demo
+    FROM jsonb_to_recordset(${JSON.stringify(merchants)}::jsonb)
+      AS fixture(id uuid, restaurant_name text, is_demo boolean)
+    JOIN communes AS commune ON commune.id = ${communeId}
+  `;
+  const rows = [
+    [activeId, merchantId, customerId, "AWD-2A2", "accepted", "2026-11-11T12:00:00.000124Z"],
+    [secondId, otherMerchantId, otherId, "AWD-2A3", "ready", "2026-11-11T12:00:00.000123Z"],
+    [terminalId, merchantId, customerId, "AWD-2A4", "collected", "2026-11-11T11:00:00Z"],
+    [demoOrderId, demoMerchantId, customerId, "AWD-2A5", "accepted", "2026-11-11T13:00:00Z"],
+  ] as const;
+  for (const [id, restaurant, user, code, status, placedAt] of rows) {
+    await sql`
+      INSERT INTO orders (id, quote_id, customer_id, merchant_id, restaurant_name, short_code,
+        order_day, status, fulfilment, version, placed_at, last_event_at,
+        subtotal_dzd, delivery_fee_dzd, total_dzd, paying_with_dzd, lines)
+      SELECT ${id}, ${randomUUID()}, ${user}, merchant.id, merchant.restaurant_name,
+        ${code}, '2026-11-11', ${status}, 'pickup', 2, ${placedAt}, ${placedAt},
+        900, 0, 900, 1000, '[]'::jsonb FROM merchants AS merchant WHERE merchant.id = ${restaurant}
+    `;
+  }
+  await sql`
+    INSERT INTO order_events (order_id, version, from_status, to_status, actor_kind, actor_id, payload, occurred_at)
+    VALUES (${activeId}, 1, null, 'pending_acceptance', 'customer', ${customerId}, '{}', '2026-11-11T12:00:00Z'),
+      (${activeId}, 2, 'pending_acceptance', 'accepted', 'merchant', null, '{}', '2026-11-11T12:01:00Z')
+  `;
+});
+
+function search(input: unknown, accountId = adminId) {
+  return repository().search({ accountId, input: adminOrderSearchInput.parse(input) });
+}
+
+test("[ADM-05] uses a precise keyset, hides demo orders and filters live, code, phone and literal restaurant names", async () => {
+  const first = await search({ limit: 1 });
+  if (!first?.nextCursor) throw new Error("Expected an admin cursor.");
+  expect(
+    adminOrderSearchOutput.parse({ ...first, sessionId }).orders.map(({ orderId }) => orderId),
+  ).toEqual([activeId]);
+  expect(first.nextCursor.placedAt).toBe("2026-11-11T12:00:00.000124Z");
+  expect(
+    (await search({ cursor: first.nextCursor, limit: 1 }))?.orders.map(({ orderId }) => orderId),
+  ).toEqual([secondId]);
+  for (const filter of [
+    { kind: "code", code: "AWD-2A4" },
+    { kind: "phone", phone },
+    { kind: "restaurant", name: "100%" },
+  ]) {
+    const result = await search({ scope: "all", status: "collected", filter });
+    expect(result?.orders.map(({ orderId }) => orderId)).toEqual([terminalId]);
+  }
+  expect(
+    (await search({ filter: { kind: "restaurant", name: "100%" } }))?.orders.map(
+      ({ orderId }) => orderId,
+    ),
+  ).toEqual([activeId]);
+  expect(await search({}, customerId)).toBeUndefined();
+});
+
+test("[ADM-05] exposes only admin-scoped timeline events and denies a blocked administrator", async () => {
+  const result = await repository().detail({ accountId: adminId, orderId: activeId });
+  const detail = adminOrderDetailOutput.parse({ ...result, sessionId });
+  expect(detail.events.map(({ version, actor }) => [version, actor])).toEqual([
+    [1, "customer"],
+    [2, "merchant"],
+  ]);
+  expect(detail.hasEarlierEvents).toBe(false);
+  expect(await repository().detail({ accountId: adminId, orderId: demoOrderId })).toBeUndefined();
+  expect(await repository().detail({ accountId: customerId, orderId: activeId })).toBeUndefined();
+  const { sql } = database.get();
+  await sql`UPDATE users SET blocked_at = now() WHERE id = ${adminId}`;
+  expect(await search({})).toBeUndefined();
+  expect(await repository().detail({ accountId: adminId, orderId: activeId })).toBeUndefined();
+});

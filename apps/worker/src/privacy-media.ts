@@ -29,3 +29,21 @@ export function createPrivacyMediaPurgeJob({
     }
   });
 }
+
+export function createDeliveryProofPurgeJob({
+  repository,
+  store,
+}: {
+  repository: {
+    claimDeliveryProof(mediaId: string): Promise<{ keys: readonly string[] } | undefined>;
+    finishDeliveryProof(mediaId: string): Promise<void>;
+  };
+  store: Pick<MediaStore, "delete">;
+}) {
+  return defineJob(z.strictObject({ mediaId: z.uuid() }), async ({ mediaId }) => {
+    const proof = await repository.claimDeliveryProof(mediaId);
+    if (!proof) return;
+    for (const key of proof.keys) await store.delete(key);
+    await repository.finishDeliveryProof(mediaId);
+  });
+}

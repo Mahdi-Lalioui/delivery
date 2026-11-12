@@ -1,3 +1,4 @@
+import { claimDeliveryProofMedia, finishDeliveryProofMedia } from "./delivery-proof-retention.js";
 import type { DatabaseConnection } from "./database.js";
 import { mediaStatus, readVisibleMedia } from "./media-access.js";
 import { adoptMedia } from "./media-adoption.js";
@@ -38,6 +39,9 @@ export function createMediaRepository({ sql }: DatabaseConnection) {
   return {
     reserve: (request: MediaReservationRequest) =>
       sql.begin(writeIsolation, (tx) => reserveMedia(tx, request)),
+    claimDeliveryProof: (mediaId: string) => claimDeliveryProofMedia(sql, mediaId),
+    finishDeliveryProof: (mediaId: string) =>
+      sql.begin((tx) => finishDeliveryProofMedia(tx, mediaId)),
     read: async (scope: MediaScope) => {
       const media = await readVisibleMedia(sql, scope, "owner_or_attached_editor");
       if (!media) return undefined;

@@ -21,8 +21,12 @@ import { sendProblem } from "./problems.js";
 export interface MerchantStaffServices {
   readonly repository: ReturnType<typeof createMerchantStaffRepository>;
   readonly now: () => Date;
-  /** A fresh 32-byte Base64url secret; only its SHA-256 is stored (D-015). */
-  readonly createToken: () => string;
+  /** A 32-byte Base64url secret scoped to the invitation command. Only its SHA-256 is stored. */
+  readonly createToken: (scope: {
+    merchantId: string;
+    accountId: string;
+    idempotencyKey: string;
+  }) => string;
   readonly sendInvitation: (message: {
     phone: string;
     token: string;
@@ -106,14 +110,19 @@ function registerInvite(api: FastifyInstance, services: MerchantStaffServices | 
       });
       if (!command || !services) return reply;
       const merchantId = request.params.merchantId.toLowerCase();
-      const token = services.createToken();
+      const idempotencyKey = request.headers["idempotency-key"];
+      const token = services.createToken({
+        merchantId,
+        accountId: command.accountId,
+        idempotencyKey,
+      });
       const result = await command.repository.create({
         accountId: command.accountId,
         merchantId,
         ...request.body,
         tokenHash: hashToken(token),
         now: command.now,
-        ...commandIdentity(request.headers["idempotency-key"], { merchantId, ...request.body }),
+        ...commandIdentity(idempotencyKey, { merchantId, ...request.body }),
       });
       if (!("invitation" in result)) {
         return sendProblem(reply, failureStatus[result.kind], result.kind);

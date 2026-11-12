@@ -31,7 +31,7 @@ type OrderEta = { readonly earliestAt: number; readonly latestAt: number };
 /** All times are epoch milliseconds. An acceptance deadline starts on place or release. */
 export type OrderSnapshot = {
   readonly id: string;
-  readonly customerId: string;
+  readonly customerId: string | null;
   readonly merchantId: string;
   readonly fulfilment: OrderFulfilment;
   readonly status: OrderStatus;

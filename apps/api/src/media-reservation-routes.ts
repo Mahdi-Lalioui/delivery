@@ -92,7 +92,9 @@ function registerReserve(api: FastifyInstance, services: MediaReservationService
       const input =
         request.body.kind === "application"
           ? request.body
-          : { ...request.body, merchantId: request.body.merchantId.toLowerCase() };
+          : request.body.kind === "delivery_proof"
+            ? { ...request.body, orderId: request.body.orderId.toLowerCase() }
+            : { ...request.body, merchantId: request.body.merchantId.toLowerCase() };
       const result = await repository.reserve({
         accountId,
         sessionId,
@@ -102,6 +104,7 @@ function registerReserve(api: FastifyInstance, services: MediaReservationService
       });
       if ("media" in result) return reply.code(201).send(mediaResponse(result.media));
       if (result.kind === "idempotency_conflict") return sendProblem(reply, 409, result.kind);
+      if (result.kind === "proof_photo_limit") return sendProblem(reply, 429, result.kind);
       return sendProblem(reply, 404);
     },
   );

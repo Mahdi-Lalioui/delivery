@@ -1,0 +1,176 @@
+x-runtime: &runtime
+  image: "awid-backend:${AWID_RELEASE_TAG:-local}"
+  init: true
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  tmpfs:
+    - /tmp:mode=1777
+  env_file: ["${AWID_DATABASE_ENV_FILE:?Set AWID_DATABASE_ENV_FILE}"]
+
+services:
+  heic:
+    profiles: [build]
+    image: "awid-heic:${AWID_RELEASE_TAG:-local}"
+    build: ./media-heic
+
+  migrate:
+    <<: *runtime
+    build:
+      context: ..
+      dockerfile: infra/deploy/Dockerfile
+      additional_contexts:
+        heic: service:heic
+    command: [sh, -ec, "node packages/db/dist/deploy.js && node apps/worker/dist/migrate.js"]
+    networks: [data]
+
+  db:
+    image: postgis/postgis:18-3.7@sha256:440bdd14e3edccfce04d080d8a1a0cbae5763fa16a1c4172bff83530828461de
+    platform: linux/amd64
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: awid
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_admin_password
+      POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+    secrets: [postgres_admin_password, awid_database_password]
+    volumes:
+      - postgres-data:/var/lib/postgresql
+      - ./deploy/init-db.sh:/docker-entrypoint-initdb.d/30-awid.sh:ro
+    healthcheck:
+      test: [CMD, pg_isready, -h, 127.0.0.1, -U, postgres, -d, awid]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    networks: [data]
+
+  api:
+    <<: *runtime
+    restart: unless-stopped
+    command: [node, apps/api/dist/server.js]
+    env_file:
+      - "${AWID_DATABASE_ENV_FILE:?Set AWID_DATABASE_ENV_FILE}"
+      - "${AWID_API_ENV_FILE:?Set AWID_API_ENV_FILE}"
+    environment:
+      API_HOST: 0.0.0.0
+      API_PORT: 3002
+      API_TRUSTED_PROXY: "${AWID_PROXY_IP:-172.29.78.2}/32"
+      OSRM_INTERNAL_ORIGIN: http://osrm:5000
+      MEDIA_STORAGE_ROOT: /var/awid/media
+    volumes:
+      - media:/var/awid/media
+    networks: [edge, data]
+    healthcheck:
+      test:
+        [
+          CMD,
+          node,
+          -e,
+          "fetch('http://127.0.0.1:3002/readyz').then(r => { if (!r.ok) process.exitCode = 1 })",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 9
+
+  worker:
+    <<: *runtime
+    restart: unless-stopped
+    working_dir: /app/apps/worker
+    command: [node, dist/worker.js]
+    env_file:
+      - "${AWID_DATABASE_ENV_FILE:?Set AWID_DATABASE_ENV_FILE}"
+      - "${AWID_WORKER_ENV_FILE:?Set AWID_WORKER_ENV_FILE}"
+    environment:
+      MEDIA_STORAGE_ROOT: /var/awid/media
+      HEIC_DECODER_PATH: /usr/local/bin/zaafran-heic-decode
+    volumes:
+      - media:/var/awid/media
+    networks: [edge, data]
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - --input-type=module
+        - -e
+        - >
+          import postgres from 'postgres';
+          const sql = postgres(process.env.DATABASE_URL, { connect_timeout: 3 });
+          try { const [row] = await sql`SELECT EXISTS (SELECT FROM graphile_worker.migrations WHERE id = 20) AS ready`;
+          if (!row?.ready) process.exitCode = 1; } finally { await sql.end({ timeout: 1 }); }
+      interval: 15s
+      timeout: 6s
+      retries: 4
+
+  martin:
+    image: ghcr.io/maplibre/martin:1.16.0@sha256:caa63e4618ef8f326141d1a867d6ee15bddcf649260c979193bbf487b433a7e0
+    restart: unless-stopped
+    command: [/tiles/algeria.pmtiles]
+    volumes:
+      - "${AWID_MAP_DIRECTORY:?Set AWID_MAP_DIRECTORY}/algeria.pmtiles:/tiles/algeria.pmtiles:ro"
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, "http://127.0.0.1:3000/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    networks: [tiles]
+
+  osrm:
+    image: ghcr.io/project-osrm/osrm-backend:v26.11.0-debian@sha256:e1929ae2818226284d7ef007329098a30851c11528ab3712bc9c8d68da78278b
+    restart: unless-stopped
+    entrypoint: [osrm-routed, --algorithm, mld, /data/algeria-261106.osrm]
+    volumes:
+      - "${AWID_MAP_DIRECTORY:?Set AWID_MAP_DIRECTORY}/osrm:/data:ro"
+    healthcheck:
+      test:
+        - CMD
+        - bash
+        - -ec
+        - |
+          exec 3<>/dev/tcp/127.0.0.1/5000
+          printf 'GET /nearest/v1/driving/3.0562,36.7631 HTTP/1.0\r\nHost: localhost\r\n\r\n' >&3
+          read -r _ status _ <&3
+          test "$$status" = 200
+      interval: 10s
+      timeout: 5s
+      retries: 9
+      start_period: 25s
+    networks: [data]
+
+  caddy:
+    image: caddy:2.11.9-alpine@sha256:0bbb055bda6793c999bde78b1b5ce3e89f829fb031af2cf50056ea1246559fee
+    restart: unless-stopped
+    environment:
+      AWID_API_HOST: "${AWID_API_HOST:?Set AWID_API_HOST}"
+    ports:
+      - "${AWID_BIND_ADDRESS:-0.0.0.0}:${AWID_HTTP_PORT:-80}:80"
+      - "${AWID_BIND_ADDRESS:-0.0.0.0}:${AWID_HTTPS_PORT:-443}:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    networks:
+      edge:
+        ipv4_address: "${AWID_PROXY_IP:-172.29.78.2}"
+      tiles: {}
+
+secrets:
+  postgres_admin_password:
+    file: "${AWID_POSTGRES_PASSWORD_FILE:?Set AWID_POSTGRES_PASSWORD_FILE}"
+  awid_database_password:
+    file: "${AWID_DB_PASSWORD_FILE:?Set AWID_DB_PASSWORD_FILE}"
+
+volumes:
+  postgres-data:
+  media:
+  caddy-data:
+  caddy-config:
+
+networks:
+  data:
+    internal: true
+  tiles:
+    internal: true
+  edge:
+    ipam:
+      config:
+        - subnet: "${AWID_EDGE_SUBNET:-172.29.78.0/24}"

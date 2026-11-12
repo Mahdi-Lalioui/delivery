@@ -17,12 +17,13 @@ Codex appends items here (what, why, exact steps). Mahdi ticks them. Items marke
 - [ ] **[before launch]** ANPDP declaration for personal-data processing (Law 18-07).
 
 ## Infrastructure
-- [ ] Staging VPS (any provider; synthetic data only): 2 vCPU / 4 GB / 80 GB, Ubuntu LTS. Give Codex a deploy SSH key with limited rights.
+- [ ] Staging VPS for the connected web release. Provision Ubuntu LTS with Docker Compose, a static IPv4, at least 4 GB RAM and 80 GB disk. Open TCP 80/443. Create a deployment account with access to the AWID Docker project and install its public SSH key. Share the host and deployment username or the credential reference. Set up the file paths and map data in [DEPLOY.md](DEPLOY.md) and [MAPS.md](../infra/MAPS.md).
+- [ ] Connect the AWID web project in the Vercel team. Import `Mahdi-Lalioui/delivery` with Root Directory `apps/web` and workspace access. Give the staging environment a stable alias, then set its `ZAAFRAN_API_ORIGIN` to the API's TLS origin. Share the project and alias so cookies, media and SSE can be verified against the connected deployment. See [DEPLOY.md](DEPLOY.md).
 - [ ] **[before launch]** Production VPS **hosted in Algeria**: 4 vCPU / 8–16 GB / 160 GB SSD, Ubuntu LTS.
 - [ ] **[before launch]** Second backup location for encrypted backups.
 
 ## Providers
-- [ ] **[before launch]** SMS gateway for login. In the provider console, register a transactional sender ID, enable its HTTPS send endpoint and request the delivery and idempotency documentation. Put the provider credential in the deployment secret store and share the credential reference and sender ID so the production adapter can be configured. Use approved test numbers on Mobilis, Djezzy and Ooredoo to confirm delivery before opening signup. Development and automated checks use the local fake inbox.
+- [ ] **[before launch]** Connect the authentication SMS gateway. Register a transactional sender ID and configure an HTTPS endpoint that accepts bearer authentication, a JSON body with `to` and `text`, and `Idempotency-Key` deduplication. Put its endpoint and credential in `AUTH_SMS_WEBHOOK_URL` and `AUTH_SMS_WEBHOOK_TOKEN` in the API secret file. Confirm sign-in, deletion and staff-invitation delivery on approved Mobilis, Djezzy and Ooredoo test numbers. [Gateway contract](DEPLOY.md#sms-gateway)
 - [ ] Telegram bot token (or an email address) for alerts.
 - [ ] Chargily Pay account, for restaurants paying their subscription online (optional at launch).
 - [ ] (Optional) LLM API key, for menu import from photos (feature flag `menu_photo_import`).
@@ -42,3 +43,16 @@ Codex appends items here (what, why, exact steps). Mahdi ticks them. Items marke
   `lane-a` as Preview. Set the Root Directory to `apps/web`, enable access to workspace
   packages and system environment variables, and set `ZAAFRAN_PREVIEW_DEMO=1` for Preview
   only. See [team preview steps](TEAM_PREVIEW.md) for Node, build, and opening the demo.
+
+- [ ] **[before launch]** Configure customer order-status SMS in the worker. Set
+  `ORDER_SMS_WEBHOOK_URL` and `ORDER_SMS_WEBHOOK_TOKEN` in the deployment secret store.
+  The HTTPS gateway must accept a bearer token and a JSON body with `to` and `text`.
+  Make it deduplicate the `Idempotency-Key` header and return 2xx only after accepting
+  the message. Verify an expired test order on an approved test number.
+
+- [ ] **[before launch]** Provision persistent VAPID keys for order status web push.
+  Run `pnpm --filter @zaafran/worker exec web-push generate-vapid-keys --json` in an
+  approved environment. Set `VAPID_PUBLIC_KEY` on both the API and worker. Set
+  `VAPID_PRIVATE_KEY` and a monitored `VAPID_SUBJECT` such as a `mailto:` address on
+  the worker only. Verify an opted-in Chromium, Firefox and installed Safari PWA
+  receives a test notification. Keep the same keys across deployments.

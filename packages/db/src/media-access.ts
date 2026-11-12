@@ -1,4 +1,5 @@
 import type { ISql, TransactionSql } from "postgres";
+import { lockCourierDelivery } from "./courier-delivery-scope.js";
 import type {
   MediaKind,
   MediaScope,
@@ -82,6 +83,20 @@ export async function lockMediaTarget(
   return member !== undefined;
 }
 
+export async function lockMediaUploadTarget(
+  sql: TransactionSql,
+  { accountId, sessionId }: MediaSessionScope,
+  target: { merchantId: string | null; deliveryOrderId: string | null },
+) {
+  if (!target.deliveryOrderId) return lockMediaTarget(sql, accountId, target.merchantId);
+  const order = await lockCourierDelivery(sql, {
+    userId: accountId,
+    sessionId,
+    orderId: target.deliveryOrderId,
+  });
+  return order !== undefined && order.merchantId === target.merchantId;
+}
+
 interface ReadyPhotoScope {
   readonly accountId: string;
   readonly merchantId: string | null;
@@ -117,10 +132,24 @@ export async function readVisibleMedia(
     FROM public.media_uploads AS upload
     JOIN public.users AS account ON account.id = ${scope.accountId}
     JOIN public.sessions AS session ON session.user_id = account.id
-    WHERE upload.id = ${scope.mediaId}
+    WHERE upload.id = ${scope.mediaId} AND NOT upload.delivery_proof_purging
       AND account.blocked_at IS NULL AND account.deleted_at IS NULL
       AND ${standardSession(sql, scope)}
-      AND (upload.merchant_id IS NULL OR EXISTS (
+      AND CASE WHEN upload.kind = 'delivery_proof' THEN EXISTS (
+        SELECT FROM public.orders AS delivery
+        WHERE delivery.id = upload.delivery_order_id AND delivery.merchant_id = upload.merchant_id
+          AND delivery.customer_id IS NOT NULL AND (
+            (upload.owner_id = account.id AND delivery.status = 'out_for_delivery' AND EXISTS (
+              SELECT FROM public.couriers AS courier WHERE courier.id = delivery.courier_id
+                AND courier.user_id = account.id AND courier.active
+            )) OR (${access === "owner_or_attached_editor"} AND upload.status = 'ready' AND EXISTS (
+              SELECT FROM public.order_delivery_photo_proofs AS proof
+              JOIN public.merchant_members AS member ON member.merchant_id = proof.merchant_id
+              WHERE proof.photo_id = upload.id AND proof.order_id = delivery.id AND member.user_id = account.id
+            ))
+          )
+      ) ELSE
+      (upload.merchant_id IS NULL OR EXISTS (
         SELECT FROM public.merchant_members AS member
         JOIN public.merchants AS merchant ON merchant.id = member.merchant_id
         WHERE merchant.id = upload.merchant_id AND merchant.status IN ('approved', 'active', 'paused')
@@ -139,6 +168,7 @@ export async function readVisibleMedia(
           ))
         )
       ))
+      END
   `;
   return media;
 }

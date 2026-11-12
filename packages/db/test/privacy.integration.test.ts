@@ -183,10 +183,26 @@ test("[CUS-24] does not redeem a correct but expired or undelivered challenge", 
   await expect(repo.deleteAccount({ ...request, now: at(300) })).resolves.toBe("challenge_expired");
 });
 
+async function seedPrivateAddress(userId: string, label: string) {
+  const addressId = randomUUID();
+  await database.get().sql`
+    INSERT INTO public.addresses (id, user_id, label, location, plus_code, is_default, floor)
+    VALUES (${addressId}, ${userId}, ${label},
+      ST_GeogFromText('SRID=4326;POINT(3.0625 36.75)'), '8F85Q327+22', true, '2')
+  `;
+  return addressId;
+}
+
 test("[CUS-24] deletes once, revokes all sessions, and permits only the original bounded proof", async () => {
   const repo = createPrivacyRepository(database.get());
   const { sql } = database.get();
   const account = await customer();
+  const addressId = await seedPrivateAddress(account.userId, "Maison");
+  await sql`
+    INSERT INTO public.push_subscriptions (endpoint, user_id, session_id, p256dh, auth_key)
+    VALUES ('https://fcm.googleapis.com/fcm/send/fixture', ${account.userId}, ${account.sessionId},
+      'B' || repeat('A', 86), repeat('A', 22))
+  `;
   const secondSession = await addSession({ userId: account.userId, transport: "bearer" });
   const request = challenge(account, "192.0.2.70");
   const auth = createAuthRepository(database.get());
@@ -220,6 +236,10 @@ test("[CUS-24] deletes once, revokes all sessions, and permits only the original
   expect(await repo.replayDeletion({ ...account, ...confirmation, now: at(598) })).toBe(true);
   expect(await repo.replayDeletion({ ...account, ...confirmation, now: at(599) })).toBe(false);
   expect(await repo.exportAccount({ ...account, now })).toBeUndefined();
+  expect(await sql`SELECT FROM public.addresses WHERE id = ${addressId}`).toHaveLength(0);
+  expect(
+    await sql`SELECT FROM public.push_subscriptions WHERE user_id = ${account.userId}`,
+  ).toHaveLength(0);
   expect(await auth.resolveSession({ ...account, now })).toBeUndefined();
   expect(await auth.resolveSession({ ...secondSession, now })).toBeUndefined();
   const [user] =
@@ -248,9 +268,23 @@ test("[CUS-24] exports only the active session's own profile and supported colle
   expect(
     await repo.exportAccount({ userId: account.userId, sessionId: other.sessionId, now }),
   ).toBeUndefined();
+  const addressId = await seedPrivateAddress(account.userId, "Maison");
+  await seedPrivateAddress(other.userId, "Adresse privée");
   expect(await repo.exportAccount({ ...account, now })).toEqual({
     profile: { accountId: account.userId, phoneE164: account.phoneE164 },
-    addresses: [],
+    addresses: [
+      {
+        addressId,
+        label: "Maison",
+        communeId: null,
+        floor: "2",
+        isDefault: true,
+        plusCode: "8F85Q327+22",
+        pin: { latitude: 36.75, longitude: 3.0625 },
+        landmark: null,
+        instructions: null,
+      },
+    ],
     orders: [],
     ratings: [],
   });
@@ -488,5 +522,57 @@ test("[CUS-24] queues erasure of unattached media and retains attached applicati
   expect(await repo.findErasureMedia(account.userId)).toEqual([]);
   expect(await sql`SELECT id FROM media_uploads WHERE id = ${attached}`).toEqual([
     { id: attached },
+  ]);
+});
+
+test("[CUS-24] exports only owned orders and erases order PII without losing accounting", async () => {
+  const repo = createPrivacyRepository(database.get());
+  const { sql } = database.get();
+  const [account, other, { merchantId }] = await Promise.all([
+    customer(),
+    customer(),
+    merchantFixture(),
+  ]);
+  const orderId = randomUUID();
+  const anotherId = randomUUID();
+  const lines = JSON.stringify([
+    {
+      itemId: randomUUID(),
+      names: { fr: "Couscous" },
+      unitPriceDzd: 500,
+      quantity: 2,
+      options: [],
+      note: "Contact privé",
+    },
+  ]);
+  await sql`
+    INSERT INTO public.orders (
+      id, quote_id, customer_id, merchant_id, restaurant_name, short_code, order_day, status,
+      fulfilment, version, placed_at, last_event_at, address_snapshot, subtotal_dzd,
+      delivery_fee_dzd, total_dzd, paying_with_dzd, lines
+    )
+    VALUES
+      (${orderId}, ${randomUUID()}, ${account.userId}, ${merchantId}, 'Test', 'AAA-222', current_date,
+       'delivered', 'delivery', 1, now(), now(), '{"landmark":"Lieu privé"}', 1000, 137, 1137, 1200, ${lines}::jsonb),
+      (${anotherId}, ${randomUUID()}, ${other.userId}, ${merchantId}, 'Test', 'AAA-223', current_date,
+       'delivered', 'delivery', 1, now(), now(), NULL, 1000, 137, 1137, 1200, ${lines}::jsonb)
+  `;
+  await sql`
+    INSERT INTO public.order_events (order_id, version, to_status, actor_kind, actor_id, payload, occurred_at)
+    VALUES (${orderId}, 1, 'delivered', 'customer', ${account.userId}, '{"kind":"place"}', now())
+  `;
+  expect((await repo.exportAccount({ ...account, now }))?.orders).toMatchObject([
+    { orderId, totalDzd: 1137, lines: [{ lineTotalDzd: 1000 }] },
+  ]);
+  const request = challenge(account, "192.0.2.190");
+  await issueDelivered(request);
+  expect(await repo.deleteAccount(request)).toBe("deleted");
+  expect(
+    await sql`
+    SELECT customer_id, address_snapshot, lines->0->>'note' AS note, total_dzd
+    FROM public.orders WHERE id = ${orderId}`,
+  ).toEqual([{ customer_id: null, address_snapshot: null, note: null, total_dzd: 1137 }]);
+  expect(await sql`SELECT actor_id FROM public.order_events WHERE order_id = ${orderId}`).toEqual([
+    { actor_id: null },
   ]);
 });

@@ -18,6 +18,7 @@ export interface AuthHarness {
   latestSms(phone: string): string;
   latestInvitation(phone: string): string;
   phoneForSession(sessionId: string): Promise<string | undefined>;
+  seedAdminOrder(): Promise<{ orderId: string; shortCode: string; restaurantName: string }>;
   seedAdmin(phone: string): Promise<() => string>;
   seedAlgiersCommune(): Promise<AlgiersCommune>;
   seedDiscoverySearch(): Promise<AlgiersCommune>;

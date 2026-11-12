@@ -14,6 +14,7 @@ type Promo =
 
 type Fulfillment =
   | { readonly kind: "pickup" }
+  | { readonly kind: "zone"; readonly feeDzd: Dzd }
   | {
       readonly kind: "delivery";
       readonly roadMeters: number;
@@ -81,6 +82,7 @@ function deliveryFee(input: {
 }): Result<Dzd, AmountError> {
   const { fulfillment, netSubtotalDzd, hasFreeDelivery } = input;
   if (fulfillment.kind === "pickup") return dzd(0);
+  if (fulfillment.kind === "zone") return hasFreeDelivery ? dzd(0) : dzd(fulfillment.feeDzd);
   const { roadMeters, baseDzd, perKmDzd, freeOverDzd } = fulfillment;
   if (!Number.isSafeInteger(roadMeters) || roadMeters < 0) return fail("invalid_pricing");
   if (hasFreeDelivery || (freeOverDzd !== undefined && netSubtotalDzd >= freeOverDzd)) {

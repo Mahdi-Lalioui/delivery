@@ -11,6 +11,7 @@ import "./media-photo.css";
 interface MediaPhotoFieldProps {
   kind: PhotoKind;
   merchantId?: string | undefined;
+  orderId?: string | undefined;
   expectedSessionId: string | undefined;
   mediaId: string | null | undefined;
   onChange: (mediaId: string | null) => void;
@@ -119,10 +120,12 @@ function PhotoActions({ upload, hasSelected }: { upload: Upload; hasSelected: bo
 function getScope({
   kind,
   merchantId,
+  orderId,
   expectedSessionId,
 }: MediaPhotoFieldProps): PhotoScope | null {
-  if (!expectedSessionId || (kind !== "application" && !merchantId)) return null;
-  return { kind, merchantId, sessionId: expectedSessionId };
+  if (!expectedSessionId) return null;
+  if (kind === "delivery_proof" ? !orderId : kind !== "application" && !merchantId) return null;
+  return { kind, merchantId, orderId, sessionId: expectedSessionId };
 }
 
 function ScopedPhotoField(props: MediaPhotoFieldProps) {
@@ -155,6 +158,11 @@ function ScopedPhotoField(props: MediaPhotoFieldProps) {
 }
 
 export function MediaPhotoField(props: MediaPhotoFieldProps) {
-  const scopeKey = JSON.stringify([props.kind, props.merchantId, props.expectedSessionId]);
+  const scopeKey = JSON.stringify([
+    props.kind,
+    props.merchantId,
+    props.orderId,
+    props.expectedSessionId,
+  ]);
   return <ScopedPhotoField key={scopeKey} {...props} />;
 }

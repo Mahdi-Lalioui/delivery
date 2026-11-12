@@ -37,6 +37,8 @@ export function MerchantPage({ locale, screen }: MerchantPageProps) {
         locale={localeDetails[locale].tag}
         messages={{
           merchant: getMessages(locale).merchant,
+          merchantBoard: getMessages(locale).merchantBoard,
+          merchantDelivery: getMessages(locale).merchantDelivery,
           mediaPhoto: getMessages(locale).mediaPhoto,
         }}
       >

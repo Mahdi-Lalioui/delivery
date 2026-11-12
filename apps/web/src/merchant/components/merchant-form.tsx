@@ -2,17 +2,14 @@
 
 import type { Locale } from "@zaafran/i18n/locales";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { MediaPhotoField } from "../../media-photo/media-photo-field";
-import {
-  ApplicationPinFields,
-  ApplicationTextField,
-  CommuneField,
-  CuisineFields,
-} from "./application-fields";
-import { listAlgiersCommunes } from "../merchant-http";
+import { ApplicationTextField, CommuneField, CuisineFields } from "./application-fields";
+import { listWilayaCommunes } from "../merchant-http";
 import { useMerchantApplication, type MerchantApplicationState } from "../use-merchant-application";
 import { useMerchantResource } from "../use-merchant-resource";
+import { ApplicationPinFields } from "./application-pin";
+import { WilayaField } from "./wilaya-field";
 
 function ApplicationFeedback({
   error,
@@ -80,7 +77,12 @@ export function MerchantApplicationForm({
 }) {
   const translate = useTranslations("merchant");
   const state = useMerchantApplication(sessionId);
-  const communeResource = useMerchantResource(listAlgiersCommunes);
+  const [wilaya, setWilaya] = useState(16);
+  const readCommunes = useCallback(
+    (signal: AbortSignal) => listWilayaCommunes(wilaya, signal),
+    [wilaya],
+  );
+  const communeResource = useMerchantResource(readCommunes);
   const [locating, setLocating] = useState(false);
   const [busyPhotos, setBusyPhotos] = useState<ReadonlySet<number>>(() => new Set());
   const form = useRef<HTMLFormElement>(null);
@@ -91,6 +93,11 @@ export function MerchantApplicationForm({
     communeResource.view.data.length > 0 &&
     !locating &&
     busyPhotos.size === 0;
+
+  function changeCommune(communeId: string) {
+    setLocating(false);
+    state.update({ communeId, latitude: "", longitude: "" });
+  }
 
   function updatePhotoBusy(slot: number, busy: boolean) {
     setBusyPhotos((current) => {
@@ -147,7 +154,10 @@ export function MerchantApplicationForm({
         event.preventDefault();
         if (!canSubmit) return;
         void state.submit().then((field) => {
-          if (field) form.current?.querySelector<HTMLElement>(`[name="${field}"]`)?.focus();
+          if (field) {
+            const target = field === "longitude" ? "latitude" : field;
+            form.current?.querySelector<HTMLElement>(`[name="${target}"]`)?.focus();
+          }
         });
       }}
     >
@@ -157,8 +167,32 @@ export function MerchantApplicationForm({
           <ApplicationTextField state={state} field="restaurantName" />
           <ApplicationTextField state={state} field="ownerName" />
         </div>
-        <CommuneField state={state} locale={locale} resource={communeResource} />
-        <ApplicationPinFields state={state} onLocatingChange={setLocating} />
+        <div className="merchant-grid">
+          <WilayaField
+            locale={locale}
+            value={wilaya}
+            label={translate("wilaya")}
+            loadingText={translate("wilayasLoading")}
+            errorText={translate("wilayasError")}
+            retryText={translate("retry")}
+            onChange={(code) => {
+              setWilaya(code);
+              changeCommune("");
+            }}
+          />
+          <CommuneField
+            state={state}
+            locale={locale}
+            resource={communeResource}
+            onPick={changeCommune}
+          />
+        </div>
+        <ApplicationPinFields
+          key={state.draft.communeId}
+          state={state}
+          locale={locale}
+          onLocatingChange={setLocating}
+        />
         <CuisineFields state={state} />
         <ApplicationTextField state={state} field="rcNumber" />
         <ApplicationPhotos

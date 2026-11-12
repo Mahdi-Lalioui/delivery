@@ -217,3 +217,100 @@ test("[CUS-04:db] omits an opening outside the public timestamp format without h
     expect.objectContaining({ merchantId: temporarilyPausedId, isOpen: false, nextOpensAt: null }),
   );
 });
+
+test("[CUS-06:db] open filtering respects pauses and dated exceptions before pagination", async () => {
+  const repo = repository();
+  const page = await repo.list({ limit: 1, now, openNow: true, cuisine: "algerian" });
+  expect(page.restaurants.map(({ merchantId }) => merchantId)).toEqual([overnightId]);
+  expect(page.nextCursor).toBeNull();
+  expect(
+    (await repo.list({ limit: 10, now, openNow: false })).restaurants.map(
+      ({ merchantId }) => merchantId,
+    ),
+  ).toEqual([specialClosureId, temporarilyPausedId, datedHoursId, noHoursId]);
+  expect((await repo.list({ limit: 10, now, cuisine: "pizza" })).restaurants).toEqual([]);
+});
+
+test("[CUS-04][CUS-06:db] publishes delivery estimates and ratings with filtered stable sorting", async () => {
+  const { sql } = database.get();
+  await sql`INSERT INTO merchant_order_settings (merchant_id, delivery_enabled, prep_minutes, price_level)
+    VALUES (${overnightId}, true, 15, 2), (${specialClosureId}, true, 20, 1)`;
+  await sql`INSERT INTO delivery_zones (merchant_id, radius_m, fee_dzd, minimum_dzd, travel_minutes)
+    VALUES (${overnightId}, 2000, 0, 600, 5), (${specialClosureId}, 2000, 100, 400, 15)`;
+  await sql`
+    INSERT INTO orders (
+      id, quote_id, customer_id, merchant_id, restaurant_name, short_code, order_day, status,
+      fulfilment, version, placed_at, last_event_at, subtotal_dzd, delivery_fee_dzd, total_dzd, paying_with_dzd, lines
+    )
+    VALUES
+      (${id(50)}, ${id(52)}, ${accountId}, ${overnightId}, 'Test', 'AAA-222', current_date,
+       'delivered', 'delivery', 1, now(), now(), 1000, 0, 1000, 1000, '[]'),
+      (${id(51)}, ${id(53)}, ${accountId}, ${specialClosureId}, 'Test', 'AAA-222', current_date,
+       'delivered', 'delivery', 1, now(), now(), 1000, 100, 1100, 1100, '[]')
+  `;
+  await sql`INSERT INTO ratings (order_id, food_stars) VALUES (${id(50)}, 4), (${id(51)}, 5)`;
+  const repo = repository();
+  const filtered = await repo.list({
+    limit: 2,
+    now,
+    freeDelivery: true,
+    maxEtaMinutes: 30,
+    priceLevel: 2,
+    communeId,
+  });
+  expect(filtered.restaurants).toMatchObject([
+    {
+      merchantId: overnightId,
+      rating: 4,
+      ratingCount: 1,
+      etaMinutes: { min: 20, max: 30 },
+      deliveryFeeDzd: 0,
+      minimumOrderDzd: 600,
+      priceLevel: 2,
+    },
+  ]);
+  const first = await repo.list({ limit: 1, now, minRating: 4, sort: "rating" });
+  expect(first.restaurants.map(({ merchantId }) => merchantId)).toEqual([specialClosureId]);
+  expect(first.nextCursor).toBe(specialClosureId);
+  const next = await repo.list({
+    limit: 1,
+    now,
+    minRating: 4,
+    sort: "rating",
+    cursor: specialClosureId,
+  });
+  expect(next.restaurants.map(({ merchantId }) => merchantId)).toEqual([overnightId]);
+  expect(next.nextCursor).toBeNull();
+  expect(
+    (await repo.list({ limit: 2, now, sort: "eta" })).restaurants.map(
+      ({ merchantId }) => merchantId,
+    ),
+  ).toEqual([overnightId, specialClosureId]);
+  expect((await repo.list({ limit: 2, now, acceptsTpe: true })).restaurants).toEqual([]);
+});
+
+test("[CUS-06:db] distance uses the selected commune and stable ties", async () => {
+  const { sql } = database.get();
+  await sql`UPDATE merchants SET location = ST_GeogFromText('SRID=4326;POINT(3.50 36.76)')
+    WHERE id = ${temporarilyPausedId}`;
+  const repo = repository();
+  const first = await repo.list({ now, limit: 3, sort: "distance", communeId });
+  expect(first.restaurants.map(({ merchantId }) => merchantId)).toEqual([
+    overnightId,
+    specialClosureId,
+    datedHoursId,
+  ]);
+  expect(first.nextCursor).toBe(datedHoursId);
+  const next = await repo.list({
+    now,
+    limit: 3,
+    sort: "distance",
+    communeId,
+    cursor: datedHoursId,
+  });
+  expect(next.restaurants.map(({ merchantId }) => merchantId)).toEqual([
+    noHoursId,
+    temporarilyPausedId,
+  ]);
+  expect(next.nextCursor).toBeNull();
+});

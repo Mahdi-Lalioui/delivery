@@ -131,3 +131,123 @@
 
 - 2026-11-11 · Low · Updated sprint ownership and sequence. Lane A now owns the restaurant board, courier and admin screens, and e2e.
   Next: publish the tested order, quote, address, tracking, courier and feed contracts.
+
+- 2026-11-11 · High · Published order, quote, address, tracking, courier and feed schemas in AWID_CONTRACTS.md. All 196 contract tests, typecheck, build and lint passed.
+  Next: persist addresses and server-priced quotes, then place and transition orders transactionally with the acceptance job before wiring feed filters.
+
+- 2026-11-11 · High · Added scoped address CRUD, PostGIS serviceability, Plus Codes, one default, privacy export and erasure. 544 package tests and 17 focused PostGIS tests passed.
+  Next: persist server-priced quotes using current merchant zones and menu snapshots, then place orders and enqueue expiry in one transaction. Private voice uploads remain pending.
+
+- 2026-11-11 · High · Added cash quote pricing from validated menu options and whole-DZD zone fees, with zero-fee pickup. All 297 domain tests, build, lint and typecheck passed.
+  Next: store the account-bound quote with a 10-minute expiry; resolve current menu availability, delivery zone and order modes before writing.
+
+- 2026-11-11 · High · Added ten-minute checkout quotes with pickup, scoped addresses, live menu pricing, zone fees, slot checks, and quote cleanup. 661 package tests and 254 PostGIS tests passed.
+  Next: add idempotent order placement with quote revalidation, write the order snapshot and event, and enqueue the acceptance timer in the same transaction.
+
+- 2026-11-11 · Ultra · Implemented quote revalidation and idempotent placement with snapshots, event and Graphile timer in one transaction. Passed 662 package tests, 263 integrations and 239 authz tests.
+  Next: add scoped reads and versioned customer and merchant transitions, then feed filters and sorting.
+
+- 2026-11-11 · Ultra · Added scoped order reads and versioned, idempotent customer, merchant and admin actions. Passed 663 package tests, 268 integrations and 240 authz tests.
+  Next: implement feed metadata, filters and stable sorting, then build the merchant order board against these actions.
+
+- 2026-11-11 · High · Implemented discovery ratings, ETA and fee metadata, URL filters and stable sorting by distance, rating and ETA. Passed 352 package tests and 271 PostGIS and worker integration tests.
+  Next: add the scoped merchant board snapshot and durable replay cursor, then wire the live board screens.
+
+- 2026-11-11 · High · Published the tenant-scoped merchant board snapshot and commit-ordered replay. Passed 549 package tests, 33 focused PostGIS tests and 242 authz tests.
+  Next: build the localized board with polling, sound, countdowns and order actions. SSE and courier handover follow their sprint slices.
+
+- 2026-11-11 · High · Shipped the localized merchant board with polling replay, cash detail, actions, countdown, audio, wake lock and offline state. 829 unit and six production browser tests passed. Screenshots in docs/evidence/awid/merchant-board/.
+  Next: wire merchant handover for assigned couriers, then add SSE with polling fallback, push and SMS.
+
+- 2026-11-11 · High · Wired merchant handover from Ready for deliveries with an assigned courier. Passed 19 lifecycle integrations, 242 authz tests and seven production browser checks.
+  Next: stream merchant order events over SSE with cursor resume and polling fallback, then wire customer status notifications.
+
+- 2026-11-11 · Ultra · Added merchant SSE with durable cursor resume, PostgreSQL wakeups, live-session checks and polling fallback. Passed 553 package tests, 274 integrations, 244 authz tests and eight production browser checks.
+  Next: add order-status notifications and configure the SMS adapter, then build the courier API and screens. Verify stream buffering on the deployed proxy.
+
+- 2026-11-11 · High · Added authenticated single-order SSE with version replay and Postgres notifications. Passed 552 package tests, 245 authz tests and 21 focused PostGIS tests.
+  Next: queue customer order-status web push and SMS from committed transitions, then implement courier assignment, jobs and live positions.
+
+- 2026-11-11 · High · Queued terminal order SMS atomically and added a retry-safe HTTPS gateway with ar/fr/en checkout locale. Passed 213 package tests and 26 PostGIS and Graphile integrations using a fake gateway.
+  Next: persist session-scoped web push subscriptions and queue push on order transitions. Real SMS credentials are listed in HUMAN_TODO.md.
+
+- 2026-11-11 · High · Added session-scoped browser push registration and opt-out, trusted endpoint validation, device caps and erasure. Passed 555 package tests, 246 authz and 17 PostGIS integrations.
+  Next: send order status updates over VAPID, prune expired subscriptions and publish the public key contract.
+
+- 2026-11-11 · High · Added localized VAPID order notifications with web-push 4.0.0, idempotent worker delivery, expired endpoint cleanup and the public key API. Passed 560 package tests, 247 authz and 27 integrations.
+  Next: fix real standard-session merchant board authorization, then implement courier invitation, assignments and jobs. Browser opt-in remains a Lane B task.
+
+- 2026-11-11 · Ultra · Fixed board, order actions and SSE authorization for real standard session cookies. A full API/PostGIS regression proves staff membership, buyer ownership and outsider denial. Passed 280 integrations, 247 authz and dependency checks.
+  Next: persist phone-bound courier invitations and membership, then wire assignment and jobs.
+
+- 2026-11-11 · Ultra · Added phone-bound courier invitations, one-restaurant membership, presence and tenant roster. Passed 248 authz, 17 PostGIS onboarding/privacy checks, scoped typecheck/lint and dependency checks.
+  Next: wire roster assignment and assigned jobs. Owners currently share invite links manually.
+
+- 2026-11-11 · Ultra · Added tenant-safe, idempotent courier assignment, assigned jobs with exact pins and cash, and assigned-driver pickup. Passed 24 PostGIS cases, 248 authz, scoped lint/typecheck and OpenAPI checks.
+  Next: validate, rate-limit and publish courier positions for live tracking. Jobs return a null first name until customer profiles collect it.
+
+- 2026-11-11 · Ultra · Added active-driver GPS intake with timestamp, distance, speed and Algeria bounds checks, per-driver throttling, commit-time notifications and 30-day expiry. Passed 37 PostGIS and 13 focused API/unit tests plus scoped lint/typecheck.
+  Next: serve the buyer’s scoped tracking view and SSE position updates, then add delivery confirmation.
+
+- 2026-11-11 · Ultra · Added buyer-only pickup/delivery tracking and live position frames without changing the order replay cursor. Passed 249 authz, 23 PostGIS checks, and scoped typecheck/lint/OpenAPI.
+  Next: add four-digit delivery proof and retry-safe attempt limits; share links and routed ETA are still pending.
+
+- 2026-11-11 · Ultra · Added buyer-only four-digit proof, stored keyed digests, five-try lockout and idempotent successful and failed submissions. Passed 250 authz, 38 PostGIS, and scoped unit/typecheck/lint/OpenAPI checks.
+  Next: implement server-timed failed delivery and photo proof fallback before the courier screens.
+
+- 2026-11-11 · Ultra · Added assigned-courier wait and call records, replay-safe counting and the failed-delivery transition with server-side ten-minute and two-call guards. Passed 250 authz and 38 PostGIS checks.
+  Next: bind private photo proofs to an active order and surface their flag to the merchant, then build courier screens.
+
+- 2026-11-11 · Ultra · Added private, order-bound delivery photo proofs, a merchant review flag and retryable 30-day/erasure cleanup. Passed 304 integrations, 250 authz and scoped lint/typecheck, plus the focused merchant photo-access regression.
+  Next: build the localized courier screens and add assignment, invite sharing and proof review to the merchant board.
+
+- 2026-11-11 · Medium · Built localized courier invitations, job cards, availability, cash details, exact-pin navigation and slide-to-pickup. Five production-browser cases and 44 localization tests passed. Four inspected screenshots are in docs/evidence/awid/courier-pickup/.
+  Next: add foreground location sharing and code/photo/failed drop-off controls, then wire assignment and proof review into the merchant board.
+
+- 2026-11-11 · High · Connected foreground GPS with in-memory batching, delivery codes, private fallback photos and wait/call controls. Eight production-browser checks and 46 unit/localization tests passed. Inspected layouts in docs/evidence/awid/courier-dropoff/.
+  Next: wire merchant invitation, assignment and proof review into the board, then move to nationwide maps. Courier voice notes still need private audio.
+
+- 2026-11-11 · Medium · Connected owner invite links, courier assignment, live handover readiness and private delivery proof review to the board. Passed 18 production-browser checks, 23 PostGIS cases and 51 scoped unit checks.
+  Next: implement OSRM routing with fallback, nationwide location selection and the national seed.
+
+- 2026-11-11 · High · Added private OSRM tracking routes, thirty-second ETA coalescing and distance fallback with a circuit breaker. Passed 60 scoped tests. Pinned OSRM Docker returned 14 points, 874 m and 91 s on the Algiers fixture.
+  Next: publish all 69 wilayas to location pickers and wire the national map and seed data. Production still needs the full Algeria road graph.
+
+- 2026-11-11 · Medium · Published the anonymous bilingual wilaya directory and documented per-wilaya commune pagination. All 69 sorted codes were checked on PostGIS. Passed 15 API and three geography integration checks.
+  Next: connect the catalog to location selectors and prepare the pinned nationwide map, route and boundary data.
+
+- 2026-11-11 · High · Connected nationwide wilaya and commune selection and verified 1,541 PostGIS boundaries, seven real browser checks, 23 PostGIS checks and 54 scoped tests. Martin and OSRM served the pinned Algeria datasets.
+  Next: display the self-hosted basemap, add exact pin selection, then seed eight cities and enable merchant radius controls.
+
+- 2026-11-11 · High · Added lazy Algeria basemap to discovery and courier. Four production-browser map checks, 56 scoped tests, lint, typecheck and dependency boundaries passed. Reviewed captures in docs/evidence/awid/location-map/.
+  Next: replace merchant typed coordinates with the same pin control, seed eight cities, and wire merchant radius settings.
+
+- 2026-11-11 · Medium · Replaced merchant coordinates with a commune-centred pin, GPS accuracy, and localized validation. Passed 66 scoped checks, three real merchant/admin journeys and four production-map checks.
+  Next: expand the local-only catalog to 40 fictional restaurants across eight cities with cover photos and reviews.
+
+- 2026-11-11 · Medium · Seeded 40 fictional restaurants across eight cities with 200 bilingual dishes, item and cover variants and 120 anonymous reviews. Four PostGIS checks passed, including repeat seeding and storage failure rollback.
+  Next: publish the merchant delivery-radius contract and wire it to quote coverage, then prepare production Compose and Vercel.
+
+- 2026-11-11 · Medium · Published merchant delivery settings schemas. Contract cases cover the radius bounds, required radius for delivery, invalid money, pickup and legacy reads.
+  Next: implement the transactional settings repository, authorization matrix, API and merchant controls against this contract.
+
+- 2026-11-11 · Ultra · Added transactional merchant radius and modes, scoped reads and revision-bound replay. Passed 253 authz and HTTP cases, 32 real PostGIS cases and OpenAPI validation. Exact addresses inside and outside the radius resolved correctly.
+  Next: connect the settings screen to this API with conflict recovery, then start production deployment preparation.
+
+- 2026-11-11 · Medium · Shipped the merchant delivery settings screen with radius and fees, save feedback and stale-draft recovery. One production HTTPS/PostGIS journey, four axe/overflow checks and 57 scoped tests passed. Captures in docs/evidence/awid/merchant-delivery/.
+  Next: prepare the backend Compose image, TLS, migrations, backups and Vercel wiring. Hosted checks need a staging server and linked web project.
+
+- 2026-11-11 · High · Built the production Compose stack and passed a trusted local Caddy HTTPS smoke. Restored the encrypted PostGIS dump and synthetic private media. Knip and dependency boundaries passed.
+  Next: wire the configurable authentication SMS provider, then implement admin live orders and its two handoffs while Mahdi provisions the server and Vercel project.
+
+- 2026-11-11 · Ultra · Wired the authentication SMS webhook for OTP, privacy and staff invites, with scoped stable invite retries and sanitized provider failures. Passed 62 scoped tests, 50 PostGIS cases and five production-browser auth/staff journeys.
+  Next: publish admin live-order search and timeline contracts, then wire the admin tools and complete the two handoffs.
+
+- 2026-11-11 · Medium · Published private admin live-order search and timeline schemas. Three contract cases passed for cursor bounds, exact phone search and the PII-free response shape.
+  Next: add indexed Postgres search and audit, API authorization rows, then the live admin screen.
+
+- 2026-11-11 · Ultra · Added admin-only indexed live search and bounded timelines, session-bound force commands and exactly-once audit rows. Passed 255 authz/HTTP tests, 24 PostGIS cases and OpenAPI validation.
+  Next: implement and verify the admin order console, then connect the merchant notice and moderation token handoffs.
+
+- 2026-11-12 · Medium · Shipped admin live orders, merchant application notices and repeat-moderation review tokens. Six production-browser journeys and 83 scoped tests passed. Screenshots and layout notes in docs/evidence/awid/admin-orders/.
+  Next: integrate Lane B and close the real customer history, receipt, rating and tracking gaps before running the order journeys.

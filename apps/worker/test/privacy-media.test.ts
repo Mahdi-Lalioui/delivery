@@ -1,5 +1,5 @@
 import { expect, test, vi } from "vitest";
-import { createPrivacyMediaPurgeJob } from "../src/privacy-media.ts";
+import { createDeliveryProofPurgeJob, createPrivacyMediaPurgeJob } from "../src/privacy-media.ts";
 
 const userId = "01932f18-3150-7c33-8a7a-53acfd343001";
 const mediaId = "01932f18-3150-7c33-8a7a-53acfd343002";
@@ -27,4 +27,24 @@ test("[CUS-24] deletes the objects before removing the erasure record and can re
   expect(deleteObject.mock.calls).toEqual([...keys, ...keys].map((key) => [key]));
   expect(finishErasureMedia).toHaveBeenCalledExactlyOnceWith({ userId, mediaId });
   expect(findErasureMedia).toHaveBeenCalledTimes(3);
+});
+
+test("[COU-05] retries deleting proof objects before scrubbing the proof record", async () => {
+  const keys = ["quarantine/fixture", "variants/fixture.webp"];
+  const claimDeliveryProof = vi.fn().mockResolvedValue({ keys });
+  const finishDeliveryProof = vi.fn().mockResolvedValue(undefined);
+  const deleteObject = vi
+    .fn()
+    .mockResolvedValueOnce(undefined)
+    .mockRejectedValueOnce(new Error("Synthetic storage outage"))
+    .mockResolvedValue(undefined);
+  const job = createDeliveryProofPurgeJob({
+    repository: { claimDeliveryProof, finishDeliveryProof },
+    store: { delete: deleteObject },
+  });
+  await expect(job({ mediaId })).rejects.toThrow("Synthetic storage outage");
+  expect(finishDeliveryProof).not.toHaveBeenCalled();
+  await job({ mediaId });
+  expect(deleteObject.mock.calls).toEqual([...keys, ...keys].map((key) => [key]));
+  expect(finishDeliveryProof).toHaveBeenCalledExactlyOnceWith(mediaId);
 });

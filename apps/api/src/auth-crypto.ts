@@ -51,3 +51,20 @@ export function hashSessionToken(token: string): Buffer | undefined {
   if (bytes.length !== 32 || bytes.toString("base64url") !== token) return undefined;
   return hashSessionBytes(bytes);
 }
+
+export function createStaffInvitationToken({
+  key,
+  merchantId,
+  accountId,
+  idempotencyKey,
+}: {
+  key: Uint8Array;
+  merchantId: string;
+  accountId: string;
+  idempotencyKey: string;
+}): string {
+  return createHmac("sha256", key)
+    .update("staff-invitation\0")
+    .update(JSON.stringify([merchantId, accountId, idempotencyKey]))
+    .digest("base64url");
+}

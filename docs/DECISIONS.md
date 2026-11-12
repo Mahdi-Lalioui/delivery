@@ -248,3 +248,15 @@ DESIGN §8 asks for React Three Fiber. `three` 0.187.0 and `@react-three/fiber` 
 Keep the Casbah marketing landing at the locale root. Its primary action opens the anonymous
 customer home at the localized `/discover` path. The address picker and feed stay together on
 that page, and locale switching and alternate metadata retain the discovery path.
+
+### D-028 — Keep route estimates separate from cash quotes (2026-11-11)
+
+Active buyer tracking sends a fresh courier fix and the destination to self-hosted OSRM. The API accepts loopback and Compose routing origins. It coalesces estimates for the same order for 30 seconds. A route failure uses great-circle distance × 1.35 at 24 km/h, with a 60-second breaker after three failures. The fallback provides an ETA without drawing a road line. Expired GPS fixes do not generate a new ETA. Quote totals, zone fees and accepted order prices remain independent of router availability. [OSRM route service](https://project-osrm.org/docs/v26.6.1/http.html)
+
+## D-029 · Use built-in Arabic map shaping
+
+Pinned MapLibre GL JS 6.16.0 shapes Arabic and reorders bidirectional text in its worker. Keep the worker and Noto Sans glyph ranges on the same origin and use Protomaps 5.7.2 for the geometry layers. This replaces the external RTL plugin for the web implementation of GEO-05. [MapLibre RTL API](https://maplibre.org/maplibre-gl-js/docs/API/functions/setRTLTextPlugin/) · [Protomaps assets](https://docs.protomaps.com/basemaps/maplibre)
+
+## D-030 · Encrypt nightly backups with age
+
+Use the exact age 1.3.2 release for streaming authenticated encryption. The backup server holds the recipient only. The recovery host holds the identity. Linux amd64 release SHA-256 is `cbe24006683f8eb669266162894b9a522a1af52f2665fbc63a4bb032ed26ac10`. [Official release](https://github.com/FiloSottile/age/releases/tag/v1.3.2)

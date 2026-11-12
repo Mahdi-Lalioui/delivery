@@ -40,7 +40,7 @@ test("[ADM-04:web] reads the held page with the same-origin session only", async
   await expect(
     listHeldMenuItems({ cursor: merchantId, expectedSessionId: sessionId, signal }),
   ).resolves.toEqual({ kind: "ready", page });
-  const query = new URLSearchParams({ limit: "20", cursor: merchantId });
+  const query = new URLSearchParams({ limit: "20", includeReviewToken: "1", cursor: merchantId });
   expect(fetch).toHaveBeenCalledWith(`${endpoint}/held?${query.toString()}`, {
     method: "GET",
     credentials: "same-origin",
@@ -133,6 +133,7 @@ test.each([
   [problem(403, "forbidden"), "sign-in"],
   [problem(404, "not_found"), "stale"],
   [problem(409, "invalid_status"), "stale"],
+  [problem(409, "stale_review"), "stale"],
   [problem(409, "session_changed"), "session-changed"],
   [problem(409, "idempotency_conflict"), "error"],
   [problem(429, "rate_limited"), "error"],
@@ -145,4 +146,26 @@ test.each([
     key: "key-2",
   } as const;
   await expect(reviewHeldMenuItem(attempt)).resolves.toEqual({ kind });
+});
+
+test("[ADM-04] retries only the exact held content version and sends its token", () => {
+  const request = {
+    itemId,
+    expectedSessionId: sessionId,
+    decision: "approve" as const,
+    reason: "Sans alcool",
+  };
+  const version = "a".repeat(64);
+  const first = prepareHeldItemReview({ ...request, reviewToken: version });
+  if (first.kind !== "ready") throw new Error("Expected a valid review.");
+  expect(first.attempt.input.reviewToken).toBe(version);
+  expect(
+    prepareHeldItemReview({ ...request, reviewToken: version, previous: first.attempt }),
+  ).toEqual(first);
+  const next = prepareHeldItemReview({
+    ...request,
+    reviewToken: "b".repeat(64),
+    previous: first.attempt,
+  });
+  expect(next.kind === "ready" && next.attempt.key).not.toBe(first.attempt.key);
 });

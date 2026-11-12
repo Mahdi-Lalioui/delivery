@@ -1,5 +1,5 @@
 import type { ISql, TransactionSql } from "postgres";
-import { lockMediaSession, lockMediaTarget } from "./media-access.js";
+import { lockMediaSession, lockMediaUploadTarget } from "./media-access.js";
 import type {
   MediaCropCompletion,
   MediaCropRequest,
@@ -17,12 +17,14 @@ export async function submitMediaCrop(
 
   const { mediaId, input, idempotencyKeyHash, requestHash, now } = request;
   const { accountId, sessionId } = session;
-  const [target] = await sql<{ merchantId: string | null; kind: MediaKind }[]>`
-    SELECT merchant_id AS "merchantId", kind
+  const [target] = await sql<
+    { merchantId: string | null; deliveryOrderId: string | null; kind: MediaKind }[]
+  >`
+    SELECT merchant_id AS "merchantId", delivery_order_id AS "deliveryOrderId", kind
     FROM public.media_uploads
-    WHERE id = ${mediaId} AND owner_id = ${accountId} AND reservation_session_id = ${sessionId}
+    WHERE id = ${mediaId} AND owner_id = ${accountId} AND NOT delivery_proof_purging AND reservation_session_id = ${sessionId}
   `;
-  if (!target || !(await lockMediaTarget(sql, accountId, target.merchantId))) {
+  if (!target || !(await lockMediaUploadTarget(sql, request, target))) {
     return { kind: "not_found" };
   }
 
@@ -50,7 +52,7 @@ export async function submitMediaCrop(
     UPDATE public.media_uploads
     SET status = 'processing', crop_focal_x = ${focalX}, crop_focal_y = ${focalY},
       crop_zoom_percent = ${zoomPercent}
-    WHERE id = ${mediaId} AND owner_id = ${accountId} AND reservation_session_id = ${sessionId}
+    WHERE id = ${mediaId} AND owner_id = ${accountId} AND NOT delivery_proof_purging AND reservation_session_id = ${sessionId}
       AND merchant_id IS NOT DISTINCT FROM ${target.merchantId}::uuid
       AND status = 'awaiting_crop'
   `;

@@ -5,6 +5,7 @@ import { cropPhoto, type MediaStore } from "@zaafran/media";
 import type { DemoMenu } from "./demo-seed-menu.ts";
 
 export interface DemoPhoto {
+  readonly kind: "item" | "cover";
   readonly bytes: number;
   readonly digest: Buffer;
   readonly thumbhash: string;
@@ -17,13 +18,17 @@ export interface DemoPhoto {
   }[];
 }
 
-export async function publishDemoPhoto(store: MediaStore, menu: DemoMenu): Promise<DemoPhoto> {
+export async function publishDemoPhoto(
+  store: MediaStore,
+  menu: DemoMenu,
+  kind: DemoPhoto["kind"],
+): Promise<DemoPhoto> {
   // Original synthetic illustrations are 640×480 PNGs kept with the seed.
   const original = await readFile(new URL(`../fixtures/demo-menu/${menu}.png`, import.meta.url));
   const crop = await cropPhoto({
     bytes: original,
     contentType: "image/png",
-    kind: "item",
+    kind,
     crop: { focalX: 5000, focalY: 5000, zoomPercent: 100 },
   });
   if (crop.status !== "cropped") throw new Error(`Invalid demo menu image: ${menu}.`);
@@ -31,7 +36,8 @@ export async function publishDemoPhoto(store: MediaStore, menu: DemoMenu): Promi
   const variants = [];
   for (const { format, width, height, bytes } of crop.variants) {
     const digest = createHash("sha256").update(bytes).digest();
-    const key = `demo-menu-v1/${menu}/${format}-${String(width)}-${digest.toString("hex")}`;
+    const directory = kind === "item" ? menu : `cover/${menu}`;
+    const key = `demo-menu-v1/${directory}/${format}-${String(width)}-${digest.toString("hex")}`;
     await store.put({
       key,
       body: Readable.from(bytes),
@@ -41,6 +47,7 @@ export async function publishDemoPhoto(store: MediaStore, menu: DemoMenu): Promi
     variants.push({ key, format, width, height, bytes: bytes.length });
   }
   return {
+    kind,
     bytes: original.length,
     digest: createHash("sha256").update(original).digest(),
     thumbhash: crop.thumbhash,

@@ -4,6 +4,10 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./admin-orders": {
+      "types": "./src/admin-orders.ts",
+      "default": "./dist/admin-orders.js"
+    },
     "./auth": {
       "types": "./src/auth.ts",
       "default": "./dist/auth.js"
@@ -76,6 +80,10 @@
       "types": "./src/menu-price.ts",
       "default": "./dist/menu-price.js"
     },
+    "./merchant-delivery": {
+      "types": "./src/merchant-delivery.ts",
+      "default": "./dist/merchant-delivery.js"
+    },
     "./merchant-hours": {
       "types": "./src/merchant-hours.ts",
       "default": "./dist/merchant-hours.js"
@@ -99,6 +107,30 @@
     "./menu-import": {
       "types": "./src/menu-import.ts",
       "default": "./dist/menu-import.js"
+    },
+    "./addresses": {
+      "types": "./src/addresses.ts",
+      "default": "./dist/addresses.js"
+    },
+    "./order-quotes": {
+      "types": "./src/order-quotes.ts",
+      "default": "./dist/order-quotes.js"
+    },
+    "./orders": {
+      "types": "./src/orders.ts",
+      "default": "./dist/orders.js"
+    },
+    "./push-subscriptions": {
+      "types": "./src/push-subscriptions.ts",
+      "default": "./dist/push-subscriptions.js"
+    },
+    "./couriers": {
+      "types": "./src/couriers.ts",
+      "default": "./dist/couriers.js"
+    },
+    "./courier-retention": {
+      "types": "./src/courier-retention.ts",
+      "default": "./dist/courier-retention.js"
     }
   },
   "scripts": {

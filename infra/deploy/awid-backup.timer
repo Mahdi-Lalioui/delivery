@@ -1,0 +1,9 @@
+[Unit]
+Description=Run the AWID backup nightly
+
+[Timer]
+OnCalendar=*-*-* 02:30:00 Africa/Algiers
+Persistent=true
+
+[Install]
+WantedBy=timers.target

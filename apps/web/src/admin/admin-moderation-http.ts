@@ -17,7 +17,7 @@ export type HeldItemReview = Readonly<{
   key: string;
 }>;
 export type HeldPageRequest =
-  { cursor?: never; expectedSessionId?: never } | { cursor: string; expectedSessionId: string };
+  { cursor?: never; expectedSessionId?: string } | { cursor: string; expectedSessionId: string };
 type HeldPageResult =
   { kind: "ready"; page: HeldPage } | { kind: "sign-in" | "session-changed" | "error" };
 type ReviewResult = {
@@ -50,7 +50,7 @@ export async function listHeldMenuItems(
   request: HeldPageRequest & { signal?: AbortSignal },
 ): Promise<HeldPageResult> {
   const { cursor, signal } = request;
-  const query = new URLSearchParams({ limit: "20" });
+  const query = new URLSearchParams({ limit: "20", includeReviewToken: "1" });
   if (cursor) query.set("cursor", cursor);
   try {
     const response = await fetch(`${endpoint}/held?${query.toString()}`, {
@@ -71,7 +71,8 @@ function isSameReview(previous: HeldItemReview | undefined, next: Omit<HeldItemR
     previous?.itemId === next.itemId &&
     previous.expectedSessionId === next.expectedSessionId &&
     previous.input.decision === next.input.decision &&
-    previous.input.reason === next.input.reason
+    previous.input.reason === next.input.reason &&
+    previous.input.reviewToken === next.input.reviewToken
   );
 }
 
@@ -81,15 +82,21 @@ export function prepareHeldItemReview({
   expectedSessionId,
   decision,
   reason,
+  reviewToken,
   previous,
 }: {
   itemId: string;
   expectedSessionId: string;
   decision: ReviewInput["decision"] | "";
   reason: string;
+  reviewToken?: string | undefined;
   previous?: HeldItemReview | undefined;
 }): { kind: "ready"; attempt: HeldItemReview } | { kind: "invalid"; field: keyof ReviewInput } {
-  const result = adminItemReviewInput.safeParse({ decision, reason });
+  const result = adminItemReviewInput.safeParse({
+    decision,
+    reason,
+    ...(reviewToken === undefined ? {} : { reviewToken }),
+  });
   if (!result.success) {
     const field = result.error.issues[0]?.path[0] === "decision" ? "decision" : "reason";
     return { kind: "invalid", field };
@@ -105,7 +112,8 @@ async function readReviewError(response: Response): Promise<ReviewResult> {
   if (response.status !== 409) return { kind: "error" };
   const problem = problemResponseSchema.safeParse(await response.json());
   if (!problem.success) return { kind: "error" };
-  if (problem.data.code === "invalid_status") return { kind: "stale" };
+  if (problem.data.code === "invalid_status" || problem.data.code === "stale_review")
+    return { kind: "stale" };
   if (problem.data.code === "session_changed") return { kind: "session-changed" };
   return { kind: "error" };
 }

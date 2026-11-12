@@ -3,9 +3,11 @@ import {
   communeListOutput,
   merchantApplicationOutput,
   merchantMembershipsOutput,
+  wilayaListOutput,
   type merchantApplicationInput,
 } from "@zaafran/contracts/merchant";
 
+export type Wilaya = ReturnType<typeof wilayaListOutput.parse>["wilayas"][number];
 export type Commune = ReturnType<typeof communeListOutput.parse>["communes"][number];
 type MerchantAccount = ReturnType<typeof merchantMembershipsOutput.parse>;
 export type Membership = MerchantAccount["memberships"][number];
@@ -60,13 +62,16 @@ async function readMerchant<Data>({
   }
 }
 
-export async function listAlgiersCommunes(signal: AbortSignal): Promise<MerchantRead<Commune[]>> {
+export async function listWilayaCommunes(
+  wilayaCode: number,
+  signal: AbortSignal,
+): Promise<MerchantRead<Commune[]>> {
   const communes: Commune[] = [];
   const seenCursors = new Set<string>();
   let cursor: string | null = null;
 
   do {
-    const query = new URLSearchParams({ wilayaCode: "16", limit: "100" });
+    const query = new URLSearchParams({ wilayaCode: String(wilayaCode), limit: "100" });
     if (cursor !== null) query.set("cursor", cursor);
     const page = await readMerchant({
       path: `/v1/communes?${query.toString()}`,
@@ -75,7 +80,7 @@ export async function listAlgiersCommunes(signal: AbortSignal): Promise<Merchant
     });
     if (page.kind !== "ready") return page;
 
-    communes.push(...page.data.communes.filter(({ wilayaCode }) => wilayaCode === 16));
+    communes.push(...page.data.communes.filter((commune) => commune.wilayaCode === wilayaCode));
     cursor = page.data.nextCursor;
     if (cursor === null) break;
     if (!/^[0-9]{4}$/.test(cursor) || seenCursors.has(cursor)) return { kind: "error" };
@@ -83,6 +88,11 @@ export async function listAlgiersCommunes(signal: AbortSignal): Promise<Merchant
   } while (!signal.aborted);
 
   return { kind: "ready", data: communes };
+}
+
+export async function listWilayas(signal: AbortSignal): Promise<MerchantRead<Wilaya[]>> {
+  const result = await readMerchant({ path: "/v1/wilayas", schema: wilayaListOutput, signal });
+  return result.kind === "ready" ? { kind: "ready", data: result.data.wilayas } : result;
 }
 
 export function listMerchantMemberships(

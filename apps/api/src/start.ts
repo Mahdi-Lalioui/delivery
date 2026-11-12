@@ -1,8 +1,13 @@
-import { randomBytes } from "node:crypto";
+import { createAdminOrdersRepository } from "@zaafran/db/admin-orders";
+import { createCourierRepository } from "@zaafran/db/couriers";
+import { createOrderRepository } from "@zaafran/db/orders";
+import { createOrderQuoteRepository } from "@zaafran/db/order-quotes";
+import { createAddressRepository } from "@zaafran/db/addresses";
+import { createPushSubscriptionRepository } from "@zaafran/db/push-subscriptions";
 import { createPrivacyRepository } from "@zaafran/db/privacy";
 import { createAuthRepository } from "@zaafran/db/auth";
 import { createBillingRepository, createBillingWriteRepository } from "@zaafran/db/billing";
-import { readCommuneCoordinates } from "@zaafran/db/geography";
+import { readCommuneCoordinates, readWilayas } from "@zaafran/db/geography";
 import { createPlatformRepository } from "@zaafran/db/platform";
 import { openDatabase } from "@zaafran/db/database";
 import { createDiscoverySearchRepository } from "@zaafran/db/discovery-search";
@@ -13,6 +18,7 @@ import { createMenuItemRepository } from "@zaafran/db/menu-item";
 import { createMenuPreviewRepository } from "@zaafran/db/menu-preview";
 import { createMenuOptionGroupRepository } from "@zaafran/db/menu-option-group";
 import { createMenuPriceRepository } from "@zaafran/db/menu-price";
+import { createMerchantDeliveryRepository } from "@zaafran/db/merchant-delivery";
 import { createMerchantHoursRepository } from "@zaafran/db/merchant-hours";
 import { createMenuModerationRepository } from "@zaafran/db/menu-moderation";
 import { createMerchantPromotionsRepository } from "@zaafran/db/promotions";
@@ -22,13 +28,18 @@ import { createMerchantStaffRepository } from "@zaafran/db/merchant-staff";
 import { createServiceAreaRepository } from "@zaafran/db/service-area";
 import { createPublicFeedRepository } from "@zaafran/db/public-feed";
 import { createPublicRestaurantRepository } from "@zaafran/db/public-restaurant";
+import { createRoadRouter } from "@zaafran/geo/road-routing";
 import { createLocalMediaStore } from "@zaafran/media";
 import type { FastifyInstance, FastifyListenOptions } from "fastify";
 import { createApi } from "./app.js";
+import { createOrderRealtimeSignals } from "./order-realtime-signals.js";
 import { createPrivacyService } from "./privacy-service.js";
+import { createStaffInvitationToken } from "./auth-crypto.js";
+import { createAuthSmsAdapter } from "./auth-sms-adapter.js";
 import { createAuthService } from "./auth-service.js";
 import type { MerchantStaffServices } from "./merchant-staff-routes.js";
 import { readApiEnvironment } from "./environment.js";
+import { createRoutedTracking } from "./routed-tracking.js";
 import { checkReadiness } from "./readiness.js";
 
 export interface StartOptions {
@@ -45,7 +56,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
   const database = openDatabase(environment.DATABASE_URL);
   const now = options.now ?? (() => new Date());
   const otpKey = Buffer.from(environment.AUTH_OTP_KEY, "hex");
-  const sendSms = options.sendSms ?? unavailableSms;
+  const { sendSms, sendInvitation } = smsServices(environment, options);
   const service = createAuthService({
     repository: createAuthRepository(database),
     otpKey,
@@ -57,10 +68,30 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
   const platform = createPlatformRepository(database);
   const publicRestaurant = createPublicRestaurantRepository(database);
   const mediaStore = createLocalMediaStore({ root: environment.MEDIA_STORAGE_ROOT });
+  const orders = createOrderRepository(database, otpKey);
   const api = createApi({
     checkReadiness: () => checkReadiness(database),
     trustedProxy: environment.API_TRUSTED_PROXY,
     auth: { service, publicOrigin: environment.AUTH_PUBLIC_ORIGIN },
+    addresses: createAddressRepository(database),
+    orders: { repository: orders, now },
+    orderActions: { repository: orders, now },
+    adminOrders: createAdminOrdersRepository(database),
+    couriers: { repository: createCourierRepository(database), now },
+    merchantBoard: orders,
+    orderTracking: createRoutedTracking({
+      read: orders.tracking,
+      route: createRoadRouter({ origin: environment.OSRM_INTERNAL_ORIGIN }),
+      now: () => now().getTime(),
+    }),
+    pushSubscriptions: createPushSubscriptionRepository(database),
+    pushPublicKey: environment.VAPID_PUBLIC_KEY,
+    realtime: {
+      replay: orders.merchantReplay,
+      replayOrder: orders.orderReplay,
+      ...createOrderRealtimeSignals(database.sql),
+    },
+    orderQuotes: { repository: createOrderQuoteRepository(database), now },
     privacy: createPrivacyService({
       repository: createPrivacyRepository(database),
       otpKey,
@@ -68,10 +99,12 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
       sendSms,
     }),
     merchant: { repository: createMerchantRepository(database), now },
+    merchantDelivery: { repository: createMerchantDeliveryRepository(database), now },
     billing: createBillingRepository(database),
     billingWrites: { repository: createBillingWriteRepository(database), now },
     platform: { repository: platform, now },
     discovery: createServiceAreaRepository(database),
+    wilayas: () => readWilayas(database),
     discoverySearch: createDiscoverySearchRepository(database),
     publicFeed: { repository: createPublicFeedRepository(database), store: mediaStore, now },
     publicRestaurant: { repository: publicRestaurant, now },
@@ -104,8 +137,8 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     merchantStaff: {
       repository: createMerchantStaffRepository(database),
       now,
-      createToken: () => randomBytes(32).toString("base64url"),
-      sendInvitation: options.sendInvitation ?? unavailableSms,
+      createToken: (scope) => createStaffInvitationToken({ ...scope, key: otpKey }),
+      sendInvitation,
     },
   });
   api.addHook("onClose", () => database.close());
@@ -121,6 +154,22 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     await api.close();
     throw error;
   }
+}
+
+function smsServices(environment: ReturnType<typeof readApiEnvironment>, options: StartOptions) {
+  const {
+    AUTH_SMS_WEBHOOK_URL: url,
+    AUTH_SMS_WEBHOOK_TOKEN: token,
+    AUTH_PUBLIC_ORIGIN,
+  } = environment;
+  const configured =
+    url && token
+      ? createAuthSmsAdapter({ url, token, publicOrigin: AUTH_PUBLIC_ORIGIN })
+      : undefined;
+  return {
+    sendSms: options.sendSms ?? configured?.sendOtp ?? unavailableSms,
+    sendInvitation: options.sendInvitation ?? configured?.sendInvitation ?? unavailableSms,
+  };
 }
 
 function unavailableSms(): never {

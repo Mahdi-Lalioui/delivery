@@ -176,6 +176,8 @@ export const demoMenus = {
 
 export type DemoMenu = keyof typeof demoMenus;
 
+export type DemoRestaurant = readonly [string, string, DemoMenu, DemoText];
+
 export const demoRestaurants = [
   ["lune-de-semoule", "1601", "algerian", { ar: "قمر السميد", fr: "Lune de Semoule" }],
   ["ficelle-du-four", "1602", "pizza", { ar: "خيط الفرن", fr: "Ficelle du Four" }],
@@ -189,4 +191,37 @@ export const demoRestaurants = [
   ["tomate-des-dunes", "1622", "pizza", { ar: "طماطم الكثبان", fr: "Tomate des Dunes" }],
   ["gril-du-jasmin", "1628", "grill", { ar: "شواية الياسمين", fr: "Gril du Jasmin" }],
   ["croissant-de-rose", "1630", "bakery", { ar: "هلال الورد", fr: "Croissant de Rose" }],
-] as const satisfies readonly (readonly [string, string, DemoMenu, DemoText])[];
+  ["brise-de-semoule-bejaia", "0601", "algerian", { ar: "نسيم السميد", fr: "Brise de Semoule" }],
+  ["four-des-oliviers-bejaia", "0601", "pizza", { ar: "فرن الزيتون", fr: "Four des Oliviers" }],
+  ["braise-du-cap-bejaia", "0601", "grill", { ar: "جمر الرأس", fr: "Braise du Cap" }],
+  ["miette-du-rivage-bejaia", "0601", "bakery", { ar: "فتات الشاطئ", fr: "Miette du Rivage" }],
+  ["table-du-cypres-tlemcen", "1301", "algerian", { ar: "مائدة السرو", fr: "Table du Cyprès" }],
+  ["four-du-patio-tlemcen", "1301", "pizza", { ar: "فرن الفناء", fr: "Four du Patio" }],
+  ["braise-du-murier-tlemcen", "1301", "grill", { ar: "جمر التوت", fr: "Braise du Mûrier" }],
+  ["douceur-du-jardin-tlemcen", "1301", "bakery", { ar: "حلوى الحديقة", fr: "Douceur du Jardin" }],
+  ["semoule-du-plateau-setif", "1901", "algerian", { ar: "سميد الهضبة", fr: "Semoule du Plateau" }],
+  ["pate-de-neige-setif", "1901", "pizza", { ar: "عجينة الثلج", fr: "Pâte de Neige" }],
+  ["gril-des-cedres-setif", "1901", "grill", { ar: "شواية الأرز", fr: "Gril des Cèdres" }],
+  ["mie-de-givre-setif", "1901", "bakery", { ar: "لب الصقيع", fr: "Mie de Givre" }],
+  ["marmite-du-large-annaba", "2301", "algerian", { ar: "قدر البحر", fr: "Marmite du Large" }],
+  ["four-des-embruns-annaba", "2301", "pizza", { ar: "فرن رذاذ البحر", fr: "Four des Embruns" }],
+  ["braise-de-la-jetee-annaba", "2301", "grill", { ar: "جمر الرصيف", fr: "Braise de la Jetée" }],
+  ["galette-du-matin-annaba", "2301", "bakery", { ar: "فطيرة الصباح", fr: "Galette du Matin" }],
+  ["bol-du-pont-constantine", "2501", "algerian", { ar: "وعاء الجسر", fr: "Bol du Pont" }],
+  ["four-des-gorges-constantine", "2501", "pizza", { ar: "فرن الوادي", fr: "Four des Gorges" }],
+  ["braise-du-rocher-constantine", "2501", "grill", { ar: "جمر الصخرة", fr: "Braise du Rocher" }],
+  ["mie-des-arches-constantine", "2501", "bakery", { ar: "لب الأقواس", fr: "Mie des Arches" }],
+  ["table-du-couchant-oran", "3101", "algerian", { ar: "مائدة الغروب", fr: "Table du Couchant" }],
+  ["four-du-vent-oran", "3101", "pizza", { ar: "فرن الريح", fr: "Four du Vent" }],
+  ["braise-de-l-horizon-oran", "3101", "grill", { ar: "جمر الأفق", fr: "Braise de l’Horizon" }],
+  ["galette-de-la-baie-oran", "3101", "bakery", { ar: "فطيرة الخليج", fr: "Galette de la Baie" }],
+  [
+    "marmite-des-palmes-ghardaia",
+    "4701",
+    "algerian",
+    { ar: "قدر النخيل", fr: "Marmite des Palmes" },
+  ],
+  ["four-d-ocre-ghardaia", "4701", "pizza", { ar: "فرن المغرة", fr: "Four d’Ocre" }],
+  ["braise-de-l-oasis-ghardaia", "4701", "grill", { ar: "جمر الواحة", fr: "Braise de l’Oasis" }],
+  ["mie-de-dattes-ghardaia", "4701", "bakery", { ar: "لب التمر", fr: "Mie de Dattes" }],
+] satisfies readonly DemoRestaurant[];
