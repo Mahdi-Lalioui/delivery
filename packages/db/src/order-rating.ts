@@ -1,5 +1,6 @@
 import type { orderRatingInput, orderRatingOutput } from "@zaafran/contracts/ratings";
 import type { ISql, TransactionSql } from "postgres";
+import { readRatingReply } from "./merchant-review-commands.js";
 import { hash } from "./order-placement-store.js";
 import { lockOrderingCustomer } from "./order-quotes.js";
 import { isActiveCustomer, type CustomerOrderScope } from "./order-receipts.js";
@@ -20,13 +21,18 @@ const ratingColumns = (sql: ISql) => sql`
   delivery_stars AS "deliveryStars", comment, created_at AS "createdAt"
 `;
 
-function present({ createdAt, ...rating }: RatingRow): Rating {
+function present({ createdAt, ...rating }: RatingRow, reply: Rating["reply"] = null): Rating {
   return {
     ...rating,
     createdAt: createdAt.toISOString(),
     editableUntil: new Date(createdAt.getTime() + dayMs).toISOString(),
-    reply: null,
+    reply,
   };
+}
+
+async function presentWithReply(sql: ISql, rating: RatingRow) {
+  const reply = await readRatingReply(sql, rating.ratingId);
+  return present(rating, reply && { body: reply.body, createdAt: reply.createdAt });
 }
 
 export async function readOrderRating(sql: TransactionSql, scope: Scope) {
@@ -38,21 +44,25 @@ export async function readOrderRating(sql: TransactionSql, scope: Scope) {
     FROM public.orders WHERE id = ${scope.orderId} AND customer_id = ${scope.customerId}
   `;
   if (!order) return { kind: "not_found" } as const;
-  return order.rating
-    ? ({
-        kind: "rated",
-        rating: present({ ...order.rating, createdAt: new Date(order.rating.createdAt) }),
-      } as const)
-    : ({ kind: "unrated" } as const);
+  if (!order.rating) return { kind: "unrated" } as const;
+  const createdAt = new Date(order.rating.createdAt);
+  return {
+    kind: "rated",
+    rating: await presentWithReply(sql, { ...order.rating, createdAt }),
+  } as const;
 }
 
 export async function readCustomerRatings(sql: ISql, customerId: string): Promise<Rating[]> {
-  const rows = await sql<RatingRow[]>`
-    SELECT ${ratingColumns(sql)} FROM public.ratings
-    WHERE order_id IN (SELECT id FROM public.orders WHERE customer_id = ${customerId})
+  const rows = await sql<(RatingRow & { reply: Rating["reply"] })[]>`
+    SELECT ${ratingColumns(sql)}, (
+      SELECT jsonb_build_object('body', body,
+        'createdAt', to_char(created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'))
+      FROM public.rating_replies WHERE rating_id = ratings.id
+    ) AS reply
+    FROM public.ratings WHERE order_id IN (SELECT id FROM public.orders WHERE customer_id = ${customerId})
     ORDER BY created_at DESC, id DESC
   `.parsers(timestampParsers);
-  return rows.map(present);
+  return rows.map(({ reply, ...rating }) => present(rating, reply));
 }
 
 async function upsertRating(sql: TransactionSql, { orderId, input, now }: Command) {
@@ -105,7 +115,7 @@ export async function saveOrderRating(sql: TransactionSql, command: Command) {
   const row = await upsertRating(sql, command);
   if (!row) return { kind: "edit_window_closed" } as const;
 
-  const rating = present(row);
+  const rating = await presentWithReply(sql, row);
   const expiresAt = new Date(now.getTime() + dayMs).toISOString();
   await sql`
     INSERT INTO public.order_rating_receipts (customer_id, order_id, key_hash, request_hash, response, expires_at)

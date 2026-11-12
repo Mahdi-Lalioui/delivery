@@ -272,3 +272,6 @@
 
 - 2026-11-12 · Medium · Added Arabic routes for the full admin console and localized TOTP return paths. Passed the four production route smoke runs across Arabic and French at 390 and 1280 px with real role sessions and PostGIS.
   Next: merge the latest Lane B design work, run full workspace verification and capture the final partner and admin layouts.
+
+- 2026-11-12 · High · Added tenant-scoped merchant review replies and report submissions, with a 24-hour reply window and keyed replay. Passed 261 authz/HTTP and 23 PostGIS cases. Reports are retained for admin review.
+  Next: integrate review commands into the release candidate and verify the final partner/admin design and release gates.

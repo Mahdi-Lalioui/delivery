@@ -345,3 +345,59 @@ test("[MER-21][ADM-02] aggregates real tenant orders by Algerian business date a
   });
   expect(await repository.adminDashboard({ ...request, accountId: otherId })).toBeUndefined();
 });
+
+test("[MER-20] scopes one editable reply and one report to the restaurant with retry receipts", async () => {
+  const { sql } = database.get();
+  const reviewSession = randomUUID();
+  await sql`
+    INSERT INTO merchant_members (merchant_id, user_id, role)
+    VALUES (${merchantId}, ${otherId}, 'owner') ON CONFLICT DO NOTHING
+  `;
+  await sql`
+    INSERT INTO sessions (id, user_id, token_hash, transport, kind, request_ip, created_at, last_seen_at, expires_at)
+    VALUES (${reviewSession}, ${otherId}, decode(repeat('06', 32), 'hex'), 'web', 'standard',
+      '192.0.2.1', now(), now(), now() + interval '1 hour')
+  `;
+  const [row] = await sql<{ id: string }[]>`
+    INSERT INTO public.ratings (order_id, food_stars, created_at) VALUES (${terminalId}, 5, now())
+    ON CONFLICT (order_id) DO UPDATE SET food_stars = excluded.food_stars RETURNING id
+  `;
+  if (!row) throw new Error("Missing synthetic rating");
+  const repository = createOrderRepository(database.get());
+  const now = new Date();
+  const scope = { accountId: otherId, sessionId: reviewSession, merchantId, ratingId: row.id, now };
+  const reply = { ...scope, idempotencyKey: "first-reply", body: "Merci pour votre avis" };
+  expect(await repository.replyToReview({ ...reply, merchantId: otherMerchantId })).toEqual({
+    kind: "not_found",
+  });
+  const first = await repository.replyToReview(reply);
+  expect(first.kind).toBe("saved");
+  expect(await repository.replyToReview(reply)).toEqual(first);
+  expect(await repository.replyToReview({ ...reply, body: "Une autre réponse" })).toEqual({
+    kind: "idempotency_conflict",
+  });
+  const read = await repository.publicReviews({ slug: "fixture-" + merchantId, limit: 1 });
+  expect(publicReviewPageOutput.parse(read).reviews[0]?.reply).toEqual({
+    body: reply.body,
+    createdAt: now.toISOString(),
+  });
+  expect(
+    await repository.replyToReview({
+      ...reply,
+      idempotencyKey: "too-late-reply",
+      now: new Date(now.getTime() + 86_400_000),
+    }),
+  ).toEqual({ kind: "edit_window_closed" });
+  const report = { ...scope, idempotencyKey: "first-report", reason: "Motif fictif" };
+  const saved = await repository.reportReview(report);
+  expect(saved).toEqual({
+    kind: "saved",
+    output: { ratingId: row.id, reportedAt: now.toISOString() },
+  });
+  expect(await repository.reportReview({ ...report, idempotencyKey: "another-report" })).toEqual(
+    saved,
+  );
+  expect(await sql`SELECT reason FROM public.rating_reports WHERE rating_id = ${row.id}`).toEqual([
+    { reason: report.reason },
+  ]);
+});

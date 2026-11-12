@@ -405,6 +405,20 @@ const matrix: readonly MatrixRoute[] = [
     requestUrl: "/v1/merchants/" + challengeId + "/analytics?from=2026-11-11&to=2026-11-12",
     expected: menuRoles,
   },
+  {
+    method: "PUT",
+    url: "/v1/merchants/:merchantId/reviews/:ratingId/reply",
+    requestUrl: "/v1/merchants/" + challengeId + "/reviews/" + challengeId + "/reply",
+    expected: menuRoles,
+    payload: { body: "Synthetic reply" },
+  },
+  {
+    method: "POST",
+    url: "/v1/merchants/:merchantId/reviews/:ratingId/report",
+    requestUrl: "/v1/merchants/" + challengeId + "/reviews/" + challengeId + "/report",
+    expected: menuRoles,
+    payload: { reason: "Synthetic report" },
+  },
   { method: "GET", url: "/v1/me/orders", expected: { customer: 503 } },
   {
     method: "GET",

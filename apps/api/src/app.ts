@@ -21,6 +21,7 @@ import { registerAdminOrdersRoutes } from "./admin-orders-routes.js";
 import { registerOrderActionRoutes } from "./order-action-routes.js";
 import { registerOrderHistoryRoutes } from "./order-history-routes.js";
 import { registerAnalyticsRoutes } from "./analytics-routes.js";
+import { registerReviewCommands } from "./review-command-routes.js";
 import { registerReviewsRoutes } from "./reviews-routes.js";
 import { registerOrderRatingRoutes } from "./order-rating-routes.js";
 import { registerFavouriteRoutes } from "./favourites-routes.js";
@@ -135,6 +136,7 @@ interface ApiOptions {
   readonly adminOrders?: Parameters<typeof registerAdminOrdersRoutes>[1];
   readonly favourites?: Parameters<typeof registerFavouriteRoutes>[1];
   readonly analytics?: Parameters<typeof registerAnalyticsRoutes>[1];
+  readonly reviewCommands?: Parameters<typeof registerReviewCommands>[1];
   readonly reviews?: Parameters<typeof registerReviewsRoutes>[1];
   readonly orderRatings?: Parameters<typeof registerOrderRatingRoutes>[1];
   readonly orderHistory?: Parameters<typeof registerOrderHistoryRoutes>[1];
@@ -204,6 +206,7 @@ export function createApi(options: ApiOptions): FastifyInstance {
     registerOrderHistoryRoutes(api, options.orderHistory);
     registerOrderRatingRoutes(api, options.orderRatings);
     registerReviewsRoutes(api, options.reviews);
+    registerReviewCommands(api, options.reviewCommands);
     registerAnalyticsRoutes(api, options.analytics);
     registerOrderActionRoutes(api, options.orderActions);
     registerAdminOrdersRoutes(api, options.adminOrders);

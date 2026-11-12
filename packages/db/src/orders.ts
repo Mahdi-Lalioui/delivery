@@ -35,6 +35,11 @@ import {
   type OrderHistoryQuery,
 } from "./order-receipts.js";
 import { pruneOrderRatingReceipts, readOrderRating, saveOrderRating } from "./order-rating.js";
+import {
+  pruneMerchantReviewReceipts,
+  saveReviewReply,
+  saveReviewReport,
+} from "./merchant-review-commands.js";
 import { readAdminDashboard, readMerchantAnalytics } from "./order-analytics.js";
 import { readMerchantReviews, readPublicReviews } from "./order-reviews.js";
 import { readCustomerTracking, type CustomerTrackingScope } from "./order-tracking.js";
@@ -239,6 +244,11 @@ export function createOrderRepository({ sql }: DatabaseConnection, deliveryKey?:
       ),
     adminDashboard: (scope: Parameters<typeof readAdminDashboard>[1]) =>
       sql.begin((tx) => readAdminDashboard(tx, scope)),
+    replyToReview: (command: Parameters<typeof saveReviewReply>[1]) =>
+      sql.begin((tx) => saveReviewReply(tx, command)),
+    reportReview: (command: Parameters<typeof saveReviewReport>[1]) =>
+      sql.begin((tx) => saveReviewReport(tx, command)),
+    pruneMerchantReviewReceipts: (now: Date) => pruneMerchantReviewReceipts(sql, now),
     publicReviews: (query: Parameters<typeof readPublicReviews>[1]) =>
       sql.begin("isolation level repeatable read read only", (tx) => readPublicReviews(tx, query)),
     merchantReviews: (query: Parameters<typeof readMerchantReviews>[1]) =>

@@ -229,6 +229,8 @@ test("[M0-6] the generated OpenAPI document describes the readiness problem resp
       "/v1/merchants/{merchantId}/promotions",
       "/v1/merchants/{merchantId}/promotions/{promotionId}",
       "/v1/merchants/{merchantId}/reviews",
+      "/v1/merchants/{merchantId}/reviews/{ratingId}/reply",
+      "/v1/merchants/{merchantId}/reviews/{ratingId}/report",
       "/v1/merchants/{merchantId}/staff",
       "/v1/merchants/{merchantId}/staff/invitations",
       "/v1/merchants/{merchantId}/staff/invitations/{invitationId}/revoke",
