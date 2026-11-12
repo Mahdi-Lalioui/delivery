@@ -771,7 +771,7 @@
   overflow: hidden;
   clip-path: inset(50%);
 }
-@media (min-width: 768px) {
+@media (min-width: 640px) {
   .restaurant-dish-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -791,7 +791,7 @@
     margin-inline: var(--space-24);
   }
 }
-@media (max-width: 479px) {
+@media (max-width: 639px) {
   .restaurant-dialog {
     inline-size: 100%;
     max-inline-size: none;
@@ -883,7 +883,7 @@ body:has(.restaurant-cart-bar) .customer-tabs {
   clip-path: inset(50%);
   white-space: nowrap;
 }
-@media (min-width: 768px) {
+@media (min-width: 640px) {
   .restaurant-panel {
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
@@ -1101,16 +1101,16 @@ body:has(.restaurant-cart-bar) .customer-tabs {
     animation: restaurant-dish-rise var(--motion-slow) var(--ease-decelerate) backwards;
   }
   .restaurant-dish-grid > .restaurant-dish:nth-child(2) {
-    animation-delay: 40ms;
+    animation-delay: calc(var(--motion-instant) / 2 * 1);
   }
   .restaurant-dish-grid > .restaurant-dish:nth-child(3) {
-    animation-delay: 80ms;
+    animation-delay: calc(var(--motion-instant) / 2 * 2);
   }
   .restaurant-dish-grid > .restaurant-dish:nth-child(4) {
-    animation-delay: 120ms;
+    animation-delay: calc(var(--motion-instant) / 2 * 3);
   }
   .restaurant-dish-grid > .restaurant-dish:nth-child(n + 5) {
-    animation-delay: 160ms;
+    animation-delay: calc(var(--motion-instant) / 2 * 4);
   }
 }
 @keyframes restaurant-dish-rise {

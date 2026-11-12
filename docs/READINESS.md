@@ -9,7 +9,7 @@ Lane B owns the customer UI/UX items; Codex owns performance and the photo pipel
       `docs/evidence/awid/feel/README.md`.
 - [x] Copy in ar, fr, en: short, warm, every error says what to do next. Evidence:
       `docs/evidence/awid/copy.md`.
-- [ ] Consistency audit: `docs/evidence/awid/consistency.md`, all fixed.
+- [x] Consistency audit: `docs/evidence/awid/consistency.md`, all fixed.
 - [ ] Reduce: one focal point per screen.
 - [ ] Accessibility: 44 px targets, focus, labels, contrast, keyboard, zero axe violations.
 - [ ] Every state of every screen designed.

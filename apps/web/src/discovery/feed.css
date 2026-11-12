@@ -323,7 +323,7 @@
     var(--color-surface-2)
   );
   background-size: 200% 100%;
-  animation: discovery-shimmer 1.4s linear infinite;
+  animation: discovery-shimmer var(--motion-scene) linear infinite;
 }
 
 @keyframes discovery-shimmer {
@@ -815,27 +815,27 @@
 
   .restaurant-feed-grid > li:nth-child(2),
   .discovery-rail-list > li:nth-child(2) {
-    animation-delay: 30ms;
+    animation-delay: calc(var(--motion-instant) / 2 * 1);
   }
 
   .restaurant-feed-grid > li:nth-child(3),
   .discovery-rail-list > li:nth-child(3) {
-    animation-delay: 60ms;
+    animation-delay: calc(var(--motion-instant) / 2 * 2);
   }
 
   .restaurant-feed-grid > li:nth-child(4),
   .discovery-rail-list > li:nth-child(4) {
-    animation-delay: 90ms;
+    animation-delay: calc(var(--motion-instant) / 2 * 3);
   }
 
   .restaurant-feed-grid > li:nth-child(5),
   .discovery-rail-list > li:nth-child(5) {
-    animation-delay: 120ms;
+    animation-delay: calc(var(--motion-instant) / 2 * 4);
   }
 
   .restaurant-feed-grid > li:nth-child(n + 6),
   .discovery-rail-list > li:nth-child(n + 6) {
-    animation-delay: 150ms;
+    animation-delay: calc(var(--motion-instant) / 2 * 5);
   }
 }
 
@@ -1056,11 +1056,15 @@
 
 .filter-sheet-toggle::after {
   flex: none;
-  inline-size: 44px;
-  block-size: 26px;
+  inline-size: var(--space-48);
+  block-size: var(--space-24);
   border-radius: var(--radius-pill);
   background:
-    radial-gradient(circle at 13px 50%, var(--color-surface) 10px, transparent 11px),
+    radial-gradient(
+      circle at var(--space-12) 50%,
+      var(--color-surface) calc(var(--space-20) / 2),
+      transparent calc(var(--space-20) / 2 + 1px)
+    ),
     var(--color-border-strong);
   transition: background-position var(--motion-base) var(--ease-standard);
   content: "";
@@ -1068,7 +1072,11 @@
 
 .filter-sheet-toggle:has(input:checked)::after {
   background:
-    radial-gradient(circle at 31px 50%, var(--color-surface) 10px, transparent 11px),
+    radial-gradient(
+      circle at calc(var(--space-12) + var(--space-24)) 50%,
+      var(--color-surface) calc(var(--space-20) / 2),
+      transparent calc(var(--space-20) / 2 + 1px)
+    ),
     var(--color-primary);
 }
 
@@ -1116,13 +1124,21 @@
 
 [dir="rtl"] .filter-sheet-toggle::after {
   background:
-    radial-gradient(circle at 31px 50%, var(--color-surface) 10px, transparent 11px),
+    radial-gradient(
+      circle at calc(var(--space-12) + var(--space-24)) 50%,
+      var(--color-surface) calc(var(--space-20) / 2),
+      transparent calc(var(--space-20) / 2 + 1px)
+    ),
     var(--color-border-strong);
 }
 
 [dir="rtl"] .filter-sheet-toggle:has(input:checked)::after {
   background:
-    radial-gradient(circle at 13px 50%, var(--color-surface) 10px, transparent 11px),
+    radial-gradient(
+      circle at var(--space-12) 50%,
+      var(--color-surface) calc(var(--space-20) / 2),
+      transparent calc(var(--space-20) / 2 + 1px)
+    ),
     var(--color-primary);
 }
 
@@ -1335,6 +1351,9 @@
 }
 
 .pickup-pin-meta {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
   color: var(--color-text-2);
   font-size: var(--font-size-micro);
 }
