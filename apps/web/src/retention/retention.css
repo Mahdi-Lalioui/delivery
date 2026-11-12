@@ -95,6 +95,7 @@
 /* MER-19 promotions on the ui kit */
 .promotion-editor {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-24);
   align-items: start;
 }
@@ -361,6 +362,7 @@
 /* MER-24 share kit on the ui kit */
 .share-layout {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-24);
   align-items: start;
 }

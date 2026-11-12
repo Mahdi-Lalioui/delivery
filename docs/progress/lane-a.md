@@ -317,3 +317,6 @@
 
 - 2026-11-12 · Ultra · Integrated Lane B Discovery and Search, corrected invitation browser assertions and AWID font checks, and fixed CI budgets for production startup and national seeding tests. Passed pnpm verify (1,976 unit and 326 PostGIS), 72 authenticated and 98 general production browser checks, and a trusted HTTPS Docker upgrade.
   Next: check the exact Lane A release on GitHub before advancing main. Continue with the open Discovery feed request, and use HUMAN_TODO for hosted staging and live provider verification.
+
+- 2026-11-12 · High · Fixed horizontal overflow in checkout, merchant delivery settings, promotions and share kit, and admin billing and platform. Reproduced all seven GitHub failures with the pinned Linux Chromium and passed all nine targeted production-browser tests on the fix. Reviewed the Arabic mobile checkout and delivery screens.
+  Next: wait for GitHub CI on this patch before advancing main. Hosted staging and live providers still need the inputs in HUMAN_TODO.
