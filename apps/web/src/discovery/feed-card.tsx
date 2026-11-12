@@ -4,6 +4,7 @@ import type { Locale } from "@zaafran/i18n/locales";
 import { Icon } from "@zaafran/ui";
 import { useEffect, useState, type MouseEvent } from "react";
 import { tiltHandlers } from "./card-tilt";
+import { formatApproxDistance } from "./distance-format";
 import { readFavourites, toggleFavourite } from "./favourites";
 import { useLowData } from "./low-data";
 import type { FeedRestaurant } from "./feed-http";
@@ -199,14 +200,8 @@ function FeeItem({ feeDzd, locale }: { feeDzd: number; locale: Locale }) {
 }
 
 function DistanceItem({ metres, locale }: { metres: number; locale: Locale }) {
-  const useKilometres = metres >= 1000;
   const approximation = "≈ ";
-  const distance = new Intl.NumberFormat(locale, {
-    style: "unit",
-    unit: useKilometres ? "kilometer" : "meter",
-    unitDisplay: "short",
-    maximumFractionDigits: useKilometres ? 1 : 0,
-  }).format(useKilometres ? metres / 1000 : metres);
+  const distance = formatApproxDistance(metres, locale);
 
   return (
     <li className="restaurant-feed-distance">

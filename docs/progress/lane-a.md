@@ -350,3 +350,6 @@
 
 - 2026-11-12 · Ultra · Added the live scoped reorder draft and order slugs, public pickup pins, scheduled opening and vegetarian filters. The 264 authorization tests and six focused production browser checks passed, including real cash pickup through reorder.
   Next: reconcile Lane B’s overlapping Discovery commit, then merge the release candidate after hosted CI. Offers still depend on checkout redemption.
+
+- 2026-11-12 · High · Integrated Lane B’s Discovery work. Fixed the review finding by applying public-menu moderation, timed availability and required option stock to vegetarian results. Deploy the updated web and API together because old clients reject new response fields.
+  Next: run GitHub checks on the integrated head, then update main. Lane B can wire reorder and pickup against the published API.

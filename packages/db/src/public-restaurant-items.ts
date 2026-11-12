@@ -22,7 +22,7 @@ interface PreviewItemScope extends ItemTarget {
   readonly categoryId?: string;
 }
 
-function attachedOptionTexts(sql: TransactionSql) {
+export function attachedOptionTexts(sql: TransactionSql) {
   return sql`ARRAY(
     SELECT translation.value FROM (
       SELECT groups.names
@@ -55,20 +55,25 @@ function selectPreviewCandidates(sql: TransactionSql, now: Date) {
   `;
 }
 
+export function hasPublicMenuText({
+  moderationStatus,
+  names,
+  descriptions,
+  optionTexts,
+}: Pick<PreviewCandidate, "moderationStatus" | "names" | "descriptions" | "optionTexts">) {
+  if (findProhibitedGoods(optionTexts).length > 0) return false;
+  if (moderationStatus === "approved") return true;
+  // Older unreviewed rows can predate the text screen. Honor audited approvals above.
+  const texts = [names, descriptions].flatMap(({ ar, fr, en }) => [ar ?? "", fr ?? "", en ?? ""]);
+  return findProhibitedGoods(texts).length === 0;
+}
+
 function presentVisibleItem({
   moderationStatus,
   optionTexts,
   ...item
 }: PreviewCandidate): PreviewItem | undefined {
-  if (findProhibitedGoods(optionTexts).length > 0) return undefined;
-  if (moderationStatus === "approved") return item;
-  // Older unreviewed rows can predate the text screen. Honor audited approvals above.
-  const texts = [item.names, item.descriptions].flatMap(({ ar, fr, en }) => [
-    ar ?? "",
-    fr ?? "",
-    en ?? "",
-  ]);
-  return findProhibitedGoods(texts).length === 0 ? item : undefined;
+  return hasPublicMenuText({ ...item, moderationStatus, optionTexts }) ? item : undefined;
 }
 
 export async function readVisibleItem(

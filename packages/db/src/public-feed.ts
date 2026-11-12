@@ -3,6 +3,7 @@ import type { ISql, TransactionSql } from "postgres";
 import type { z } from "zod";
 import type { DatabaseConnection } from "./database.js";
 import type { MediaStoredVariant } from "./media-types.js";
+import { readVegetarianMerchants } from "./public-feed-dietary.js";
 import { getFeedAvailability, readFeedHours } from "./public-feed-hours.js";
 import { readRestaurantRows, type FeedQuery } from "./public-feed-query.js";
 
@@ -14,19 +15,26 @@ type PhotoQuery = Pick<MediaStoredVariant, "format" | "width"> & {
 
 async function readPage(sql: TransactionSql, query: FeedQuery): Promise<FeedPage> {
   // Checkout in this sprint supports cash. Payment filters cannot advertise unsupported methods.
-  if (query.acceptsBaridiPay === true || query.acceptsTpe === true)
+  if ([query.acceptsBaridiPay, query.acceptsTpe].includes(true))
     return { restaurants: [], nextCursor: null };
-  const rows = await readRestaurantRows(sql, query);
+  const dietaryAt = query.availableAt === undefined ? query.now : new Date(query.availableAt);
+  const matchingVegetarian =
+    query.dietary === "vegetarian" ? await readVegetarianMerchants(sql, dietaryAt) : null;
+  const rows = await readRestaurantRows(
+    sql,
+    query,
+    matchingVegetarian === null ? null : [...matchingVegetarian],
+  );
   const page = rows.slice(0, query.limit);
   const nextCursor = rows.length > query.limit ? (page.at(-1)?.merchantId ?? null) : null;
   if (page.length === 0) return { restaurants: [], nextCursor };
 
   const now = query.now.getTime();
-  const hours = await readFeedHours(
-    sql,
-    page.map(({ merchantId }) => merchantId),
-    now,
-  );
+  const ids = page.map(({ merchantId }) => merchantId);
+  const [hours, vegetarian] = await Promise.all([
+    readFeedHours(sql, ids, now),
+    matchingVegetarian ?? readVegetarianMerchants(sql, dietaryAt, ids),
+  ]);
   const restaurants = page.map(({ pausedUntil, metrics, ...restaurant }) => {
     const weekly = hours.weekly.get(restaurant.merchantId) ?? {};
     const special = hours.special.get(restaurant.merchantId) ?? {};
@@ -38,7 +46,12 @@ async function readPage(sql: TransactionSql, query: FeedQuery): Promise<FeedPage
             special,
             pausedUntil: pausedUntil.getTime(),
           };
-    return { ...restaurant, ...metrics, ...getFeedAvailability(schedule, now) };
+    return {
+      ...restaurant,
+      ...metrics,
+      ...getFeedAvailability(schedule, now),
+      ...(vegetarian.has(restaurant.merchantId) ? { dietary: ["vegetarian" as const] } : {}),
+    };
   });
   return { restaurants, nextCursor };
 }

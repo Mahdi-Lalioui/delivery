@@ -50,6 +50,10 @@ The API posts `{to, text}` with a bearer credential and an `Idempotency-Key` hea
 
 In the `mahdi-2040` team, import `Mahdi-Lalioui/delivery` as a Next.js monorepo project. Set the Root Directory to `apps/web`, include files outside the Root Directory and use the Node LTS line supported by the repo. Keep the build command in [vercel.json](../apps/web/vercel.json). Set `ZAAFRAN_API_ORIGIN=https://<api-host>` in the target environment and use the stable web alias as the backend's `AUTH_PUBLIC_ORIGIN`. Leave `ZAAFRAN_PREVIEW_DEMO` unset on the connected environment. [Vercel monorepos](https://vercel.com/docs/monorepos) · [Vercel rewrites](https://vercel.com/docs/routing/rewrites)
 
+Deploy the Discovery and order history response changes with the matching web build. Older web
+bundles reject the new pickup, dietary and restaurant slug fields. For the first connected rollout,
+verify the API and the new web preview together before promoting the alias.
+
 Use a protected Preview with approved synthetic accounts before promotion. On the Vercel hostname, verify that the session cookie is host-only, Secure, HttpOnly, and sent on subsequent requests, and that unsafe cross-origin requests are rejected. Verify public and private media separately. Use an authenticated browser to verify first SSE event delivery, a heartbeat and reconnect replay through the rewrite. Caddy streams event responses without a response buffer. If the hosted rewrite buffers events, keep the client's polling fallback active and verify a same-origin streaming path before enabling live delivery for the pilot. Verify distinct clients get independent IP rate-limit buckets. [Caddy reverse proxy](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy)
 
 ## Encrypted nightly backups

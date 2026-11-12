@@ -40,7 +40,7 @@ when it changes, and label the distance as approximate.
 
 ## Customer screen
 
-The restaurant list and curated rails use the saved commune ID and restart when it changes.
+Both lanes built location-aware Discovery. The integrated restaurant list and curated rails use the saved commune ID and restart when it changes.
 The filter sheet exposes lowest delivery fee and persists the choice in the URL. Restaurant
 cards label the centroid distance as approximate. A closest-first rail appears when a commune
 is selected. [Design and browser evidence](../evidence/awid/discovery-v2/README.md)
@@ -57,7 +57,7 @@ is selected. [Design and browser evidence](../evidence/awid/discovery-v2/README.
   overnight hours, exceptions and pauses. The API accepts a future instant up to
   three days out. `isOpen` still reports current status. The quote validates prep,
   delivery travel and actual slot availability.
-- `dietary=vegetarian` requires an approved, orderable dish tagged vegetarian. Cards
+- `dietary=vegetarian` requires a public, orderable dish tagged vegetarian. Cards
   expose `dietary: ["vegetarian"]` where applicable. With `availableAt` set, the dish’s
   availability is evaluated at that time.
 

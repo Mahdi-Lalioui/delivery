@@ -344,8 +344,12 @@ test("[CUS-06:db] lists pickup locations, future openings and approved vegetaria
     WHERE id = ${temporarilyPausedId}
   `;
   await sql`
-    INSERT INTO merchant_order_settings (merchant_id, pickup_enabled, pickup_minimum_dzd)
-    VALUES (${temporarilyPausedId}, true, 350), (${demoId}, true, 0)
+    INSERT INTO merchant_order_settings (merchant_id, pickup_enabled, pickup_minimum_dzd, delivery_enabled)
+    VALUES (${temporarilyPausedId}, true, 350, true), (${demoId}, true, 0, false)
+  `;
+  await sql`
+    INSERT INTO delivery_zones (merchant_id, radius_m, fee_dzd, minimum_dzd, travel_minutes)
+    VALUES (${temporarilyPausedId}, 50000, 60, 500, 20)
   `;
   await sql`
     INSERT INTO categories (id, merchant_id, names, sort)
@@ -353,11 +357,11 @@ test("[CUS-06:db] lists pickup locations, future openings and approved vegetaria
       (${id(71)}, ${noHoursId}, '{"fr":"Plats"}', 0)
   `;
   await sql`
-    INSERT INTO items (merchant_id, category_id, names, descriptions, price_dzd, tags,
+    INSERT INTO items (id, merchant_id, category_id, names, descriptions, price_dzd, tags,
       prep_extra_min, moderation_status)
-    VALUES (${temporarilyPausedId}, ${id(70)}, '{"fr":"Légumes"}', '{"fr":"Légumes grillés"}',
+    VALUES (${id(72)}, ${temporarilyPausedId}, ${id(70)}, '{"fr":"Légumes"}', '{"fr":"Légumes grillés"}',
       350, ARRAY['vegetarian'], 0, 'approved'),
-      (${noHoursId}, ${id(71)}, '{"fr":"Plat"}', '{"fr":"Plat fictif"}',
+      (${id(73)}, ${noHoursId}, ${id(71)}, '{"fr":"Plat"}', '{"fr":"Plat fictif"}',
       350, ARRAY['vegetarian'], 0, 'blocked_pending_review')
   `;
   const repo = repository();
@@ -374,11 +378,13 @@ test("[CUS-06:db] lists pickup locations, future openings and approved vegetaria
   ]);
   expect(pickup.restaurants).toHaveLength(1);
   expect(pickup.restaurants[0]).not.toHaveProperty("deliveryFeeDzd");
+  const delivery = await repo.list({ now, limit: 10, fulfilment: "delivery", communeId });
   expect(
-    (await repo.list({ now, limit: 10, fulfilment: "delivery", communeId })).restaurants.every(
-      ({ deliveryFeeDzd }) => deliveryFeeDzd !== undefined,
-    ),
-  ).toBe(true);
+    delivery.restaurants.find(({ merchantId }) => merchantId === temporarilyPausedId),
+  ).toMatchObject({ deliveryFeeDzd: 60, minimumOrderDzd: 500 });
+  expect(delivery.restaurants.every(({ deliveryFeeDzd }) => deliveryFeeDzd !== undefined)).toBe(
+    true,
+  );
   expect(
     (await repo.list({ now, limit: 10, dietary: "vegetarian" })).restaurants.map(
       ({ merchantId }) => merchantId,
@@ -394,4 +400,29 @@ test("[CUS-06:db] lists pickup locations, future openings and approved vegetaria
     (await repo.list({ now, limit: 10, fulfilment: "pickup", availableAt: now.toISOString() }))
       .restaurants,
   ).toEqual([]);
+
+  await sql`UPDATE categories SET available_from = '01:45', available_to = '02:00'
+    WHERE id = ${id(70)}`;
+  expect((await repo.list({ now, limit: 10, dietary: "vegetarian" })).restaurants).toEqual([]);
+  expect(
+    (await repo.list({ now, limit: 10, availableAt: at, dietary: "vegetarian" })).restaurants,
+  ).toHaveLength(1);
+  await sql`UPDATE categories SET available_from = NULL, available_to = NULL WHERE id = ${id(70)}`;
+
+  await sql.begin(async (tx) => {
+    await tx`INSERT INTO option_groups (id, merchant_id, names, minimum, maximum)
+      VALUES (${id(74)}, ${temporarilyPausedId}, '{"fr":"Accompagnement"}', 1, 1)`;
+    await tx`INSERT INTO options (id, merchant_id, group_id, names, price_delta_dzd, is_default, is_available, sort)
+      VALUES (${id(75)}, ${temporarilyPausedId}, ${id(74)}, '{"fr":"Riz"}', 0, false, false, 0)`;
+    await tx`INSERT INTO item_option_groups (merchant_id, item_id, group_id, sort)
+      VALUES (${temporarilyPausedId}, ${id(72)}, ${id(74)}, 0)`;
+  });
+  expect((await repo.list({ now, limit: 10, dietary: "vegetarian" })).restaurants).toEqual([]);
+  expect(
+    (await repo.list({ now, limit: 10, fulfilment: "pickup" })).restaurants[0],
+  ).not.toHaveProperty("dietary");
+  await sql`UPDATE options SET is_available = true WHERE id = ${id(75)}`;
+  expect((await repo.list({ now, limit: 10, dietary: "vegetarian" })).restaurants).toHaveLength(1);
+  await sql`UPDATE options SET names = '{"fr":"Vin"}' WHERE id = ${id(75)}`;
+  expect((await repo.list({ now, limit: 10, dietary: "vegetarian" })).restaurants).toEqual([]);
 });
