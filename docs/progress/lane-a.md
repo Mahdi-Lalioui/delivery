@@ -281,3 +281,6 @@
 
 - 2026-11-12 · Ultra · Reproduced the nationwide geography findings and corrected the Oran boundary fixture to expect its official commune. Gave the full 1,541-boundary reseed test an explicit harness timeout. All nine focused PostGIS cases and trace passed.
   Next: rerun the full release checks and browser suites against the integrated build.
+
+- 2026-11-12 · Ultra · Isolated three release-suite timeouts to contention between concurrent PostGIS clones. All 314 integration tests passed with four workers. Pinned that concurrency for the shared database.
+  Next: complete the full verification run and both browser suites on the release candidate.
