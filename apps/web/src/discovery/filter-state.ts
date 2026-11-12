@@ -4,7 +4,7 @@ import type { FeedFilters } from "./feed-http";
 // values, and how they live in the URL (so a filtered list can be shared and survives reloads).
 
 const allowed: Readonly<Record<string, readonly string[] | RegExp>> = {
-  sort: ["distance", "rating", "eta"],
+  sort: ["distance", "rating", "eta", "fee"],
   openNow: ["true"],
   freeDelivery: ["true"],
   minRating: ["4"],

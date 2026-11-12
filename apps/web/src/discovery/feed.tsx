@@ -8,6 +8,7 @@ import { filtersFromSearch, filtersToSearch } from "./filter-state";
 import { readDiscoveryFeed, type FeedFilters, type FeedState } from "./feed-http";
 import { Collections, CuisineChips, FavouritesRail, FeedRail } from "./feed-sections";
 import { getFeedMessages } from "./feed-messages";
+import { locationChangedEvent } from "./location";
 import "./feed.css";
 
 const initialState: FeedState = { phase: "loading", restaurants: [], nextCursor: null };
@@ -24,6 +25,18 @@ export function DiscoveryFeed({ locale }: { locale: Locale }) {
     filtersRef.current = fromUrl;
     setFilters(fromUrl);
     setState(initialState);
+  }, []);
+  // A new delivery location changes fees and distances: start every list from the first page.
+  const [locationVersion, setLocationVersion] = useState(0);
+  useEffect(() => {
+    const restart = () => {
+      setLocationVersion((version) => version + 1);
+      setState(initialState);
+    };
+    window.addEventListener(locationChangedEvent, restart);
+    return () => {
+      window.removeEventListener(locationChangedEvent, restart);
+    };
   }, []);
   const headingId = useId();
   const section = useRef<HTMLElement>(null);
@@ -105,10 +118,16 @@ export function DiscoveryFeed({ locale }: { locale: Locale }) {
     <>
       <Collections locale={locale} onChoose={chooseCuisine} />
       <CuisineChips locale={locale} value={filters.cuisine} onChange={chooseCuisine} />
-      <FavouritesRail locale={locale} />
-      <FeedRail locale={locale} title={messages.topRated} filters={{ sort: "rating" }} />
-      <FeedRail locale={locale} title={messages.freeDelivery} filters={{ freeDelivery: "true" }} />
-      <FeedRail locale={locale} title={messages.fastest} filters={{ sort: "eta" }} />
+      <div className="discovery-rails" key={locationVersion}>
+        <FavouritesRail locale={locale} />
+        <FeedRail locale={locale} title={messages.topRated} filters={{ sort: "rating" }} />
+        <FeedRail
+          locale={locale}
+          title={messages.freeDelivery}
+          filters={{ freeDelivery: "true" }}
+        />
+        <FeedRail locale={locale} title={messages.fastest} filters={{ sort: "eta" }} />
+      </div>
       <section className="restaurant-feed" aria-labelledby={headingId} ref={section}>
         <header className="restaurant-feed-header">
           <h2 id={headingId} tabIndex={-1}>

@@ -4,6 +4,7 @@ import type { Locale } from "@zaafran/i18n/locales";
 import { Icon } from "@zaafran/ui";
 import { useEffect, useState, type MouseEvent } from "react";
 import { tiltHandlers } from "./card-tilt";
+import { formatApproxDistance } from "./distance-format";
 import { readFavourites, toggleFavourite } from "./favourites";
 import { useLowData } from "./low-data";
 import type { FeedRestaurant } from "./feed-http";
@@ -198,17 +199,34 @@ function FeeItem({ feeDzd, locale }: { feeDzd: number; locale: Locale }) {
   );
 }
 
+function DistanceItem({ meters, locale }: { meters: number; locale: Locale }) {
+  const messages = getFeedMessages(locale);
+  const distance = formatApproxDistance(meters, locale);
+  return (
+    <li data-distance>
+      <span className="ui-visually-hidden">{messages.distanceLabel}</span>
+      <bdi>{fillFeedMessage(messages.approxDistance, { distance })}</bdi>
+    </li>
+  );
+}
+
 export function FeedMeta({
   restaurant,
   locale,
 }: {
-  restaurant: Pick<FeedRestaurant, "rating" | "ratingCount" | "etaMinutes" | "deliveryFeeDzd">;
+  restaurant: Pick<
+    FeedRestaurant,
+    "rating" | "ratingCount" | "etaMinutes" | "deliveryFeeDzd" | "distanceMeters"
+  >;
   locale: Locale;
 }) {
   const messages = getFeedMessages(locale);
-  const { rating, ratingCount, etaMinutes, deliveryFeeDzd } = restaurant;
+  const { rating, ratingCount, etaMinutes, deliveryFeeDzd, distanceMeters } = restaurant;
   const hasAny =
-    typeof rating === "number" || Boolean(etaMinutes) || typeof deliveryFeeDzd === "number";
+    typeof rating === "number" ||
+    Boolean(etaMinutes) ||
+    typeof deliveryFeeDzd === "number" ||
+    typeof distanceMeters === "number";
   if (!hasAny) return null;
   return (
     <ul className="restaurant-feed-meta" role="list">
@@ -227,6 +245,9 @@ export function FeedMeta({
         </li>
       )}
       {typeof deliveryFeeDzd === "number" && <FeeItem feeDzd={deliveryFeeDzd} locale={locale} />}
+      {typeof distanceMeters === "number" && (
+        <DistanceItem meters={distanceMeters} locale={locale} />
+      )}
     </ul>
   );
 }

@@ -124,3 +124,11 @@ export function saveLocation(storage: LocationStorage, saved: SavedDiscoveryLoca
     // The confirmed location remains in memory when storage is unavailable.
   }
 }
+
+/** Fired on `window` after the diner confirms a new delivery location. */
+export const locationChangedEvent = "awid:location-changed";
+
+/** The commune of the saved delivery location, which the feed needs for fees and distance. */
+export function savedCommuneId(storage: LocationStorage): string | null {
+  return readSavedLocation(storage)?.location.communeId ?? null;
+}

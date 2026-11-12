@@ -39,3 +39,11 @@ so the UI should pass the selected commune ID on list and rail requests, reset p
 when it changes, and label the distance as approximate.
 
 The remaining feed additions and the Discovery controls are open.
+
+## Lane B follow-up (2026-11-12)
+
+Shipped on `lane-b`: "Lowest delivery fee" in the sort sheet (`sort=fee`, kept in the URL), and an
+approximate distance ("~1.2 km", announced as "Approximate distance") on cards whenever the feed
+sends `distanceMeters`. Every feed, rail and favourites request now carries the saved commune ID,
+and confirming a new location restarts the list and rails from the first page. Items 1–5, 7 and 8
+are still open.

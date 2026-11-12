@@ -1136,3 +1136,8 @@
     opacity: 0;
   }
 }
+
+/* Wraps the rails so a new delivery location remounts them; adds no box of its own. */
+.discovery-rails {
+  display: contents;
+}

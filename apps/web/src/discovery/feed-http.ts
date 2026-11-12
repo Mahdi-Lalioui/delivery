@@ -1,4 +1,5 @@
 import { publicFeedOutput, type publicRestaurantCard } from "@zaafran/contracts/feed";
+import { savedCommuneId } from "./location";
 
 type FeedPage = ReturnType<typeof publicFeedOutput.parse>;
 export type FeedRestaurant = ReturnType<typeof publicRestaurantCard.parse>;
@@ -10,8 +11,18 @@ export interface FeedState extends FeedPage {
 /** Feed query parameters as the API reads them (`true` flags, enum strings). */
 export type FeedFilters = Readonly<Record<string, string>>;
 
+function browserCommuneId(): string | null {
+  try {
+    return savedCommuneId(window.localStorage);
+  } catch {
+    return null;
+  }
+}
+
 function feedUrl(cursor: string | null, filters: FeedFilters = {}): string {
   const params = new URLSearchParams(filters);
+  const communeId = browserCommuneId();
+  if (communeId !== null && !params.has("communeId")) params.set("communeId", communeId);
   if (cursor !== null) params.set("cursor", cursor);
   const query = params.toString();
   return query === "" ? "/v1/feed" : `/v1/feed?${query}`;

@@ -2,7 +2,12 @@
 
 import type { Locale } from "@zaafran/i18n/locales";
 import { useEffect, useState } from "react";
-import { readSavedLocation, saveLocation, type SavedDiscoveryLocation } from "./location";
+import {
+  locationChangedEvent,
+  readSavedLocation,
+  saveLocation,
+  type SavedDiscoveryLocation,
+} from "./location";
 import { LocationDialog } from "./location-dialog";
 import { getDiscoveryMessages } from "./messages";
 import "./discovery-location.css";
@@ -27,6 +32,7 @@ export function DiscoveryLocationSelector({ locale }: { locale: Locale }) {
       // The selector remains usable for this visit.
     }
     setSaved(location);
+    window.dispatchEvent(new Event(locationChangedEvent));
   }
 
   const isOutside = saved !== null && saved.location.serviceAreaId === null;

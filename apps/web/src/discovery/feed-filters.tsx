@@ -19,6 +19,7 @@ const sorts = [
   ["distance", "sortDistance"],
   ["rating", "sortRating"],
   ["eta", "sortEta"],
+  ["fee", "sortFee"],
 ] as const;
 
 const sheetToggles = [
