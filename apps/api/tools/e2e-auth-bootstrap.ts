@@ -192,6 +192,7 @@ async function startTestMediaWorker(resources: AsyncDisposableStack, databaseUrl
 export async function startAuthHarness(
   webOrigin: string,
   withMediaWorker = false,
+  protocol: "http" | "https" = "https",
 ): Promise<AuthHarness> {
   const compiled: unknown = await import(new URL("../dist/start.js", import.meta.url).href);
   if (!isCompiledApi(compiled)) throw new Error("Build the API before running browser auth tests.");
@@ -203,7 +204,7 @@ export async function startAuthHarness(
   await migrateDatabase(database);
   const mediaRoot = withMediaWorker ? await startTestMediaWorker(resources, clone.url) : undefined;
 
-  const proxy = await startAuthProxy(webOrigin);
+  const proxy = await startAuthProxy(webOrigin, protocol);
   resources.defer(proxy.close);
   const totpKey = randomBytes(32);
   const sms = new Map<string, string>();

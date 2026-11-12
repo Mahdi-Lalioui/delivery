@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./schema.js";
 
 export const healthResponseSchema = z.strictObject({ status: z.literal("ok") });
 export const readyResponseSchema = z.strictObject({ status: z.literal("ready") });

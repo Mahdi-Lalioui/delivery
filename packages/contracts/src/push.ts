@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./schema.js";
 import { customerSmsStatus } from "./orders.js";
 
 const providers = new Set(["fcm.googleapis.com", "updates.push.services.mozilla.com"]);

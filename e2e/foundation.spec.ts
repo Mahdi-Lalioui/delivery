@@ -19,9 +19,19 @@ const locales = [
 
 function navigationLink(page: Page, href: string) {
   return page
+    .getByRole("banner")
     .getByRole("navigation")
     .getByRole("link")
     .and(page.locator(`a[href="${href}"]`));
+}
+
+async function openMobileLanguages(page: Page) {
+  const disclosure = page.getByRole("banner").locator("summary");
+  if (await disclosure.isVisible()) {
+    await disclosure.focus();
+    await expect(disclosure).toBeFocused();
+    await disclosure.press("Enter");
+  }
 }
 
 async function expectRootRedirect(
@@ -52,6 +62,7 @@ for (const { prefix, lang, dir } of locales) {
     await expect(page.locator("html")).toHaveAttribute("lang", lang);
     await expect(page.locator("html")).toHaveAttribute("dir", dir);
 
+    await openMobileLanguages(page);
     for (const alternate of locales) {
       const metadata = page.locator(`link[rel="alternate"][hreflang="${alternate.lang}"]`);
       await expect(metadata).toHaveAttribute("href", new RegExp(`/${alternate.prefix}/?$`));
@@ -83,6 +94,7 @@ test("[I18N-01] keyboard language navigation preserves the design guide path @sm
   page,
 }) => {
   await page.goto("/ar/dev/design");
+  await openMobileLanguages(page);
   const french = navigationLink(page, "/fr/dev/design");
   await expect(french).toBeVisible();
   expect(await french.evaluate((node) => node.tabIndex)).toBeGreaterThanOrEqual(0);
@@ -201,8 +213,8 @@ test("[M0-8] the public production build excludes both design guide routes @smok
 
 const themes: readonly ("light" | "dark")[] = ["light", "dark"];
 const backgrounds = {
-  light: { token: "#FBF8F3", painted: "rgb(251, 248, 243)" },
-  dark: { token: "#0E0C0A", painted: "rgb(14, 12, 10)" },
+  light: { token: "#FFFCF5", painted: "rgb(255, 252, 245)" },
+  dark: { token: "#05221A", painted: "rgb(5, 34, 26)" },
 };
 
 async function checkScreen(
@@ -214,7 +226,9 @@ async function checkScreen(
   const response = await page.goto(screen.path);
   expect(response?.status()).toBe(200);
   await expect(page.getByRole("banner")).toBeVisible();
-  await expect(page.getByRole("navigation")).toBeVisible();
+  await openMobileLanguages(page);
+  await expect(page.getByRole("banner").getByRole("navigation")).toBeVisible();
+  await openMobileLanguages(page);
   await expect(page.getByRole("main").getByRole("heading", { level: 1 })).toBeVisible();
 
   const background = await page.evaluate(() => {

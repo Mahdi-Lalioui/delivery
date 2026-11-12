@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./schema.js";
 import { menuImportInput } from "./menu-import.js";
 import { menuItemInput } from "./menu.js";
 import { pageLimit } from "./pagination.js";

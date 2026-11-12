@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./schema.js";
 
 const challengeId = z.uuid();
 /** An Algerian mobile number in E.164, the only kind that can receive the OTP SMS. */

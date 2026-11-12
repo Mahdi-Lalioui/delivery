@@ -287,3 +287,6 @@
 
 - 2026-11-12 · Medium · Matched the mobile language control’s accessible name to its visible label and updated browser assertions for localized admin links, item options and the mobile cart. All 13 affected production-browser checks passed across the focused reruns.
   Next: rerun the complete release and browser suites before merging the release candidate.
+
+- 2026-11-12 · High · Fixed the dark landing contrast and ran browser schemas without CSP-blocked code generation. Verified the map on Chromium and WebKit, offline caches and the responsive locale menu. Full verify passed with 1,961 unit and 314 PostGIS cases. Browser suites passed 68 authenticated and 98 general cases.
+  Next: use this release commit for a protected Vercel preview and backend staging when the host and provider credentials are available. Continue phone/email checkout and screens on lane-a.

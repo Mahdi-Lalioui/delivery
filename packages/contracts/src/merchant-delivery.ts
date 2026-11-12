@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./schema.js";
 
 const dinars = z.int().min(0).max(2_147_483_647);
 const revision = z.int().min(0).max(Number.MAX_SAFE_INTEGER);

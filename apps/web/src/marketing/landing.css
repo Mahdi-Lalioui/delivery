@@ -379,7 +379,7 @@
   place-items: center;
   min-inline-size: 4.5rem;
   margin: 0;
-  color: var(--color-mint);
+  color: light-dark(var(--color-mint), var(--color-on-primary));
   font: var(--font-weight-display) var(--font-size-h1) / var(--line-height-h1) var(--font-numbers);
 }
 

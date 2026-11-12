@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./schema.js";
 import { pageLimit } from "./pagination.js";
 
 const hasNoNull = (value: string) => !value.includes("\0");

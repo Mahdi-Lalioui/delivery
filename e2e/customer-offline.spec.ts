@@ -26,6 +26,7 @@ for (const locale of ["ar", "fr", "en"] as const) {
       return requests.map((request) => new URL(request.url).pathname).sort();
     });
     expect(storedPaths).toEqual([
+      "/brand/awid-icon.svg",
       "/pwa/ar/offline",
       "/pwa/en/offline",
       "/pwa/fr/offline",
