@@ -800,7 +800,10 @@
     border-end-end-radius: 0;
   }
   .restaurant-dialog[open] {
-    animation: restaurant-sheet-in var(--motion-slow) var(--ease-standard);
+    animation: restaurant-sheet-in var(--motion-emphasis) var(--ease-spring-gentle);
+  }
+  .restaurant-dialog[open]::backdrop {
+    animation: restaurant-scrim-in var(--motion-base) var(--ease-decelerate);
   }
 }
 @media (prefers-reduced-motion: no-preference) {
@@ -1081,5 +1084,36 @@ body:has(.restaurant-cart-bar) .customer-tabs {
   .restaurant-dish:not([data-sold-out="true"]):active,
   .restaurant-popular-card:active {
     transform: scale(0.98);
+  }
+}
+
+@keyframes restaurant-scrim-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Dishes rise in one after another when a category loads (capped so long menus stay quick). */
+@media (prefers-reduced-motion: no-preference) {
+  .restaurant-dish-grid > .restaurant-dish {
+    animation: restaurant-dish-rise var(--motion-slow) var(--ease-decelerate) backwards;
+  }
+  .restaurant-dish-grid > .restaurant-dish:nth-child(2) {
+    animation-delay: 40ms;
+  }
+  .restaurant-dish-grid > .restaurant-dish:nth-child(3) {
+    animation-delay: 80ms;
+  }
+  .restaurant-dish-grid > .restaurant-dish:nth-child(4) {
+    animation-delay: 120ms;
+  }
+  .restaurant-dish-grid > .restaurant-dish:nth-child(n + 5) {
+    animation-delay: 160ms;
+  }
+}
+@keyframes restaurant-dish-rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-12));
   }
 }

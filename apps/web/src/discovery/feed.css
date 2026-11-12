@@ -896,7 +896,7 @@
 }
 
 .filter-sheet[open] {
-  animation: filter-sheet-in var(--motion-slow) var(--ease-spring-gentle);
+  animation: filter-sheet-in var(--motion-emphasis) var(--ease-spring-gentle);
 }
 
 .filter-sheet::backdrop {
@@ -1123,4 +1123,16 @@
 
 .discovery-rail-compact .restaurant-feed-card-body {
   gap: 2px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .filter-sheet[open]::backdrop {
+    animation: filter-scrim-in var(--motion-base) var(--ease-decelerate);
+  }
+}
+
+@keyframes filter-scrim-in {
+  from {
+    opacity: 0;
+  }
 }
