@@ -14,6 +14,7 @@ import { CartControls } from "./cart-controls";
 import { ItemDialog } from "./item-dialog";
 import { matchesDish, MenuCategory } from "./menu-category";
 import { PopularRow } from "./popular-row";
+import { StateArt } from "../customer/state-art";
 import { flyToCart } from "../marketing/moments/fly-to-cart";
 import "../marketing/moments/moments.css";
 import { RestaurantDialog } from "./restaurant-dialog";
@@ -80,6 +81,7 @@ function RestaurantLoader({
       {state.phase === "loading" && <Skeleton label={messages.loading} lines={5} />}
       {state.phase === "error" && (
         <ErrorState
+          art={<StateArt kind="error" />}
           title={messages.error}
           retryLabel={messages.retry}
           onRetry={() => {
@@ -322,7 +324,8 @@ function RestaurantMenu({
     if (categoryId === undefined) return;
     setLoaded((previous) => new Map(previous).set(categoryId, selections));
   }, []);
-  if (data.categories.length === 0) return <EmptyState title={messages.empty} />;
+  if (data.categories.length === 0)
+    return <EmptyState art={<StateArt kind="plate" />} title={messages.empty} />;
   const popular = pickPopular([...loaded.values()].flat());
   return (
     <>

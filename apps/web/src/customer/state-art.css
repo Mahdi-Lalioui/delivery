@@ -1,0 +1,50 @@
+.state-art {
+  inline-size: 8.5rem;
+  block-size: auto;
+  overflow: visible;
+}
+.state-art-shadow {
+  fill: var(--color-surface-3);
+}
+.state-art-surface {
+  fill: var(--color-cream);
+}
+.state-art-glass {
+  fill: var(--color-info-bg);
+}
+.state-art-line,
+.state-art-accent {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+.state-art-line {
+  stroke: var(--color-primary);
+}
+.state-art-accent {
+  stroke: var(--color-harissa);
+}
+.state-art-accent-fill {
+  fill: var(--color-harissa);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .state-art {
+    animation: state-art-in var(--motion-emphasis) var(--ease-spring-gentle);
+  }
+  .state-art-steam {
+    animation: state-art-steam 2.4s var(--ease-standard) infinite;
+  }
+}
+@keyframes state-art-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-8)) scale(0.92);
+  }
+}
+@keyframes state-art-steam {
+  50% {
+    opacity: 0.35;
+    transform: translateY(calc(var(--space-4) * -1));
+  }
+}

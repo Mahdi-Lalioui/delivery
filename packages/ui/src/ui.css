@@ -595,6 +595,11 @@
   color: var(--color-text-2);
 }
 
+.ui-state-art {
+  display: grid;
+  place-items: center;
+}
+
 .ui-state-error .ui-state-icon {
   background: var(--color-danger-bg);
   color: var(--color-danger);

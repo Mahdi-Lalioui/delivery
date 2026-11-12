@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button, EmptyState, ErrorState, Skeleton } from "@zaafran/ui";
 import type { Locale } from "@zaafran/i18n/locales";
+import { StateArt } from "../customer/state-art";
 import { DishCard } from "./dish-card";
 import type { Stepper } from "./restaurant-types";
 import { readRestaurantItems } from "./restaurant-http";
@@ -223,8 +224,16 @@ function CategoryActions({
   if (state.phase === "idle" || state.phase === "loading")
     return <Skeleton label={messages.loading} />;
   if (state.phase === "error")
-    return <ErrorState title={messages.error} retryLabel={messages.retry} onRetry={onLoad} />;
-  if (state.dishes.length === 0) return <EmptyState title={messages.categoryEmpty} />;
+    return (
+      <ErrorState
+        art={<StateArt kind="error" />}
+        title={messages.error}
+        retryLabel={messages.retry}
+        onRetry={onLoad}
+      />
+    );
+  if (state.dishes.length === 0)
+    return <EmptyState art={<StateArt kind="plate" />} title={messages.categoryEmpty} />;
   return state.nextCursor !== null ? (
     <Button variant="secondary" onClick={onLoad}>
       {messages.more}

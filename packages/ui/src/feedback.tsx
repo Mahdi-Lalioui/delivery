@@ -35,22 +35,32 @@ export function Skeleton({ lines = 3, label }: { lines?: number; label: string }
   );
 }
 
+/** The state's picture: an app-supplied illustration when given, otherwise the icon disc. */
+function StateMark({ art, icon }: { art: ReactNode; icon: IconName }) {
+  if (art !== undefined) return <span className="ui-state-art">{art}</span>;
+  return (
+    <span className="ui-state-icon">
+      <Icon name={icon} size={28} />
+    </span>
+  );
+}
+
 export function EmptyState({
   icon = "plate",
+  art,
   title,
   body,
   action,
 }: {
   icon?: IconName;
+  art?: ReactNode;
   title: string;
   body?: string;
   action?: ReactNode;
 }) {
   return (
     <div className="ui-state">
-      <span className="ui-state-icon">
-        <Icon name={icon} size={28} />
-      </span>
+      <StateMark art={art} icon={icon} />
       <p className="ui-state-title">{title}</p>
       {body !== undefined && <p className="ui-state-body">{body}</p>}
       {action}
@@ -59,11 +69,13 @@ export function EmptyState({
 }
 
 export function ErrorState({
+  art,
   title,
   body,
   retryLabel,
   onRetry,
 }: {
+  art?: ReactNode;
   title: string;
   body?: string;
   retryLabel?: string;
@@ -71,9 +83,7 @@ export function ErrorState({
 }) {
   return (
     <div className="ui-state ui-state-error" role="alert">
-      <span className="ui-state-icon">
-        <Icon name="alert" size={28} />
-      </span>
+      <StateMark art={art} icon="alert" />
       <p className="ui-state-title">{title}</p>
       {body !== undefined && <p className="ui-state-body">{body}</p>}
       {onRetry !== undefined && retryLabel !== undefined && (

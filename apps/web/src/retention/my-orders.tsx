@@ -1,5 +1,6 @@
 "use client";
 
+import { StateArt } from "../customer/state-art";
 import { formatDzd } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
 import {
@@ -310,7 +311,11 @@ function History({ state, locale }: { state: MyOrdersState; locale: Locale }) {
   if (history.orders.length === 0) {
     return (
       <Card>
-        <EmptyState icon="bag" title={translate("noOrders")} body={translate("noOrdersBody")} />
+        <EmptyState
+          art={<StateArt kind="bag" />}
+          title={translate("noOrders")}
+          body={translate("noOrdersBody")}
+        />
       </Card>
     );
   }
