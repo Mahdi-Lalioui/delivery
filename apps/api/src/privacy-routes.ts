@@ -6,10 +6,12 @@ import {
   customerPrivacyDeleteOutput,
   customerPrivacyExportOutput,
 } from "@zaafran/contracts/retention";
+import type { PublicLocale } from "@zaafran/i18n/locales";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
 import { clearSessionCookie } from "./auth-transport.js";
+import { messageLocale } from "./message-copy.js";
 import { getRequestActor } from "./policy.js";
 import { sendProblem } from "./problems.js";
 
@@ -22,7 +24,9 @@ type Issue =
 type ConfirmationResult = "deleted" | "invalid_code" | "challenge_expired" | "unauthorized";
 
 export interface PrivacyServices {
-  issue(input: Identity & { requestIp: string; idempotencyKey: string }): Promise<Issue>;
+  issue(
+    input: Identity & { requestIp: string; idempotencyKey: string; locale?: PublicLocale },
+  ): Promise<Issue>;
   confirm(input: Identity & Confirmation): Promise<ConfirmationResult>;
   replay(request: FastifyRequest, input: Confirmation): Promise<boolean>;
   exportAccount(input: Identity): Promise<z.infer<typeof customerPrivacyExportOutput> | undefined>;
@@ -96,6 +100,9 @@ export function registerPrivacyRoutes(api: FastifyInstance, services?: PrivacySe
       const result = await services.issue({
         ...actor,
         requestIp: request.ip,
+        ...(request.headers["accept-language"]
+          ? { locale: messageLocale(request.headers["accept-language"]) }
+          : {}),
         idempotencyKey: request.headers["idempotency-key"],
       });
       switch (result.kind) {

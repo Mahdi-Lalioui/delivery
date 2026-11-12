@@ -35,7 +35,7 @@ export function createPrivacyService({
     return hashOtp({ key, challengeId, code });
   }
   return {
-    async issue({ idempotencyKey, ...identity }) {
+    async issue({ idempotencyKey, locale, ...identity }) {
       const challengeId = randomUUIDv7();
       const code = createOtpCode({ key, challengeId });
       const result = await repository.issueDeletionChallenge({
@@ -58,6 +58,7 @@ export function createPrivacyService({
             send(target) {
               const message = {
                 code: issuedCode,
+                ...(locale === undefined ? {} : { locale }),
                 deliveryKey: "account-delete:" + result.challengeId,
               };
               if (target.email === undefined)

@@ -18,7 +18,7 @@ pnpm dev
 
 Visit the development web app at `http://127.0.0.1:3000` so the browser origin matches `AUTH_PUBLIC_ORIGIN`. The web listener defaults to port 3000. The API listens on loopback port 3002. PostgreSQL, Martin, and OSRM expose ports 5432, 3001, and 5000 on loopback. The Compose tiles and routing fixtures are for development. Martin serves a synthetic archive, and OSRM routes over a clipped Algiers road network with attribution in `infra/fixtures/algiers-roads.LICENSE`.
 
-`/healthz` indicates the API is accepting requests. `/readyz` also requires PostgreSQL and the Graphile migration ledger. The development API exposes fake SMS and push inboxes at `/__dev__/outbox` on loopback. Production uses the regular web and API builds. The optimized design profile and integration routes are local verification tools.
+`/healthz` indicates the API is accepting requests. `/readyz` also requires PostgreSQL and the Graphile migration ledger. The development API exposes fake SMS, email and push inboxes at `/__dev__/outbox` on loopback. Production uses the regular web and API builds. The optimized design profile and integration routes are local verification tools.
 
 ## Verify
 

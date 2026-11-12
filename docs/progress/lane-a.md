@@ -293,3 +293,6 @@
 
 - 2026-11-12 · Ultra · Added enabled methods, verified identifier reads and session-bound add/change routes. Confirming an identifier already in use leaves both accounts intact. Passed 50 PostGIS cases, 55 authz/service cases, DB/API typecheck, lint and OpenAPI.
   Next: configure Twilio and Resend delivery with localized messages and inspectable development outboxes.
+
+- 2026-11-12 · Ultra · Wired localized AWID OTP messages through Twilio, the existing webhook and Resend. Added the loopback email outbox and documented private provider settings. Passed 21 adapter/config/privacy cases, API typecheck, lint and OpenAPI.
+  Next: preserve the cash cap for email-only checkout and store the unverified contact number only with its order.

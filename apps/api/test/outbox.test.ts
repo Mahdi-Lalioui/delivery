@@ -16,10 +16,11 @@ function localApi() {
   });
 }
 
-test("[M0-4] the dev-only inbox exposes synthetic SMS and push fakes only to loopback", async () => {
+test("[M0-4] the dev-only inbox exposes synthetic SMS, email and push fakes only to loopback", async () => {
   const api = localApi();
   const outbox = createOutbox();
   outbox.sendSms({ recipientRef: "synthetic-customer", text: "SMS fixture" });
+  outbox.sendEmail({ recipientRef: "buyer@example.test", subject: "AWID", text: "Code fixture" });
   outbox.sendPush({
     recipientRef: "synthetic-driver",
     title: "Push fixture",
@@ -32,6 +33,7 @@ test("[M0-4] the dev-only inbox exposes synthetic SMS and push fakes only to loo
     expect(response.statusCode).toBe(200);
     expect(response.json()).toEqual({
       sms: [{ recipientRef: "synthetic-customer", text: "SMS fixture" }],
+      email: [{ recipientRef: "buyer@example.test", subject: "AWID", text: "Code fixture" }],
       push: [{ recipientRef: "synthetic-driver", title: "Push fixture", body: "Test payload" }],
     });
     const nonlocal = await api.inject({ url: "/__dev__/outbox", remoteAddress: "192.0.2.8" });
@@ -64,7 +66,7 @@ test("[M0-6] test routes validate clock input and reset isolated fake state", as
     const snapshot = await api.inject("/__test__/outbox");
     expect(snapshot.json()).toMatchObject({ sms: [{ text: "SMS fixture" }] });
     expect((await api.inject({ method: "POST", url: "/__test__/reset" })).statusCode).toBe(204);
-    expect((await api.inject("/__test__/outbox")).json()).toEqual({ sms: [], push: [] });
+    expect((await api.inject("/__test__/outbox")).json()).toEqual({ sms: [], email: [], push: [] });
   } finally {
     await api.close();
   }

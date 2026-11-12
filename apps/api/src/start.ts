@@ -35,7 +35,9 @@ import { createApi } from "./app.js";
 import { createOrderRealtimeSignals } from "./order-realtime-signals.js";
 import { createPrivacyService } from "./privacy-service.js";
 import { createStaffInvitationToken } from "./auth-crypto.js";
-import { createAuthSmsAdapter } from "./auth-sms-adapter.js";
+import { createAuthSmsAdapter, createSmsMessages } from "./auth-sms-adapter.js";
+import { createResendSender, createTwilioSender } from "./message-adapters.js";
+import { otpCopy } from "./message-copy.js";
 import { createAuthService } from "./auth-service.js";
 import type { MerchantStaffServices } from "./merchant-staff-routes.js";
 import { readApiEnvironment } from "./environment.js";
@@ -58,6 +60,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
   const now = options.now ?? (() => new Date());
   const otpKey = Buffer.from(environment.AUTH_OTP_KEY, "hex");
   const { sendSms, sendInvitation, smsEnabled } = smsServices(environment, options);
+  const sendEmail = options.sendEmail ?? configureEmail(environment);
   const service = createAuthService({
     repository: createAuthRepository(database),
     otpKey,
@@ -65,7 +68,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     now,
     sendSms,
     smsEnabled,
-    sendEmail: options.sendEmail,
+    sendEmail,
   });
   const merchantHours = createMerchantHoursRepository(database);
   const platform = createPlatformRepository(database);
@@ -106,7 +109,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
       otpKey,
       now,
       sendSms,
-      sendEmail: options.sendEmail,
+      sendEmail,
     }),
     merchant: { repository: createMerchantRepository(database), now },
     merchantDelivery: { repository: createMerchantDeliveryRepository(database), now },
@@ -166,21 +169,38 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
   }
 }
 
-function smsServices(environment: ReturnType<typeof readApiEnvironment>, options: StartOptions) {
+function configureSms(environment: ReturnType<typeof readApiEnvironment>) {
   const {
     AUTH_SMS_WEBHOOK_URL: url,
     AUTH_SMS_WEBHOOK_TOKEN: token,
-    AUTH_PUBLIC_ORIGIN,
+    AUTH_PUBLIC_ORIGIN: publicOrigin,
+    AUTH_TWILIO_ACCOUNT_SID: accountSid,
+    AUTH_TWILIO_AUTH_TOKEN: authToken,
+    AUTH_TWILIO_FROM: from,
   } = environment;
-  const configured =
-    url && token
-      ? createAuthSmsAdapter({ url, token, publicOrigin: AUTH_PUBLIC_ORIGIN })
-      : undefined;
+  if (accountSid && authToken && from) {
+    return createSmsMessages(createTwilioSender({ accountSid, authToken, from }), publicOrigin);
+  }
+  return url && token ? createAuthSmsAdapter({ url, token, publicOrigin }) : undefined;
+}
+
+function smsServices(environment: ReturnType<typeof readApiEnvironment>, options: StartOptions) {
+  const configured = configureSms(environment);
   return {
     smsEnabled: Boolean(options.sendSms ?? configured),
     sendSms: options.sendSms ?? configured?.sendOtp ?? unavailableSms,
     sendInvitation: options.sendInvitation ?? configured?.sendInvitation ?? unavailableSms,
   };
+}
+
+function configureEmail({
+  AUTH_RESEND_API_KEY: apiKey,
+  AUTH_RESEND_FROM: from,
+}: ReturnType<typeof readApiEnvironment>): StartOptions["sendEmail"] {
+  if (!apiKey || !from) return undefined;
+  const send = createResendSender({ apiKey, from: `AWID <${from}>` });
+  return ({ email, code, deliveryKey, locale }) =>
+    send({ ...otpCopy(locale, code), to: email, key: `otp:${deliveryKey}` });
 }
 
 function unavailableSms(): never {
