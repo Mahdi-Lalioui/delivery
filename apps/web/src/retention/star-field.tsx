@@ -4,6 +4,7 @@ import { Icon } from "@zaafran/ui";
 import { useTranslations } from "next-intl";
 
 const starValues = [1, 2, 3, 4, 5] as const;
+const scoreKeys = { 1: "score_1", 2: "score_2", 3: "score_3", 4: "score_4", 5: "score_5" } as const;
 
 /** A 1–5 star choice from native radios (keyboard + forms); stars fill up to the chosen one. */
 export function StarField(props: {
@@ -36,6 +37,13 @@ export function StarField(props: {
           </label>
         ))}
       </div>
+      <p className="star-field-value" aria-hidden="true">
+        {starValues.map((value) => (
+          <span key={value} data-value={value}>
+            {translate(scoreKeys[value])}
+          </span>
+        ))}
+      </p>
     </fieldset>
   );
 }
