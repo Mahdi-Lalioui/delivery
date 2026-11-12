@@ -320,3 +320,6 @@
 
 - 2026-11-12 · High · Fixed horizontal overflow in checkout, merchant delivery settings, promotions and share kit, and admin billing and platform. Reproduced all seven GitHub failures with the pinned Linux Chromium and passed all nine targeted production-browser tests on the fix. Reviewed the Arabic mobile checkout and delivery screens.
   Next: wait for GitHub CI on this patch before advancing main. Hosted staging and live providers still need the inputs in HUMAN_TODO.
+
+- 2026-11-12 · High · Kept nationwide seed photo encoding results for repeats in the same process. PostGIS still proves 40 stable restaurant identities, rollback on storage failure, and republishing a missing photo. The focused run fell from 12.48s to 8.36s locally.
+  Next: wait for the updated GitHub run and advance main only after all checks pass.
