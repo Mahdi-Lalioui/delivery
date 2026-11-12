@@ -5,7 +5,7 @@
 The [readiness checklist](READINESS.md) governs the current phase. Deployment is paused until
 Mahdi changes that instruction. Lane A owns performance, the photo pipeline, offers, security,
 local reliability, operations and integration. Lane B owns the remaining customer UI and UX work,
-including sign-in, account and checkout polish. Lane A edits customer screens only for performance
+including sign-in, account and checkout polish, tap feedback, frame pacing and CLS. Lane A edits customer screens only for performance
 and records those edits in the [customer handoff](requests/lane-a-readiness-customer.md).
 This phase includes promotion redemption and local k6 testing.
 

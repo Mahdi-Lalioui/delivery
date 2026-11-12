@@ -1,7 +1,7 @@
 # Customer readiness handoff
 
 Lane B owns customer feel and haptics, Arabic/French/English copy, consistency, reduction,
-accessibility and the final screen review. Lane A owns the photo pipeline and performance.
+accessibility and the final screen review. Lane B also owns tap feedback, frame pacing and CLS. Lane A owns the photo pipeline, startup LCP and bundle budgets.
 Lane A will touch customer screens only for performance and will record those edits here.
 
 ## Changes already on Lane A

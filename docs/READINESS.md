@@ -16,8 +16,8 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 
 - [ ] **Lane A** Connected Discovery LCP below 2 s on the established throttled Android profile. [Small-fixture samples](evidence/awid/perf.md#connected-production-build)
 - [ ] **Lane A** Connected Restaurant LCP below 2 s on the same profile. [Small-fixture samples](evidence/awid/perf.md#connected-production-build)
-- [ ] **Lane A** Customer tap feedback within 100 ms, with optimistic feedback where safe.
-- [ ] **Lane A** Measure 60 fps scrolling and animation and CLS below 0.05. Defer offscreen images and 3D. Record connected results in [performance evidence](evidence/awid/perf.md).
+- [ ] **Lane B** Customer tap feedback within 100 ms, with optimistic feedback where safe.
+- [ ] **Lane B** Measure 60 fps scrolling and animation and CLS below 0.05. Defer offscreen images and 3D. Record connected results in [performance evidence](evidence/awid/perf.md).
 - [ ] **Lane A** Route bundle budgets enforced in CI at the SPEC target. [Provisional ceilings](evidence/awid/perf.md#connected-production-build)
 - [ ] **Lane A** Quote and placement honour code and automatic offers and apply the published stacking rules.
 - [ ] **Lane A** Per-customer and global offer limits and idempotent redemption hold under retries and concurrency.
