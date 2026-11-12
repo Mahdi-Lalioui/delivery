@@ -369,6 +369,19 @@ const matrix: readonly MatrixRoute[] = [
     payload: { foodStars: 5 },
     expected: { customer: 503 },
   },
+  { method: "GET", url: "/v1/me/favourites", expected: { customer: 503 } },
+  {
+    method: "PUT",
+    url: "/v1/me/favourites/:merchantId",
+    requestUrl: "/v1/me/favourites/" + challengeId,
+    expected: { customer: 503 },
+  },
+  {
+    method: "DELETE",
+    url: "/v1/me/favourites/:merchantId",
+    requestUrl: "/v1/me/favourites/" + challengeId,
+    expected: { customer: 503 },
+  },
   { method: "GET", url: "/v1/me/orders", expected: { customer: 503 } },
   {
     method: "GET",

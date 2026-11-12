@@ -178,6 +178,8 @@ test("[M0-6] the generated OpenAPI document describes the readiness problem resp
       "/v1/me/addresses/{addressId}",
       "/v1/me/deletion-challenge",
       "/v1/me/export",
+      "/v1/me/favourites",
+      "/v1/me/favourites/{merchantId}",
       "/v1/me/merchants",
       "/v1/me/orders",
       "/v1/me/orders/{orderId}/receipt",

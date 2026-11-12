@@ -17,6 +17,7 @@ import {
   type BoardRequest,
   type ReplayRequest,
 } from "./order-board.js";
+import { changeCustomerFavourite, listCustomerFavourites } from "./customer-favourites.js";
 import type { DatabaseConnection } from "./database.js";
 import {
   hash,
@@ -224,6 +225,12 @@ async function runTimer(
 
 export function createOrderRepository({ sql }: DatabaseConnection, deliveryKey?: Uint8Array) {
   return {
+    favourites: (scope: Parameters<typeof listCustomerFavourites>[1]) =>
+      sql.begin("isolation level repeatable read read only", (tx) =>
+        listCustomerFavourites(tx, scope),
+      ),
+    setFavourite: (command: Parameters<typeof changeCustomerFavourite>[1]) =>
+      sql.begin((tx) => changeCustomerFavourite(tx, command)),
     rating: (scope: Parameters<typeof readOrderRating>[1]) =>
       sql.begin("isolation level repeatable read read only", (tx) => readOrderRating(tx, scope)),
     rate: (command: Parameters<typeof saveOrderRating>[1]) =>
