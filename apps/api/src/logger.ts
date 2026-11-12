@@ -5,19 +5,27 @@ import { pino } from "pino";
 const personalFields = new Set([
   "phone",
   "phonee164",
-  "phone_e164",
   "contactphone",
   "recipientphone",
   "customerphone",
   "email",
   "emailaddress",
-  "email_address",
   "verifiedemail",
   "verifiedphone",
   "code",
   "token",
   "address",
   "location",
+  "authorization",
+  "proxyauthorization",
+  "cookie",
+  "setcookie",
+  "contactphonee164",
+  "addresssnapshot",
+  "refreshtoken",
+  "accesstoken",
+  "sessiontoken",
+  "idempotencykey",
 ]);
 const unsafeEntry = '{"level":50,"msg":"Unable to safely serialize log entry"}\n';
 
@@ -29,7 +37,7 @@ function removePersonalFields(entry: Record<string, unknown>): void {
   const pending = [entry];
   for (let record = pending.pop(); record; record = pending.pop()) {
     for (const [key, value] of Object.entries(record)) {
-      if (personalFields.has(key.toLowerCase())) {
+      if (personalFields.has(key.toLowerCase().replace(/[-_]/gu, ""))) {
         Reflect.deleteProperty(record, key);
       } else if (isRecord(value)) {
         pending.push(value);

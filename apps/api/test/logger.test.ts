@@ -132,3 +132,20 @@ test("[AUTH-01] strips nested phone and email identifiers and checkout contact n
   expect(record).toMatchObject({ id: "synthetic-id", account: {}, order: { customer: {} } });
   expect(output).not.toMatch(/example\.test|\+2135000000/);
 });
+
+test("[M0-6] redacts credentials and stored contact fields in structured events", () => {
+  const { logger, read } = captureLogger();
+  logger.info({
+    req: {
+      headers: { authorization: "fixture-private-bearer", cookie: "fixture-private-session" },
+    },
+    reply: { headers: { "set-cookie": "fixture-private-cookie" } },
+    order: {
+      status: "placed",
+      contact_phone_e164: "fixture-private-phone",
+      address_snapshot: { landmark: "fixture-private-address" },
+    },
+  });
+  expect(read().output).not.toContain("fixture-private");
+  expect(read().record).toMatchObject({ order: { status: "placed" } });
+});
