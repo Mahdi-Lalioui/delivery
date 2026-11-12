@@ -1,6 +1,11 @@
 import { expect, test } from "vitest";
 import {
+  authMethodsOutput,
+  changeIdentifierChallengeInput,
+  changeIdentifierInput,
   idempotencyKeySchema,
+  requestIdentifierOtpInput,
+  verifiedIdentifiersOutput,
   logoutInput,
   requestOtpInput,
   requestOtpOutput,
@@ -11,6 +16,8 @@ import {
   verifyTotpInput,
   verifyTotpOutput,
 } from "../src/auth.ts";
+
+import { orderPlacementWithContactInput } from "../src/orders.ts";
 
 const challengeId = "01932f18-3150-7c33-8a7a-53acfd343001";
 const sessionId = "01932f18-3150-7c33-8a7a-53acfd343002";
@@ -220,4 +227,63 @@ test("[AUTH-03:contract] session lists expose device metadata without token mate
   ]) {
     expect(sessionListOutput.safeParse({ sessions: [invalid] }).success).toBe(false);
   }
+});
+
+test("[AUTH-01:contract] accepts legacy phone requests and normalizes email requests", () => {
+  expect(requestIdentifierOtpInput.parse({ phone, purpose: "sign_in" })).toEqual({
+    phone,
+    purpose: "sign_in",
+  });
+  expect(
+    requestIdentifierOtpInput.parse({
+      email: "  ACCounts+Demo@EXAMPLE.COM ",
+      purpose: "admin_sign_in",
+      locale: "ar",
+    }),
+  ).toEqual({ email: "accounts+demo@example.com", purpose: "admin_sign_in", locale: "ar" });
+  expect(
+    requestIdentifierOtpInput.safeParse({ phone, email: "test@example.com", purpose: "sign_in" })
+      .success,
+  ).toBe(false);
+  expect(
+    requestIdentifierOtpInput.safeParse({ email: "incomplete@example", purpose: "sign_in" })
+      .success,
+  ).toBe(false);
+});
+
+test("[AUTH-01:contract] separates available methods, verified identifiers and change proofs", () => {
+  expect(authMethodsOutput.parse({ methods: ["phone", "email"] })).toEqual({
+    methods: ["phone", "email"],
+  });
+  expect(authMethodsOutput.safeParse({ methods: ["email", "email"] }).success).toBe(false);
+  expect(changeIdentifierChallengeInput.parse({ email: " TEST@EXAMPLE.COM " })).toEqual({
+    email: "test@example.com",
+  });
+  expect(
+    changeIdentifierChallengeInput.safeParse({ email: "test@example.com", accountId: sessionId })
+      .success,
+  ).toBe(false);
+  expect(changeIdentifierInput.parse({ challengeId, code: "001234" })).toEqual({
+    challengeId,
+    code: "001234",
+  });
+  expect(
+    verifiedIdentifiersOutput.parse({ sessionId, phone: null, email: "test@example.com" }),
+  ).toEqual({ sessionId, phone: null, email: "test@example.com" });
+  expect(verifiedIdentifiersOutput.safeParse({ sessionId, phone: null, email: null }).success).toBe(
+    false,
+  );
+});
+
+test("[CUS-12:contract] accepts an optional order contact phone without changing legacy placement bodies", () => {
+  expect(orderPlacementWithContactInput.parse({ quoteId: challengeId })).toEqual({
+    quoteId: challengeId,
+  });
+  expect(
+    orderPlacementWithContactInput.parse({ quoteId: challengeId, contactPhone: phone }),
+  ).toEqual({ quoteId: challengeId, contactPhone: phone });
+  expect(
+    orderPlacementWithContactInput.safeParse({ quoteId: challengeId, contactPhone: "023000000" })
+      .success,
+  ).toBe(false);
 });

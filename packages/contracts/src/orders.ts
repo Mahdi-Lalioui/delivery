@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { algerianMobilePhone } from "./auth.js";
 import { menuItemInput } from "./menu.js";
 import { customerOrderHistoryOutput } from "./retention.js";
 
@@ -61,6 +62,10 @@ export const orderPlacementInput = z.strictObject({
   quoteId: uuid,
   payingWithDzd: dzd.optional(),
   locale: z.enum(["ar", "fr", "en"]).optional(),
+});
+
+export const orderPlacementWithContactInput = orderPlacementInput.extend({
+  contactPhone: algerianMobilePhone.optional(),
 });
 
 export const orderParams = z.strictObject({ orderId: uuid });

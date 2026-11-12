@@ -27,6 +27,37 @@ export const requestOtpInput = z.strictObject({
   phone: algerianMobilePhone,
   purpose: otpPurpose.exclude(["account_delete"]),
 });
+const emailAddress = z.email().max(254);
+export const normalizedEmail = z.string().trim().toLowerCase().pipe(emailAddress);
+
+const locale = z.enum(["ar", "fr", "en"]).optional();
+const identifierFields = { locale };
+const phoneIdentifier = z.strictObject({ ...identifierFields, phone: algerianMobilePhone });
+const emailIdentifier = z.strictObject({ ...identifierFields, email: normalizedEmail });
+const signInPurpose = { purpose: requestOtpInput.shape.purpose };
+
+export const requestIdentifierOtpInput = z.union([
+  phoneIdentifier.extend(signInPurpose),
+  emailIdentifier.extend(signInPurpose),
+]);
+
+export const authMethodsOutput = z.strictObject({
+  methods: z
+    .array(z.enum(["phone", "email"]))
+    .max(2)
+    .refine((methods) => new Set(methods).size === methods.length),
+});
+
+export const changeIdentifierChallengeInput = z.union([phoneIdentifier, emailIdentifier]);
+export const changeIdentifierInput = z.strictObject({ challengeId, code: otpCode });
+export const verifiedIdentifiersOutput = z
+  .strictObject({
+    sessionId: z.uuid(),
+    phone: algerianMobilePhone.nullable(),
+    email: emailAddress.nullable(),
+  })
+  .refine(({ phone, email }) => phone !== null || email !== null);
+
 export const requestOtpOutput = z.strictObject({
   challengeId,
   expiresAt: z.iso.datetime(),
