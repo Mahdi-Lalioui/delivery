@@ -7,7 +7,8 @@ Lane B owns the customer UI/UX items; Codex owns performance and the photo pipel
 - [x] No restaurant named "Démo". Evidence: `docs/requests/lane-b-realistic-demo-names.md`.
 - [x] Feel: haptics, optional sound, mute setting, reduced motion. Evidence:
       `docs/evidence/awid/feel/README.md`.
-- [ ] Copy in ar, fr, en: short, warm, every error says what to do next.
+- [x] Copy in ar, fr, en: short, warm, every error says what to do next. Evidence:
+      `docs/evidence/awid/copy.md`.
 - [ ] Consistency audit: `docs/evidence/awid/consistency.md`, all fixed.
 - [ ] Reduce: one focal point per screen.
 - [ ] Accessibility: 44 px targets, focus, labels, contrast, keyboard, zero axe violations.
