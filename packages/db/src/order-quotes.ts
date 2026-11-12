@@ -1,3 +1,4 @@
+import { evaluateOrderOffer } from "./order-offers.js";
 import type { orderQuoteInput, orderQuoteOutput } from "@zaafran/contracts/orders";
 import { priceCashQuote } from "@zaafran/domain/order-quote";
 import type { ISql, TransactionSql } from "postgres";
@@ -81,14 +82,14 @@ async function resolveQuoteFulfilment(
 
 type Evaluation = Extract<Awaited<ReturnType<typeof evaluateQuote>>, { kind: "priced" }>;
 
-export function quoteBreakdown({ price, address }: Evaluation) {
-  return JSON.stringify({ ...price, address });
+export function quoteBreakdown({ price, address, promotionId }: Evaluation) {
+  return JSON.stringify({ ...price, address, ...(promotionId ? { promotionId } : {}) });
 }
 
 async function persistQuote(sql: TransactionSql, request: QuoteRequest, evaluation: Evaluation) {
   const { price } = evaluation;
   const { customerId, input, now } = request;
-  const { subtotalDzd, deliveryFeeDzd, totalDzd } = price;
+  const { subtotalDzd, discountDzd, deliveryFeeDzd, totalDzd } = price;
   const expiresAt = new Date(now.getTime() + quoteLifetimeMs).toISOString();
   const payload = JSON.stringify(input);
   const breakdown = quoteBreakdown(evaluation);
@@ -104,6 +105,7 @@ async function persistQuote(sql: TransactionSql, request: QuoteRequest, evaluati
     expiresAt,
     fulfilment: input.fulfilment,
     subtotalDzd,
+    ...(discountDzd > 0 ? { discountDzd } : {}),
     deliveryFeeDzd,
     totalDzd,
   };
@@ -134,11 +136,25 @@ export async function evaluateQuote(sql: TransactionSql, request: QuoteRequest) 
   if (slot.kind !== "available") return slot;
   const lines = await readQuoteLines(sql, input, slot.at);
   if (!lines) return { kind: "item_unavailable" } as const;
-  const price = priceCashQuote({ ...service, lines });
+  const base = priceCashQuote({ ...service, lines });
+  if (!base.ok) return { kind: base.error.code };
+  const applied = await evaluateOrderOffer(sql, {
+    merchantId: input.merchantId,
+    customerId: request.customerId,
+    code: input.promotionCode,
+    at: slot.at,
+    price: base.value,
+  });
+  if (applied.kind !== "eligible") return applied;
+  const price =
+    applied.offer === undefined
+      ? base
+      : priceCashQuote({ ...service, lines, promo: applied.offer.promo });
   if (!price.ok) return { kind: price.error.code };
   return {
     kind: "priced",
     price: price.value,
+    promotionId: applied.offer?.id,
     address: service.address,
     restaurantName: merchant.restaurantName,
     prepAndTravelMinutes: merchant.prepMinutes + service.travelMinutes,

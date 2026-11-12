@@ -380,3 +380,6 @@
 
 - 2026-11-12 · Ultra · Published the quote code and discount contract and added persistent discounts to order totals and receipts. The PostGIS regression covers zero-discount legacy orders, incorrect totals, underpayment and chronology. All 10 targeted integration tests and DB typecheck passed.
   Next: evaluate offer eligibility in quote and recheck it under a promotion row lock at placement. Write the redemption in the order transaction, then prove retries and contention before publishing Discovery badges.
+
+- 2026-11-12 · Ultra · Wired offer eligibility, automatic selection and quote repricing. Placement serializes against merchant offer edits and records one redemption with the order. All 35 targeted PostGIS tests passed, including a concurrent final-use race and exact replay.
+  Next: prove the remaining time and customer limit cases, publish safe public offer data and verify the complete feature in the connected build.

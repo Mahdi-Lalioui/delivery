@@ -95,8 +95,8 @@ async function loadPlacementQuote(sql: TransactionSql, request: PlacementRequest
   if (!stored) return { kind: "quote_expired" } as const;
   if (stored.consumed) return { kind: "quote_consumed" } as const;
   const input = orderQuoteInput.parse(stored.input);
-  // Menu, hours and merchant writes serialize on the merchant row.
-  await sql`SELECT FROM public.merchants WHERE id = ${input.merchantId} FOR SHARE`;
+  // Serialize redemption counts with other placements and merchant offer edits.
+  await sql`SELECT FROM public.merchants WHERE id = ${input.merchantId} FOR NO KEY UPDATE`;
   const evaluated = await evaluateQuote(sql, { customerId, input, now });
   if (evaluated.kind !== "priced") return { kind: "quote_changed" } as const;
   const [matches] = await sql`
@@ -211,6 +211,11 @@ async function completePlacement(
     locale: input.locale ?? "fr",
     contactPhone,
   });
+  const { promotionId } = quote.evaluated;
+  if (promotionId !== undefined) {
+    await sql`INSERT INTO public.promotion_redemptions (promotion_id, order_id, customer_id, sales_dzd)
+      VALUES (${promotionId}, ${order.id}, ${customerId}, ${totalDzd})`;
+  }
   await appendOrderEvent(sql, event);
   await enqueueOrderTimer(sql, order);
   await savePlacementReceipt(sql, key, response);
