@@ -109,3 +109,26 @@ test("[CUS-06:contract] accepts fee ordering and public distance in whole metres
     ).toBe(false);
   }
 });
+
+test("[CUS-06:contract] parses pickup, scheduled opening and vegetarian filters", () => {
+  const availableAt = "2026-11-12T19:15:00.000Z";
+  expect(
+    publicFeedQuery.parse({ fulfilment: "pickup", availableAt, dietary: "vegetarian" }),
+  ).toEqual({ limit: 24, fulfilment: "pickup", availableAt, dietary: "vegetarian" });
+  for (const query of [
+    { fulfilment: "dine-in" },
+    { availableAt: "2026-11-12" },
+    { dietary: "halal" },
+  ]) {
+    expect(publicFeedQuery.safeParse(query).success).toBe(false);
+  }
+  const card = {
+    ...restaurant,
+    offersPickup: true,
+    pin: { latitude: 36.77, longitude: 3.05 },
+    dietary: ["vegetarian"],
+  };
+  expect(publicFeedOutput.parse({ restaurants: [card], nextCursor: null }).restaurants).toEqual([
+    card,
+  ]);
+});

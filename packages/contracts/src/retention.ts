@@ -4,6 +4,7 @@ import { menuImportInput } from "./menu-import.js";
 import { menuItemInput } from "./menu.js";
 import { pageLimit } from "./pagination.js";
 import { orderRatingOutput } from "./ratings.js";
+import { publicRestaurantParams } from "./restaurant.js";
 
 const uuid = z.uuid();
 const instant = z.iso.datetime();
@@ -78,7 +79,13 @@ export const customerOrderHistoryQuery = z.strictObject({
   cursor: orderCursor.optional(),
 });
 export const customerOrderHistoryOutput = z.strictObject({
-  orders: z.array(orderSummary).max(100),
+  orders: z
+    .array(
+      orderSummary.extend({
+        restaurantSlug: publicRestaurantParams.shape.slug.nullable().optional(),
+      }),
+    )
+    .max(100),
   nextCursor: orderCursor.nullable(),
 });
 
@@ -112,6 +119,8 @@ export const customerOrderReceiptOutput = orderSummary
 export const customerReorderOutput = z.strictObject({
   draft: z.strictObject({
     merchantId: uuid,
+    restaurantSlug: publicRestaurantParams.shape.slug.nullable().optional(),
+    menuRevision: z.int().nonnegative().optional(),
     items: z.array(
       z.strictObject({
         itemId: uuid,

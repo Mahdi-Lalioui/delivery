@@ -1,10 +1,12 @@
 import { z } from "./schema.js";
 import { photoVariantWidths } from "./media.js";
+import { merchantApplicationInput } from "./merchant.js";
 
 const uuid = z.uuid();
 const maxFeedPage = 50;
 const booleanParam = z.enum(["true", "false"]).transform((value) => value === "true");
 const priceLevel = z.literal([1, 2, 3]);
+const dietary = z.literal("vegetarian");
 const amount = z.int().min(0).max(2_147_483_647);
 const etaMinutes = z
   .strictObject({ min: z.int().nonnegative(), max: z.int().nonnegative() })
@@ -25,6 +27,9 @@ export const publicFeedQuery = z.strictObject({
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u)
     .optional(),
   openNow: booleanParam.optional(),
+  fulfilment: z.enum(["delivery", "pickup"]).optional(),
+  availableAt: z.iso.datetime().optional(),
+  dietary: dietary.optional(),
   freeDelivery: booleanParam.optional(),
   acceptsBaridiPay: booleanParam.optional(),
   acceptsTpe: booleanParam.optional(),
@@ -56,6 +61,9 @@ export const publicRestaurantCard = z.strictObject({
   etaMinutes: etaMinutes.nullable().optional(),
   deliveryFeeDzd: amount.nullable().optional(),
   distanceMeters: z.int().nonnegative().optional(),
+  offersPickup: z.boolean().optional(),
+  pin: merchantApplicationInput.shape.pin.optional(),
+  dietary: z.array(dietary).max(1).optional(),
   minimumOrderDzd: amount.nullable().optional(),
   priceLevel: priceLevel.nullable().optional(),
   acceptsBaridiPay: z.boolean().optional(),
