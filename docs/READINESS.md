@@ -44,7 +44,7 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 
 - [ ] **Lane A** Verify health checks and structured logs without personal data.
 - [ ] **Lane A** Verify error tracking and alerts through test incidents.
-- [ ] **Lane A** Complete the SPEC §20 runbooks for deploy, rollback, restore, Ramadan peak, API down, DB full, SMS down, tiles down, OSRM down and restaurant complaint surges.
-- [ ] **Lane A** Keep the encrypted restore drill green with fresh evidence.
+- [x] **Lane A** Complete the SPEC §20 runbooks for deploy, rollback, restore, Ramadan peak, API down, DB full, SMS down, tiles down, OSRM down and restaurant complaint surges. [Runbooks](runbooks/service-incidents.md)
+- [x] **Lane A** Keep the encrypted restore drill green with fresh evidence. [Local restore results](evidence/awid/local-operations.md)
 - [ ] **Lane A** Integrate Lane B regularly. Require full `pnpm verify` and every browser suite green in GitHub CI before merging.
 - [ ] **Lane A** After all preceding Lane A criteria pass, rerun security and reliability from scratch and record the result.
