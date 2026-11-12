@@ -377,3 +377,6 @@
 
 - 2026-11-12 · High · Added deterministic single-offer selection using integer pricing. The best positive automatic saving wins, with stable ID tie-breaking. The 61 pricing and quote tests, domain typecheck and focused lint passed.
   Next: add quote code and discount fields, then connect eligibility and atomic redemption to quote and placement before exposing offers in Discovery.
+
+- 2026-11-12 · Ultra · Published the quote code and discount contract and added persistent discounts to order totals and receipts. The PostGIS regression covers zero-discount legacy orders, incorrect totals, underpayment and chronology. All 10 targeted integration tests and DB typecheck passed.
+  Next: evaluate offer eligibility in quote and recheck it under a promotion row lock at placement. Write the redemption in the order transaction, then prove retries and contention before publishing Discovery badges.
