@@ -275,6 +275,9 @@ importers:
       '@zaafran/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@zaafran/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
       '@zaafran/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
