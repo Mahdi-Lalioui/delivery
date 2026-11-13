@@ -409,6 +409,12 @@ const matrix: readonly MatrixRoute[] = [
   },
   {
     method: "GET",
+    url: "/v1/merchants/:merchantId/menu/preview",
+    requestUrl: "/v1/merchants/" + challengeId + "/menu/preview",
+    expected: menuRoles,
+  },
+  {
+    method: "GET",
     url: "/v1/merchants/:merchantId/hours/pause",
     requestUrl: "/v1/merchants/" + challengeId + "/hours/pause",
     expected: menuRoles,

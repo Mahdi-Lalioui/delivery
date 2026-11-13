@@ -6,6 +6,7 @@ import { createMenuCategoryRepository } from "@zaafran/db/menu-category";
 import { createMenuImportRepository } from "@zaafran/db/menu-import";
 import { createMenuItemRepository } from "@zaafran/db/menu-item";
 import { createMenuOptionGroupRepository } from "@zaafran/db/menu-option-group";
+import { createMenuPreviewRepository } from "@zaafran/db/menu-preview";
 import { createMenuPriceRepository } from "@zaafran/db/menu-price";
 import { createMerchantHoursRepository } from "@zaafran/db/merchant-hours";
 import { createMenuModerationRepository } from "@zaafran/db/menu-moderation";
@@ -59,6 +60,7 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
       previewKey: Buffer.from(environment.AUTH_OTP_KEY, "hex"),
     },
     menuOptionGroup: { repository: createMenuOptionGroupRepository(database), now },
+    menuPreview: { repository: createMenuPreviewRepository(database), now },
     menuPrice: { repository: createMenuPriceRepository(database), now },
     merchantHours: { repository: merchantHours, now },
     merchantHoursPreview: { repository: merchantHours, now },

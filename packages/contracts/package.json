@@ -28,6 +28,10 @@
       "types": "./src/menu.ts",
       "default": "./dist/menu.js"
     },
+    "./menu-preview": {
+      "types": "./src/menu-preview.ts",
+      "default": "./dist/menu-preview.js"
+    },
     "./menu-price": {
       "types": "./src/menu-price.ts",
       "default": "./dist/menu-price.js"
