@@ -137,6 +137,9 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Prove both routes end to end against PostGIS through `startApi`, including the merchant onboarding count after each decision.
   - [x] Re-screen the text when duplicating an approved item and prove the copy stays out of the onboarding count.
   - [ ] Prove the customer-facing preview excludes blocked items.
+    - [x] Read the preview in `packages/db` (owner/manager membership in SQL; only approved or unreviewed, active items; grouped by category order).
+    - [x] Serve `GET /v1/merchants/:merchantId/menu/preview` with the strict `@zaafran/contracts/menu-preview` contract, matrix row and OpenAPI, and prove held, approved and rejected items through `startApi`.
+    - [ ] Add the typed web client and the localized merchant preview page (ar/fr/en), linked from the menu builder, with an auth e2e that shows an approved item and hides a held one, plus the design matrix.
   - [x] Show the held status to merchants and give admins a review screen (ar/fr/en).
     - [x] Explain the held status under the merchant item list badge.
     - [x] Add the typed web client for the held-item queue and review.

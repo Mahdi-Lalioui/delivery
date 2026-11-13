@@ -22,7 +22,7 @@ The follow-up fixes re-screen approved source text when duplicating an item. The
 - [ ] **MER-14** Register and prove the media worker, persisted ready variants, crop workflow and item attachment. The committed intake stops at preparing.
 - [ ] **M2-2** Close the umbrella schema task. Tenant constraints and mixed-role tests exist. Settings and flags and the full media lifecycle are still open.
 - [x] **MER-15** Add the web editor and production test for dated hours exceptions. Done 2026-11-13, see [hours evidence](hours.md).
-- [ ] **M2-10** Prove the customer-facing preview. The committed test verifies the moderated item count in the authenticated onboarding checklist.
+- [ ] **M2-10** Prove the customer-facing preview. The committed test verifies the moderated item count in the authenticated onboarding checklist. 2026-11-13: the preview read, `GET /v1/merchants/:merchantId/menu/preview` and the PostGIS proof through `startApi` exist. The web page and browser journey are still open.
 - [ ] **M2-12** Seed twelve fictional bilingual Algiers restaurants with synthetic imagery and `is_demo`.
 - [ ] **Gate wiring** Run the tagged onboarding journey using the authenticated Playwright config. Register a real design-screen check. The dedicated authorization-matrix command now runs every `apps/api/test/*-http.test.ts` suite (2026-11-13: 14 files, 175 tests), and a tooling test fails if a route suite is left out. Complete missing 768px and pseudo-locale design evidence. The default CI trace remains scoped to the last closed milestone (M1).
 
