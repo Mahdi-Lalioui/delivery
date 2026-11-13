@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { getGateChecks, parseGates, resolveGate, runGate } from "./gate-plan.ts";
+import { getE2eArgs, getGateChecks, parseGates, resolveGate, runGate } from "./gate-plan.ts";
 
 function gateSection(...definitions: string[]): string {
   return ["## Gate definitions for `pnpm gate`", "", "```", ...definitions, "```"].join("\n");
@@ -122,4 +122,14 @@ void test("[M2-gate] requires onboarding, authorization and design evidence", ()
   }
   const checks = ["verify", ...required];
   assert.deepEqual(getGateChecks(gateSection("m2: " + checks.join(", ")), "m2"), checks);
+});
+
+void test("[M2-gate] runs signed-in journeys with the authenticated browser config", () => {
+  assert.deepEqual(getE2eArgs("e2e:@merchant-onboarding"), [
+    "test:e2e:auth",
+    "--grep",
+    "@merchant-onboarding",
+  ]);
+  assert.deepEqual(getE2eArgs("e2e:@smoke"), ["test:e2e", "--grep", "@smoke"]);
+  assert.equal(getE2eArgs("authz:matrix"), undefined);
 });

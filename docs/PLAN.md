@@ -154,6 +154,9 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
 - [ ] M2-12 Seed twelve fictional bilingual Algiers restaurants with synthetic imagery and `is_demo`, then run production-built onboarding, the complete route matrix, and the design critic's theme/locale/viewport checks. Record local and PR evidence.
   - [ ] Wire the authenticated onboarding tag, complete the dedicated authorization matrix, and register the design screen gate check. See `docs/evidence/m2/baseline-audit.md`.
     - [x] Run every API route suite in `pnpm test:authz`, guarded by a tooling test.
+    - [x] Route the gate's `e2e:@merchant-onboarding` check to the authenticated Playwright config.
+    - [ ] Write the tagged `@merchant-onboarding` journey once photos (M2-6) and the customer preview (M2-10) exist.
+    - [ ] Register a real `design:screens` gate check.
 
 **Gate m2:**
 - e2e `@merchant-onboarding`: signup → admin approve → build a 10-item menu with options and photos → bulk price change → import CSV → shown correctly in the preview;

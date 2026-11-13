@@ -2,7 +2,7 @@ import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { basename, isAbsolute } from "node:path";
 import { fileURLToPath } from "node:url";
-import { getGateChecks, resolveGate, runGate } from "./gate-plan.ts";
+import { getE2eArgs, getGateChecks, resolveGate, runGate } from "./gate-plan.ts";
 
 const workspace = fileURLToPath(new URL("../", import.meta.url));
 const commands: ReadonlyMap<string, readonly string[]> = new Map([
@@ -32,8 +32,7 @@ function requirePnpmPath(): string {
 }
 
 function runCheck(check: string, milestone: string, pnpm: string): number {
-  const testTag = /^e2e:(@[a-z0-9-]+)$/.exec(check)?.[1];
-  const args = testTag ? ["test:e2e", "--grep", testTag] : commands.get(check);
+  const args = getE2eArgs(check) ?? commands.get(check);
   if (!args) {
     process.stderr.write("Gate check is not available: " + check + "\n");
     return 127;

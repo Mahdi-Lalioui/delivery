@@ -39,6 +39,16 @@ const requiredChecks: ReadonlyMap<string, readonly string[]> = new Map([
   ["m2", ["e2e:@merchant-onboarding", "authz:matrix", "design:screens"]],
 ]);
 
+// Journeys that sign in run under e2e/auth.config.ts, which starts the API and its fake inboxes.
+const authenticatedTags: ReadonlySet<string> = new Set(["@merchant-onboarding"]);
+
+/** The pnpm arguments for an `e2e:@tag` gate check, or undefined for any other check. */
+export function getE2eArgs(check: string): readonly string[] | undefined {
+  const tag = /^e2e:(@[a-z0-9-]+)$/.exec(check)?.[1];
+  if (!tag) return undefined;
+  return [authenticatedTags.has(tag) ? "test:e2e:auth" : "test:e2e", "--grep", tag];
+}
+
 export function getGateChecks(plan: string, milestone: string): readonly string[] {
   const checks = parseGates(plan).get(milestone);
   if (!checks) throw new Error("Missing gate definition for " + milestone);

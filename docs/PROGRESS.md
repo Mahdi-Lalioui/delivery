@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-13 04:23 GMT — M2-12 gate wiring: authenticated onboarding check (Claude, covering while Codex was out)
+
+- **Changed** — `scripts/gate-plan.ts` gains `getE2eArgs`. `e2e:@merchant-onboarding` now runs `pnpm test:e2e:auth --grep @merchant-onboarding`, since that journey signs in and needs the API harness. Other tags still use `pnpm test:e2e`. `scripts/gate.ts` uses it.
+- **Evidence** — The new `[M2-gate]` case in `scripts/gate.test.ts` failed first because the export was missing. Afterward, all 16 gate tests passed. `pnpm verify` exited 0.
+- **Reviewer** — Self-review against AGENTS §10 found no P0/P1. `pnpm gate m2` still fails correctly, because no spec is tagged `@merchant-onboarding` yet and Playwright exits 1 with no tests.
+- **Next** — See the M2-12 sub-bullets in PLAN. The `@merchant-onboarding` journey needs photos (M2-6 worker decoding and cropper) and the customer preview (M2-10). The next concrete task is M2-6 worker decoding in `apps/worker`. Before adding an image dependency, ask `scout` for the current image-library version and HEIC support, and record it in DECISIONS.
+- **Needs Mahdi** — None.
+
 ### 2026-11-13 04:21 GMT — M2-12 gate wiring: complete authorization command (Claude, covering while Codex was out)
 
 - **Changed** — `pnpm test:authz` now runs `apps/api/test/policy.test.ts` plus `apps/api/test/*-http.test.ts`. This adds the admin moderation, media upload, menu import, hours, hours preview and staff route suites that were missing. The new `tooling/authz-command.test.ts` fails if any route suite is left out. Ticked MER-12 and MER-15 in `docs/evidence/m2/baseline-audit.md`.
