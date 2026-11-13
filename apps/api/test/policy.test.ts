@@ -247,6 +247,12 @@ const matrix: readonly MatrixRoute[] = [
     payload: { focalX: 5000, focalY: 5000, zoomPercent: 100 },
     expected: mediaRoles,
   },
+  {
+    method: "GET",
+    url: "/v1/media/:mediaId/preview",
+    requestUrl: "/v1/media/" + challengeId + "/preview",
+    expected: mediaRoles,
+  },
   { method: "GET", url: menuCategoryPath, requestUrl: menuCategoryRequest, expected: menuRoles },
   {
     method: "POST",

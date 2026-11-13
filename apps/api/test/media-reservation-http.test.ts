@@ -25,6 +25,7 @@ function setup(authenticated?: Actor) {
   const repository = {
     reserve: vi.fn<Repository["reserve"]>(),
     read: vi.fn<Repository["read"]>(),
+    findPreview: vi.fn<Repository["findPreview"]>(),
     findUpload: vi.fn<Repository["findUpload"]>(),
     acceptUpload: vi.fn<Repository["acceptUpload"]>(),
     acceptCrop: vi.fn<Repository["acceptCrop"]>(),

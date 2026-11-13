@@ -8,31 +8,19 @@ import {
   mediaUploadInput,
   photoUploadMaximumBytes,
 } from "@zaafran/contracts/media";
-import type {
-  createMediaRepository,
-  MediaAdoptionResult,
-  MediaUploadDescriptor,
-} from "@zaafran/db/media";
-import type { MediaStore } from "@zaafran/media";
+import type { MediaAdoptionResult, MediaUploadDescriptor } from "@zaafran/db/media";
 import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
 import { commandIdentity, resolveSessionCommand } from "./command-identity.js";
+import { privatePhotoPolicy } from "./media-route-shared.js";
+import type { MediaReservationServices } from "./media-route-shared.js";
+import { registerMediaPreview } from "./media-preview-route.js";
 import { getRequestActor } from "./policy.js";
 import { sendProblem } from "./problems.js";
 
-export interface MediaReservationServices {
-  readonly repository: ReturnType<typeof createMediaRepository>;
-  readonly store: MediaStore;
-  readonly now: () => Date;
-}
+export type { MediaReservationServices } from "./media-route-shared.js";
 
-const privatePhotoPolicy = {
-  policy: {
-    kind: "roles",
-    roles: ["customer", "merchant_owner", "merchant_manager", "merchant_staff", "courier"],
-  },
-} as const;
 const readErrors = {
   400: problemResponseSchema,
   401: problemResponseSchema,
@@ -256,6 +244,7 @@ export function registerMediaReservationRoutes(
   registerReserve(api, services);
   registerUploadContent(api, services);
   registerCrop(api, services);
+  registerMediaPreview(api, services);
   api.withTypeProvider<ZodTypeProvider>().get(
     "/v1/media/:mediaId",
     {

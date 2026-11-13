@@ -116,3 +116,19 @@ test("[MER-14:db] the crop needs the preview, the owner and a live session", asy
   expect(await publishJobs(preparing)).toEqual([]);
   expect(await publishJobs(waiting)).toEqual([]);
 });
+
+test("[MER-14:db] the private preview is found only for its owner while awaiting the crop", async () => {
+  const owner = await account(4);
+  const outsider = await account(5);
+  const preparing = await adopted(owner, false);
+  const waiting = await adopted(owner);
+
+  expect(await repo().findPreview({ ...owner, mediaId: waiting })).toEqual({
+    previewKey: `preview/${waiting}`,
+  });
+  expect(await repo().findPreview({ ...outsider, mediaId: waiting })).toBeUndefined();
+  expect(await repo().findPreview({ ...owner, mediaId: preparing })).toBeUndefined();
+
+  await repo().acceptCrop({ ...owner, mediaId: waiting, crop });
+  expect(await repo().findPreview({ ...owner, mediaId: waiting })).toBeUndefined();
+});

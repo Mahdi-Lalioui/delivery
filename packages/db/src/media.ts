@@ -72,6 +72,15 @@ export function createMediaRepository({ sql }: DatabaseConnection) {
       const { contentType, bytes } = media;
       return { contentType, bytes };
     },
+    findPreview: async (scope: MediaScope) => {
+      const media = await readVisibleMedia(sql, scope);
+      if (!media) return undefined;
+      const [preview] = await sql<{ previewKey: string }[]>`
+        SELECT preview_key AS "previewKey" FROM public.media_uploads
+        WHERE id = ${media.mediaId} AND status = 'awaiting_crop'
+      `;
+      return preview;
+    },
     acceptUpload: async (request: MediaAdoptionRequest) =>
       describeAdoption(sql, await sql.begin(writeIsolation, (tx) => adoptMedia(tx, request))),
     acceptCrop: async (request: MediaCropRequest) =>
