@@ -1,6 +1,11 @@
 import { addCartLine, configureCartLine, type Cart } from "@zaafran/domain/cart";
 import { expect, test } from "vitest";
-import { cartStorageKey, readBrowserCart, saveBrowserCart } from "../src/restaurant/cart-storage";
+import {
+  cartStorageKey,
+  readBrowserCart,
+  saveBrowserCart,
+  takeExpiredCartNotice,
+} from "../src/restaurant/cart-storage";
 
 function savedCart(): Cart {
   const line = configureCartLine({
@@ -73,4 +78,16 @@ test("[CUS-09:web] remains usable when browser storage is blocked or full", () =
   expect(readBrowserCart(unavailable, 2_000)).toBeNull();
   expect(saveBrowserCart(unavailable, savedCart())).toBe(false);
   expect(saveBrowserCart(unavailable, null)).toBe(false);
+});
+
+test("[CUS-09:web] an expired cart leaves a one-time note naming its restaurant", () => {
+  const local = storage();
+  saveBrowserCart(local, savedCart());
+  expect(readBrowserCart(local, 604_801_000)).toBeNull();
+  expect(takeExpiredCartNotice(local)).toBe("Restaurant");
+  expect(takeExpiredCartNotice(local)).toBeNull();
+  saveBrowserCart(local, savedCart());
+  saveBrowserCart(local, null);
+  expect(readBrowserCart(local, 2_000)).toBeNull();
+  expect(takeExpiredCartNotice(local)).toBeNull();
 });

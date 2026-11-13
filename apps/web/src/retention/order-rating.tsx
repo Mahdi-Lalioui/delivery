@@ -27,7 +27,7 @@ const outcomeKeys = {
   closed: "closed",
   "sign-in": "signInRequired",
   "not-found": "notFound",
-  error: "saveError",
+  error: "loadError",
 } as const;
 
 type ErrorKey = "commentError" | "deliveryStarsError" | "foodStarsError";
@@ -186,7 +186,16 @@ export function OrderRatingView({
           {view.rating !== null && <Reply rating={view.rating} />}
         </>
       )}
-      {view.kind !== "loading" && view.kind !== "ready" && (
+      {view.kind === "error" && (
+        <ErrorState
+          title={translate(outcomeKeys.error)}
+          retryLabel={translate("retry")}
+          onRetry={() => {
+            window.location.reload();
+          }}
+        />
+      )}
+      {view.kind !== "loading" && view.kind !== "ready" && view.kind !== "error" && (
         <ErrorState title={translate(outcomeKeys[view.kind])} />
       )}
     </section>

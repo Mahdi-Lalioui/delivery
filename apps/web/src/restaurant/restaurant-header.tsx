@@ -25,19 +25,20 @@ export function RestaurantHeader({ data, locale }: { data: Restaurant; locale: L
     timeZone: "UTC",
   });
   function ranges(values: Restaurant["restaurant"]["hours"]["weekly"][number]["ranges"]) {
-    return values.length === 0
-      ? messages.closed
-      : values
-          .map(
-            (range) =>
-              minute(range.opensMinute) +
-              messages.rangeSeparator +
-              minute(range.closesMinute) +
-              (range.closesMinute <= range.opensMinute
-                ? messages.separator + messages.nextDay
-                : ""),
-          )
-          .join(messages.separator);
+    if (values.length === 0) return messages.closed;
+    const isAllDay = values.some(({ opensMinute, closesMinute }) => {
+      return opensMinute === 0 && closesMinute === 24 * 60;
+    });
+    if (isAllDay) return messages.allDay;
+    return values
+      .map(
+        (range) =>
+          minute(range.opensMinute) +
+          messages.rangeSeparator +
+          minute(range.closesMinute) +
+          (range.closesMinute <= range.opensMinute ? messages.separator + messages.nextDay : ""),
+      )
+      .join(messages.separator);
   }
   return (
     <header className="restaurant-header">
@@ -77,7 +78,13 @@ export function RestaurantHeader({ data, locale }: { data: Restaurant; locale: L
           ))}
         </ul>
         <FeedMeta restaurant={restaurant} locale={locale} />
-        <details className="restaurant-hours">
+        {!restaurant.isOpen && (
+          <p className="restaurant-closed-note" role="status">
+            {messages.closedNote}
+          </p>
+        )}
+        {/* Closed: the hours are what the diner needs next, so they start open. */}
+        <details className="restaurant-hours" open={!restaurant.isOpen}>
           <summary>
             <Icon name="clock" size={16} />
             {messages.hours}

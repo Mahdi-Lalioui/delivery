@@ -21,3 +21,89 @@ Same Chromium Android, CPU and network profile as above. Used the production Nex
 | Restaurant | 1,320 / 1,320 / 1,320 | 1,412 / 1,372 / 1,404 | 0 in all three | 256,264 bytes |
 
 The default feed no longer eagerly imports the pickup map. The browser regression checks each route’s downloaded JS with transitional ceilings of 350,000 and 280,000 gzip bytes. These ceilings prevent growth and are above the SPEC target of 180 KB. The connected fixture has no Popular row, so its zero CLS does not clear the previously observed shift in the richer catalog. Tap latency, frame pacing, a broader connected catalog, and the final bundle target remain open.
+
+## Customer feel: taps, frames and layout shift (lane B, 13 November 2026)
+
+Lane B owns these two items (see `docs/requests/lane-b-customer-feel-perf.md`). Same Chromium
+Android profile as above: Pixel 7 device (viewport, DPR, touch), 4× CPU slowdown, 75 ms latency,
+4 Mbit/s down and 1.5 Mbit/s up. Production preview build with the richer synthetic catalog
+(8 restaurants, Popular rows, offers). Three runs per route. Reproduce with
+`pnpm perf:customer-feel http://127.0.0.1:3110 3` on `next build` + `next start` with
+`ZAAFRAN_PREVIEW_DEMO=1`. Raw results: [perf-feel.json](perf-feel.json).
+
+Method: CLS from `layout-shift` entries without recent input, across load, 3 s of settling,
+3 s of wheel scrolling and the taps. Frames from `requestAnimationFrame` deltas during the
+scroll (dropped = a frame longer than 20.7 ms). Tap latency is the Event Timing `duration`
+(input to next paint) of the slowest event in each interaction.
+
+| Route | CLS (3 runs) | Scroll fps (avg) | p95 frame | Dropped frames | Taps, input → paint (ms) |
+|---|---|---|---|---|---|
+| Discovery | 0 / 0 / 0 | 60 | 17 ms | 0 % | Delivery/Pickup 72·40·40, cuisine chip 48·48·48, heart 32·32·32 |
+| Restaurant | 0 / 0 / 0 | 60 | 17 ms | 0 % | Dish + 56·40·48, opening hours 32·32·32 |
+| Checkout | 0 / 0 / 0 | 60 | 17 ms | 0 % | Add a promo code 32·32·32 |
+| Tracking | 0 / 0 / 0 | 56 | 17 ms | 2 % | Call the restaurant 32·32·32 |
+
+Fixes made for these numbers:
+
+- Restaurant CLS 0.080 → 0: the Popular row (inserted above search after dishes arrive) now
+  holds its space with same-size placeholder cards until every category has loaded.
+- Tracking frames: p95 33 ms and 6 % dropped → p95 17 ms and 2 % dropped. The map is created
+  already tilted (no 45° → 55° tilt animation starting a second tile wave), and the first
+  courier position is a jump, not an 850 ms glide over unloaded tiles.
+- Every tap paints within 100 ms (worst 72 ms). Feedback is immediate where it is safe:
+  the heart toggles before the request, the fulfilment switch and filters update at once,
+  "+" opens the dish sheet without waiting for the network, and add-to-cart buzzes on tap.
+- Deferred: catalog photos are `loading="lazy"` with explicit sizes; MapLibre and the
+  three.js tagine are dynamic imports; the pickup map loads only in Pickup mode (lane A).
+
+Still open: Tracking's remaining 2 % long frames come in the first seconds, while vector
+tiles and 3D buildings are parsed and uploaded on the 4× throttled CPU. A clean 60 fps there
+needs buildings revealed after the first `idle`, or a lighter building layer, then a check on a
+physical Android phone. Lab numbers on a Mac, not a phone.
+
+### Buildings after the first idle (13 November 2026, Claude covering while Codex was out)
+
+The `awid-buildings` extrusion layer now starts with `visibility: none` and
+`revealBuildingsWhenIdle` shows it on the map's first `idle`. This means the first tile wave
+paints flat, without parsing and uploading extrusions at the same time. Unit tests
+`[CUS-18]` in `apps/web/test/algeria-map.test.ts` cover the hidden start, the single reveal and
+a map torn down before idle. On a `ZAAFRAN_DESIGN_BUILD=1` preview build, Tracking fr-390
+loaded with 0 console errors and every tile returned 200. The buildings appear after idle:
+[tracking-buildings-after-idle-fr-390.png](perf/tracking-buildings-after-idle-fr-390.png).
+
+There is no frame-pacing result yet. The run was unattended at 03:20 with the Docker VM busy
+and a load average of 8–22 on 14 cores. Every route measured 11–31 fps, including Checkout,
+which has no map, so the run can't compare before and after. Raw data:
+[perf/perf-feel-unattended-2026-11-13.json](perf/perf-feel-unattended-2026-11-13.json).
+Re-run `pnpm perf:customer-feel <url> 3` on an awake, idle machine to confirm Tracking's 56
+to 60 fps.
+
+### Flat first paint, tilt after idle (13 November 2026, lane B)
+
+The 03:20 unattended run had no usable numbers, so lane B measured again in the morning. Machine
+load was 12–23 on 14 cores, and Checkout (which has no map) held 60 fps as the control. Each row
+is three runs with `pnpm perf:customer-feel` on the throttled Android profile, Tracking only.
+
+| Tracking setup | Scroll 3 s after load | Scroll 6–10 s after load |
+|---|---|---|
+| Buildings after idle only (2bd7b36), tilted from the start | 46–53 fps, 4–5 % long frames | 60 fps, 0 % |
+| Never show buildings (probe) | 57 fps, 2 % | — |
+| Flat camera, no tilt (probe) | 60 fps, 0 % | — |
+| Tilt 40° from the start (probe) | 50–54 fps, 3 % | — |
+| **Shipped:** flat first paint, tilt to 55° after first idle, no label fade | 56–57 fps, 3 % | 60 fps, 0 % |
+
+The cost is the tilted camera: it requests the far tiles toward the horizon, and parsing them on
+a 4× throttled CPU drops frames. Buildings are a small part of it. Tracking now paints flat and
+tilts once the first tile wave has settled; the pickup and address maps stay flat. Settled
+scrolling is a clean 60 fps. Scrolling inside the first ~3 s while the tilt's second tile wave
+loads is still 56–57 fps, so the 60 fps line stays open until it is checked on a physical
+Android phone, or until the street view is offered only after the diner opens it.
+
+## Integrated production build, 13 November
+
+At `0c7a78b`, the connected three-restaurant Playwright fixture passed both
+route checks on the same throttled Pixel 7 profile. Discovery LCP was 1,528 /
+1,620 / 1,520 ms and Restaurant was 1,424 / 1,400 / 1,404 ms. CLS was zero in
+all six samples. Initial gzip JavaScript was 336,777 bytes for Discovery and
+258,444 bytes for Restaurant. Both exceeded the SPEC 180 KB target. Richer
+connected catalog measurements are still open.

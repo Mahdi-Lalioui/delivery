@@ -6,6 +6,8 @@ import { Badge, ButtonLink, EmptyState, ErrorState, Icon, Skeleton } from "@zaaf
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { PushOptIn } from "./push-opt-in";
+import { Contacts } from "./tracking-contacts";
+import { Ended, isEnded } from "./tracking-ended";
 import { TrackingLiveMap } from "./tracking-live-map";
 import { TrackingMap } from "./tracking-map-view";
 import {
@@ -72,49 +74,6 @@ function CodeCard({ tracking }: { tracking: Tracking }) {
       <p>{translate(isPickup ? "pickupCode" : "deliveryCode")}</p>
       <strong dir="ltr">{code}</strong>
       <small>{translate(isPickup ? "pickupCodeHint" : "deliveryCodeHint")}</small>
-    </div>
-  );
-}
-
-function Contacts({ tracking }: { tracking: Tracking }) {
-  const translate = useTranslations("tracking");
-  const courier = tracking.fulfilment === "delivery" ? tracking.courier : null;
-  return (
-    <div className="tracking-contacts">
-      {courier && (
-        <div className="tracking-courier">
-          <span className="tracking-avatar" aria-hidden="true">
-            <Icon name="bike" size={24} />
-          </span>
-          <div>
-            <small>{translate("courier")}</small>
-            {courier.firstName && (
-              <strong>
-                <bdi>{courier.firstName}</bdi>
-              </strong>
-            )}
-          </div>
-          {courier.phone !== null && (
-            <a
-              className="tracking-call"
-              href={`tel:${courier.phone}`}
-              aria-label={
-                courier.firstName
-                  ? translate("callCourier", { name: courier.firstName })
-                  : translate("callUnnamedCourier")
-              }
-            >
-              <Icon name="phone" size={22} />
-            </a>
-          )}
-        </div>
-      )}
-      {tracking.restaurantPhone !== null && (
-        <a className="tracking-call-restaurant" href={`tel:${tracking.restaurantPhone}`}>
-          <Icon name="store" size={20} />
-          {translate("callRestaurant")}
-        </a>
-      )}
     </div>
   );
 }
@@ -265,7 +224,18 @@ export function TrackingView({ state, locale }: { state: TrackingState; locale: 
         }
       />
     );
-  if (view.kind === "not-found") return <EmptyState icon="receipt" title={translate("notFound")} />;
+  if (view.kind === "not-found")
+    return (
+      <EmptyState
+        icon="receipt"
+        title={translate("notFound")}
+        action={
+          <ButtonLink variant="primary" href={`/${locale}/orders`}>
+            {translate("endedOrders")}
+          </ButtonLink>
+        }
+      />
+    );
   if (view.kind !== "ready")
     return (
       <ErrorState
@@ -274,5 +244,7 @@ export function TrackingView({ state, locale }: { state: TrackingState; locale: 
         onRetry={state.retry}
       />
     );
+  if (isEnded(view.tracking.order.status))
+    return <Ended tracking={view.tracking} locale={locale} />;
   return <Ready state={state} tracking={view.tracking} locale={locale} />;
 }

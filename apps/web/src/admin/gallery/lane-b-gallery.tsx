@@ -273,35 +273,39 @@ export function OrdersSample({ mode, locale }: { mode: Mode; locale: Locale }) {
     mode === "ready" || mode === "empty"
       ? { kind: "ready" as const, orders: mode === "ready" ? galleryOrders : [], nextCursor: null }
       : { kind: mode };
-  const favourites = {
-    kind: "ready" as const,
-    restaurants:
-      mode === "ready"
-        ? [
-            {
-              merchantId: galleryMerchantId,
-              name: "Dar El Couscous",
-              slug: "dar",
-              coverMediaId: null,
-              isOpen: true,
-            },
-            {
-              merchantId: "00000000-0000-4000-8000-000000000040",
-              name: "Karantika Bab El Oued",
-              slug: "karantika-bab-el-oued",
-              coverMediaId: null,
-              isOpen: true,
-            },
-            {
-              merchantId: "00000000-0000-4000-8000-000000000050",
-              name: "Pâtisserie Cirta",
-              slug: "patisserie-cirta",
-              coverMediaId: null,
-              isOpen: false,
-            },
-          ]
-        : [],
-  };
+  // Favourites follow the page: no "no favourites yet" while orders are loading or failing.
+  const favourites =
+    mode === "loading" || mode === "error"
+      ? { kind: mode }
+      : {
+          kind: "ready" as const,
+          restaurants:
+            mode === "ready"
+              ? [
+                  {
+                    merchantId: galleryMerchantId,
+                    name: "Dar El Couscous",
+                    slug: "dar",
+                    coverMediaId: null,
+                    isOpen: true,
+                  },
+                  {
+                    merchantId: "00000000-0000-4000-8000-000000000040",
+                    name: "Karantika Bab El Oued",
+                    slug: "karantika-bab-el-oued",
+                    coverMediaId: null,
+                    isOpen: true,
+                  },
+                  {
+                    merchantId: "00000000-0000-4000-8000-000000000050",
+                    name: "Pâtisserie Cirta",
+                    slug: "patisserie-cirta",
+                    coverMediaId: null,
+                    isOpen: false,
+                  },
+                ]
+              : [],
+        };
   return (
     <MyOrdersView
       locale={locale}

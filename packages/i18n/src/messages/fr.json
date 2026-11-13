@@ -1120,7 +1120,8 @@
     "score_2": "Bof",
     "score_3": "Correct",
     "score_4": "Bon",
-    "score_5": "Excellent"
+    "score_5": "Excellent",
+    "retry": "Réessayer"
   },
   "retentionPromotions": {
     "title": "Promotions",
@@ -1764,7 +1765,22 @@
     "confirmedCode": "Commande {code}",
     "tracking": "Suivre ma commande",
     "unit": "DA",
-    "tooMuch": "Saisissez au plus {max}."
+    "tooMuch": "Saisissez au plus {max}.",
+    "promoOpen": "Ajouter un code promo",
+    "promoLabel": "Code promo",
+    "promoApply": "Appliquer",
+    "promoApplied": "Code {code}",
+    "promoRemove": "Retirer le code",
+    "discount": "Réduction",
+    "discountOffer": "Offre du restaurant",
+    "promo_promotion_expired": "Ce code a expiré. Essayez-en un autre ou commandez sans.",
+    "promo_promotion_below_minimum": "Ce code demande un panier un peu plus grand. Ajoutez un plat et réessayez.",
+    "promo_promotion_used_up": "Ce code a déjà été utilisé jusqu’au bout. Essayez-en un autre.",
+    "promo_promotion_wrong_restaurant": "Ce code ne marche pas ici. Vérifiez-le ou essayez-en un autre.",
+    "discountAmount": "−{amount}",
+    "cartExpired": "Votre panier a expiré",
+    "cartExpiredBody": "Il attendait depuis plus de 7 jours chez {name}, alors on l’a vidé pour que les prix restent justes. Refaites-le en deux minutes.",
+    "placeNoTotal": "Commander"
   },
   "tracking": {
     "title": "Votre commande",
@@ -1799,7 +1815,7 @@
     "status_collected": "Récupérée",
     "status_rejected": "Le restaurant n’a pas pu la prendre. Rien à payer.",
     "status_expired": "Le restaurant n’a pas répondu. Rien à payer.",
-    "status_cancelled": "Annulée",
+    "status_cancelled": "Commande annulée. Rien à payer.",
     "status_delivery_failed": "Livraison impossible. Vous pouvez recommander quand vous voulez.",
     "step_placed": "Commande envoyée",
     "step_accepted": "Acceptée",
@@ -1824,7 +1840,9 @@
     "notifyError": "Impossible d’activer les notifications. Réessayez.",
     "etaLabel": "Arrivée estimée",
     "etaRange": "{from} – {to}",
-    "etaPickupLabel": "Prête vers"
+    "etaPickupLabel": "Prête vers",
+    "endedFind": "Trouver un autre restaurant",
+    "endedOrders": "Voir mes commandes"
   },
   "accountHub": {
     "contactTitle": "Informations de connexion",

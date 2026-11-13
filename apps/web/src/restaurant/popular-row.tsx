@@ -6,20 +6,44 @@ import { DishPhoto, openFromCard } from "./dish-card";
 import { getRestaurantMessages } from "./restaurant-messages";
 import { localizeRestaurantText, type DishSelection } from "./restaurant-types";
 
+/** Same size as the real row: heading, then cards with a 4:3 photo, a name and a price. */
+function PopularPlaceholder({ title }: { title: string }) {
+  return (
+    <section className="restaurant-popular" aria-hidden="true" data-pending="true">
+      <h2>{title}</h2>
+      <ul className="restaurant-popular-list" role="list">
+        {[0, 1, 2].map((index) => (
+          <li key={index} className="restaurant-popular-card">
+            <div className="restaurant-dish-photo" />
+            <div className="restaurant-popular-body">
+              <h3>&nbsp;</h3>
+              <span className="restaurant-price">&nbsp;</span>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 /** The restaurant's popular dishes as a horizontal row of photo cards. */
 export function PopularRow({
   selections,
   merchantId,
   locale,
   onChoose,
+  isPending = false,
 }: {
   selections: readonly DishSelection[];
+  /** Dishes still loading: hold the row's space so the menu below does not jump. */
+  isPending?: boolean;
   merchantId: string;
   locale: Locale;
   onChoose: (selection: DishSelection) => void;
 }) {
   const messages = getRestaurantMessages(locale);
   const headingId = useId();
+  if (isPending && selections.length === 0) return <PopularPlaceholder title={messages.popular} />;
   if (selections.length === 0) return null;
   return (
     <section className="restaurant-popular" aria-labelledby={headingId}>

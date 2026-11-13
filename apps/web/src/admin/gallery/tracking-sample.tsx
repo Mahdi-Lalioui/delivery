@@ -8,7 +8,15 @@ import { TrackingView } from "../../tracking/tracking-view";
 import type { TrackingState } from "../../tracking/use-tracking";
 
 type Mode = "ready" | "empty" | "loading" | "error";
-type Story = "on-the-way" | "waiting" | "pickup" | "delivered";
+type Story =
+  | "on-the-way"
+  | "waiting"
+  | "pickup"
+  | "delivered"
+  | "rejected"
+  | "expired"
+  | "cancelled"
+  | "delivery_failed";
 
 const noop = () => undefined;
 const order = {
@@ -67,6 +75,10 @@ const stories: Readonly<Record<Story, Tracking>> = {
   "on-the-way": delivery("out_for_delivery", [40, 42, 55, 57]),
   waiting: delivery("pending_acceptance", [40]),
   delivered: delivery("delivered", [40, 42, 55, 57, 59]),
+  rejected: delivery("rejected", [40]),
+  expired: delivery("expired", [40]),
+  cancelled: delivery("cancelled", [40, 42]),
+  delivery_failed: delivery("delivery_failed", [40, 42, 55, 57]),
   pickup: {
     fulfilment: "pickup",
     order: { ...order, fulfilment: "pickup", status: "ready" },

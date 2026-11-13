@@ -10,6 +10,7 @@ import { activeFilters, type ActiveFilter } from "./filter-state";
 const quickToggles = [
   ["openNow", "true", "filterOpenNow"],
   ["freeDelivery", "true", "filterFree"],
+  ["offers", "true", "filterOffers"],
   ["minRating", "4", "filterRating"],
   ["maxEtaMinutes", "30", "filterFast"],
 ] as const;

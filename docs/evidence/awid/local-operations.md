@@ -80,3 +80,14 @@ job with pickup disabled while offline, recovered it after reconnect by
 polling, and completed delivery. The initial SSE assertion timed out before
 the board fix. Reproduce with `pnpm test:e2e:auth e2e/auth-order-journey.spec.ts
 --grep 'real cash order.*delivery' --fail-on-flaky-tests`.
+
+## k6 endpoint smoke
+
+On 13 November 2026, k6 2.3.0 ran for 20 seconds on the disposable production
+Compose network through Caddy. All 25 checks passed with zero dropped
+iterations. Repeated placement with one synthetic customer and one
+idempotency key returned the original order at 1 request/s, p95 15.95 ms.
+A synthetic courier sent a new location every 5.1 seconds, p95 7.87 ms.
+Each position was accepted. The first attempt used a stationary point,
+which the production filter correctly suppressed after its initial sample.
+The 10× pilot load check still requires fresh orders and multiple couriers.
