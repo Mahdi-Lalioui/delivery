@@ -23,9 +23,9 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 - [ ] **Lane B** Customer tap feedback within 100 ms, with optimistic feedback where safe.
 - [ ] **Lane B** Measure 60 fps scrolling and animation and CLS below 0.05. Defer offscreen images and 3D. Record connected results in [performance evidence](evidence/awid/perf.md).
 - [ ] **Lane A** Route bundle budgets enforced in CI at the SPEC target. [Provisional ceilings](evidence/awid/perf.md#connected-production-build)
-- [ ] **Lane A** Quote and placement honour code and automatic offers and apply the published stacking rules.
-- [ ] **Lane A** Per-customer and global offer limits and idempotent redemption hold under retries and concurrency.
-- [ ] **Lane A** Discovery offers filter and badge data match redeemable offers.
+- [x] **Lane A** Quote and placement honour code and automatic offers and apply the published stacking rules. [PostGIS quote and placement tests](../packages/db/test/order-quotes.integration.test.ts)
+- [x] **Lane A** Per-customer and global offer limits and idempotent redemption hold under retries and concurrency. [PostGIS redemption tests](../packages/db/test/order-quotes.integration.test.ts)
+- [x] **Lane A** Discovery offers filter and badge data match redeemable offers. [PostGIS public feed tests](../packages/db/test/public-feed.integration.test.ts)
 
 ## Security
 

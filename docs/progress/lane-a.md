@@ -401,3 +401,6 @@
 
 - 2026-11-13 · High · Proved the scheduled release timer on local production Compose. After all three services restarted, the order advanced to pending acceptance at version 2. The duplicate release job completed and left one release event.
   Next: verify HTTP placement under faults and browser replay. Repair full browser CI infrastructure before integrating Lane B’s new customer pass.
+
+- 2026-11-13 · High · The CI map fixture now covers production zoom 15. All 12 local browser map cases passed across mobile Chromium, mobile WebKit and desktop Chromium.
+- 2026-11-13 · High · All 41 PostGIS quote and feed tests passed. Added a concurrent same-customer final-use case and verified that a different customer can still redeem the offer. Linked all three offer checks in READINESS.

@@ -1083,37 +1083,58 @@ test("[CUS-10][MON-07] email-only checkout requires an order contact and keeps t
   ).toEqual({ kind: "cash_limit" });
 });
 
-test("[CUS-16][MON-03] reserves the last use once across customers and replays placement", async () => {
-  const { sql } = database.get();
-  const offerId = randomUUID();
-  await sql`INSERT INTO promotions (id, merchant_id, code, discount, conditions, created_at, updated_at)
-    VALUES (${offerId}, ${merchantId}, 'AWID', '{"kind":"fixed","amountDzd":200}',
-      '{"maxUsesTotal":1}', ${now.toISOString()}, ${now.toISOString()})`;
-  const input = { ...pickup, promotionCode: "awid" };
-  const customers = [customerId, otherId];
-  const requests = await Promise.all(
-    customers.map(async (customerId) => {
-      const result = await repo().create({ customerId, input, now });
-      expect(result).toMatchObject({ kind: "quoted", quote: { discountDzd: 200, totalDzd: 800 } });
-      if (result.kind !== "quoted") throw new Error("Expected discounted quote");
-      return {
-        customerId,
-        input: { quoteId: result.quote.quoteId },
-        now,
-        idempotencyKey: randomUUID(),
-      };
-    }),
-  );
-  const results = await Promise.all(requests.map((request) => orders().place(request)));
-  expect(results.map(({ kind }) => kind).sort()).toEqual(["placed", "quote_changed"]);
-  const winner = requests[results.findIndex(({ kind }) => kind === "placed")];
-  if (!winner) throw new Error("Expected a winning placement");
-  expect(await orders().place(winner)).toEqual(results.find(({ kind }) => kind === "placed"));
-  expect(
-    await sql`SELECT sales_dzd FROM promotion_redemptions WHERE promotion_id = ${offerId}`,
-  ).toEqual([{ sales_dzd: 800 }]);
-  expect(await repo().create({ customerId, input, now })).toEqual({ kind: "promotion_used_up" });
-});
+test.each([
+  { limit: "maxUsesTotal", scope: "across customers", customers: () => [customerId, otherId] },
+  {
+    limit: "maxUsesPerCustomer",
+    scope: "for one customer",
+    customers: () => [customerId, customerId],
+  },
+])(
+  "[CUS-16][MON-03] reserves the last use once $scope and replays placement",
+  async ({ limit, customers }) => {
+    const { sql } = database.get();
+    const offerId = randomUUID();
+    const code = limit === "maxUsesTotal" ? "AWID" : "PERSONALAWID";
+    await sql`INSERT INTO promotions (id, merchant_id, code, discount, conditions, created_at, updated_at)
+    VALUES (${offerId}, ${merchantId}, ${code}, '{"kind":"fixed","amountDzd":200}',
+      ${JSON.stringify({ [limit]: 1 })}, ${now.toISOString()}, ${now.toISOString()})`;
+    const input = { ...pickup, promotionCode: code.toLowerCase() };
+    const requests = await Promise.all(
+      customers().map(async (customerId) => {
+        const result = await repo().create({ customerId, input, now });
+        expect(result).toMatchObject({
+          kind: "quoted",
+          quote: { discountDzd: 200, totalDzd: 800 },
+        });
+        if (result.kind !== "quoted") throw new Error("Expected discounted quote");
+        return {
+          customerId,
+          input: { quoteId: result.quote.quoteId },
+          now,
+          idempotencyKey: randomUUID(),
+        };
+      }),
+    );
+    const results = await Promise.all(requests.map((request) => orders().place(request)));
+    expect(results.map(({ kind }) => kind).sort()).toEqual(["placed", "quote_changed"]);
+    const winner = requests[results.findIndex(({ kind }) => kind === "placed")];
+    if (!winner) throw new Error("Expected a winning placement");
+    expect(await orders().place(winner)).toEqual(results.find(({ kind }) => kind === "placed"));
+    expect(
+      await sql`SELECT sales_dzd FROM promotion_redemptions WHERE promotion_id = ${offerId}`,
+    ).toEqual([{ sales_dzd: 800 }]);
+    expect(await repo().create({ customerId: winner.customerId, input, now })).toEqual({
+      kind: "promotion_used_up",
+    });
+    if (limit === "maxUsesPerCustomer") {
+      expect(await repo().create({ customerId: otherId, input, now })).toMatchObject({
+        kind: "quoted",
+        quote: { discountDzd: 200 },
+      });
+    }
+  },
+);
 
 test("[CUS-16] checks offer conditions and applies only the best automatic saving", async () => {
   const { sql } = database.get();
