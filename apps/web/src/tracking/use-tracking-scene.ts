@@ -41,6 +41,8 @@ function poseOf(courier: NonNullable<Courier>, fallbackHeading: number): Scooter
 }
 
 /** One scooter per map instance, so a remounted map gets its own and a late pose wins. */
+const streetPitch = 55;
+
 const scooters = new WeakMap<Map, { layer?: Scooter; pose: ScooterPose }>();
 
 function placeScooter(map: Map, pose: ScooterPose) {
@@ -74,11 +76,15 @@ export function useTrackingScene(
   const heading = useRef(0);
   const hasPlaced = useRef(false);
 
-  // The map is created already tilted (see MapCanvas): no second tile wave while it animates.
+  // The map paints flat first: a tilted camera loads the far tiles too, which drops frames on
+  // mid-range phones while the page is still loading. It tilts once that first wave has settled.
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !isReady) return;
     addGlow(map);
+    map.once("idle", () => {
+      map.easeTo({ pitch: streetPitch, duration: isReducedMotion() ? 0 : 600 });
+    });
   }, [isReady, mapRef]);
 
   useEffect(() => {

@@ -88,8 +88,10 @@ function useMap({
         dragRotate: false,
         renderWorldCopies: false,
         scrollZoom: false,
-        pitch: choose ? 0 : 55,
+        pitch: 0,
         attributionControl: false,
+        // Labels appear at once: a fade repaints the whole map every frame while tiles arrive.
+        fadeDuration: 0,
       });
     } catch {
       settings.onState("error");

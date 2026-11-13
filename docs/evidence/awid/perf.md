@@ -77,3 +77,24 @@ which has no map, so the run can't compare before and after. Raw data:
 [perf/perf-feel-unattended-2026-11-13.json](perf/perf-feel-unattended-2026-11-13.json).
 Re-run `pnpm perf:customer-feel <url> 3` on an awake, idle machine to confirm Tracking's 56
 to 60 fps.
+
+### Flat first paint, tilt after idle (13 November 2026, lane B)
+
+The 03:20 unattended run had no usable numbers, so lane B measured again in the morning. Machine
+load was 12–23 on 14 cores, and Checkout (which has no map) held 60 fps as the control. Each row
+is three runs with `pnpm perf:customer-feel` on the throttled Android profile, Tracking only.
+
+| Tracking setup | Scroll 3 s after load | Scroll 6–10 s after load |
+|---|---|---|
+| Buildings after idle only (2bd7b36), tilted from the start | 46–53 fps, 4–5 % long frames | 60 fps, 0 % |
+| Never show buildings (probe) | 57 fps, 2 % | — |
+| Flat camera, no tilt (probe) | 60 fps, 0 % | — |
+| Tilt 40° from the start (probe) | 50–54 fps, 3 % | — |
+| **Shipped:** flat first paint, tilt to 55° after first idle, no label fade | 56–57 fps, 3 % | 60 fps, 0 % |
+
+The cost is the tilted camera: it requests the far tiles toward the horizon, and parsing them on
+a 4× throttled CPU drops frames. Buildings are a small part of it. Tracking now paints flat and
+tilts once the first tile wave has settled; the pickup and address maps stay flat. Settled
+scrolling is a clean 60 fps. Scrolling inside the first ~3 s while the tilt's second tile wave
+loads is still 56–57 fps, so the 60 fps line stays open until it is checked on a physical
+Android phone, or until the street view is offered only after the diner opens it.
