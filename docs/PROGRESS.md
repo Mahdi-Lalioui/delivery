@@ -13,6 +13,23 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-13 10:01 GMT — M2-6 photo field in the menu item form (Claude, covering while Codex was out)
+
+- **Changed** — `f3e2c83` adds `apps/web/src/media/use-photo-upload.ts` (`useSyncExternalStore` over `createPhotoController`, disposed on unmount) and `menu-item/components/item-photo-field.tsx`. The field sets the draft `photoId` once the photo is `ready`, through a ref so parent re-renders do not repeat the call. It shows an attached photo with a remove button. `menu-item-form.tsx` renders it (keyed by session) with `merchantId`/`sessionId` from the screen. `menu-item-page.tsx` passes the `photoUpload` and `photoCrop` messages, and `menuItem` gains `photo`, `photoAttached` and `removePhoto` in ar/fr/en. `apps/web/test/menu-item-screen.test.tsx` used to assert that the form had **no** `type="file"`, which recorded the pre-photo state. That assertion is now positive: it requires the labelled photo group, the file input limited to the four accepted types, and the localized picker label.
+- **Evidence** — `menu-item-photo-field` failed first on the missing module, then passed 2/2. `pnpm verify` exited 0 at `f3e2c83`. `pnpm test:e2e:auth` passed all 18 authenticated production journeys, including the item, option-group and price journeys that render the new field.
+- **Reviewer** — Self-review against AGENTS §10 found no P0/P1. P2s:
+  - The photo picker sits outside the form's disabled fieldset, so it stays usable while the item saves.
+  - After a fresh upload the owner must choose another photo before the remove button shows.
+  - `use-menu-item-editor.ts` is still 455 lines and was not touched.
+- **Next** — The new PLAN sub-bullet under M2-6: run the worker in the authenticated e2e harness.
+  1. In `apps/api/tools/e2e-auth-bootstrap.ts`, pass `MEDIA_STORAGE_ROOT` (a `mkdtemp` directory) to `startApi`, which already builds `createLocalMediaStore` from it (`apps/api/src/start.ts:52`).
+  2. Run the worker's `media.process` task against the same cloned database and directory. Use either a started Graphile runner from `apps/worker/src/runtime.ts` or `runOnce` after each upload and crop, as `apps/worker/test/media-queue` does.
+  3. Then write `e2e/auth-menu-item-photo.spec.ts` with a generated JPEG fixture (no real photos). Upload in the item form, move the focal point with the arrow keys, confirm, save, reopen the item and see `photoAttached`, then open the menu preview and assert the variant image.
+  4. Add ar/fr × 390/1280 screenshots of the cropper to the design matrix.
+
+  Afterward: the application photo, the `@merchant-onboarding` journey, and the HEIC helper (D-007).
+- **Needs Mahdi** — None.
+
 ### 2026-11-13 09:56 GMT — M2-6 web photo client, keyboard cropper, uploader and item photo fix (Claude, covering while Codex was out)
 
 - **Changed** — Seven commits on `m2-merchant-onboarding`, `4c7c477`…`d45be80`, on top of the typed client `742a9a2` and the bounded flow `eed258f`. Those two commits, and the preview key fix `867f377` (D-019), landed before this run without a PROGRESS entry.
@@ -1009,5 +1026,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress; M2-8, M2-9 and M2-10 done)
 - Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import (M2-8) is complete, including its production browser journey. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
-- Last green `pnpm verify`: 2026-11-13 09:55 GMT on Docker Desktop at `d45be80` with 1,444 unit and 187 PostGIS integration tests. `pnpm trace --through m2` covered 36/37 IDs at `b92d62f` (missing `MER-01`). `pnpm test:e2e:auth` passed all 18 authenticated production journeys at `a77bfe7`.
+- Last green `pnpm verify`: 2026-11-13 09:58 GMT on Docker Desktop at `f3e2c83` with 1,447 unit and 187 PostGIS integration tests. `pnpm test:e2e:auth` passed all 18 authenticated production journeys at `f3e2c83`. `pnpm trace --through m2` covered 36/37 IDs at `b92d62f` (missing `MER-01`).
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
