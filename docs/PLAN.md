@@ -93,7 +93,8 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
   - [ ] Connect optional application photos and item photos to the localized cropper. Verify valid and rejected uploads, keyboard crop, private previews, saved item readback and the design matrix.
     - [x] Stream the private crop preview (`GET /v1/media/:mediaId/preview`, owner/manager only, `no-store`) from the media store while the photo is `awaiting_crop`, with a matrix row, OpenAPI and PostGIS proof.
     - [x] Attach a `ready` item photo of the same restaurant to a menu item (forward migration, menu item contract field, tenant-scoped check in SQL). Return its variants and ThumbHash in the menu preview.
-    - [ ] Add the typed web client (reserve → PUT content → poll status → PUT crop → poll ready) and the localized keyboard cropper over the private preview.
+    - [x] Add the typed web client (reserve → PUT content → poll status → PUT crop → poll ready) and the localized keyboard cropper over the private preview.
+    - [ ] Place the photo uploader in the item form (hook, draft `photoId` on ready, saved item readback) and in the application form, then prove the authenticated browser journey and the design matrix.
 - [x] M2-7 Bulk prices (MER-11). Bind preview to merchant and item revisions, apply rounded changes and history atomically, and prove ten-minute undo rejects expired or subsequently changed prices.
   - [x] Add the pure percent/fixed rounding calculation (nearest 1/5/10/50 DA, ties up, clamped to zero).
   - [x] Persist the per-item preview binding, apply rounded changes and price history atomically on the existing menu command/revision guard, and record an undo batch.

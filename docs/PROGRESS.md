@@ -13,6 +13,28 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-13 09:56 GMT — M2-6 web photo client, keyboard cropper, uploader and item photo fix (Claude, covering while Codex was out)
+
+- **Changed** — Seven commits on `m2-merchant-onboarding`, `4c7c477`…`d45be80`, on top of the typed client `742a9a2` and the bounded flow `eed258f`. Those two commits, and the preview key fix `867f377` (D-019), landed before this run without a PROGRESS entry.
+  - `4c7c477` moves `cropRectangle` from `apps/worker` to `@zaafran/domain/photo-crop`. Its second consumer is the browser cropper, so the browser draws exactly the area the worker cuts. Adds a fast-check bounds/zoom property. The worker now depends on `@zaafran/domain`.
+  - `b8b76e3` adds `apps/web/src/media/crop-editor.ts`. Arrows move the focal point (Shift = 1 000 bp), `+`/`=`/`-` zoom within 100–400 %, and Home recentres. Other keys are left to the browser. The model has no locale input because photos never mirror. `cropFrame` gives the cut area in percent of the preview.
+  - `763eab1` adds `media/components/photo-cropper.tsx` and its CSS. The `dir="ltr"` stage is focusable and described, with a live position status, an SVG overlay drawn with attributes (CSP `style-src` forbids inline styles), zoom limits, recentre and confirm. Adds `photoCrop` ar/fr/en messages.
+  - `50483a5` adds `media/photo-state.ts`, the idle → uploading → cropping → saving → ready reducer. Timed-out, network and 429 crop saves keep the crop for a replay. Other failures return to the picker. Late results are ignored.
+  - `9f9eeb9` adds `media/photo-controller.ts`. The controller allows one photo at a time, and reset, a newer file or dispose aborts the request in flight. A double confirm sends one crop. Also adds `photoPreviewUrl`.
+  - `f2e5956` adds `media/components/photo-uploader.tsx` and its CSS. It has the DESIGN §6 photo guide, a native file input that stays focusable under its label, progress, the cropper, a ready state with replace, and `photoUpload` ar/fr/en messages for every failure.
+  - `d45be80` fixes a bug: `parseMenuItemDraft` always sent `photoId: null`, so saving the item form would have removed a photo attached since migration 0020. The draft now carries the item's `photoId`.
+- **Evidence** — Each new suite failed first on its missing module. The photoId test failed first with `expected undefined to be null`. Afterward: domain `photo-crop` 6/6, `media-crop-editor` 12/12, `media-photo-cropper` 6/6, `media-photo-state` 16/16, `media-photo-controller` 5/5, `media-photo-uploader` 15/15 and `menu-item-editor` 7/7. Mutation checks: allowing zoom-out at 100 % and treating `sign-in` as a retryable crop failure each failed a test. Both were restored. `pnpm verify` exited 0 at the start of the run and before each commit. The last run at `d45be80` passed 1,444 unit and 187 PostGIS integration tests, and `pnpm trace --through m1` passed 20/20. A Gitleaks `generic-api-key` false positive on a fixed test UUID was resolved by renaming the constant, not by suppressing the rule.
+- **Reviewer** — Self-review against AGENTS §10. Found and fixed the P1 photo-dropping bug above. Removed `as` casts from the controller tests, and dropped a React hook that knip flagged as unused. It returns with its first caller. P2: choosing the same file again after a failed upload makes a fresh reservation instead of replaying the old key. This is harmless because the old reservation is never adopted. Not run in this run: `pnpm test:e2e:auth`. The uploader is not mounted on any page yet.
+- **Next** — The new PLAN sub-bullet under M2-6: place the uploader in the item form.
+  1. Add `usePhotoUpload` (`useSyncExternalStore` over `createPhotoController`, dispose on unmount) in `apps/web/src/media/`.
+  2. Render `PhotoUploader` (kind `item`, `target: { kind: "item", merchantId }`, the editor's `sessionId` from `use-menu-item-editor.ts:279`) inside `menu-item-form.tsx`.
+  3. On `ready`, call `changeDraft` with `photoId: photo.mediaId` and offer a remove button that sets it to `null`.
+  4. Split `use-menu-item-editor.ts` (455 lines) first if the change pushes it further past the size rule.
+  5. Then extend an authenticated Playwright journey (`apps/web/e2e/auth-*.spec.ts`) to upload a real JPEG, crop with the keyboard, save, and see the photo in the menu preview, with the design matrix.
+
+  The application photo and the HEIC helper (D-007) stay open.
+- **Needs Mahdi** — None.
+
 ### 2026-11-13 06:56 GMT — M2-6 item photos on menu items and in the customer preview (Claude, covering while Codex was out)
 
 - **Changed** — `e6810f2`: migration `0020_item_photos.sql` adds `items.photo_media_id` with a composite `(merchant_id, photo_media_id)` foreign key to `media_uploads (merchant_id, id)` (new unique constraint), `ON DELETE SET NULL (photo_media_id)`, and a partial index. `lockItemPhoto` in `packages/db/src/menu-item-writes.ts` accepts only a `kind = 'item'`, `status = 'ready'` photo of the same restaurant (`FOR KEY SHARE`), otherwise `photos_unavailable`. Update replaces or clears the photo, and duplicate keeps it. `menu-item-queries.ts` reads it back. The API guards are gone, `photoId` is lowercased with the other ids, and the 409 mapping stays. `b57d709`: `publishedPhoto` in `@zaafran/contracts/media` (ThumbHash plus exactly ten variants whose `url` must match `/media/<uuid>/<width>.<avif|webp>`) and `photo: publishedPhoto.nullable()` on each preview item. `menu-preview.ts` joins only a `ready` photo and aggregates `media_variants`. Regenerated `docs/openapi.json`.
@@ -987,5 +1009,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress; M2-8, M2-9 and M2-10 done)
 - Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import (M2-8) is complete, including its production browser journey. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
-- Last green `pnpm verify`: 2026-11-13 06:55 GMT on Docker Desktop at `b57d709` with 1,378 unit and 187 PostGIS integration tests. `pnpm trace --through m2` covers 36/37 IDs (missing `MER-01`). `pnpm test:e2e:auth` passed all 18 authenticated production journeys at `a77bfe7`.
+- Last green `pnpm verify`: 2026-11-13 09:55 GMT on Docker Desktop at `d45be80` with 1,444 unit and 187 PostGIS integration tests. `pnpm trace --through m2` covered 36/37 IDs at `b92d62f` (missing `MER-01`). `pnpm test:e2e:auth` passed all 18 authenticated production journeys at `a77bfe7`.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
