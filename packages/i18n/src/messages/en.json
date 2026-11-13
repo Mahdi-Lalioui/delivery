@@ -604,7 +604,17 @@
     "previewRamadan": "Ramadan",
     "saveRamadan": "Save Ramadan hours",
     "ramadanLoading": "Loading Ramadan hours…",
-    "ramadanUnavailable": "Ramadan hours are not available right now."
+    "ramadanUnavailable": "Ramadan hours are not available right now.",
+    "specialLegend": "Special dates",
+    "specialHint": "Close on a given date or set different hours, such as a public holiday or Eid.",
+    "specialEmpty": "No special dates.",
+    "specialDateLabel": "Date",
+    "specialClosed": "Closed all day",
+    "addSpecialDate": "Add a special date",
+    "removeSpecialDate": "Remove {date}",
+    "removeSpecialRange": "Remove {opens}–{closes} on {date}",
+    "errorDate": "Enter a valid date.",
+    "errorDuplicate": "This date is already listed."
   },
   "merchantStaff": {
     "title": "Team",

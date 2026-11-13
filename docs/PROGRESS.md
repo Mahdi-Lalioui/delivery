@@ -13,7 +13,15 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
-### 2026-11-13 04:15 GMT — M2-9 special dates in the hours draft (Claude, covering while Codex was out)
+### 2026-11-13 04:17 GMT — M2-9 special-dates fields (Claude, covering while Codex was out)
+
+- **Changed** — Added the presentational `apps/web/src/merchant-hours/components/special-dates-fields.tsx`. Each entry has a labelled date input, a "closed all day" state, up to four labelled time ranges with an overnight badge, date-specific remove names, and a per-entry error alert linked with `aria-describedby`. "Add date" is disabled at the contract's 60-date limit and "Add range" at four ranges. Added 10 `merchantHours` messages in ar, fr and en.
+- **Evidence** — `apps/web/test/merchant-hours-special-fields.test.tsx` failed first because the module was missing. Afterward, all 8 cases passed, with the i18n parity tests 52/52. `pnpm verify` exited 0 with 1,329 unit and 156 PostGIS integration tests.
+- **Reviewer** — Self-review against AGENTS §10 found no P0/P1. All strings use messages and all styling uses the existing token-based hours classes.
+- **Next** — Wire `SpecialDatesFields` into `merchant-hours-screen.tsx` under the weekly fields. Add `addDate`, `changeDate`, `removeDate`, `addDateRange`, `changeDateRange` and `removeDateRange` to `use-hours-editor.ts` with the `special-dates-editor.ts` helpers. The new date defaults to today in `Africa/Algiers`, read in the hook rather than the pure model. Focus `#special-date-<index>-date` on a date error to resolve `TODO(M2-9)`. Then extend `e2e/auth-merchant-hours.spec.ts` with create, edit and delete plus the matrix.
+- **Needs Mahdi** — None.
+
+### 2026-11-13 04:13 GMT — M2-9 special dates in the hours draft (Claude, covering while Codex was out)
 
 - **Changed** — `HoursDraft.specialDates` now holds editable `SpecialDateDraft[]`. `toHoursInput` reports weekday errors and per-entry special-date errors together as `HoursError` and returns the stored dates only when both are valid. Moved the shared clock and range helpers into `clock-ranges.ts`. This avoids a `hours-editor ↔ special-dates-editor` import cycle. The weekly fields receive only weekday errors (`isDayError`). The save focus also skips special-date errors until their fields exist.
 - **Evidence** — Three new or updated cases in `apps/web/test/merchant-hours-editor.test.ts` failed first: a special-date problem is attributed to its entry, weekday and date errors are reported together, and edited dates are saved. All 93 hours web tests then passed. The old test that expected `errors: []` for a bad special date now expects `{ index: 1, reason: "time" }`, which is a stricter assertion. `pnpm verify` exited 0 with 1,321 unit and 156 PostGIS integration tests. `pnpm test:e2e:auth --grep hours` passed both the ar and fr production journeys.

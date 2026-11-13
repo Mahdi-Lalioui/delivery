@@ -604,7 +604,17 @@
     "previewRamadan": "Ramadan",
     "saveRamadan": "Enregistrer les horaires du Ramadan",
     "ramadanLoading": "Chargement des horaires du Ramadan…",
-    "ramadanUnavailable": "Les horaires du Ramadan sont indisponibles pour le moment."
+    "ramadanUnavailable": "Les horaires du Ramadan sont indisponibles pour le moment.",
+    "specialLegend": "Dates spéciales",
+    "specialHint": "Fermez à une date précise ou indiquez d’autres horaires, par exemple un jour férié ou l’Aïd.",
+    "specialEmpty": "Aucune date spéciale.",
+    "specialDateLabel": "Date",
+    "specialClosed": "Fermé toute la journée",
+    "addSpecialDate": "Ajouter une date spéciale",
+    "removeSpecialDate": "Retirer la date {date}",
+    "removeSpecialRange": "Retirer le créneau {opens}–{closes} du {date}",
+    "errorDate": "Saisissez une date valide.",
+    "errorDuplicate": "Cette date figure déjà dans la liste."
   },
   "merchantStaff": {
     "title": "Équipe",

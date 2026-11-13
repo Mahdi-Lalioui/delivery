@@ -604,7 +604,17 @@
     "previewRamadan": "رمضان",
     "saveRamadan": "حفظ ساعات رمضان",
     "ramadanLoading": "جارٍ تحميل ساعات رمضان…",
-    "ramadanUnavailable": "ساعات رمضان غير متاحة حاليًا."
+    "ramadanUnavailable": "ساعات رمضان غير متاحة حاليًا.",
+    "specialLegend": "تواريخ خاصة",
+    "specialHint": "أغلق في تاريخ محدد أو حدّد له ساعات مختلفة، مثل عطلة رسمية أو العيد.",
+    "specialEmpty": "لا توجد تواريخ خاصة.",
+    "specialDateLabel": "التاريخ",
+    "specialClosed": "مغلق طوال اليوم",
+    "addSpecialDate": "إضافة تاريخ خاص",
+    "removeSpecialDate": "حذف التاريخ {date}",
+    "removeSpecialRange": "حذف الفترة {opens}–{closes} بتاريخ {date}",
+    "errorDate": "أدخل تاريخًا صالحًا.",
+    "errorDuplicate": "هذا التاريخ مضاف بالفعل."
   },
   "merchantStaff": {
     "title": "الفريق",
