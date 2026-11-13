@@ -300,7 +300,8 @@
     "categoryLimit": "This menu has reached its category limit.",
     "manageItems": "Manage items",
     "manageItemsLabel": "Manage items in {name}",
-    "optionLibrary": "Option groups"
+    "optionLibrary": "Option groups",
+    "customerPreview": "Customer preview"
   },
   "merchantOnboarding": {
     "title": "Restaurant setup",
@@ -765,6 +766,13 @@
     "spicy": "Spicy",
     "vegetarian": "Vegetarian",
     "newTag": "New",
-    "popular": "Popular"
+    "popular": "Popular",
+    "backToMenu": "Back to the menu editor",
+    "loading": "Loading the preview…",
+    "loadError": "The menu preview could not be loaded.",
+    "retry": "Try again",
+    "signInRequired": "Sign in to see the menu preview.",
+    "signIn": "Sign in",
+    "forbidden": "Your account cannot see this restaurant’s preview."
   }
 }

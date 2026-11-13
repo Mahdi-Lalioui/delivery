@@ -300,7 +300,8 @@
     "categoryLimit": "بلغت هذه القائمة الحد الأقصى للفئات.",
     "manageItems": "إدارة الأصناف",
     "manageItemsLabel": "إدارة الأصناف ({name})",
-    "optionLibrary": "مجموعات الخيارات"
+    "optionLibrary": "مجموعات الخيارات",
+    "customerPreview": "معاينة الزبون"
   },
   "merchantOnboarding": {
     "title": "إعداد المطعم",
@@ -765,6 +766,13 @@
     "spicy": "حار",
     "vegetarian": "نباتي",
     "newTag": "جديد",
-    "popular": "رائج"
+    "popular": "رائج",
+    "backToMenu": "العودة إلى محرر القائمة",
+    "loading": "جارٍ تحميل المعاينة…",
+    "loadError": "تعذر تحميل معاينة القائمة.",
+    "retry": "إعادة المحاولة",
+    "signInRequired": "سجّل الدخول لرؤية معاينة القائمة.",
+    "signIn": "تسجيل الدخول",
+    "forbidden": "لا يمكن لحسابك رؤية معاينة هذا المطعم."
   }
 }

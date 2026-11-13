@@ -21,6 +21,7 @@ interface SiteShellProps {
     | "/staff/accept"
     | `/merchant/${string}/menu`
     | `/merchant/${string}/menu/options`
+    | `/merchant/${string}/menu/preview`
     | `/merchant/${string}/menu/${string}/items`
     | `/merchant/${string}/setup`
     | `/merchant/${string}/hours`

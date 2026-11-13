@@ -80,6 +80,8 @@ test("[MER-09:categories] exposes accessible category editing, reorder controls 
   expect(html).toContain(menuCategory.manageItems);
   expect(html).toContain(`href="/ar/merchant/${merchantId}/menu/options"`);
   expect(html).toContain(menuCategory.optionLibrary);
+  expect(html).toContain(`href="/ar/merchant/${merchantId}/menu/preview"`);
+  expect(html).toContain(menuCategory.customerPreview);
   expect(html).toContain("21:00");
   expect(html).toContain("03:00");
   expect(html).toMatch(/<li\b(?=[^>]*data-category-id=)(?=[^>]*tabindex="-1")/i);
@@ -93,6 +95,7 @@ test("[MER-09:categories] a changed session removes private rows and drafts and 
   expect(html).not.toContain(first.names.ar);
   expect(html).not.toContain(controls.draft.fr);
   expect(html).not.toContain("/menu/options");
+  expect(html).not.toContain("/menu/preview");
   expect(html).not.toContain("<form");
 });
 

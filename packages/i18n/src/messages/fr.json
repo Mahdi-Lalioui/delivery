@@ -300,7 +300,8 @@
     "categoryLimit": "Ce menu a atteint sa limite de catégories.",
     "manageItems": "Gérer les articles",
     "manageItemsLabel": "Gérer les articles de {name}",
-    "optionLibrary": "Groupes d’options"
+    "optionLibrary": "Groupes d’options",
+    "customerPreview": "Aperçu client"
   },
   "merchantOnboarding": {
     "title": "Configuration du restaurant",
@@ -765,6 +766,13 @@
     "spicy": "Épicé",
     "vegetarian": "Végétarien",
     "newTag": "Nouveau",
-    "popular": "Populaire"
+    "popular": "Populaire",
+    "backToMenu": "Retour à l’éditeur de menu",
+    "loading": "Chargement de l’aperçu…",
+    "loadError": "Impossible de charger l’aperçu du menu.",
+    "retry": "Réessayer",
+    "signInRequired": "Connectez-vous pour voir l’aperçu du menu.",
+    "signIn": "Se connecter",
+    "forbidden": "Votre compte ne peut pas voir l’aperçu de ce restaurant."
   }
 }

@@ -173,12 +173,20 @@ export function MenuCategoryScreen({ merchantId, locale }: { merchantId: string;
             {translate("backToRestaurants")}
           </a>
           {view.kind === "ready" && (
-            <a
-              className="menu-category-secondary"
-              href={`/${locale}/merchant/${merchantId}/menu/options`}
-            >
-              {translate("optionLibrary")}
-            </a>
+            <>
+              <a
+                className="menu-category-secondary"
+                href={`/${locale}/merchant/${merchantId}/menu/options`}
+              >
+                {translate("optionLibrary")}
+              </a>
+              <a
+                className="menu-category-secondary"
+                href={`/${locale}/merchant/${merchantId}/menu/preview`}
+              >
+                {translate("customerPreview")}
+              </a>
+            </>
           )}
         </div>
         <h1 id="menu-category-title">{translate("title")}</h1>
