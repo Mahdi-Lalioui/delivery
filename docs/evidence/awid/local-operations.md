@@ -18,3 +18,15 @@ API, worker and PostgreSQL one at a time. The API and database restarts briefly
 returned 502 and 503 respectively before the entire HTTPS smoke command passed again.
 This smoke test exercised readiness and reference data. The stack had no in-flight
 order fixture for this run.
+
+## Pending order and timer restart
+
+On 13 November 2026, the loopback-only `awid-deploy-test` production Compose project
+used the newly built `8d05721-readiness` backend image and applied migrations. A
+synthetic pickup order was inserted at version 1 in pending acceptance with an
+expiry job queued in the same database transaction. Restarted API, worker and
+PostgreSQL, then checked that the same order reached `expired:2`. Enqueued an
+independent duplicate timer, waited for that job to leave the queue and verified
+exactly one expiry event. The HTTPS smoke passed afterwards. This drill seeded the
+order directly in PostGIS. HTTP placement during failure and browser replay are
+separate outstanding checks.

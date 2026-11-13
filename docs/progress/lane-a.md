@@ -395,3 +395,6 @@
 
 - 2026-11-13 · High · Integrated Lane B maps, feel, copy and consistency with linked evidence. Moved tap feedback, frame pacing and CLS to Lane B. Full workspace verification passed and built the local production backend image. GitHub browser checks now include the complete browser suite and team preview.
   Next: verify the exact integrated head in GitHub and run the local in-flight restart drill.
+
+- 2026-11-13 · High · Restarted API, worker and PostgreSQL around a pending synthetic pickup on the rebuilt local production stack. The order expired at version 2, its repeated timer left exactly one expiry event, and HTTPS smoke recovered.
+  Next: prove the scheduled release timer and HTTP placement across faults, then browser replay and the load pass.
