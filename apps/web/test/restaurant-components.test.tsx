@@ -136,7 +136,7 @@ test("[CUS-07:web] lists popular dishes with a distinct add label and hides when
   ).toBe("");
 });
 
-test("[CUS-07:web] most ordered lists tagged dishes first, tops up to three and never shows one", async () => {
+test("[CUS-07:web] most ordered lists tagged dishes first, tops up from the rest and never shows one", async () => {
   const { pickPopular } = await import("../src/restaurant/restaurant-screen");
   const dish = (id: string, tags: ("popular" | "spicy")[] = []) => ({
     dish: { ...detail.item, itemId: id, tags },
@@ -146,7 +146,11 @@ test("[CUS-07:web] most ordered lists tagged dishes first, tops up to three and 
   expect(
     pickPopular([dish("a"), dish("b", ["popular"]), dish("c")]).map((s) => s.dish.itemId),
   ).toEqual(["b", "a", "c"]);
-  expect(pickPopular([dish("a", ["popular"]), dish("b")])).toEqual([]);
+  expect(pickPopular([dish("a", ["popular"]), dish("b")]).map((s) => s.dish.itemId)).toEqual([
+    "a",
+    "b",
+  ]);
+  expect(pickPopular([dish("a", ["popular"])])).toEqual([]);
 });
 
 test("[CUS-07:web] only a single plain cart line of a dish gets the inline stepper", async () => {
@@ -195,4 +199,11 @@ test("[CUS-07:web] a plain dish already in the cart shows a − n + stepper inst
   expect(html).toContain('class="restaurant-dish-stepper"');
   expect(html).toContain('aria-label="Réduire la quantité · Chawarma"');
   expect(html).not.toContain('class="restaurant-dish-add"');
+});
+
+test("[CUS-07:web] the popular placeholder waits only for the first category, not every lazy one", async () => {
+  const { isPopularPending } = await import("../src/restaurant/restaurant-screen");
+  expect(isPopularPending("", 0)).toBe(true);
+  expect(isPopularPending("", 1)).toBe(false);
+  expect(isPopularPending("chorba", 0)).toBe(false);
 });

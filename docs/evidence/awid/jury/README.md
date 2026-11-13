@@ -38,3 +38,20 @@ All five shortfalls checked again on a fresh production build (`round-2/`, sheet
 
 Nothing left that falls short in this round. The only remaining notice (account and sign-in
 messages) is the preview build's missing auth API, not the product.
+
+## Round 3 (13 November 2026)
+
+Every customer screen (14) × ar-390, fr-390, fr-1280, fr-390-dark on a fresh preview build,
+`pnpm evidence:screens`. Contact sheets before fixes: [fr-390](round-3/before-sheet-fr-390.jpg),
+[ar-390](round-3/before-sheet-ar-390.jpg), [fr-390 dark](round-3/before-sheet-fr-390-dark.jpg),
+[fr-1280](round-3/before-sheet-fr-1280.jpg).
+
+| Screen | Shortfall | Fix |
+|---|---|---|
+| Restaurant | "Les plus commandés" stayed a grey placeholder forever. It waited for every category, but categories load only as the diner scrolls near them. | The row waits for the first category only; empty categories count as loaded; two dishes make a row (one never does). `[CUS-07:web]` tests went red, then green. CLS stays 0 (it was 0.274 with the row collapsing). |
+| Orders, favourites | Long names ran into the next tile ("Karantika Bab El C" against "Pâtisse"): the ellipsis never applied because the title is a flex box. | The title is a block, so it ends in "…" in both directions. |
+
+After: [favourites and popular row, fr and ar](round-3/after-favourites-and-popular.png),
+[Restaurant fr-390](round-3/after-restaurant-popular-fr-390.png). Every other screen passed in
+all four variants. Sign-in and Account show the "can't load" state only because the preview
+build has no login backend.

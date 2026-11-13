@@ -504,6 +504,8 @@
 }
 
 .orders-favourite-text .billing-row-title {
+  /* Block, not flex: text-overflow only ellipsizes text in a block container. */
+  display: block;
   max-inline-size: 100%;
   overflow: hidden;
   text-overflow: ellipsis;

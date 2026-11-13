@@ -60,7 +60,7 @@ export function MenuCategory({
   onChoose: (selection: DishSelection) => void;
   onStale: (categoryId: string) => void;
   /** Reports the dishes loaded so far, for the Popular row. */
-  onDishes: (selections: readonly DishSelection[]) => void;
+  onDishes: (categoryId: string, selections: readonly DishSelection[]) => void;
   inCart: ReadonlyMap<string, number>;
   steppers: ReadonlyMap<string, Stepper>;
   onStep: (lineId: string, quantity: number) => void;
@@ -109,7 +109,10 @@ export function MenuCategory({
   useEffect(() => {
     const { revision } = state;
     if (revision === null) return;
-    onDishes(state.dishes.map((dish) => ({ dish, revision, categoryId: category.categoryId })));
+    onDishes(
+      category.categoryId,
+      state.dishes.map((dish) => ({ dish, revision, categoryId: category.categoryId })),
+    );
   }, [state, category.categoryId, onDishes]);
   const shouldLoad = state.phase === "loading" || (state.phase === "idle" && (isNear || isActive));
   useEffect(() => {
