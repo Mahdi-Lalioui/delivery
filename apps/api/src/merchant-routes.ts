@@ -56,6 +56,7 @@ const failureStatus = {
   account_unavailable: 403,
   invalid_commune: 422,
   outside_commune: 422,
+  photos_unavailable: 409,
   idempotency_conflict: 409,
   invalid_status: 409,
   not_found: 404,
@@ -84,8 +85,11 @@ function registerApplication(api: FastifyInstance, services: MerchantServices | 
       if (request.headers["x-expected-session-id"].toLowerCase() !== actor.sessionId)
         return sendProblem(reply, 409, "session_changed");
       const { photoIds, ...body } = request.body;
-      if (photoIds?.length) return sendProblem(reply, 409, "photos_unavailable");
-      const input = { ...body, communeId: body.communeId.toLowerCase() };
+      const input = {
+        ...body,
+        communeId: body.communeId.toLowerCase(),
+        ...(photoIds && { photoIds: photoIds.map((photoId) => photoId.toLowerCase()) }),
+      };
       const result = await services.repository.submitApplication({
         accountId: actor.accountId,
         input,

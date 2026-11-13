@@ -157,6 +157,25 @@ test.each(["customer", "merchant_owner", "merchant_manager", "merchant_staff"] a
   },
 );
 
+test("[MER-01:http] signup passes optional application photos to the repository, lowercased", async () => {
+  const { api, repository } = setup(customer);
+  repository.submitApplication.mockResolvedValue({
+    kind: "created",
+    merchantId,
+    status: "pending_review",
+  });
+  const photoId = "01932F18-3150-7C33-8A7A-53ACFD343009";
+
+  const response = await api.inject({
+    ...applicationRequest,
+    payload: { ...application, photoIds: [photoId] },
+  });
+
+  expect(response.statusCode).toBe(201);
+  const [call] = repository.submitApplication.mock.calls;
+  expect(call?.[0].input).toEqual({ ...application, photoIds: [photoId.toLowerCase()] });
+});
+
 test.each([
   { actor: customer, request: applicationRequest },
   { actor: admin, request: reviewRequest },
@@ -249,6 +268,7 @@ test.each([
   ["account_unavailable", 403],
   ["invalid_commune", 422],
   ["outside_commune", 422],
+  ["photos_unavailable", 409],
   ["idempotency_conflict", 409],
 ] as const)("[MER-01:http] signup maps %s to %i", async (kind, status) => {
   const { api, repository } = setup(customer);
