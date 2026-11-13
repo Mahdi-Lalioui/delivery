@@ -425,3 +425,6 @@
 
 - 2026-11-13 · High · k6 endpoint smoke passed all 25 checks through local Caddy. Placement replay p95 was 15.95 ms and moving courier intake p95 was 7.87 ms.
   Next: build distinct quote and courier fixtures for the pilot-rate run. The replay smoke does not prove fresh-placement capacity.
+
+- 2026-11-13 · High · Both connected performance tests passed on the integrated candidate. Discovery peaked at 1.62 s and Restaurant at 1.42 s over three cold samples each. Initial JS remains over the SPEC budget.
+  Next: profile the larger connected catalog and identify common route bundles to defer.

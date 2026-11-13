@@ -98,3 +98,12 @@ tilts once the first tile wave has settled; the pickup and address maps stay fla
 scrolling is a clean 60 fps. Scrolling inside the first ~3 s while the tilt's second tile wave
 loads is still 56–57 fps, so the 60 fps line stays open until it is checked on a physical
 Android phone, or until the street view is offered only after the diner opens it.
+
+## Integrated production build, 13 November
+
+At `0c7a78b`, the connected three-restaurant Playwright fixture passed both
+route checks on the same throttled Pixel 7 profile. Discovery LCP was 1,528 /
+1,620 / 1,520 ms and Restaurant was 1,424 / 1,400 / 1,404 ms. CLS was zero in
+all six samples. Initial gzip JavaScript was 336,777 bytes for Discovery and
+258,444 bytes for Restaurant. Both exceeded the SPEC 180 KB target. Richer
+connected catalog measurements are still open.
