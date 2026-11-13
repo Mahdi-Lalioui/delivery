@@ -422,3 +422,6 @@
 
 - 2026-11-13 · High · All seven GitHub checks passed at `9c04db9`; fast-forwarded main to that commit. Merged Lane B through `9ce97f0` into the next candidate and passed full local pnpm verify with 2,052 unit and 337 integration tests.
   Next: require green hosted checks on the new integration PR and continue the local k6, performance and security checks.
+
+- 2026-11-13 · High · k6 endpoint smoke passed all 25 checks through local Caddy. Placement replay p95 was 15.95 ms and moving courier intake p95 was 7.87 ms.
+  Next: build distinct quote and courier fixtures for the pilot-rate run. The replay smoke does not prove fresh-placement capacity.
