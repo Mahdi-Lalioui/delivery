@@ -416,7 +416,10 @@
     "optionGroupsLater": "Move {name} later",
     "optionGroupUnknown": "Saved option group",
     "optionGroupsLimit": "An item can have up to 50 option groups.",
-    "importMenu": "Import a menu"
+    "importMenu": "Import a menu",
+    "photo": "Photo (4:3)",
+    "photoAttached": "A photo is attached to this item.",
+    "removePhoto": "Remove the photo"
   },
   "menuOptionGroup": {
     "title": "Option groups",

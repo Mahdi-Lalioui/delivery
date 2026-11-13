@@ -416,7 +416,10 @@
     "optionGroupsLater": "Descendre {name}",
     "optionGroupUnknown": "Groupe d’options enregistré",
     "optionGroupsLimit": "Un article peut avoir jusqu’à 50 groupes d’options.",
-    "importMenu": "Importer un menu"
+    "importMenu": "Importer un menu",
+    "photo": "Photo (4:3)",
+    "photoAttached": "Une photo est associée à ce plat.",
+    "removePhoto": "Retirer la photo"
   },
   "menuOptionGroup": {
     "title": "Groupes d’options",

@@ -45,6 +45,8 @@ export function MenuItemPage({
           menuItem: getMessages(locale).menuItem,
           menuPrice: getMessages(locale).menuPrice,
           menuImport: getMessages(locale).menuImport,
+          photoUpload: getMessages(locale).photoUpload,
+          photoCrop: getMessages(locale).photoCrop,
         }}
       >
         <MenuItemScreen

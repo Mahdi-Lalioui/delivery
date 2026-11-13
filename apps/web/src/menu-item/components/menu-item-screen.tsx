@@ -109,7 +109,15 @@ function ItemWorkspace({
           controls={controls}
           blocked={blocked}
         />
-        {editor && <MenuItemForm {...controls} editor={editor} locale={locale} />}
+        {editor && (
+          <MenuItemForm
+            {...controls}
+            editor={editor}
+            locale={locale}
+            merchantId={merchantId}
+            sessionId={snapshot.sessionId}
+          />
+        )}
       </div>
       {snapshot.items.length > 0 && (
         <BulkPriceSection

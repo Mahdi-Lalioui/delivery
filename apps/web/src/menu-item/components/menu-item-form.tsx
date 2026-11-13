@@ -4,6 +4,7 @@ import { isAttachmentSaveBlocked } from "../item-attachments";
 import type { ItemField } from "../item-editor";
 import type { useMenuItemEditor } from "../use-menu-item-editor";
 import { ItemAttachmentFields } from "./item-attachment-fields";
+import { ItemPhotoField } from "./item-photo-field";
 
 type Controls = ReturnType<typeof useMenuItemEditor>;
 type Editor = NonNullable<Controls["editor"]>;
@@ -112,6 +113,8 @@ export function MenuItemForm({
   changeDraft,
   submitDraft,
   closeEditor,
+  merchantId,
+  sessionId,
 }: Pick<
   Controls,
   | "pending"
@@ -125,6 +128,8 @@ export function MenuItemForm({
 > & {
   editor: Editor;
   locale: Locale;
+  merchantId: string;
+  sessionId: string;
 }) {
   const translate = useTranslations("menuItem");
 
@@ -211,6 +216,15 @@ export function MenuItemForm({
             </div>
           </fieldset>
         </fieldset>
+        <ItemPhotoField
+          key={sessionId}
+          merchantId={merchantId}
+          sessionId={sessionId}
+          photoId={editor.draft.photoId}
+          onPhotoChange={(photoId) => {
+            changeDraft({ photoId });
+          }}
+        />
         <ItemAttachmentFields
           attachments={attachments}
           ids={editor.draft.optionGroupIds}

@@ -416,7 +416,10 @@
     "optionGroupsLater": "نقل {name} لأسفل",
     "optionGroupUnknown": "مجموعة خيارات محفوظة",
     "optionGroupsLimit": "يمكن ربط ما يصل إلى 50 مجموعة خيارات بالصنف.",
-    "importMenu": "استيراد قائمة"
+    "importMenu": "استيراد قائمة",
+    "photo": "الصورة (4:3)",
+    "photoAttached": "هذا الطبق مرفق بصورة.",
+    "removePhoto": "إزالة الصورة"
   },
   "menuOptionGroup": {
     "title": "مجموعات الخيارات",
