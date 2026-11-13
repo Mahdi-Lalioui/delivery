@@ -69,3 +69,14 @@ transition replays returned byte-identical 200 responses. PostgreSQL retained
 one order for the quote and exactly six versioned events through `delivered:6`.
 The production HTTPS smoke passed again. This drill exercised the HTTP journey.
 Browser disconnection and replay remain a separate check.
+
+## Connected browser network recovery
+
+The production Next build, real Fastify API and disposable PostGIS passed the
+Chromium delivery journey with browser-context disconnections. A delivery
+placed while the restaurant board was offline appeared after reconnect, and
+the board reopened an HTTP 200 SSE stream. The assigned courier retained the
+job with pickup disabled while offline, recovered it after reconnect by
+polling, and completed delivery. The initial SSE assertion timed out before
+the board fix. Reproduce with `pnpm test:e2e:auth e2e/auth-order-journey.spec.ts
+--grep 'real cash order.*delivery' --fail-on-flaky-tests`.

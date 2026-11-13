@@ -51,9 +51,9 @@ export function useOrderBoard(merchantId: string) {
     };
   }, [merchantId, epoch, refresh]);
 
-  const ready = view.kind === "ready";
+  const connected = view.kind === "ready" && !view.offline;
   useEffect(() => {
-    if (!ready || !("EventSource" in window)) return;
+    if (!connected || !("EventSource" in window)) return;
     const query = new URLSearchParams({
       topic: "merchantOrders",
       merchantId,
@@ -84,7 +84,7 @@ export function useOrderBoard(merchantId: string) {
       clearTimeout(refreshTimer);
       streaming.current = false;
     };
-  }, [merchantId, ready, refresh]);
+  }, [merchantId, connected, refresh]);
 
   return { view, refresh };
 }

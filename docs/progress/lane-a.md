@@ -416,3 +416,6 @@
 
 - 2026-11-13 · High · Re-ran 265 route authorization tests and 44 focused media and logger tests. Recorded upload validation, decoded-pixel limits, metadata stripping and private media evidence.
   Next: complete the remaining route isolation and session checks in SECURITY_REVIEW.
+
+- 2026-11-13 · High · Added real network disconnections to the connected browser delivery journey. Fixed the board to reopen SSE after successful recovery and verified missed-order catch-up and courier polling recovery.
+  Next: run local k6 intake and placement and verify the current candidate in GitHub.
