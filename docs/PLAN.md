@@ -95,7 +95,9 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Attach a `ready` item photo of the same restaurant to a menu item (forward migration, menu item contract field, tenant-scoped check in SQL). Return its variants and ThumbHash in the menu preview.
     - [x] Add the typed web client (reserve → PUT content → poll status → PUT crop → poll ready) and the localized keyboard cropper over the private preview.
     - [x] Place the photo uploader in the item form (hook, draft `photoId` on ready, remove).
-    - [ ] Run the worker's `media.process` task and a temporary media store in the authenticated e2e harness. Prove upload → keyboard crop → save → saved item readback → menu preview photo in the browser, with the design matrix.
+    - [x] Run the worker's `media.process` task and a temporary media store in the authenticated e2e harness. Prove upload → keyboard crop → save → saved item readback → menu preview photo in the browser, with the design matrix.
+    - [x] Render published item photos in the customer preview (AVIF/WebP sources, explicit size, ThumbHash placeholder, D-020).
+    - [ ] Add the 180 ms photo fade-in once motion tokens exist in `packages/tokens` (DESIGN §6/§7, reduced motion).
     - [ ] Add the optional application photo to the merchant application form.
 - [x] M2-7 Bulk prices (MER-11). Bind preview to merchant and item revisions, apply rounded changes and history atomically, and prove ten-minute undo rejects expired or subsequently changed prices.
   - [x] Add the pure percent/fixed rounding calculation (nearest 1/5/10/50 DA, ties up, clamped to zero).

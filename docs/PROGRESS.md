@@ -13,6 +13,31 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-13 10:48 GMT — M2-6 media worker in the browser harness, item photo journey and preview photos (Claude, covering while Codex was out)
+
+- **Changed** — Three code commits on `m2-merchant-onboarding`:
+  - `c197e10`: the auth harness (`apps/api/tools/e2e-auth-bootstrap.ts`) gives the API a `mkdtemp` media store (`MEDIA_STORAGE_ROOT`) and exposes `databaseUrl` and `mediaRoot`. `apps/worker/tools/e2e-media-worker.ts` runs the compiled `media.process` queue (Graphile `run` over `dist/runtime.js`, after `migrateWorker`) on both. It also makes a generated 1200×900 JPEG, so no real photo is used. `e2e/auth-fixture.ts` adds `withMediaWorker`, and `pnpm test:e2e:auth` now also builds the worker. New `e2e/auth-menu-item-photo.spec.ts` (`[MER-14:browser]`, `@menu-photos`): upload in the item form, then Shift+→, ↓ and `+` on the crop stage. It asserts the crop PUT moved the focal point and zoomed, waits for ready, saves (`photoId` = the upload), and reads the photo back from the API and after a reload (`photoAttached`).
+  - `d4b3252`: `apps/web/src/menu-preview/components/menu-preview-photo.tsx` renders each published photo as `<picture>`. It has AVIF and WebP `srcset` over the five widths, a 640 px WebP fallback, the largest variant's `width`/`height`, `loading="lazy"`, `decoding="async"` and a 4:3 box. The photo is decorative (`alt=""`) because the item name is the heading beside it.
+  - `2e3138a`: the e2e proxy serves only `/media/<uuid>/<width>.<avif|webp>` from the harness store, as Caddy does (D-019). The journey checks the loaded photo (`naturalWidth > 0`, `currentSrc` under `/media/<mediaId>/`) in the fr and ar previews. It runs the light/dark × 390/1280 matrix with overflow and axe on the cropper (fr) and both previews.
+  - `6a1927c` (D-020): the web app adds the already pinned `thumbhash` 0.1.1 and paints the decoded placeholder in a decorative `<img>` under the photo. The CSP forbids inline styles, so this is not a background.
+- **Evidence** — Each step failed first for the right reason:
+  - The journey without the worker failed at the crop stage (element not found).
+  - With the worker but without the preview component, it failed at the fr preview step.
+  - The preview unit tests failed first (no `<picture>`, then no placeholder).
+
+  Afterward, `menu-preview-list` passed 6/6. `pnpm verify` exited 0 at `6a1927c`'s tree with 1,451 unit and 187 PostGIS integration tests, and trace through m1 was 20/20. `pnpm test:e2e:auth` passed 19/19 authenticated production journeys; the photo journey took 13.8 s.
+- **Reviewer** — Self-review against AGENTS §10 found no P0/P1. Fixed: lint rejected `as` casts in the worker tool (replaced with type guards), and the proxy now destroys the response if the stored file stream errors. P2s:
+  - Graphile info logs are printed into the Playwright output.
+  - The crop stage and its fieldset share the accessible name "Recadrer la photo". The test targets the stage by its description; a distinct fieldset legend would be clearer.
+  - The `sizes` attribute uses literal rem values because attributes cannot read CSS tokens.
+- **Next** — The optional application photo in the merchant application form (PLAN M2-6, last sub-bullet):
+  1. The contract already accepts `{ kind: "application" }` reservations without `merchantId` (`packages/contracts/src/media.ts:19`). Check how `apps/api` and `packages/db/src/media.ts` scope an application upload to its owner, and whether the merchant application input (`packages/contracts/src/merchant*.ts`) has a photo field yet. If not, add `applicationPhotoId: uuid.nullable()` with PostGIS tests first: owner-only, `ready`, `kind = 'application'`.
+  2. Render `PhotoUploader` with kind `application` (16:9) in the application form, using `usePhotoUpload` with `target: { kind: "application" }`.
+  3. Extend `e2e/auth-merchant.spec.ts` with `withMediaWorker` for an application with a photo, and check the private variant is **not** served under `/media/`.
+
+  Afterward: the 180 ms fade-in after motion tokens, the HEIC helper (D-007) and the `@merchant-onboarding` journey.
+- **Needs Mahdi** — None.
+
 ### 2026-11-13 10:01 GMT — M2-6 photo field in the menu item form (Claude, covering while Codex was out)
 
 - **Changed** — `f3e2c83` adds `apps/web/src/media/use-photo-upload.ts` (`useSyncExternalStore` over `createPhotoController`, disposed on unmount) and `menu-item/components/item-photo-field.tsx`. The field sets the draft `photoId` once the photo is `ready`, through a ref so parent re-renders do not repeat the call. It shows an attached photo with a remove button. `menu-item-form.tsx` renders it (keyed by session) with `merchantId`/`sessionId` from the screen. `menu-item-page.tsx` passes the `photoUpload` and `photoCrop` messages, and `menuItem` gains `photo`, `photoAttached` and `removePhoto` in ar/fr/en. `apps/web/test/menu-item-screen.test.tsx` used to assert that the form had **no** `type="file"`, which recorded the pre-photo state. That assertion is now positive: it requires the labelled photo group, the file input limited to the four accepted types, and the localized picker label.
@@ -1026,5 +1051,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress; M2-8, M2-9 and M2-10 done)
 - Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import (M2-8) is complete, including its production browser journey. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
-- Last green `pnpm verify`: 2026-11-13 09:58 GMT on Docker Desktop at `f3e2c83` with 1,447 unit and 187 PostGIS integration tests. `pnpm test:e2e:auth` passed all 18 authenticated production journeys at `f3e2c83`. `pnpm trace --through m2` covered 36/37 IDs at `b92d62f` (missing `MER-01`).
+- Last green `pnpm verify`: 2026-11-13 10:46 GMT on Docker Desktop at `6a1927c` with 1,451 unit and 187 PostGIS integration tests. `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6a1927c`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 36/37 IDs at `b92d62f` (missing `MER-01`).
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
