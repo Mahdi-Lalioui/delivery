@@ -6,6 +6,7 @@ import { createServer } from "node:https";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
+import { createLocalMediaStore, type MediaStore } from "@zaafran/media";
 
 const loopback = "127.0.0.1";
 const run = promisify(execFile);
@@ -65,14 +66,37 @@ function forward(incoming: IncomingMessage, response: ServerResponse, target: UR
   incoming.pipe(upstream);
 }
 
-export async function startAuthProxy(webOrigin: string) {
+// Production serves only published variants under /media/ (SPEC §20 Caddy); so does this proxy.
+const publishedVariant = /^\/media\/[0-9a-f-]{36}\/(?:160|320|640|960|1280)\.(avif|webp)$/;
+
+async function servePublished(store: MediaStore, path: string, response: ServerResponse) {
+  const format = publishedVariant.exec(path)?.[1];
+  const object = format === undefined ? undefined : await store.get(path.slice(1));
+  if (format === undefined || object === undefined) {
+    response.writeHead(404).end();
+    return;
+  }
+  response.writeHead(200, {
+    "content-type": `image/${format}`,
+    "content-length": object.bytes.toString(),
+  });
+  object.body.once("error", () => response.destroy());
+  object.body.pipe(response);
+}
+
+export async function startAuthProxy(webOrigin: string, mediaRoot: string) {
   const web = new URL(webOrigin);
   if (web.protocol !== "http:" || web.hostname !== loopback) {
     throw new Error("The authentication test proxy requires a loopback web server.");
   }
   let api: URL | undefined;
+  const media = createLocalMediaStore({ root: mediaRoot });
   const server = createServer(await certificate(), (incoming, response) => {
     const path = incoming.url?.split("?", 1)[0];
+    if (path?.startsWith("/media/")) {
+      servePublished(media, path, response).catch(() => response.destroy());
+      return;
+    }
     const target = path === "/v1" || path?.startsWith("/v1/") ? api : web;
     if (target === undefined) response.writeHead(503).end();
     else forward(incoming, response, target);

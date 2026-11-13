@@ -125,7 +125,7 @@ export async function startAuthHarness(webOrigin: string): Promise<AuthHarness> 
   const mediaRoot = await mkdtemp(join(tmpdir(), "zaafran-e2e-media-"));
   resources.defer(() => rm(mediaRoot, { recursive: true, force: true }));
 
-  const proxy = await startAuthProxy(webOrigin);
+  const proxy = await startAuthProxy(webOrigin, mediaRoot);
   resources.defer(proxy.close);
   const totpKey = randomBytes(32);
   const sms = new Map<string, string>();

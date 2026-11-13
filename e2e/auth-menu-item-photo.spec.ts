@@ -1,5 +1,6 @@
+import AxeBuilder from "@axe-core/playwright";
 import { randomUUID } from "node:crypto";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page, type TestInfo } from "@playwright/test";
 import type { AuthHarness } from "../apps/api/tools/e2e-auth-types.ts";
 import { mediaCropInput, mediaOutput } from "../packages/contracts/src/media.ts";
 import {
@@ -8,12 +9,48 @@ import {
   menuItemPageOutput,
   menuItemWriteOutput,
 } from "../packages/contracts/src/menu.ts";
+import ar from "../packages/i18n/src/messages/ar.json" with { type: "json" };
 import fr from "../packages/i18n/src/messages/fr.json" with { type: "json" };
 import { withAuthHarness, withMediaWorker } from "./auth-fixture.ts";
+import { attachPageScreenshot } from "./visual.ts";
 
 const owner = { input: "0550 00 02 91", phone: "+213550000291" };
 const categoryNames = { ar: "أطباق", fr: "Plats du jour" };
 const itemNames = { ar: "شوربة فريك", fr: "Chorba frik" };
+const messages = { ar, fr } as const;
+
+async function checkMatrix(page: Page, info: TestInfo, name: string) {
+  for (const theme of ["light", "dark"] as const) {
+    for (const width of [390, 1280]) {
+      await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
+      await page.setViewportSize({ width, height: width === 390 ? 844 : 800 });
+      await attachPageScreenshot(page, info, `${name}-${theme}-${String(width)}`);
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+      expect(overflow).toBe(0);
+      const { violations } = await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+        .analyze();
+      expect(violations.map(({ id }) => id)).toEqual([]);
+    }
+  }
+}
+
+async function expectPreviewPhoto(page: Page, locale: "ar" | "fr", mediaId: string) {
+  const text = messages[locale];
+  await expect(page.getByRole("heading", { name: text.menuPreview.title })).toBeVisible();
+  const preview = page.getByRole("region", { name: text.menuPreview.categories });
+  const item = preview.getByRole("listitem").filter({
+    has: page.getByRole("heading", { name: itemNames[locale] }),
+  });
+  const photo = item.locator("picture img");
+  await photo.scrollIntoViewIfNeeded();
+  await expect(photo).toHaveJSProperty("complete", true);
+  expect(await photo.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
+  const source = await photo.evaluate((image: HTMLImageElement) => image.currentSrc);
+  expect(new URL(source).pathname).toMatch(
+    new RegExp(`^/media/${mediaId}/(?:160|320|640|960|1280)\\.(?:avif|webp)$`),
+  );
+}
 
 async function signInOwner(page: Page, auth: AuthHarness) {
   await page.goto(auth.origin + "/fr/sign-in");
@@ -77,7 +114,8 @@ async function cropWithKeyboard(page: Page, mediaId: string) {
 test("[MER-14:browser] an owner uploads, crops by keyboard and saves an item photo @menu-photos", async ({
   baseURL,
   page,
-}) => {
+}, info) => {
+  test.setTimeout(90_000);
   await withAuthHarness(baseURL, async (auth) => {
     await withMediaWorker(auth, async ({ syntheticJpeg }) => {
       const merchantId = await signInOwner(page, auth);
@@ -105,6 +143,8 @@ test("[MER-14:browser] an owner uploads, crops by keyboard and saves an item pho
       const { mediaId } = mediaOutput.parse(await (await reservation).json());
 
       await test.step("Move the focal point and zoom with the keyboard", async () => {
+        await expect(page.getByRole("button", { name: fr.photoCrop.confirm })).toBeVisible();
+        await checkMatrix(page, info, "item-photo-cropper-fr");
         await cropWithKeyboard(page, mediaId);
         await expect(editor.getByText(fr.photoUpload.ready, { exact: true })).toBeVisible({
           timeout: 30_000,
@@ -140,6 +180,14 @@ test("[MER-14:browser] an owner uploads, crops by keyboard and saves an item pho
         await page.getByRole("button", { name: edit, exact: true }).click();
         await expect(page.getByText(fr.menuItem.photoAttached, { exact: true })).toBeVisible();
       });
+
+      for (const locale of ["fr", "ar"] as const) {
+        await test.step(`See the cropped photo in the ${locale} customer preview`, async () => {
+          await page.goto(`${auth.origin}/${locale}/merchant/${merchantId}/menu/preview`);
+          await expectPreviewPhoto(page, locale, mediaId);
+          await checkMatrix(page, info, `menu-preview-photo-${locale}`);
+        });
+      }
     });
   });
 });
