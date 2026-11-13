@@ -1,7 +1,12 @@
 import { type Cart } from "@zaafran/domain/cart";
 import { useEffect, useState } from "react";
 import { buzz, cartGrew } from "../feel/feel";
-import { cartStorageKey, readBrowserCart, saveBrowserCart } from "./cart-storage";
+import {
+  cartStorageKey,
+  readBrowserCart,
+  saveBrowserCart,
+  takeExpiredCartNotice,
+} from "./cart-storage";
 
 function browserStorage(): Storage | null {
   try {
@@ -23,11 +28,14 @@ function itemCount(cart: Cart | null): number {
 export function useBrowserCart() {
   const [cart, setCart] = useState<Cart | null>(null);
   const [storageFailed, setStorageFailed] = useState(false);
+  const [expiredFrom, setExpiredFrom] = useState<string | null>(null);
   useEffect(() => {
     function restore() {
       setCart(currentBrowserCart());
     }
     restore();
+    const storage = browserStorage();
+    if (storage) setExpiredFrom(takeExpiredCartNotice(storage));
     function sync(event: StorageEvent) {
       if (event.key === cartStorageKey || event.key === null) restore();
     }
@@ -57,5 +65,5 @@ export function useBrowserCart() {
     const storage = browserStorage();
     setStorageFailed(storage === null || !saveBrowserCart(storage, next));
   }
-  return { cart, save, storageFailed };
+  return { cart, save, storageFailed, expiredFrom };
 }

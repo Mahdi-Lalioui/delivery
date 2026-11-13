@@ -1120,7 +1120,8 @@
     "score_2": "Poor",
     "score_3": "Okay",
     "score_4": "Good",
-    "score_5": "Excellent"
+    "score_5": "Excellent",
+    "retry": "Try again"
   },
   "retentionPromotions": {
     "title": "Promotions",
@@ -1776,7 +1777,10 @@
     "promo_promotion_below_minimum": "This code needs a slightly bigger basket. Add a dish and try again.",
     "promo_promotion_used_up": "This code has been fully used. Try another one.",
     "promo_promotion_wrong_restaurant": "This code doesn’t work here. Check it or try another one.",
-    "discountAmount": "−{amount}"
+    "discountAmount": "−{amount}",
+    "cartExpired": "Your basket expired",
+    "cartExpiredBody": "It had been waiting at {name} for over 7 days, so we emptied it to keep prices right. Rebuild it in two minutes.",
+    "placeNoTotal": "Place order"
   },
   "tracking": {
     "title": "Your order",
@@ -1811,7 +1815,7 @@
     "status_collected": "Collected",
     "status_rejected": "The restaurant couldn’t take it. Nothing to pay.",
     "status_expired": "The restaurant didn’t answer. Nothing to pay.",
-    "status_cancelled": "Cancelled",
+    "status_cancelled": "Order cancelled. Nothing to pay.",
     "status_delivery_failed": "Delivery didn’t work out. You can order again any time.",
     "step_placed": "Order sent",
     "step_accepted": "Accepted",
@@ -1836,7 +1840,9 @@
     "notifyError": "We couldn’t turn on notifications. Try again.",
     "etaLabel": "Estimated arrival",
     "etaRange": "{from} – {to}",
-    "etaPickupLabel": "Ready around"
+    "etaPickupLabel": "Ready around",
+    "endedFind": "Find another restaurant",
+    "endedOrders": "See my orders"
   },
   "accountHub": {
     "contactTitle": "Sign-in details",

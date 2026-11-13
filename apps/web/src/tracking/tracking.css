@@ -601,3 +601,38 @@
 [data-scooter="true"] .tracking-map-rider {
   visibility: hidden;
 }
+
+/* An order that will not arrive: centred, calm, two ways on. */
+.tracking-ended {
+  display: grid;
+  gap: var(--space-12);
+  justify-items: center;
+  max-inline-size: 28rem;
+  margin-inline: auto;
+  padding: var(--space-48) var(--space-16);
+  text-align: center;
+}
+
+.tracking-ended h1 {
+  margin: 0;
+  font-weight: var(--font-weight-h2);
+  font-size: var(--font-size-h2);
+  line-height: var(--line-height-h2);
+}
+
+.tracking-ended-icon {
+  display: grid;
+  place-items: center;
+  inline-size: var(--space-64);
+  block-size: var(--space-64);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-2);
+  color: var(--color-text-2);
+}
+
+.tracking-ended-actions {
+  display: grid;
+  gap: var(--space-8);
+  inline-size: 100%;
+  margin-block-start: var(--space-12);
+}

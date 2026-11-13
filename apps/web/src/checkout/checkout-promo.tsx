@@ -54,6 +54,8 @@ export function PromoField({ state }: { state: CheckoutState }) {
   const { rejection, code } = state.promotion;
   const [isOpen, setIsOpen] = useState(rejection !== null);
   const [draft, setDraft] = useState("");
+  // No total yet, no code: the diner first needs the quote to load.
+  if (state.quote.kind !== "ready" && rejection === null) return null;
   if (code !== null) return <AppliedCode state={state} />;
   if (!isOpen && rejection === null) {
     return (

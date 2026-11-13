@@ -30,6 +30,7 @@ for (const state of [
   "checkout-loading",
   "checkout-error",
   "checkout-empty",
+  "checkout-expired-cart",
   "checkout-promo",
   "checkout-offer",
   "checkout-promo-rejected",

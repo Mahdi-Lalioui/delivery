@@ -57,12 +57,17 @@ const slots = ["19:30", "19:45", "20:00", "20:15", "20:30"].map((time) => ({
 const noop = () => undefined;
 
 /** Promo stories: a typed code applied, the restaurant's automatic offer, or a refused code. */
-export type PromoStory = "code" | "automatic" | "rejected";
+export type PromoStory = "code" | "automatic" | "rejected" | "expired-cart";
 
 function promotionFor(story: PromoStory | undefined): CheckoutState["promotion"] {
   if (story === "code") return { code: "RAMADAN", rejection: null };
   if (story === "rejected") return { code: null, rejection: "promotion_expired" };
   return { code: null, rejection: null };
+}
+
+function cartFor(mode: Mode, promo: PromoStory | undefined) {
+  if (mode === "loading") return undefined;
+  return mode === "empty" || promo === "expired-cart" ? null : cart;
 }
 
 function fixture({
@@ -81,7 +86,8 @@ function fixture({
   const discountDzd = promo === "code" || promo === "automatic" ? 300 : 0;
   const feeDzd = fulfilment === "delivery" ? 100 : 0;
   const state: CheckoutState = {
-    cart: mode === "loading" ? undefined : mode === "empty" ? null : cart,
+    cart: cartFor(mode, promo),
+    expiredFrom: promo === "expired-cart" ? "Dar Yemma" : null,
     step,
     fulfilment,
     addresses: {

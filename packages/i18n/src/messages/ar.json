@@ -1120,7 +1120,8 @@
     "score_2": "ضعيف",
     "score_3": "مقبول",
     "score_4": "جيد",
-    "score_5": "ممتاز"
+    "score_5": "ممتاز",
+    "retry": "إعادة المحاولة"
   },
   "retentionPromotions": {
     "title": "العروض",
@@ -1776,7 +1777,10 @@
     "promo_promotion_below_minimum": "هذا الرمز يتطلب سلة أكبر قليلًا. أضف طبقًا وأعد المحاولة.",
     "promo_promotion_used_up": "استُعمل هذا الرمز حتى آخره. جرّب رمزًا آخر.",
     "promo_promotion_wrong_restaurant": "هذا الرمز لا يعمل هنا. تحقّق منه أو جرّب رمزًا آخر.",
-    "discountAmount": "−{amount}"
+    "discountAmount": "−{amount}",
+    "cartExpired": "انتهت صلاحية سلتك",
+    "cartExpiredBody": "بقيت سلتك من {name} أكثر من 7 أيام، فأفرغناها كي تبقى الأسعار صحيحة. أعد ملأها في دقيقتين.",
+    "placeNoTotal": "اطلب"
   },
   "tracking": {
     "title": "طلبك",
@@ -1811,7 +1815,7 @@
     "status_collected": "تم الاستلام",
     "status_rejected": "لم يتمكن المطعم من قبوله. لا شيء للدفع.",
     "status_expired": "لم يرد المطعم. لا شيء للدفع.",
-    "status_cancelled": "ملغى",
+    "status_cancelled": "أُلغي الطلب. لا شيء للدفع.",
     "status_delivery_failed": "تعذّر التوصيل. يمكنك الطلب مجددًا متى شئت.",
     "step_placed": "أُرسل الطلب",
     "step_accepted": "مقبول",
@@ -1836,7 +1840,9 @@
     "notifyError": "تعذّر تفعيل التنبيهات. أعد المحاولة.",
     "etaLabel": "الوصول المتوقع",
     "etaRange": "{from} – {to}",
-    "etaPickupLabel": "جاهز حوالي"
+    "etaPickupLabel": "جاهز حوالي",
+    "endedFind": "ابحث عن مطعم آخر",
+    "endedOrders": "عرض طلباتي"
   },
   "accountHub": {
     "contactTitle": "بيانات تسجيل الدخول",

@@ -64,9 +64,9 @@ function Actions({ state, locale }: { state: CheckoutState; locale: Locale }) {
       ? translate("continue")
       : place.kind === "placed"
         ? translate("placed")
-        : translate("place", {
-            total: quote.kind === "ready" ? formatDzd(quote.quote.totalDzd, locale) : "",
-          });
+        : quote.kind === "ready"
+          ? translate("place", { total: formatDzd(quote.quote.totalDzd, locale) })
+          : translate("placeNoTotal");
   const isDisabled = step < 3 ? !canContinue(state) : !canPlace(state) || isPlacing;
   return (
     <div className="checkout-actions">
@@ -181,11 +181,12 @@ function Blocked({ state, locale }: { state: CheckoutState; locale: Locale }) {
         }
       />
     );
+  const name = state.expiredFrom;
   return (
     <EmptyState
       icon="bag"
-      title={translate("emptyCart")}
-      body={translate("emptyCartBody")}
+      title={translate(name === null ? "emptyCart" : "cartExpired")}
+      body={name === null ? translate("emptyCartBody") : translate("cartExpiredBody", { name })}
       action={
         <ButtonLink variant="primary" href={`/${locale}/discover`}>
           {translate("browse")}

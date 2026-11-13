@@ -37,6 +37,8 @@ type PlaceState =
 
 export interface CheckoutState {
   cart: Cart | null | undefined;
+  /** The restaurant whose basket expired just before this visit, to explain the empty state. */
+  expiredFrom: string | null;
   step: CheckoutStep;
   fulfilment: FulfilmentKind;
   addresses: Load<Address[]>;
@@ -268,6 +270,7 @@ export function useCheckout(locale: Locale): CheckoutState {
       setQuoteAttempt((value) => value + 1);
     },
     submit,
+    expiredFrom: basket.expiredFrom,
     promotion,
     applyCode,
     removeCode,

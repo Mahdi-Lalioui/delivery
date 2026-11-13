@@ -16,6 +16,7 @@ const checkoutStates: Partial<Record<Screen, { mode: Mode; promo?: PromoStory }>
   "checkout-loading": { mode: "loading" },
   "checkout-error": { mode: "error" },
   "checkout-empty": { mode: "empty" },
+  "checkout-expired-cart": { mode: "ready", promo: "expired-cart" },
   "checkout-promo": { mode: "ready", promo: "code" },
   "checkout-offer": { mode: "ready", promo: "automatic" },
   "checkout-promo-rejected": { mode: "ready", promo: "rejected" },
