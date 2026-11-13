@@ -1,3 +1,4 @@
+import { thumbHashToDataURL } from "thumbhash";
 import type { MenuPreview } from "../menu-preview-http";
 
 type PublishedPhoto = NonNullable<MenuPreview["categories"][number]["items"][number]["photo"]>;
@@ -21,6 +22,11 @@ function largest(variants: readonly Variant[]): Variant | undefined {
   );
 }
 
+function placeholderUrl(thumbhash: string): string {
+  // Runs in the browser too, where `Buffer` does not exist.
+  return thumbHashToDataURL(Uint8Array.from(atob(thumbhash), (byte) => byte.charCodeAt(0)));
+}
+
 /** A decorative dish photo: the item name is the heading right beside it. */
 export function MenuPreviewPhoto({ photo }: { photo: PublishedPhoto }) {
   const avif = photo.variants.filter(({ format }) => format === "avif");
@@ -28,18 +34,29 @@ export function MenuPreviewPhoto({ photo }: { photo: PublishedPhoto }) {
   const fallback = webp.find(({ width }) => width === fallbackWidth) ?? largest(webp);
   const size = largest(webp);
   if (!fallback || !size) return null;
+  // The ThumbHash paints under the photo until it loads (DESIGN §6); both are decorative.
   return (
-    <picture className="menu-preview-photo">
-      <source type="image/avif" srcSet={sourceSet(avif)} sizes={displaySizes} />
-      <source type="image/webp" srcSet={sourceSet(webp)} sizes={displaySizes} />
+    <div className="menu-preview-photo">
       <img
-        src={fallback.url}
+        className="menu-preview-placeholder"
+        src={placeholderUrl(photo.thumbhash)}
         width={size.width}
         height={size.height}
         alt=""
-        loading="lazy"
-        decoding="async"
+        aria-hidden="true"
       />
-    </picture>
+      <picture>
+        <source type="image/avif" srcSet={sourceSet(avif)} sizes={displaySizes} />
+        <source type="image/webp" srcSet={sourceSet(webp)} sizes={displaySizes} />
+        <img
+          src={fallback.url}
+          width={size.width}
+          height={size.height}
+          alt=""
+          loading="lazy"
+          decoding="async"
+        />
+      </picture>
+    </div>
   );
 }

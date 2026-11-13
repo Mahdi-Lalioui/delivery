@@ -17,14 +17,15 @@
     "@zaafran/domain": "workspace:*",
     "@zaafran/i18n": "workspace:*",
     "@zaafran/tokens": "workspace:*",
+    "@zip.js/zip.js": "2.24.0",
+    "csv-parse": "7.0.3",
     "next": "16.4.5",
     "next-intl": "4.14.9",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "read-excel-file": "9.3.14",
-    "@zip.js/zip.js": "2.24.0",
     "saxen": "11.2.0",
-    "csv-parse": "7.0.3"
+    "thumbhash": "0.1.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "4.3.5",

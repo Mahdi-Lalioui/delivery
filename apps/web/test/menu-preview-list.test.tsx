@@ -110,15 +110,29 @@ test("[MER-14] shows a published item photo as AVIF and WebP sources without lay
       .join(", ");
 
   expect(html.match(/<picture/g)).toHaveLength(1);
+  expect(html.match(/<img [^>]*\/media\//g)).toHaveLength(1);
   expect(html).toContain(`<source type="image/avif" srcSet="${srcset("avif")}"`);
   expect(html).toContain(`<source type="image/webp" srcSet="${srcset("webp")}"`);
-  const image = /<img [^>]*>/.exec(html)?.[0] ?? "";
+  const image = (html.match(/<img [^>]*>/g) ?? []).find((tag) => tag.includes("/media/")) ?? "";
   expect(image).toContain(`src="/media/${photoId}/640.webp"`);
   expect(image).toContain('width="1280"');
   expect(image).toContain('height="960"');
   expect(image).toContain('alt=""');
   expect(image).toContain('loading="lazy"');
   expect(image).toContain('decoding="async"');
+});
+
+test("[MER-14] paints the ThumbHash placeholder under the photo until it loads", () => {
+  const html = render("fr", withPhoto());
+  const images = html.match(/<img [^>]*>/g) ?? [];
+
+  expect(images).toHaveLength(2);
+  const [placeholder, photo] = images;
+  expect(placeholder).toContain('class="menu-preview-placeholder"');
+  expect(placeholder).toMatch(/src="data:image\/png;base64,[A-Za-z0-9+/=]+"/);
+  expect(placeholder).toContain('alt=""');
+  expect(placeholder).toContain('aria-hidden="true"');
+  expect(photo).toContain(`src="/media/${photoId}/640.webp"`);
 });
 
 test("[MER-14] renders no image for an item without a published photo", () => {

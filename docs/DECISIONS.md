@@ -185,3 +185,10 @@ Migration `0019_media_processing.sql` extends `media_uploads` past `preparing` w
 
 The media store has three prefixes. `quarantine/` holds originals, `private/` holds crop previews and application-photo variants, and `media/` holds restaurant photo variants (`item`, `cover`, `logo`). Only `media/` may be mapped to the public `/media/*` route (SPEC §19 Caddy routing). Private files are served only through authenticated API routes such as `GET /v1/media/:mediaId/preview`. `apps/worker/src/media-keys.ts` owns the layout. The `publishedPhoto` contract accepts only `/media/<uuid>/<width>.<avif|webp>` URLs.
 - **Alternatives:** one prefix per photo with a deny rule for `preview.webp` in Caddy (rejected: one missed rule would leak private previews, and application photos must stay authenticated).
+
+### D-020 — The web app decodes ThumbHash placeholders itself (2026-11-13)
+
+`apps/web` adds `thumbhash` `0.1.1`, already pinned for the worker in D-001 (about 2 kB, MIT, no dependencies). The customer menu preview decodes each published photo's ThumbHash to a PNG data URL (allowed by the CSP `img-src data:`) and paints it under the photo, in a separate decorative `<img>` because the CSP forbids inline styles.
+
+- **Alternatives:** a solid average colour from the API (rejected: loses the shape DESIGN §6 asks for); a server-generated placeholder file per photo (rejected: one more stored object and request per item).
+- **Open:** the 180 ms fade-in waits for motion tokens in `packages/tokens` (DESIGN §7 lists no 180 ms duration; resolve it there).

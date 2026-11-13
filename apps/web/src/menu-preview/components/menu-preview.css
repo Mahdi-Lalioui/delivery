@@ -55,6 +55,14 @@
   border-block-start: 1px solid var(--color-border-subtle);
 }
 
+.menu-preview-photo {
+  display: grid;
+}
+
+.menu-preview-photo > * {
+  grid-area: 1 / 1;
+}
+
 .menu-preview-photo img {
   display: block;
   inline-size: 100%;
