@@ -474,7 +474,8 @@
 /* Favourites: a compact horizontal rail. */
 .orders-favourites {
   display: grid;
-  grid-auto-columns: min(44%, 11rem);
+  /* Two tiles and a clear peek of the third, so the rail reads as scrollable. */
+  grid-auto-columns: min(calc((100% - var(--space-12) * 2) / 2.4), 11rem);
   grid-auto-flow: column;
   gap: var(--space-12);
   margin: 0;

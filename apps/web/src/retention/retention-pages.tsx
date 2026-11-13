@@ -8,6 +8,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { orderRatingOutput } from "@zaafran/contracts/ratings";
+import { CustomerTabBar } from "../customer/tab-bar";
 import { SiteShell } from "../components/site-shell";
 import "../admin/admin-merchant.css";
 import "../admin/billing/admin-billing.css";
@@ -144,6 +145,8 @@ export function MyOrdersPage({ locale }: { locale: Locale }) {
       >
         <MyOrders locale={locale} />
       </NextIntlClientProvider>
+      {/* Orders is a tab: keep the tab bar, as Home, Search and Profile do. */}
+      <CustomerTabBar locale={locale} current="orders" />
     </SiteShell>
   );
 }

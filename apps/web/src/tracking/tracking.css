@@ -500,6 +500,12 @@
     align-items: stretch;
   }
 
+  /* Pickup has no map: one centred column instead of a card stranded on the left. */
+  .tracking[data-map="false"] {
+    grid-template-columns: minmax(0, 32rem);
+    justify-content: center;
+  }
+
   .tracking-map {
     block-size: auto;
     min-block-size: 36rem;
