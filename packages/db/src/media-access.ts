@@ -1,8 +1,8 @@
 import type { ISql, TransactionSql } from "postgres";
 import type {
+  MediaIdentity,
   MediaScope,
   MediaSessionScope,
-  MediaStatus,
   MediaUploadDescriptor,
 } from "./media-types.js";
 
@@ -57,9 +57,9 @@ export async function lockMediaTarget(
 export async function readVisibleMedia(
   sql: ISql,
   scope: MediaScope,
-): Promise<(MediaStatus & MediaUploadDescriptor) | undefined> {
-  const [media] = await sql<(MediaStatus & MediaUploadDescriptor)[]>`
-    SELECT upload.id AS "mediaId", session.id AS "sessionId", upload.kind, upload.status,
+): Promise<(MediaIdentity & MediaUploadDescriptor) | undefined> {
+  const [media] = await sql<(MediaIdentity & MediaUploadDescriptor)[]>`
+    SELECT upload.id AS "mediaId", session.id AS "sessionId", upload.kind,
       upload.content_type AS "contentType", upload.bytes
     FROM public.media_uploads AS upload
     JOIN public.users AS account ON account.id = upload.owner_id

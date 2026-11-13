@@ -1,11 +1,16 @@
 import type { TransactionSql } from "postgres";
 import { lockMediaSession, lockMediaTarget } from "./media-access.js";
-import type { MediaKind, MediaReservationRequest, MediaReservationResult } from "./media-types.js";
+import type {
+  MediaIdentity,
+  MediaKind,
+  MediaReservationRequest,
+  MediaReservationResult,
+} from "./media-types.js";
 
 export async function reserveMedia(
   sql: TransactionSql,
   request: MediaReservationRequest,
-): Promise<MediaReservationResult> {
+): Promise<MediaReservationResult<MediaIdentity>> {
   const session = await lockMediaSession(sql, request);
   if (!session) return { kind: "not_found" };
 
@@ -22,11 +27,10 @@ export async function reserveMedia(
     WHERE receipt.actor_id = ${session.accountId} AND receipt.operation = 'reserve'
       AND receipt.key_hash = ${idempotencyKeyHash}
   `;
-  const status = "awaiting_upload";
   if (receipt) {
     if (!receipt.matches) return { kind: "idempotency_conflict" };
     const { mediaId, kind } = receipt;
-    return { kind: "replayed", media: { mediaId, sessionId: session.sessionId, kind, status } };
+    return { kind: "replayed", media: { mediaId, sessionId: session.sessionId, kind } };
   }
 
   const [upload] = await sql<{ id: string }[]>`
@@ -45,6 +49,6 @@ export async function reserveMedia(
   `;
   return {
     kind: "created",
-    media: { mediaId: upload.id, sessionId: session.sessionId, kind: input.kind, status },
+    media: { mediaId: upload.id, sessionId: session.sessionId, kind: input.kind },
   };
 }

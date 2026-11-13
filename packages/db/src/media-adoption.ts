@@ -3,12 +3,12 @@ import { lockMediaSession, lockMediaTarget } from "./media-access.js";
 import type {
   MediaAdoptionRequest,
   MediaAdoptionResult,
-  MediaStatus,
+  MediaIdentity,
   MediaUploadDescriptor,
 } from "./media-types.js";
 
-type LockedUpload = Pick<MediaStatus, "mediaId" | "kind" | "status"> &
-  MediaUploadDescriptor & { readonly matchesDigest: boolean | null };
+type LockedUpload = Pick<MediaIdentity, "mediaId" | "kind"> &
+  MediaUploadDescriptor & { readonly status: string; readonly matchesDigest: boolean | null };
 
 async function lockOwnedUpload(
   sql: TransactionSql,
@@ -35,7 +35,7 @@ async function lockOwnedUpload(
 export async function adoptMedia(
   sql: TransactionSql,
   request: MediaAdoptionRequest,
-): Promise<MediaAdoptionResult> {
+): Promise<MediaAdoptionResult<MediaIdentity>> {
   const session = await lockMediaSession(sql, request);
   if (!session) return { kind: "not_found" };
 
@@ -46,7 +46,7 @@ export async function adoptMedia(
   }
 
   const { mediaId, kind, status } = upload;
-  const media = { mediaId, sessionId: session.sessionId, kind, status };
+  const media = { mediaId, sessionId: session.sessionId, kind };
   if (status !== "awaiting_upload") {
     return upload.matchesDigest ? { kind: "replayed", media } : { kind: "upload_conflict" };
   }
@@ -63,5 +63,5 @@ export async function adoptMedia(
       queue_name => 'media', job_key => ${`media:prepare:${mediaId}`}
     )
   `;
-  return { kind: "accepted", media: { ...media, status: "preparing" } };
+  return { kind: "accepted", media };
 }
