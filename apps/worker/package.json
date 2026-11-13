@@ -13,6 +13,7 @@
   "dependencies": {
     "@zaafran/contracts": "workspace:*",
     "@zaafran/db": "workspace:*",
+    "@zaafran/media": "workspace:*",
     "graphile-worker": "0.18.0",
     "pino": "10.4.0",
     "postgres": "4.1.0",
