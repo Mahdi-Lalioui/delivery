@@ -928,5 +928,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress; M2-8 and M2-9 done)
 - Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import (M2-8) is complete, including its production browser journey. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
-- Last green `pnpm verify`: 2026-11-13 04:22 GMT on Docker Desktop at `d215d64` with 1,330 unit and 156 PostGIS integration tests. `pnpm test:e2e:auth` last ran in full at `d592159` plus the import work: 16 passed and 1 failed, the import journey, which was then fixed. After that, only the `@menu-import` and `@merchant-hours` journeys were rerun, and they passed. Rerun the full authenticated suite next session.
+- Last green `pnpm verify`: 2026-11-13 04:22 GMT on Docker Desktop at `d215d64` with 1,330 unit and 156 PostGIS integration tests. `pnpm test:e2e:auth` passed at `1a2760a` with all 17 authenticated production journeys.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
