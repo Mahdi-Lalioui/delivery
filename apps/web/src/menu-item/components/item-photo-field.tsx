@@ -9,6 +9,7 @@ export interface ItemPhotoFieldProps {
   readonly merchantId: string;
   readonly sessionId: string;
   readonly photoId: string | null;
+  readonly isDisabled: boolean;
   readonly onPhotoChange: (photoId: string | null) => void;
 }
 
@@ -16,6 +17,7 @@ export function ItemPhotoField({
   merchantId,
   sessionId,
   photoId,
+  isDisabled,
   onPhotoChange,
 }: ItemPhotoFieldProps) {
   const translate = useTranslations("menuItem");
@@ -34,7 +36,7 @@ export function ItemPhotoField({
   }, [readyId]);
 
   return (
-    <fieldset className="menu-item-fields">
+    <fieldset disabled={isDisabled} className="menu-item-fields">
       <legend>{translate("photo")}</legend>
       {photoId !== null && state.kind === "idle" ? (
         <div className="menu-item-actions">

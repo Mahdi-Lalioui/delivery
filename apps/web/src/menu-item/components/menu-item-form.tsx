@@ -221,6 +221,7 @@ export function MenuItemForm({
           merchantId={merchantId}
           sessionId={sessionId}
           photoId={editor.draft.photoId}
+          isDisabled={pending}
           onPhotoChange={(photoId) => {
             changeDraft({ photoId });
           }}
