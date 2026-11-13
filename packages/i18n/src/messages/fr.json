@@ -754,5 +754,17 @@
     "resultItemsCreated": "Articles créés",
     "resultItemsUpdated": "Articles modifiés",
     "resultItemsUnchanged": "Articles inchangés"
+  },
+  "menuPreview": {
+    "title": "Aperçu client",
+    "description": "Voici le menu tel que les clients le verront. Les plats en attente de vérification n’y figurent pas.",
+    "categories": "Catégories du menu",
+    "empty": "Aucun plat n’est encore visible par les clients.",
+    "soldOut": "Épuisé",
+    "tags": "Étiquettes",
+    "spicy": "Épicé",
+    "vegetarian": "Végétarien",
+    "newTag": "Nouveau",
+    "popular": "Populaire"
   }
 }

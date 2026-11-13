@@ -754,5 +754,17 @@
     "resultItemsCreated": "الأصناف المنشأة",
     "resultItemsUpdated": "الأصناف المعدّلة",
     "resultItemsUnchanged": "الأصناف دون تغيير"
+  },
+  "menuPreview": {
+    "title": "معاينة الزبون",
+    "description": "هذه هي القائمة كما سيراها الزبائن. لا تظهر الأطباق التي تنتظر المراجعة.",
+    "categories": "أصناف القائمة",
+    "empty": "لا توجد أطباق ظاهرة للزبائن بعد.",
+    "soldOut": "نفد",
+    "tags": "الوسوم",
+    "spicy": "حار",
+    "vegetarian": "نباتي",
+    "newTag": "جديد",
+    "popular": "رائج"
   }
 }

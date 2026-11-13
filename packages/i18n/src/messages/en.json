@@ -754,5 +754,17 @@
     "resultItemsCreated": "Items created",
     "resultItemsUpdated": "Items updated",
     "resultItemsUnchanged": "Unchanged items"
+  },
+  "menuPreview": {
+    "title": "Customer preview",
+    "description": "This is the menu as customers will see it. Items waiting for review are not shown.",
+    "categories": "Menu categories",
+    "empty": "No items are visible to customers yet.",
+    "soldOut": "Sold out",
+    "tags": "Tags",
+    "spicy": "Spicy",
+    "vegetarian": "Vegetarian",
+    "newTag": "New",
+    "popular": "Popular"
   }
 }
