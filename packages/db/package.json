@@ -20,6 +20,10 @@
       "types": "./src/media.ts",
       "default": "./dist/media.js"
     },
+    "./media-processing": {
+      "types": "./src/media-processing.ts",
+      "default": "./dist/media-processing.js"
+    },
     "./menu-category": {
       "types": "./src/menu-category.ts",
       "default": "./dist/menu-category.js"
