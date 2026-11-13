@@ -3,6 +3,8 @@ import type { DatabaseConnection } from "./database.js";
 import { readMenuContext, type MenuScope } from "./menu-access.js";
 import { timestampParsers } from "./timestamp-parsers.js";
 
+type ItemTag = "spicy" | "vegetarian" | "new" | "popular";
+
 interface Translations {
   readonly ar?: string | undefined;
   readonly fr?: string | undefined;
@@ -14,7 +16,7 @@ interface PreviewItem {
   readonly names: Translations;
   readonly descriptions: Translations;
   readonly priceDzd: number;
-  readonly tags: string[];
+  readonly tags: ItemTag[];
   readonly isAvailable: boolean;
   readonly soldOutUntil: string | null;
 }
