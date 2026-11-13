@@ -44,6 +44,7 @@ export function MenuItemPage({
         messages={{
           menuItem: getMessages(locale).menuItem,
           menuPrice: getMessages(locale).menuPrice,
+          menuImport: getMessages(locale).menuImport,
         }}
       >
         <MenuItemScreen

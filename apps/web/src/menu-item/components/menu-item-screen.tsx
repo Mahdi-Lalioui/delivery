@@ -9,6 +9,7 @@ import { useBulkPricePanel } from "../../menu-price/use-bulk-price-panel";
 import { useMenuItemEditor } from "../use-menu-item-editor";
 import { MenuItemCategoryRail } from "./menu-item-category-rail";
 import { MenuItemForm } from "./menu-item-form";
+import { MenuItemImport } from "./menu-item-import";
 import { MenuItemList } from "./menu-item-list";
 
 type Controls = ReturnType<typeof useMenuItemEditor>;
@@ -119,6 +120,15 @@ function ItemWorkspace({
           isBlocked={blocked}
         />
       )}
+      <MenuItemImport
+        merchantId={merchantId}
+        locale={locale}
+        snapshot={snapshot}
+        blocked={blocked}
+        onSaved={controls.reloadAfter}
+        onAccessChanged={onRailAccessChanged}
+        onReload={controls.retry}
+      />
     </>
   );
 }

@@ -295,3 +295,22 @@ test("[MER-11] locks the bulk price panel while an item form is open", () => {
   const html = render({ editor: editWithAttachments });
   expect(html).toMatch(/<fieldset class="bulk-price-fieldset" disabled/);
 });
+
+test("[MER-12:ui] offers a collapsed import toggle without loading the import panel", () => {
+  const html = render();
+  expect(html).toMatch(
+    new RegExp(
+      `<button[^>]*aria-expanded="false"[^>]*aria-controls="menu-import-region"[^>]*>${menuItem.importMenu}</button>`,
+    ),
+  );
+  expect(html).not.toContain("menu-import-title");
+});
+
+test("[MER-12:ui] keeps the import toggle for an empty category and disables it while blocked", () => {
+  expect(render({ view: { ...ready, data: { ...ready.data, items: [] } } })).toContain(
+    menuItem.importMenu,
+  );
+  expect(render({ editor: editWithAttachments })).toMatch(
+    new RegExp(`<button[^>]*disabled=""[^>]*>${menuItem.importMenu}</button>`),
+  );
+});
