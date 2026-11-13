@@ -6,5 +6,5 @@ https://opendatacommons.org/licenses/odbl/1-0/
 Source: https://build.protomaps.com/20261107.pmtiles
 See infra/MAPS.md for the pinned national extraction.
 Generate from the verified national archive with go-pmtiles 1.31.2:
-pmtiles extract algeria.pmtiles algiers-browser.pmtiles --bbox=3.045,36.74,3.075,36.77 --maxzoom=14
-SHA-256: 540dc0409180e0a6c49190afa546334b63ef6f0db8cf7ec6aa9c56a50f182093
+pmtiles extract algeria.pmtiles algiers-browser.pmtiles --bbox=3.045,36.74,3.075,36.77 --maxzoom=15
+SHA-256: 92360bbc56e083f21778188df7b49534121eeb3eaff2b17cd15cca09e1f6007a
