@@ -54,20 +54,22 @@ export function isOvernightRange(range: RangeDraft): boolean {
   return parsed !== undefined && parsed.closesMinute < parsed.opensMinute;
 }
 
+export function toRangeDrafts(ranges: readonly StoredRange[]): RangeDraft[] {
+  return ranges.map(({ opensMinute, closesMinute }) => ({
+    opens: formatClock(opensMinute),
+    closes: formatClock(closesMinute),
+  }));
+}
+
 export function toHoursDraft(hours: HoursInput): HoursDraft {
   return {
-    weekly: hours.weekly.map(({ weekday, ranges }) => ({
-      weekday,
-      ranges: ranges.map(({ opensMinute, closesMinute }) => ({
-        opens: formatClock(opensMinute),
-        closes: formatClock(closesMinute),
-      })),
-    })),
+    weekly: hours.weekly.map(({ weekday, ranges }) => ({ weekday, ranges: toRangeDrafts(ranges) })),
     specialDates: hours.specialDates,
   };
 }
 
-function parseDay(ranges: readonly RangeDraft[]): StoredRange[] | undefined {
+/** Reads one day's clock ranges, or undefined when a time is unreadable or a range is empty. */
+export function parseDayRanges(ranges: readonly RangeDraft[]): StoredRange[] | undefined {
   const parsed = ranges.map(parseRange);
   const valid = parsed.filter((range) => range !== undefined);
   if (valid.length !== parsed.length) return undefined;
@@ -78,7 +80,7 @@ function parseDay(ranges: readonly RangeDraft[]): StoredRange[] | undefined {
 export function toHoursInput(draft: HoursDraft): HoursValidation {
   const errors: DayError[] = [];
   const weekly = draft.weekly.map(({ weekday, ranges }) => {
-    const parsed = parseDay(ranges);
+    const parsed = parseDayRanges(ranges);
     if (!parsed) errors.push({ weekday, reason: "time" });
     return { weekday, ranges: parsed ?? [] };
   });

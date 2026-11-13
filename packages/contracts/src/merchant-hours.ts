@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const dayMinutes = 1440;
 const maxRangesPerDay = 4;
-const maxSpecialDates = 60;
+export const maxSpecialDates = 60;
 
 // A range closing at or before it opens runs past midnight into the next day (18:00–02:00).
 const openingRange = z

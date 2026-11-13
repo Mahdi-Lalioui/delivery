@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-13 04:12 GMT — M2-9 special-dates draft model (Claude, covering while Codex was out)
+
+- **Changed** — Added `apps/web/src/merchant-hours/special-dates-editor.ts`. It adds, edits and removes dated exceptions and their ranges, and validates each entry against the contract's special-date schema. Errors are reported per entry as `date`, `time`, `overlap` or `duplicate`. `hours-editor.ts` now exports `parseDayRanges` and `toRangeDrafts`, so weekly and dated ranges parse the same way. `@zaafran/contracts/merchant-hours` exports `maxSpecialDates`, so the editor's limit matches the API.
+- **Evidence** — The new `apps/web/test/merchant-hours-special-dates.test.ts` failed first because the module was missing. Afterward, 7/7 passed alongside the 16 existing editor tests. `pnpm verify` exited 0 with 1,319 unit and 156 PostGIS integration tests. Knip first flagged an unused exported error type, which is now module-private.
+- **Reviewer** — Self-review against AGENTS §10 found no P0/P1. The API revalidates the full hours command, so the client model only affects UX.
+- **Next** — Carry `SpecialDateDraft[]` in `HoursDraft` (`hours-editor.ts`), validate it in `toHoursInput` and surface per-entry errors through `hours-flow.ts`. Write the failing tests in `apps/web/test/merchant-hours-editor.test.ts` first.
+- **Needs Mahdi** — None.
+
 ### 2026-11-13 04:20 GMT — M2-8 import journey and design matrix (Claude, covering while Codex was out)
 
 - **Changed** — Committed Codex's unfinished CSV/XLSX import UI in `6d4ebe1`. It adds bounded on-demand parsers (D-017), the template download, the cancellable preview/apply controller and the panel in the item workspace. Fixed six lint and two type errors and broke a `panel ↔ feedback` import cycle by moving `MenuImportControls` into `import-controls.ts`. The item page now passes the `menuImport` messages to the client. Added the ar/fr × light/dark × 390/1280 matrix to `e2e/auth-menu-import.spec.ts` and stopped table headings from breaking between letters.
