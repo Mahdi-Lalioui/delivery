@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import palettes from "@zaafran/tokens/palettes.json" with { type: "json" };
-import { algeriaMapStyle, accuracyRing, labelAnchorId } from "../src/maps/algeria-map-style";
+import {
+  algeriaMapStyle,
+  accuracyRing,
+  buildingsLayerId,
+  labelAnchorId,
+  revealBuildingsWhenIdle,
+} from "../src/maps/algeria-map-style";
 import { mapTileDestination } from "../src/preview-settings";
 
 describe("Algeria maps", () => {
@@ -38,6 +44,44 @@ describe("Algeria maps", () => {
     expect(buildings).toBeLessThan(anchor);
     expect(anchor).toBeLessThan(firstLabel);
     expect(layers.slice(anchor + 1).every((layer) => layer.type === "symbol")).toBe(true);
+  });
+
+  it("[CUS-18] starts 3D buildings hidden so the first tile wave paints flat and smooth", () => {
+    const buildings = algeriaMapStyle("fr", false).layers.find(
+      (layer) => layer.id === buildingsLayerId,
+    );
+    expect(buildings).toMatchObject({ type: "fill-extrusion", layout: { visibility: "none" } });
+  });
+
+  it("[CUS-18] raises the buildings once the map first goes idle, and only once", () => {
+    const calls: unknown[][] = [];
+    let idle: (() => void) | undefined;
+    const map = {
+      once: (event: "idle", listener: () => void) => {
+        expect(event).toBe("idle");
+        idle = listener;
+      },
+      getLayer: (id: string) => (id === buildingsLayerId ? {} : undefined),
+      setLayoutProperty: (...args: unknown[]) => calls.push(args),
+    };
+    revealBuildingsWhenIdle(map);
+    expect(calls).toEqual([]);
+    idle?.();
+    expect(calls).toEqual([[buildingsLayerId, "visibility", "visible"]]);
+  });
+
+  it("does nothing when the map was torn down before it went idle", () => {
+    let idle: (() => void) | undefined;
+    const calls: unknown[][] = [];
+    revealBuildingsWhenIdle({
+      once: (_event: "idle", listener: () => void) => {
+        idle = listener;
+      },
+      getLayer: () => undefined,
+      setLayoutProperty: (...args: unknown[]) => calls.push(args),
+    });
+    idle?.();
+    expect(calls).toEqual([]);
   });
 
   it("paints the basemap from AWID tokens, not the stock grey", () => {

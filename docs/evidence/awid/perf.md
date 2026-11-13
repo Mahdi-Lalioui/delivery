@@ -60,3 +60,20 @@ Still open: Tracking's remaining 2 % long frames come in the first seconds, whil
 tiles and 3D buildings are parsed and uploaded on the 4× throttled CPU. A clean 60 fps there
 needs buildings revealed after the first `idle`, or a lighter building layer, then a check on a
 physical Android phone. Lab numbers on a Mac, not a phone.
+
+### Buildings after the first idle (13 November 2026, Claude covering while Codex was out)
+
+The `awid-buildings` extrusion layer now starts with `visibility: none` and
+`revealBuildingsWhenIdle` shows it on the map's first `idle`. This means the first tile wave
+paints flat, without parsing and uploading extrusions at the same time. Unit tests
+`[CUS-18]` in `apps/web/test/algeria-map.test.ts` cover the hidden start, the single reveal and
+a map torn down before idle. On a `ZAAFRAN_DESIGN_BUILD=1` preview build, Tracking fr-390
+loaded with 0 console errors and every tile returned 200. The buildings appear after idle:
+[tracking-buildings-after-idle-fr-390.png](perf/tracking-buildings-after-idle-fr-390.png).
+
+There is no frame-pacing result yet. The run was unattended at 03:20 with the Docker VM busy
+and a load average of 8–22 on 14 cores. Every route measured 11–31 fps, including Checkout,
+which has no map, so the run can't compare before and after. Raw data:
+[perf/perf-feel-unattended-2026-11-13.json](perf/perf-feel-unattended-2026-11-13.json).
+Re-run `pnpm perf:customer-feel <url> 3` on an awake, idle machine to confirm Tracking's 56
+to 60 fps.

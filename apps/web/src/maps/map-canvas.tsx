@@ -3,7 +3,13 @@
 import type { Locale } from "@zaafran/i18n/locales";
 import { Map, Marker, setWorkerUrl } from "maplibre-gl";
 import { useEffect, useEffectEvent, useRef, type RefObject } from "react";
-import { accuracyRing, algeriaMapStyle, labelAnchorId, type MapPoint } from "./algeria-map-style";
+import {
+  accuracyRing,
+  algeriaMapStyle,
+  labelAnchorId,
+  revealBuildingsWhenIdle,
+  type MapPoint,
+} from "./algeria-map-style";
 import { useDeliveryOverlay, type DeliveryOverlay } from "./delivery-overlay";
 import "maplibre-gl/dist/maplibre-gl.css";
 
@@ -102,6 +108,7 @@ function useMap({
     map.on("error", () => {
       latest().onState("error");
     });
+    revealBuildingsWhenIdle(map);
     map.once("load", () => {
       window.clearTimeout(timeout);
       const active = latest();
