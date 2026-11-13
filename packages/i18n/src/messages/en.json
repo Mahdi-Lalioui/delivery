@@ -785,5 +785,27 @@
     "recentre": "Recentre",
     "confirm": "Use this crop",
     "saving": "Saving the crop…"
+  },
+  "photoUpload": {
+    "choose": "Choose a photo",
+    "chooseAnother": "Choose another photo",
+    "limits": "JPG, PNG, HEIC or WebP, up to 8 MB.",
+    "guideTitle": "Tips for a good photo",
+    "guideLight": "Use natural light.",
+    "guideAngle": "Shoot from 45° or straight from above.",
+    "guideNoText": "No text on the image.",
+    "guideOwn": "Only photos you took yourself, no stock photos.",
+    "uploading": "Uploading and preparing your photo…",
+    "ready": "Your photo is ready.",
+    "tooLarge": "This photo is larger than 8 MB.",
+    "unsupportedType": "Choose a JPG, PNG, HEIC or WebP photo.",
+    "invalidImage": "This file could not be read as a photo. Try another one.",
+    "imageTooLarge": "This photo has too many pixels. Try a smaller one.",
+    "timedOut": "Preparing the photo is taking longer than usual. Try again in a moment.",
+    "rateLimited": "Too many attempts. Wait a moment and try again.",
+    "signInRequired": "Sign in again to upload photos.",
+    "forbidden": "Your account cannot add photos to this restaurant.",
+    "sessionChanged": "Your session changed. Reload the page to continue.",
+    "error": "The photo could not be saved. Try again."
   }
 }

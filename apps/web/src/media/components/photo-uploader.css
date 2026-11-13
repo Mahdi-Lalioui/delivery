@@ -1,0 +1,45 @@
+.photo-upload,
+.photo-upload-picker {
+  display: grid;
+  min-inline-size: 0;
+  gap: var(--space-12);
+}
+
+.photo-upload-guide-title {
+  font-weight: var(--font-weight-display);
+}
+
+.photo-upload-guide {
+  display: grid;
+  gap: var(--space-4);
+  padding-inline-start: var(--space-16);
+  list-style: disc;
+  color: var(--color-text-2);
+}
+
+.photo-upload-limits {
+  color: var(--color-text-3);
+}
+
+.photo-upload-error {
+  color: var(--color-danger);
+}
+
+.photo-upload-choose {
+  position: relative;
+  justify-self: start;
+  cursor: pointer;
+}
+
+/* The native input stays focusable and named by its label; only its look is hidden. */
+.photo-upload-choose input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.photo-upload-choose:has(:focus-visible) {
+  outline: var(--focus-ring-width) solid var(--color-focus);
+  outline-offset: var(--focus-ring-offset);
+}

@@ -785,5 +785,27 @@
     "recentre": "Recentrer",
     "confirm": "Utiliser ce cadrage",
     "saving": "Enregistrement du cadrage…"
+  },
+  "photoUpload": {
+    "choose": "Choisir une photo",
+    "chooseAnother": "Choisir une autre photo",
+    "limits": "JPG, PNG, HEIC ou WebP, 8 Mo maximum.",
+    "guideTitle": "Conseils pour une bonne photo",
+    "guideLight": "Utilisez la lumière naturelle.",
+    "guideAngle": "Photographiez à 45° ou à la verticale.",
+    "guideNoText": "Aucun texte sur l’image.",
+    "guideOwn": "Uniquement vos propres photos, pas de photos de banque d’images.",
+    "uploading": "Envoi et préparation de votre photo…",
+    "ready": "Votre photo est prête.",
+    "tooLarge": "Cette photo dépasse 8 Mo.",
+    "unsupportedType": "Choisissez une photo JPG, PNG, HEIC ou WebP.",
+    "invalidImage": "Ce fichier n’a pas pu être lu comme une photo. Essayez-en une autre.",
+    "imageTooLarge": "Cette photo compte trop de pixels. Essayez-en une plus petite.",
+    "timedOut": "La préparation de la photo prend plus de temps que prévu. Réessayez dans un instant.",
+    "rateLimited": "Trop de tentatives. Patientez un instant puis réessayez.",
+    "signInRequired": "Reconnectez-vous pour envoyer des photos.",
+    "forbidden": "Votre compte ne peut pas ajouter de photos à ce restaurant.",
+    "sessionChanged": "Votre session a changé. Rechargez la page pour continuer.",
+    "error": "La photo n’a pas pu être enregistrée. Réessayez."
   }
 }
