@@ -1,5 +1,6 @@
 "use client";
 
+import { buzz, chime, statusArrived } from "../feel/feel";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   applyTrackingPosition,
@@ -21,6 +22,18 @@ export type TrackingState = {
   retry: () => void;
   cancelOrder: (reason: string) => void;
 };
+
+/** The restaurant said yes: a short buzz and, if the diner chose it, a soft chime. */
+function useAcceptedMoment(status: string | undefined) {
+  const previous = useRef(status);
+  useEffect(() => {
+    if (status !== undefined && statusArrived(previous.current, status, "accepted")) {
+      buzz("accepted");
+      chime();
+    }
+    previous.current = status;
+  }, [status]);
+}
 
 export function useTracking(orderId: string): TrackingState {
   const [view, setView] = useState<TrackingState["view"]>({ kind: "loading" });
@@ -52,6 +65,7 @@ export function useTracking(orderId: string): TrackingState {
     [orderId, view],
   );
 
+  useAcceptedMoment(view.kind === "ready" ? view.tracking.order.status : undefined);
   return { view, cancel, retry, cancelOrder: requestCancel };
 }
 

@@ -40,7 +40,8 @@
     "worker:migrate": "turbo run build --filter=@zaafran/worker && pnpm --filter @zaafran/worker migrate",
     "hooks:install": "sh scripts/install-hooks.sh",
     "lint:staged": "lint-staged",
-    "test:mobile": "pnpm --filter @zaafran/mobile test"
+    "test:mobile": "pnpm --filter @zaafran/mobile test",
+    "evidence:maps": "node scripts/capture-awid-maps.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",

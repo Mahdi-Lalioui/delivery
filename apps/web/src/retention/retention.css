@@ -30,7 +30,7 @@
 
 .share-qr {
   inline-size: 60%;
-  max-inline-size: 320px;
+  max-inline-size: 20rem;
   block-size: auto;
 }
 
@@ -100,7 +100,7 @@
   align-items: start;
 }
 
-@media (min-width: 64rem) {
+@media (min-width: 960px) {
   .promotion-editor {
     grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr);
   }
@@ -176,9 +176,9 @@
 .rating-hero-icon {
   display: grid;
   place-items: center;
-  inline-size: 88px;
-  block-size: 88px;
-  border: 6px solid var(--color-surface);
+  inline-size: calc(var(--space-80) + var(--space-8));
+  block-size: calc(var(--space-80) + var(--space-8));
+  border: 3px solid var(--color-surface);
   border-radius: var(--radius-pill);
   background: var(--color-mint-pale);
   box-shadow: var(--shadow-e2);
@@ -367,7 +367,7 @@
   align-items: start;
 }
 
-@media (min-width: 64rem) {
+@media (min-width: 960px) {
   .share-layout {
     grid-template-columns: minmax(18rem, 1fr) minmax(0, 1.4fr);
   }
@@ -410,7 +410,7 @@
   display: flex;
   gap: var(--space-12);
   align-items: center;
-  min-block-size: 64px;
+  min-block-size: var(--space-64);
   padding: var(--space-12) var(--space-16);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-lg);
@@ -460,8 +460,8 @@
 }
 
 .orders-cover-md {
-  inline-size: 56px;
-  block-size: 56px;
+  inline-size: calc(var(--space-48) + var(--space-8));
+  block-size: calc(var(--space-48) + var(--space-8));
   font-size: var(--font-size-h2);
 }
 
@@ -682,7 +682,7 @@
   font-variant-numeric: var(--font-variant-numeric-numbers);
 }
 
-@media (max-width: 40rem) {
+@media (max-width: 639px) {
   .analytics-bars li {
     grid-template-columns: 1fr auto;
   }
@@ -730,7 +730,7 @@
   inline-size: 7rem;
   block-size: 7rem;
   overflow: hidden;
-  border: 6px solid var(--color-surface);
+  border: 3px solid var(--color-surface);
   border-radius: var(--radius-pill);
   box-shadow: var(--shadow-e2);
 }
@@ -770,8 +770,8 @@
 
 /* Food is the main question; delivery steps down. */
 .rating-form .star-field + .star-field .ui-icon {
-  inline-size: 32px;
-  block-size: 32px;
+  inline-size: var(--space-32);
+  block-size: var(--space-32);
 }
 
 /* Orders, round 1. */

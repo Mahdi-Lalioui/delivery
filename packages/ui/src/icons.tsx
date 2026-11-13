@@ -57,3 +57,23 @@ export function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
     </svg>
   );
 }
+
+/** The same icon as a DOM node, for markup built outside React (map markers). */
+export function iconElement(name: IconName, size = 20): SVGSVGElement {
+  const namespace = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(namespace, "svg");
+  for (const [key, value] of Object.entries({
+    class: "ui-icon",
+    width: String(size),
+    height: String(size),
+    viewBox: "0 0 24 24",
+    "aria-hidden": "true",
+    focusable: "false",
+  })) {
+    svg.setAttribute(key, value);
+  }
+  const path = document.createElementNS(namespace, "path");
+  path.setAttribute("d", paths[name]);
+  svg.append(path);
+  return svg;
+}

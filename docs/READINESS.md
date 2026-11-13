@@ -5,12 +5,16 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 ## Customer experience
 
 - [ ] **Lane A** Consistent dish and cover pipeline with crop ratios, warm grade, contrast and sharpening. Review the catalog, replace weak images and publish restaurant guidance. [Photo guide](RESTAURANT_PHOTOS.md)
-- [ ] **Lane B** Short haptics for add-to-cart, order placement and acceptance. Optional acceptance sound, mute preference and reduced-motion support.
-- [ ] **Lane B** Arabic, French and English copy pass. Errors give the customer a next step.
-- [ ] **Lane B** Audit spacing, type, radii, shadows, icons, buttons and colours on every customer screen. Record and fix deviations in `docs/evidence/awid/consistency.md`.
+- [x] **Lane B** Short haptics for add-to-cart, order placement and acceptance. Optional acceptance sound, mute preference and reduced-motion support. [Feel evidence](evidence/awid/feel/README.md)
+- [x] **Lane B** Arabic, French and English copy pass. Errors give the customer a next step. [Copy evidence](evidence/awid/copy.md)
+- [x] **Lane B** Audit spacing, type, radii, shadows, icons, buttons and colours on every customer screen. Record and fix deviations in `docs/evidence/awid/consistency.md`. [Consistency evidence](evidence/awid/consistency.md)
 - [ ] **Lane B** Remove content that distracts from the next action. Verify one focal point per screen.
 - [ ] **Lane B** Verify 44 px touch targets, visible focus, meaningful labels, contrast in both themes and keyboard journeys.
 - [ ] **Lane B** Complete the final visual review on every customer screen. Record shortcomings, fixes and fresh captures.
+
+- [x] **Lane B** AWID maps with localized labels, pin cards, clustering and a fallback. [Map evidence](evidence/awid/maps/)
+- [x] **Lane B** Fictional restaurant display names. [Seed and preview evidence](requests/lane-b-realistic-demo-names.md)
+- [ ] **Lane B** Verify designed loading, empty and error states on every customer screen.
 
 ## Performance and offers
 

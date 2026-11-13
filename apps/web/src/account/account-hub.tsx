@@ -6,6 +6,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { SiteShell } from "../components/site-shell";
 import { CustomerTabBar } from "../customer/tab-bar";
+import { FeelSettings } from "../feel/feel-settings";
 import { IdentifierPanel } from "./identifier-panel";
 import "./account-hub.css";
 
@@ -66,6 +67,7 @@ export async function AccountHub({ locale }: { locale: Locale }) {
             </li>
           ))}
         </ul>
+        <FeelSettings locale={locale} />
         <a className="account-hub-pitch" href={`/${locale}/restaurants`}>
           <Icon name="store" size={24} />
           <span className="account-hub-text">

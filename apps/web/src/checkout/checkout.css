@@ -514,7 +514,7 @@
   background: color-mix(in srgb, currentColor 14%, transparent);
   font-weight: var(--font-weight-h3);
   font-variant-numeric: var(--font-variant-numeric-numbers);
-  letter-spacing: 0.06em;
+  letter-spacing: var(--letter-spacing-micro);
 }
 
 .checkout-confirmed .ui-button {

@@ -90,7 +90,7 @@ test("[CUS-01] distinguishes an empty feed from a failed page and keeps loaded c
       onLoad={onLoad}
     />,
   );
-  expect(empty).toContain("No restaurants to show yet.");
+  expect(empty).toContain("No restaurants here yet. Try another address or come back soon.");
   expect(empty).not.toContain("Try again");
   expect(failed).toContain("Les Jardins");
   expect(failed).toContain('role="alert"');

@@ -7,7 +7,8 @@ import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { useLowData } from "./low-data";
 import { getFeedMessages } from "./feed-messages";
-import { pinsBounds, pinsCentre, type PickupPin } from "./pickup-pins";
+import { clusterBubble, pinCard } from "./pickup-pin-element";
+import { groupPins, pinsBounds, pinsCentre, type PickupPin } from "./pickup-pins";
 import "../maps/algeria-map.css";
 
 const MapCanvas = dynamic(() => import("../maps/map-canvas").then((module) => module.MapCanvas), {
@@ -15,34 +16,67 @@ const MapCanvas = dynamic(() => import("../maps/map-canvas").then((module) => mo
 });
 
 const pinStaggerMs = 70;
-const pinPadding = { top: 56, bottom: 24, left: 72, right: 72 };
+const pinPadding = { top: 72, bottom: 24, left: 96, right: 96 };
+/** A card's footprint: pins whose cards would overlap merge into one count. */
+const cardSizePx = { width: 168, height: 60 };
 
-function pinElement(pin: PickupPin, index: number, locale: Locale): HTMLAnchorElement {
-  const link = document.createElement("a");
-  link.className = "pickup-pin";
-  link.href = `/${locale}/restaurants/${encodeURIComponent(pin.slug)}`;
-  link.dataset.open = String(pin.isOpen);
-  const label = document.createElement("bdi");
-  label.textContent = pin.name;
-  link.append(label);
-  // CSP blocks style attributes; CSSOM is allowed. Each pin rises a beat after the last.
-  link.style.animationDelay = `${String(index * pinStaggerMs)}ms`;
-  return link;
+type Placed = { key: string; marker: Marker };
+
+function zoomTo(map: Map, members: readonly PickupPin[]) {
+  const bounds = pinsBounds(members);
+  if (bounds) map.fitBounds(bounds, { padding: pinPadding, maxZoom: 17 });
+}
+
+function markerFor(map: Map, members: readonly PickupPin[], locale: Locale): Marker {
+  const [first] = members;
+  const element =
+    members.length === 1 && first
+      ? pinCard(first, locale)
+      : clusterBubble(members.length, locale, () => {
+          zoomTo(map, members);
+        });
+  const centre = pinsCentre(members) ?? { latitude: 0, longitude: 0 };
+  return new Marker({ element, anchor: "bottom" }).setLngLat([centre.longitude, centre.latitude]);
+}
+
+/** Re-groups pins for the current zoom, keeping markers whose group did not change. */
+function syncMarkers(
+  map: Map,
+  { pins, locale }: { pins: readonly PickupPin[]; locale: Locale },
+  placed: Placed[],
+) {
+  const points = pins.map((pin) => map.project([pin.longitude, pin.latitude]));
+  const groups = groupPins(points, cardSizePx).map((indexes) =>
+    indexes.flatMap((index) => pins[index] ?? []),
+  );
+  const keys = groups.map((members) => members.map(({ slug }) => slug).join("|"));
+  const kept = placed.filter(({ key }) => keys.includes(key));
+  for (const { key, marker } of placed) if (!keys.includes(key)) marker.remove();
+  const fresh = groups.flatMap((members, index) => {
+    const key = keys[index] ?? "";
+    if (kept.some((item) => item.key === key)) return [];
+    const marker = markerFor(map, members, locale).addTo(map);
+    // CSP blocks style attributes; CSSOM is allowed. New cards rise a beat after each other.
+    marker.getElement().style.animationDelay = `${String(index * pinStaggerMs)}ms`;
+    return [{ key, marker }];
+  });
+  return [...kept, ...fresh];
 }
 
 function usePins(map: Map | null, pins: readonly PickupPin[], locale: Locale) {
   useEffect(() => {
     if (map === null) return;
     const bounds = pinsBounds(pins);
-    // Leave room above each pin for its name label, which sits on top of the point.
     if (bounds) map.fitBounds(bounds, { padding: pinPadding, maxZoom: 15, duration: 0 });
-    const markers = pins.map((pin, index) =>
-      new Marker({ element: pinElement(pin, index, locale), anchor: "bottom" })
-        .setLngLat([pin.longitude, pin.latitude])
-        .addTo(map),
-    );
+    let placed: Placed[] = [];
+    const sync = () => {
+      placed = syncMarkers(map, { pins, locale }, placed);
+    };
+    sync();
+    map.on("moveend", sync);
     return () => {
-      for (const marker of markers) marker.remove();
+      map.off("moveend", sync);
+      for (const { marker } of placed) marker.remove();
     };
   }, [map, pins, locale]);
 }

@@ -190,7 +190,7 @@ html:has(.discovery-search-dialog[open]) {
   font: var(--font-weight-h2) var(--font-size-h2) / var(--line-height-h2) var(--font-display);
 }
 
-@media (min-width: 720px) {
+@media (min-width: 640px) {
   .discovery-search-results:has(> :nth-child(3)) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -355,7 +355,7 @@ html:has(.discovery-search-dialog[open]) {
 /* Search opens on the field: heading kept for screen readers, field and close in one row. */
 .discovery-search-heading {
   position: absolute;
-  inset-block-start: calc(var(--space-16) + 4px);
+  inset-block-start: calc(var(--space-16) + var(--space-4));
   inset-inline-end: var(--page-padding);
 }
 
