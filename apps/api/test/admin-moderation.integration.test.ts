@@ -1,6 +1,7 @@
 import { randomUUIDv7 } from "node:crypto";
 import { adminItemQueueOutput, adminItemReviewOutput } from "@zaafran/contracts/admin-moderation";
 import { menuCategoryWriteOutput, menuItemWriteOutput } from "@zaafran/contracts/menu";
+import { menuPreviewOutput } from "@zaafran/contracts/menu-preview";
 import { merchantOnboardingOutput } from "@zaafran/contracts/merchant";
 import { expect, test } from "vitest";
 import { registerMerchantApiFixture } from "./merchant-api-fixture.ts";
@@ -56,6 +57,14 @@ async function visibleItems(api: Api, owner: Actor, merchantId: string) {
   return merchantOnboardingOutput.parse(response.json()).steps.menu.itemsTowardMinimum;
 }
 
+async function previewedItems(api: Api, owner: Actor, merchantId: string) {
+  const url = `/v1/merchants/${merchantId}/menu/preview`;
+  const response = await api.inject({ url, headers: owner.headers });
+  expect(response.statusCode).toBe(200);
+  const { categories } = menuPreviewOutput.parse(response.json());
+  return categories.flatMap(({ items }) => items.map(({ itemId }) => itemId));
+}
+
 test("[ADM-04:http] a screened item waits in the admin queue until an audited approval lists it", async () => {
   const api = await openApi();
   const owner = await seedActor("+213500000061", "standard");
@@ -65,6 +74,7 @@ test("[ADM-04:http] a screened item waits in the admin queue until an audited ap
   const beer = await createBeer(api, owner, owned);
   expect(beer.moderationStatus).toBe("blocked_pending_review");
   expect(await visibleItems(api, owner, owned)).toBe(0);
+  expect(await previewedItems(api, owner, owned)).toEqual([]);
 
   const queue = await api.inject({
     url: "/v1/admin/menu-items/held?limit=10",
@@ -89,7 +99,26 @@ test("[ADM-04:http] a screened item waits in the admin queue until an audited ap
   const replay = await command(api, admin, review);
   expect(replay.json()).toEqual(approved.json());
   expect(await visibleItems(api, owner, owned)).toBe(1);
+  expect(await previewedItems(api, owner, owned)).toEqual([beer.itemId]);
 
   const ownerReview = await command(api, owner, { ...review, key: randomUUIDv7() });
   expect(ownerReview.statusCode).toBe(403);
+});
+
+test("[ADM-04:http] a rejected item stays out of the customer preview", async () => {
+  const api = await openApi();
+  const owner = await seedActor("+213500000063", "standard");
+  const admin = await seedActor("+213500000064", "admin");
+  const { owned, staffed } = await seedMenuMerchants(owner.userId, "1603");
+  const beer = await createBeer(api, owner, owned);
+
+  const rejected = await command(api, admin, {
+    url: `/v1/admin/menu-items/${beer.itemId}/review`,
+    payload: { decision: "reject", reason: "Boisson alcoolisée" },
+  });
+  expect(rejected.statusCode).toBe(200);
+  expect(await previewedItems(api, owner, owned)).toEqual([]);
+  const staffPreview = `/v1/merchants/${staffed}/menu/preview`;
+  const denied = await api.inject({ url: staffPreview, headers: owner.headers });
+  expect(denied.statusCode).toBe(404);
 });
