@@ -76,3 +76,52 @@ test("[ADM-04] explains an empty preview instead of rendering empty categories",
   expect(html).toContain(menuPreview.empty);
   expect(html).not.toContain("<h2");
 });
+
+const photoId = "019d6abc-1234-7234-8234-123456789099";
+const widths = [160, 320, 640, 960, 1280] as const;
+const publishedPhoto = {
+  thumbhash: "1QcSHQRnh493V4dIh4eXh1h4kJUI",
+  variants: (["avif", "webp"] as const).flatMap((format) =>
+    widths.map((width) => ({
+      format,
+      width,
+      height: (width * 3) / 4,
+      bytes: width * 10,
+      url: `/media/${photoId}/${String(width)}.${format}`,
+    })),
+  ),
+};
+
+function withPhoto(): MenuPreview {
+  const [category] = preview.categories;
+  const [first, second] = category?.items ?? [];
+  if (!category || !first || !second) throw new Error("The preview fixture lost its items.");
+  return {
+    ...preview,
+    categories: [{ ...category, items: [{ ...first, photo: publishedPhoto }, second] }],
+  };
+}
+
+test("[MER-14] shows a published item photo as AVIF and WebP sources without layout shift", () => {
+  const html = render("fr", withPhoto());
+  const srcset = (format: "avif" | "webp") =>
+    widths
+      .map((width) => `/media/${photoId}/${String(width)}.${format} ${String(width)}w`)
+      .join(", ");
+
+  expect(html.match(/<picture/g)).toHaveLength(1);
+  expect(html).toContain(`<source type="image/avif" srcSet="${srcset("avif")}"`);
+  expect(html).toContain(`<source type="image/webp" srcSet="${srcset("webp")}"`);
+  const image = /<img [^>]*>/.exec(html)?.[0] ?? "";
+  expect(image).toContain(`src="/media/${photoId}/640.webp"`);
+  expect(image).toContain('width="1280"');
+  expect(image).toContain('height="960"');
+  expect(image).toContain('alt=""');
+  expect(image).toContain('loading="lazy"');
+  expect(image).toContain('decoding="async"');
+});
+
+test("[MER-14] renders no image for an item without a published photo", () => {
+  expect(render("fr")).not.toContain("<img");
+  expect(render("fr")).not.toContain("<picture");
+});

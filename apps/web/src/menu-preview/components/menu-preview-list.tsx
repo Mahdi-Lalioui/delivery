@@ -3,6 +3,7 @@ import { formatDzd } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
 import { useTranslations } from "next-intl";
 import type { MenuPreview } from "../menu-preview-http";
+import { MenuPreviewPhoto } from "./menu-preview-photo";
 
 type PreviewCategory = MenuPreview["categories"][number];
 type PreviewItem = PreviewCategory["items"][number];
@@ -21,6 +22,7 @@ function PreviewItemRow({ item, locale }: { item: PreviewItem; locale: Locale })
 
   return (
     <li className="menu-preview-item" data-available={item.isAvailable}>
+      {item.photo && <MenuPreviewPhoto photo={item.photo} />}
       <div className="menu-preview-summary">
         <h3>
           <bdi>{getLocalizedContent(item.names, locale) ?? ""}</bdi>
