@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-13 05:12 GMT — M2-10 customer menu preview page and browser proof; M2-10 done (Claude, covering while Codex was out)
+
+- **Changed** — Added `apps/web/src/menu-preview/`: the typed `loadMenuPreview` client (strict contract parse, 401/403/404/5xx mapping), the presentational `MenuPreviewList` (category sections, `bdi` names and prices, `formatDzd` per locale, tags, sold-out label, empty state), `MenuPreviewScreen` (shared `useMerchantResource`, loading/sign-in/forbidden/retry states with title focus on retry), the page module with token-only logical CSS, and the ar and Latin routes `/{locale}/merchant/:merchantId/menu/preview`. The menu builder header links to it (`menuCategory.customerPreview`). Added the `menuPreview` messages in ar, fr and en. Added `e2e/auth-menu-preview.spec.ts` (`@menu-preview`). Ticked M2-10 in PLAN and the audit.
+- **Evidence** — Each unit suite failed first on its missing module, and the builder assertion failed before the link existed. Afterward: client 3/3, list 3/3, screen 5/5, routes 3/3, and the menu category screen 10/10. `pnpm verify` exited 0 with 1,350 unit and 160 PostGIS integration tests. `pnpm test:e2e:auth --grep @menu-preview` passed. The owner sees the listed item and not the held one in fr and ar, with 8 matrix cases, zero axe violations and zero overflow. The full `pnpm test:e2e:auth` passed 18/18. [Evidence and captures](evidence/m2/menu-preview.md)
+- **Reviewer** — Self-review against AGENTS §10 found no P0/P1. The page holds no business logic, and the server decides visibility. P2: the screenshots were taken by rerunning the same spec with the JSON reporter, because the auth config's list reporter drops attachments.
+- **Next** — M2-6 worker decoding (`apps/worker`), the last feature blocking the `@merchant-onboarding` gate journey. D-007 fixes the approach: Sharp 0.35.5 for JPEG/PNG/WebP, plus a bounded decode-only libheif 1.23.7/libde265 1.1.3 helper in the pinned Linux image for HEVC HEIC. Start with failing worker tests in `apps/worker/test/` for EXIF orientation normalization, the decoded-pixel bound, metadata stripping, the five widths × AVIF/WebP plus thumbhash, and the rule that nothing publishes until every variant exists. Use a 96×64 fixture per format. First read `packages/db/src/media*.ts` and `docs/DECISIONS.md` D-007 for the job and state contract. After that, add the preview's photos once variants exist, then the M2-12 demo seed.
+- **Needs Mahdi** — None.
+
 ### 2026-11-13 05:02 GMT — M2-10 customer menu preview: read, route and PostGIS proof (Claude, covering while Codex was out)
 
 - **Changed** — Added `packages/db/src/menu-preview.ts` (`createMenuPreviewRepository().read`). It checks owner or manager membership in SQL through `readMenuContext`, and lists only non-archived items whose moderation status is `approved` or `unreviewed`, grouped in category sort order. Categories with no listable items are omitted. Added the strict `@zaafran/contracts/menu-preview` contract (no moderation or archive fields) and `GET /v1/merchants/:merchantId/menu/preview` (`apps/api/src/menu-preview-routes.ts`) wired in `createApi` and `startApi`. Updated the authorization matrix row, the OpenAPI path list and `docs/openapi.json`.
@@ -934,7 +942,7 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ## Current status
 
-- Milestone: M1 (last passing gate, M2 in progress; M2-8 and M2-9 done)
+- Milestone: M1 (last passing gate, M2 in progress; M2-8, M2-9 and M2-10 done)
 - Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import (M2-8) is complete, including its production browser journey. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
-- Last green `pnpm verify`: 2026-11-13 04:22 GMT on Docker Desktop at `d215d64` with 1,330 unit and 156 PostGIS integration tests. `pnpm test:e2e:auth` passed at `1a2760a` with all 17 authenticated production journeys.
+- Last green `pnpm verify`: 2026-11-13 05:08 GMT on Docker Desktop at `a77bfe7` with 1,350 unit and 160 PostGIS integration tests. `pnpm test:e2e:auth` passed all 18 authenticated production journeys on the same tree.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

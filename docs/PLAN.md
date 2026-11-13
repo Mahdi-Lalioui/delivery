@@ -126,7 +126,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Carry special-date drafts in `HoursDraft` and validate them in `toHoursInput` with per-entry errors.
     - [x] Add the presentational special-dates fields with ar/fr/en messages.
     - [x] Wire the fields into the hours page and prove create, edit and delete in the production journey with the design matrix.
-- [ ] M2-10 Moderation (§17.3, ADM-04). Check prohibited goods on every menu write path and public preview. Prove flagged items stay hidden until the audited review outcome permits listing.
+- [x] M2-10 Moderation (§17.3, ADM-04). Check prohibited goods on every menu write path and public preview. Prove flagged items stay hidden until the audited review outcome permits listing.
   - [x] Add the pure prohibited-goods matcher in `@zaafran/domain` (ar/fr/en/Arabizi keywords, whole words, property tests).
   - [x] Apply the matcher in the item create/update repository commands, setting `blocked_pending_review` in the same transaction, with integration tests per write path.
   - [x] Add the audited admin review command and route (approve/reject) with matrix rows, and prove the onboarding checklist excludes blocked items.
@@ -136,10 +136,10 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Add the admin routes, authorization-matrix rows and OpenAPI.
     - [x] Prove both routes end to end against PostGIS through `startApi`, including the merchant onboarding count after each decision.
   - [x] Re-screen the text when duplicating an approved item and prove the copy stays out of the onboarding count.
-  - [ ] Prove the customer-facing preview excludes blocked items.
+  - [x] Prove the customer-facing preview excludes blocked items.
     - [x] Read the preview in `packages/db` (owner/manager membership in SQL; only approved or unreviewed, active items; grouped by category order).
     - [x] Serve `GET /v1/merchants/:merchantId/menu/preview` with the strict `@zaafran/contracts/menu-preview` contract, matrix row and OpenAPI, and prove held, approved and rejected items through `startApi`.
-    - [ ] Add the typed web client and the localized merchant preview page (ar/fr/en), linked from the menu builder, with an auth e2e that shows an approved item and hides a held one, plus the design matrix.
+    - [x] Add the typed web client and the localized merchant preview page (ar/fr/en), linked from the menu builder, with an auth e2e that shows an approved item and hides a held one, plus the design matrix.
   - [x] Show the held status to merchants and give admins a review screen (ar/fr/en).
     - [x] Explain the held status under the merchant item list badge.
     - [x] Add the typed web client for the held-item queue and review.
