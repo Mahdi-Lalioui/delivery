@@ -333,6 +333,9 @@ importers:
 
   apps/worker:
     dependencies:
+      '@zaafran/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@zaafran/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -348,6 +351,9 @@ importers:
       sharp:
         specifier: 0.35.5
         version: 0.35.5(@types/node@26.6.6)
+      thumbhash:
+        specifier: 0.1.1
+        version: 0.1.1
       zod:
         specifier: 4.6.7
         version: 4.6.7
@@ -3711,6 +3717,9 @@ packages:
     resolution: {integrity: sha512-Stg6edJXC/6/xqGwSXwFokrUhChJ18amEjpKH89WrQQ0oVFDF+pUUcTpiwWhFUrE89Vf16FBOlwhaw+lescxMQ==}
     engines: {node: '>=20'}
 
+  thumbhash@0.1.1:
+    resolution: {integrity: sha512-kH5pKeIIBPQXAOni2AiY/Cu/NKdkFREdpH+TLdM0g6WA7RriCv0kPLgP731ady67MhTAqrVG/4mnEeibVuCJcg==}
+
   tinybench@6.2.3:
     resolution: {integrity: sha512-Al01C2JIBnO2CXCAPbpAl6sUiOZHeThGtHYNTa51JRw9PyWOCdr+9Ong05R4qg/Sk3+H645E8ov1h2c58ityNw==}
     engines: {node: '>=20.0.0'}
@@ -6925,6 +6934,8 @@ snapshots:
   thread-stream@4.2.1:
     dependencies:
       real-require: 1.0.0
+
+  thumbhash@0.1.1: {}
 
   tinybench@6.2.3: {}
 
