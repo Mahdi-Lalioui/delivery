@@ -36,3 +36,21 @@ job. After restarting the same three services, it reached `pending_acceptance:2`
 A duplicate release job completed and the order retained exactly one release
 event. The HTTPS smoke passed. Both expiry and release are covered by seeded
 order drills.
+
+## HTTPS pickup and idempotent recovery
+
+On 13 November 2026, the same production Compose project used a synthetic
+email-only customer, a restaurant owner and a menu item. Only the actors and
+catalog were seeded. The customer quoted and placed an ASAP pickup over HTTPS
+with a contact number and 500 DZD cash. The placement returned 201.
+
+After stopping API, worker and PostgreSQL, a retry with the same idempotency key
+returned 502. After the services restarted, the same retry returned 201 with a
+byte-identical response. PostgreSQL contained one order for the quote and one
+version-1 placement event. The owner accepted, marked ready and collected the
+pickup through HTTPS. Each command and its replay returned identical 200
+responses. The persisted events were exactly
+`pending_acceptance:1,accepted:2,ready:3,collected:4`. Production smoke passed
+again through Caddy. The services were stopped after placement committed.
+Delivery, interruption before a placement response and client SSE replay still
+need separate drills.
