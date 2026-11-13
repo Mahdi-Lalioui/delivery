@@ -82,7 +82,7 @@ function useMap({
         dragRotate: false,
         renderWorldCopies: false,
         scrollZoom: false,
-        pitch: choose ? 0 : 45,
+        pitch: choose ? 0 : 55,
         attributionControl: false,
       });
     } catch {

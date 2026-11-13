@@ -338,6 +338,7 @@ function RestaurantMenu({
     <>
       <PopularRow
         selections={query.trim() === "" ? popular : []}
+        isPending={query.trim() === "" && loaded.size < data.categories.length}
         merchantId={data.restaurant.merchantId}
         locale={locale}
         onChoose={onChoose}

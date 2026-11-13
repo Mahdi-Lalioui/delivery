@@ -72,12 +72,13 @@ export function useTrackingScene(
   courier: Courier,
 ) {
   const heading = useRef(0);
+  const hasPlaced = useRef(false);
 
+  // The map is created already tilted (see MapCanvas): no second tile wave while it animates.
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !isReady) return;
     addGlow(map);
-    map.easeTo({ pitch: 55, duration: isReducedMotion() ? 0 : 1200 });
   }, [isReady, mapRef]);
 
   useEffect(() => {
@@ -85,10 +86,10 @@ export function useTrackingScene(
     if (!map || !isReady || !courier) return;
     const pose = poseOf(courier, heading.current);
     heading.current = pose.heading;
-    map.easeTo({
-      center: [pose.longitude, pose.latitude],
-      duration: isReducedMotion() ? 0 : 850,
-    });
+    // The first position is a jump (the map is still settling); later moves glide.
+    const duration = isReducedMotion() || !hasPlaced.current ? 0 : 850;
+    hasPlaced.current = true;
+    map.easeTo({ center: [pose.longitude, pose.latitude], duration });
     if (!isReducedMotion()) placeScooter(map, pose);
   }, [courier, isReady, mapRef]);
 }

@@ -1129,3 +1129,15 @@ body:has(.restaurant-cart-bar) .customer-tabs {
   font-size: var(--font-size-caption);
   font-weight: var(--font-weight-label);
 }
+
+/* Popular row placeholder: holds the space while dishes load, then the real cards replace it. */
+.restaurant-popular[data-pending="true"] .restaurant-dish-photo,
+.restaurant-popular[data-pending="true"] h3,
+.restaurant-popular[data-pending="true"] .restaurant-price {
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-2);
+}
+
+.restaurant-popular[data-pending="true"] .restaurant-popular-card {
+  cursor: default;
+}
