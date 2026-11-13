@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-13 04:21 GMT — M2-12 gate wiring: complete authorization command (Claude, covering while Codex was out)
+
+- **Changed** — `pnpm test:authz` now runs `apps/api/test/policy.test.ts` plus `apps/api/test/*-http.test.ts`. This adds the admin moderation, media upload, menu import, hours, hours preview and staff route suites that were missing. The new `tooling/authz-command.test.ts` fails if any route suite is left out. Ticked MER-12 and MER-15 in `docs/evidence/m2/baseline-audit.md`.
+- **Evidence** — The tooling test failed first and listed the 6 missing suites. It passes after the change. `pnpm test:authz` exited 0 with 14 files and 175 tests (previously 8 files and 118 tests). `pnpm verify` exited 0.
+- **Reviewer** — Self-review against AGENTS §10 found no P0/P1. The command still runs with coverage off, as before.
+- **Next** — The remaining M2-12 gate wiring is to run the `@merchant-onboarding` journey under `e2e/auth.config.ts` and register a real `design:screens` check (see `scripts/gate-plan.ts`). After that come M2-10 customer preview, M2-6 worker decoding and M2-12 demo seed.
+- **Needs Mahdi** — None.
+
 ### 2026-11-13 04:19 GMT — M2-9 special dates wired and proven in the browser (Claude, covering while Codex was out)
 
 - **Changed** — `use-hours-editor.ts` now exposes the `specialDates` controls: add, change and remove for dates and their ranges. A new date starts on today's `Africa/Algiers` date. Focus moves to the new date input, the new range's opening time, or the add button after a removal. A failed save focuses the first error, whether it is on a weekday or a special date, which resolves `TODO(M2-9)`. `merchant-hours-screen.tsx` renders `SpecialDatesFields` in the weekly form and routes only special-date errors to it (`isSpecialDateError`). Extended `e2e/auth-merchant-hours.spec.ts` with create, edit, reload readback and delete in ar and fr. Ticked M2-9.

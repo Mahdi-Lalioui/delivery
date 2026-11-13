@@ -153,6 +153,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Add the owner staff page, the accept page, ar/fr/en messages and `e2e/auth-merchant-staff.spec.ts` with the design matrix.
 - [ ] M2-12 Seed twelve fictional bilingual Algiers restaurants with synthetic imagery and `is_demo`, then run production-built onboarding, the complete route matrix, and the design critic's theme/locale/viewport checks. Record local and PR evidence.
   - [ ] Wire the authenticated onboarding tag, complete the dedicated authorization matrix, and register the design screen gate check. See `docs/evidence/m2/baseline-audit.md`.
+    - [x] Run every API route suite in `pnpm test:authz`, guarded by a tooling test.
 
 **Gate m2:**
 - e2e `@merchant-onboarding`: signup → admin approve → build a 10-item menu with options and photos → bulk price change → import CSV → shown correctly in the preview;
