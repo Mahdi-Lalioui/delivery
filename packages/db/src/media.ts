@@ -1,9 +1,12 @@
 import type { DatabaseConnection } from "./database.js";
 import { readVisibleMedia } from "./media-access.js";
 import { adoptMedia } from "./media-adoption.js";
+import { acceptMediaCrop } from "./media-crop.js";
+import type { MediaCropRequest, MediaCropResult } from "./media-crop.js";
 import { reserveMedia } from "./media-reservation.js";
 import { describeMedia } from "./media-status.js";
 import type {
+  MediaStatus,
   MediaAdoptionRequest,
   MediaAdoptionResult,
   MediaIdentity,
@@ -12,6 +15,7 @@ import type {
   MediaScope,
 } from "./media-types.js";
 
+export type { MediaCrop, MediaCropRequest, MediaCropResult } from "./media-crop.js";
 export type {
   MediaAdoptionRequest,
   MediaAdoptionResult,
@@ -41,6 +45,15 @@ async function describeAdoption(
   return media ? { kind: result.kind, media } : { kind: "not_found" };
 }
 
+async function describeCrop(
+  sql: DatabaseConnection["sql"],
+  result: MediaCropResult<MediaIdentity>,
+): Promise<MediaCropResult<MediaStatus>> {
+  if (!("media" in result)) return result;
+  const media = await describeMedia(sql, result.media);
+  return media ? { kind: result.kind, media } : { kind: "not_found" };
+}
+
 export function createMediaRepository({ sql }: DatabaseConnection) {
   const writeIsolation = "isolation level read committed";
 
@@ -61,5 +74,7 @@ export function createMediaRepository({ sql }: DatabaseConnection) {
     },
     acceptUpload: async (request: MediaAdoptionRequest) =>
       describeAdoption(sql, await sql.begin(writeIsolation, (tx) => adoptMedia(tx, request))),
+    acceptCrop: async (request: MediaCropRequest) =>
+      describeCrop(sql, await sql.begin(writeIsolation, (tx) => acceptMediaCrop(tx, request))),
   };
 }

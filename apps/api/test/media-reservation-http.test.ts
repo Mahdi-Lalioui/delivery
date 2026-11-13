@@ -27,6 +27,7 @@ function setup(authenticated?: Actor) {
     read: vi.fn<Repository["read"]>(),
     findUpload: vi.fn<Repository["findUpload"]>(),
     acceptUpload: vi.fn<Repository["acceptUpload"]>(),
+    acceptCrop: vi.fn<Repository["acceptCrop"]>(),
   } satisfies Repository;
   const store = {
     put: vi.fn<MediaStore["put"]>(),

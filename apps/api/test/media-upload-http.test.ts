@@ -28,6 +28,7 @@ function setup(authenticated: Actor | undefined = actor) {
     acceptUpload: vi
       .fn<Repository["acceptUpload"]>()
       .mockResolvedValue({ kind: "accepted", media: result }),
+    acceptCrop: vi.fn<Repository["acceptCrop"]>(),
   } satisfies Repository;
   const store = {
     put: vi.fn<MediaStore["put"]>().mockResolvedValue("stored"),
