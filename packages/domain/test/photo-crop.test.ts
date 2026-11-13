@@ -1,5 +1,7 @@
+import fc from "fast-check";
 import { expect, test } from "vitest";
-import { cropRectangle } from "../src/media-crop.ts";
+import { cropRectangle } from "../src/photo-crop.ts";
+import { assertDomainProperty } from "./property.ts";
 
 const sixteenByNine = { width: 16, height: 9 };
 const fourByThree = { width: 4, height: 3 };
@@ -78,4 +80,31 @@ test("[MER-14:crop] always stays inside the image with the requested ratio", () 
     expect(skew).toBeLessThanOrEqual(Math.max(ratio.width, ratio.height));
   }
   expect(cases).toHaveLength(180);
+});
+
+test("[MER-14:crop] any image, ratio and crop gives an area inside the image at the ratio", () => {
+  const size = fc.integer({ min: 1, max: 8_000 });
+  const basisPoint = fc.integer({ min: 0, max: 10_000 });
+  const cases = fc.record({
+    image: fc.record({ width: size, height: size }),
+    ratio: fc.constantFrom(sixteenByNine, fourByThree, square),
+    crop: fc.record({
+      focalX: basisPoint,
+      focalY: basisPoint,
+      zoomPercent: fc.integer({ min: 100, max: 400 }),
+    }),
+  });
+  assertDomainProperty(
+    fc.property(cases, ({ image, ratio, crop }) => {
+      const area = cropRectangle(image, ratio, crop);
+      expect(area.left).toBeGreaterThanOrEqual(0);
+      expect(area.top).toBeGreaterThanOrEqual(0);
+      expect(area.width).toBeGreaterThanOrEqual(1);
+      expect(area.height).toBeGreaterThanOrEqual(1);
+      expect(area.left + area.width).toBeLessThanOrEqual(image.width);
+      expect(area.top + area.height).toBeLessThanOrEqual(image.height);
+      const unzoomed = cropRectangle(image, ratio, { ...crop, zoomPercent: 100 });
+      expect(area.width).toBeLessThanOrEqual(unzoomed.width);
+    }),
+  );
 });

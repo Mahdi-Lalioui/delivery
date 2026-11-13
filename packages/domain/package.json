@@ -36,6 +36,10 @@
       "types": "./src/order-types.ts",
       "default": "./dist/order-types.js"
     },
+    "./photo-crop": {
+      "types": "./src/photo-crop.ts",
+      "default": "./dist/photo-crop.js"
+    },
     "./pricing": {
       "types": "./src/pricing.ts",
       "default": "./dist/pricing.js"

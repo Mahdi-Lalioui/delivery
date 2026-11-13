@@ -1,7 +1,7 @@
 import { photoVariantWidths } from "@zaafran/contracts/media";
 import sharp from "sharp";
 import { rgbaToThumbHash } from "thumbhash";
-import type { CropArea } from "./media-crop.js";
+import type { CropArea } from "@zaafran/domain/photo-crop";
 import type { RawImage } from "./media-decode.js";
 
 interface Size {

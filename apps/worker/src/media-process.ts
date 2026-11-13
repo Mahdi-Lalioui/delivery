@@ -5,7 +5,7 @@ import type { DatabaseConnection } from "@zaafran/db/database";
 import { createMediaProcessingRepository } from "@zaafran/db/media-processing";
 import type { ProcessingUpload, RejectionReason } from "@zaafran/db/media-processing";
 import type { MediaStore } from "@zaafran/media";
-import { cropRectangle } from "./media-crop.js";
+import { cropRectangle } from "@zaafran/domain/photo-crop";
 import { decodeUpload } from "./media-decode.js";
 import type { DecodeResult, RawImage } from "./media-decode.js";
 import { previewStorageKey, variantStorageKey } from "./media-keys.js";

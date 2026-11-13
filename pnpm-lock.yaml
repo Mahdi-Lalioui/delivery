@@ -339,6 +339,9 @@ importers:
       '@zaafran/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@zaafran/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
       '@zaafran/media':
         specifier: workspace:*
         version: link:../../packages/media
