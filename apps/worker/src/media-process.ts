@@ -8,6 +8,7 @@ import type { MediaStore } from "@zaafran/media";
 import { cropRectangle } from "./media-crop.js";
 import { decodeUpload } from "./media-decode.js";
 import type { DecodeResult, RawImage } from "./media-decode.js";
+import { previewStorageKey, variantStorageKey } from "./media-keys.js";
 import { renderCropPreview } from "./media-preview.js";
 import { renderVariants } from "./media-variants.js";
 
@@ -64,7 +65,7 @@ export function createMediaProcessor({ database, store, maxPixels }: ProcessorOp
     const image = await decode(upload);
     if (!image) return;
     const preview = await renderCropPreview(image);
-    const previewKey = `media/${upload.mediaId}/preview.webp`;
+    const previewKey = previewStorageKey(upload.mediaId);
     await putBuffer(store, previewKey, preview.data);
     await media.recordPreview({ mediaId: upload.mediaId, previewKey, ...preview });
   }
@@ -77,7 +78,11 @@ export function createMediaProcessor({ database, store, maxPixels }: ProcessorOp
     const rendered = await renderVariants(image, cropRectangle(image, ratio, upload.crop), ratio);
     const variants = [];
     for (const { data, ...variant } of rendered.variants) {
-      const storageKey = `media/${upload.mediaId}/${variant.width.toString()}.${variant.format}`;
+      const storageKey = variantStorageKey({
+        ...variant,
+        mediaId: upload.mediaId,
+        kind: upload.kind,
+      });
       await putBuffer(store, storageKey, data);
       variants.push({ ...variant, storageKey });
     }

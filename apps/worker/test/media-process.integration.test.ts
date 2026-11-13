@@ -102,6 +102,7 @@ test("[MER-14:worker] preparing stores a private preview and waits for the crop"
   const prepared = await row(mediaId);
   expect(prepared).toMatchObject({ status: "awaiting_crop", previewWidth: 192, reason: null });
   if (!prepared?.previewKey) throw new Error("Expected a preview key");
+  expect(prepared.previewKey).toBe(`private/${mediaId}/preview.webp`);
   const preview = await store.get(prepared.previewKey);
   if (!preview) throw new Error("Expected the preview in the store");
   const metadata = await sharp(Buffer.concat(await preview.body.toArray())).metadata();
@@ -149,6 +150,7 @@ test("[MER-14:worker] publishing stores every variant before ready and deletes t
   expect(variants).toHaveLength(10);
   for (const variant of variants) {
     expect(variant.height * 16).toBe(variant.width * 9);
+    expect(variant.storageKey.startsWith(`private/${mediaId}/`)).toBe(true);
     expect(await exists(variant.storageKey)).toBe(true);
   }
   expect(await exists(quarantineKey)).toBe(false);
