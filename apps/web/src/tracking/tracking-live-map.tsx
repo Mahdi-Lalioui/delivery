@@ -55,7 +55,8 @@ export function TrackingLiveMap({
   const { latitude, longitude } = tracking.destination;
   const destination = useMemo(() => ({ latitude, longitude }), [latitude, longitude]);
   const position = courier ? courier.position : null;
-  useTrackingScene(map, state === "ready", position);
+  const [isStreetView, setStreetView] = useState(false);
+  useTrackingScene(map, { isReady: state === "ready", courier: position, isStreetView });
   const canShow = requested || !lowData;
   const canRender = canShow && state !== "error" && state !== "empty";
   return (
@@ -79,6 +80,10 @@ export function TrackingLiveMap({
       <MapControls
         locale={locale}
         state={canShow ? controlState(state) : "closed"}
+        isStreetView={isStreetView}
+        onStreetView={() => {
+          setStreetView((current) => !current);
+        }}
         onOpen={() => {
           setState("loading");
           setRequested(true);
@@ -96,16 +101,28 @@ function MapControls({
   locale,
   state,
   onOpen,
+  isStreetView,
+  onStreetView,
 }: {
   locale: Locale;
   state: "loading" | "ready" | "error" | "closed";
   onOpen: () => void;
+  isStreetView: boolean;
+  onStreetView: () => void;
 }) {
   const copy = getMessages(locale).maps;
   if (state === "loading") return null;
   if (state === "ready") {
     return (
       <div className="tracking-map-attribution">
+        <button
+          className="awid-map-action"
+          type="button"
+          aria-pressed={isStreetView}
+          onClick={onStreetView}
+        >
+          {copy.streetView}
+        </button>
         <a href="https://www.openstreetmap.org/copyright" lang="en" dir="ltr">
           {copy.attribution}
         </a>

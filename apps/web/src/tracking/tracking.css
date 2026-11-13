@@ -545,6 +545,9 @@
 }
 
 .tracking-map-attribution {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
   position: absolute;
   z-index: 1;
   inset-inline-end: var(--space-16);
@@ -641,4 +644,10 @@
   gap: var(--space-8);
   inline-size: 100%;
   margin-block-start: var(--space-12);
+}
+
+.tracking-map-attribution .awid-map-action[aria-pressed="true"] {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
 }

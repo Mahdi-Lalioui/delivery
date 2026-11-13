@@ -43,6 +43,11 @@ function poseOf(courier: NonNullable<Courier>, fallbackHeading: number): Scooter
 /** One scooter per map instance, so a remounted map gets its own and a late pose wins. */
 const streetPitch = 55;
 
+/** Flat by default; the street view is a tilt the diner asks for. */
+export function cameraPitch(isStreetView: boolean): number {
+  return isStreetView ? streetPitch : 0;
+}
+
 const scooters = new WeakMap<Map, { layer?: Scooter; pose: ScooterPose }>();
 
 function placeScooter(map: Map, pose: ScooterPose) {
@@ -67,25 +72,27 @@ function placeScooter(map: Map, pose: ScooterPose) {
     });
 }
 
-/** Tilts the live map to street level, adds the glowing route and a 3D scooter that it follows. */
+/** Tilts the live map to street level on request, adds the glowing route and a 3D scooter that it follows. */
 export function useTrackingScene(
   mapRef: RefObject<Map | null>,
-  isReady: boolean,
-  courier: Courier,
+  { isReady, courier, isStreetView }: { isReady: boolean; courier: Courier; isStreetView: boolean },
 ) {
   const heading = useRef(0);
   const hasPlaced = useRef(false);
 
-  // The map paints flat first: a tilted camera loads the far tiles too, which drops frames on
-  // mid-range phones while the page is still loading. It tilts once that first wave has settled.
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !isReady) return;
     addGlow(map);
-    map.once("idle", () => {
-      map.easeTo({ pitch: streetPitch, duration: isReducedMotion() ? 0 : 600 });
-    });
   }, [isReady, mapRef]);
+
+  // The map stays flat unless the diner asks for the street view: a tilted camera loads the far
+  // tiles too, which drops frames on mid-range phones.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !isReady) return;
+    map.easeTo({ pitch: cameraPitch(isStreetView), duration: isReducedMotion() ? 0 : 600 });
+  }, [isReady, isStreetView, mapRef]);
 
   useEffect(() => {
     const map = mapRef.current;

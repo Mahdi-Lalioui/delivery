@@ -12,6 +12,7 @@
     "plus": "+",
     "minus": "−",
     "streetsMissing": "The street map didn’t load. Your order is still on its way.",
+    "streetView": "3D view",
     "dataSaver": "Map hidden to save your data."
   },
   "shell": {

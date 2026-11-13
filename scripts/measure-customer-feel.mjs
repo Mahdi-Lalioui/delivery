@@ -26,7 +26,10 @@ const taps = {
     [".restaurant-hours summary", "Opening hours"],
   ],
   Checkout: [[".checkout-promo-open", "Add a promo code"]],
-  Tracking: [[".tracking-call-restaurant", "Call the restaurant (focus)"]],
+  Tracking: [
+    [".tracking-call-restaurant", "Call the restaurant (focus)"],
+    [".tracking-map-attribution .awid-map-action", "3D street view"],
+  ],
 };
 
 const observe = `(() => {

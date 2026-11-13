@@ -12,6 +12,7 @@
     "plus": "+",
     "minus": "−",
     "streetsMissing": "Le plan des rues n’a pas chargé. Votre commande avance quand même.",
+    "streetView": "Vue 3D",
     "dataSaver": "Plan masqué pour économiser vos données."
   },
   "shell": {

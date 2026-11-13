@@ -107,3 +107,5 @@
   Next: jury round 3 on every customer screen; a physical Android check of Tracking (Mahdi).
 - 2026-11-13 · Jury round 3: 14 screens × 4 variants. Fixed the Restaurant "most ordered" row stuck as a placeholder (it waited for lazily loaded categories) and favourite names overrunning their tiles. `pnpm perf:customer-feel` × 3: CLS 0 on all four routes, taps ≤ 48 ms, 60 fps except Tracking at 56. `pnpm verify` exit 0. Evidence docs/evidence/awid/jury/README.md (Round 3), docs/evidence/awid/perf/perf-feel-round-3.json.
   Next: Tracking 60 fps while loading. Options: check on a physical Android phone (Mahdi), or show the 3D street view only on request.
+- 2026-11-13 · Tracking 3D street view on tap (Mahdi's choice): the map stays flat, and a toggle tilts it to 55°. Tracking now scrolls at 59–60 fps with 0–1 % long frames; CLS is 0 and the slowest tap is 72 ms on all four routes. `[CUS-18]` went red, then green. `pnpm verify` exit 0. READINESS 60 fps line ticked. Evidence docs/evidence/awid/perf.md.
+  Next: a physical Android check (Mahdi). Every lane B READINESS item is ticked.

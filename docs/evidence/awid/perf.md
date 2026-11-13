@@ -98,3 +98,18 @@ tilts once the first tile wave has settled; the pickup and address maps stay fla
 scrolling is a clean 60 fps. Scrolling inside the first ~3 s while the tilt's second tile wave
 loads is still 56–57 fps, so the 60 fps line stays open until it is checked on a physical
 Android phone, or until the street view is offered only after the diner opens it.
+
+### 3D street view on tap (13 November 2026, lane B)
+
+Mahdi chose to open the street view only on request. The tracking map now stays flat, and a "Vue 3D" / "عرض ثلاثي الأبعاد" / "3D view" toggle on the map (`aria-pressed`) tilts it to 55° and back. Unit test `[CUS-18]` in `apps/web/test/tracking.test.ts` went red, then green.
+
+`pnpm perf:customer-feel http://127.0.0.1:3110 3` on the throttled Android profile, with a machine load of 20:
+
+| Route | CLS | Scroll fps | Long frames | Slowest tap |
+|---|---|---|---|---|
+| Discovery | 0 | 60 | 0 % | 56 ms |
+| Restaurant | 0 | 60 | 0 % | 56 ms |
+| Checkout | 0 | 60 | 0 % | 32 ms |
+| Tracking | 0 | 60 / 60 / 59 | 0–1 % | 72 ms (3D toggle) |
+
+Raw data: [perf/perf-feel-street-view-on-tap.json](perf/perf-feel-street-view-on-tap.json). Street view off and on: [fr](perf/street-view-off-fr-390.png) → [fr 3D](perf/street-view-on-fr-390.png), [ar](perf/street-view-off-ar-390.png) → [ar 3D](perf/street-view-on-ar-390.png). Lab numbers on a Mac, not a phone.
