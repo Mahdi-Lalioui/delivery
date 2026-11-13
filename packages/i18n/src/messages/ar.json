@@ -175,7 +175,10 @@
     "manageMenu": "إدارة القائمة",
     "signInToViewStatus": "سجّل الدخول للاطلاع على مطاعمك وطلباتك.",
     "viewSetup": "عرض الإعداد",
-    "manageTeam": "إدارة الفريق"
+    "manageTeam": "إدارة الفريق",
+    "photo": "صورة المطعم (اختيارية، 16:9)",
+    "photoAttached": "أُرفقت صورة للمطعم بالطلب.",
+    "removePhoto": "إزالة الصورة"
   },
   "adminMerchant": {
     "title": "طلبات تسجيل المطاعم",

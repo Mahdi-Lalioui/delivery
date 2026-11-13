@@ -9,6 +9,7 @@ import {
   CommuneField,
   CuisineFields,
 } from "./application-fields";
+import { ApplicationPhotoField } from "./application-photo-field";
 import { listAlgiersCommunes } from "../merchant-http";
 import { useMerchantApplication, type MerchantApplicationState } from "../use-merchant-application";
 import { useMerchantResource } from "../use-merchant-resource";
@@ -115,6 +116,13 @@ export function MerchantApplicationForm({
         <ApplicationPinFields state={state} onLocatingChange={setLocating} />
         <CuisineFields state={state} />
         <ApplicationTextField state={state} field="rcNumber" />
+        <ApplicationPhotoField
+          sessionId={sessionId}
+          photoId={state.draft.photoIds[0] ?? null}
+          onPhotoChange={(photoId) => {
+            state.update({ photoIds: photoId === null ? [] : [photoId] });
+          }}
+        />
       </fieldset>
       <ApplicationFeedback error={state.error} hasInvalidFields={state.fields.length > 0} />
       {state.error === "signInRequired" ? (

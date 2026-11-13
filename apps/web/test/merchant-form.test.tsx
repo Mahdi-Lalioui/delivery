@@ -43,7 +43,14 @@ const application: MerchantApplicationState = {
 function render(state: Partial<MerchantApplicationState> = {}) {
   vi.mocked(useMerchantApplication).mockReturnValue({ ...application, ...state });
   return renderToStaticMarkup(
-    <NextIntlClientProvider locale="fr-DZ" messages={{ merchant: getMessages("fr").merchant }}>
+    <NextIntlClientProvider
+      locale="fr-DZ"
+      messages={{
+        merchant: getMessages("fr").merchant,
+        photoUpload: getMessages("fr").photoUpload,
+        photoCrop: getMessages("fr").photoCrop,
+      }}
+    >
       <MerchantApplicationForm locale="fr" sessionId={commune.id} onRefreshAccount={retry} />
     </NextIntlClientProvider>,
   );
@@ -104,6 +111,16 @@ test("[MER-01:web] submitting locks the form and a recorded application presents
   expect(submitted).toContain(getMessages("fr").merchant.submittedTitle);
   expect(submitted).toContain(getMessages("fr").merchant.submittedDescription);
   expect(submitted).not.toContain("<form");
+});
+
+test("[MER-01:web] the optional restaurant photo sits inside the locked form fields", () => {
+  readyCommune();
+  const { merchant, photoUpload } = getMessages("fr");
+  const pending = render({ pending: true });
+  const fields =
+    /<fieldset\b[^>]*\bdisabled=""[^>]*>([\s\S]*)<\/fieldset>/.exec(pending)?.[1] ?? "";
+  expect(fields).toContain(`<legend>${merchant.photo}</legend>`);
+  expect(fields).toContain(photoUpload.choose);
 });
 
 test("[MER-01:web] a changed account discards visible draft values and offers an explicit refresh", () => {

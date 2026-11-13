@@ -175,7 +175,10 @@
     "manageMenu": "Manage menu",
     "signInToViewStatus": "Sign in to view your restaurants and applications.",
     "viewSetup": "View setup",
-    "manageTeam": "Manage team"
+    "manageTeam": "Manage team",
+    "photo": "Restaurant photo (optional, 16:9)",
+    "photoAttached": "A restaurant photo is attached to the application.",
+    "removePhoto": "Remove photo"
   },
   "adminMerchant": {
     "title": "Restaurant applications",

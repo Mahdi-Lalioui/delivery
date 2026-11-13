@@ -175,7 +175,10 @@
     "manageMenu": "Gérer le menu",
     "signInToViewStatus": "Connectez-vous pour voir vos restaurants et vos demandes.",
     "viewSetup": "Voir la configuration",
-    "manageTeam": "Gérer l’équipe"
+    "manageTeam": "Gérer l’équipe",
+    "photo": "Photo du restaurant (facultative, 16:9)",
+    "photoAttached": "Une photo du restaurant est jointe à la demande.",
+    "removePhoto": "Retirer la photo"
   },
   "adminMerchant": {
     "title": "Demandes des restaurants",
