@@ -18,7 +18,7 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 - **Changed** — `scripts/gate-plan.ts` gains `getE2eArgs`. `e2e:@merchant-onboarding` now runs `pnpm test:e2e:auth --grep @merchant-onboarding`, since that journey signs in and needs the API harness. Other tags still use `pnpm test:e2e`. `scripts/gate.ts` uses it.
 - **Evidence** — The new `[M2-gate]` case in `scripts/gate.test.ts` failed first because the export was missing. Afterward, all 16 gate tests passed. `pnpm verify` exited 0.
 - **Reviewer** — Self-review against AGENTS §10 found no P0/P1. `pnpm gate m2` still fails correctly, because no spec is tagged `@merchant-onboarding` yet and Playwright exits 1 with no tests.
-- **Next** — See the M2-12 sub-bullets in PLAN. The `@merchant-onboarding` journey needs photos (M2-6 worker decoding and cropper) and the customer preview (M2-10). The next concrete task is M2-6 worker decoding in `apps/worker`. Before adding an image dependency, ask `scout` for the current image-library version and HEIC support, and record it in DECISIONS.
+- **Next** — See the M2-12 sub-bullets in PLAN. The `@merchant-onboarding` journey needs photos (M2-6 worker decoding and cropper) and the customer preview (M2-10). The next concrete task is M2-6 worker decoding in `apps/worker`. D-007 already fixes the approach: use Sharp 0.35.5 for JPEG, PNG and WebP, plus a bounded decode-only libheif 1.23.7/libde265 1.1.3 helper in the pinned Linux image for HEVC HEIC. Start with failing worker tests for orientation, the pixel bound, metadata stripping and the all-variants-before-publish rule. Use a 96×64 HEVC fixture. Then build the helper in the Docker image.
 - **Needs Mahdi** — None.
 
 ### 2026-11-13 04:21 GMT — M2-12 gate wiring: complete authorization command (Claude, covering while Codex was out)
@@ -928,5 +928,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress; M2-8 and M2-9 done)
 - Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import (M2-8) is complete, including its production browser journey. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
-- Last green baseline `pnpm verify`: 2026-11-08 12:42 GMT on Docker Desktop with 1,246 unit and 155 PostGIS integration tests. Both production browser suites passed, 59 foundation and 16 authenticated cases.
+- Last green `pnpm verify`: 2026-11-13 04:22 GMT on Docker Desktop at `d215d64` with 1,330 unit and 156 PostGIS integration tests. `pnpm test:e2e:auth` last ran in full at `d592159` plus the import work: 16 passed and 1 failed, the import journey, which was then fixed. After that, only the `@menu-import` and `@merchant-hours` journeys were rerun, and they passed. Rerun the full authenticated suite next session.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
