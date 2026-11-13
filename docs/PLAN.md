@@ -82,6 +82,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
   - [ ] Persist owner and restaurant scope, upload receipts and job state. Accept binary uploads into quarantine and enqueue work in the same transaction as each state change. Prove safe retries, cross-tenant denial and private application photos.
     - [x] Reserve photos and read private status through the authenticated API. Verify eligible membership, session revocation, first-digest adoption and transactional preparation enqueue in PostGIS.
     - [x] Stream the authorized binary PUT into private storage and verify exact length, abort cleanup, storage replay, and 8 MiB enforcement.
+    - [x] Accept the owner's crop through `PUT /v1/media/:mediaId/crop` (awaiting_crop → processing) and enqueue publication in the same transaction. Report each processed state in status reads and replays.
   - [ ] Decode JPEG, PNG, WebP and real HEVC HEIC in the worker. Normalize orientation, bound decoded pixels, remove metadata, derive the requested crop and thumbhash, and publish only after all variants exist. Prove retries recover after a worker interruption.
     - [x] Decode JPEG, PNG and WebP with Sharp into oriented, metadata-free RGBA. Check the real format against the declared type, bound the decoded pixels, and reject corrupt or truncated files (`apps/worker/src/media-decode.ts`).
     - [x] Compute the focal-point crop area for each ratio (`media-crop.ts`).
@@ -90,6 +91,9 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Register the `media.process` task (prepare → awaiting_crop; publish → ready) with the media store and the decoded-pixel bound in config. Publish only after every variant is stored, and prove that retries recover after a worker interruption on PostGIS.
     - [ ] Decode HEVC HEIC through the bounded libheif 1.23.7/libde265 1.1.3 helper in the pinned Linux image (D-007), and run the real fixture on the amd64 CI runner.
   - [ ] Connect optional application photos and item photos to the localized cropper. Verify valid and rejected uploads, keyboard crop, private previews, saved item readback and the design matrix.
+    - [ ] Stream the private crop preview (`GET /v1/media/:mediaId/preview`, owner/manager only, `no-store`) from the media store while the photo is `awaiting_crop`, with a matrix row, OpenAPI and PostGIS proof.
+    - [ ] Attach a `ready` item photo of the same restaurant to a menu item (forward migration, menu item contract field, tenant-scoped check in SQL). Return its variants and ThumbHash in the menu preview.
+    - [ ] Add the typed web client (reserve → PUT content → poll status → PUT crop → poll ready) and the localized keyboard cropper over the private preview.
 - [x] M2-7 Bulk prices (MER-11). Bind preview to merchant and item revisions, apply rounded changes and history atomically, and prove ten-minute undo rejects expired or subsequently changed prices.
   - [x] Add the pure percent/fixed rounding calculation (nearest 1/5/10/50 DA, ties up, clamped to zero).
   - [x] Persist the per-item preview binding, apply rounded changes and price history atomically on the existing menu command/revision guard, and record an undo batch.

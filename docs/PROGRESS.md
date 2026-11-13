@@ -13,6 +13,25 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-13 06:12 GMT — M2-6 photo processing states, worker task, status reads and crop command (Claude, covering while Codex was out)
+
+- **Changed** — Six commits on `m2-merchant-onboarding`, `aaa3b0e`…`b92d62f`:
+  - `0019_media_processing.sql` (D-018) extends `media_uploads` with `awaiting_crop`, `processing`, `ready` and `rejected`. A `CASE status` check requires exactly the preview, crop, ThumbHash or rejection reason each state needs. It also adds `media_variants`: one row per format × width, a unique storage key, and cascade delete.
+  - `packages/db/src/media-processing.ts` holds the worker's guarded `recordPreview`, `reject` and `publish` transitions. Publish refuses an incomplete set and writes all ten variants plus `ready` in one transaction.
+  - `apps/worker/src/media-process.ts` adds the `media.process` handler. Prepare stores the private preview and moves the photo to `awaiting_crop`. Publish crops, stores every variant and only then sets `ready`. Decoder rejections map to `mediaOutput` reasons. The original is deleted after settling, including on a retry that follows an interruption. HEIC throws until the D-007 helper exists (`TODO(M2-6)`). `runtime.ts` registers the task. The worker zod-validates `MEDIA_STORAGE_ROOT` and the new `MEDIA_MAX_DECODED_PIXELS` (default 50 MP, cap 100 MP; `.env.example`).
+  - `media-status.ts` makes status reads and replayed reservations/uploads report the current state with its fields. Before this, a replay after the worker advanced a photo would have broken the `mediaOutput` response.
+  - `media-crop.ts` adds `acceptCrop` and `PUT /v1/media/:mediaId/crop`: awaiting_crop → processing, with the publish job enqueued in the same transaction. The same crop replays, a different one returns 409 `crop_conflict`, no preview returns 409 `crop_unavailable`, and a foreign photo returns 404. Added the authorization-matrix row, the OpenAPI path and the regenerated `docs/openapi.json`.
+- **Evidence** — Every new suite failed first for the right reason: missing columns, missing module or method, an unprocessed queued job, or missing route/matrix/OpenAPI entries. Afterward: `media-states` 4/4, `media-processing` 5/5, `media-status` 2/2 and `media-crop` 2/2 on PostGIS. Worker `media-process` passed 6/6 on PostGIS with a real local store, `media-queue` 1/1 (a real Graphile `runOnce`) and `command` 2/2. API `media-crop-http` passed 6/6, and a new `media-reservation.integration` case serializes `awaiting_crop` and `rejected` through `startApi`. Mutation checks:
+  - Dropping the `ready` ThumbHash requirement failed the state test.
+  - Removing publish's completeness guard failed the publish test.
+  - Skipping deletion of the original failed the worker test.
+  - Treating any crop as a replay failed the crop test.
+
+  Each was restored. The last `pnpm verify` exited 0 at `b92d62f` with 1,372 unit and 181 PostGIS integration tests. `pnpm trace --through m2` now covers 36/37 IDs, and only `MER-01` is missing.
+- **Reviewer** — Self-review against AGENTS §10. Fixed during the run: an original left in storage when a retry followed settling (new test). Fixed a test bug where the anonymous case had silently used the default signed-in actor. No open P0/P1. P2: `describeReservation`/`describeAdoption`/`describeCrop` in `packages/db/src/media.ts` are near-duplicates, because a generic version did not narrow the result union.
+- **Next** — The first open sub-bullet under the M2-6 cropper bullet in PLAN: `GET /v1/media/:mediaId/preview`. It streams `media_uploads.preview_key` from the media store (`MediaStore.get`) to the owner or manager only while the photo is `awaiting_crop`, with `cache-control: no-store` and `content-type: image/webp`. Add a repository read alongside `read` in `packages/db/src/media.ts` using `readVisibleMedia` for scope. Write the HTTP fake test (pattern: `apps/api/test/media-crop-http.test.ts`), a policy-matrix row, the OpenAPI path in `apps/api/test/health.test.ts`, then `pnpm --filter @zaafran/api openapi`. After that, attach a ready item photo to items (migration 0020), then the web cropper. The HEIC helper (D-007) stays open.
+- **Needs Mahdi** — None.
+
 ### 2026-11-13 05:19 GMT — M2-6 worker image pipeline: decode, crop, variants and preview (Claude, covering while Codex was out)
 
 - **Changed** — Added four pure-input/pure-output media modules to `apps/worker/src/`. `media-decode.ts` (`decodeUpload`) checks the real format against the declared JPEG/PNG/WebP type, rejects images above `maxPixels` before decoding, rejects corrupt or truncated files (`failOn: "truncated"`), applies EXIF orientation and returns raw RGBA, which carries no EXIF, ICC or XMP. `media-crop.ts` (`cropRectangle`) takes the largest area at the kind's ratio, zoomed 100–400% and centred on the 0–10 000 focal point, clamped inside the image. `media-variants.ts` (`renderVariants`) encodes AVIF and WebP at 160/320/640/960/1280 with the ratio's height, plus a standard Base64 ThumbHash. `media-preview.ts` (`renderCropPreview`) produces a private WebP of at most 1280 px that is never enlarged. The worker now depends on `sharp` 0.35.5 (D-007), `thumbhash` 0.1.1 (D-001 pin table) and `@zaafran/contracts`. Nothing is registered as a job yet.
@@ -952,5 +971,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress; M2-8, M2-9 and M2-10 done)
 - Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import (M2-8) is complete, including its production browser journey. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
-- Last green `pnpm verify`: 2026-11-13 05:18 GMT on Docker Desktop at `658d534` with 1,365 unit and 160 PostGIS integration tests. `pnpm test:e2e:auth` passed all 18 authenticated production journeys at `a77bfe7`.
+- Last green `pnpm verify`: 2026-11-13 06:11 GMT on Docker Desktop at `b92d62f` with 1,372 unit and 181 PostGIS integration tests. `pnpm trace --through m2` covers 36/37 IDs (missing `MER-01`). `pnpm test:e2e:auth` passed all 18 authenticated production journeys at `a77bfe7`.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
