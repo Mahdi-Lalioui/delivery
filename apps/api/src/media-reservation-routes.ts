@@ -2,7 +2,12 @@ import { createHash, randomUUID } from "node:crypto";
 import { Readable } from "node:stream";
 import { sessionBoundCommandHeaders } from "@zaafran/contracts/auth";
 import { problemResponseSchema } from "@zaafran/contracts/health";
-import { mediaOutput, mediaUploadInput, photoUploadMaximumBytes } from "@zaafran/contracts/media";
+import {
+  mediaCropInput,
+  mediaOutput,
+  mediaUploadInput,
+  photoUploadMaximumBytes,
+} from "@zaafran/contracts/media";
 import type {
   createMediaRepository,
   MediaAdoptionResult,
@@ -207,12 +212,50 @@ function registerUploadContent(
   });
 }
 
+function registerCrop(api: FastifyInstance, services: MediaReservationServices | undefined) {
+  api.withTypeProvider<ZodTypeProvider>().put(
+    "/v1/media/:mediaId/crop",
+    {
+      config: privatePhotoPolicy,
+      schema: {
+        headers: z.object({ "x-expected-session-id": z.uuid() }),
+        params: mediaIdParams,
+        body: mediaCropInput,
+        response: { 202: mediaOutput, ...writeErrors },
+      },
+    },
+    async (request, reply) => {
+      reply.header("cache-control", "no-store");
+      const context = resolveSessionCommand({
+        request,
+        reply,
+        services,
+        expectedSessionId: request.headers["x-expected-session-id"],
+      });
+      if (!context) return reply;
+      const { accountId, sessionId, now, repository } = context;
+      const mediaId = request.params.mediaId.toLowerCase();
+      const result = await repository.acceptCrop({
+        accountId,
+        sessionId,
+        mediaId,
+        now,
+        crop: request.body,
+      });
+      if ("media" in result) return reply.code(202).send(result.media);
+      if (result.kind === "not_found") return sendProblem(reply, 404);
+      return sendProblem(reply, 409, result.kind);
+    },
+  );
+}
+
 export function registerMediaReservationRoutes(
   api: FastifyInstance,
   services: MediaReservationServices | undefined,
 ): void {
   registerReserve(api, services);
   registerUploadContent(api, services);
+  registerCrop(api, services);
   api.withTypeProvider<ZodTypeProvider>().get(
     "/v1/media/:mediaId",
     {

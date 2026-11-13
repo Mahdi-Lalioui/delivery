@@ -158,6 +158,7 @@ test("[M0-6] the generated OpenAPI document describes the readiness problem resp
       "/v1/media/uploads",
       "/v1/media/uploads/{mediaId}/content",
       "/v1/media/{mediaId}",
+      "/v1/media/{mediaId}/crop",
       "/v1/merchant-applications",
       "/v1/merchants/{merchantId}/hours",
       "/v1/merchants/{merchantId}/hours/pause",
