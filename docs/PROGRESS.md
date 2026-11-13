@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-13 06:16 GMT — M2-6 private crop preview stream (Claude, covering while Codex was out)
+
+- **Changed** — `006e8e9` adds `findPreview` to `createMediaRepository` (`packages/db/src/media.ts`). It is scoped through `readVisibleMedia` (owner, or owner/manager of the restaurant, live standard session) and returns the preview key only while the photo is `awaiting_crop`. `GET /v1/media/:mediaId/preview` (`apps/api/src/media-preview-route.ts`) streams it from the media store as `image/webp`, with `content-length` and `cache-control: no-store`. A foreign, unprepared or missing preview returns 404. The route uses Fastify's plain generic typing because the typed reply refuses a stream body, while the zod params schema still validates at runtime (malformed id → 400, tested). The shared policy and services type moved to `media-route-shared.ts` to avoid an import cycle. Added the matrix row, the OpenAPI path and the regenerated `docs/openapi.json`.
+- **Evidence** — The db case failed first because `findPreview` was missing. The HTTP suite, matrix and OpenAPI tests failed first on the missing route. Afterward: `media-crop.integration` 3/3 on PostGIS (owner only, not while preparing, gone after the crop), and `media-preview-http` 4/4. The first full verify caught a type-only import cycle through dependency-cruiser, which is now fixed. `pnpm verify` exited 0 at `006e8e9` with 1,376 unit and 182 PostGIS integration tests.
+- **Reviewer** — Self-review against AGENTS §10 found no P0/P1. P2: the route is proven with the fake repository plus the PostGIS repository test, not through `startApi` end to end. The `@merchant-onboarding` journey will cover that.
+- **Next** — The next open sub-bullet under the M2-6 cropper bullet in PLAN: attach a `ready` item photo to a menu item. Add a forward migration `0020_item_photos.sql` with `items.photo_media_id uuid REFERENCES media_uploads(id)`, and enforce in SQL (in `packages/db/src/menu-item-writes.ts`) that the photo is `kind = 'item'`, `status = 'ready'` and has the same `merchant_id`. Add an optional `photoMediaId` to the menu item contract (`packages/contracts`), and return the variants and ThumbHash in `packages/db/src/menu-preview.ts` and its contract. Write the PostGIS tests first, including cross-tenant denial. Then build the web client and keyboard cropper, and later the HEIC helper (D-007).
+- **Needs Mahdi** — None.
+
 ### 2026-11-13 06:12 GMT — M2-6 photo processing states, worker task, status reads and crop command (Claude, covering while Codex was out)
 
 - **Changed** — Six commits on `m2-merchant-onboarding`, `aaa3b0e`…`b92d62f`:
@@ -971,5 +979,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress; M2-8, M2-9 and M2-10 done)
 - Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import (M2-8) is complete, including its production browser journey. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
-- Last green `pnpm verify`: 2026-11-13 06:11 GMT on Docker Desktop at `b92d62f` with 1,372 unit and 181 PostGIS integration tests. `pnpm trace --through m2` covers 36/37 IDs (missing `MER-01`). `pnpm test:e2e:auth` passed all 18 authenticated production journeys at `a77bfe7`.
+- Last green `pnpm verify`: 2026-11-13 06:15 GMT on Docker Desktop at `006e8e9` with 1,376 unit and 182 PostGIS integration tests. `pnpm trace --through m2` covers 36/37 IDs (missing `MER-01`). `pnpm test:e2e:auth` passed all 18 authenticated production journeys at `a77bfe7`.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
