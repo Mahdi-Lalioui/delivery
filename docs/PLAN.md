@@ -86,7 +86,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Decode JPEG, PNG and WebP with Sharp into oriented, metadata-free RGBA. Check the real format against the declared type, bound the decoded pixels, and reject corrupt or truncated files (`apps/worker/src/media-decode.ts`).
     - [x] Compute the focal-point crop area for each ratio (`media-crop.ts`).
     - [x] Encode the ten AVIF/WebP variants with a Base64 ThumbHash (`media-variants.ts`), and render the private 1280 px WebP crop preview (`media-preview.ts`).
-    - [ ] Persist the post-adoption states (`processing`, `awaiting_crop`, `ready`, `rejected`) with preview and variant storage keys, thumbhash and rejection reason, in a forward migration that extends `media_upload_adoption_check`.
+    - [x] Persist the post-adoption states (`processing`, `awaiting_crop`, `ready`, `rejected`) with preview and variant storage keys, thumbhash and rejection reason, in a forward migration that extends `media_upload_adoption_check`.
     - [ ] Register the `media.process` task (prepare → awaiting_crop; publish → ready) with the media store and the decoded-pixel bound in config. Publish only after every variant is stored, and prove that retries recover after a worker interruption on PostGIS.
     - [ ] Decode HEVC HEIC through the bounded libheif 1.23.7/libde265 1.1.3 helper in the pinned Linux image (D-007), and run the real fixture on the amd64 CI runner.
   - [ ] Connect optional application photos and item photos to the localized cropper. Verify valid and rejected uploads, keyboard crop, private previews, saved item readback and the design matrix.
