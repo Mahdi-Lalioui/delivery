@@ -398,3 +398,6 @@
 
 - 2026-11-13 · High · Restarted API, worker and PostgreSQL around a pending synthetic pickup on the rebuilt local production stack. The order expired at version 2, its repeated timer left exactly one expiry event, and HTTPS smoke recovered.
   Next: prove the scheduled release timer and HTTP placement across faults, then browser replay and the load pass.
+
+- 2026-11-13 · High · Proved the scheduled release timer on local production Compose. After all three services restarted, the order advanced to pending acceptance at version 2. The duplicate release job completed and left one release event.
+  Next: verify HTTP placement under faults and browser replay. Repair full browser CI infrastructure before integrating Lane B’s new customer pass.

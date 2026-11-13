@@ -30,3 +30,9 @@ independent duplicate timer, waited for that job to leave the queue and verified
 exactly one expiry event. The HTTPS smoke passed afterwards. This drill seeded the
 order directly in PostGIS. HTTP placement during failure and browser replay are
 separate outstanding checks.
+
+On the same image, a second fixture started in `scheduled` with a queued release
+job. After restarting the same three services, it reached `pending_acceptance:2`.
+A duplicate release job completed and the order retained exactly one release
+event. The HTTPS smoke passed. Both expiry and release are covered by seeded
+order drills.
