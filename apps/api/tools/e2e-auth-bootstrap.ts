@@ -1,4 +1,7 @@
 import { createHmac, randomBytes, randomUUIDv7 } from "node:crypto";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { openDatabase, type DatabaseConnection } from "@zaafran/db/database";
 import { seedGeography } from "@zaafran/db/geography";
 import { migrateDatabase } from "@zaafran/db/migrate";
@@ -119,6 +122,8 @@ export async function startAuthHarness(webOrigin: string): Promise<AuthHarness> 
   const database = openDatabase(clone.url);
   resources.defer(() => database.close());
   await migrateDatabase(database);
+  const mediaRoot = await mkdtemp(join(tmpdir(), "zaafran-e2e-media-"));
+  resources.defer(() => rm(mediaRoot, { recursive: true, force: true }));
 
   const proxy = await startAuthProxy(webOrigin);
   resources.defer(proxy.close);
@@ -134,6 +139,7 @@ export async function startAuthHarness(webOrigin: string): Promise<AuthHarness> 
       AUTH_PUBLIC_ORIGIN: proxy.origin,
       AUTH_OTP_KEY: randomBytes(32).toString("hex"),
       AUTH_TOTP_KEY: totpKey.toString("hex"),
+      MEDIA_STORAGE_ROOT: mediaRoot,
     },
     now: () => new Date(time),
     sendSms({ phone, code }) {
@@ -151,6 +157,8 @@ export async function startAuthHarness(webOrigin: string): Promise<AuthHarness> 
   const cleanup = resources.move();
   return {
     origin: proxy.origin,
+    databaseUrl: clone.url,
+    mediaRoot,
     close: () => cleanup.disposeAsync(),
     seedAlgiersCommune: () => seedAlgiersCommune(database),
     seedMenuMemberships: (phone) => seedMenuMemberships(database, phone, new Date(time)),

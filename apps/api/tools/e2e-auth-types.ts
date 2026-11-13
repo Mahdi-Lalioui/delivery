@@ -13,6 +13,10 @@ export interface MenuMembershipFixture {
 
 export interface AuthHarness {
   readonly origin: string;
+  /** The cloned database, shared with the media worker in photo journeys. */
+  readonly databaseUrl: string;
+  /** The private media store root, shared by the API, the worker and the proxy. */
+  readonly mediaRoot: string;
   close(): Promise<void>;
   advanceClock(milliseconds: number): void;
   latestSms(phone: string): string;
