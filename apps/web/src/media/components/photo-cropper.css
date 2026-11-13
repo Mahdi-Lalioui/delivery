@@ -1,0 +1,56 @@
+.photo-crop {
+  display: grid;
+  min-inline-size: 0;
+  gap: var(--space-12);
+  border: 0;
+  padding: 0;
+}
+
+.photo-crop legend {
+  font-weight: var(--font-weight-display);
+  margin-block-end: var(--space-12);
+}
+
+.photo-crop-instructions,
+.photo-crop-position {
+  color: var(--color-text-2);
+}
+
+.photo-crop-stage {
+  position: relative;
+  inline-size: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
+}
+
+.photo-crop-image {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  user-select: none;
+}
+
+.photo-crop-overlay {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  pointer-events: none;
+}
+
+.photo-crop-scrim {
+  fill: var(--color-scrim);
+}
+
+.photo-crop-frame {
+  fill: none;
+  stroke: var(--color-on-primary);
+  stroke-width: var(--focus-ring-width);
+}
+
+.photo-crop-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-12);
+}

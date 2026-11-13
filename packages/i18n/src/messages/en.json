@@ -774,5 +774,16 @@
     "signInRequired": "Sign in to see the menu preview.",
     "signIn": "Sign in",
     "forbidden": "Your account cannot see this restaurant’s preview."
+  },
+  "photoCrop": {
+    "title": "Crop the photo",
+    "instructions": "Use the arrow keys to move the centre of the photo (Shift for bigger steps), + and − to zoom, and Home to recentre.",
+    "previewAlt": "Your uploaded photo",
+    "position": "Centre at {x} % across and {y} % down, zoom {zoom} %",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "recentre": "Recentre",
+    "confirm": "Use this crop",
+    "saving": "Saving the crop…"
   }
 }

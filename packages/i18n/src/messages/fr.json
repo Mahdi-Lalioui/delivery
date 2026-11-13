@@ -774,5 +774,16 @@
     "signInRequired": "Connectez-vous pour voir l’aperçu du menu.",
     "signIn": "Se connecter",
     "forbidden": "Votre compte ne peut pas voir l’aperçu de ce restaurant."
+  },
+  "photoCrop": {
+    "title": "Recadrer la photo",
+    "instructions": "Utilisez les flèches pour déplacer le centre de la photo (Maj pour aller plus vite), + et − pour zoomer, et Début pour recentrer.",
+    "previewAlt": "Votre photo envoyée",
+    "position": "Centre à {x} % en largeur et {y} % en hauteur, zoom {zoom} %",
+    "zoomIn": "Zoomer",
+    "zoomOut": "Dézoomer",
+    "recentre": "Recentrer",
+    "confirm": "Utiliser ce cadrage",
+    "saving": "Enregistrement du cadrage…"
   }
 }

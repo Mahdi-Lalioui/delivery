@@ -18,8 +18,8 @@ export interface CropFrame {
 }
 
 const focalMaximum = 10_000;
-const zoomMinimum = 100;
-const zoomMaximum = 400;
+export const zoomMinimum = 100;
+export const zoomMaximum = 400;
 const steps = {
   focal: { small: 250, large: 1_000 },
   zoom: { small: 10, large: 50 },
