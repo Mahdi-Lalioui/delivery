@@ -29,12 +29,11 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
   Afterward: PostGIS 3/3 (ordered attach; foreign, processing, cover, unknown and reused photos refused with no merchant row; five concurrent rounds give exactly one `created` and one `photos_unavailable`; stable over three runs), `merchant-http` 40/40, and the web suites 16/16. `pnpm verify` exited 0 at `6f005ca`'s tree with 1,457 unit and 190 PostGIS integration tests, and trace through m1 was 20/20. `pnpm test:e2e:auth` passed 19/19, including the merchant application journeys with the new picker in their axe matrix.
 - **Reviewer** — Self-review against AGENTS §10 found and fixed the race above (P1). Open, not yet fixed:
   - Fixed in a follow-up commit: the web mapped a 409 `photos_unavailable` to the generic error. It now shows a localized `merchant.photosUnavailable` message (ar/fr/en) and uses a fresh idempotency key (`merchant-http` 7/7). `pnpm verify` exited 0 afterward with 1,458 unit and 190 PostGIS integration tests.
-  - No browser journey uploads an application photo yet.
+  - Done in a follow-up commit: the browser journey. `e2e/auth-merchant-application-photo.spec.ts` (Arabic, RTL) uploads `syntheticJpeg()`, crops with ← and `+`, waits for ready, submits with `photoIds: [mediaId]` (201) and asserts `GET /media/<mediaId>/1280.webp` returns 404. The journey was written after the feature, so it was checked by mutation instead: storing application variants under `media/` (`apps/worker/src/media-keys.ts`) failed it with 200 instead of 404. The mutation was restored. `pnpm verify` exited 0 (1,458 unit, 190 integration), and `pnpm test:e2e:auth` passed 20/20.
   - The admin queue cannot show the private photo yet.
 - **Next** — The new PLAN sub-bullet under M2-6:
-  1. In `e2e/auth-merchant.spec.ts`, wrap one application in `withMediaWorker`. Upload `syntheticJpeg()`, crop with the keyboard, submit, and assert the row in `merchant_application_photos` through a harness query. Also assert that `GET /media/<id>/1280.webp` returns 404, because application variants live under `private/`.
-  2. When signup returns `photosUnavailable`, also clear the draft `photoIds` and reset the photo field (`use-merchant-application.ts`), test first.
-  3. Add an admin-only `GET /v1/admin/merchant-applications/:merchantId/photos/:mediaId/:width.webp` streaming route, with a matrix row, OpenAPI and `no-store`, and show it in the admin queue.
+  1. When signup returns `photosUnavailable`, also clear the draft `photoIds` and reset the photo field (`use-merchant-application.ts`), test first.
+  2. Add an admin-only `GET /v1/admin/merchant-applications/:merchantId/photos/:mediaId/:width.webp` streaming route, with a matrix row, OpenAPI and `no-store`, and show it in the admin queue.
 
   Afterward: the 180 ms fade-in after motion tokens, the HEIC helper (D-007) and the `@merchant-onboarding` journey.
 - **Needs Mahdi** — None.
@@ -1077,5 +1076,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress; M2-8, M2-9 and M2-10 done)
 - Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import (M2-8) is complete, including its production browser journey. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
-- Last green `pnpm verify`: 2026-11-13 11:00 GMT on Docker Desktop with 1,458 unit and 190 PostGIS integration tests (the `photos_unavailable` message commit). `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 36/37 IDs at `b92d62f` (missing `MER-01`).
+- Last green `pnpm verify`: 2026-11-13 11:02 GMT on Docker Desktop with 1,458 unit and 190 PostGIS integration tests. `pnpm test:e2e:auth` passed 20/20 authenticated production journeys at the same tree, including both photo journeys. `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 36/37 IDs at `b92d62f` (missing `MER-01`).
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
