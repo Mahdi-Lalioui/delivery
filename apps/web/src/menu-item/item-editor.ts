@@ -5,12 +5,13 @@ export type ItemDraft = ReturnType<typeof makeMenuItemDraft>;
 export type ItemField = "names" | "descriptions" | "price" | "prep";
 
 export function makeMenuItemDraft(item?: MenuItem) {
-  const { names, descriptions, tags, optionGroupIds, extraPrepMinutes } = item ?? {
+  const { names, descriptions, tags, optionGroupIds, extraPrepMinutes, photoId } = item ?? {
     names: {},
     descriptions: {},
     tags: [],
     optionGroupIds: [],
     extraPrepMinutes: 0,
+    photoId: null,
   };
 
   return {
@@ -24,6 +25,7 @@ export function makeMenuItemDraft(item?: MenuItem) {
     prep: String(extraPrepMinutes),
     tags: [...tags],
     optionGroupIds: [...optionGroupIds],
+    photoId,
   };
 }
 
@@ -125,7 +127,7 @@ export function parseMenuItemDraft({
       descriptions: descriptions.data,
       priceDzd: price.data,
       extraPrepMinutes: prep.data,
-      photoId: null,
+      photoId: draft.photoId,
       tags: draft.tags,
       optionGroupIds: draft.optionGroupIds,
     },

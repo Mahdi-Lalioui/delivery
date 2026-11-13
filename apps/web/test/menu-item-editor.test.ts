@@ -58,6 +58,27 @@ test("[MER-10] preserves existing attached option groups in their stored order a
   expect(makeMenuItemDraft().optionGroupIds).toEqual([]);
 });
 
+test("[MER-14:items] keeps the item's photo through a form edit and can attach or clear one", () => {
+  const photoId = "019d6abc-1234-7234-8234-123456789006";
+  const withPhoto = makeMenuItemDraft({ ...item, photoId, tags: [...item.tags] });
+  expect(makeMenuItemDraft().photoId).toBeNull();
+  const kept = parseMenuItemDraft({ draft: withPhoto, categoryId, expectedRevision: 9 });
+  expect(kept.kind === "valid" && kept.input.photoId).toBe(photoId);
+  const otherPhoto = "019d6abc-1234-7234-8234-123456789007";
+  const attached = parseMenuItemDraft({
+    draft: { ...draft, photoId: otherPhoto },
+    categoryId,
+    expectedRevision: 9,
+  });
+  expect(attached.kind === "valid" && attached.input.photoId).toBe(otherPhoto);
+  const cleared = parseMenuItemDraft({
+    draft: { ...withPhoto, photoId: null },
+    categoryId,
+    expectedRevision: 9,
+  });
+  expect(cleared.kind === "valid" && cleared.input.photoId).toBeNull();
+});
+
 test("[MER-09:items] rejects missing Arabic/French translations, fractions, and out-of-range prep times", () => {
   for (const [changes, field] of [
     [{ nameFr: "", nameEn: "English only" }, "names"],
