@@ -87,6 +87,7 @@ const filterChecks: ((card: Card, query: FeedQuery) => boolean)[] = [
   (card, { cuisine }) => cuisine === undefined || card.cuisines.includes(cuisine),
   (card, { openNow }) => openNow !== true || card.isOpen,
   (card, { freeDelivery }) => freeDelivery !== true || card.deliveryFeeDzd === 0,
+  (card, { offers }) => offers !== true || card.offer !== undefined,
   (card, { minRating }) => minRating === undefined || (card.rating ?? 0) >= minRating,
   (card, { priceLevel }) => priceLevel === undefined || card.priceLevel === priceLevel,
   (card, { acceptsBaridiPay }) => acceptsBaridiPay !== true || card.acceptsBaridiPay === true,

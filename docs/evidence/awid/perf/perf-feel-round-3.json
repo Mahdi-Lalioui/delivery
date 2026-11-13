@@ -1,0 +1,206 @@
+[
+  {
+    "run": 1,
+    "route": "Discovery",
+    "cls": 0,
+    "fps": 60,
+    "p95FrameMs": 17,
+    "droppedShare": 0,
+    "taps": [
+      {
+        "label": "Delivery / Pickup switch",
+        "inputToPaintMs": 48
+      },
+      {
+        "label": "Cuisine chip",
+        "inputToPaintMs": 40
+      },
+      {
+        "label": "Favourite heart",
+        "inputToPaintMs": 32
+      }
+    ]
+  },
+  {
+    "run": 1,
+    "route": "Restaurant",
+    "cls": 0,
+    "fps": 60,
+    "p95FrameMs": 17,
+    "droppedShare": 0,
+    "taps": [
+      {
+        "label": "Dish + (opens the sheet)",
+        "inputToPaintMs": 40
+      },
+      {
+        "label": "Opening hours",
+        "inputToPaintMs": 32
+      }
+    ]
+  },
+  {
+    "run": 1,
+    "route": "Checkout",
+    "cls": 0,
+    "fps": 60,
+    "p95FrameMs": 17,
+    "droppedShare": 0,
+    "taps": [
+      {
+        "label": "Add a promo code",
+        "inputToPaintMs": 32
+      }
+    ]
+  },
+  {
+    "run": 1,
+    "route": "Tracking",
+    "cls": 0,
+    "fps": 56,
+    "p95FrameMs": 17,
+    "droppedShare": 0.039301310043668124,
+    "taps": [
+      {
+        "label": "Call the restaurant (focus)",
+        "inputToPaintMs": 32
+      }
+    ]
+  },
+  {
+    "run": 2,
+    "route": "Discovery",
+    "cls": 0,
+    "fps": 60,
+    "p95FrameMs": 17,
+    "droppedShare": 0,
+    "taps": [
+      {
+        "label": "Delivery / Pickup switch",
+        "inputToPaintMs": 40
+      },
+      {
+        "label": "Cuisine chip",
+        "inputToPaintMs": 48
+      },
+      {
+        "label": "Favourite heart",
+        "inputToPaintMs": 32
+      }
+    ]
+  },
+  {
+    "run": 2,
+    "route": "Restaurant",
+    "cls": 0,
+    "fps": 60,
+    "p95FrameMs": 17,
+    "droppedShare": 0,
+    "taps": [
+      {
+        "label": "Dish + (opens the sheet)",
+        "inputToPaintMs": 48
+      },
+      {
+        "label": "Opening hours",
+        "inputToPaintMs": 32
+      }
+    ]
+  },
+  {
+    "run": 2,
+    "route": "Checkout",
+    "cls": 0,
+    "fps": 60,
+    "p95FrameMs": 17,
+    "droppedShare": 0,
+    "taps": [
+      {
+        "label": "Add a promo code",
+        "inputToPaintMs": 32
+      }
+    ]
+  },
+  {
+    "run": 2,
+    "route": "Tracking",
+    "cls": 0,
+    "fps": 56,
+    "p95FrameMs": 17,
+    "droppedShare": 0.04017857142857143,
+    "taps": [
+      {
+        "label": "Call the restaurant (focus)",
+        "inputToPaintMs": 32
+      }
+    ]
+  },
+  {
+    "run": 3,
+    "route": "Discovery",
+    "cls": 0,
+    "fps": 60,
+    "p95FrameMs": 17,
+    "droppedShare": 0,
+    "taps": [
+      {
+        "label": "Delivery / Pickup switch",
+        "inputToPaintMs": 40
+      },
+      {
+        "label": "Cuisine chip",
+        "inputToPaintMs": 48
+      },
+      {
+        "label": "Favourite heart",
+        "inputToPaintMs": 32
+      }
+    ]
+  },
+  {
+    "run": 3,
+    "route": "Restaurant",
+    "cls": 0,
+    "fps": 60,
+    "p95FrameMs": 17,
+    "droppedShare": 0,
+    "taps": [
+      {
+        "label": "Dish + (opens the sheet)",
+        "inputToPaintMs": 40
+      },
+      {
+        "label": "Opening hours",
+        "inputToPaintMs": 32
+      }
+    ]
+  },
+  {
+    "run": 3,
+    "route": "Checkout",
+    "cls": 0,
+    "fps": 60,
+    "p95FrameMs": 17,
+    "droppedShare": 0,
+    "taps": [
+      {
+        "label": "Add a promo code",
+        "inputToPaintMs": 32
+      }
+    ]
+  },
+  {
+    "run": 3,
+    "route": "Tracking",
+    "cls": 0,
+    "fps": 56,
+    "p95FrameMs": 17,
+    "droppedShare": 0.03571428571428571,
+    "taps": [
+      {
+        "label": "Call the restaurant (focus)",
+        "inputToPaintMs": 32
+      }
+    ]
+  }
+]

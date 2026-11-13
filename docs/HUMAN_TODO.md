@@ -61,3 +61,14 @@ Codex appends items here (what, why, exact steps). Mahdi ticks them. Items marke
   `VAPID_PRIVATE_KEY` and a monitored `VAPID_SUBJECT` such as a `mailto:` address on
   the worker only. Verify an opted-in Chromium, Firefox and installed Safari PWA
   receives a test notification. Keep the same keys across deployments.
+
+- [ ] **[now]** Stop file sync from duplicating repo files (found by Claude, 13 Nov 03:25).
+  `.git/refs/heads/` holds copies named `lane-a 2`, `lane-b 2`, and
+  `codex/lane-a-feed-rails 2` (likewise under `refs/remotes/origin/` and `refs/stash 2`).
+  Because of them, `git fetch` fails with "bad object" (see `~/zaafran-takeover/logs/check.log`).
+  `apps/web/.next/types/` gained `root-params.d 3.ts` and similar copies, which failed
+  `pnpm verify` typecheck until they were deleted. The `~/Documents` folder is probably synced
+  by iCloud ("Optimise Mac storage" / Desktop & Documents). Steps: exclude
+  `~/Documents/ChatGPT/zaafran` from sync or move the repos out of `~/Documents`. Then check
+  that each `* 2` ref matches its original (`git -C delivery show-ref`) and delete only the
+  duplicate ref files.

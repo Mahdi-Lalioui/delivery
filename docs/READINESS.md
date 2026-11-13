@@ -5,23 +5,25 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 ## Customer experience
 
 - [ ] **Lane A** Consistent dish and cover pipeline with crop ratios, warm grade, contrast and sharpening. Review the catalog, replace weak images and publish restaurant guidance. [Photo guide](RESTAURANT_PHOTOS.md)
-- [x] **Lane B** Short haptics for add-to-cart, order placement and acceptance. Optional acceptance sound, mute preference and reduced-motion support. [Feel evidence](evidence/awid/feel/README.md)
-- [x] **Lane B** Arabic, French and English copy pass. Errors give the customer a next step. [Copy evidence](evidence/awid/copy.md)
-- [x] **Lane B** Audit spacing, type, radii, shadows, icons, buttons and colours on every customer screen. Record and fix deviations in `docs/evidence/awid/consistency.md`. [Consistency evidence](evidence/awid/consistency.md)
-- [ ] **Lane B** Remove content that distracts from the next action. Verify one focal point per screen.
-- [ ] **Lane B** Verify 44 px touch targets, visible focus, meaningful labels, contrast in both themes and keyboard journeys.
-- [ ] **Lane B** Complete the final visual review on every customer screen. Record shortcomings, fixes and fresh captures.
+- [x] **Lane B** Short haptics for add-to-cart, order placement and acceptance. Optional acceptance sound, mute preference and reduced-motion support. [Haptics and mute note](evidence/awid/feel/README.md) (393969e)
+- [x] **Lane B** Arabic, French and English copy pass. Errors give the customer a next step. [Copy changes](evidence/awid/copy.md) (17a477c)
+- [x] **Lane B** Audit spacing, type, radii, shadows, icons, buttons and colours on every customer screen. Record and fix deviations in `docs/evidence/awid/consistency.md`. [Consistency list, 21 fixed](evidence/awid/consistency.md) (fb5d002)
+- [x] **Lane B** Remove content that distracts from the next action. Verify one focal point per screen. [Screen-by-screen verdicts, before and after](evidence/awid/reduce/README.md)
+- [x] **Lane B** Verify 44 px touch targets, visible focus, meaningful labels, contrast in both themes and keyboard journeys. [Audit rounds 1–5 and keyboard journeys](evidence/awid/a11y/README.md): 0 axe violations, 0 small targets, 0 invisible focus on 15 routes × 4 variants
+- [x] **Lane B** Complete the final visual review on every customer screen. Record shortcomings, fixes and fresh captures. [Jury rounds 1–3: shortfalls, fixes and captures](evidence/awid/jury/README.md)
 
-- [x] **Lane B** AWID maps with localized labels, pin cards, clustering and a fallback. [Map evidence](evidence/awid/maps/)
-- [x] **Lane B** Fictional restaurant display names. [Seed and preview evidence](requests/lane-b-realistic-demo-names.md)
-- [ ] **Lane B** Verify designed loading, empty and error states on every customer screen.
+- [x] **Lane B** Maps in AWID colours with page-language labels, branded pin cards with clustering, retry inside the fallback; real streets and buildings on a production build with the national extract. [Screenshots and notes](evidence/awid/maps/README.md) (5afa5d3)
+- [x] **Lane B** No restaurant named "Démo" on any branch. [Request closed](requests/lane-b-realistic-demo-names.md)
+- [x] **Lane B** Design and capture every state of every customer screen: loading, empty, error, offline, slow network, closed restaurant, sold-out dish, expired cart, offer no longer valid, cancelled or rejected order. [State table, flaws fixed and 116 captures](evidence/awid/states/README.md)
+- [x] **Lane B** Offer badges in Discovery and the promo code field in checkout, designed and captured. [Design notes and captures](evidence/awid/offers/README.md)
+
 
 ## Performance and offers
 
 - [ ] **Lane A** Connected Discovery LCP below 2 s on the established throttled Android profile. [Small-fixture samples](evidence/awid/perf.md#connected-production-build)
 - [ ] **Lane A** Connected Restaurant LCP below 2 s on the same profile. [Small-fixture samples](evidence/awid/perf.md#connected-production-build)
-- [ ] **Lane B** Customer tap feedback within 100 ms, with optimistic feedback where safe.
-- [ ] **Lane B** Measure 60 fps scrolling and animation and CLS below 0.05. Defer offscreen images and 3D. Record connected results in [performance evidence](evidence/awid/perf.md).
+- [x] **Lane B** Customer tap feedback within 100 ms, with optimistic feedback where safe. [Worst tap 72 ms on the throttled Android profile](evidence/awid/perf.md#customer-feel-taps-frames-and-layout-shift-lane-b-13-november-2026)
+- [ ] **Lane B** Measure 60 fps scrolling and animation and CLS below 0.05. Defer offscreen images and 3D. Record connected results in [performance evidence](evidence/awid/perf.md). Measured: CLS 0 on all four routes, 60 fps on Discovery, Restaurant and Checkout; Tracking 56 fps average with 2 % long frames while tiles load, still open. [Results](evidence/awid/perf.md#customer-feel-taps-frames-and-layout-shift-lane-b-13-november-2026)
 - [ ] **Lane A** Route bundle budgets enforced in CI at the SPEC target. [Provisional ceilings](evidence/awid/perf.md#connected-production-build)
 - [x] **Lane A** Quote and placement honour code and automatic offers and apply the published stacking rules. [PostGIS quote and placement tests](../packages/db/test/order-quotes.integration.test.ts)
 - [x] **Lane A** Per-customer and global offer limits and idempotent redemption hold under retries and concurrency. [PostGIS redemption tests](../packages/db/test/order-quotes.integration.test.ts)

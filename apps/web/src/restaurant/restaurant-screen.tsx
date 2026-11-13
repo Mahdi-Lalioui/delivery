@@ -1,5 +1,6 @@
 "use client";
 
+import { brand } from "@zaafran/config/brand";
 import { useCallback, useEffect, useState } from "react";
 import {
   addCartLine,
@@ -34,6 +35,10 @@ import "./restaurant.css";
 
 type State = { phase: "loading" } | { phase: "error" } | { phase: "ready"; data: Restaurant };
 
+function brandFor(locale: string) {
+  return locale === "ar" ? brand.arabicName : brand.name;
+}
+
 export function RestaurantScreen({ slug, locale }: { slug: string; locale: Locale }) {
   const basket = useBrowserCart();
   useDishOrigin();
@@ -66,6 +71,8 @@ function RestaurantLoader({
       const data = await readRestaurant(slug, controller.signal);
       if (controller.signal.aborted) return;
       setState(data === null ? { phase: "error" } : { phase: "ready", data });
+      // The tab and screen readers name the restaurant, not just the brand.
+      if (data !== null) document.title = `${data.restaurant.name} · ${brandFor(locale)}`;
     }
     void load();
     return () => {
@@ -241,12 +248,21 @@ function RestaurantLoaded({
 }
 
 /** Tagged favourites first, topped up with other dishes so the row never shows a lone card. */
+/**
+ * Menu categories load as the diner scrolls near them, so only the first one is guaranteed:
+ * hold the popular row's space until that one arrives, never until every category has.
+ */
+export function isPopularPending(query: string, loadedCategories: number): boolean {
+  return query.trim() === "" && loadedCategories === 0;
+}
+
 export function pickPopular(selections: readonly DishSelection[]): DishSelection[] {
   const available = selections.filter(({ dish }) => dish.isAvailable);
   const tagged = available.filter(({ dish }) => dish.tags.includes("popular"));
   const rest = available.filter(({ dish }) => !dish.tags.includes("popular"));
   const row = [...tagged, ...rest].slice(0, 6);
-  return row.length >= 3 ? row : [];
+  // Two is a row; one is a lone card. Two also fills the placeholder from the first category.
+  return row.length >= 2 ? row : [];
 }
 
 function hasNoMatch(loaded: ReadonlyMap<string, readonly DishSelection[]>, query: string) {
@@ -319,9 +335,7 @@ function RestaurantMenu({
   const messages = getRestaurantMessages(locale);
   const [query, setQuery] = useState("");
   const [loaded, setLoaded] = useState<ReadonlyMap<string, readonly DishSelection[]>>(new Map());
-  const recordDishes = useCallback((selections: readonly DishSelection[]) => {
-    const categoryId = selections[0]?.categoryId;
-    if (categoryId === undefined) return;
+  const recordDishes = useCallback((categoryId: string, selections: readonly DishSelection[]) => {
     setLoaded((previous) => new Map(previous).set(categoryId, selections));
   }, []);
   if (data.categories.length === 0)
@@ -331,6 +345,7 @@ function RestaurantMenu({
     <>
       <PopularRow
         selections={query.trim() === "" ? popular : []}
+        isPending={isPopularPending(query, loaded.size)}
         merchantId={data.restaurant.merchantId}
         locale={locale}
         onChoose={onChoose}

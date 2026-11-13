@@ -41,6 +41,8 @@ function poseOf(courier: NonNullable<Courier>, fallbackHeading: number): Scooter
 }
 
 /** One scooter per map instance, so a remounted map gets its own and a late pose wins. */
+const streetPitch = 55;
+
 const scooters = new WeakMap<Map, { layer?: Scooter; pose: ScooterPose }>();
 
 function placeScooter(map: Map, pose: ScooterPose) {
@@ -72,12 +74,17 @@ export function useTrackingScene(
   courier: Courier,
 ) {
   const heading = useRef(0);
+  const hasPlaced = useRef(false);
 
+  // The map paints flat first: a tilted camera loads the far tiles too, which drops frames on
+  // mid-range phones while the page is still loading. It tilts once that first wave has settled.
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !isReady) return;
     addGlow(map);
-    map.easeTo({ pitch: 55, duration: isReducedMotion() ? 0 : 1200 });
+    map.once("idle", () => {
+      map.easeTo({ pitch: streetPitch, duration: isReducedMotion() ? 0 : 600 });
+    });
   }, [isReady, mapRef]);
 
   useEffect(() => {
@@ -85,10 +92,10 @@ export function useTrackingScene(
     if (!map || !isReady || !courier) return;
     const pose = poseOf(courier, heading.current);
     heading.current = pose.heading;
-    map.easeTo({
-      center: [pose.longitude, pose.latitude],
-      duration: isReducedMotion() ? 0 : 850,
-    });
+    // The first position is a jump (the map is still settling); later moves glide.
+    const duration = isReducedMotion() || !hasPlaced.current ? 0 : 850;
+    hasPlaced.current = true;
+    map.easeTo({ center: [pose.longitude, pose.latitude], duration });
     if (!isReducedMotion()) placeScooter(map, pose);
   }, [courier, isReady, mapRef]);
 }

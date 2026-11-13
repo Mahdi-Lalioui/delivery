@@ -568,3 +568,76 @@
 :root[data-theme="dark"] .checkout-confirmed::before {
   background: radial-gradient(circle at 50% 45%, var(--color-bg) 30%, transparent 75%);
 }
+
+/* The saving: green like a free delivery fee, with the code or "restaurant offer" beneath. */
+.checkout-totals .checkout-discount dt {
+  display: grid;
+}
+
+.checkout-discount dt span {
+  color: var(--color-text-3);
+  font-size: var(--font-size-caption);
+}
+
+.checkout-totals .checkout-discount dd {
+  color: var(--color-success);
+  font-weight: var(--font-weight-h3);
+}
+
+/* Promo: folded into one quiet link so the total stays the focal point. */
+.checkout-promo-open,
+.checkout-promo-remove {
+  display: inline-flex;
+  gap: var(--space-4);
+  align-items: center;
+  min-block-size: var(--touch-target-min);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-link);
+  font: inherit;
+  font-weight: var(--font-weight-label);
+  cursor: pointer;
+}
+
+.checkout-promo-open {
+  margin-block-start: var(--space-8);
+}
+
+/* Field above, Apply below: the reason for a refused code gets the full width. */
+.checkout-promo {
+  display: grid;
+  gap: var(--space-8);
+  justify-items: start;
+  margin-block-start: var(--space-12);
+}
+
+.checkout-promo > .ui-field {
+  inline-size: 100%;
+}
+
+.checkout-promo-applied {
+  display: flex;
+  gap: var(--space-8);
+  align-items: center;
+  margin-block: var(--space-12) 0;
+  padding-inline: var(--space-12) var(--space-4);
+  border-radius: var(--radius-pill);
+  background: var(--color-mint-pale);
+  color: var(--color-text);
+  font-weight: var(--font-weight-label);
+}
+
+.checkout-promo-applied .checkout-promo-remove {
+  margin-inline-start: auto;
+  padding-inline: var(--space-12);
+  color: var(--color-text-2);
+  font-size: var(--font-size-caption);
+}
+
+.checkout-promo-open:focus-visible,
+.checkout-promo-remove:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-sm);
+}

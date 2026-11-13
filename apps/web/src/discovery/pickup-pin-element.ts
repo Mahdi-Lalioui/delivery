@@ -32,29 +32,32 @@ function logo(pin: PickupPin) {
   return frame;
 }
 
-/** The second line: closed, rating with the star icon, wait. Plus the same facts as speech. */
+/** The second line: closed, rating with the star icon, wait. */
 function facts(pin: PickupPin, locale: Locale) {
   const messages = getFeedMessages(locale);
   const line = part("span", "pickup-pin-meta");
-  const spoken: string[] = [pin.name];
   const add = (text: string) => {
     if (line.childNodes.length > 0) line.append(" · ");
     line.append(part("bdi", "", text));
-    spoken.push(text);
   };
   if (!pin.isOpen) add(messages.closed);
   if (pin.rating !== null) {
     const rating = ratingText(pin.rating, locale);
     if (line.childNodes.length > 0) line.append(" · ");
     line.append(iconElement("star", 14));
-    line.append(part("bdi", "", rating));
-    spoken.push(fillFeedMessage(messages.ratingShort, { rating }));
+    // Screen readers hear "noté 4,7 sur 5"; sighted diners see the star and the number.
+    line.append(
+      part("span", "ui-visually-hidden", fillFeedMessage(messages.ratingShort, { rating })),
+    );
+    const shown = part("bdi", "", rating);
+    shown.setAttribute("aria-hidden", "true");
+    line.append(shown);
   }
   if (pin.etaMinutes !== null) {
     const { min, max } = pin.etaMinutes;
     add(fillFeedMessage(messages.etaRange, { min: String(min), max: String(max) }));
   }
-  return { line, label: spoken.join(", ") };
+  return line;
 }
 
 /** A small branded card: logo, name, then rating and wait. It opens the restaurant's menu. */
@@ -66,9 +69,8 @@ export function pinCard(pin: PickupPin, locale: Locale): HTMLAnchorElement {
   const text = part("span", "pickup-pin-text");
   const name = part("bdi", "pickup-pin-name", pin.name);
   text.append(name);
-  const { line, label } = facts(pin, locale);
+  const line = facts(pin, locale);
   if (line.childNodes.length > 0) text.append(line);
-  link.setAttribute("aria-label", label);
   link.append(logo(pin), text);
   return link;
 }

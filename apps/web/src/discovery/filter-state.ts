@@ -7,6 +7,7 @@ const allowed: Readonly<Record<string, readonly string[] | RegExp>> = {
   sort: ["distance", "rating", "eta", "fee"],
   openNow: ["true"],
   freeDelivery: ["true"],
+  offers: ["true"],
   minRating: ["4"],
   maxEtaMinutes: ["20", "30", "45"],
   priceLevel: ["1", "2", "3"],

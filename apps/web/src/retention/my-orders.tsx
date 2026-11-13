@@ -68,7 +68,10 @@ function FavouriteCard({ favourite, state }: { favourite: Favourite; state: MyOr
     <li className="orders-favourite">
       <CoverTile name={favourite.name} size="lg" />
       <div className="orders-favourite-text">
-        <p className="billing-row-title">{favourite.name}</p>
+        {/* Names keep their own direction, so a Latin name ellipsizes at its end in Arabic. */}
+        <p className="billing-row-title" dir="auto">
+          {favourite.name}
+        </p>
         <Badge tone={favourite.isOpen ? "success" : "neutral"}>
           {translate(favourite.isOpen ? "open" : "closed")}
         </Badge>

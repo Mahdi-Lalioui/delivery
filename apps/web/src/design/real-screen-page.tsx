@@ -10,12 +10,12 @@ import "../retention/retention.css";
 import { realScreens, type RealScreen as Screen } from "./real-screen-list";
 import { RealScreen } from "./real-screens";
 
+// Mirrors the real routes: rating is a task flow without the tab bar, like checkout.
 const tabs: Partial<Record<Screen, CustomerTab>> = {
   tracking: "orders",
   "tracking-waiting": "orders",
   "tracking-pickup": "orders",
   orders: "orders",
-  rating: "orders",
 };
 
 function isScreen(value: string): value is Screen {

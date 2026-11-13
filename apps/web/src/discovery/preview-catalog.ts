@@ -25,6 +25,7 @@ type FeedExtras = Pick<
   | "minimumOrderDzd"
   | "offersPickup"
   | "pin"
+  | "offer"
 >;
 
 interface PreviewRestaurant {
@@ -49,6 +50,29 @@ const alwaysOpen = {
   specialDates: [],
 };
 
+// The closed demo keeps lunch and dinner hours, and rests on Fridays.
+const lunchAndDinner = {
+  weekly: Array.from({ length: 7 }, (_, weekday) => ({
+    weekday,
+    ranges:
+      weekday === 5
+        ? []
+        : [
+            { opensMinute: 11 * 60, closesMinute: 15 * 60 },
+            { opensMinute: 18 * 60, closesMinute: 23 * 60 },
+          ],
+  })),
+  specialDates: [],
+};
+
+/** The next 11:00 in Algiers (10:00 UTC), so a closed demo never "opens" in the past. */
+function nextOpening(now: number): string {
+  const opening = new Date(now);
+  opening.setUTCHours(10, 0, 0, 0);
+  if (opening.getTime() <= now) opening.setUTCDate(opening.getUTCDate() + 1);
+  return opening.toISOString();
+}
+
 interface DishSeed {
   names: Names;
   descriptions: Names;
@@ -56,6 +80,8 @@ interface DishSeed {
   photo: string;
   tags?: MenuItemDetail["item"]["tags"];
   optionGroups?: MenuOptionGroup[];
+  /** One dish per demo shows the sold-out state. */
+  isSoldOut?: boolean;
 }
 
 interface RestaurantSeed {
@@ -81,7 +107,7 @@ function dishDetail(seed: DishSeed, itemId: string, photoId: string): MenuItemDe
       itemId,
       photoId,
       tags: seed.tags ?? [],
-      isAvailable: true,
+      isAvailable: seed.isSoldOut !== true,
     },
     optionGroups: seed.optionGroups ?? [],
   };
@@ -115,9 +141,9 @@ function build(seed: RestaurantSeed): PreviewRestaurant {
         coverMediaId,
         logoMediaId: null,
         isOpen,
-        nextOpensAt: isOpen ? null : "2026-11-12T10:00:00.000Z",
+        nextOpensAt: isOpen ? null : nextOpening(Date.now()),
         pausedUntil: null,
-        hours: alwaysOpen,
+        hours: isOpen ? alwaysOpen : lunchAndDinner,
         ...seed.feed,
       },
       revision,
@@ -215,6 +241,7 @@ const grill: RestaurantSeed = {
           photo: "brochettes",
         },
         {
+          isSoldOut: true,
           names: text("Assiette mixte", "طبق مشكل", "Mixed grill plate"),
           descriptions: text(
             "Kefta, brochettes, frites et salade fraîche.",
@@ -252,6 +279,7 @@ const pizza: RestaurantSeed = {
   cuisines: ["pizza"],
   cover: "pizza",
   feed: {
+    offer: { kind: "free_delivery", minimumSubtotalDzd: 2000 },
     minimumOrderDzd: 1200,
     isNew: true,
     dietary: ["vegetarian"],
@@ -289,6 +317,7 @@ const darYemma: RestaurantSeed = {
   cuisines: ["algerian"],
   cover: "chorba-table",
   feed: {
+    offer: { kind: "percent", basisPoints: 1500, capDzd: 400, minimumSubtotalDzd: 0 },
     pin: { latitude: 36.7395, longitude: 3.087 },
     minimumOrderDzd: 1500,
     offersPickup: true,
@@ -415,6 +444,7 @@ const cirta: RestaurantSeed = {
   cuisines: ["pastry"],
   cover: "baklawa-tray",
   feed: {
+    offer: { kind: "fixed", amountDzd: 200, minimumSubtotalDzd: 1500 },
     pin: { latitude: 36.7525, longitude: 3.042 },
     minimumOrderDzd: 1000,
     isNew: true,

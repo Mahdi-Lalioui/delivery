@@ -168,6 +168,8 @@ export function FavouritesRail({
 }
 
 /** A horizontally scrolling row of restaurants for one feed query; hidden when it has none. */
+const minimumRailSize = 3;
+
 export function FeedRail({
   locale,
   title,
@@ -197,7 +199,8 @@ export function FeedRail({
       controller.abort();
     };
   }, [enabled, query]);
-  if (state.phase === "ready" && state.restaurants.length === 0) return null;
+  // A rail of one or two restaurants looks unfinished and repeats the list below.
+  if (state.phase === "ready" && state.restaurants.length < minimumRailSize) return null;
   return (
     <section
       className="discovery-rail"

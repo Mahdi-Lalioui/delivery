@@ -1,0 +1,966 @@
+[
+  {
+    "path": "/",
+    "locale": "fr",
+    "scheme": "light",
+    "width": 390,
+    "violations": [],
+    "smallTargets": [
+      "a \"Découvrir l’offre restaurants\" 214.015625×22"
+    ]
+  },
+  {
+    "path": "/discover",
+    "locale": "fr",
+    "scheme": "light",
+    "width": 390,
+    "violations": [],
+    "smallTargets": [
+      "a \"Pâtisserie Cirta\" 138.828125×25",
+      "a \"Dar Yemma\" 109.15625×25",
+      "a \"Karantika Bab El Oued\" 202.96875×25",
+      "a \"Chez Lalla\" 92.484375×25",
+      "a \"L’Atelier Sidi Yahia\" 167.078125×25",
+      "a \"Msemen Wahran\" 157.171875×25",
+      "a \"Le Four de Belcourt\" 171.890625×25",
+      "a \"Grill El Bahdja\" 124.359375×25",
+      "a \"L’Atelier Sidi Yahia\" 167.078125×25",
+      "a \"Karantika Bab El Oued\" 202.96875×25",
+      "a \"Grill El Bahdja\" 124.359375×25",
+      "a \"Karantika Bab El Oued\" 202.96875×25",
+      "a \"Msemen Wahran\" 157.171875×25",
+      "a \"L’Atelier Sidi Yahia\" 167.078125×25",
+      "a \"Dar Yemma\" 109.15625×25",
+      "a \"Pâtisserie Cirta\" 138.828125×25",
+      "a \"Le Four de Belcourt\" 171.890625×25",
+      "a \"Grill El Bahdja\" 124.359375×25",
+      "a \"Chez Lalla\" 92.484375×25",
+      "a \"Le Four de Belcourt\" 171.890625×25",
+      "a \"Pâtisserie Cirta\" 138.828125×25",
+      "a \"Msemen Wahran\" 157.171875×25",
+      "a \"L’Atelier Sidi Yahia\" 167.078125×25",
+      "a \"Karantika Bab El Oued\" 202.96875×25",
+      "a \"Pâtisserie Cirta\" 138.828125×25",
+      "a \"Msemen Wahran\" 157.171875×25",
+      "a \"L’Atelier Sidi Yahia\" 167.078125×25",
+      "a \"Le Four de Belcourt\" 171.890625×25",
+      "a \"Dar Yemma\" 109.15625×25",
+      "a \"Karantika Bab El Oued\" 202.96875×25",
+      "a \"Pâtisserie Cirta\" 138.828125×25",
+      "a \"Msemen Wahran\" 157.171875×25",
+      "a \"Grill El Bahdja\" 124.359375×25",
+      "a \"Chez Lalla\" 92.484375×25"
+    ]
+  },
+  {
+    "path": "/discover?fulfilment=pickup",
+    "locale": "fr",
+    "scheme": "light",
+    "width": 390,
+    "violations": [
+      {
+        "id": "label-content-name-mismatch",
+        "targets": [
+          ".pickup-pin"
+        ]
+      }
+    ],
+    "smallTargets": [
+      "a \"L’Atelier Sidi Yahia\" 167.078125×25",
+      "a \"Dar Yemma\" 109.15625×25",
+      "a \"Karantika Bab El Oued\" 202.96875×25",
+      "a \"Pâtisserie Cirta\" 138.828125×25",
+      "a \"Chez Lalla\" 92.484375×25"
+    ]
+  },
+  {
+    "path": "/restaurants",
+    "locale": "fr",
+    "scheme": "light",
+    "width": 390,
+    "violations": [],
+    "smallTargets": []
+  },
+  {
+    "path": "/restaurants/atelier-sidi-yahia",
+    "locale": "fr",
+    "scheme": "light",
+    "width": 390,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "path": "/sign-in",
+    "locale": "fr",
+    "scheme": "light",
+    "width": 390,
+    "violations": [],
+    "smallTargets": []
+  },
+  {
+    "path": "/account",
+    "locale": "fr",
+    "scheme": "light",
+    "width": 390,
+    "violations": [],
+    "smallTargets": []
+  },
+  {
+    "path": "/dev/screens/checkout",
+    "locale": "fr",
+    "scheme": "light",
+    "width": 390,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "path": "/dev/screens/checkout-payment",
+    "locale": "fr",
+    "scheme": "light",
+    "width": 390,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "path": "/dev/screens/confirmed",
+    "locale": "fr",
+    "scheme": "light",
+    "width": 390,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "path": "/dev/screens/tracking",
+    "locale": "fr",
+    "scheme": "light",
+    "width": 390,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": [
+      "a \"© OpenStreetMap\" 132×30"
+    ]
+  },
+  {
+    "path": "/dev/screens/tracking-waiting",
+    "locale": "fr",
+    "scheme": "light",
+    "width": 390,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": [
+      "a \"© OpenStreetMap\" 132×30"
+    ]
+  },
+  {
+    "path": "/dev/screens/tracking-pickup",
+    "locale": "fr",
+    "scheme": "light",
+    "width": 390,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "path": "/dev/screens/rating",
+    "locale": "fr",
+    "scheme": "light",
+    "width": 390,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "path": "/dev/screens/orders",
+    "locale": "fr",
+    "scheme": "light",
+    "width": 390,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": [
+      "button \"Reçu\" 91.484375×40",
+      "button \"Recommander\" 175.578125×40",
+      "button \"Reçu\" 91.484375×40"
+    ]
+  },
+  {
+    "path": "/",
+    "locale": "ar",
+    "scheme": "light",
+    "width": 390,
+    "violations": [],
+    "smallTargets": [
+      "a \"اكتشف عرض المطاعم\" 142.125×25.296875"
+    ]
+  },
+  {
+    "path": "/discover",
+    "locale": "ar",
+    "scheme": "light",
+    "width": 390,
+    "violations": [],
+    "smallTargets": [
+      "a \"Pâtisserie Cirta\" 138.828125×25",
+      "a \"Dar Yemma\" 109.15625×25",
+      "a \"Karantika Bab El Oued\" 202.96875×25",
+      "a \"Chez Lalla\" 92.484375×25",
+      "a \"L’Atelier Sidi Yahia\" 167.078125×25",
+      "a \"Msemen Wahran\" 157.171875×25",
+      "a \"Le Four de Belcourt\" 171.890625×25",
+      "a \"Grill El Bahdja\" 124.359375×25",
+      "a \"L’Atelier Sidi Yahia\" 167.078125×25",
+      "a \"Karantika Bab El Oued\" 202.96875×25",
+      "a \"Grill El Bahdja\" 124.359375×25",
+      "a \"Karantika Bab El Oued\" 202.96875×25",
+      "a \"Msemen Wahran\" 157.171875×25",
+      "a \"L’Atelier Sidi Yahia\" 167.078125×25",
+      "a \"Dar Yemma\" 109.15625×25",
+      "a \"Pâtisserie Cirta\" 138.828125×25",
+      "a \"Le Four de Belcourt\" 171.890625×25",
+      "a \"Grill El Bahdja\" 124.359375×25",
+      "a \"Chez Lalla\" 92.484375×25",
+      "a \"Le Four de Belcourt\" 171.890625×25",
+      "a \"Pâtisserie Cirta\" 138.828125×25",
+      "a \"Msemen Wahran\" 157.171875×25",
+      "a \"L’Atelier Sidi Yahia\" 167.078125×25",
+      "a \"Karantika Bab El Oued\" 202.96875×25",
+      "a \"Pâtisserie Cirta\" 138.828125×25",
+      "a \"Msemen Wahran\" 157.171875×25",
+      "a \"L’Atelier Sidi Yahia\" 167.078125×25",
+      "a \"Le Four de Belcourt\" 171.890625×25",
+      "a \"Dar Yemma\" 109.15625×25",
+      "a \"Karantika Bab El Oued\" 202.96875×25",
+      "a \"Pâtisserie Cirta\" 138.828125×25",
+      "a \"Msemen Wahran\" 157.171875×25",
+      "a \"Grill El Bahdja\" 124.359375×25",
+      "a \"Chez Lalla\" 92.484375×25"
+    ]
+  },
+  {
+    "path": "/discover?fulfilment=pickup",
+    "locale": "ar",
+    "scheme": "light",
+    "width": 390,
+    "violations": [
+      {
+        "id": "label-content-name-mismatch",
+        "targets": [
+          ".pickup-pin"
+        ]
+      }
+    ],
+    "smallTargets": [
+      "a \"L’Atelier Sidi Yahia\" 167.078125×25",
+      "a \"Dar Yemma\" 109.15625×25",
+      "a \"Karantika Bab El Oued\" 202.96875×25",
+      "a \"Pâtisserie Cirta\" 138.828125×25",
+      "a \"Chez Lalla\" 92.484375×25"
+    ]
+  },
+  {
+    "path": "/restaurants",
+    "locale": "ar",
+    "scheme": "light",
+    "width": 390,
+    "violations": [],
+    "smallTargets": []
+  },
+  {
+    "path": "/restaurants/atelier-sidi-yahia",
+    "locale": "ar",
+    "scheme": "light",
+    "width": 390,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "path": "/sign-in",
+    "locale": "ar",
+    "scheme": "light",
+    "width": 390,
+    "violations": [],
+    "smallTargets": []
+  },
+  {
+    "path": "/account",
+    "locale": "ar",
+    "scheme": "light",
+    "width": 390,
+    "violations": [],
+    "smallTargets": []
+  },
+  {
+    "path": "/dev/screens/checkout",
+    "locale": "ar",
+    "scheme": "light",
+    "width": 390,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "path": "/dev/screens/checkout-payment",
+    "locale": "ar",
+    "scheme": "light",
+    "width": 390,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "path": "/dev/screens/confirmed",
+    "locale": "ar",
+    "scheme": "light",
+    "width": 390,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "path": "/dev/screens/tracking",
+    "locale": "ar",
+    "scheme": "light",
+    "width": 390,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": [
+      "a \"© OpenStreetMap\" 141.734375×33.296875"
+    ]
+  },
+  {
+    "path": "/dev/screens/tracking-waiting",
+    "locale": "ar",
+    "scheme": "light",
+    "width": 390,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": [
+      "a \"© OpenStreetMap\" 141.734375×33.296875"
+    ]
+  },
+  {
+    "path": "/dev/screens/tracking-pickup",
+    "locale": "ar",
+    "scheme": "light",
+    "width": 390,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "path": "/dev/screens/rating",
+    "locale": "ar",
+    "scheme": "light",
+    "width": 390,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "path": "/dev/screens/orders",
+    "locale": "ar",
+    "scheme": "light",
+    "width": 390,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": [
+      "button \"الإيصال\" 99.625×40",
+      "button \"اطلب مجددًا\" 140.140625×40",
+      "button \"الإيصال\" 99.625×40"
+    ]
+  },
+  {
+    "path": "/",
+    "locale": "fr",
+    "scheme": "dark",
+    "width": 1280,
+    "violations": [],
+    "smallTargets": [
+      "a \"Découvrir l’offre restaurants\" 214.015625×22"
+    ]
+  },
+  {
+    "path": "/discover",
+    "locale": "fr",
+    "scheme": "dark",
+    "width": 1280,
+    "violations": [],
+    "smallTargets": [
+      "a \"Pâtisserie Cirta\" 138.828125×25",
+      "a \"Dar Yemma\" 109.15625×25",
+      "a \"Karantika Bab El Oued\" 202.96875×25",
+      "a \"Chez Lalla\" 92.484375×25",
+      "a \"L’Atelier Sidi Yahia\" 167.078125×25",
+      "a \"Msemen Wahran\" 157.171875×25",
+      "a \"Le Four de Belcourt\" 171.890625×25",
+      "a \"Grill El Bahdja\" 124.359375×25",
+      "a \"L’Atelier Sidi Yahia\" 167.078125×25",
+      "a \"Karantika Bab El Oued\" 202.96875×25",
+      "a \"Grill El Bahdja\" 124.359375×25",
+      "a \"Karantika Bab El Oued\" 202.96875×25",
+      "a \"Msemen Wahran\" 157.171875×25",
+      "a \"L’Atelier Sidi Yahia\" 167.078125×25",
+      "a \"Dar Yemma\" 109.15625×25",
+      "a \"Pâtisserie Cirta\" 138.828125×25",
+      "a \"Le Four de Belcourt\" 171.890625×25",
+      "a \"Grill El Bahdja\" 124.359375×25",
+      "a \"Chez Lalla\" 92.484375×25",
+      "a \"Le Four de Belcourt\" 171.890625×25",
+      "a \"Pâtisserie Cirta\" 138.828125×25",
+      "a \"Msemen Wahran\" 157.171875×25",
+      "a \"L’Atelier Sidi Yahia\" 167.078125×25",
+      "a \"Karantika Bab El Oued\" 202.96875×25",
+      "a \"Pâtisserie Cirta\" 138.828125×25",
+      "a \"Msemen Wahran\" 157.171875×25",
+      "a \"L’Atelier Sidi Yahia\" 167.078125×25",
+      "a \"Le Four de Belcourt\" 171.890625×25",
+      "a \"Dar Yemma\" 109.15625×25",
+      "a \"Karantika Bab El Oued\" 202.96875×25",
+      "a \"Pâtisserie Cirta\" 138.828125×25",
+      "a \"Msemen Wahran\" 157.171875×25",
+      "a \"Grill El Bahdja\" 124.359375×25",
+      "a \"Chez Lalla\" 92.484375×25"
+    ]
+  },
+  {
+    "path": "/discover?fulfilment=pickup",
+    "locale": "fr",
+    "scheme": "dark",
+    "width": 1280,
+    "violations": [
+      {
+        "id": "label-content-name-mismatch",
+        "targets": [
+          ".pickup-pin"
+        ]
+      }
+    ],
+    "smallTargets": [
+      "a \"L’Atelier Sidi Yahia\" 167.078125×25",
+      "a \"Dar Yemma\" 109.15625×25",
+      "a \"Karantika Bab El Oued\" 202.96875×25",
+      "a \"Pâtisserie Cirta\" 138.828125×25",
+      "a \"Chez Lalla\" 92.484375×25"
+    ]
+  },
+  {
+    "path": "/restaurants",
+    "locale": "fr",
+    "scheme": "dark",
+    "width": 1280,
+    "violations": [],
+    "smallTargets": []
+  },
+  {
+    "path": "/restaurants/atelier-sidi-yahia",
+    "locale": "fr",
+    "scheme": "dark",
+    "width": 1280,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "path": "/sign-in",
+    "locale": "fr",
+    "scheme": "dark",
+    "width": 1280,
+    "violations": [],
+    "smallTargets": []
+  },
+  {
+    "path": "/account",
+    "locale": "fr",
+    "scheme": "dark",
+    "width": 1280,
+    "violations": [],
+    "smallTargets": []
+  },
+  {
+    "path": "/dev/screens/checkout",
+    "locale": "fr",
+    "scheme": "dark",
+    "width": 1280,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "path": "/dev/screens/checkout-payment",
+    "locale": "fr",
+    "scheme": "dark",
+    "width": 1280,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "path": "/dev/screens/confirmed",
+    "locale": "fr",
+    "scheme": "dark",
+    "width": 1280,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "path": "/dev/screens/tracking",
+    "locale": "fr",
+    "scheme": "dark",
+    "width": 1280,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": [
+      "a \"© OpenStreetMap\" 132×30"
+    ]
+  },
+  {
+    "path": "/dev/screens/tracking-waiting",
+    "locale": "fr",
+    "scheme": "dark",
+    "width": 1280,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": [
+      "a \"© OpenStreetMap\" 132×30"
+    ]
+  },
+  {
+    "path": "/dev/screens/tracking-pickup",
+    "locale": "fr",
+    "scheme": "dark",
+    "width": 1280,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "path": "/dev/screens/rating",
+    "locale": "fr",
+    "scheme": "dark",
+    "width": 1280,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "path": "/dev/screens/orders",
+    "locale": "fr",
+    "scheme": "dark",
+    "width": 1280,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": [
+      "button \"Reçu\" 91.484375×40",
+      "button \"Recommander\" 175.578125×40",
+      "button \"Reçu\" 91.484375×40"
+    ]
+  },
+  {
+    "path": "/",
+    "locale": "ar",
+    "scheme": "dark",
+    "width": 390,
+    "violations": [],
+    "smallTargets": [
+      "a \"اكتشف عرض المطاعم\" 142.125×25.296875"
+    ]
+  },
+  {
+    "path": "/discover",
+    "locale": "ar",
+    "scheme": "dark",
+    "width": 390,
+    "violations": [],
+    "smallTargets": [
+      "a \"Pâtisserie Cirta\" 138.828125×25",
+      "a \"Dar Yemma\" 109.15625×25",
+      "a \"Karantika Bab El Oued\" 202.96875×25",
+      "a \"Chez Lalla\" 92.484375×25",
+      "a \"L’Atelier Sidi Yahia\" 167.078125×25",
+      "a \"Msemen Wahran\" 157.171875×25",
+      "a \"Le Four de Belcourt\" 171.890625×25",
+      "a \"Grill El Bahdja\" 124.359375×25",
+      "a \"L’Atelier Sidi Yahia\" 167.078125×25",
+      "a \"Karantika Bab El Oued\" 202.96875×25",
+      "a \"Grill El Bahdja\" 124.359375×25",
+      "a \"Karantika Bab El Oued\" 202.96875×25",
+      "a \"Msemen Wahran\" 157.171875×25",
+      "a \"L’Atelier Sidi Yahia\" 167.078125×25",
+      "a \"Dar Yemma\" 109.15625×25",
+      "a \"Pâtisserie Cirta\" 138.828125×25",
+      "a \"Le Four de Belcourt\" 171.890625×25",
+      "a \"Grill El Bahdja\" 124.359375×25",
+      "a \"Chez Lalla\" 92.484375×25",
+      "a \"Le Four de Belcourt\" 171.890625×25",
+      "a \"Pâtisserie Cirta\" 138.828125×25",
+      "a \"Msemen Wahran\" 157.171875×25",
+      "a \"L’Atelier Sidi Yahia\" 167.078125×25",
+      "a \"Karantika Bab El Oued\" 202.96875×25",
+      "a \"Pâtisserie Cirta\" 138.828125×25",
+      "a \"Msemen Wahran\" 157.171875×25",
+      "a \"L’Atelier Sidi Yahia\" 167.078125×25",
+      "a \"Le Four de Belcourt\" 171.890625×25",
+      "a \"Dar Yemma\" 109.15625×25",
+      "a \"Karantika Bab El Oued\" 202.96875×25",
+      "a \"Pâtisserie Cirta\" 138.828125×25",
+      "a \"Msemen Wahran\" 157.171875×25",
+      "a \"Grill El Bahdja\" 124.359375×25",
+      "a \"Chez Lalla\" 92.484375×25"
+    ]
+  },
+  {
+    "path": "/discover?fulfilment=pickup",
+    "locale": "ar",
+    "scheme": "dark",
+    "width": 390,
+    "violations": [
+      {
+        "id": "label-content-name-mismatch",
+        "targets": [
+          ".pickup-pin"
+        ]
+      }
+    ],
+    "smallTargets": [
+      "a \"L’Atelier Sidi Yahia\" 167.078125×25",
+      "a \"Dar Yemma\" 109.15625×25",
+      "a \"Karantika Bab El Oued\" 202.96875×25",
+      "a \"Pâtisserie Cirta\" 138.828125×25",
+      "a \"Chez Lalla\" 92.484375×25"
+    ]
+  },
+  {
+    "path": "/restaurants",
+    "locale": "ar",
+    "scheme": "dark",
+    "width": 390,
+    "violations": [],
+    "smallTargets": []
+  },
+  {
+    "path": "/restaurants/atelier-sidi-yahia",
+    "locale": "ar",
+    "scheme": "dark",
+    "width": 390,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "path": "/sign-in",
+    "locale": "ar",
+    "scheme": "dark",
+    "width": 390,
+    "violations": [],
+    "smallTargets": []
+  },
+  {
+    "path": "/account",
+    "locale": "ar",
+    "scheme": "dark",
+    "width": 390,
+    "violations": [],
+    "smallTargets": []
+  },
+  {
+    "path": "/dev/screens/checkout",
+    "locale": "ar",
+    "scheme": "dark",
+    "width": 390,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "path": "/dev/screens/checkout-payment",
+    "locale": "ar",
+    "scheme": "dark",
+    "width": 390,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "path": "/dev/screens/confirmed",
+    "locale": "ar",
+    "scheme": "dark",
+    "width": 390,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "path": "/dev/screens/tracking",
+    "locale": "ar",
+    "scheme": "dark",
+    "width": 390,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": [
+      "a \"© OpenStreetMap\" 141.734375×33.296875"
+    ]
+  },
+  {
+    "path": "/dev/screens/tracking-waiting",
+    "locale": "ar",
+    "scheme": "dark",
+    "width": 390,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": [
+      "a \"© OpenStreetMap\" 141.734375×33.296875"
+    ]
+  },
+  {
+    "path": "/dev/screens/tracking-pickup",
+    "locale": "ar",
+    "scheme": "dark",
+    "width": 390,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "path": "/dev/screens/rating",
+    "locale": "ar",
+    "scheme": "dark",
+    "width": 390,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "path": "/dev/screens/orders",
+    "locale": "ar",
+    "scheme": "dark",
+    "width": 390,
+    "violations": [
+      {
+        "id": "document-title",
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": [
+      "button \"الإيصال\" 99.625×40",
+      "button \"اطلب مجددًا\" 140.140625×40",
+      "button \"الإيصال\" 99.625×40"
+    ]
+  }
+]

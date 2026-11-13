@@ -28,6 +28,25 @@ function localName(layer: SymbolLayerSpecification, locale: Locale): SymbolLayer
 /** Overlays (routes, accuracy rings) go just under this layer so street names stay on top. */
 export const labelAnchorId = "awid-labels";
 
+export const buildingsLayerId = "awid-buildings";
+
+interface IdleMap {
+  once: (event: "idle", listener: () => void) => unknown;
+  getLayer: (id: string) => unknown;
+  setLayoutProperty: (layerId: string, name: "visibility", value: "visible") => unknown;
+}
+
+/**
+ * Buildings start hidden: parsing and uploading extrusions alongside the first tile wave drops
+ * frames on mid-range phones. Raise them once the flat map has painted and settled.
+ */
+export function revealBuildingsWhenIdle(map: IdleMap) {
+  map.once("idle", () => {
+    if (map.getLayer(buildingsLayerId) === undefined) return;
+    map.setLayoutProperty(buildingsLayerId, "visibility", "visible");
+  });
+}
+
 export function algeriaMapStyle(locale: Locale, dark: boolean): StyleSpecification {
   const palette = dark ? palettes.dark : palettes.light;
   // Labels follow the page language: French names on French screens, Arabic on Arabic.
@@ -50,11 +69,12 @@ export function algeriaMapStyle(locale: Locale, dark: boolean): StyleSpecificati
     layers: [
       ...shapes,
       {
-        id: "awid-buildings",
+        id: buildingsLayerId,
         type: "fill-extrusion",
         source: "algeria",
         "source-layer": "buildings",
         minzoom: 14,
+        layout: { visibility: "none" },
         paint: {
           // Strong border tone, softened: blocks read as volume on both themes without glare.
           "fill-extrusion-color": palette["border-strong"],
