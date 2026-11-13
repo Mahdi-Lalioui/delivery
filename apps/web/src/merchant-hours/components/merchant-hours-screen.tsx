@@ -3,12 +3,13 @@
 import type { Locale } from "@zaafran/i18n/locales";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef } from "react";
-import { isDayError } from "../hours-editor";
+import { isDayError, isSpecialDateError } from "../hours-editor";
 import type { HoursState } from "../hours-flow";
 import { useHoursEditor, type MerchantHoursEditor } from "../use-hours-editor";
 import { HoursPauseControl } from "./hours-pause-control";
 import { HoursPreviewList } from "./hours-preview-list";
 import { RamadanCard } from "./ramadan-card";
+import { SpecialDatesFields } from "./special-dates-fields";
 import { ReloadHours, reloadMessages, SaveOutcome } from "./save-outcome";
 import { WeeklyHoursFields } from "./weekly-hours-fields";
 
@@ -138,6 +139,17 @@ function HoursWorkspace({
           onChange={controls.change}
           onAdd={controls.add}
           onRemove={controls.remove}
+        />
+        <SpecialDatesFields
+          drafts={state.draft.specialDates}
+          errors={state.errors.filter(isSpecialDateError)}
+          isDisabled={isSaving}
+          onDateChange={controls.specialDates.changeDate}
+          onRangeChange={controls.specialDates.changeRange}
+          onAddDate={controls.specialDates.addDate}
+          onRemoveDate={controls.specialDates.removeDate}
+          onAddRange={controls.specialDates.addRange}
+          onRemoveRange={controls.specialDates.removeRange}
         />
         <SaveOutcome state={state} reload={controls.reload} />
         <button className="menu-item-primary" type="submit" data-hours-save disabled={isSaving}>

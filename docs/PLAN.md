@@ -98,7 +98,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
   - [x] Validate raw cells and sign the validated preview context. Cover field errors, duplicate keys and exact prices.
   - [x] Persist external keys and implement revision-bound preview and atomic apply with prohibited-goods screening.
   - [x] Connect bounded CSV/XLSX parsing, template download and the localized import journey.
-- [ ] M2-9 Hours and Ramadan (MER-15, MER-16). Persist weekly ranges, dated exceptions, Ramadan offsets and location. Render seven-day previews through the M1 rules and exercise overnight and Ramadan edits in Arabic and French.
+- [x] M2-9 Hours and Ramadan (MER-15, MER-16). Persist weekly ranges, dated exceptions, Ramadan offsets and location. Render seven-day previews through the M1 rules and exercise overnight and Ramadan edits in Arabic and French.
   - [x] Define the weekly ranges and special-dates input contract (overnight ranges, no same-day overlap, bounded sizes).
   - [x] Persist weekly ranges and special dates with an owner/manager-scoped, idempotent replace command on the menu revision guard (D-011).
   - [x] Add the authenticated `GET`/`PUT /v1/merchants/:merchantId/hours` routes with the command and read contracts, authorization-matrix rows and OpenAPI.
@@ -121,11 +121,11 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Add the regular/Ramadan preview toggle to the hours page.
     - [x] Wire the Ramadan editor into the hours page.
     - [x] Prove the production-build overnight and Ramadan journeys in Arabic and French, plus the screenshot matrix.
-  - [ ] Add dated exceptions to the web editor and prove create, edit and delete in the production browser journey.
+  - [x] Add dated exceptions to the web editor and prove create, edit and delete in the production browser journey.
     - [x] Add the pure special-dates draft model (add, edit, remove dates and ranges; contract-backed date, time, overlap and duplicate errors).
     - [x] Carry special-date drafts in `HoursDraft` and validate them in `toHoursInput` with per-entry errors.
     - [x] Add the presentational special-dates fields with ar/fr/en messages.
-    - [ ] Wire the fields into the hours page and prove create, edit and delete in the production journey with the design matrix.
+    - [x] Wire the fields into the hours page and prove create, edit and delete in the production journey with the design matrix.
 - [ ] M2-10 Moderation (§17.3, ADM-04). Check prohibited goods on every menu write path and public preview. Prove flagged items stay hidden until the audited review outcome permits listing.
   - [x] Add the pure prohibited-goods matcher in `@zaafran/domain` (ar/fr/en/Arabizi keywords, whole words, property tests).
   - [x] Apply the matcher in the item create/update repository commands, setting `blocked_pending_review` in the same transaction, with integration tests per write path.

@@ -86,6 +86,49 @@ async function expectRamadanPreview(page: Page, labels: Labels, locale: Locale) 
   await expect(thursday).toContainText(nextDay);
 }
 
+function weeklyForm(page: Page, labels: Labels): Locator {
+  const week = page.getByRole("group", { name: labels.weeklyLegend, exact: true });
+  return page.locator("form", { has: week });
+}
+
+function specialDates(page: Page, labels: Labels): Locator {
+  return page.getByRole("group", { name: labels.specialLegend, exact: true });
+}
+
+async function saveWeeklyForm(page: Page, labels: Labels) {
+  const form = weeklyForm(page, labels);
+  await form.getByRole("button", { name: labels.save, exact: true }).click();
+  await expect(form.getByText(labels.saved, { exact: true })).toBeVisible();
+}
+
+async function createSpecialDate(page: Page, labels: Labels) {
+  const special = specialDates(page, labels);
+  await expect(special.getByText(labels.specialEmpty, { exact: true })).toBeVisible();
+  await special.getByRole("button", { name: labels.addSpecialDate, exact: true }).click();
+  const date = special.getByLabel(labels.specialDateLabel, { exact: true });
+  await expect(date).toBeFocused();
+  await date.fill("2026-12-31");
+  await expect(special.getByText(labels.specialClosed, { exact: true })).toBeVisible();
+  await special.locator("#special-date-0-add").click();
+  const opens = special.getByLabel(labels.opensLabel, { exact: true });
+  await expect(opens).toBeFocused();
+  await opens.fill("10:00");
+  await special.getByLabel(labels.closesLabel, { exact: true }).fill("14:00");
+  await saveWeeklyForm(page, labels);
+}
+
+async function deleteSpecialDate(page: Page, labels: Labels) {
+  const special = specialDates(page, labels);
+  const remove = fill(labels.removeSpecialDate, { date: "2026-12-31" });
+  await special.getByRole("button", { name: remove, exact: true }).click();
+  await expect(special.locator("#special-date-add")).toBeFocused();
+  await expect(special.getByText(labels.specialEmpty, { exact: true })).toBeVisible();
+  await saveWeeklyForm(page, labels);
+  await page.reload();
+  await expect(specialDates(page, labels).getByText(labels.specialEmpty)).toBeVisible();
+  await expect(page.locator("#special-date-0-date")).toHaveCount(0);
+}
+
 async function checkMatrix(page: Page, info: TestInfo, locale: Locale) {
   for (const theme of ["light", "dark"] as const) {
     for (const width of [390, 1280]) {
@@ -123,8 +166,14 @@ for (const locale of ["ar", "fr"] as const) {
         await saveRamadanRange(page, labels);
         await expectRamadanPreview(page, labels, locale);
       });
-      await test.step("Read both schedules back after a reload", async () => {
+      await test.step("Create a special date and edit it to open 10:00–14:00", async () => {
+        await createSpecialDate(page, labels);
+      });
+      await test.step("Read the schedules and the special date back after a reload", async () => {
         await page.reload();
+        await expect(page.locator("#special-date-0-date")).toHaveValue("2026-12-31");
+        await expect(page.locator("#special-date-0-0-opens")).toHaveValue("10:00");
+        await expect(page.locator("#special-date-0-0-closes")).toHaveValue("14:00");
         const week = page.getByRole("group", { name: labels.weeklyLegend, exact: true });
         await expect(day(week, labels, "thursday").getByLabel(labels.opensLabel)).toHaveValue(
           "18:00",
@@ -134,6 +183,9 @@ for (const locale of ["ar", "fr"] as const) {
       });
       await test.step("Check the theme and viewport matrix", async () => {
         await checkMatrix(page, info, locale);
+      });
+      await test.step("Delete the special date and read the empty list back", async () => {
+        await deleteSpecialDate(page, labels);
       });
     });
   });

@@ -28,6 +28,10 @@ export function isDayError(error: HoursError): error is DayError {
   return "weekday" in error;
 }
 
+export function isSpecialDateError(error: HoursError): error is SpecialDateError {
+  return !isDayError(error);
+}
+
 export function toHoursDraft(hours: HoursInput): HoursDraft {
   return {
     weekly: hours.weekly.map(({ weekday, ranges }) => ({ weekday, ranges: toRangeDrafts(ranges) })),

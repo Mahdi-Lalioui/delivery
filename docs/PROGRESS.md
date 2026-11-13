@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-13 04:19 GMT — M2-9 special dates wired and proven in the browser (Claude, covering while Codex was out)
+
+- **Changed** — `use-hours-editor.ts` now exposes the `specialDates` controls: add, change and remove for dates and their ranges. A new date starts on today's `Africa/Algiers` date. Focus moves to the new date input, the new range's opening time, or the add button after a removal. A failed save focuses the first error, whether it is on a weekday or a special date, which resolves `TODO(M2-9)`. `merchant-hours-screen.tsx` renders `SpecialDatesFields` in the weekly form and routes only special-date errors to it (`isSpecialDateError`). Extended `e2e/auth-merchant-hours.spec.ts` with create, edit, reload readback and delete in ar and fr. Ticked M2-9.
+- **Evidence** — The new screen test failed first because the special-dates fields were not rendered. All 102 hours web tests then passed. `pnpm test:e2e:auth --grep @merchant-hours` passed both production journeys, with an 8-case matrix of zero axe violations and zero overflow. `pnpm verify` exited 0 with 1,330 unit and 156 PostGIS integration tests. [Evidence](evidence/m2/hours.md)
+- **Reviewer** — Self-review against AGENTS §10 found no P0/P1. P2: no test covers the focus after removing a single special-date range or the today default. Both are listed in the evidence file.
+- **Next** — M2-10 "Prove the customer-facing preview excludes blocked items". First check whether a customer preview route exists yet. Per PLAN M2-5, it was deferred to the moderated M2-10/M2-12 flow. Otherwise, start M2-6 worker decoding (JPEG/PNG/WebP/HEIC) in `apps/worker`, beginning with `scout` checking current versions of the image library.
+- **Needs Mahdi** — None.
+
 ### 2026-11-13 04:17 GMT — M2-9 special-dates fields (Claude, covering while Codex was out)
 
 - **Changed** — Added the presentational `apps/web/src/merchant-hours/components/special-dates-fields.tsx`. Each entry has a labelled date input, a "closed all day" state, up to four labelled time ranges with an overnight badge, date-specific remove names, and a per-entry error alert linked with `aria-describedby`. "Add date" is disabled at the contract's 60-date limit and "Add range" at four ranges. Added 10 `merchantHours` messages in ar, fr and en.
@@ -902,7 +910,7 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ## Current status
 
-- Milestone: M1 (last passing gate, M2 in progress)
+- Milestone: M1 (last passing gate, M2 in progress; M2-8 and M2-9 done)
 - Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import (M2-8) is complete, including its production browser journey. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
 - Last green baseline `pnpm verify`: 2026-11-08 12:42 GMT on Docker Desktop with 1,246 unit and 155 PostGIS integration tests. Both production browser suites passed, 59 foundation and 16 authenticated cases.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

@@ -8,18 +8,70 @@ import {
   removeHoursRange,
   updateHoursRange,
   type HoursDraft,
+  type HoursError,
 } from "./hours-editor";
 import { initialHoursState, prepareHoursSave, reduceHours, type HoursEvent } from "./hours-flow";
 import { isStale, readHours, readHoursPreview, replaceHours } from "./hours-http";
+import {
+  addSpecialDate,
+  addSpecialDateRange,
+  removeSpecialDate,
+  removeSpecialDateRange,
+  updateSpecialDate,
+  updateSpecialDateRange,
+} from "./special-dates-editor";
 import { useHoursPause } from "./use-hours-pause";
 import { useRamadanEditor } from "./use-ramadan-editor";
 
 type RangeAddress = { weekday: number; index: number };
+type DateRangeAddress = { index: number; rangeIndex: number };
+type EditDraft = (change: (draft: HoursDraft) => HoursDraft) => HoursDraft | undefined;
 type PreviewRead = Awaited<ReturnType<typeof readHoursPreview>>;
 type PreviewView = PreviewRead | { kind: "loading" };
 type PreviewSchedule = Parameters<typeof readHoursPreview>[0]["schedule"];
 /** A CSS selector inside the hours panel that should receive focus after the last action. */
 type FocusRequest = { selector: string };
+
+/** A new special date starts on today's Algiers civil date, as `<input type="date">` writes it. */
+function todayInAlgiers(): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Algiers" }).format(new Date());
+}
+
+function errorSelector(error: HoursError): string {
+  return isDayError(error)
+    ? `#hours-${String(error.weekday)}-0-opens`
+    : `#special-date-${String(error.index)}-date`;
+}
+
+function useSpecialDateControls(editDraft: EditDraft, focus: (selector: string) => void) {
+  const editDates = (change: (dates: HoursDraft["specialDates"]) => HoursDraft["specialDates"]) =>
+    editDraft((draft) => ({ ...draft, specialDates: change(draft.specialDates) }));
+  return {
+    addDate: () => {
+      const draft = editDates((dates) => addSpecialDate(dates, todayInAlgiers()));
+      if (draft) focus(`#special-date-${String(draft.specialDates.length - 1)}-date`);
+    },
+    changeDate: (edit: { index: number; date: string }) => {
+      editDates((dates) => updateSpecialDate(dates, edit));
+    },
+    removeDate: (index: number) => {
+      if (editDates((dates) => removeSpecialDate(dates, index))) focus("#special-date-add");
+    },
+    addRange: (index: number) => {
+      const draft = editDates((dates) => addSpecialDateRange(dates, index));
+      const count = draft?.specialDates[index]?.ranges.length ?? 0;
+      if (count > 0) focus(`#special-date-${String(index)}-${String(count - 1)}-opens`);
+    },
+    changeRange: (edit: DateRangeAddress & { field: keyof RangeDraft; value: string }) => {
+      editDates((dates) => updateSpecialDateRange(dates, edit));
+    },
+    removeRange: (range: DateRangeAddress) => {
+      if (editDates((dates) => removeSpecialDateRange(dates, range))) {
+        focus(`#special-date-${String(range.index)}-add`);
+      }
+    },
+  };
+}
 
 function rangeCount(draft: HoursDraft, weekday: number): number {
   return draft.weekly.find((day) => day.weekday === weekday)?.ranges.length ?? 0;
@@ -104,6 +156,10 @@ export function useHoursEditor(merchantId: string) {
     return draft;
   }
 
+  const specialDates = useSpecialDateControls(editDraft, (selector) => {
+    setFocus({ selector });
+  });
+
   function change(edit: RangeAddress & { field: keyof RangeDraft; value: string }) {
     editDraft((draft) => updateHoursRange(draft, edit));
   }
@@ -127,9 +183,8 @@ export function useHoursEditor(merchantId: string) {
     if (attempt.kind === "unavailable") return;
     if (attempt.kind === "invalid") {
       dispatch({ kind: "validation-failed", errors: attempt.errors });
-      // TODO(M2-9): focus a special-date error once its fields exist.
-      const first = attempt.errors.find(isDayError);
-      if (first) setFocus({ selector: `#hours-${String(first.weekday)}-0-opens` });
+      const [first] = attempt.errors;
+      if (first) setFocus({ selector: errorSelector(first) });
       return;
     }
     inFlight.current = true;
@@ -162,6 +217,7 @@ export function useHoursEditor(merchantId: string) {
       remove: ramadan.remove,
       save: ramadan.save,
     },
+    specialDates,
     focus,
     change,
     add,

@@ -42,6 +42,14 @@ const controls: MerchantHoursEditor = {
     reopen: vi.fn(),
     retry: vi.fn(),
   },
+  specialDates: {
+    addDate: vi.fn(),
+    changeDate: vi.fn(),
+    removeDate: vi.fn(),
+    addRange: vi.fn(),
+    changeRange: vi.fn(),
+    removeRange: vi.fn(),
+  },
   focus: undefined,
   change: vi.fn(),
   add: vi.fn(),
@@ -203,4 +211,29 @@ test("[MER-16] edits the Ramadan schedule in its own form with its own save", ()
   });
   expect(unavailable).toContain(merchantHours.ramadanUnavailable);
   expect(unavailable).toContain(merchantHours.weeklyLegend);
+});
+
+test("[MER-15] edits special dates inside the weekly form and routes only their errors to them", () => {
+  const { merchantHours } = getMessages("fr");
+  const withDate = { ...draft, specialDates: [{ date: "2026-12-31", ranges: [] }] };
+  const html = render("fr", {
+    state: {
+      kind: "editing",
+      sessionId,
+      revision: 2,
+      draft: withDate,
+      errors: [
+        { weekday: 4, reason: "time" },
+        { index: 0, reason: "duplicate" },
+      ],
+    },
+  });
+  const form = html.slice(
+    html.indexOf(merchantHours.weeklyLegend),
+    html.indexOf("data-hours-save"),
+  );
+  expect(form).toContain(`<legend>${merchantHours.specialLegend}</legend>`);
+  expect(form).toMatch(/id="special-date-0-date" type="date"[^>]*value="2026-12-31"/);
+  expect(html).toContain(`id="special-date-0-error" role="alert">${merchantHours.errorDuplicate}`);
+  expect(html).toContain(`id="hours-4-error" role="alert">${merchantHours.errorTime}`);
 });
