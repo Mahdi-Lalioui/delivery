@@ -16,6 +16,7 @@ interface MerchantApplication {
   readonly pin: { readonly latitude: number; readonly longitude: number };
   readonly cuisines: readonly string[];
   readonly rcNumber?: string | undefined;
+  readonly photoIds?: readonly string[] | undefined;
 }
 
 interface SubmitApplication extends MerchantCommand {
@@ -32,7 +33,11 @@ type ApplicationResult =
     }
   | {
       readonly kind:
-        "account_unavailable" | "invalid_commune" | "outside_commune" | "idempotency_conflict";
+        | "account_unavailable"
+        | "invalid_commune"
+        | "outside_commune"
+        | "photos_unavailable"
+        | "idempotency_conflict";
     };
 
 interface ReviewApplication extends MerchantCommand {
@@ -72,6 +77,25 @@ async function findEligibleCommune(sql: TransactionSql, input: MerchantApplicati
   return commune;
 }
 
+/** Locks the applicant's own ready, unused application photos; false if any is missing. */
+async function lockApplicationPhotos(
+  sql: TransactionSql,
+  accountId: string,
+  photoIds: readonly string[],
+): Promise<boolean> {
+  if (photoIds.length === 0) return true;
+  const photos = await sql`
+    SELECT media.id FROM public.media_uploads media
+    WHERE media.id = ANY(${[...photoIds]}::uuid[]) AND media.owner_id = ${accountId}
+      AND media.kind = 'application' AND media.status = 'ready'
+      AND NOT EXISTS (
+        SELECT 1 FROM public.merchant_application_photos used WHERE used.media_id = media.id
+      )
+    FOR KEY SHARE OF media
+  `;
+  return photos.length === photoIds.length;
+}
+
 async function insertApplication(
   sql: TransactionSql,
   request: SubmitApplication,
@@ -95,6 +119,11 @@ async function insertApplication(
   await sql`
     INSERT INTO public.merchant_members (merchant_id, user_id, role)
     VALUES (${merchant.id}, ${accountId}, 'owner')
+  `;
+  await sql`
+    INSERT INTO public.merchant_application_photos (merchant_id, media_id, position)
+    SELECT ${merchant.id}::uuid, photo.id, photo.ordinal - 1
+    FROM unnest(${[...(input.photoIds ?? [])]}::uuid[]) WITH ORDINALITY AS photo(id, ordinal)
   `;
   await sql`
     INSERT INTO public.merchant_review_notices (merchant_id, created_at)
@@ -126,6 +155,9 @@ async function submitApplication(
   const commune = await findEligibleCommune(sql, input);
   if (!commune) return { kind: "invalid_commune" };
   if (!commune.covers) return { kind: "outside_commune" };
+  if (!(await lockApplicationPhotos(sql, account.id, input.photoIds ?? []))) {
+    return { kind: "photos_unavailable" };
+  }
 
   const merchantId = await insertApplication(sql, request, account.phone);
   await recordMerchantCommand(sql, identity, { merchantId, status, at: now });
