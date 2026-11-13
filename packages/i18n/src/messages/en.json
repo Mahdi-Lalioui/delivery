@@ -178,7 +178,8 @@
     "manageTeam": "Manage team",
     "photo": "Restaurant photo (optional, 16:9)",
     "photoAttached": "A restaurant photo is attached to the application.",
-    "removePhoto": "Remove photo"
+    "removePhoto": "Remove photo",
+    "photosUnavailable": "This photo is no longer available. Choose another photo or remove it."
   },
   "adminMerchant": {
     "title": "Restaurant applications",

@@ -222,3 +222,22 @@ test("[MER-01:web] a lost committed response followed by rate limiting keeps the
     fetch.mock.calls.map(([, options]) => new Headers(options?.headers).get("idempotency-key")),
   ).toEqual([committedKey, committedKey, committedKey]);
 });
+
+test("[MER-01:web] reports an unavailable application photo without reusing the key", async () => {
+  const problem = {
+    type: "about:blank",
+    title: "Photos unavailable",
+    status: 409,
+    code: "photos_unavailable",
+    requestId: "merchant-test",
+  };
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json(problem, { status: 409 })));
+
+  await expect(
+    submitMerchantApplication({
+      application,
+      expectedSessionId: sessionId,
+      idempotencyKey: "application-photo",
+    }),
+  ).resolves.toEqual({ kind: "error", error: "photosUnavailable", shouldReuseKey: false });
+});

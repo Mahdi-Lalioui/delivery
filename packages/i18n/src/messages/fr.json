@@ -178,7 +178,8 @@
     "manageTeam": "Gérer l’équipe",
     "photo": "Photo du restaurant (facultative, 16:9)",
     "photoAttached": "Une photo du restaurant est jointe à la demande.",
-    "removePhoto": "Retirer la photo"
+    "removePhoto": "Retirer la photo",
+    "photosUnavailable": "Cette photo n’est plus disponible. Choisissez une autre photo ou retirez-la."
   },
   "adminMerchant": {
     "title": "Demandes des restaurants",

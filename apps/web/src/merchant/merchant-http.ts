@@ -22,6 +22,7 @@ type ApplicationError =
   | "submitError"
   | "invalidCommune"
   | "outsideCommune"
+  | "photosUnavailable"
   | "rateLimited"
   | "signInRequired"
   | "forbidden";
@@ -113,9 +114,10 @@ async function readApplicationProblem(response: Response): Promise<ApplicationRe
   const result = problemResponseSchema.safeParse(payload);
   if (!result.success || result.data.status !== response.status) return rejected("submitError");
   if (response.status === 409) {
-    return result.data.code === "session_changed"
-      ? { kind: "session-changed" }
-      : rejected("submitError");
+    if (result.data.code === "session_changed") return { kind: "session-changed" };
+    return rejected(
+      result.data.code === "photos_unavailable" ? "photosUnavailable" : "submitError",
+    );
   }
   if (result.data.code === "invalid_commune") return rejected("invalidCommune");
   if (result.data.code === "outside_commune") return rejected("outsideCommune");
