@@ -54,3 +54,18 @@ responses. The persisted events were exactly
 again through Caddy. The services were stopped after placement committed.
 Delivery, interruption before a placement response and client SSE replay still
 need separate drills.
+
+## HTTPS delivery and idempotent recovery
+
+On 13 November 2026, the local production Compose stack at image
+`8d05721-readiness` served a complete synthetic delivery through Caddy. The
+customer saved a pin, quoted and placed a 637 DZD order. The restaurant accepted
+it, marked it ready and assigned its courier. The courier picked it up and
+completed delivery with the code from the customer's tracking endpoint.
+
+API, worker and PostgreSQL were stopped after placement. The retry got 502
+during the outage and returned the original 201 response after restart. All five
+transition replays returned byte-identical 200 responses. PostgreSQL retained
+one order for the quote and exactly six versioned events through `delivered:6`.
+The production HTTPS smoke passed again. This drill exercised the HTTP journey.
+Browser disconnection and replay remain a separate check.

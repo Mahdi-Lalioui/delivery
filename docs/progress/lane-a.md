@@ -407,3 +407,9 @@
 
 - 2026-11-13 · Ultra · Verified an HTTPS pickup on production Compose through collection. Retrying after an API, worker and PostgreSQL outage returned the original order. Replayed all three owner commands and confirmed exactly four persisted events.
   Next: verify the courier delivery path, offline replay and placement with an interrupted response. See [local operations evidence](../evidence/awid/local-operations.md#https-pickup-and-idempotent-recovery).
+
+- 2026-11-13 · Ultra · Local production Compose delivery reached delivered at version 6 after a service outage. Replayed placement and all five transitions without duplicates. Pickup and delivery now have linked readiness evidence.
+  Next: verify offline board and courier replay, and run the pilot load check.
+
+- 2026-11-13 · Medium · GitHub Browser smoke passed. Its Verify job hit the 5 s timeout when the colour-grade test encoded two full variant sets. Split the cases by photo kind while retaining all colour assertions. Full local pnpm verify exited zero with 2,040 unit and 337 integration tests.
+  Next: check the exact pushed candidate in GitHub before merging.

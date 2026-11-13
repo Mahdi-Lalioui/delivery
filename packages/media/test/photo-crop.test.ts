@@ -126,34 +126,27 @@ describe("photo crop encoding", () => {
   });
 });
 
-it.each(["item", "cover"] as const)(
-  "[MER-14:codec] applies a warmer grade to %s photos while preserving logo colours",
-  async (kind) => {
+it.each([
+  { kind: "item", minimum: 6, maximum: Infinity },
+  { kind: "cover", minimum: 6, maximum: Infinity },
+  { kind: "logo", minimum: -3, maximum: 3 },
+] as const)(
+  "[MER-14:codec] applies the expected colour grade to $kind",
+  async ({ kind, minimum, maximum }) => {
     const bytes = await sharp({
       create: { width: 256, height: 192, channels: 3, background: "#888888" },
     })
       .png()
       .toBuffer();
-    async function colour(photoKind: typeof kind | "logo") {
-      const photo = await cropPhoto({
-        bytes,
-        contentType: "image/png",
-        kind: photoKind,
-        crop: center,
-      });
-      if (photo.status !== "cropped") throw new Error("Missing crop");
-      const variant = photo.variants.find(
-        ({ width, format }) => width === 160 && format === "webp",
-      );
-      if (!variant) throw new Error("Missing WebP");
-      return sharp(variant.bytes)
-        .extract({ left: 50, top: 50, width: 1, height: 1 })
-        .raw()
-        .toBuffer();
-    }
-    const [red = 0, , blue = 0] = await colour(kind);
-    const [logoRed = 0, , logoBlue = 0] = await colour("logo");
-    expect(red - blue).toBeGreaterThan(5);
-    expect(Math.abs(logoRed - logoBlue)).toBeLessThanOrEqual(3);
+    const photo = await cropPhoto({ bytes, contentType: "image/png", kind, crop: center });
+    if (photo.status !== "cropped") throw new Error("Missing crop");
+    const variant = photo.variants.find(({ width, format }) => width === 160 && format === "webp");
+    if (!variant) throw new Error("Missing WebP");
+    const [red = 0, , blue = 0] = await sharp(variant.bytes)
+      .extract({ left: 50, top: 50, width: 1, height: 1 })
+      .raw()
+      .toBuffer();
+    expect(red - blue).toBeGreaterThanOrEqual(minimum);
+    expect(red - blue).toBeLessThanOrEqual(maximum);
   },
 );
