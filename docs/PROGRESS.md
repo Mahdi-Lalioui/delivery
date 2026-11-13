@@ -13,6 +13,32 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-13 10:58 GMT — M2-6/MER-01 optional application photo: storage, API and form (Claude, covering while Codex was out)
+
+- **Changed** — Five commits on `m2-merchant-onboarding`:
+  - `1ab15be`: migration `0021_merchant_application_photos.sql` stores (merchant, unique media, position 0–4). `submitApplication` (`packages/db/src/merchant.ts`) accepts only the applicant's own `ready` application photos that no application uses yet, stores them in order in the signup transaction, and otherwise returns `photos_unavailable`.
+  - `fbf3005`: `POST /v1/merchant-applications` passes lowercased `photoIds` to the repository instead of refusing them, and maps `photos_unavailable` to 409. Photo ids are part of the hashed request, so the idempotency key binds them.
+  - `2172f03`: fixes a race found in self-review. Two concurrent signups sharing a photo both passed the use check, and the second hit the unique constraint (a 500). The photos are now locked `FOR UPDATE`, and prior use is checked in a new statement whose fresh READ COMMITTED snapshot sees the other signup's commit.
+  - `bf550d1`: the web draft carries `photoIds` and sends them only when non-empty.
+  - `6f005ca`: `apps/web/src/merchant/components/application-photo-field.tsx` runs the shared uploader and keyboard cropper with kind `application` (16:9, private). It sits inside the form's fieldset, so submitting locks it. The merchant page passes the `photoUpload`/`photoCrop` messages, and `merchant.photo`, `photoAttached` and `removePhoto` are added in ar/fr/en.
+- **Evidence** — Each step failed first:
+  - `merchant-application-photo.integration` failed on the missing table and on the accepted foreign photo.
+  - The concurrency case reproduced `duplicate key … merchant_application_photos_media_id_key`.
+  - The HTTP, draft, field and form tests failed on the guard, the missing `photoIds`, the missing module and the missing legend.
+
+  Afterward: PostGIS 3/3 (ordered attach; foreign, processing, cover, unknown and reused photos refused with no merchant row; five concurrent rounds give exactly one `created` and one `photos_unavailable`; stable over three runs), `merchant-http` 40/40, and the web suites 16/16. `pnpm verify` exited 0 at `6f005ca`'s tree with 1,457 unit and 190 PostGIS integration tests, and trace through m1 was 20/20. `pnpm test:e2e:auth` passed 19/19, including the merchant application journeys with the new picker in their axe matrix.
+- **Reviewer** — Self-review against AGENTS §10 found and fixed the race above (P1). Open, not yet fixed:
+  - The web maps a 409 `photos_unavailable` to the generic error instead of a specific message (`apps/web/src/merchant/merchant-http.ts:115`).
+  - No browser journey uploads an application photo yet.
+  - The admin queue cannot show the private photo yet.
+- **Next** — The new PLAN sub-bullet under M2-6:
+  1. In `e2e/auth-merchant.spec.ts`, wrap one application in `withMediaWorker`. Upload `syntheticJpeg()`, crop with the keyboard, submit, and assert the row in `merchant_application_photos` through a harness query. Also assert that `GET /media/<id>/1280.webp` returns 404, because application variants live under `private/`.
+  2. Add a failing `merchant-http` test that maps 409 `photos_unavailable` to a new localized `photosUnavailable` message (ar/fr/en) that resets the photo field.
+  3. Add an admin-only `GET /v1/admin/merchant-applications/:merchantId/photos/:mediaId/:width.webp` streaming route, with a matrix row, OpenAPI and `no-store`, and show it in the admin queue.
+
+  Afterward: the 180 ms fade-in after motion tokens, the HEIC helper (D-007) and the `@merchant-onboarding` journey.
+- **Needs Mahdi** — None.
+
 ### 2026-11-13 10:48 GMT — M2-6 media worker in the browser harness, item photo journey and preview photos (Claude, covering while Codex was out)
 
 - **Changed** — Three code commits on `m2-merchant-onboarding`:
@@ -1051,5 +1077,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress; M2-8, M2-9 and M2-10 done)
 - Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import (M2-8) is complete, including its production browser journey. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
-- Last green `pnpm verify`: 2026-11-13 10:46 GMT on Docker Desktop at `6a1927c` with 1,451 unit and 187 PostGIS integration tests. `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6a1927c`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 36/37 IDs at `b92d62f` (missing `MER-01`).
+- Last green `pnpm verify`: 2026-11-13 10:57 GMT on Docker Desktop at `6f005ca` with 1,457 unit and 190 PostGIS integration tests. `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 36/37 IDs at `b92d62f` (missing `MER-01`).
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

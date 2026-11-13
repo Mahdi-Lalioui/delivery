@@ -98,7 +98,8 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Run the worker's `media.process` task and a temporary media store in the authenticated e2e harness. Prove upload → keyboard crop → save → saved item readback → menu preview photo in the browser, with the design matrix.
     - [x] Render published item photos in the customer preview (AVIF/WebP sources, explicit size, ThumbHash placeholder, D-020).
     - [ ] Add the 180 ms photo fade-in once motion tokens exist in `packages/tokens` (DESIGN §6/§7, reduced motion).
-    - [ ] Add the optional application photo to the merchant application form.
+    - [x] Add the optional application photo to the merchant application form (migration 0021, owner-only ready photos locked in the signup transaction, `photos_unavailable` 409, form field).
+    - [ ] Prove the application photo in the browser (`withMediaWorker` in `e2e/auth-merchant.spec.ts`), map `photos_unavailable` to a localized form error, and let the admin reviewer see it through an authenticated variant route (D-007: never under `/media/`).
 - [x] M2-7 Bulk prices (MER-11). Bind preview to merchant and item revisions, apply rounded changes and history atomically, and prove ten-minute undo rejects expired or subsequently changed prices.
   - [x] Add the pure percent/fixed rounding calculation (nearest 1/5/10/50 DA, ties up, clamped to zero).
   - [x] Persist the per-item preview binding, apply rounded changes and price history atomically on the existing menu command/revision guard, and record an undo batch.
