@@ -413,3 +413,6 @@
 
 - 2026-11-13 · Medium · GitHub Browser smoke passed. Its Verify job hit the 5 s timeout when the colour-grade test encoded two full variant sets. Split the cases by photo kind while retaining all colour assertions. Full local pnpm verify exited zero with 2,040 unit and 337 integration tests.
   Next: check the exact pushed candidate in GitHub before merging.
+
+- 2026-11-13 · High · Re-ran 265 route authorization tests and 44 focused media and logger tests. Recorded upload validation, decoded-pixel limits, metadata stripping and private media evidence.
+  Next: complete the remaining route isolation and session checks in SECURITY_REVIEW.

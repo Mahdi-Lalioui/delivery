@@ -31,7 +31,7 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 
 - [ ] **Lane A** Review SPEC §17 and AGENTS §10. Cover every route in the authz matrix and verify customer and merchant isolation.
 - [ ] **Lane A** Verify OTP enumeration resistance, attempt caps and SMS/email delivery limits by identifier and IP.
-- [ ] **Lane A** Verify upload type, size, decompression limits and metadata stripping.
+- [x] **Lane A** Verify upload type, size, decompression limits and metadata stripping. [Upload validation evidence](SECURITY_REVIEW.md#upload-validation)
 - [ ] **Lane A** Verify input handling, CSRF, CSP and security headers, session fixation protections and revocation.
 - [ ] **Lane A** Review route rate limits, secret handling and dependencies. Resolve high and critical findings.
 - [ ] **Lane A** Record findings and their regression evidence in `docs/SECURITY_REVIEW.md`.
