@@ -50,6 +50,12 @@
   min-inline-size: var(--space-120);
 }
 
+/* Short column headings must not break between letters; the region scrolls instead. */
+.menu-import-table thead th {
+  overflow-wrap: normal;
+  white-space: nowrap;
+}
+
 .menu-import-price,
 .menu-import-summary dd {
   font-family: var(--font-numbers);

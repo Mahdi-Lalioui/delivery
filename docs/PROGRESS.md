@@ -13,6 +13,14 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-13 04:20 GMT — M2-8 import journey and design matrix (Claude, covering while Codex was out)
+
+- **Changed** — Committed Codex's unfinished CSV/XLSX import UI in `6d4ebe1`. It adds bounded on-demand parsers (D-017), the template download, the cancellable preview/apply controller and the panel in the item workspace. Fixed six lint and two type errors and broke a `panel ↔ feedback` import cycle by moving `MenuImportControls` into `import-controls.ts`. The item page now passes the `menuImport` messages to the client. Added the ar/fr × light/dark × 390/1280 matrix to `e2e/auth-menu-import.spec.ts` and stopped table headings from breaking between letters.
+- **Evidence** — `pnpm verify` exited 0 before the first commit: 1,312 unit and 156 PostGIS integration tests, no dependency violations, trace through m1 20/20. Only one moderate audit advisory was found, within the high gate. In the first `pnpm test:e2e:auth`, 16 tests passed and 1 failed. The import journey timed out because the panel showed raw message keys. After the fix, `pnpm test:e2e:auth --grep @menu-import` passed, including 8 matrix cases with zero axe violations and zero overflow. `pnpm trace --through m2` covered 35/37 IDs; `MER-01` and `MER-14` are still missing. [Evidence](evidence/m2/menu-import.md)
+- **Reviewer** — Self-review against AGENTS §10 found no P0/P1. The server still revalidates every row and the token (D-016), so the client parser only affects UX and resource use. It is bounded by file size, archive entries, inflated bytes, rows and cell length, and it rejects formulas, macros and external links. P2 design notes are listed in the evidence file.
+- **Next** — M2-9 dated exceptions in the hours web editor (`apps/web/src/merchant-hours`), with tests first, then the create/edit/delete production journey.
+- **Needs Mahdi** — None.
+
 ### 2026-11-08 12:48 GMT — M2 CodeQL follow-up
 
 - **Effort and evidence** — Ultra. Declared OTP/TOTP route throttling explicitly and proved the existing shared API budget still counts once per request. Standalone regressions failed before the declaration, then passed. All 235 API unit tests and the 13 menu-item HTTP tests passed.
@@ -871,6 +879,6 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 ## Current status
 
 - Milestone: M1 (last passing gate, M2 in progress)
-- Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import is traced at row validation and its browser UI is still in progress. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
+- Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import (M2-8) is complete, including its production browser journey. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
 - Last green baseline `pnpm verify`: 2026-11-08 12:42 GMT on Docker Desktop with 1,246 unit and 155 PostGIS integration tests. Both production browser suites passed, 59 foundation and 16 authenticated cases.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
