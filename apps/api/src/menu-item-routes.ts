@@ -69,6 +69,7 @@ function canonicalItemInput(input: z.infer<typeof menuItemCommandInput>) {
   return {
     ...input,
     categoryId: input.categoryId.toLowerCase(),
+    photoId: input.photoId?.toLowerCase() ?? null,
     optionGroupIds: input.optionGroupIds.map((id) => id.toLowerCase()),
   };
 }
@@ -127,7 +128,6 @@ function registerItemEdits(api: FastifyInstance, services: MenuItemServices | un
         expectedSessionId: request.headers["x-expected-session-id"],
       });
       if (!context) return reply;
-      if (request.body.photoId !== null) return itemProblem(reply, "photos_unavailable");
       const { accountId, repository, now } = context;
       const input = canonicalItemInput(request.body);
       const result = await repository.create({
@@ -154,7 +154,6 @@ function registerItemEdits(api: FastifyInstance, services: MenuItemServices | un
         expectedSessionId: request.headers["x-expected-session-id"],
       });
       if (!context) return reply;
-      if (request.body.photoId !== null) return itemProblem(reply, "photos_unavailable");
       const { accountId, repository, now } = context;
       const itemId = request.params.itemId.toLowerCase();
       const input = canonicalItemInput(request.body);

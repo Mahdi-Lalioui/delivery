@@ -28,7 +28,6 @@ export interface ItemAvailability {
 }
 
 export interface MenuItem extends ItemData, ItemAvailability {
-  readonly photoId: null;
   readonly tags: ItemTag[];
   readonly optionGroupIds: string[];
   readonly moderationStatus: "unreviewed" | "approved" | "blocked_pending_review" | "rejected";
@@ -57,7 +56,7 @@ function itemColumns(sql: TransactionSql, now: Date) {
   const at = now.toISOString();
   return sql`
     item.id AS "itemId", item.category_id AS "categoryId", item.names, item.descriptions,
-    item.price_dzd AS "priceDzd", NULL AS "photoId", item.tags, item.prep_extra_min AS "extraPrepMinutes",
+    item.price_dzd AS "priceDzd", item.photo_media_id AS "photoId", item.tags, item.prep_extra_min AS "extraPrepMinutes",
     item.moderation_status AS "moderationStatus",
     CASE WHEN item.sold_out_until <= ${at}::timestamptz THEN true
       ELSE item.is_available END AS "isAvailable",

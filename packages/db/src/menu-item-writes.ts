@@ -46,6 +46,21 @@ async function lockItemReferences(
   return groups.length === optionGroupIds.length;
 }
 
+/** MER-14: only a published item photo of the same restaurant can illustrate an item. */
+async function lockItemPhoto(
+  sql: TransactionSql,
+  { merchantId, input }: ItemWrite,
+): Promise<boolean> {
+  if (input.photoId === null) return true;
+  const [photo] = await sql`
+    SELECT id FROM public.media_uploads
+    WHERE merchant_id = ${merchantId} AND id = ${input.photoId}
+      AND kind = 'item' AND status = 'ready'
+    FOR KEY SHARE
+  `;
+  return photo !== undefined;
+}
+
 async function lockEditableItem(
   sql: TransactionSql,
   { merchantId, itemId }: ItemTarget,
@@ -82,15 +97,16 @@ function screenItemText({ names, descriptions }: ItemText): TextStatus {
 
 export async function createItem(sql: TransactionSql, request: ItemWrite): Promise<ItemEditChange> {
   const { merchantId, input, now } = request;
-  if (input.photoId !== null) return { kind: "photos_unavailable" };
   if (!(await lockItemReferences(sql, request))) return { kind: "not_found" };
+  if (!(await lockItemPhoto(sql, request))) return { kind: "photos_unavailable" };
 
   const [created] = await sql<{ itemId: string }[]>`
     INSERT INTO public.items
-      (merchant_id, category_id, names, descriptions, price_dzd, tags, prep_extra_min, moderation_status)
+      (merchant_id, category_id, names, descriptions, price_dzd, photo_media_id, tags, prep_extra_min,
+        moderation_status)
     VALUES (${merchantId}, ${input.categoryId}, ${JSON.stringify(input.names)}::jsonb,
-      ${JSON.stringify(input.descriptions)}::jsonb, ${input.priceDzd}, ${[...input.tags]}::text[],
-      ${input.extraPrepMinutes}, ${screenItemText(input)})
+      ${JSON.stringify(input.descriptions)}::jsonb, ${input.priceDzd}, ${input.photoId},
+      ${[...input.tags]}::text[], ${input.extraPrepMinutes}, ${screenItemText(input)})
     RETURNING id AS "itemId"
   `;
   if (!created) throw new Error("Menu item insert returned no row.");
@@ -106,8 +122,8 @@ export async function updateItem(
 ): Promise<ItemEditChange> {
   const { merchantId, itemId, input, now } = request;
   if (!(await lockEditableItem(sql, request))) return { kind: "not_found" };
-  if (input.photoId !== null) return { kind: "photos_unavailable" };
   if (!(await lockItemReferences(sql, request))) return { kind: "not_found" };
+  if (!(await lockItemPhoto(sql, request))) return { kind: "photos_unavailable" };
 
   const names = JSON.stringify(input.names);
   const descriptions = JSON.stringify(input.descriptions);
@@ -115,7 +131,7 @@ export async function updateItem(
   await sql`
     UPDATE public.items SET category_id = ${input.categoryId},
       names = ${names}::jsonb, descriptions = ${descriptions}::jsonb, price_dzd = ${input.priceDzd},
-      tags = ${[...input.tags]}::text[], prep_extra_min = ${input.extraPrepMinutes},
+      photo_media_id = ${input.photoId}, tags = ${[...input.tags]}::text[], prep_extra_min = ${input.extraPrepMinutes},
       moderation_status = CASE
         WHEN moderation_status IN ('blocked_pending_review', 'rejected') THEN moderation_status
         WHEN names IS DISTINCT FROM ${names}::jsonb OR descriptions IS DISTINCT FROM ${descriptions}::jsonb
@@ -142,8 +158,10 @@ export async function duplicateItem(
 
   const [duplicate] = await sql<{ itemId: string }[]>`
     INSERT INTO public.items
-      (merchant_id, category_id, names, descriptions, price_dzd, tags, prep_extra_min, moderation_status)
-    SELECT merchant_id, category_id, names, descriptions, price_dzd, tags, prep_extra_min,
+      (merchant_id, category_id, names, descriptions, price_dzd, photo_media_id, tags,
+        prep_extra_min, moderation_status)
+    SELECT merchant_id, category_id, names, descriptions, price_dzd, photo_media_id, tags,
+      prep_extra_min,
       CASE WHEN moderation_status IN ('blocked_pending_review', 'rejected')
         THEN moderation_status ELSE ${screenItemText(source)} END
     FROM public.items WHERE merchant_id = ${merchantId} AND id = ${itemId} AND archived_at IS NULL

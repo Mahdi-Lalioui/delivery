@@ -18,6 +18,7 @@ const merchantId = "01932f18-3150-7c33-8a7a-53acfd343003";
 const categoryId = "01932f18-3150-7c33-8a7a-53acfd343004";
 const itemId = "01932f18-3150-7c33-8a7a-53acfd343005";
 const optionGroupId = "01932f18-3150-7c33-8a7a-53acfd343006";
+const photoId = "01932f18-3150-7c33-8a7a-53acfd3430ab";
 const owner = { role: "merchant_owner", accountId, sessionId } as const;
 const staff = { ...owner, role: "merchant_staff" } as const;
 const path = "/v1/merchants/" + merchantId + "/menu/items";
@@ -110,17 +111,27 @@ test("[MER-09:http] reads a private category-scoped item page and decodes the re
   expect(repository.list).toHaveBeenCalledTimes(1);
 });
 
-test("[MER-09:http] creates and updates an integer-priced item without silently dropping photos", async () => {
+test("[MER-14:http] passes a canonical photo id to the repository and maps its refusal to 409", async () => {
+  const { api, repository } = setup(owner);
+  repository.create.mockResolvedValue({ kind: "photos_unavailable" });
+  repository.update.mockResolvedValue({ kind: "photos_unavailable" });
+  const payload = { ...create.payload, photoId: photoId.toUpperCase() };
+
+  for (const request of [create, update]) {
+    const refused = await api.inject({ ...request, payload });
+    expect(refused.statusCode).toBe(409);
+    expect(refused.json()).toMatchObject({ code: "photos_unavailable" });
+  }
+  const input = { ...create.payload, photoId };
+  expect(repository.create).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ input }));
+  expect(repository.update).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ input }));
+});
+
+test("[MER-09:http] creates and updates an integer-priced item", async () => {
   const { api, repository } = setup(owner);
   repository.create.mockResolvedValue({ kind: "applied", revision: 5, item: itemView });
   repository.update.mockResolvedValue({ kind: "replayed", revision: 5, item: itemView });
 
-  const unready = await api.inject({
-    ...create,
-    payload: { ...create.payload, photoId: optionGroupId },
-  });
-  expect(unready.statusCode).toBe(409);
-  expect(unready.json()).toMatchObject({ code: "photos_unavailable" });
   expect(
     (await api.inject({ ...create, payload: { ...create.payload, priceDzd: 49.5 } })).statusCode,
   ).toBe(400);
