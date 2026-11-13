@@ -1,4 +1,7 @@
 import { once } from "node:events";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { createLocalMediaStore } from "@zaafran/media";
 import { run, runOnce } from "graphile-worker";
 import { expect, test } from "vitest";
 import { registerTestDatabase } from "../../../packages/db/test/database.ts";
@@ -6,6 +9,11 @@ import { migrateWorker } from "../src/migrate-worker.ts";
 import { createWorkerOptions } from "../src/runtime.ts";
 
 const database = registerTestDatabase();
+// The watchdog never touches photos, so the store root is never created.
+const media = {
+  store: createLocalMediaStore({ root: join(tmpdir(), "zaafran-queue-unused") }),
+  maxPixels: 1,
+};
 
 test("[M0-7] the migrated queue processes duplicate watchdog jobs into one health check", async () => {
   const connection = database.get();
@@ -24,7 +32,7 @@ test("[M0-7] the migrated queue processes duplicate watchdog jobs into one healt
     `;
   }
 
-  await runOnce({ ...createWorkerOptions(databaseUrl, connection), noHandleSignals: true });
+  await runOnce({ ...createWorkerOptions(databaseUrl, connection, media), noHandleSignals: true });
 
   expect(await connection.sql`select id from graphile_worker.jobs`).toHaveLength(0);
   const effects = await connection.sql`
@@ -37,7 +45,7 @@ test("[M0-7] a graceful stop persists an in-progress watchdog job's completion",
   const connection = database.get();
   const checkId = "87364915-64d1-49af-af73-4818c0dfc824";
   const runner = await run({
-    ...createWorkerOptions(database.url(), connection),
+    ...createWorkerOptions(database.url(), connection, media),
     noHandleSignals: true,
   });
   let stopped: Promise<void> | undefined;

@@ -1,11 +1,18 @@
 import { openDatabase } from "@zaafran/db/database";
+import { createLocalMediaStore } from "@zaafran/media";
 import { run } from "graphile-worker";
 import { runWorkerCommand } from "./command.js";
+import type { WorkerEnvironment } from "./command.js";
 import { workerLogger } from "./logger.js";
 import { createWorkerOptions } from "./runtime.js";
 
-async function serveWorker(databaseUrl: string): Promise<void> {
+async function serveWorker(environment: WorkerEnvironment): Promise<void> {
+  const databaseUrl = environment.DATABASE_URL;
   const database = openDatabase(databaseUrl);
+  const media = {
+    store: createLocalMediaStore({ root: environment.MEDIA_STORAGE_ROOT }),
+    maxPixels: environment.MEDIA_MAX_DECODED_PIXELS,
+  };
   const shutdown = Promise.withResolvers<"signal">();
   const requestShutdown = () => {
     shutdown.resolve("signal");
@@ -15,7 +22,7 @@ async function serveWorker(databaseUrl: string): Promise<void> {
 
   try {
     const runner = await run({
-      ...createWorkerOptions(databaseUrl, database),
+      ...createWorkerOptions(databaseUrl, database, media),
       noHandleSignals: true,
     });
     runner.events.on("job:failed", ({ job }) => {
