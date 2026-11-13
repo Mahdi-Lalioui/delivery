@@ -392,3 +392,6 @@
 
 - 2026-11-12 · High · The offers candidate passed full workspace verification with 2,028 unit and 336 integration tests. Published incident runbooks and fresh encrypted restore evidence. The local production stack recovered its HTTPS smoke checks after API, worker and PostgreSQL restarts.
   Next: exercise restarts during a real order on a fresh local production build, then test network replay, one-effect timers and pilot load. Continue the remaining security and performance checks.
+
+- 2026-11-13 · High · Integrated Lane B maps, feel, copy and consistency with linked evidence. Moved tap feedback, frame pacing and CLS to Lane B. Full workspace verification passed and built the local production backend image. GitHub browser checks now include the complete browser suite and team preview.
+  Next: verify the exact integrated head in GitHub and run the local in-flight restart drill.

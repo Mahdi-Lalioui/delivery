@@ -17,6 +17,7 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 - [x] **Lane B** Design and capture every state of every customer screen: loading, empty, error, offline, slow network, closed restaurant, sold-out dish, expired cart, offer no longer valid, cancelled or rejected order. [State table, flaws fixed and 116 captures](evidence/awid/states/README.md)
 - [x] **Lane B** Offer badges in Discovery and the promo code field in checkout, designed and captured. [Design notes and captures](evidence/awid/offers/README.md)
 
+
 ## Performance and offers
 
 - [ ] **Lane A** Connected Discovery LCP below 2 s on the established throttled Android profile. [Small-fixture samples](evidence/awid/perf.md#connected-production-build)

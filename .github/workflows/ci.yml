@@ -88,7 +88,8 @@ jobs:
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium webkit
-      - run: pnpm test:e2e --grep @smoke --fail-on-flaky-tests
+      - run: pnpm test:e2e --fail-on-flaky-tests
+      - run: pnpm test:preview
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()
         with:
