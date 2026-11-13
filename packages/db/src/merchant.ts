@@ -77,23 +77,29 @@ async function findEligibleCommune(sql: TransactionSql, input: MerchantApplicati
   return commune;
 }
 
-/** Locks the applicant's own ready, unused application photos; false if any is missing. */
+/**
+ * Locks the applicant's own ready application photos, then checks that no application uses them.
+ * The second statement takes a fresh snapshot after the row locks, so a concurrent signup that
+ * attached the same photo is seen once it commits (READ COMMITTED).
+ */
 async function lockApplicationPhotos(
   sql: TransactionSql,
   accountId: string,
   photoIds: readonly string[],
 ): Promise<boolean> {
   if (photoIds.length === 0) return true;
+  const ids = [...photoIds];
   const photos = await sql`
-    SELECT media.id FROM public.media_uploads media
-    WHERE media.id = ANY(${[...photoIds]}::uuid[]) AND media.owner_id = ${accountId}
-      AND media.kind = 'application' AND media.status = 'ready'
-      AND NOT EXISTS (
-        SELECT 1 FROM public.merchant_application_photos used WHERE used.media_id = media.id
-      )
-    FOR KEY SHARE OF media
+    SELECT id FROM public.media_uploads
+    WHERE id = ANY(${ids}::uuid[]) AND owner_id = ${accountId}
+      AND kind = 'application' AND status = 'ready'
+    ORDER BY id FOR UPDATE
   `;
-  return photos.length === photoIds.length;
+  if (photos.length !== photoIds.length) return false;
+  const used = await sql`
+    SELECT 1 FROM public.merchant_application_photos WHERE media_id = ANY(${ids}::uuid[]) LIMIT 1
+  `;
+  return used.length === 0;
 }
 
 async function insertApplication(

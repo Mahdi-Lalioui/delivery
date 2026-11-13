@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { openDatabase } from "../src/database.ts";
 import { beforeAll, expect, test } from "vitest";
 import { createMerchantRepository } from "../src/merchant.ts";
 import { registerTestDatabase } from "./database.ts";
@@ -136,5 +137,23 @@ test("[MER-01:db] signup refuses foreign, unready, non-application or reused pho
       kind: "photos_unavailable",
     });
     expect(await database.get().sql`SELECT id FROM public.merchants`).toHaveLength(before.length);
+  }
+});
+
+test("[MER-01:db] two concurrent signups cannot share one application photo", async () => {
+  const owner = await account();
+  const photo = await insertPhoto({ owner });
+  const other = openDatabase(database.url());
+  try {
+    for (let round = 0; round < 5; round += 1) {
+      const shared = round === 0 ? photo : await insertPhoto({ owner });
+      const results = await Promise.all([
+        createMerchantRepository(database.get()).submitApplication(submission(owner, [shared])),
+        createMerchantRepository(other).submitApplication(submission(owner, [shared])),
+      ]);
+      expect(results.map(({ kind }) => kind).sort()).toEqual(["created", "photos_unavailable"]);
+    }
+  } finally {
+    await other.close();
   }
 });
