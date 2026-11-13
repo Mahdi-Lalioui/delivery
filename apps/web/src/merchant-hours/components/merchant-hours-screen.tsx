@@ -3,6 +3,7 @@
 import type { Locale } from "@zaafran/i18n/locales";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef } from "react";
+import { isDayError } from "../hours-editor";
 import type { HoursState } from "../hours-flow";
 import { useHoursEditor, type MerchantHoursEditor } from "../use-hours-editor";
 import { HoursPauseControl } from "./hours-pause-control";
@@ -132,7 +133,7 @@ function HoursWorkspace({
       >
         <WeeklyHoursFields
           draft={state.draft}
-          errors={state.errors}
+          errors={state.errors.filter(isDayError)}
           isDisabled={isSaving}
           onChange={controls.change}
           onAdd={controls.add}

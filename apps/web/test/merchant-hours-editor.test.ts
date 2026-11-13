@@ -1,10 +1,8 @@
 import { expect, test } from "vitest";
+import { formatClock, isOvernightRange, parseClock } from "../src/merchant-hours/clock-ranges";
 import {
   addHoursRange,
   canAddHoursRange,
-  formatClock,
-  isOvernightRange,
-  parseClock,
   removeHoursRange,
   toHoursDraft,
   toHoursInput,
@@ -59,6 +57,7 @@ test("[MER-15] round-trips stored hours and keeps the special dates", () => {
     { opens: "11:30", closes: "15:00" },
     { opens: "18:00", closes: "02:00" },
   ]);
+  expect(draft.specialDates).toEqual([{ date: "2026-12-31", ranges: [] }]);
   expect(toHoursInput(draft)).toEqual({ kind: "valid", input: stored });
 });
 
@@ -115,9 +114,34 @@ test("[MER-15] adds up to four ranges a day, updates and removes them", () => {
   expect(draft.weekly[1]?.ranges).toEqual([]);
 });
 
-test("[MER-15] never blames a weekday for a problem in the special dates", () => {
+test("[MER-15] blames the special date, never a weekday, for a problem in the special dates", () => {
   const closed = { date: "2026-12-30", ranges: [] };
-  const empty = { date: "2026-12-31", ranges: [{ opensMinute: 600, closesMinute: 600 }] };
+  const empty = { date: "2026-12-31", ranges: [{ opens: "10:00", closes: "10:00" }] };
   const draft = { ...draftWith([]), specialDates: [closed, empty] };
-  expect(toHoursInput(draft)).toEqual({ kind: "invalid", errors: [] });
+  expect(toHoursInput(draft)).toEqual({ kind: "invalid", errors: [{ index: 1, reason: "time" }] });
+});
+
+test("[MER-15] reports weekday and special-date problems together", () => {
+  const draft = {
+    ...draftWith([{ opens: "18:00", closes: "" }]),
+    specialDates: [{ date: "2026-02-30", ranges: [] }],
+  };
+  expect(toHoursInput(draft)).toEqual({
+    kind: "invalid",
+    errors: [
+      { weekday: 2, reason: "time" },
+      { index: 0, reason: "date" },
+    ],
+  });
+});
+
+test("[MER-15] saves edited special dates with the week", () => {
+  const draft = {
+    ...draftWith([]),
+    specialDates: [{ date: "2027-01-01", ranges: [{ opens: "18:00", closes: "02:00" }] }],
+  };
+  const result = toHoursInput(draft);
+  expect(result.kind === "valid" && result.input.specialDates).toEqual([
+    { date: "2027-01-01", ranges: [{ opensMinute: 1080, closesMinute: 120 }] },
+  ]);
 });

@@ -1,6 +1,6 @@
 import { merchantRamadanInput } from "@zaafran/contracts/merchant-hours";
 import { useTranslations } from "next-intl";
-import type { RangeDraft } from "../hours-editor";
+import type { RangeDraft } from "../clock-ranges";
 import type { RamadanDraft, RamadanError } from "../ramadan-editor";
 
 const prayerMethods = merchantRamadanInput.shape.method.options;

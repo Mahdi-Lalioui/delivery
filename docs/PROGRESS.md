@@ -13,7 +13,15 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
-### 2026-11-13 04:12 GMT — M2-9 special-dates draft model (Claude, covering while Codex was out)
+### 2026-11-13 04:15 GMT — M2-9 special dates in the hours draft (Claude, covering while Codex was out)
+
+- **Changed** — `HoursDraft.specialDates` now holds editable `SpecialDateDraft[]`. `toHoursInput` reports weekday errors and per-entry special-date errors together as `HoursError` and returns the stored dates only when both are valid. Moved the shared clock and range helpers into `clock-ranges.ts`. This avoids a `hours-editor ↔ special-dates-editor` import cycle. The weekly fields receive only weekday errors (`isDayError`). The save focus also skips special-date errors until their fields exist.
+- **Evidence** — Three new or updated cases in `apps/web/test/merchant-hours-editor.test.ts` failed first: a special-date problem is attributed to its entry, weekday and date errors are reported together, and edited dates are saved. All 93 hours web tests then passed. The old test that expected `errors: []` for a bad special date now expects `{ index: 1, reason: "time" }`, which is a stricter assertion. `pnpm verify` exited 0 with 1,321 unit and 156 PostGIS integration tests. `pnpm test:e2e:auth --grep hours` passed both the ar and fr production journeys.
+- **Reviewer** — Self-review against AGENTS §10 found no P0/P1. A final `safeParse` still guards the full command, so `toHoursInput` cannot throw.
+- **Next** — Add the presentational special-dates fields (`apps/web/src/merchant-hours/components/special-dates-fields.tsx`) with ar/fr/en `merchantHours` messages. Each row has a date input, a closed-all-day state, up to four ranges and a remove button. Write the static-markup tests first, like `apps/web/test/merchant-hours-fields.test.tsx`. Then wire them into `merchant-hours-screen.tsx` and `use-hours-editor.ts`, focus `#special-date-<index>-date` on a date error to resolve `TODO(M2-9)`, and extend `e2e/auth-merchant-hours.spec.ts` with create, edit and delete plus the matrix.
+- **Needs Mahdi** — None.
+
+### 2026-11-13 04:10 GMT — M2-9 special-dates draft model (Claude, covering while Codex was out)
 
 - **Changed** — Added `apps/web/src/merchant-hours/special-dates-editor.ts`. It adds, edits and removes dated exceptions and their ranges, and validates each entry against the contract's special-date schema. Errors are reported per entry as `date`, `time`, `overlap` or `duplicate`. `hours-editor.ts` now exports `parseDayRanges` and `toRangeDrafts`, so weekly and dated ranges parse the same way. `@zaafran/contracts/merchant-hours` exports `maxSpecialDates`, so the editor's limit matches the API.
 - **Evidence** — The new `apps/web/test/merchant-hours-special-dates.test.ts` failed first because the module was missing. Afterward, 7/7 passed alongside the 16 existing editor tests. `pnpm verify` exited 0 with 1,319 unit and 156 PostGIS integration tests. Knip first flagged an unused exported error type, which is now module-private.
@@ -21,7 +29,7 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 - **Next** — Carry `SpecialDateDraft[]` in `HoursDraft` (`hours-editor.ts`), validate it in `toHoursInput` and surface per-entry errors through `hours-flow.ts`. Write the failing tests in `apps/web/test/merchant-hours-editor.test.ts` first.
 - **Needs Mahdi** — None.
 
-### 2026-11-13 04:20 GMT — M2-8 import journey and design matrix (Claude, covering while Codex was out)
+### 2026-11-13 04:07 GMT — M2-8 import journey and design matrix (Claude, covering while Codex was out)
 
 - **Changed** — Committed Codex's unfinished CSV/XLSX import UI in `6d4ebe1`. It adds bounded on-demand parsers (D-017), the template download, the cancellable preview/apply controller and the panel in the item workspace. Fixed six lint and two type errors and broke a `panel ↔ feedback` import cycle by moving `MenuImportControls` into `import-controls.ts`. The item page now passes the `menuImport` messages to the client. Added the ar/fr × light/dark × 390/1280 matrix to `e2e/auth-menu-import.spec.ts` and stopped table headings from breaking between letters.
 - **Evidence** — `pnpm verify` exited 0 before the first commit: 1,312 unit and 156 PostGIS integration tests, no dependency violations, trace through m1 20/20. Only one moderate audit advisory was found, within the high gate. In the first `pnpm test:e2e:auth`, 16 tests passed and 1 failed. The import journey timed out because the panel showed raw message keys. After the fix, `pnpm test:e2e:auth --grep @menu-import` passed, including 8 matrix cases with zero axe violations and zero overflow. `pnpm trace --through m2` covered 35/37 IDs; `MER-01` and `MER-14` are still missing. [Evidence](evidence/m2/menu-import.md)

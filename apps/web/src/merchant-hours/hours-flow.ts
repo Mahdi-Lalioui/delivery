@@ -1,4 +1,4 @@
-import { toHoursDraft, toHoursInput, type DayError, type HoursDraft } from "./hours-editor";
+import { toHoursDraft, toHoursInput, type HoursDraft, type HoursError } from "./hours-editor";
 import type { HoursInput, HoursWrite, StoredHours } from "./hours-http";
 
 type Failure = Exclude<HoursWrite, { kind: "saved" }>;
@@ -9,7 +9,7 @@ interface Editing {
   readonly sessionId: string;
   readonly revision: number;
   readonly draft: HoursDraft;
-  readonly errors: readonly DayError[];
+  readonly errors: readonly HoursError[];
 }
 interface Outcome {
   /** Present only after an uncertain failure, so a retry cannot apply the week twice. */
@@ -28,7 +28,7 @@ export type HoursEvent =
   | { readonly kind: "loaded"; readonly hours: StoredHours }
   | { readonly kind: "load-failed"; readonly failure: LoadFailure }
   | { readonly kind: "draft-changed"; readonly draft: HoursDraft }
-  | { readonly kind: "validation-failed"; readonly errors: readonly DayError[] }
+  | { readonly kind: "validation-failed"; readonly errors: readonly HoursError[] }
   | { readonly kind: "save-started"; readonly idempotencyKey: string }
   | { readonly kind: "save-finished"; readonly result: HoursWrite }
   /** Another command on the shared menu revision guard (D-011) succeeded, e.g. "closed now". */
@@ -36,7 +36,7 @@ export type HoursEvent =
 
 export type HoursSaveAttempt =
   | { kind: "ready"; idempotencyKey: string; input: HoursInput & { expectedRevision: number } }
-  | { kind: "invalid"; errors: DayError[] }
+  | { kind: "invalid"; errors: HoursError[] }
   | { kind: "unavailable" };
 
 export const initialHoursState: HoursState = { kind: "loading" };
@@ -80,7 +80,7 @@ function advanceRevision(state: HoursState, revision: number): HoursState {
   return { kind: "editing", sessionId, revision, draft, errors };
 }
 
-function rejectDraft(state: HoursState, errors: readonly DayError[]): HoursState {
+function rejectDraft(state: HoursState, errors: readonly HoursError[]): HoursState {
   return state.kind === "editing" ? { ...state, errors } : state;
 }
 

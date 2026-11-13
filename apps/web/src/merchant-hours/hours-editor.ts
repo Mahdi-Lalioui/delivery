@@ -1,101 +1,70 @@
 import { merchantHoursInput } from "@zaafran/contracts/merchant-hours";
+import {
+  maxRangesPerDay,
+  newRange,
+  parseDayRanges,
+  toRangeDrafts,
+  type RangeDraft,
+} from "./clock-ranges";
 import type { HoursInput } from "./hours-http";
+import {
+  toSpecialDateDrafts,
+  toSpecialDatesInput,
+  type SpecialDateDraft,
+  type SpecialDateError,
+} from "./special-dates-editor";
 
-type StoredRange = HoursInput["weekly"][number]["ranges"][number];
-/** Clock text as `<input type="time">` reports it, for example "18:00". */
-export interface RangeDraft {
-  readonly opens: string;
-  readonly closes: string;
-}
+type Weekly = HoursInput["weekly"];
 export interface HoursDraft {
   readonly weekly: readonly { readonly weekday: number; readonly ranges: readonly RangeDraft[] }[];
-  /** Kept unchanged until the special-dates editor exists. */
-  readonly specialDates: HoursInput["specialDates"];
+  readonly specialDates: readonly SpecialDateDraft[];
 }
 export type DayError = { weekday: number; reason: "time" | "overlap" };
+export type HoursError = DayError | SpecialDateError;
 export type HoursValidation =
-  { kind: "valid"; input: HoursInput } | { kind: "invalid"; errors: DayError[] };
+  { kind: "valid"; input: HoursInput } | { kind: "invalid"; errors: HoursError[] };
 
-const dayMinutes = 1440;
-export const maxRangesPerDay = 4;
-const newRange: RangeDraft = { opens: "12:00", closes: "15:00" };
-
-/** Reads Arabic-Indic and Persian digits as Latin digits. */
-export function normalizeDigits(input: string): string {
-  return input.trim().replace(/[٠-٩۰-۹]/g, (digit) => {
-    const zero = digit <= "٩" ? "٠" : "۰";
-    return String(digit.charCodeAt(0) - zero.charCodeAt(0));
-  });
-}
-
-export function parseClock(text: string): number | undefined {
-  const match = /^([01][0-9]|2[0-3]):([0-5][0-9])$/.exec(normalizeDigits(text));
-  if (!match) return undefined;
-  const [, hours = "", minutes = ""] = match;
-  return Number(hours) * 60 + Number(minutes);
-}
-
-export function formatClock(minute: number): string {
-  const ofDay = minute % dayMinutes;
-  const hours = String(Math.floor(ofDay / 60)).padStart(2, "0");
-  return `${hours}:${String(ofDay % 60).padStart(2, "0")}`;
-}
-
-/** Closing at 00:00 ends the day itself; any other earlier closing runs past midnight. */
-function parseRange({ opens, closes }: RangeDraft): StoredRange | undefined {
-  const opensMinute = parseClock(opens);
-  const closesClock = parseClock(closes);
-  if (opensMinute === undefined || closesClock === undefined) return undefined;
-  return { opensMinute, closesMinute: closesClock === 0 ? dayMinutes : closesClock };
-}
-
-export function isOvernightRange(range: RangeDraft): boolean {
-  const parsed = parseRange(range);
-  return parsed !== undefined && parsed.closesMinute < parsed.opensMinute;
-}
-
-export function toRangeDrafts(ranges: readonly StoredRange[]): RangeDraft[] {
-  return ranges.map(({ opensMinute, closesMinute }) => ({
-    opens: formatClock(opensMinute),
-    closes: formatClock(closesMinute),
-  }));
+export function isDayError(error: HoursError): error is DayError {
+  return "weekday" in error;
 }
 
 export function toHoursDraft(hours: HoursInput): HoursDraft {
   return {
     weekly: hours.weekly.map(({ weekday, ranges }) => ({ weekday, ranges: toRangeDrafts(ranges) })),
-    specialDates: hours.specialDates,
+    specialDates: toSpecialDateDrafts(hours.specialDates),
   };
 }
 
-/** Reads one day's clock ranges, or undefined when a time is unreadable or a range is empty. */
-export function parseDayRanges(ranges: readonly RangeDraft[]): StoredRange[] | undefined {
-  const parsed = ranges.map(parseRange);
-  const valid = parsed.filter((range) => range !== undefined);
-  if (valid.length !== parsed.length) return undefined;
-  return valid.every((range) => range.opensMinute !== range.closesMinute) ? valid : undefined;
-}
-
-/** The contract decides validity, so the editor never disagrees with the API. */
-export function toHoursInput(draft: HoursDraft): HoursValidation {
+/** Unreadable times hide overlap checks for the week, as a range must parse to overlap. */
+function parseWeek(draft: HoursDraft["weekly"]): { weekly: Weekly; errors: DayError[] } {
   const errors: DayError[] = [];
-  const weekly = draft.weekly.map(({ weekday, ranges }) => {
+  const weekly = draft.map(({ weekday, ranges }) => {
     const parsed = parseDayRanges(ranges);
     if (!parsed) errors.push({ weekday, reason: "time" });
     return { weekday, ranges: parsed ?? [] };
   });
-  if (errors.length > 0) return { kind: "invalid", errors };
-  const result = merchantHoursInput.safeParse({ weekly, specialDates: draft.specialDates });
-  if (result.success) return { kind: "valid", input: result.data };
-  const days = new Set(
-    result.error.issues.filter(({ path }) => path[0] === "weekly").map(({ path }) => path[1]),
-  );
-  return {
-    kind: "invalid",
-    errors: weekly
-      .filter((_, index) => days.has(index))
-      .map(({ weekday }) => ({ weekday, reason: "overlap" })),
-  };
+  if (errors.length > 0) return { weekly, errors };
+  const result = merchantHoursInput.shape.weekly.safeParse(weekly);
+  if (result.success) return { weekly, errors };
+  const days = new Set(result.error.issues.map(({ path }) => path[0]));
+  const overlaps = weekly
+    .filter((_, index) => days.has(index))
+    .map(({ weekday }) => ({ weekday, reason: "overlap" as const }));
+  return { weekly, errors: overlaps };
+}
+
+/** The contract decides validity, so the editor never disagrees with the API. */
+export function toHoursInput(draft: HoursDraft): HoursValidation {
+  const week = parseWeek(draft.weekly);
+  const dates = toSpecialDatesInput(draft.specialDates);
+  const dateErrors = dates.kind === "invalid" ? dates.errors : [];
+  const errors: HoursError[] = [...week.errors, ...dateErrors];
+  if (errors.length > 0 || dates.kind === "invalid") return { kind: "invalid", errors };
+  const result = merchantHoursInput.safeParse({
+    weekly: week.weekly,
+    specialDates: dates.specialDates,
+  });
+  return result.success ? { kind: "valid", input: result.data } : { kind: "invalid", errors };
 }
 
 function mapDay(

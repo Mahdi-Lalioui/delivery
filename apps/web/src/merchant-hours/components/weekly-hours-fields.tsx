@@ -1,11 +1,6 @@
 import { useTranslations } from "next-intl";
-import {
-  canAddHoursRange,
-  isOvernightRange,
-  type DayError,
-  type HoursDraft,
-  type RangeDraft,
-} from "../hours-editor";
+import { isOvernightRange, type RangeDraft } from "../clock-ranges";
+import { canAddHoursRange, type DayError, type HoursDraft } from "../hours-editor";
 import { weekdayKeys } from "./weekday-keys";
 
 type RangeAddress = { weekday: number; index: number };

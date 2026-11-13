@@ -123,7 +123,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Prove the production-build overnight and Ramadan journeys in Arabic and French, plus the screenshot matrix.
   - [ ] Add dated exceptions to the web editor and prove create, edit and delete in the production browser journey.
     - [x] Add the pure special-dates draft model (add, edit, remove dates and ranges; contract-backed date, time, overlap and duplicate errors).
-    - [ ] Carry special-date drafts in `HoursDraft` and validate them in `toHoursInput` with per-entry errors.
+    - [x] Carry special-date drafts in `HoursDraft` and validate them in `toHoursInput` with per-entry errors.
     - [ ] Add the presentational special-dates fields with ar/fr/en messages.
     - [ ] Wire the fields into the hours page and prove create, edit and delete in the production journey with the design matrix.
 - [ ] M2-10 Moderation (§17.3, ADM-04). Check prohibited goods on every menu write path and public preview. Prove flagged items stay hidden until the audited review outcome permits listing.

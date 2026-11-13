@@ -5,7 +5,7 @@ import {
   normalizeDigits,
   parseClock,
   type RangeDraft,
-} from "./hours-editor";
+} from "./clock-ranges";
 import type { RamadanInput } from "./hours-http";
 
 type StoredRange = RamadanInput["weekly"][number]["ranges"][number];

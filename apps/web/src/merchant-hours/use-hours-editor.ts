@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useReducer, useRef, useState, type Dispatch } from "react";
+import type { RangeDraft } from "./clock-ranges";
 import {
   addHoursRange,
+  isDayError,
   removeHoursRange,
   updateHoursRange,
   type HoursDraft,
-  type RangeDraft,
 } from "./hours-editor";
 import { initialHoursState, prepareHoursSave, reduceHours, type HoursEvent } from "./hours-flow";
 import { isStale, readHours, readHoursPreview, replaceHours } from "./hours-http";
@@ -126,7 +127,8 @@ export function useHoursEditor(merchantId: string) {
     if (attempt.kind === "unavailable") return;
     if (attempt.kind === "invalid") {
       dispatch({ kind: "validation-failed", errors: attempt.errors });
-      const first = attempt.errors[0];
+      // TODO(M2-9): focus a special-date error once its fields exist.
+      const first = attempt.errors.find(isDayError);
       if (first) setFocus({ selector: `#hours-${String(first.weekday)}-0-opens` });
       return;
     }

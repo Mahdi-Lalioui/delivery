@@ -1,11 +1,12 @@
 import { maxSpecialDates, merchantHoursInput } from "@zaafran/contracts/merchant-hours";
 import {
   maxRangesPerDay,
+  newRange,
   normalizeDigits,
   parseDayRanges,
   toRangeDrafts,
   type RangeDraft,
-} from "./hours-editor";
+} from "./clock-ranges";
 import type { HoursInput } from "./hours-http";
 
 type StoredSpecialDates = HoursInput["specialDates"];
@@ -15,7 +16,7 @@ export interface SpecialDateDraft {
   readonly date: string;
   readonly ranges: readonly RangeDraft[];
 }
-type SpecialDateError = {
+export type SpecialDateError = {
   index: number;
   reason: "date" | "time" | "overlap" | "duplicate";
 };
@@ -24,7 +25,6 @@ export type SpecialDatesValidation =
   | { kind: "invalid"; errors: SpecialDateError[] };
 
 const specialDateSchema = merchantHoursInput.shape.specialDates.element;
-const newRange: RangeDraft = { opens: "12:00", closes: "15:00" };
 
 export function toSpecialDateDrafts(stored: StoredSpecialDates): readonly SpecialDateDraft[] {
   return stored.map(({ date, ranges }) => ({ date, ranges: toRangeDrafts(ranges) }));
