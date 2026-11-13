@@ -14,14 +14,15 @@ interface DecodeOptions {
   readonly maxPixels: number;
 }
 
+export interface RawImage {
+  readonly pixels: Buffer;
+  readonly width: number;
+  readonly height: number;
+  readonly channels: 4;
+}
+
 export type DecodeResult =
-  | {
-      readonly kind: "decoded";
-      readonly pixels: Buffer;
-      readonly width: number;
-      readonly height: number;
-      readonly channels: 4;
-    }
+  | ({ readonly kind: "decoded" } & RawImage)
   | {
       readonly kind: "rejected";
       readonly reason: "undecodable" | "type_mismatch" | "too_many_pixels";

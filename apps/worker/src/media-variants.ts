@@ -2,15 +2,11 @@ import { photoVariantWidths } from "@zaafran/contracts/media";
 import sharp from "sharp";
 import { rgbaToThumbHash } from "thumbhash";
 import type { CropArea } from "./media-crop.js";
+import type { RawImage } from "./media-decode.js";
 
 interface Size {
   readonly width: number;
   readonly height: number;
-}
-
-interface RawImage extends Size {
-  readonly pixels: Buffer;
-  readonly channels: 4;
 }
 
 type VariantFormat = "avif" | "webp";
