@@ -22,6 +22,7 @@ const preview: MenuPreview = {
           tags: ["spicy"],
           isAvailable: true,
           soldOutUntil: null,
+          photo: null,
         },
         {
           itemId: "019d6abc-1234-7234-8234-123456789013",
@@ -31,6 +32,7 @@ const preview: MenuPreview = {
           tags: [],
           isAvailable: false,
           soldOutUntil: null,
+          photo: null,
         },
       ],
     },

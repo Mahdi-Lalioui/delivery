@@ -17212,6 +17212,75 @@
                                   "type": "string",
                                   "format": "date-time",
                                   "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                                },
+                                "photo": {
+                                  "nullable": true,
+                                  "type": "object",
+                                  "properties": {
+                                    "thumbhash": {
+                                      "type": "string",
+                                      "minLength": 8,
+                                      "maxLength": 64,
+                                      "format": "base64",
+                                      "pattern": "^$|^(?:[0-9a-zA-Z+/]{4})*(?:(?:[0-9a-zA-Z+/]{2}==)|(?:[0-9a-zA-Z+/]{3}=))?$"
+                                    },
+                                    "variants": {
+                                      "minItems": 10,
+                                      "maxItems": 10,
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "format": {
+                                            "type": "string",
+                                            "enum": [
+                                              "avif",
+                                              "webp"
+                                            ]
+                                          },
+                                          "width": {
+                                            "type": "number",
+                                            "enum": [
+                                              160,
+                                              320,
+                                              640,
+                                              960,
+                                              1280
+                                            ]
+                                          },
+                                          "height": {
+                                            "type": "integer",
+                                            "minimum": 0,
+                                            "exclusiveMinimum": true,
+                                            "maximum": 1280
+                                          },
+                                          "bytes": {
+                                            "type": "integer",
+                                            "minimum": 0,
+                                            "exclusiveMinimum": true,
+                                            "maximum": 9007199254740991
+                                          },
+                                          "url": {
+                                            "type": "string",
+                                            "pattern": "^\\/media\\/[0-9a-f-]{36}\\/(160|320|640|960|1280)\\.(avif|webp)$"
+                                          }
+                                        },
+                                        "required": [
+                                          "format",
+                                          "width",
+                                          "height",
+                                          "bytes",
+                                          "url"
+                                        ],
+                                        "additionalProperties": false
+                                      }
+                                    }
+                                  },
+                                  "required": [
+                                    "thumbhash",
+                                    "variants"
+                                  ],
+                                  "additionalProperties": false
                                 }
                               },
                               "required": [
@@ -17221,7 +17290,8 @@
                                 "tags",
                                 "itemId",
                                 "isAvailable",
-                                "soldOutUntil"
+                                "soldOutUntil",
+                                "photo"
                               ],
                               "additionalProperties": false
                             }

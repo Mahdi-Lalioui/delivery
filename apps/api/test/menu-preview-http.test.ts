@@ -30,6 +30,7 @@ const preview = {
           tags: ["spicy" as const],
           isAvailable: true,
           soldOutUntil: null,
+          photo: null,
         },
       ],
     },

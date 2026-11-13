@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { beforeAll, expect, test } from "vitest";
 import { createMenuPreviewRepository } from "../src/menu-preview.ts";
 import { registerTestDatabase } from "./database.ts";
@@ -156,6 +157,7 @@ test("[ADM-04:preview] the customer preview lists only active, listable items by
             tags: ["spicy"],
             isAvailable: true,
             soldOutUntil: null,
+            photo: null,
           },
         ],
       },
@@ -184,4 +186,64 @@ test("[ADM-04:preview] only the merchant's own owners and managers can read the 
   });
   const own = await repo.read({ accountId: otherOwnerId, merchantId: otherMerchantId, now });
   expect(own).toMatchObject({ kind: "previewed", categories: [{ categoryId: otherCategoryId }] });
+});
+
+async function insertItemPhoto(merchant: string, owner: string, status: "ready" | "processing") {
+  const { sql } = database.get();
+  const ready = status === "ready";
+  const [photo] = await sql<{ id: string }[]>`
+    insert into media_uploads (owner_id, merchant_id, kind, content_type, bytes, status,
+      quarantine_key, content_digest, created_at, adopted_at, preview_key, preview_width,
+      preview_height, crop_focal_x, crop_focal_y, crop_zoom_percent, thumbhash)
+    values (${owner}, ${merchant}, 'item', 'image/png', 16, ${status},
+      ${"quarantine/" + status}, ${createHash("sha256").update(status).digest()},
+      ${now.toISOString()}, ${now.toISOString()}, ${"preview/" + status}, 1280, 960, 5000, 5000,
+      100, ${ready ? "1QcSHQRnh493V4dIh4eXh1h4kJUI" : null})
+    returning id
+  `;
+  if (!photo) throw new Error("Expected the fixture photo to be inserted");
+  if (!ready) return photo.id;
+  for (const format of ["webp", "avif"]) {
+    for (const width of [1280, 160, 640, 320, 960]) {
+      const key = `media/${photo.id}/${width.toString()}.${format}`;
+      await sql`
+        insert into media_variants (media_id, format, width, height, bytes, storage_key)
+        values (${photo.id}, ${format}, ${width}, ${(width * 3) / 4}, 100, ${key})
+      `;
+    }
+  }
+  return photo.id;
+}
+
+test("[MER-14:preview] a listed item shows its published photo variants and ThumbHash", async () => {
+  const { sql } = database.get();
+  const photoId = await insertItemPhoto(merchantId, ownerId, "ready");
+  await sql`update items set photo_media_id = ${photoId} where id = ${listed}`;
+  const repo = createMenuPreviewRepository(database.get());
+  const preview = await repo.read({ accountId: ownerId, merchantId, now });
+  const items = preview.kind === "previewed" ? preview.categories.flatMap((c) => c.items) : [];
+
+  const shown = items.find((item) => item.itemId === listed);
+  const variants = ["avif", "webp"].flatMap((format) =>
+    [160, 320, 640, 960, 1280].map((width) => ({
+      format,
+      width,
+      height: (width * 3) / 4,
+      bytes: 100,
+      url: `/media/${photoId}/${width.toString()}.${format}`,
+    })),
+  );
+  expect(shown?.photo).toEqual({ thumbhash: "1QcSHQRnh493V4dIh4eXh1h4kJUI", variants });
+  expect(items.find((item) => item.itemId === soldOut)?.photo).toBeNull();
+});
+
+test("[MER-14:preview] a photo that is not ready yet is never shown", async () => {
+  const { sql } = database.get();
+  const photoId = await insertItemPhoto(merchantId, ownerId, "processing");
+  await sql`update items set photo_media_id = ${photoId} where id = ${soldOut}`;
+  const repo = createMenuPreviewRepository(database.get());
+  const preview = await repo.read({ accountId: ownerId, merchantId, now });
+  const items = preview.kind === "previewed" ? preview.categories.flatMap((c) => c.items) : [];
+
+  expect(items.find((item) => item.itemId === soldOut)?.photo).toBeNull();
 });

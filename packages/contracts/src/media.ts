@@ -37,6 +37,20 @@ const variants = z.strictObject({
   bytes: z.int().positive(),
 });
 
+const thumbhash = z.base64().min(8).max(64);
+
+// Published variants are served from the public media path; nothing else in storage is (§16).
+export const publishedPhoto = z.strictObject({
+  thumbhash,
+  variants: z
+    .array(
+      variants.extend({
+        url: z.string().regex(/^\/media\/[0-9a-f-]{36}\/(160|320|640|960|1280)\.(avif|webp)$/),
+      }),
+    )
+    .length(photoVariantWidths.length * 2),
+});
+
 export const mediaOutput = z
   .discriminatedUnion("status", [
     identity.extend({ status: z.enum(["awaiting_upload", "preparing", "processing"]) }),
@@ -48,7 +62,7 @@ export const mediaOutput = z
     identity.extend({
       status: z.literal("ready"),
       variants: z.array(variants).length(photoVariantWidths.length * 2),
-      thumbhash: z.base64().min(8).max(64),
+      thumbhash,
     }),
     identity.extend({
       status: z.literal("rejected"),

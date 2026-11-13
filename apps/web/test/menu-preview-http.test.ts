@@ -18,6 +18,7 @@ const preview = {
           tags: ["spicy"],
           isAvailable: true,
           soldOutUntil: null,
+          photo: null,
         },
       ],
     },

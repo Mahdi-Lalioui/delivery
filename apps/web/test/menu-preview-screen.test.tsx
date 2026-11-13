@@ -26,6 +26,7 @@ const preview = {
           tags: [],
           isAvailable: true,
           soldOutUntil: null,
+          photo: null,
         },
       ],
     },

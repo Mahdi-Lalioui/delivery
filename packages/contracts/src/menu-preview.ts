@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { publishedPhoto } from "./media.js";
 import { menuCategoryInput, menuItemInput } from "./menu.js";
 
 // The customer-facing preview exposes no moderation, archive or option-library internals (§17.3).
@@ -8,6 +9,7 @@ const previewItem = menuItemInput
     itemId: z.uuid(),
     isAvailable: z.boolean(),
     soldOutUntil: z.iso.datetime().nullable(),
+    photo: publishedPhoto.nullable(),
   })
   .refine(({ isAvailable, soldOutUntil }) => !isAvailable || soldOutUntil === null);
 

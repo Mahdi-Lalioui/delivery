@@ -11,6 +11,19 @@ interface Translations {
   readonly en?: string | undefined;
 }
 
+interface PhotoVariant {
+  readonly format: "avif" | "webp";
+  readonly width: 160 | 320 | 640 | 960 | 1280;
+  readonly height: number;
+  readonly bytes: number;
+  readonly url: string;
+}
+
+interface PreviewPhoto {
+  readonly thumbhash: string;
+  readonly variants: PhotoVariant[];
+}
+
 interface PreviewItem {
   readonly itemId: string;
   readonly names: Translations;
@@ -19,6 +32,7 @@ interface PreviewItem {
   readonly tags: ItemTag[];
   readonly isAvailable: boolean;
   readonly soldOutUntil: string | null;
+  readonly photo: PreviewPhoto | null;
 }
 
 interface PreviewCategory {
@@ -43,6 +57,21 @@ type ItemRow = Omit<PreviewItem, "soldOutUntil"> & {
   readonly soldOutUntil: Date | null;
 };
 
+// Only published variants are public; previews, originals and unready photos never are (§16).
+function readyPhoto(sql: TransactionSql) {
+  return sql`
+    CASE WHEN media.id IS NULL THEN NULL ELSE jsonb_build_object(
+      'thumbhash', media.thumbhash,
+      'variants', (
+        SELECT jsonb_agg(jsonb_build_object('format', variant.format, 'width', variant.width,
+          'height', variant.height, 'bytes', variant.bytes, 'url', '/' || variant.storage_key)
+          ORDER BY variant.format, variant.width)
+        FROM public.media_variants AS variant WHERE variant.media_id = media.id
+      )
+    ) END
+  `;
+}
+
 // Customers may only ever see active items that moderation has not held or rejected (§17.3).
 async function readListableItems(
   sql: TransactionSql,
@@ -55,8 +84,11 @@ async function readListableItems(
       CASE WHEN item.sold_out_until <= ${at}::timestamptz THEN true
         ELSE item.is_available END AS "isAvailable",
       CASE WHEN item.sold_out_until > ${at}::timestamptz THEN item.sold_out_until
-        ELSE NULL END AS "soldOutUntil"
+        ELSE NULL END AS "soldOutUntil",
+      ${readyPhoto(sql)} AS photo
     FROM public.items AS item
+    LEFT JOIN public.media_uploads AS media ON media.merchant_id = item.merchant_id
+      AND media.id = item.photo_media_id AND media.status = 'ready'
     WHERE item.merchant_id = ${merchantId} AND item.archived_at IS NULL
       AND item.moderation_status IN ('approved', 'unreviewed')
     ORDER BY item.category_id, item.id
