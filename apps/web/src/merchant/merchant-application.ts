@@ -9,6 +9,7 @@ export interface MerchantDraft {
   longitude: string;
   cuisines: readonly string[];
   rcNumber: string;
+  photoIds: readonly string[];
 }
 
 const fieldNames = [
@@ -40,7 +41,16 @@ function parseCoordinate(value: string): number | undefined {
 }
 
 export function parseMerchantDraft(draft: MerchantDraft): DraftResult {
-  const { restaurantName, ownerName, communeId, latitude, longitude, cuisines, rcNumber } = draft;
+  const {
+    restaurantName,
+    ownerName,
+    communeId,
+    latitude,
+    longitude,
+    cuisines,
+    rcNumber,
+    photoIds,
+  } = draft;
   const result = merchantApplicationInput.safeParse({
     restaurantName,
     ownerName,
@@ -48,6 +58,7 @@ export function parseMerchantDraft(draft: MerchantDraft): DraftResult {
     pin: { latitude: parseCoordinate(latitude), longitude: parseCoordinate(longitude) },
     cuisines,
     ...(rcNumber.trim() ? { rcNumber } : {}),
+    ...(photoIds.length > 0 ? { photoIds } : {}),
   });
 
   if (result.success) return { kind: "valid", data: result.data };

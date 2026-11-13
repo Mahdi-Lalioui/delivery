@@ -10,6 +10,7 @@ const draft = {
   longitude: "3,0574036",
   cuisines: ["algerian", "grill"],
   rcNumber: "   ",
+  photoIds: [],
 };
 
 test("[MER-01:web] canonicalizes Arabic and French coordinate input and omits a blank RC number", () => {
@@ -23,6 +24,13 @@ test("[MER-01:web] canonicalizes Arabic and French coordinate input and omits a 
       cuisines: ["algerian", "grill"],
     },
   });
+});
+
+test("[MER-01:web] sends ready application photos in order and omits an empty list", () => {
+  const photoIds = ["019d6abc-1234-7234-8234-123456789a01", "019d6abc-1234-7234-8234-123456789a02"];
+  const result = parseMerchantDraft({ ...draft, photoIds });
+  expect(result).toMatchObject({ kind: "valid", data: { photoIds } });
+  expect(parseMerchantDraft(draft)).not.toHaveProperty("data.photoIds");
 });
 
 test("[MER-01:web] identifies required fields and refuses ambiguous or out-of-range coordinates", () => {

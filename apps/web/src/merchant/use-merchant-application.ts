@@ -17,6 +17,7 @@ const emptyDraft: MerchantDraft = {
   longitude: "",
   cuisines: [],
   rcNumber: "",
+  photoIds: [],
 };
 
 type ApplicationFailure = Extract<

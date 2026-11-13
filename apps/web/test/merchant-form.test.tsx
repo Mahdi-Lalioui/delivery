@@ -29,6 +29,7 @@ const application: MerchantApplicationState = {
     longitude: "3.06",
     cuisines: ["algerian"],
     rcNumber: "",
+    photoIds: [],
   },
   fields: [],
   error: undefined,
