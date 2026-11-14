@@ -9,6 +9,10 @@ import {
   serializerCompiler,
   validatorCompiler,
 } from "fastify-type-provider-zod";
+import {
+  registerAdminApplicationPhotoRoute,
+  type ApplicationPhotoServices,
+} from "./admin-application-photo-route.js";
 import { createAuthAccess } from "./auth-access.js";
 import { registerAuthRoutes } from "./auth-routes.js";
 import { registerHealth } from "./health.js";
@@ -49,6 +53,7 @@ import { sendProblem } from "./problems.js";
 interface ApiOptions {
   readonly checkReadiness: () => Promise<void>;
   readonly merchant?: MerchantServices;
+  readonly applicationPhoto?: ApplicationPhotoServices;
   readonly menuModeration?: MenuModerationServices;
   readonly media?: MediaReservationServices;
   readonly menuCategory?: MenuCategoryServices;
@@ -117,6 +122,7 @@ export function createApi(options: ApiOptions): FastifyInstance {
     });
     registerAuthRoutes(api, access);
     registerMerchantRoutes(api, options.merchant);
+    registerAdminApplicationPhotoRoute(api, options.applicationPhoto);
     registerAdminModerationRoutes(api, options.menuModeration);
     registerMediaReservationRoutes(api, options.media);
     registerMenuCategoryRoutes(api, options.menuCategory);

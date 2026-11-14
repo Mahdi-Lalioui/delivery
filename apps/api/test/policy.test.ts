@@ -447,6 +447,12 @@ const matrix: readonly MatrixRoute[] = [
     payload: { decision: "approve", reason: "Synthetic review" },
     expected: adminRole,
   },
+  {
+    method: "GET",
+    url: "/v1/admin/merchant-applications/:merchantId/photos/:mediaId/:width",
+    requestUrl: `/v1/admin/merchant-applications/${challengeId}/photos/${challengeId}/640`,
+    expected: adminRole,
+  },
   { method: "GET", url: staffPath, requestUrl: staffRequest, expected: staffOwnerRoles },
   {
     method: "POST",

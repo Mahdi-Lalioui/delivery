@@ -41,15 +41,18 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
     sendSms: options.sendSms ?? unavailableSms,
   });
   const merchantHours = createMerchantHoursRepository(database);
+  const merchantRepository = createMerchantRepository(database);
+  const mediaStore = createLocalMediaStore({ root: environment.MEDIA_STORAGE_ROOT });
   const api = createApi({
     checkReadiness: () => checkReadiness(database),
     trustedProxy: environment.API_TRUSTED_PROXY,
     auth: { service, publicOrigin: environment.AUTH_PUBLIC_ORIGIN },
-    merchant: { repository: createMerchantRepository(database), now },
+    merchant: { repository: merchantRepository, now },
+    applicationPhoto: { repository: merchantRepository, store: mediaStore },
     menuModeration: { repository: createMenuModerationRepository(database), now },
     media: {
       repository: createMediaRepository(database),
-      store: createLocalMediaStore({ root: environment.MEDIA_STORAGE_ROOT }),
+      store: mediaStore,
       now,
     },
     menuCategory: { repository: createMenuCategoryRepository(database), now },

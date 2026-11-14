@@ -146,6 +146,7 @@ test("[M0-6] the generated OpenAPI document describes the readiness problem resp
       "/v1/admin/menu-items/held",
       "/v1/admin/menu-items/{itemId}/review",
       "/v1/admin/merchant-applications",
+      "/v1/admin/merchant-applications/{merchantId}/photos/{mediaId}/{width}",
       "/v1/admin/merchant-applications/{merchantId}/review",
       "/v1/auth/logout",
       "/v1/auth/otp/request",
