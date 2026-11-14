@@ -117,6 +117,7 @@ export function MerchantApplicationForm({
         <CuisineFields state={state} />
         <ApplicationTextField state={state} field="rcNumber" />
         <ApplicationPhotoField
+          key={state.photoFieldVersion}
           sessionId={sessionId}
           photoId={state.draft.photoIds[0] ?? null}
           onPhotoChange={(photoId) => {

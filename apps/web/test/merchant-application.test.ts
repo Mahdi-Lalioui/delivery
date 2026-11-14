@@ -1,5 +1,9 @@
 import { expect, test } from "vitest";
-import { parseMerchantDraft, prepareMerchantAttempt } from "../src/merchant/merchant-application";
+import {
+  draftAfterRefusal,
+  parseMerchantDraft,
+  prepareMerchantAttempt,
+} from "../src/merchant/merchant-application";
 
 const communeId = "019d6abc-1234-7234-8234-123456789abc";
 const draft = {
@@ -64,4 +68,16 @@ test("[MER-01:web] retains a request key for canonical retries and rotates it fo
     prepareMerchantAttempt({ ...result.data, pin: { ...result.data.pin, latitude: 36.77 } }, first)
       .idempotencyKey,
   ).not.toBe(first.idempotencyKey);
+});
+
+test("[MER-01:web] drops the refused photo after photos_unavailable and keeps the other fields", () => {
+  const photoIds = ["019d6abc-1234-7234-8234-123456789a01"];
+  const refused = draftAfterRefusal({ ...draft, photoIds }, "photosUnavailable");
+  expect(refused).toEqual({ ...draft, photoIds: [] });
+});
+
+test("[MER-01:web] keeps the photo after any other refusal", () => {
+  const withPhoto = { ...draft, photoIds: ["019d6abc-1234-7234-8234-123456789a01"] };
+  expect(draftAfterRefusal(withPhoto, "outsideCommune")).toBe(withPhoto);
+  expect(draftAfterRefusal(withPhoto, "submitError")).toBe(withPhoto);
 });

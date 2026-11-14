@@ -36,6 +36,7 @@ const application: MerchantApplicationState = {
   pending: false,
   submitted: false,
   sessionChanged: false,
+  photoFieldVersion: 0,
   update: vi.fn(),
   submit: vi.fn(),
 };

@@ -1,5 +1,5 @@
 import { merchantApplicationInput } from "@zaafran/contracts/merchant";
-import type { Application } from "./merchant-http";
+import type { Application, ApplicationError } from "./merchant-http";
 
 export interface MerchantDraft {
   restaurantName: string;
@@ -38,6 +38,11 @@ function parseCoordinate(value: string): number | undefined {
   return /^[+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)$/.test(normalized)
     ? Number(normalized)
     : undefined;
+}
+
+/** A `photos_unavailable` refusal means the attached photo can never be used: drop it. */
+export function draftAfterRefusal(draft: MerchantDraft, error: ApplicationError): MerchantDraft {
+  return error === "photosUnavailable" ? { ...draft, photoIds: [] } : draft;
 }
 
 export function parseMerchantDraft(draft: MerchantDraft): DraftResult {

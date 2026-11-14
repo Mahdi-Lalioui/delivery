@@ -18,7 +18,7 @@ export type MerchantRead<Data> =
   | { kind: "forbidden" }
   | { kind: "error" };
 
-type ApplicationError =
+export type ApplicationError =
   | "submitError"
   | "invalidCommune"
   | "outsideCommune"

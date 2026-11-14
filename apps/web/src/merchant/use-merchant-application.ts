@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import {
+  draftAfterRefusal,
   parseMerchantDraft,
   prepareMerchantAttempt,
   type DraftField,
@@ -32,6 +33,8 @@ export function useMerchantApplication(expectedSessionId: string) {
   const [pending, setPending] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [sessionChanged, setSessionChanged] = useState(false);
+  // Bumped to remount the photo field, discarding an upload the server refused.
+  const [photoFieldVersion, setPhotoFieldVersion] = useState(0);
   const inFlight = useRef(false);
   const attempt = useRef<ReturnType<typeof prepareMerchantAttempt> | undefined>(undefined);
 
@@ -72,11 +75,25 @@ export function useMerchantApplication(expectedSessionId: string) {
     }
     if (!result.shouldReuseKey) attempt.current = undefined;
     setError(result.error);
+    if (result.error === "photosUnavailable") {
+      setDraft((current) => draftAfterRefusal(current, "photosUnavailable"));
+      setPhotoFieldVersion((version) => version + 1);
+    }
     if (result.error === "outsideCommune") return "latitude";
     return result.error === "invalidCommune" ? "communeId" : undefined;
   }
 
-  return { draft, fields, error, pending, submitted, sessionChanged, update, submit };
+  return {
+    draft,
+    fields,
+    error,
+    pending,
+    submitted,
+    sessionChanged,
+    photoFieldVersion,
+    update,
+    submit,
+  };
 }
 
 export type MerchantApplicationState = ReturnType<typeof useMerchantApplication>;
