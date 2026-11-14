@@ -111,3 +111,28 @@ export async function listPendingApplications(
   const nextCursor = rows.length > limit && last ? last.submittedAt + "~" + last.merchantId : null;
   return { applications, nextCursor };
 }
+
+interface ApplicationPhotoRequest {
+  readonly adminUserId: string;
+  readonly merchantId: string;
+  readonly mediaId: string;
+  readonly width: number;
+}
+
+/** An active admin reads one WebP variant of a photo attached to that merchant's application. */
+export async function findApplicationPhotoVariant(
+  sql: TransactionSql,
+  { adminUserId, merchantId, mediaId, width }: ApplicationPhotoRequest,
+) {
+  if (!(await lockMerchantAdmin(sql, adminUserId))) return undefined;
+  const [variant] = await sql<{ storageKey: string }[]>`
+    SELECT variant.storage_key AS "storageKey"
+    FROM public.merchant_application_photos AS photo
+    JOIN public.media_uploads AS media ON media.id = photo.media_id
+    JOIN public.media_variants AS variant ON variant.media_id = media.id
+    WHERE photo.merchant_id = ${merchantId} AND photo.media_id = ${mediaId}
+      AND media.kind = 'application' AND media.status = 'ready'
+      AND variant.format = 'webp' AND variant.width = ${width}
+  `;
+  return variant;
+}

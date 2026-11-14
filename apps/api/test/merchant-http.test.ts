@@ -66,6 +66,7 @@ function setup(actor?: Actor) {
   const repository = {
     listCommunes: vi.fn<MerchantRepository["listCommunes"]>(),
     listPendingApplications: vi.fn<MerchantRepository["listPendingApplications"]>(),
+    findApplicationPhotoVariant: vi.fn<MerchantRepository["findApplicationPhotoVariant"]>(),
     submitApplication: vi.fn<MerchantRepository["submitApplication"]>(),
     reviewApplication: vi.fn<MerchantRepository["reviewApplication"]>(),
     listMemberships: vi.fn<MerchantRepository["listMemberships"]>(),

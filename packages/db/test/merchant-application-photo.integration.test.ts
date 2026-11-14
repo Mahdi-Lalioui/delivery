@@ -157,3 +157,61 @@ test("[MER-01:db] two concurrent signups cannot share one application photo", as
     await other.close();
   }
 });
+
+async function insertWebpVariant(mediaId: string, width: number) {
+  const storageKey = `private/${mediaId}/${String(width)}.webp`;
+  await database.get().sql`
+    INSERT INTO public.media_variants (media_id, format, width, height, bytes, storage_key)
+    VALUES (${mediaId}, 'webp', ${width}, ${Math.round((width * 9) / 16)}, 32, ${storageKey})
+  `;
+  return storageKey;
+}
+
+async function admin() {
+  const id = await account();
+  await database.get().sql`
+    INSERT INTO public.admins (user_id, totp_secret_encrypted) VALUES (${id}, '\\x01'::bytea)
+  `;
+  return id;
+}
+
+test("[MER-01:db] only an admin reads an attached application photo variant", async () => {
+  const owner = await account();
+  const reviewer = await admin();
+  const photo = await insertPhoto({ owner });
+  const storageKey = await insertWebpVariant(photo, 640);
+  const repo = createMerchantRepository(database.get());
+  const created = await repo.submitApplication(submission(owner, [photo]));
+  if (!("merchantId" in created)) throw new Error(`Expected creation, got ${created.kind}`);
+  const request = { adminUserId: reviewer, merchantId: created.merchantId, mediaId: photo };
+
+  expect(await repo.findApplicationPhotoVariant({ ...request, width: 640 })).toEqual({
+    storageKey,
+  });
+  expect(await repo.findApplicationPhotoVariant({ ...request, width: 1280 })).toBeUndefined();
+  expect(
+    await repo.findApplicationPhotoVariant({ ...request, adminUserId: owner, width: 640 }),
+  ).toBeUndefined();
+  await database.get()
+    .sql`UPDATE public.users SET blocked_at = ${now.toISOString()} WHERE id = ${reviewer}`;
+  expect(await repo.findApplicationPhotoVariant({ ...request, width: 640 })).toBeUndefined();
+});
+
+test("[MER-01:db] an admin cannot read a photo through another merchant's application", async () => {
+  const owner = await account();
+  const reviewer = await admin();
+  const photo = await insertPhoto({ owner });
+  await insertWebpVariant(photo, 640);
+  const loose = await insertPhoto({ owner });
+  await insertWebpVariant(loose, 640);
+  const repo = createMerchantRepository(database.get());
+  const created = await repo.submitApplication(submission(owner, [photo]));
+  const other = await repo.submitApplication(submission(await account(), []));
+  if (!("merchantId" in created) || !("merchantId" in other))
+    throw new Error("Expected two fixture merchants");
+
+  const read = (merchantId: string, mediaId: string) =>
+    repo.findApplicationPhotoVariant({ adminUserId: reviewer, merchantId, mediaId, width: 640 });
+  expect(await read(other.merchantId, photo)).toBeUndefined();
+  expect(await read(created.merchantId, loose)).toBeUndefined();
+});
