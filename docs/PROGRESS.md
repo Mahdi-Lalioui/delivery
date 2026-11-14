@@ -13,6 +13,18 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-14 18:30 GMT — M2-6/MER-01 clear a refused application photo (Claude, covering while Codex was out)
+
+- **Changed** — `1a59994`: `draftAfterRefusal` (`apps/web/src/merchant/merchant-application.ts`) drops `photoIds` after a `photosUnavailable` refusal. `use-merchant-application.ts` applies it and bumps `photoFieldVersion`. `merchant-form.tsx` keys `ApplicationPhotoField` on that value, so the field remounts and disposes the old upload controller. `ApplicationError` is now exported. `a173858`: `e2e/auth-merchant-application-photo.spec.ts` moves sign-in, form filling and keyboard crop into helpers and adds a second journey. In that journey, a same-session application claims the ready photo first. The form submit then gets 409, shows `merchant.photosUnavailable`, hides the ready status and shows the picker again. The resubmit then has no `photoIds` and returns 201.
+- **Evidence** —
+  - The two new `[MER-01:web]` unit tests failed first (`draftAfterRefusal is not a function`), then passed. Targeted web suites: 20/20.
+  - `pnpm test:e2e:auth e2e/auth-merchant-application-photo.spec.ts`: 2/2. A mutation that disabled the reset in the hook failed the new journey (`toBeHidden` received visible). The mutation was then restored.
+  - `pnpm verify` exited 0 with 1,460 unit and 190 PostGIS integration tests, and trace through m1 was 20/20. `pnpm test:e2e:auth`: 21/21.
+  - Environment: verify first failed with `ECONNREFUSED 127.0.0.1:5432` because the repo's `db` was stopped while another Compose project (`awid-deploy-test`) was running. `docker compose up -d db` fixed it. A stray, gitignored `coverage/lcov-report 2` directory (a macOS duplicate name) made Vitest's coverage cleanup fail with `ENOTEMPTY`. Removing `coverage/` fixed it.
+- **Reviewer** — Self-review against AGENTS §10 found no P0/P1. There are no new strings or colours. A fresh idempotency key is used after the refusal because `shouldReuseKey` is false.
+- **Next** — Add an admin-only `GET /v1/admin/merchant-applications/:merchantId/photos/:mediaId/:width.webp` route that streams the private variant from the media store with `no-store`. Add it to the authorization matrix, OpenAPI and a PostGIS proof (admin allowed; customer, merchant owner and another applicant's photo denied), then show it in the admin queue. Write the route tests first, in `apps/api` next to the preview route (`GET /v1/media/:mediaId/preview`).
+- **Needs Mahdi** — None.
+
 ### 2026-11-13 10:58 GMT — M2-6/MER-01 optional application photo: storage, API and form (Claude, covering while Codex was out)
 
 - **Changed** — Five commits on `m2-merchant-onboarding`:
@@ -1076,5 +1088,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress; M2-8, M2-9 and M2-10 done)
 - Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import (M2-8) is complete, including its production browser journey. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
-- Last green `pnpm verify`: 2026-11-13 11:02 GMT on Docker Desktop with 1,458 unit and 190 PostGIS integration tests. `pnpm test:e2e:auth` passed 20/20 authenticated production journeys at the same tree, including both photo journeys. `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 36/37 IDs at `b92d62f` (missing `MER-01`).
+- Last green `pnpm verify`: 2026-11-14 18:29 GMT on Docker Desktop with 1,460 unit and 190 PostGIS integration tests. `pnpm test:e2e:auth` passed 21/21 authenticated production journeys at the same tree. `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 36/37 IDs at `b92d62f` (missing `MER-01`).
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
