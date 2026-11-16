@@ -12,6 +12,7 @@ import {
 import ar from "../packages/i18n/src/messages/ar.json" with { type: "json" };
 import fr from "../packages/i18n/src/messages/fr.json" with { type: "json" };
 import { withAuthHarness } from "./auth-fixture.ts";
+import { enterAdminQueue as enterSharedAdminQueue, enterOtp, waitForPost } from "./auth-sign-in.ts";
 
 const applicant = { input: "٠٥٥٠٠٠٠٢٠١", phone: "+213550000201" };
 const reviewer = { input: "0660 00 02 02", phone: "+213660000202" };
@@ -23,29 +24,6 @@ const reason = "Commune et identité vérifiées pour cette demande fictive.";
 const applicationEndpoint = "/v1/merchant-applications";
 const queueEndpoint = "/v1/admin/merchant-applications";
 const membershipsEndpoint = "/v1/me/merchants";
-
-function waitForPost(page: Page, path: string) {
-  return page.waitForResponse(
-    (response) =>
-      response.request().method() === "POST" && new URL(response.url()).pathname === path,
-  );
-}
-
-async function enterOtp(
-  page: Page,
-  auth: AuthHarness,
-  { account, labels }: { account: typeof applicant; labels: typeof ar.auth },
-) {
-  await page.getByRole("textbox", { name: labels.phoneLabel }).fill(account.input);
-  const request = waitForPost(page, "/v1/auth/otp/request");
-  await page.getByRole("button", { name: labels.sendCode }).click();
-  expect((await request).status()).toBe(202);
-
-  const field = page.getByRole("textbox", { name: labels.otpLabel });
-  await expect(field).toBeFocused();
-  await field.fill(auth.latestSms(account.phone));
-  await field.press("Enter");
-}
 
 async function enterMerchantApplication(page: Page, auth: AuthHarness) {
   await page.goto(auth.origin + "/ar");
@@ -100,18 +78,8 @@ async function expectMembership(
   ]);
 }
 
-async function enterAdminQueue(page: Page, auth: AuthHarness, account = reviewer) {
-  const totp = await auth.seedAdmin(account.phone);
-  await page.goto(auth.origin + "/fr/sign-in?continue=admin-review");
-  await expect(page.getByRole("heading", { name: fr.auth.adminTitle })).toBeVisible();
-  await enterOtp(page, auth, { account, labels: fr.auth });
-  const factor = page.getByRole("textbox", { name: fr.auth.totpLabel });
-  await expect(factor).toBeFocused();
-  await factor.fill(totp());
-  await factor.press("Enter");
-  await page.getByRole("link", { name: fr.auth.continueReview }).click();
-  await expect(page).toHaveURL(auth.origin + "/fr/admin/merchant-applications");
-  await expect(page.getByRole("heading", { name: fr.adminMerchant.title })).toBeVisible();
+function enterAdminQueue(page: Page, auth: AuthHarness, account = reviewer) {
+  return enterSharedAdminQueue(page, auth, account);
 }
 
 async function prepareReview(
