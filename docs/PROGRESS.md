@@ -13,6 +13,21 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-16 12:10 GMT — M2-12 register the `design:screens` gate check (Claude, covering while Codex was out)
+
+- **Changed** — `038b952`:
+  - The new root script `pnpm test:design` builds web, API and worker, then runs `playwright test --config e2e/auth.config.ts --grep @design-screens`.
+  - `scripts/gate.ts` maps `design:screens` to `test:design`. Before this, `pnpm gate m2` would have stopped with 127 ("Gate check is not available").
+  - The six authenticated journeys that take matrix screenshots are tagged `@design-screens`: admin moderation, menu import, item photo, menu preview, hours (ar and fr), and staff. Each runs light/dark × 390/1280 with overflow and axe checks.
+  - The new `tooling/design-command.test.ts` checks the script and the gate mapping. It also fails if an `e2e/auth-*.spec.ts` that calls `attachPageScreenshot(` lacks the tag.
+- **Evidence** —
+  - Both tooling tests failed first (no script; four untagged specs), then passed.
+  - `pnpm test:design`: 7/7 journeys.
+  - `pnpm verify` exited 0: tooling 55/55, 1,476 unit and 194 PostGIS integration tests, trace through m1 20/20.
+- **Reviewer** — Self-review against AGENTS §10 found no P0/P1. The baseline audit's remaining design gaps are still open and not hidden by this check: 768px and pseudo-locale evidence for the builder screens, and the design critic pass.
+- **Next** — MER-01 "the admin is notified". Signup already inserts a `merchant_review_notices` row in the same transaction (`packages/db/src/merchant.ts:140`), but nothing consumes it. Decide the channel in DECISIONS (SPEC does not name one; NOT-04 adapters are SMS, WebPush or ExpoPush). Then add an idempotent worker job that delivers each notice once per admin through the fake SMS/outbox adapter, test-first on PostGIS. After that, extend the signup-to-approval browser journey to assert the notice so the bare `MER-01` is covered in `pnpm trace --through m2` (currently 36/37). The HEIC helper (D-007) still needs the Linux image or amd64 CI.
+- **Needs Mahdi** — None.
+
 ### 2026-11-16 12:07 GMT — M2-6/MER-14 rejected photo uploads in the browser (Claude, covering while Codex was out)
 
 - **Changed** — `156a67a`: a second journey in `e2e/auth-menu-item-photo.spec.ts` (`@menu-photos`, with the media worker):
