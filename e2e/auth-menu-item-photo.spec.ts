@@ -209,3 +209,52 @@ test("[MER-14:browser] an owner uploads, crops by keyboard and saves an item pho
     });
   });
 });
+
+test("[MER-14:browser] an owner sees localized refusals for an unsupported and a corrupt photo @menu-photos", async ({
+  baseURL,
+  page,
+}) => {
+  test.setTimeout(90_000);
+  await withAuthHarness(baseURL, async (auth) => {
+    await withMediaWorker(auth, async () => {
+      const merchantId = await signInOwner(page, auth);
+      const categoryId = await createCategory(page, auth.origin, merchantId);
+      await page.goto(`${auth.origin}/fr/merchant/${merchantId}/menu/${categoryId}/items`);
+      await page.getByRole("button", { name: fr.menuItem.newItem, exact: true }).click();
+      const editor = page.getByRole("region", { name: fr.menuItem.createTitle });
+      const reservations: string[] = [];
+      page.on("request", (request) => {
+        if (new URL(request.url()).pathname === "/v1/media/uploads") reservations.push("POST");
+      });
+
+      await test.step("Refuse an unsupported type before any reservation", async () => {
+        await editor.getByLabel(fr.photoUpload.choose).setInputFiles({
+          name: "animation.gif",
+          mimeType: "image/gif",
+          buffer: Buffer.from("GIF89a"),
+        });
+        await expect(editor.getByRole("alert")).toHaveText(fr.photoUpload.unsupportedType);
+        expect(reservations).toEqual([]);
+      });
+
+      await test.step("Show the worker's refusal of a corrupt JPEG and offer the picker", async () => {
+        const reservation = page.waitForResponse(
+          (response) =>
+            response.request().method() === "POST" &&
+            new URL(response.url()).pathname === "/v1/media/uploads",
+        );
+        await editor.getByLabel(fr.photoUpload.choose).setInputFiles({
+          name: "broken.jpg",
+          mimeType: "image/jpeg",
+          buffer: Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(512)]),
+        });
+        expect((await reservation).status()).toBe(201);
+        await expect(editor.getByRole("alert")).toHaveText(fr.photoUpload.invalidImage, {
+          timeout: 30_000,
+        });
+        await expect(editor.getByLabel(fr.photoUpload.choose)).toBeAttached();
+        await expect(editor.getByText(fr.photoUpload.ready, { exact: true })).toBeHidden();
+      });
+    });
+  });
+});
