@@ -13,6 +13,22 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-16 11:57 GMT — M2-6/MER-01 the admin reviewer sees the private application photo (Claude, covering while Codex was out)
+
+- **Changed** — Codex's last two commits (`fc4c98f`, `da1b955`) added the admin-only `GET /v1/admin/merchant-applications/:merchantId/photos/:mediaId/:width` route. Building on Codex's uncommitted queue work:
+  - `a3946b3`: `adminReviewQueueOutput` gains `photoIds` (≤ 5 uuids, submission order). `listPendingApplications` selects them ordered by `position`. OpenAPI is regenerated, and the API fixtures include the field.
+  - `5e52e7c`: `apps/web/src/admin/admin-application-photos.tsx` lists each photo in the selected application as a lazy 16:9 `<img>` (640 px `src`, 640/1280 `srcSet`, explicit 640×360). Images come from the admin route, never `/media/`. New `adminMerchant.photos` and `photoAlt` messages are in ar/fr/en, and "not provided" shows when there are no photos.
+  - `a3e2606`: `e2e/auth-sign-in.ts` now holds `enterOtp`, `waitForPost` and `enterAdminQueue`, shared with `auth-merchant.spec.ts`.
+  - `7231784`: the first `auth-merchant-application-photo.spec.ts` journey checks two things. The applicant gets 403 on the admin variant. A separate French admin context opens the application, and the photo loads (`naturalWidth > 0`, `currentSrc` under the admin route).
+- **Evidence** —
+  - Contract `admin.test.ts` 8/8. PostGIS `merchant-application-photo`, `merchant` (db) and `merchant` (api) 23/23 after the API expectation gained `photoIds: []`.
+  - The two `[MER-01:web]` queue tests failed first (missing messages, no `<img>`), then passed. Web admin suites and i18n: 69/69.
+  - The browser step was written after the feature, so it was mutation-checked: changing the variant width in the component failed the journey (`toEqual` poll). The mutation was restored.
+  - `pnpm test:e2e:auth`: 21/21. `pnpm verify` exited 0 with 1,472 unit and 194 PostGIS integration tests; trace through m1 20/20. The first verify runs failed on a fixture that was missing `photoIds` (typecheck) and on a stale OpenAPI. Both are fixed.
+- **Reviewer** — Self-review against AGENTS §10 found no P0/P1. Authorization stays in SQL (Codex's `findApplicationPhotoVariant`). The images are same-origin and allowed by `img-src 'self'`. The `sizes` attribute uses literal rem values (P2, the same as in the menu preview).
+- **Next** — Add the DESIGN §7 motion tokens (durations and easings) to `packages/tokens/src/metrics.json` so they are emitted as CSS variables, with the theme test first. Then add the 180 ms photo fade-in (DESIGN §6) with a reduced-motion fallback. Afterward: the HEIC helper (D-007) and the `@merchant-onboarding` journey.
+- **Needs Mahdi** — None.
+
 ### 2026-11-14 18:30 GMT — M2-6/MER-01 clear a refused application photo (Claude, covering while Codex was out)
 
 - **Changed** — `1a59994`: `draftAfterRefusal` (`apps/web/src/merchant/merchant-application.ts`) drops `photoIds` after a `photosUnavailable` refusal. `use-merchant-application.ts` applies it and bumps `photoFieldVersion`. `merchant-form.tsx` keys `ApplicationPhotoField` on that value, so the field remounts and disposes the old upload controller. `ApplicationError` is now exported. `a173858`: `e2e/auth-merchant-application-photo.spec.ts` moves sign-in, form filling and keyboard crop into helpers and adds a second journey. In that journey, a same-session application claims the ready photo first. The form submit then gets 409, shows `merchant.photosUnavailable`, hides the ready status and shows the picker again. The resubmit then has no `photoIds` and returns 201.
@@ -1088,5 +1104,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress; M2-8, M2-9 and M2-10 done)
 - Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import (M2-8) is complete, including its production browser journey. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
-- Last green `pnpm verify`: 2026-11-14 18:29 GMT on Docker Desktop with 1,460 unit and 190 PostGIS integration tests. `pnpm test:e2e:auth` passed 21/21 authenticated production journeys at the same tree. `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 36/37 IDs at `b92d62f` (missing `MER-01`).
+- Last green `pnpm verify`: 2026-11-16 11:56 GMT on Docker Desktop with 1,472 unit and 194 PostGIS integration tests. `pnpm test:e2e:auth` passed 21/21 authenticated production journeys at the same tree. `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 36/37 IDs at `b92d62f` (missing `MER-01`).
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

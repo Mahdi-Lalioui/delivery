@@ -101,7 +101,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Add the optional application photo to the merchant application form (migration 0021, owner-only ready photos locked in the signup transaction, `photos_unavailable` 409, form field).
     - [x] Prove the application photo in the browser (`e2e/auth-merchant-application-photo.spec.ts`) and show a localized `photos_unavailable` message.
     - [x] Reset the photo field after a `photos_unavailable` refusal.
-    - [ ] Let the admin reviewer see the application photo through an authenticated variant route (D-007: never under `/media/`).
+    - [x] Let the admin reviewer see the application photo through an authenticated variant route (D-007: never under `/media/`).
 - [x] M2-7 Bulk prices (MER-11). Bind preview to merchant and item revisions, apply rounded changes and history atomically, and prove ten-minute undo rejects expired or subsequently changed prices.
   - [x] Add the pure percent/fixed rounding calculation (nearest 1/5/10/50 DA, ties up, clamped to zero).
   - [x] Persist the per-item preview binding, apply rounded changes and price history atomically on the existing menu command/revision guard, and record an undo batch.
