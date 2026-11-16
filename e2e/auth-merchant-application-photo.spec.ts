@@ -5,10 +5,42 @@ import {
   merchantMembershipsOutput,
 } from "../packages/contracts/src/merchant.ts";
 import ar from "../packages/i18n/src/messages/ar.json" with { type: "json" };
+import fr from "../packages/i18n/src/messages/fr.json" with { type: "json" };
 import { withAuthHarness, withMediaWorker } from "./auth-fixture.ts";
+import { enterAdminQueue } from "./auth-sign-in.ts";
 
 type AuthHarness = Parameters<Parameters<typeof withAuthHarness>[1]>[0];
 type MediaWorker = Parameters<Parameters<typeof withMediaWorker>[1]>[0];
+
+const restaurantName = "مطعم تجريبي";
+const reviewer = { input: "0660 00 02 97", phone: "+213660000297" };
+
+/** Opens the application as an admin and checks its photo loads from the private route. */
+async function expectAdminSeesPhoto(
+  page: Page,
+  auth: AuthHarness,
+  { merchantId, mediaId }: { merchantId: string; mediaId: string },
+) {
+  await enterAdminQueue(page, auth, reviewer);
+  await page.getByRole("button", { name: restaurantName, exact: true }).click();
+  const details = page.getByRole("region", { name: restaurantName });
+  const photo = details.getByRole("img", {
+    name: fr.adminMerchant.photoAlt.replace("{position}", "1"),
+  });
+  await expect(photo).toBeVisible();
+  const base = `/v1/admin/merchant-applications/${merchantId}/photos/${mediaId}/`;
+  await expect
+    .poll(() =>
+      photo.evaluate((image: HTMLImageElement) => ({
+        isLoaded: image.complete && image.naturalWidth > 0,
+        source: image.currentSrc,
+      })),
+    )
+    .toEqual({
+      isLoaded: true,
+      source: expect.stringMatching(new RegExp(`^${auth.origin}${base}(640|1280)$`)),
+    });
+}
 
 function waitForRequest(page: Page, method: "POST" | "PUT", path: string) {
   return page.waitForResponse(
@@ -32,7 +64,7 @@ async function signInAndFillApplication(
   const commune = await auth.seedAlgiersCommune();
   await page.getByRole("link", { name: ar.auth.continueApplication }).click();
   await expect(page.getByRole("heading", { name: ar.merchant.applicationTitle })).toBeVisible();
-  await page.getByRole("textbox", { name: ar.merchant.restaurantName }).fill("مطعم تجريبي");
+  await page.getByRole("textbox", { name: ar.merchant.restaurantName }).fill(restaurantName);
   await page.getByRole("textbox", { name: ar.merchant.ownerName }).fill("صاحب تجريبي");
   await page
     .getByRole("combobox", { name: ar.merchant.commune })
@@ -78,6 +110,8 @@ async function attachCroppedPhoto(page: Page, { syntheticJpeg }: MediaWorker) {
 
 test("[MER-01:browser] an applicant attaches a private, keyboard-cropped restaurant photo @merchant-application", async ({
   baseURL,
+  browser,
+  ignoreHTTPSErrors,
   page,
 }) => {
   test.setTimeout(90_000);
@@ -94,11 +128,20 @@ test("[MER-01:browser] an applicant attaches a private, keyboard-cropped restaur
       const response = await submitted;
       expect(response.status()).toBe(201);
       expect(response.request().postDataJSON()).toMatchObject({ photoIds: [mediaId] });
-      merchantApplicationOutput.parse(await response.json());
+      const { merchantId } = merchantApplicationOutput.parse(await response.json());
       await expect(page.getByRole("heading", { name: ar.merchant.submittedTitle })).toBeVisible();
 
       const published = await page.request.get(`${auth.origin}/media/${mediaId}/1280.webp`);
       expect(published.status()).toBe(404);
+      const privateVariant = `/v1/admin/merchant-applications/${merchantId}/photos/${mediaId}/640`;
+      expect((await page.request.get(auth.origin + privateVariant)).status()).toBe(403);
+
+      const adminContext = await browser.newContext({ ignoreHTTPSErrors });
+      try {
+        await expectAdminSeesPhoto(await adminContext.newPage(), auth, { merchantId, mediaId });
+      } finally {
+        await adminContext.close();
+      }
     });
   });
 });
