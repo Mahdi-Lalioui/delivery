@@ -191,4 +191,16 @@ The media store has three prefixes. `quarantine/` holds originals, `private/` ho
 `apps/web` adds `thumbhash` `0.1.1`, already pinned for the worker in D-001 (about 2 kB, MIT, no dependencies). The customer menu preview decodes each published photo's ThumbHash to a PNG data URL (allowed by the CSP `img-src data:`) and paints it under the photo, in a separate decorative `<img>` because the CSP forbids inline styles.
 
 - **Alternatives:** a solid average colour from the API (rejected: loses the shape DESIGN §6 asks for); a server-generated placeholder file per photo (rejected: one more stored object and request per item).
-- **Open:** the 180 ms fade-in waits for motion tokens in `packages/tokens` (DESIGN §7 lists no 180 ms duration; resolve it there).
+- **Resolved 2026-11-16:** `packages/tokens` emits `--duration-photo-fade: 180ms` (DESIGN §6) beside the §7 durations, capped at 120 ms under reduced motion. `menu-preview.css` fades the loaded photo with it.
+
+### D-021 — The admin review notice is an SMS sent by the worker, once per admin (2026-11-16)
+
+MER-01 says "the admin is notified" but does not name a channel. Of the NOT-04 adapters, SMS is the only one an admin already has: each admin signs in with a verified phone and a TOTP, and admins have no push subscription. The worker therefore sends the notice through the `SmsSender` interface, using the fake outbox in tests and the console/http-generic adapters elsewhere. A real provider still waits for Mahdi.
+
+The flow has four parts:
+- **Enqueue.** The signup transaction that already inserts `merchant_review_notices` also calls `graphile_worker.add_job('merchant.review_notice', {merchantId}, job_key => 'merchant-review-notice:<merchantId>')`, so the notice is durable and unique per application.
+- **Send.** The job reads the active admins' phones and sends each one SMS through `runJobEffectOnce` with the effect key `<merchantId>:<adminUserId>:sms` (NOT-01: once per event, recipient and channel).
+- **Delivery guarantee.** The send runs inside the effect transaction, so a commit failure after a successful send can repeat one SMS. That is at-least-once. A duplicate admin SMS is harmless; a lost notice delays review.
+- **Text.** French: users store no locale yet, and the admin console starts in French (NOT-02 applies once a locale exists). The SMS carries no applicant data: no restaurant name, owner or phone, only "a new application is waiting" and the `/fr/admin/merchant-applications` path.
+
+- **Alternatives:** sending from the API after commit, like the OTP (rejected: an API crash between commit and send loses the notice, and a retry has no ledger); an in-app unread count only (rejected: does not reach an admin who is not signed in, and is not a notification).
