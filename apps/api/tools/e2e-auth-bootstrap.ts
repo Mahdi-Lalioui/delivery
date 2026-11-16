@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { openDatabase, type DatabaseConnection } from "@zaafran/db/database";
 import { seedGeography } from "@zaafran/db/geography";
 import { migrateDatabase } from "@zaafran/db/migrate";
+import { runMigrations } from "graphile-worker";
 import { createTestClone } from "../../../packages/db/test/clone.ts";
 import { sealTotpSecret } from "../src/auth-totp.ts";
 import type { startApi } from "../src/start.ts";
@@ -122,6 +123,8 @@ export async function startAuthHarness(webOrigin: string): Promise<AuthHarness> 
   const database = openDatabase(clone.url);
   resources.defer(() => database.close());
   await migrateDatabase(database);
+  // Signup enqueues the admin review notice (D-021), so the job schema must exist.
+  await runMigrations({ connectionString: clone.url, schema: "graphile_worker" });
   const mediaRoot = await mkdtemp(join(tmpdir(), "zaafran-e2e-media-"));
   resources.defer(() => rm(mediaRoot, { recursive: true, force: true }));
 

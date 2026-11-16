@@ -137,6 +137,12 @@ async function insertApplication(
     FROM unnest(${[...(input.photoIds ?? [])]}::uuid[]) WITH ORDINALITY AS photo(id, ordinal)
   `;
   await sql`
+    SELECT graphile_worker.add_job(
+      'merchant.review_notice', json_build_object('merchantId', ${merchant.id}::uuid),
+      job_key => ${`merchant-review-notice:${merchant.id}`}
+    )
+  `;
+  await sql`
     INSERT INTO public.merchant_review_notices (merchant_id, created_at)
     VALUES (${merchant.id}, ${createdAt}::timestamptz)
   `;

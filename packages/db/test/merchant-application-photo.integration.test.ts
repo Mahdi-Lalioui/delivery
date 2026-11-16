@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { openDatabase } from "../src/database.ts";
 import { beforeAll, expect, test } from "vitest";
+import { runMigrations } from "graphile-worker";
 import { createMerchantRepository } from "../src/merchant.ts";
 import { registerTestDatabase } from "./database.ts";
 
@@ -20,6 +21,7 @@ function digest(value: string) {
 }
 
 beforeAll(async () => {
+  await runMigrations({ connectionString: database.url(), schema: "graphile_worker" });
   const { sql } = database.get();
   await sql`
     INSERT INTO wilayas (code, name_ar, name_fr)

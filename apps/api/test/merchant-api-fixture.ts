@@ -1,5 +1,6 @@
 import { randomUUIDv7 } from "node:crypto";
-import { onTestFinished } from "vitest";
+import { runMigrations } from "graphile-worker";
+import { beforeAll, onTestFinished } from "vitest";
 import { registerTestDatabase } from "../../../packages/db/test/database.ts";
 import { createSessionToken } from "../src/auth-crypto.ts";
 import { startApi, type StartOptions } from "../src/start.ts";
@@ -8,6 +9,9 @@ const publicOrigin = "https://zaafran.test";
 
 export function registerMerchantApiFixture(now: string) {
   const database = registerTestDatabase();
+  beforeAll(async () => {
+    await runMigrations({ connectionString: database.url(), schema: "graphile_worker" });
+  });
 
   async function openApi(
     clock: () => Date = () => new Date(now),

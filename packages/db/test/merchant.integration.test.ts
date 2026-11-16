@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { runMigrations } from "graphile-worker";
 import { beforeAll, expect, test, vi } from "vitest";
 import { openDatabase } from "../src/database.ts";
 import { createMerchantRepository } from "../src/merchant.ts";
@@ -19,6 +20,7 @@ const westCommune = fixtureId(1);
 const eastCommune = fixtureId(2);
 
 beforeAll(async () => {
+  await runMigrations({ connectionString: database.url(), schema: "graphile_worker" });
   const { sql } = database.get();
   await sql`
     insert into wilayas (code, name_ar, name_fr)
@@ -37,6 +39,19 @@ beforeAll(async () => {
     `;
   }
 });
+
+async function reviewNoticeJobs(merchantId?: string) {
+  const { sql } = database.get();
+  const rows = await sql`
+    SELECT job.key, stored.payload, job.queue_name AS "queueName"
+    FROM graphile_worker.jobs AS job
+    JOIN graphile_worker._private_jobs AS stored USING (id)
+    WHERE job.task_identifier = 'merchant.review_notice'
+      AND (${merchantId ?? null}::text IS NULL OR stored.payload->>'merchantId' = ${merchantId ?? null})
+    ORDER BY job.id
+  `;
+  return [...rows];
+}
 
 function hash(value: string) {
   return createHash("sha256").update(value).digest();
@@ -238,6 +253,7 @@ test("[MER-01:db] a failed notice rolls back the application, membership and rep
   const owner = await account(600);
   const request = submission(600, owner.id);
   const { sql } = database.get();
+  const jobsBefore = await reviewNoticeJobs();
   await sql`
     create function reject_fixture_merchant_notice() returns trigger language plpgsql as $$
     begin
@@ -262,6 +278,7 @@ test("[MER-01:db] a failed notice rolls back the application, membership and rep
     await sql`select id from merchants where restaurant_name = ${request.input.restaurantName}`,
   ).toHaveLength(0);
   expect(await repository().listMemberships({ accountId: owner.id })).toEqual([]);
+  expect(await reviewNoticeJobs()).toEqual(jobsBefore);
   expect(await repository().submitApplication(request)).toMatchObject({ kind: "created" });
 });
 
@@ -552,4 +569,19 @@ test("[ADM-03:db] review locks the user row before waiting on the admin factor r
     await pending?.catch(() => undefined);
     await holder.close();
   }
+});
+
+test("[MER-01:db] signup enqueues one admin review notice job and a replay adds none", async () => {
+  const owner = await account(1_500);
+  const request = submission(1_500, owner.id);
+  const merchantId = await createApplication(request);
+  expect(await repository().submitApplication(request)).toMatchObject({ kind: "replayed" });
+
+  expect(await reviewNoticeJobs(merchantId)).toEqual([
+    {
+      key: `merchant-review-notice:${merchantId}`,
+      payload: { merchantId },
+      queueName: null,
+    },
+  ]);
 });
