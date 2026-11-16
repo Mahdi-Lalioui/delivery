@@ -181,7 +181,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Register a real `design:screens` gate check.
   - [ ] Deliver the MER-01 admin review notice (D-021) so the bare `MER-01` is covered in `pnpm trace --through m2`.
     - [x] Enqueue `merchant.review_notice` in the signup transaction (job key per merchant) and prove it on PostGIS, including the rollback when signup fails.
-    - [ ] Add the worker `SmsSender` port with a fake outbox, and the `merchant.review_notice` task that sends one French, PII-free SMS per active admin through `runJobEffectOnce`. Prove retries and two admins on PostGIS.
+    - [x] Add the worker `SmsSender` port with a fake outbox, and the `merchant.review_notice` task that sends one French, PII-free SMS per active admin through `runJobEffectOnce`. Prove retries and two admins on PostGIS.
     - [ ] Run the task in the authenticated e2e harness and assert the admin SMS in the signup-to-approval journey.
 
 **Gate m2:**

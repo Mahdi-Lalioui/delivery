@@ -10,6 +10,7 @@ import { afterAll, expect, test } from "vitest";
 import { registerTestDatabase } from "../../../packages/db/test/database.ts";
 import { migrateWorker } from "../src/migrate-worker.ts";
 import { createWorkerOptions } from "../src/runtime.ts";
+import { unavailableSmsSender } from "../src/sms.ts";
 
 const database = registerTestDatabase();
 const now = "2026-11-13T06:00:00.000Z";
@@ -59,7 +60,10 @@ test("[MER-14:worker] the queue prepares a photo enqueued by its adoption", asyn
   `;
 
   const media = { store, maxPixels: 1_000_000 };
-  await runOnce({ ...createWorkerOptions(databaseUrl, connection, media), noHandleSignals: true });
+  await runOnce({
+    ...createWorkerOptions(databaseUrl, connection, { media, sms: unavailableSmsSender }),
+    noHandleSignals: true,
+  });
 
   const [prepared] = await connection.sql`
     SELECT status, preview_width AS width, preview_height AS height

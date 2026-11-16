@@ -5,6 +5,7 @@ import { runWorkerCommand } from "./command.js";
 import type { WorkerEnvironment } from "./command.js";
 import { workerLogger } from "./logger.js";
 import { createWorkerOptions } from "./runtime.js";
+import { unavailableSmsSender } from "./sms.js";
 
 async function serveWorker(environment: WorkerEnvironment): Promise<void> {
   const databaseUrl = environment.DATABASE_URL;
@@ -22,7 +23,7 @@ async function serveWorker(environment: WorkerEnvironment): Promise<void> {
 
   try {
     const runner = await run({
-      ...createWorkerOptions(databaseUrl, database, media),
+      ...createWorkerOptions(databaseUrl, database, { media, sms: unavailableSmsSender }),
       noHandleSignals: true,
     });
     runner.events.on("job:failed", ({ job }) => {

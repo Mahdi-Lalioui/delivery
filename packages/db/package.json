@@ -56,6 +56,10 @@
       "types": "./src/merchant.ts",
       "default": "./dist/merchant.js"
     },
+    "./merchant-review-notice": {
+      "types": "./src/merchant-review-notice.ts",
+      "default": "./dist/merchant-review-notice.js"
+    },
     "./merchant-staff": {
       "types": "./src/merchant-staff.ts",
       "default": "./dist/merchant-staff.js"

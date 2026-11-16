@@ -4,6 +4,7 @@ import { run } from "graphile-worker";
 import sharp from "sharp";
 import type { createWorkerOptions } from "../src/runtime.ts";
 import type { migrateWorker } from "../src/migrate-worker.ts";
+import { createFakeSmsOutbox } from "../src/sms.ts";
 
 export interface MediaWorkerOptions {
   readonly databaseUrl: string;
@@ -46,7 +47,10 @@ export async function startMediaWorker({ databaseUrl, storageRoot }: MediaWorker
   const media = { store: createLocalMediaStore({ root: storageRoot }), maxPixels: 50_000_000 };
   try {
     const runner = await run({
-      ...worker.createWorkerOptions(databaseUrl, database, media),
+      ...worker.createWorkerOptions(databaseUrl, database, {
+        media,
+        sms: createFakeSmsOutbox().sender,
+      }),
       noHandleSignals: true,
     });
     return {
