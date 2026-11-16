@@ -97,7 +97,8 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Place the photo uploader in the item form (hook, draft `photoId` on ready, remove).
     - [x] Run the worker's `media.process` task and a temporary media store in the authenticated e2e harness. Prove upload → keyboard crop → save → saved item readback → menu preview photo in the browser, with the design matrix.
     - [x] Render published item photos in the customer preview (AVIF/WebP sources, explicit size, ThumbHash placeholder, D-020).
-    - [ ] Add the 180 ms photo fade-in once motion tokens exist in `packages/tokens` (DESIGN §6/§7, reduced motion).
+    - [x] Add the 180 ms photo fade-in once motion tokens exist in `packages/tokens` (DESIGN §6/§7, reduced motion).
+    - [ ] Prove rejected uploads in the browser: an unsupported type is refused before reservation, and a corrupt JPEG is rejected by the worker with the localized `invalidImage` message and the picker offered again.
     - [x] Add the optional application photo to the merchant application form (migration 0021, owner-only ready photos locked in the signup transaction, `photos_unavailable` 409, form field).
     - [x] Prove the application photo in the browser (`e2e/auth-merchant-application-photo.spec.ts`) and show a localized `photos_unavailable` message.
     - [x] Reset the photo field after a `photos_unavailable` refusal.

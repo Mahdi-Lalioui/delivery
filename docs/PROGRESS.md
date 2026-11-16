@@ -13,6 +13,21 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-16 12:04 GMT — M2-6/MER-14 motion tokens and the 180 ms photo fade-in (Claude, covering while Codex was out)
+
+- **Changed** —
+  - `d488211`: `packages/tokens/src/metrics.json` gains `motion`, emitted by `renderTheme` as `--duration-{instant,fast,base,slow,emphasis,scene-min,scene-max,photo-fade}` and `--ease-{standard,decelerate,accelerate}` (DESIGN §7 plus the §6 180 ms photo fade). A `prefers-reduced-motion: reduce` block caps every duration at 120 ms (`reducedMotionMaxMs`). Springs are left out until the web motion library lands.
+  - `e3829e1`: `apps/web/src/menu-preview/use-photo-fade.ts` hides a photo that is still loading after hydration (`data-photo-state="loading"`), then settles it on load or error. `menu-preview.css` fades the `<picture>` image with `--duration-photo-fade`/`--ease-decelerate`. The server markup stays `settled`, so the photo shows without JavaScript.
+- **Evidence** —
+  - Both token tests failed first (missing declarations, missing reduced-motion block); tokens are now 63/63.
+  - The two `[MER-14]` web tests failed first (missing module, missing `data-photo-state`), then passed, 8/8.
+  - `e2e/auth-menu-item-photo.spec.ts` now reads the computed transition of the loaded photo: `opacity 0.18s`, and `0.12s` under emulated reduced motion. Its first run failed because the page still emulated reduced motion from the matrix, so the helper now sets `no-preference` explicitly. Removing the CSS transition (mutation) failed the journey, and the CSS was restored.
+  - `pnpm test:e2e:auth`: 21/21. `pnpm verify` exited 0 with 1,476 unit and 194 PostGIS integration tests; trace through m1 20/20.
+  - Environment: `pnpm build` failed twice with `ENOTEMPTY … .next/server/app 2` (then `app 3`). These are numbered macOS duplicate folders, probably from iCloud sync of `~/Documents`, inside gitignored build output. Deleting `apps/web/.next` before each build fixed it.
+- **Reviewer** — Self-review against AGENTS §10 found no P0/P1. There are no hard-coded durations; the hook is called before the component's early return.
+- **Next** — The new PLAN sub-bullet under M2-6: prove rejected uploads in the browser. Two checks are needed: a GIF or other unsupported file shows `photoUpload.unsupportedType` with no `POST /v1/media/uploads`, and a corrupt `image/jpeg` is rejected by the worker with `photoUpload.invalidImage` and the picker shown again. Put both in `e2e/auth-menu-item-photo.spec.ts` with `withMediaWorker`. Afterward: the HEIC helper (D-007) and the `@merchant-onboarding` journey.
+- **Needs Mahdi** — None. If the `ENOTEMPTY` build errors keep recurring, consider excluding the repo from iCloud Drive (not a blocker).
+
 ### 2026-11-16 11:57 GMT — M2-6/MER-01 the admin reviewer sees the private application photo (Claude, covering while Codex was out)
 
 - **Changed** — Codex's last two commits (`fc4c98f`, `da1b955`) added the admin-only `GET /v1/admin/merchant-applications/:merchantId/photos/:mediaId/:width` route. Building on Codex's uncommitted queue work:
@@ -1104,5 +1119,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress; M2-8, M2-9 and M2-10 done)
 - Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import (M2-8) is complete, including its production browser journey. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
-- Last green `pnpm verify`: 2026-11-16 11:56 GMT on Docker Desktop with 1,472 unit and 194 PostGIS integration tests. `pnpm test:e2e:auth` passed 21/21 authenticated production journeys at the same tree. `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 36/37 IDs at `b92d62f` (missing `MER-01`).
+- Last green `pnpm verify`: 2026-11-16 12:03 GMT on Docker Desktop with 1,476 unit and 194 PostGIS integration tests. `pnpm test:e2e:auth` passed 21/21 authenticated production journeys at the same tree. `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 36/37 IDs at `b92d62f` (missing `MER-01`).
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
