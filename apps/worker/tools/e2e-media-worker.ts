@@ -39,21 +39,23 @@ async function loadCompiledWorker() {
   return { createWorkerOptions: runtime.createWorkerOptions, migrateWorker: migrate.migrateWorker };
 }
 
-/** Runs the real `media.process` queue against the harness database and media store. */
+/** Runs the real queue (photos, review notices) on the harness database, store and SMS outbox. */
 export async function startMediaWorker({ databaseUrl, storageRoot }: MediaWorkerOptions) {
   const worker = await loadCompiledWorker();
   await worker.migrateWorker(databaseUrl);
   const database = openDatabase(databaseUrl);
   const media = { store: createLocalMediaStore({ root: storageRoot }), maxPixels: 50_000_000 };
+  const outbox = createFakeSmsOutbox();
   try {
     const runner = await run({
       ...worker.createWorkerOptions(databaseUrl, database, {
         media,
-        sms: createFakeSmsOutbox().sender,
+        sms: outbox.sender,
       }),
       noHandleSignals: true,
     });
     return {
+      readSms: outbox.read,
       async close() {
         await runner.stop().finally(() => runner.promise);
         await database.close();

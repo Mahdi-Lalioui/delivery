@@ -31,8 +31,12 @@ export async function enterOtp(
 }
 
 /** Signs a seeded French administrator in with OTP and TOTP and opens the review queue. */
-export async function enterAdminQueue(page: Page, auth: AuthHarness, account: TestAccount) {
-  const totp = await auth.seedAdmin(account.phone);
+export async function enterAdminQueue(
+  page: Page,
+  auth: AuthHarness,
+  account: TestAccount & { readonly totp?: () => string },
+) {
+  const totp = account.totp ?? (await auth.seedAdmin(account.phone));
   await page.goto(auth.origin + "/fr/sign-in?continue=admin-review");
   await expect(page.getByRole("heading", { name: fr.auth.adminTitle })).toBeVisible();
   await enterOtp(page, auth, { account, labels: fr.auth });

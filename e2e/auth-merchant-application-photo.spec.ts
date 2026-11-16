@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { adminMerchantReviewOutput } from "../packages/contracts/src/admin.ts";
 import { mediaOutput } from "../packages/contracts/src/media.ts";
 import {
   merchantApplicationOutput,
@@ -7,21 +8,65 @@ import {
 import ar from "../packages/i18n/src/messages/ar.json" with { type: "json" };
 import fr from "../packages/i18n/src/messages/fr.json" with { type: "json" };
 import { withAuthHarness, withMediaWorker } from "./auth-fixture.ts";
-import { enterAdminQueue } from "./auth-sign-in.ts";
+import { enterAdminQueue, waitForPost } from "./auth-sign-in.ts";
 
 type AuthHarness = Parameters<Parameters<typeof withAuthHarness>[1]>[0];
 type MediaWorker = Parameters<Parameters<typeof withMediaWorker>[1]>[0];
 
 const restaurantName = "مطعم تجريبي";
 const reviewer = { input: "0660 00 02 97", phone: "+213660000297" };
+const applicant = { input: "0550 00 02 95", phone: "+213550000295" };
+const reason = "Commune, identité et photo vérifiées pour cette demande fictive.";
 
-/** Opens the application as an admin and checks its photo loads from the private route. */
+interface ReviewTarget {
+  readonly merchantId: string;
+  readonly mediaId: string;
+}
+
+/** Waits for the worker's single admin SMS (D-021) and returns the path it points to. */
+async function expectReviewNotice(worker: MediaWorker, { merchantId }: ReviewTarget) {
+  await expect.poll(() => worker.readSms().length, { timeout: 15_000 }).toBe(1);
+  const [notice] = worker.readSms();
+  expect(notice).toEqual({
+    phone: reviewer.phone,
+    text: expect.stringMatching(/ \/fr\/admin\/merchant-applications$/),
+  });
+  const text = notice?.text ?? "";
+  for (const secret of [restaurantName, applicant.phone, merchantId]) {
+    expect(text).not.toContain(secret);
+  }
+  return text.slice(text.lastIndexOf(" ") + 1);
+}
+
+/** Follows the SMS path as the notified admin and approves the application. */
+async function approveFromNotice(
+  page: Page,
+  auth: AuthHarness,
+  { target, reviewPath, totp }: { target: ReviewTarget; reviewPath: string; totp: () => string },
+) {
+  await enterAdminQueue(page, auth, { ...reviewer, totp });
+  await page.goto(auth.origin + reviewPath);
+  await expect(page.getByRole("heading", { name: fr.adminMerchant.title })).toBeVisible();
+  const details = await expectAdminSeesPhoto(page, auth, target);
+  await details.getByRole("radio", { name: fr.adminMerchant.approve }).check();
+  await details.getByLabel(fr.adminMerchant.reason, { exact: true }).fill(reason);
+  const review = waitForPost(page, `/v1/admin/merchant-applications/${target.merchantId}/review`);
+  await details.getByRole("button", { name: fr.adminMerchant.confirm }).click();
+  const approval = await review;
+  expect(approval.status()).toBe(200);
+  expect(adminMerchantReviewOutput.parse(await approval.json())).toMatchObject({
+    merchantId: target.merchantId,
+    status: "approved",
+  });
+  await expect(page.getByText(fr.adminMerchant.approved, { exact: true })).toBeVisible();
+}
+
+/** Opens the application in the admin queue and checks its photo loads from the private route. */
 async function expectAdminSeesPhoto(
   page: Page,
   auth: AuthHarness,
-  { merchantId, mediaId }: { merchantId: string; mediaId: string },
+  { merchantId, mediaId }: ReviewTarget,
 ) {
-  await enterAdminQueue(page, auth, reviewer);
   await page.getByRole("button", { name: restaurantName, exact: true }).click();
   const details = page.getByRole("region", { name: restaurantName });
   const photo = details.getByRole("img", {
@@ -40,6 +85,7 @@ async function expectAdminSeesPhoto(
       isLoaded: true,
       source: expect.stringMatching(new RegExp(`^${auth.origin}${base}(640|1280)$`)),
     });
+  return details;
 }
 
 function waitForRequest(page: Page, method: "POST" | "PUT", path: string) {
@@ -108,7 +154,7 @@ async function attachCroppedPhoto(page: Page, { syntheticJpeg }: MediaWorker) {
   return mediaId;
 }
 
-test("[MER-01:browser] an applicant attaches a private, keyboard-cropped restaurant photo @merchant-application", async ({
+test("[MER-01] a photo application reaches the admin by SMS and is approved after private review @merchant-application", async ({
   baseURL,
   browser,
   ignoreHTTPSErrors,
@@ -117,10 +163,9 @@ test("[MER-01:browser] an applicant attaches a private, keyboard-cropped restaur
   test.setTimeout(90_000);
   await withAuthHarness(baseURL, async (auth) => {
     await withMediaWorker(auth, async (worker) => {
-      await signInAndFillApplication(page, auth, {
-        input: "0550 00 02 95",
-        phone: "+213550000295",
-      });
+      // The admin exists before the signup, so the review notice has a recipient.
+      const totp = await auth.seedAdmin(reviewer.phone);
+      await signInAndFillApplication(page, auth, applicant);
       const mediaId = await attachCroppedPhoto(page, worker);
 
       const submitted = waitForRequest(page, "POST", "/v1/merchant-applications");
@@ -136,9 +181,12 @@ test("[MER-01:browser] an applicant attaches a private, keyboard-cropped restaur
       const privateVariant = `/v1/admin/merchant-applications/${merchantId}/photos/${mediaId}/640`;
       expect((await page.request.get(auth.origin + privateVariant)).status()).toBe(403);
 
+      const target = { merchantId, mediaId };
+      const reviewPath = await expectReviewNotice(worker, target);
       const adminContext = await browser.newContext({ ignoreHTTPSErrors });
       try {
-        await expectAdminSeesPhoto(await adminContext.newPage(), auth, { merchantId, mediaId });
+        const adminPage = await adminContext.newPage();
+        await approveFromNotice(adminPage, auth, { target, reviewPath, totp });
       } finally {
         await adminContext.close();
       }

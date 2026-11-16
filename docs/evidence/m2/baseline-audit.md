@@ -17,7 +17,7 @@ The follow-up fixes re-screen approved source text when duplicating an item. The
 
 ## M2 gate work still open
 
-- [ ] **MER-01** Extend the passing signup-to-approved browser journey to cover application photos and admin notice delivery before marking the bare ID covered. Application photos are rejected today, and the review notice has no consumer.
+- [x] **MER-01** Extend the passing signup-to-approved browser journey to cover application photos and admin notice delivery before marking the bare ID covered. Application photos are rejected today, and the review notice has no consumer. Done 2026-11-16: `e2e/auth-merchant-application-photo.spec.ts` `[MER-01]` covers a cropped private photo, the worker SMS to the pre-seeded admin, the admin following its path, the private photo, and approval. `pnpm trace --through m2` reports 37/37.
 - [x] **MER-12** Finish the bounded CSV/XLSX import screen, template, error report and production browser journey. Done 2026-11-13, see [menu import evidence](menu-import.md).
 - [ ] **MER-14** Register and prove the media worker, persisted ready variants, crop workflow and item attachment. The committed intake stops at preparing.
 - [ ] **M2-2** Close the umbrella schema task. Tenant constraints and mixed-role tests exist. Settings and flags and the full media lifecycle are still open.

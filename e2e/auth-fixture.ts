@@ -29,8 +29,14 @@ export async function withAuthHarness(
   }
 }
 
+interface SentSms {
+  readonly phone: string;
+  readonly text: string;
+}
+
 type MediaWorkerTool = {
   startMediaWorker(options: { databaseUrl: string; storageRoot: string }): Promise<{
+    readSms(): readonly SentSms[];
     close(): Promise<void>;
   }>;
   syntheticJpeg: () => Promise<Buffer>;
@@ -53,7 +59,10 @@ const mediaWorkerUrl = new URL("../apps/worker/tools/e2e-media-worker.ts", impor
 /** Runs the compiled media worker on the harness database and store for a photo journey. */
 export async function withMediaWorker(
   harness: AuthHarness,
-  use: (photo: { syntheticJpeg: () => Promise<Buffer> }) => Promise<void>,
+  use: (worker: {
+    syntheticJpeg: () => Promise<Buffer>;
+    readSms: () => readonly SentSms[];
+  }) => Promise<void>,
 ): Promise<void> {
   const tool: unknown = await import(mediaWorkerUrl.href);
   if (!isMediaWorkerTool(tool)) throw new Error("Missing media worker test tool.");
@@ -62,7 +71,7 @@ export async function withMediaWorker(
     storageRoot: harness.mediaRoot,
   });
   try {
-    await use({ syntheticJpeg: tool.syntheticJpeg });
+    await use({ syntheticJpeg: tool.syntheticJpeg, readSms: () => worker.readSms() });
   } finally {
     await worker.close();
   }
