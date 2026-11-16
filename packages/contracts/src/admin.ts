@@ -49,6 +49,8 @@ const queuedApplication = z.strictObject({
   pin: applicationFields.pin,
   cuisines: applicationFields.cuisines,
   rcNumber: applicationFields.rcNumber.unwrap().nullable(),
+  // Private photos in submission order; read each through the admin photo route.
+  photoIds: applicationFields.photoIds.unwrap(),
   submittedAt: z.iso.datetime(),
 });
 

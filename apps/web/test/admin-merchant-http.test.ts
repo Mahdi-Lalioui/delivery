@@ -21,6 +21,7 @@ const application = {
   pin: { latitude: 36.75, longitude: 3 },
   cuisines: ["algerian"],
   rcNumber: null,
+  photoIds: [],
   submittedAt,
 };
 

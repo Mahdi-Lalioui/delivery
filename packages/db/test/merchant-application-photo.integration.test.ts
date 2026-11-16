@@ -215,3 +215,21 @@ test("[MER-01:db] an admin cannot read a photo through another merchant's applic
   expect(await read(other.merchantId, photo)).toBeUndefined();
   expect(await read(created.merchantId, loose)).toBeUndefined();
 });
+
+test("[MER-01:db] the admin queue lists each application's photos in order", async () => {
+  const owner = await account();
+  const reviewer = await admin();
+  const first = await insertPhoto({ owner });
+  const second = await insertPhoto({ owner });
+  const repo = createMerchantRepository(database.get());
+  const withPhotos = await repo.submitApplication(submission(owner, [second, first]));
+  const without = await repo.submitApplication(submission(await account(), []));
+  if (!("merchantId" in withPhotos) || !("merchantId" in without))
+    throw new Error("Expected two fixture merchants");
+
+  const page = await repo.listPendingApplications({ adminUserId: reviewer, limit: 100 });
+  const photosOf = (merchantId: string) =>
+    page?.applications.find((application) => application.merchantId === merchantId)?.photoIds;
+  expect(photosOf(withPhotos.merchantId)).toEqual([second, first]);
+  expect(photosOf(without.merchantId)).toEqual([]);
+});

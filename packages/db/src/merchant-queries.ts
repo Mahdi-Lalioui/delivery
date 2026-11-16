@@ -83,6 +83,7 @@ interface PendingApplication {
   readonly pin: { latitude: number; longitude: number };
   readonly cuisines: string[];
   readonly rcNumber: string | null;
+  readonly photoIds: string[];
   readonly submittedAt: Date;
 }
 
@@ -95,6 +96,8 @@ export async function listPendingApplications(
     SELECT merchant.id AS "merchantId", restaurant_name AS "restaurantName",
       owner_name AS "ownerName", phone_e164 AS "phoneE164", cuisines, rc_number AS "rcNumber",
       created_at AS "submittedAt",
+      ARRAY(SELECT media_id FROM public.merchant_application_photos AS photo
+        WHERE photo.merchant_id = merchant.id ORDER BY position) AS "photoIds",
       jsonb_build_object('id', commune.id, 'nameAr', commune.name_ar, 'nameFr', commune.name_fr) AS commune,
       jsonb_build_object('latitude', ST_Y(location::geometry), 'longitude', ST_X(location::geometry)) AS pin
     FROM public.merchants AS merchant JOIN public.communes AS commune ON commune.id = merchant.commune_id

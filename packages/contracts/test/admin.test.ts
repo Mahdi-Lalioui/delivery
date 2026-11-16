@@ -84,6 +84,7 @@ test("[ADM-03:contract] exposes pending applications without account secrets", (
     pin: { latitude: 36.75, longitude: 3.06 },
     cuisines: ["algerian"],
     rcNumber: null,
+    photoIds: [],
     submittedAt: reviewedAt,
   };
   const payload = { sessionId: merchantId, applications: [application], nextCursor: null };
@@ -97,4 +98,31 @@ test("[ADM-03:contract] exposes pending applications without account secrets", (
       applications: [{ ...application, sessionToken: "fixture" }],
     }).success,
   ).toBe(false);
+});
+
+test("[MER-01:contract] lists up to five ordered application photo ids for the reviewer", () => {
+  const photoId = (n: number) => `01932f18-3150-7c33-8a7a-53acfd34300${String(n)}`;
+  const application = {
+    merchantId,
+    restaurantName: "Table fictive",
+    ownerName: "Test propriétaire",
+    phoneE164: "+213500000001",
+    commune: { id: merchantId, nameAr: "بلدية تجريبية", nameFr: "Commune de test" },
+    pin: { latitude: 36.75, longitude: 3.06 },
+    cuisines: ["algerian"],
+    rcNumber: null,
+    photoIds: [photoId(2), photoId(1)],
+    submittedAt: reviewedAt,
+  };
+  const page = (photoIds: unknown) => ({
+    sessionId: merchantId,
+    applications: [{ ...application, photoIds }],
+    nextCursor: null,
+  });
+  expect(adminReviewQueueOutput.parse(page(application.photoIds))).toEqual(
+    page(application.photoIds),
+  );
+  const six = [1, 2, 3, 4, 5, 6].map(photoId);
+  for (const invalid of [undefined, ["not-a-uuid"], six])
+    expect(adminReviewQueueOutput.safeParse(page(invalid)).success).toBe(false);
 });

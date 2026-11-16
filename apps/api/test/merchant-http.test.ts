@@ -335,6 +335,7 @@ test("[ADM-03:http] the admin queue decodes a compound keyset cursor and returns
         pin: application.pin,
         cuisines: application.cuisines,
         rcNumber: application.rcNumber,
+        photoIds: [],
         submittedAt,
       },
     ],

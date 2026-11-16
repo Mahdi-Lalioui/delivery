@@ -130,6 +130,7 @@ test("[MER-01:http] [ADM-03:http] submits, scopes and reviews a merchant on the 
       pin: application.pin,
       cuisines: application.cuisines,
       rcNumber: application.rcNumber,
+      photoIds: [],
       submittedAt: now,
     },
   ]);
