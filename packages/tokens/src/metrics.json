@@ -111,5 +111,23 @@
   "widePage": {
     "minWidth": "400px",
     "padding": "var(--space-20)"
+  },
+  "motion": {
+    "duration": {
+      "instant": "80ms",
+      "fast": "140ms",
+      "base": "220ms",
+      "slow": "320ms",
+      "emphasis": "480ms",
+      "scene-min": "900ms",
+      "scene-max": "1400ms",
+      "photo-fade": "180ms"
+    },
+    "ease": {
+      "standard": "cubic-bezier(0.2, 0, 0, 1)",
+      "decelerate": "cubic-bezier(0.05, 0.7, 0.1, 1)",
+      "accelerate": "cubic-bezier(0.3, 0, 0.8, 0.15)"
+    },
+    "reducedMotionMaxMs": 120
   }
 }

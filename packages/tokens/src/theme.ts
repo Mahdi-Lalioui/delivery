@@ -22,6 +22,15 @@ function arabicTypography(): string[] {
   return [...declarations("", properties), ...sizes, ...lineHeights];
 }
 
+/** DESIGN §7: under reduced motion, every transition becomes a fade of at most 120 ms. */
+function reducedMotionDurations(): string[] {
+  const { duration, reducedMotionMaxMs } = metrics.motion;
+  return Object.entries(duration).map(([name, value]) => {
+    const cappedMs = Math.min(Number.parseFloat(value), reducedMotionMaxMs);
+    return `--duration-${name}: ${String(cappedMs)}ms;`;
+  });
+}
+
 export function renderTheme(): string {
   const light = [
     "color-scheme: light;",
@@ -30,6 +39,8 @@ export function renderTheme(): string {
       declarations(`${group}-`, tokens),
     ),
     ...declarations("", metrics.common),
+    ...declarations("duration-", metrics.motion.duration),
+    ...declarations("ease-", metrics.motion.ease),
     ...declarations("", metrics.elevation.light),
   ];
   const dark = [
@@ -45,6 +56,7 @@ export function renderTheme(): string {
     ),
     block(':root[data-theme="dark"]', dark),
     block(":root:lang(ar)", arabicTypography()),
+    block("@media (prefers-reduced-motion: reduce)", block(":root", reducedMotionDurations())),
     block(
       `@media (min-width: ${metrics.widePage.minWidth})`,
       block(":root", [`--page-padding: ${metrics.widePage.padding};`]),
