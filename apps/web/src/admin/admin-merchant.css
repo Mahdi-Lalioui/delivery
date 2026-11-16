@@ -204,3 +204,18 @@
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
+
+.admin-merchant-photos {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.admin-merchant-photos img {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
+  object-fit: cover;
+}

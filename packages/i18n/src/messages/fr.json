@@ -202,6 +202,8 @@
     "cuisines": "Types de cuisine",
     "registration": "Numéro du registre du commerce",
     "notProvided": "Non renseigné",
+    "photos": "Photos de l’établissement",
+    "photoAlt": "Photo {position} jointe à la demande",
     "review": "Décision",
     "approve": "Approuver",
     "reject": "Refuser",

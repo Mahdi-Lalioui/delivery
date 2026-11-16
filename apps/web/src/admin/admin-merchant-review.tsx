@@ -1,6 +1,7 @@
 import { formatAlgerianPhone } from "@zaafran/i18n/phone";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
+import { AdminApplicationPhotos } from "./admin-application-photos";
 import type {
   AdminApplication,
   ReviewDecision,
@@ -81,6 +82,15 @@ function ApplicationDetails({
         <dt>{translate("registration")}</dt>
         <dd>
           <bdi>{application.rcNumber ?? translate("notProvided")}</bdi>
+        </dd>
+      </div>
+      <div>
+        <dt>{translate("photos")}</dt>
+        <dd>
+          <AdminApplicationPhotos
+            merchantId={application.merchantId}
+            photoIds={application.photoIds}
+          />
         </dd>
       </div>
     </dl>

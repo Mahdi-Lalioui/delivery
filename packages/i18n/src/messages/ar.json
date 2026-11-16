@@ -202,6 +202,8 @@
     "cuisines": "أنواع المأكولات",
     "registration": "رقم السجل التجاري",
     "notProvided": "غير مدوّن",
+    "photos": "صور المطعم",
+    "photoAlt": "الصورة {position} المرفقة بالطلب",
     "review": "قرار المراجعة",
     "approve": "قبول",
     "reject": "رفض",

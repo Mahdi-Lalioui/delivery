@@ -202,6 +202,8 @@
     "cuisines": "Cuisines",
     "registration": "Registration number",
     "notProvided": "Not provided",
+    "photos": "Restaurant photos",
+    "photoAlt": "Application photo {position}",
     "review": "Review decision",
     "approve": "Approve",
     "reject": "Reject",

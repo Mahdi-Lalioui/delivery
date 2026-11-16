@@ -24,6 +24,7 @@ const application: AdminApplication = {
   pin: { latitude: 36.75, longitude: 3 },
   cuisines: ["algerian", "fried-chicken", "test-unknown"],
   rcNumber: null,
+  photoIds: [],
   submittedAt: "2026-11-07T12:00:00.000Z",
 };
 
@@ -150,4 +151,31 @@ test("[ADM-03:web] announces a completed decision when the review queue becomes 
   expect(html).toContain('role="status"');
   expect(html).toContain(adminMerchant.approved);
   expect(html).toContain(adminMerchant.empty);
+});
+
+test("[MER-01:web] shows each application photo through the private admin variant route", () => {
+  const photoIds = ["019d6abc-1234-7234-8234-123456789a01", "019d6abc-1234-7234-8234-123456789a02"];
+  const html = render({ view: ready, application: { ...application, photoIds } });
+  const { adminMerchant } = getMessages("fr");
+  const base = "/v1/admin/merchant-applications/" + application.merchantId + "/photos/";
+
+  expect(html).toContain(adminMerchant.photos);
+  photoIds.forEach((photoId, index) => {
+    const alt = adminMerchant.photoAlt.replace("{position}", String(index + 1));
+    const image = new RegExp(
+      `<img(?=[^>]*src="${base}${photoId}/640")(?=[^>]*srcSet="${base}${photoId}/640 640w, ` +
+        `${base}${photoId}/1280 1280w")(?=[^>]*alt="${alt}")(?=[^>]*width="640")` +
+        `(?=[^>]*height="360")(?=[^>]*loading="lazy")`,
+    );
+    expect(html).toMatch(image);
+  });
+  expect(html).not.toContain("/media/");
+});
+
+test("[MER-01:web] says no photo was provided when the application has none", () => {
+  const html = render({ view: ready, application });
+  const { adminMerchant } = getMessages("fr");
+
+  expect(html).toContain(adminMerchant.photos);
+  expect(html).not.toContain("<img");
 });
