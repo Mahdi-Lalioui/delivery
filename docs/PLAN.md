@@ -174,10 +174,10 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Expose sent invitation tokens in the e2e auth harness and add the typed web client (`apps/web/src/merchant-staff/staff-http.ts`).
     - [x] Add the owner staff page, the accept page, ar/fr/en messages and `e2e/auth-merchant-staff.spec.ts` with the design matrix.
 - [ ] M2-12 Seed twelve fictional bilingual Algiers restaurants with synthetic imagery and `is_demo`, then run production-built onboarding, the complete route matrix, and the design critic's theme/locale/viewport checks. Record local and PR evidence.
-  - [ ] Wire the authenticated onboarding tag, complete the dedicated authorization matrix, and register the design screen gate check. See `docs/evidence/m2/baseline-audit.md`.
+  - [x] Wire the authenticated onboarding tag, complete the dedicated authorization matrix, and register the design screen gate check. See `docs/evidence/m2/baseline-audit.md`.
     - [x] Run every API route suite in `pnpm test:authz`, guarded by a tooling test.
     - [x] Route the gate's `e2e:@merchant-onboarding` check to the authenticated Playwright config.
-    - [ ] Write the tagged `@merchant-onboarding` journey once photos (M2-6) and the customer preview (M2-10) exist.
+    - [x] Write the tagged `@merchant-onboarding` journey once photos (M2-6) and the customer preview (M2-10) exist.
     - [x] Register a real `design:screens` gate check.
   - [x] Deliver the MER-01 admin review notice (D-021) so the bare `MER-01` is covered in `pnpm trace --through m2`.
     - [x] Enqueue `merchant.review_notice` in the signup transaction (job key per merchant) and prove it on PostGIS, including the rollback when signup fails.
