@@ -1,5 +1,6 @@
 import { thumbHashToDataURL } from "thumbhash";
 import type { MenuPreview } from "../menu-preview-http";
+import { usePhotoFade } from "../use-photo-fade";
 
 type PublishedPhoto = NonNullable<MenuPreview["categories"][number]["items"][number]["photo"]>;
 type Variant = PublishedPhoto["variants"][number];
@@ -33,10 +34,11 @@ export function MenuPreviewPhoto({ photo }: { photo: PublishedPhoto }) {
   const webp = photo.variants.filter(({ format }) => format === "webp");
   const fallback = webp.find(({ width }) => width === fallbackWidth) ?? largest(webp);
   const size = largest(webp);
+  const fade = usePhotoFade();
   if (!fallback || !size) return null;
   // The ThumbHash paints under the photo until it loads (DESIGN §6); both are decorative.
   return (
-    <div className="menu-preview-photo">
+    <div className="menu-preview-photo" data-photo-state={fade.state}>
       <img
         className="menu-preview-placeholder"
         src={placeholderUrl(photo.thumbhash)}
@@ -55,6 +57,9 @@ export function MenuPreviewPhoto({ photo }: { photo: PublishedPhoto }) {
           alt=""
           loading="lazy"
           decoding="async"
+          ref={fade.imageRef}
+          onLoad={fade.onLoad}
+          onError={fade.onError}
         />
       </picture>
     </div>

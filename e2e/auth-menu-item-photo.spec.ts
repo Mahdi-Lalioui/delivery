@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { randomUUID } from "node:crypto";
-import { expect, test, type Page, type TestInfo } from "@playwright/test";
+import { expect, test, type Locator, type Page, type TestInfo } from "@playwright/test";
 import type { AuthHarness } from "../apps/api/tools/e2e-auth-types.ts";
 import { mediaCropInput, mediaOutput } from "../packages/contracts/src/media.ts";
 import {
@@ -50,6 +50,24 @@ async function expectPreviewPhoto(page: Page, locale: "ar" | "fr", mediaId: stri
   expect(new URL(source).pathname).toMatch(
     new RegExp(`^/media/${mediaId}/(?:160|320|640|960|1280)\\.(?:avif|webp)$`),
   );
+  await expectPhotoFade(page, photo);
+}
+
+/** DESIGN §6/§7: the loaded photo fades in over 180 ms, or 120 ms under reduced motion. */
+async function expectPhotoFade(page: Page, photo: Locator) {
+  const fade = () =>
+    photo.evaluate((image: HTMLImageElement) => {
+      const style = getComputedStyle(image);
+      return {
+        opacity: style.opacity,
+        property: style.transitionProperty,
+        duration: style.transitionDuration,
+      };
+    });
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await expect.poll(fade).toEqual({ opacity: "1", property: "opacity", duration: "0.18s" });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect.poll(fade).toEqual({ opacity: "1", property: "opacity", duration: "0.12s" });
 }
 
 async function signInOwner(page: Page, auth: AuthHarness) {

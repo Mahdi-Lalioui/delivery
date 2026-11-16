@@ -73,6 +73,15 @@
   object-fit: cover;
 }
 
+/* DESIGN §6: the photo fades in over its ThumbHash; tokens shorten it under reduced motion. */
+.menu-preview-photo picture img {
+  transition: opacity var(--duration-photo-fade) var(--ease-decelerate);
+}
+
+.menu-preview-photo[data-photo-state="loading"] picture img {
+  opacity: 0;
+}
+
 .menu-preview-summary {
   display: flex;
   flex-wrap: wrap;

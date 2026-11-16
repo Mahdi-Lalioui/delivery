@@ -139,3 +139,9 @@ test("[MER-14] renders no image for an item without a published photo", () => {
   expect(render("fr")).not.toContain("<img");
   expect(render("fr")).not.toContain("<picture");
 });
+
+test("[MER-14] server-renders the photo visible so it shows without JavaScript", () => {
+  const html = render("fr", withPhoto());
+
+  expect(html).toContain('<div class="menu-preview-photo" data-photo-state="settled">');
+});
