@@ -13,6 +13,28 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-16 17:26 GMT — M2-12/MER-01 worker review notice SMS (Claude, covering while Codex was out)
+
+- **Changed** — `be560e1`:
+  - `apps/worker/src/sms.ts`: the `SmsSender` port (NOT-04), `createFakeSmsOutbox()` and `unavailableSmsSender`. The production worker uses `unavailableSmsSender` until Mahdi picks a provider.
+  - `packages/db/src/merchant-review-notice.ts` (export `@zaafran/db/merchant-review-notice`): lists admins whose accounts are not blocked or deleted, ordered by id.
+  - `apps/worker/src/review-notice.ts`: the `merchant.review_notice` task (strict `{merchantId: uuid}` payload). It sends the French, PII-free text `Nouvelle demande de restaurant à examiner : /fr/admin/merchant-applications` to each admin through `runJobEffectOnce`, with effect key `<merchantId>:<adminUserId>:sms`.
+  - `createWorkerOptions(url, database, { media, sms })` replaces the media positional parameter. Callers updated: worker entry, queue tests and the e2e media worker (fake outbox).
+  - D-021 records why the text lives in the worker for now. PLAN: second D-021 sub-bullet ticked.
+- **Evidence** —
+  - `apps/worker/test/review-notice.integration.test.ts` first failed on the missing `../src/sms.ts` module. Now 3/3 pass:
+    - a real signup run through `runOnce` sends exactly one message to each of the two active admins and none to the blocked admin;
+    - a duplicate job sends nothing;
+    - the text carries no restaurant name, owner name, owner phone or merchant id;
+    - a send failure for the second admin, followed by a retry, sends each admin exactly once;
+    - an invalid payload is rejected.
+  - Mutation: an effect key without the admin id failed 2/3; restored.
+  - `pnpm verify` first failed in Knip on the unused `SmsMessage` export. After that was fixed, it exited 0: 1,476 unit tests, 198 PostGIS integration tests, trace through m1 20/20.
+  - `pnpm test:e2e:auth e2e/auth-merchant-application-photo.spec.ts e2e/auth-menu-item-photo.spec.ts`: 4/4.
+- **Reviewer** — Self-review against AGENTS §10 found no P0/P1. Delivery is at-least-once only when the commit fails after a send, as D-021 accepts.
+- **Next** — The last D-021 sub-bullet: run the `merchant.review_notice` task in the authenticated e2e harness. Then assert the admin SMS in the signup-to-approval journey (`e2e/auth-merchant.spec.ts`), which would cover bare `MER-01` in `pnpm trace --through m2`. A likely route: let `startMediaWorker` (or a new e2e worker helper) return the fake outbox's `read()`, then make the harness admin's phone receive the notice text.
+- **Needs Mahdi** — None. A real SMS provider is still needed before production (the API's OTP SMS also waits on it).
+
 ### 2026-11-16 17:21 GMT — M2-12/MER-01 enqueue the admin review notice (Claude, covering while Codex was out)
 
 - **Changed** — `464a467`:
@@ -1161,5 +1183,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress; M2-8, M2-9 and M2-10 done)
 - Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import (M2-8) is complete, including its production browser journey. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
-- Last green `pnpm verify`: 2026-11-16 17:20 GMT on Docker Desktop with 1,476 unit and 195 PostGIS integration tests. `pnpm test:e2e:auth` passed 22/22 authenticated production journeys at the same tree. `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 36/37 IDs at `b92d62f` (missing `MER-01`).
+- Last green `pnpm verify`: 2026-11-16 17:25 GMT on Docker Desktop with 1,476 unit and 198 PostGIS integration tests. `pnpm test:e2e:auth` passed 22/22 authenticated production journeys at the same tree. `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 36/37 IDs at `b92d62f` (missing `MER-01`).
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
