@@ -90,7 +90,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Persist the post-adoption states (`processing`, `awaiting_crop`, `ready`, `rejected`) with preview and variant storage keys, thumbhash and rejection reason, in a forward migration that extends `media_upload_adoption_check`.
     - [x] Register the `media.process` task (prepare → awaiting_crop; publish → ready) with the media store and the decoded-pixel bound in config. Publish only after every variant is stored, and prove that retries recover after a worker interruption on PostGIS.
     - [ ] Decode HEVC HEIC through the bounded libheif 1.23.7/libde265 1.1.3 helper in the pinned Linux image (D-007), and run the real fixture on the amd64 CI runner.
-  - [ ] Connect optional application photos and item photos to the localized cropper. Verify valid and rejected uploads, keyboard crop, private previews, saved item readback and the design matrix.
+  - [x] Connect optional application photos and item photos to the localized cropper. Verify valid and rejected uploads, keyboard crop, private previews, saved item readback and the design matrix.
     - [x] Stream the private crop preview (`GET /v1/media/:mediaId/preview`, owner/manager only, `no-store`) from the media store while the photo is `awaiting_crop`, with a matrix row, OpenAPI and PostGIS proof.
     - [x] Attach a `ready` item photo of the same restaurant to a menu item (forward migration, menu item contract field, tenant-scoped check in SQL). Return its variants and ThumbHash in the menu preview.
     - [x] Add the typed web client (reserve → PUT content → poll status → PUT crop → poll ready) and the localized keyboard cropper over the private preview.
@@ -98,7 +98,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Run the worker's `media.process` task and a temporary media store in the authenticated e2e harness. Prove upload → keyboard crop → save → saved item readback → menu preview photo in the browser, with the design matrix.
     - [x] Render published item photos in the customer preview (AVIF/WebP sources, explicit size, ThumbHash placeholder, D-020).
     - [x] Add the 180 ms photo fade-in once motion tokens exist in `packages/tokens` (DESIGN §6/§7, reduced motion).
-    - [ ] Prove rejected uploads in the browser: an unsupported type is refused before reservation, and a corrupt JPEG is rejected by the worker with the localized `invalidImage` message and the picker offered again.
+    - [x] Prove rejected uploads in the browser: an unsupported type is refused before reservation, and a corrupt JPEG is rejected by the worker with the localized `invalidImage` message and the picker offered again.
     - [x] Add the optional application photo to the merchant application form (migration 0021, owner-only ready photos locked in the signup transaction, `photos_unavailable` 409, form field).
     - [x] Prove the application photo in the browser (`e2e/auth-merchant-application-photo.spec.ts`) and show a localized `photos_unavailable` message.
     - [x] Reset the photo field after a `photos_unavailable` refusal.

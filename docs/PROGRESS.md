@@ -13,6 +13,18 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-16 12:07 GMT — M2-6/MER-14 rejected photo uploads in the browser (Claude, covering while Codex was out)
+
+- **Changed** — `156a67a`: a second journey in `e2e/auth-menu-item-photo.spec.ts` (`@menu-photos`, with the media worker):
+  - Choosing a GIF in the item form shows the `photoUpload.unsupportedType` alert, and no `/v1/media/uploads` request is made.
+  - A corrupt `image/jpeg` (JPEG magic followed by zeros) is reserved (201), then rejected by the worker. The form shows `photoUpload.invalidImage`, keeps the picker and never shows the ready state.
+
+  PLAN M2-6: the rejected-upload sub-bullet is ticked. Its parent ("Connect optional application photos and item photos to the localized cropper…") is also ticked, because every child is now proven.
+- **Evidence** — The journey was written after the feature, so it was checked by mutation. Mapping `invalid_image` to the generic `error` message in `photo-uploader.tsx` failed it at the corrupt-JPEG step. The mutation was restored. `pnpm test:e2e:auth`: 22/22. `pnpm verify` exited 0 with 1,476 unit and 194 PostGIS integration tests; trace through m1 20/20.
+- **Reviewer** — Self-review against AGENTS §10 found no P0/P1. The change is test-only, and the fixture bytes are synthetic.
+- **Next** — The remaining open M2-6 items are both outside this machine: the bounded libheif/libde265 HEIC helper in the pinned Linux image, and the real fixture on the amd64 CI runner (D-007, `apps/worker/src/media-process.ts:51`). After those comes the M2-12 `@merchant-onboarding` gate journey (signup → admin approve → 10-item menu with options and photos → bulk price → CSV import → preview). The helpers `e2e/auth-sign-in.ts` (`enterAdminQueue`), `auth-menu-item-photo.spec.ts` and `auth-merchant.spec.ts` can be reused for it.
+- **Needs Mahdi** — None.
+
 ### 2026-11-16 12:04 GMT — M2-6/MER-14 motion tokens and the 180 ms photo fade-in (Claude, covering while Codex was out)
 
 - **Changed** —
@@ -1119,5 +1131,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress; M2-8, M2-9 and M2-10 done)
 - Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import (M2-8) is complete, including its production browser journey. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
-- Last green `pnpm verify`: 2026-11-16 12:03 GMT on Docker Desktop with 1,476 unit and 194 PostGIS integration tests. `pnpm test:e2e:auth` passed 21/21 authenticated production journeys at the same tree. `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 36/37 IDs at `b92d62f` (missing `MER-01`).
+- Last green `pnpm verify`: 2026-11-16 12:06 GMT on Docker Desktop with 1,476 unit and 194 PostGIS integration tests. `pnpm test:e2e:auth` passed 22/22 authenticated production journeys at the same tree. `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 36/37 IDs at `b92d62f` (missing `MER-01`).
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
