@@ -13,6 +13,26 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-16 18:06 GMT — M2-12 the `@merchant-onboarding` gate journey (Claude, covering while Codex was out)
+
+- **Changed** — `a8f2d80`: the new `e2e/auth-merchant-onboarding.spec.ts` (`[MER-01:onboarding] … @merchant-onboarding`) runs the whole gate m2 journey on the production build:
+  - the admin is seeded, then the applicant signs up in French and submits;
+  - the worker sends exactly one review SMS, and the admin follows its path in a separate browser context and approves (200, `approved`);
+  - the owner's session creates the category, a shared option group and eight dishes that use it. The menu API refuses merchants that are not approved, so this only works after the approval;
+  - a ninth dish is added in the item editor with a keyboard-cropped photo processed by the worker;
+  - the bulk price panel raises the whole category by 10 % (rounded to 10 DA), giving `[440 … 1 210, 500]`;
+  - a CSV import adds the tenth dish;
+  - readback: 10 items, eight with the option group, and the photo on the ninth. The French customer preview shows all ten at their new prices, with the photo loaded from `/media/<id>/`.
+  - PLAN: the "write the tagged journey" sub-bullet and its parent "wire the authenticated onboarding tag" are ticked. `baseline-audit.md` notes that the 768px and pseudo-locale evidence is still open.
+- **Evidence** —
+  - The journey was written after the features, so it was checked by mutation. Removing `'approved'` from the merchant status filter in `packages/db/src/menu-access.ts` failed it (ZodError on the menu read). The file was restored and matches HEAD.
+  - The first run failed because bulk apply returns 201, not 200. After that fix: 1/1 passed (7.8 s).
+  - `pnpm verify` exited 0: 1,476 unit tests, 198 PostGIS integration tests.
+  - `pnpm test:e2e:auth --grep @merchant-onboarding` (the gate's selection): 1/1 passed (8.4 s).
+- **Reviewer** — Self-review against AGENTS §10 found no P0/P1. The change is test-only; the file is 288 lines.
+- **Next** — The rest of M2-12: seed twelve fictional, bilingual Algiers restaurants marked `is_demo` with synthetic placeholder imagery (`pnpm db:seed`, never in production). Check whether `merchants.is_demo` exists first; if not, add a forward migration. Then run `pnpm gate m2` and record the evidence in `docs/evidence/m2/`. Separately, the HEIC helper (D-007) still needs the Linux image or amd64 CI.
+- **Needs Mahdi** — None.
+
 ### 2026-11-16 17:30 GMT — M2-12/MER-01 admin notice in the browser journey; bare MER-01 covered (Claude, covering while Codex was out)
 
 - **Changed** — `8b45fdd`:
@@ -1200,7 +1220,7 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ## Current status
 
-- Milestone: M1 (last passing gate, M2 in progress; M2-8, M2-9 and M2-10 done)
+- Milestone: M1 (last passing gate, M2 in progress; M2-8, M2-9 and M2-10 done; the `@merchant-onboarding` gate journey passes at `a8f2d80`)
 - Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import (M2-8) is complete, including its production browser journey. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
 - Last green `pnpm verify`: 2026-11-16 17:30 GMT on Docker Desktop with 1,476 unit and 198 PostGIS integration tests. `pnpm test:e2e:auth` passed 22/22 authenticated production journeys at the same tree. `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 37/37 IDs at `8b45fdd`.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
