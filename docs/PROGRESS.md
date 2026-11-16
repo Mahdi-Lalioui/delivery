@@ -13,6 +13,25 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-16 17:30 GMT — M2-12/MER-01 admin notice in the browser journey; bare MER-01 covered (Claude, covering while Codex was out)
+
+- **Changed** — `8b45fdd`:
+  - `apps/worker/tools/e2e-media-worker.ts` keeps one fake SMS outbox per worker and returns `readSms`. `withMediaWorker` (`e2e/auth-fixture.ts`) passes it to the journey.
+  - `e2e/auth-sign-in.ts` `enterAdminQueue` accepts an already-seeded admin through `account.totp`, so the admin can exist before the signup.
+  - The first journey in `e2e/auth-merchant-application-photo.spec.ts` is now `[MER-01] a photo application reaches the admin by SMS and is approved after private review`:
+    - seed the admin, then the applicant signs up with a keyboard-cropped photo;
+    - the worker sends exactly one SMS, to the admin's phone, ending in `/fr/admin/merchant-applications`, with no restaurant name, applicant phone or merchant id;
+    - the admin signs in, opens that path, sees the private photo and approves (200, `approved`).
+  - PLAN: the D-021 bullet and its three sub-bullets are ticked. `docs/evidence/m2/baseline-audit.md`: MER-01 is ticked.
+- **Evidence** —
+  - The journey was written after the feature, so it was checked by mutation. Skipping the first recipient in `review-notice.ts` failed it at the SMS poll; the file was restored and matches HEAD.
+  - `pnpm trace --through m2`: 37/37 (was 36/37).
+  - `pnpm verify` first failed ESLint `unbound-method` on `readSms: worker.readSms`; it is now wrapped in an arrow function. `pnpm verify` then exited 0: 1,476 unit tests, 198 PostGIS integration tests.
+  - `pnpm test:e2e:auth`: 22/22 before the lint fix. After it, the photo, merchant and admin moderation specs passed 6/6.
+- **Reviewer** — Self-review against AGENTS §10 found no P0/P1. The change is test-only, apart from the backward-compatible test helper.
+- **Next** — The M2-12 `@merchant-onboarding` gate journey: signup → admin approve → a 10-item menu with options and photos → bulk price change → CSV import → shown correctly in the preview. Reuse `signInAndFillApplication`/`approveFromNotice` patterns (`e2e/auth-merchant-application-photo.spec.ts`), `withMediaWorker`, and the menu specs. Separately, the HEIC helper (D-007) still needs the Linux image or amd64 CI.
+- **Needs Mahdi** — None.
+
 ### 2026-11-16 17:26 GMT — M2-12/MER-01 worker review notice SMS (Claude, covering while Codex was out)
 
 - **Changed** — `be560e1`:
@@ -1183,5 +1202,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress; M2-8, M2-9 and M2-10 done)
 - Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import (M2-8) is complete, including its production browser journey. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
-- Last green `pnpm verify`: 2026-11-16 17:25 GMT on Docker Desktop with 1,476 unit and 198 PostGIS integration tests. `pnpm test:e2e:auth` passed 22/22 authenticated production journeys at the same tree. `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 36/37 IDs at `b92d62f` (missing `MER-01`).
+- Last green `pnpm verify`: 2026-11-16 17:30 GMT on Docker Desktop with 1,476 unit and 198 PostGIS integration tests. `pnpm test:e2e:auth` passed 22/22 authenticated production journeys at the same tree. `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 37/37 IDs at `8b45fdd`.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
