@@ -129,7 +129,7 @@ async function cropWithKeyboard(page: Page, mediaId: string) {
   expect(crop.zoomPercent).toBeGreaterThan(100);
 }
 
-test("[MER-14:browser] an owner uploads, crops by keyboard and saves an item photo @menu-photos", async ({
+test("[MER-14:browser] an owner uploads, crops by keyboard and saves an item photo @menu-photos @design-screens", async ({
   baseURL,
   page,
 }, info) => {

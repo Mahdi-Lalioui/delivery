@@ -148,7 +148,7 @@ async function checkMatrix(page: Page, info: TestInfo, locale: Locale) {
 }
 
 for (const locale of ["ar", "fr"] as const) {
-  test(`[MER-15:browser] [MER-16:browser] ${locale} owner saves overnight and Ramadan hours @merchant-hours`, async ({
+  test(`[MER-15:browser] [MER-16:browser] ${locale} owner saves overnight and Ramadan hours @merchant-hours @design-screens`, async ({
     baseURL,
     page,
   }, info) => {

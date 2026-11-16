@@ -14,6 +14,7 @@ const commands: ReadonlyMap<string, readonly string[]> = new Map([
   ["mutation:domain", ["test:mutation"]],
   ["property:1000", ["test:properties"]],
   ["authz:matrix", ["test:authz"]],
+  ["design:screens", ["test:design"]],
 ]);
 
 const pnpmNames = new Set(["pnpm", "pnpm-native", "pnpm.cjs", "pnpm.exe"]);

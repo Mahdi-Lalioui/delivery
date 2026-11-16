@@ -70,7 +70,7 @@ async function checkMatrix(page: Page, info: TestInfo) {
   await page.goto(page.url().replace("/ar/", "/fr/"));
 }
 
-test("[MER-23:browser] an owner invites staff, revokes an invitation, and the invitee joins once @merchant-staff", async ({
+test("[MER-23:browser] an owner invites staff, revokes an invitation, and the invitee joins once @merchant-staff @design-screens", async ({
   baseURL,
   browser,
   page,

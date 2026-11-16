@@ -118,7 +118,7 @@ async function checkMatrix(page: Page, info: TestInfo) {
   await page.goto(page.url().replace("/en/", "/fr/"));
 }
 
-test("[ADM-04:browser] an admin allows a held item and the owner sees it approved @admin-moderation", async ({
+test("[ADM-04:browser] an admin allows a held item and the owner sees it approved @admin-moderation @design-screens", async ({
   baseURL,
   browser,
   page,

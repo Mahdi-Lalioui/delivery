@@ -90,7 +90,7 @@ async function checkMatrix(page: Page, info: TestInfo, locale: "ar" | "fr") {
   }
 }
 
-test("[ADM-04:browser] the customer preview shows listable items and hides a held one @menu-preview", async ({
+test("[ADM-04:browser] the customer preview shows listable items and hides a held one @menu-preview @design-screens", async ({
   baseURL,
   page,
 }, info) => {

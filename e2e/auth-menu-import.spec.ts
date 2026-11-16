@@ -56,7 +56,7 @@ async function checkMatrix(page: Page, info: TestInfo) {
   await page.goto(page.url().replace("/ar/", "/fr/"));
 }
 
-test("[MER-12:browser] previews a file, applies once and reimports without duplicates @menu-import", async ({
+test("[MER-12:browser] previews a file, applies once and reimports without duplicates @menu-import @design-screens", async ({
   baseURL,
   page,
 }, info) => {
