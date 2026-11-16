@@ -13,6 +13,21 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-16 17:21 GMT — M2-12/MER-01 enqueue the admin review notice (Claude, covering while Codex was out)
+
+- **Changed** — `464a467`:
+  - `packages/db/src/merchant.ts` `insertApplication` calls `graphile_worker.add_job('merchant.review_notice', {merchantId}, job_key => 'merchant-review-notice:<merchantId>')` inside the signup transaction. It runs before the `merchant_review_notices` insert, so the existing rollback test also covers the job.
+  - Codex's uncommitted test was completed. `packages/db/test/merchant.integration.test.ts` now migrates the Graphile schema. The new test uses its own account serial (1 500; 700 was already used), and the job query is filtered to one merchant. The rollback test checks that the job list is unchanged after the failed signup.
+  - The worker schema is now installed by `merchant-application-photo.integration.test.ts`, `apps/api/test/merchant-api-fixture.ts` and `apps/api/tools/e2e-auth-bootstrap.ts`. For this, `apps/api` gains the dev dependency `graphile-worker` `0.18.0` (D-001 pin; D-021 updated).
+  - PLAN: first D-021 sub-bullet ticked.
+- **Evidence** —
+  - The new test first failed with `expected [] to deeply equal [ { …(3) } ]` (no job), then passed (16/16).
+  - The first `pnpm verify` failed with 7 integration tests in the photo and API merchant suites, because they had no `graphile_worker` schema. After the setup fix, `pnpm verify` exited 0: 1,476 unit tests, 195 PostGIS integration tests, Knip, depcruise, trace through m1 20/20.
+  - `pnpm test:e2e:auth e2e/auth-merchant.spec.ts e2e/auth-merchant-application-photo.spec.ts` passed 5/5 on the production build.
+- **Reviewer** — Self-review against AGENTS §10 found no P0/P1. The job is atomic with signup and unique per merchant, and the payload carries no PII.
+- **Next** — The second D-021 sub-bullet. Add the worker `SmsSender` port and its fake outbox. Then add the `merchant.review_notice` task: read active admins' phones and send one French, PII-free SMS each through `runJobEffectOnce` with effect key `<merchantId>:<adminUserId>:sms`. Prove retries and two admins on PostGIS.
+- **Needs Mahdi** — None.
+
 ### 2026-11-16 12:10 GMT — M2-12 register the `design:screens` gate check (Claude, covering while Codex was out)
 
 - **Changed** — `038b952`:
@@ -1146,5 +1161,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress; M2-8, M2-9 and M2-10 done)
 - Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import (M2-8) is complete, including its production browser journey. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
-- Last green `pnpm verify`: 2026-11-16 12:06 GMT on Docker Desktop with 1,476 unit and 194 PostGIS integration tests. `pnpm test:e2e:auth` passed 22/22 authenticated production journeys at the same tree. `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 36/37 IDs at `b92d62f` (missing `MER-01`).
+- Last green `pnpm verify`: 2026-11-16 17:20 GMT on Docker Desktop with 1,476 unit and 195 PostGIS integration tests. `pnpm test:e2e:auth` passed 22/22 authenticated production journeys at the same tree. `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 36/37 IDs at `b92d62f` (missing `MER-01`).
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
