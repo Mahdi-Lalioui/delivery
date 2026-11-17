@@ -1,4 +1,5 @@
 import { queueDeliveryProofErasure } from "./delivery-proof-retention.js";
+import { setFavouriteCustomerScope } from "./customer-favourites.js";
 import type { ISql, TransactionSql } from "postgres";
 import { lockOtpIdentifier } from "./auth-otp-lock.js";
 import type { AuthTransport } from "./auth-types.js";
@@ -118,6 +119,7 @@ async function clearPersonalData(
   `;
   await sql`UPDATE public.order_events SET actor_id = NULL, payload = payload - 'reason'
     WHERE actor_id = ${userId} AND actor_kind = 'customer'`;
+  await setFavouriteCustomerScope(sql, userId);
   await sql`DELETE FROM public.customer_favourites WHERE customer_id = ${userId}`;
   await sql`DELETE FROM public.merchant_review_receipts WHERE account_id = ${userId}`;
   await sql`DELETE FROM public.order_rating_receipts WHERE customer_id = ${userId}`;

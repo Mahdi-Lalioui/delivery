@@ -8,11 +8,16 @@ type Scope = CustomerOrderScope & { now: Date };
 type Change = Scope & { merchantId: string; isFavourite: boolean };
 const favouriteLimit = 100;
 
+export async function setFavouriteCustomerScope(sql: TransactionSql, customerId: string) {
+  await sql`SELECT set_config('awid.customer_id', ${customerId.toLowerCase()}, true)`;
+}
+
 export async function listCustomerFavourites(
   sql: TransactionSql,
   scope: Scope,
 ): Promise<Page | undefined> {
   if (!(await isActiveCustomer(sql, scope))) return undefined;
+  await setFavouriteCustomerScope(sql, scope.customerId);
   const restaurants = await sql<Page["restaurants"]>`
     SELECT merchant.id AS "merchantId", merchant.restaurant_name AS name, merchant.slug,
       cover.id AS "coverMediaId",
@@ -33,6 +38,7 @@ export async function changeCustomerFavourite(sql: TransactionSql, change: Chang
   const { customerId, merchantId, isFavourite, now } = change;
   if (!(await lockOrderingCustomer(sql, customerId)) || !(await isActiveCustomer(sql, change)))
     return "unauthenticated";
+  await setFavouriteCustomerScope(sql, customerId);
   if (!isFavourite) {
     await sql`DELETE FROM public.customer_favourites WHERE customer_id = ${customerId} AND merchant_id = ${merchantId}`;
     return "saved";

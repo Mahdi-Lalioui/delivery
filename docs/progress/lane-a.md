@@ -455,3 +455,6 @@
 
 - 2026-11-17 · High · Separated the courier invitation entry from the server-protected workspace. All 21 connected checks passed, covering guest and wrong-role redirects, active courier access, existing invite links, and delivery and pickup journeys.
   Next: audit the authz route matrix for missing cross-customer and cross-restaurant isolation checks, then add scoped Postgres RLS where the repository can pass transaction-local actor context.
+
+- 2026-11-17 · Ultra · Forced customer favourites RLS and set transaction-local scope for the authenticated customer and account erasure. The restricted-role regression failed first and then passed. Full pnpm verify exited zero.
+  Next: add transaction-scoped RLS for merchant menu command receipts, then continue the cross-tenant route matrix audit.

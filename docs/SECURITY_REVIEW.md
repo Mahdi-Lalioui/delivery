@@ -90,3 +90,13 @@ against the API's active-courier policy before rendering. The check currently
 reuses the jobs endpoint, with the response confined to the server. The guest
 and role regressions failed before the guard. The connected run passed all
 21 operator, courier and order-journey checks, including invitation reload.
+
+## Customer favourites row isolation
+
+Migration 0061 forces row-level security on customer favourites, including
+for the non-superuser table owner. Listing, changing and erasing favourites
+set the authenticated customer context within their transaction. The real
+Postgres regression first exposed both customers' rows using a restricted
+role without context. It now verifies no rows without context, only the
+customer's own rows with context, and no deletion of another customer's rows.
+Full workspace verification passed.
