@@ -473,4 +473,6 @@
 - 2026-11-17 · Ultra · Reran authz (267/267, 42 suites) and six connected isolation/auth suites (20 tests); added real-Postgres coverage for email's rolling 3-per-15-minute and 10-per-day OTP caps (27 auth repository tests passed). [Security evidence](../SECURITY_REVIEW.md#otp-abuse-and-delivery-limits).
   Next: remove the cross-restaurant courier invitation registration disclosure, then fix foreign-order row locking before the broader connected authz pass.
 - 2026-11-17 · Ultra · Forced row-level security on customer addresses and set transaction-local customer scope for address CRUD, checkout quotes, privacy export and erasure. The restricted-role test failed before the migration; address, quote and privacy Postgres suites passed 48 tests after.
-  Next: remove the cross-restaurant courier invitation registration disclosure, then fix foreign-order row locking before the broader connected authz pass.
+  Next: fix foreign-order row locking before the broader connected authz pass.
+- 2026-11-17 · Ultra · Fixed the P0 courier invitation enumeration leak. Owners now receive the same invitation shape for active couriers and unregistered contacts; acceptance still rejects a second-restaurant assignment. Regression failed before fix; full `pnpm verify` passed (2,061 unit, 342 Postgres integration tests). [Finding](../SECURITY_REVIEW.md#findings).
+  Next: fix foreign-order row locking before the broader connected authz pass.

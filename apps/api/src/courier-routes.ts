@@ -97,7 +97,6 @@ export function registerCourierRoutes(api: FastifyInstance, services?: CourierSe
         now: services.now(),
       });
       if (result.kind === "not_found") return sendProblem(reply, 404);
-      if (result.kind === "courier_already_registered") return sendProblem(reply, 409, result.kind);
       if (!(await deliverCourierInvitation(services, { ...request.body, ...result.invite })))
         return sendProblem(reply, 503, "invitation_delivery_unavailable");
       return reply.code(201).send(result.invite);

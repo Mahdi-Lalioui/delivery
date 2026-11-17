@@ -18,7 +18,7 @@ test("[COU-01:http] invites and accepts using the signed-in standard session", a
     .fn<ReturnType<typeof createCourierRepository>["invite"]>()
     .mockResolvedValueOnce({ kind: "invited", invite: { inviteId, expiresAt } })
     .mockResolvedValueOnce({ kind: "not_found" })
-    .mockResolvedValueOnce({ kind: "courier_already_registered" })
+    .mockResolvedValueOnce({ kind: "invited", invite: { inviteId, expiresAt } })
     .mockResolvedValueOnce({ kind: "invited", invite: { inviteId, expiresAt } });
   const accept = vi
     .fn<ReturnType<typeof createCourierRepository>["accept"]>()
@@ -75,7 +75,7 @@ test("[COU-01:http] invites and accepts using the signed-in standard session", a
   expect(issued.json()).toEqual({ inviteId, expiresAt });
   expect(invite).toHaveBeenCalledWith({ merchantId, phone, userId: accountId, sessionId, now });
   expect((await send(rosterPath + "/invites", { phone })).statusCode).toBe(404);
-  expect((await send(rosterPath + "/invites", { phone })).statusCode).toBe(409);
+  expect((await send(rosterPath + "/invites", { phone })).statusCode).toBe(201);
 
   const email = "courier@example.test";
   expect(
@@ -83,6 +83,7 @@ test("[COU-01:http] invites and accepts using the signed-in standard session", a
       .statusCode,
   ).toBe(201);
   expect(sendInvitation.mock.calls).toEqual([
+    [{ phone, token: inviteId, deliveryKey: inviteId }],
     [{ phone, token: inviteId, deliveryKey: inviteId }],
     [{ email, token: inviteId, deliveryKey: inviteId, locale: "en" }],
   ]);
