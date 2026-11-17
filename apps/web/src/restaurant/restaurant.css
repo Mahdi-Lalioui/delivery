@@ -276,8 +276,13 @@
   background: var(--color-surface);
   box-shadow: var(--shadow-e1);
 }
-.restaurant-dish[data-sold-out="true"] {
-  opacity: 0.6;
+/* Sold out: the photo fades and turns grey; the text keeps full contrast and the badge says why. */
+.restaurant-dish[data-sold-out="true"] .restaurant-dish-photo {
+  opacity: 0.5;
+  filter: grayscale(1);
+}
+.restaurant-dish[data-sold-out="true"] .restaurant-price {
+  text-decoration: line-through;
 }
 .restaurant-dish-photo {
   position: relative;

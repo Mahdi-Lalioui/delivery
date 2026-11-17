@@ -9,15 +9,15 @@
     "taps": [
       {
         "label": "Delivery / Pickup switch",
-        "inputToPaintMs": 40
+        "inputToPaintMs": 48
       },
       {
         "label": "Cuisine chip",
-        "inputToPaintMs": 40
+        "inputToPaintMs": 32
       },
       {
         "label": "Favourite heart",
-        "inputToPaintMs": 48
+        "inputToPaintMs": 80
       }
     ]
   },
@@ -45,7 +45,7 @@
     "cls": 0,
     "fps": 60,
     "p95FrameMs": 17,
-    "droppedShare": 0,
+    "droppedShare": 0.005050505050505051,
     "taps": [
       {
         "label": "Add a promo code",
@@ -57,9 +57,9 @@
     "run": 1,
     "route": "Tracking",
     "cls": 0,
-    "fps": 59,
+    "fps": 60,
     "p95FrameMs": 17,
-    "droppedShare": 0.008771929824561403,
+    "droppedShare": 0.004310344827586207,
     "taps": [
       {
         "label": "Call the restaurant (focus)",
@@ -89,7 +89,7 @@
       },
       {
         "label": "Favourite heart",
-        "inputToPaintMs": 136
+        "inputToPaintMs": 16
       }
     ]
   },
@@ -103,7 +103,7 @@
     "taps": [
       {
         "label": "Dish + (opens the sheet)",
-        "inputToPaintMs": 48
+        "inputToPaintMs": 40
       },
       {
         "label": "Opening hours",
@@ -117,7 +117,7 @@
     "cls": 0,
     "fps": 60,
     "p95FrameMs": 17,
-    "droppedShare": 0,
+    "droppedShare": 0.005050505050505051,
     "taps": [
       {
         "label": "Add a promo code",
@@ -161,7 +161,7 @@
       },
       {
         "label": "Favourite heart",
-        "inputToPaintMs": 152
+        "inputToPaintMs": 128
       }
     ]
   },
@@ -189,7 +189,7 @@
     "cls": 0,
     "fps": 60,
     "p95FrameMs": 17,
-    "droppedShare": 0,
+    "droppedShare": 0.0049504950495049506,
     "taps": [
       {
         "label": "Add a promo code",
@@ -203,7 +203,7 @@
     "cls": 0,
     "fps": 60,
     "p95FrameMs": 17,
-    "droppedShare": 0.004329004329004329,
+    "droppedShare": 0.004273504273504274,
     "taps": [
       {
         "label": "Call the restaurant (focus)",

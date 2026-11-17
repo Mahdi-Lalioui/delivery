@@ -521,6 +521,15 @@
   .tracking-grip {
     display: none;
   }
+
+  /* The live map fills its column to the panel's height; its controls sit inside it. */
+  .tracking-basemap {
+    display: grid;
+  }
+
+  .tracking-basemap > .tracking-map {
+    block-size: 100%;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -654,5 +663,15 @@
 
 /* Pickup: directions sit on the code card, next to what the diner shows at the counter. */
 .tracking-directions {
+  display: inline-flex;
+  gap: var(--space-8);
+  align-items: center;
+  min-block-size: var(--touch-target-min);
   margin-block-start: var(--space-8);
+  padding-inline: var(--space-20);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-weight: var(--font-weight-label);
+  text-decoration: none;
 }

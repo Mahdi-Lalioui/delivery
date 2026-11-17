@@ -85,7 +85,7 @@ function CodeCard({ tracking }: { tracking: Tracking }) {
       <small>{translate(isPickup ? "pickupCodeHint" : "deliveryCodeHint")}</small>
       {tracking.fulfilment === "pickup" && (
         <a
-          className="ui-button ui-button-secondary tracking-directions"
+          className="tracking-directions"
           href={directionsUrl(tracking.pickupPin)}
           target="_blank"
           rel="noopener noreferrer"

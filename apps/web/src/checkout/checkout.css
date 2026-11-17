@@ -668,3 +668,47 @@
     gap: var(--space-12);
   }
 }
+
+/* Quick cash amounts: chips above the field, the chosen one filled. */
+.checkout-tender-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+}
+
+.checkout-tender-chip {
+  min-block-size: var(--touch-target-min);
+  padding-inline: var(--space-16);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: var(--font-weight-label);
+  cursor: pointer;
+  transition: transform var(--motion-fast) var(--ease-spring-snappy);
+}
+
+.checkout-tender-chip:active {
+  transform: scale(0.96);
+}
+
+.checkout-tender-chip[aria-pressed="true"] {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.checkout-tender-chip:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* The amount box stays compact; its label, hint and error use the card's full width. */
+.checkout-cash .ui-field-money {
+  max-inline-size: none;
+}
+
+.checkout-cash .ui-field-money .ui-input-box {
+  max-inline-size: 10rem;
+}

@@ -9,7 +9,8 @@ import { useLowData } from "../discovery/low-data";
 import { Tagine3d } from "../marketing/moments/tagine-3d";
 import { TagineMoment } from "../marketing/moments/tagine-moment";
 import "../marketing/moments/moments.css";
-import { FulfilmentStep, OrderSummaryAside, PaymentStep, TimingStep } from "./checkout-steps";
+import { OrderSummaryAside, PaymentStep } from "./checkout-payment";
+import { FulfilmentStep, TimingStep } from "./checkout-steps";
 import {
   isTenderInRange,
   parseTender,

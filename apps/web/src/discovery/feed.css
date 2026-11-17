@@ -750,9 +750,14 @@
 @media (min-width: 960px) {
   /* Half a card says swipe: a third of a card always peeks at the end of a rail. */
   .discovery-rail-list {
-    grid-auto-columns: calc((100% - 3 * var(--space-12)) / 3.4);
+    grid-auto-columns: calc((100% - 2 * var(--space-12)) / 3);
     margin-inline: 0;
     padding-inline: 0;
+  }
+
+  /* Three cards fill the row; a fourth means the rail scrolls, so a third of it peeks. */
+  .discovery-rail-list:has(> li:nth-child(4)) {
+    grid-auto-columns: calc((100% - 3 * var(--space-12)) / 3.4);
   }
 
   /* Three collections fill the row exactly; they never scroll on desktop. */
@@ -895,6 +900,16 @@
   .discovery-rail .discovery-rail-list {
     grid-auto-columns: calc((100% - 4 * var(--space-12)) / 4.4);
   }
+
+  /* Four cards or fewer do not scroll: they share the row instead of leaving a gap. */
+  .discovery-rail .discovery-rail-list:not(:has(> li:nth-child(5))) {
+    grid-auto-columns: minmax(0, 1fr);
+  }
+}
+
+/* Badges that sit on the card's top edge ("Ouvre le …") are not clipped by the scroller. */
+.discovery-rail .discovery-rail-list {
+  padding-block-start: var(--space-8);
 }
 
 /* Filters button with its count. */
