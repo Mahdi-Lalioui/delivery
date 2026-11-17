@@ -452,3 +452,6 @@
 
 - 2026-11-17 · High · Cleared six moderate npm advisories. Both audits reported zero findings, full pnpm verify passed, and Gitleaks found no leaks in 536 commits from the remote mirror.
   Next: split public courier invite entry from the protected courier workspace and test anonymous, wrong-role and active courier access on the server.
+
+- 2026-11-17 · High · Separated the courier invitation entry from the server-protected workspace. All 21 connected checks passed, covering guest and wrong-role redirects, active courier access, existing invite links, and delivery and pickup journeys.
+  Next: audit the authz route matrix for missing cross-customer and cross-restaurant isolation checks, then add scoped Postgres RLS where the repository can pass transaction-local actor context.

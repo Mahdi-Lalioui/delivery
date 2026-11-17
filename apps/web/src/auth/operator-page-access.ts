@@ -85,3 +85,8 @@ export async function canRenderMerchantPage(
     )
   );
 }
+
+export async function canRenderCourierPage(headers: Headers): Promise<boolean> {
+  const response = await readOperatorAccess(headers, "/v1/courier/jobs");
+  return response?.status === 200;
+}

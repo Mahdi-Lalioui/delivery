@@ -2,7 +2,11 @@ import { randomBytes } from "node:crypto";
 import { isPublicLocale } from "@zaafran/i18n/locales";
 import createMiddleware from "next-intl/middleware";
 import { NextRequest, NextResponse } from "next/server";
-import { canRenderAdminPage, canRenderMerchantPage } from "./auth/operator-page-access";
+import {
+  canRenderAdminPage,
+  canRenderCourierPage,
+  canRenderMerchantPage,
+} from "./auth/operator-page-access";
 import { routing } from "./i18n/routing";
 
 const localize = createMiddleware(routing);
@@ -38,6 +42,9 @@ function operatorPage({
 }) {
   if (area === "admin") {
     return { signIn: "/" + locale + "/sign-in?purpose=admin", allowed: canRenderAdminPage };
+  }
+  if (area === "courier" && target === "workspace") {
+    return { signIn: "/" + locale + "/sign-in?continue=courier", allowed: canRenderCourierPage };
   }
   if (area !== "merchant" || !target || target === "apply" || !section) return undefined;
   return {

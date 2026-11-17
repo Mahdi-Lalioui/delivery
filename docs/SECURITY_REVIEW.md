@@ -81,3 +81,12 @@ passed 30 checks across operator access, invitations and production routes.
 Gitleaks 8.30.1 scanned 536 commits from a fresh GitHub mirror across its
 advertised references and found no leaks. The local shared Git store has
 malformed duplicate refs, so this does not cover unpublished local history.
+
+## Courier page access
+
+The public courier entry handles legacy fragment invitations and never mounts
+the jobs workspace. The dedicated workspace checks the HttpOnly session
+against the API's active-courier policy before rendering. The check currently
+reuses the jobs endpoint, with the response confined to the server. The guest
+and role regressions failed before the guard. The connected run passed all
+21 operator, courier and order-journey checks, including invitation reload.

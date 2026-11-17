@@ -16,7 +16,13 @@ export function courierMetadata(locale: Locale): Metadata {
   };
 }
 
-export function CourierPage({ locale }: { locale: Locale }) {
+export function CourierPage({
+  locale,
+  workspace = false,
+}: {
+  locale: Locale;
+  workspace?: boolean;
+}) {
   const messages = getMessages(locale);
   return (
     <SiteShell locale={locale} subpath="/courier">
@@ -25,7 +31,7 @@ export function CourierPage({ locale }: { locale: Locale }) {
         messages={{ courier: messages.courier, mediaPhoto: messages.mediaPhoto }}
       >
         <ToastProvider closeLabel={messages.courier.close}>
-          <CourierScreen locale={locale} />
+          <CourierScreen locale={locale} workspace={workspace} />
         </ToastProvider>
       </NextIntlClientProvider>
     </SiteShell>

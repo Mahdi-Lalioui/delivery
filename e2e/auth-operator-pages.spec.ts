@@ -86,3 +86,37 @@ test("[MER-23] restaurant pages enforce membership and role before rendering", a
     }
   });
 });
+
+test("[COU-02] a guest cannot render the courier workspace", async ({ request }) => {
+  const response = await request.get("/fr/courier/workspace", { maxRedirects: 0 });
+  expect(response.status()).toBe(307);
+  expect(new URL(response.headers()["location"] ?? "", response.url()).pathname).toBe(
+    "/fr/sign-in",
+  );
+});
+
+test("[COU-02] only an active courier can render the courier workspace", async ({
+  baseURL,
+  request,
+}) => {
+  await withAuthHarness(
+    baseURL,
+    async (harness) => {
+      const owner = await http.newContext({ ignoreHTTPSErrors: true });
+      try {
+        const ownerPhone = "+213550000795";
+        const courierPhone = "+213550000796";
+        await authenticate(owner, harness, { phone: ownerPhone });
+        await authenticate(request, harness, { phone: courierPhone });
+        const workspace = harness.origin + "/fr/courier/workspace";
+        expect((await request.get(workspace, { maxRedirects: 0 })).status()).toBe(307);
+        await harness.seedOrderJourney({ ownerPhone, courierPhone, timeoutSeconds: 480 });
+        expect((await request.get(workspace, { maxRedirects: 0 })).status()).toBe(200);
+        expect((await owner.get(workspace, { maxRedirects: 0 })).status()).toBe(307);
+      } finally {
+        await owner.dispose();
+      }
+    },
+    true,
+  );
+});

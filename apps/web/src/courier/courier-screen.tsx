@@ -2,6 +2,7 @@
 
 import type { Locale } from "@zaafran/i18n/locales";
 import { Button, ButtonLink, EmptyState, ErrorState, Icon, Skeleton, Toggle } from "@zaafran/ui";
+import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { setCourierOnline, type Jobs } from "./courier-http";
@@ -138,9 +139,29 @@ function CourierJobs({ locale }: { locale: Locale }) {
   }
 }
 
-export function CourierScreen({ locale }: { locale: Locale }) {
+function CourierEntry({ locale }: { locale: Locale }) {
   const t = useTranslations("courier");
   const { invite, dismiss, retry } = useCourierInvite();
+
+  useEffect(() => {
+    if (invite.kind === "absent") window.location.replace(`/${locale}/courier/workspace`);
+  }, [invite.kind, locale]);
+
+  if (invite.kind === "ready")
+    return <CourierInvite inviteId={invite.inviteId} locale={locale} onAccepted={dismiss} />;
+  return (
+    <div className="courier-panel">
+      {invite.kind === "error" ? (
+        <ErrorState title={t("error")} retryLabel={t("retry")} onRetry={retry} />
+      ) : (
+        <Skeleton label={t("loading")} />
+      )}
+    </div>
+  );
+}
+
+export function CourierScreen({ locale, workspace }: { locale: Locale; workspace: boolean }) {
+  const t = useTranslations("courier");
   return (
     <div className="courier-screen">
       <header className="courier-heading">
@@ -152,19 +173,7 @@ export function CourierScreen({ locale }: { locale: Locale }) {
           <p>{t("subtitle")}</p>
         </div>
       </header>
-      {invite.kind === "loading" ? (
-        <div className="courier-panel">
-          <Skeleton label={t("loading")} />
-        </div>
-      ) : invite.kind === "ready" ? (
-        <CourierInvite inviteId={invite.inviteId} locale={locale} onAccepted={dismiss} />
-      ) : invite.kind === "error" ? (
-        <div className="courier-panel">
-          <ErrorState title={t("error")} retryLabel={t("retry")} onRetry={retry} />
-        </div>
-      ) : (
-        <CourierJobs locale={locale} />
-      )}
+      {workspace ? <CourierJobs locale={locale} /> : <CourierEntry locale={locale} />}
     </div>
   );
 }
