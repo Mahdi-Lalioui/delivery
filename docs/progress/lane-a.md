@@ -440,3 +440,6 @@
 
 - 2026-11-17 · High · Fast-forwarded main to `f1febe7` after all required GitHub checks and 175 local browser tests passed. Added API deny-all CSP and web isolation and frame headers. Seven API tests, six browser checks and the pinned Caddy TLS header probe passed.
   Next: enforce authenticated operator page roles on the server and prove anonymous and wrong-role redirects with browser regressions.
+
+- 2026-11-17 · Ultra · Enforced server-side access checks before rendering admin pages. Guests and standard sessions redirect to admin sign-in. All 11 authenticated browser and production route checks passed, including existing TOTP journeys.
+  Next: enforce merchant tenant and role on server-rendered operator pages while preserving onboarding, then guard the courier workspace.

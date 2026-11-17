@@ -54,3 +54,13 @@ change. All seven focused API tests passed afterwards. The production Playwright
 header regression and the existing CSP nonce check passed on mobile Chromium,
 mobile WebKit and desktop Chromium. The pinned Caddy image served the expected
 HSTS header over HTTPS using the checked-in configuration and a local CA.
+
+## Server-rendered admin pages
+
+The web proxy checks the opaque HttpOnly session against the API's active-admin
+policy before serving the admin route tree. It forwards only the session
+cookie to the configured backend, bypasses caches, and denies access if the
+check fails. Test proxy origins require a signed loopback port from the browser
+harness. Guest access for every admin page in Arabic, French and English and
+standard-session access failed the new browser checks before the fix. All 11
+operator, authenticated admin and production route browser tests passed after it.
