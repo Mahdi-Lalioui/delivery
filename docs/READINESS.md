@@ -25,25 +25,25 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 - [x] **Lane B** Customer tap feedback within 100 ms, with optimistic feedback where safe. [Worst tap 72 ms on the throttled Android profile](evidence/awid/perf.md#customer-feel-taps-frames-and-layout-shift-lane-b-13-november-2026)
 - [x] **Lane B** Measure 60 fps scrolling and animation and CLS below 0.05. Defer offscreen images and 3D. Record connected results in [performance evidence](evidence/awid/perf.md). CLS 0 and 60 fps on Discovery, Restaurant and Checkout; Tracking 59–60 fps once the 3D street view became opt-in. [Results](evidence/awid/perf.md#3d-street-view-on-tap-13-november-2026-lane-b)
 - [ ] **Lane A** Route bundle budgets enforced in CI at the SPEC target. [Provisional ceilings](evidence/awid/perf.md#connected-production-build)
-- [ ] **Lane A** Quote and placement honour code and automatic offers and apply the published stacking rules.
-- [ ] **Lane A** Per-customer and global offer limits and idempotent redemption hold under retries and concurrency.
-- [ ] **Lane A** Discovery offers filter and badge data match redeemable offers.
+- [x] **Lane A** Quote and placement honour code and automatic offers and apply the published stacking rules. [PostGIS quote and placement tests](../packages/db/test/order-quotes.integration.test.ts)
+- [x] **Lane A** Per-customer and global offer limits and idempotent redemption hold under retries and concurrency. [PostGIS redemption tests](../packages/db/test/order-quotes.integration.test.ts)
+- [x] **Lane A** Discovery offers filter and badge data match redeemable offers. [PostGIS public feed tests](../packages/db/test/public-feed.integration.test.ts)
 
 ## Security
 
 - [ ] **Lane A** Review SPEC §17 and AGENTS §10. Cover every route in the authz matrix and verify customer and merchant isolation.
 - [ ] **Lane A** Verify OTP enumeration resistance, attempt caps and SMS/email delivery limits by identifier and IP.
-- [ ] **Lane A** Verify upload type, size, decompression limits and metadata stripping.
+- [x] **Lane A** Verify upload type, size, decompression limits and metadata stripping. [Upload validation evidence](SECURITY_REVIEW.md#upload-validation)
 - [ ] **Lane A** Verify input handling, CSRF, CSP and security headers, session fixation protections and revocation.
 - [ ] **Lane A** Review route rate limits, secret handling and dependencies. Resolve high and critical findings.
 - [ ] **Lane A** Record findings and their regression evidence in `docs/SECURITY_REVIEW.md`.
 
 ## Local production reliability
 
-- [ ] **Lane A** Complete delivery and pickup against local production Compose with customer, restaurant and courier as applicable.
-- [ ] **Lane A** Restart API, worker and database mid-order. Prove orders and transitions are neither lost nor duplicated.
-- [ ] **Lane A** Disconnect and reconnect the restaurant board and courier. Verify event replay and SSE reconnection.
-- [ ] **Lane A** Verify timers have one observable effect across retries and restarts.
+- [x] **Lane A** Complete delivery and pickup against local production Compose with customer, restaurant and courier as applicable. [HTTPS pickup and delivery drills](evidence/awid/local-operations.md#https-pickup-and-idempotent-recovery)
+- [x] **Lane A** Restart API, worker and database mid-order. Prove orders and transitions are neither lost nor duplicated. [Restart and replay evidence](evidence/awid/local-operations.md#https-delivery-and-idempotent-recovery)
+- [x] **Lane A** Disconnect and reconnect the restaurant board and courier. Verify event replay and SSE reconnection. [Connected browser drill](evidence/awid/local-operations.md#connected-browser-network-recovery)
+- [x] **Lane A** Verify timers have one observable effect across retries and restarts. [Expiry and release drills passed](evidence/awid/local-operations.md#pending-order-and-timer-restart)
 - [ ] **Lane A** Run k6 for placement and courier position intake at 10× expected pilot load. Record load assumptions and results.
 
 ## Operations and release verification

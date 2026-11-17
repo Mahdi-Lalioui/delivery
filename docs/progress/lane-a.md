@@ -395,3 +395,36 @@
 
 - 2026-11-13 · High · Integrated Lane B maps, feel, copy and consistency with linked evidence. Moved tap feedback, frame pacing and CLS to Lane B. Full workspace verification passed and built the local production backend image. GitHub browser checks now include the complete browser suite and team preview.
   Next: verify the exact integrated head in GitHub and run the local in-flight restart drill.
+
+- 2026-11-13 · High · Restarted API, worker and PostgreSQL around a pending synthetic pickup on the rebuilt local production stack. The order expired at version 2, its repeated timer left exactly one expiry event, and HTTPS smoke recovered.
+  Next: prove the scheduled release timer and HTTP placement across faults, then browser replay and the load pass.
+
+- 2026-11-13 · High · Proved the scheduled release timer on local production Compose. After all three services restarted, the order advanced to pending acceptance at version 2. The duplicate release job completed and left one release event.
+  Next: verify HTTP placement under faults and browser replay. Repair full browser CI infrastructure before integrating Lane B’s new customer pass.
+
+- 2026-11-13 · High · The CI map fixture now covers production zoom 15. All 12 local browser map cases passed across mobile Chromium, mobile WebKit and desktop Chromium.
+- 2026-11-13 · High · All 41 PostGIS quote and feed tests passed. Added a concurrent same-customer final-use case and verified that a different customer can still redeem the offer. Linked all three offer checks in READINESS.
+
+- 2026-11-13 · Ultra · Verified an HTTPS pickup on production Compose through collection. Retrying after an API, worker and PostgreSQL outage returned the original order. Replayed all three owner commands and confirmed exactly four persisted events.
+  Next: verify the courier delivery path, offline replay and placement with an interrupted response. See [local operations evidence](../evidence/awid/local-operations.md#https-pickup-and-idempotent-recovery).
+
+- 2026-11-13 · Ultra · Local production Compose delivery reached delivered at version 6 after a service outage. Replayed placement and all five transitions without duplicates. Pickup and delivery now have linked readiness evidence.
+  Next: verify offline board and courier replay, and run the pilot load check.
+
+- 2026-11-13 · Medium · GitHub Browser smoke passed. Its Verify job hit the 5 s timeout when the colour-grade test encoded two full variant sets. Split the cases by photo kind while retaining all colour assertions. Full local pnpm verify exited zero with 2,040 unit and 337 integration tests.
+  Next: check the exact pushed candidate in GitHub before merging.
+
+- 2026-11-13 · High · Re-ran 265 route authorization tests and 44 focused media and logger tests. Recorded upload validation, decoded-pixel limits, metadata stripping and private media evidence.
+  Next: complete the remaining route isolation and session checks in SECURITY_REVIEW.
+
+- 2026-11-13 · High · Added real network disconnections to the connected browser delivery journey. Fixed the board to reopen SSE after successful recovery and verified missed-order catch-up and courier polling recovery.
+  Next: run local k6 intake and placement and verify the current candidate in GitHub.
+
+- 2026-11-13 · High · All seven GitHub checks passed at `9c04db9`; fast-forwarded main to that commit. Merged Lane B through `9ce97f0` into the next candidate and passed full local pnpm verify with 2,052 unit and 337 integration tests.
+  Next: require green hosted checks on the new integration PR and continue the local k6, performance and security checks.
+
+- 2026-11-13 · High · k6 endpoint smoke passed all 25 checks through local Caddy. Placement replay p95 was 15.95 ms and moving courier intake p95 was 7.87 ms.
+  Next: build distinct quote and courier fixtures for the pilot-rate run. The replay smoke does not prove fresh-placement capacity.
+
+- 2026-11-13 · High · Both connected performance tests passed on the integrated candidate. Discovery peaked at 1.62 s and Restaurant at 1.42 s over three cold samples each. Initial JS remains over the SPEC budget.
+  Next: profile the larger connected catalog and identify common route bundles to defer.

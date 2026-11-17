@@ -22,10 +22,22 @@ courier and administrator routes. All checks use synthetic data on local infrast
   advisories and zero high or critical advisories.
 - All six structured logger tests passed.
 
+## Upload validation
+
+On 13 November 2026, the focused media and logger run passed 44 tests. The
+photo preparation tests reject mismatched types, SVG, AVIF declared as HEIC,
+uploads over 8 MiB and compressed images over 24 Mi decoded pixels. Preview and
+published variants strip source metadata. PostGIS media reservation tests
+verify that another account or restaurant cannot access private uploads.
+
+- [Photo upload checks](../packages/media/test/photo-prepare.test.ts)
+- [Published variants](../packages/media/test/photo-crop.test.ts)
+- [Private media isolation](../apps/api/test/media-reservation.integration.test.ts)
+
 ## Verification remaining
 
 Review the route and role inventory, then verify tenant and customer scoping through
 the API and PostGIS. Exercise OTP enumeration, attempt caps and delivery rate limits.
-Verify upload validation, session binding and revocation, CSRF, CSP, headers, rate
+Verify session binding and revocation, CSRF, CSP, headers, rate
 limits, secret handling and the dependency audit. Record commands and results here as
 they pass, then rerun the full security and reliability pass from scratch.

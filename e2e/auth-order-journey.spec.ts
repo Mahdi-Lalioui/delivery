@@ -124,6 +124,45 @@ async function verifyScheduledPickup(page: Page, harness: AuthHarness, fixture: 
   ]);
 }
 
+async function reconnectBoard(board: Page, context: BrowserContext, order: Order) {
+  await expect(ticket(board, order)).toHaveCount(0);
+  const stream = board.waitForResponse(
+    (response) =>
+      response.url().includes("/v1/realtime?topic=merchantOrders") &&
+      response.ok() &&
+      response.headers()["content-type"]?.startsWith("text/event-stream") === true,
+    { timeout: 20_000 },
+  );
+  await context.setOffline(false);
+  await stream;
+  await expect(board.getByText(merchant.offline)).toHaveCount(0, { timeout: 20_000 });
+}
+
+async function placeWithBoardRecovery({
+  page,
+  board,
+  context,
+  harness,
+  fixture,
+  flow,
+}: {
+  page: Page;
+  board: Page;
+  context: BrowserContext;
+  harness: AuthHarness;
+  fixture: Journey;
+  flow: string;
+}) {
+  const fulfilment = flow === "delivery" ? "delivery" : "pickup";
+  if (fulfilment === "delivery") {
+    await context.setOffline(true);
+    await expect(board.getByText(merchant.offline)).toBeVisible({ timeout: 20_000 });
+  }
+  const order = await place(page, harness, { fixture, fulfilment });
+  if (fulfilment === "delivery") await reconnectBoard(board, context, order);
+  return order;
+}
+
 test.describe.configure({ mode: "parallel" });
 
 for (const flow of ["delivery", "pickup", "reject", "expire", "cancel"] as const) {
@@ -150,9 +189,13 @@ for (const flow of ["delivery", "pickup", "reject", "expire", "cancel"] as const
           board.setDefaultTimeout(10_000);
           await board.goto(`${harness.origin}/fr/merchant/${fixture.merchantId}/board`);
           await expect(board.getByText(merchant.emptyNew)).toBeVisible();
-          const order = await place(page, harness, {
+          const order = await placeWithBoardRecovery({
+            page,
+            board,
+            context: ownerContext,
+            harness,
             fixture,
-            fulfilment: flow === "delivery" ? "delivery" : "pickup",
+            flow,
           });
           await expect(ticket(board, order)).toBeVisible();
           if (flow === "reject") {
@@ -267,7 +310,14 @@ async function deliver({
   courier.setDefaultTimeout(10_000);
   await courier.goto(harness.origin + "/fr/courier");
   const copy = fr.courier;
-  await courier.getByRole("button", { name: copy.confirmPickup }).press("Enter");
+  const pickup = courier.getByRole("button", { name: copy.confirmPickup });
+  await expect(pickup).toBeEnabled();
+  await context.setOffline(true);
+  await expect(courier.getByText(copy.connectionLost)).toBeVisible({ timeout: 20_000 });
+  await expect(pickup).toBeDisabled();
+  await context.setOffline(false);
+  await expect(pickup).toBeEnabled({ timeout: 20_000 });
+  await pickup.press("Enter");
   await customerStatus(customer, tracking.status_out_for_delivery);
   harness.advanceClock(60_000);
   await courier.getByText(copy.gpsShare, { exact: true }).click();
