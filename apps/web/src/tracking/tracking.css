@@ -675,3 +675,8 @@
   font-weight: var(--font-weight-label);
   text-decoration: none;
 }
+
+/* No map behind the sheet (pickup): a grab handle would promise something to drag. */
+.tracking[data-map="false"] .tracking-grip {
+  display: none;
+}

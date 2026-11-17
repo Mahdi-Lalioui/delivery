@@ -211,7 +211,7 @@ export function OrderSummaryAside({ state, locale }: { state: CheckoutState; loc
 export function PaymentStep({ state, locale }: { state: CheckoutState; locale: Locale }) {
   const translate = useTranslations("checkout");
   return (
-    <div className="checkout-step">
+    <div className="checkout-step checkout-payment-step">
       <h2>{translate("summary")}</h2>
       <div className="checkout-receipt">
         <OrderLines state={state} locale={locale} />

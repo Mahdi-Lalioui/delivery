@@ -29,18 +29,18 @@ A separate reviewer agent, which did not take part in building the screens, scor
 | Screen | Visual | UX | Motion | A11y | RTL | Overall | Round 1 | What holds it under 10 |
 |---|---|---|---|---|---|---|---|---|
 | Landing | 8 | 9 | 7 | 9 | 9 | 8.5 | 8 | Limit: the hero photo is a monument, not food (imagery pending) |
-| Discover | 9 | 9 | 7 | 9 | 9 | 9 | 7 | Defect: "Ouvre le …" badge clipped on the peeking rail card at 1280 |
+| Discover | 9 | 9 | 7 | 9 | 9 | 9 | 7 | Fixed after scoring: compact rail cards drop the clipped "Ouvre le …" line (the cover's "Fermé" badge stays, the full card gives the time) |
 | Pickup | 9 | 9 | 7 | 9 | 9 | 9 | 7 | Defect: a 1280 page ends on bare links, with no footer |
-| Restaurant | 8 | 8 | 7 | 9 | 9 | 8 | 7 | Defect: "most ordered" fills half the row at 1280. Design: later categories load as you scroll near them, so they show as skeletons in full-page captures. |
+| Restaurant | 8 | 8 | 7 | 9 | 9 | 8 | 7 | Fixed after scoring: two or three popular dishes share the row at 1280. By design: later categories load as you scroll near them, so full-page captures show their skeletons |
 | Sign-in | 8 | 8 | – | 9 | 9 | 8.5 | 7 | Limit: the preview build has no login backend |
 | Account | 8 | 9 | – | 9 | 9 | 8.5 | 7.5 | Limit: no login backend |
 | Checkout | 9 | 9 | 7 | 9 | 8 | 9 | 6.5 | Limit: saved address labels are the customer's own text |
-| Payment | 8 | 9 | 7 | 9 | 9 | 8.5 | 7 | Defect: step 3 is one column at 1280 |
+| Payment | 8 | 9 | 7 | 9 | 9 | 8.5 | 7 | Fixed after scoring: step 3 keeps two columns at ≥ 1024 px, cash on the start side and the receipt beside it |
 | Confirmed | 7 | 9 | 7 | 9 | 9 | 8 | 8 | Open: the cloche drawing needs redrawing |
 | Tracking | 9 | 9 | 7 | 9 | 9 | 9 | 7 | Limit: restaurant and home markers need lane A's tracking data |
-| Waiting | 8 | 8 | 7 | 9 | 9 | 8.5 | 7 | Defect: the home marker uses the plain info dot |
-| Pickup tracking | 8 | 9 | 7 | 9 | 9 | 9 | 6 | Defect: grab handle with no map behind it |
-| Rating | 8 | 8 | 7 | 9 | 9 | 8.5 | 7 | Defect: the page does not name the restaurant and order |
+| Waiting | 8 | 8 | 7 | 9 | 9 | 8.5 | 7 | Fixed after scoring: the address is the brand home pin. Limit: the restaurant marker needs lane A's tracking data |
+| Pickup tracking | 8 | 9 | 7 | 9 | 9 | 9 | 6 | Fixed after scoring: no grab handle when there is no map behind the sheet |
+| Rating | 8 | 8 | 7 | 9 | 9 | 8.5 | 7 | Fixed after scoring: the subtitle names the restaurant and the order code (from the first page of order history) |
 | Orders | 9 | 9 | 7 | 9 | 9 | 9 | 5.5 | Limit: letter logos until restaurants upload their own |
 | Operations gallery | 8 | 8 | – | 9 | 8 | 8.5 | 5 | Limit: lane A's screens shown in the dev gallery; its state switch is a dev tool |
 
@@ -79,5 +79,5 @@ Final contact sheets: [ar-390](evidence/awid/final/sheet-ar-390.jpg), [fr-390](e
   - These were not installed. Each one downloads and runs code from an outside repository, and the agent doesn't run unvetted downloads by itself.
   - The repo's own Playwright, axe and audit scripts did the same jobs.
   - Steps for Mahdi are in [HUMAN_TODO](HUMAN_TODO.md).
-- **The six open defects** in the table above. They are small, and each has a one-line fix noted.
-- **A physical Android check** of frame rate and tap latency (Mahdi).
+- **The critic's six open defects** were fixed after its final round (marked "Fixed after scoring" in the table). The scores above are from before those fixes; they were not re-scored.
+- **A physical Android check** of frame rate, layout shift and tap latency: exact steps for Mahdi are in [HUMAN_TODO](HUMAN_TODO.md) ("Real-phone check of the customer screens").

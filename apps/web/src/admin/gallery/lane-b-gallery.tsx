@@ -192,7 +192,13 @@ export function RatingSample({ mode }: { mode: Mode }) {
   return (
     <OrderRatingView
       isDelivery
-      state={{ view, outcome: undefined, isSaving: false, save: noopAsync }}
+      state={{
+        view,
+        outcome: undefined,
+        isSaving: false,
+        save: noopAsync,
+        order: { restaurantName: "Dar Yemma", shortCode: "K7P-4QX" },
+      }}
     />
   );
 }

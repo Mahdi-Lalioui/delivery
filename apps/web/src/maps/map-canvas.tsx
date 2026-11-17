@@ -1,6 +1,7 @@
 "use client";
 
 import type { Locale } from "@zaafran/i18n/locales";
+import { iconElement } from "@zaafran/ui";
 import { Map, Marker, setWorkerUrl } from "maplibre-gl";
 import { useEffect, useEffectEvent, useRef, type RefObject } from "react";
 import {
@@ -118,9 +119,11 @@ function useMap({
       active.onState("ready");
     });
     if (!choose) {
+      // The delivery address as the brand's home pin, not a generic "you are here" dot.
       const pin = document.createElement("div");
       pin.className = "awid-map-marker";
       pin.setAttribute("aria-hidden", "true");
+      pin.append(iconElement("home", 16));
       marker.current = new Marker({ element: pin, anchor: "bottom" })
         .setLngLat(camera(settings.selected ?? settings.initial))
         .addTo(map);

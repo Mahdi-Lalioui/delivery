@@ -115,3 +115,13 @@
   Next: critic round 2 on fresh captures, then the lane B section of docs/RELEASE_REPORT.md.
 - 2026-11-17 · Critic rounds 2–3 and release report (cd85b2a). The Tracking map fills its column at 1280 and "Vue 3D" sits inside it. Cash quick amounts. "Suivre la commande" on live orders. "Itinéraire" is a 44 px pill. Short rails share the row. Sold-out dishes keep full text contrast. `pnpm audit:customer-a11y`: 0/0/0 on 60 route-variants. `pnpm perf:customer-feel` × 3: CLS 0, 60 fps on all four routes. Final critic scores 8–9 on every screen, with each remaining point named in docs/RELEASE_REPORT.md (lane B section). `pnpm verify` exit 0.
   Next: fix the six open defects in docs/RELEASE_REPORT.md (Lane B → Design critic scores), starting with the Rating subtitle that names the restaurant and order, then the one-column payment step at 1280.
+- 2026-11-17 · Fixed the critic's six open defects:
+  - Rating names the restaurant and the order code (`[CUS-22]` test went red, then green).
+  - Payment keeps two columns at ≥ 1024 px.
+  - Restaurant's "most ordered" row shares the width at 1280.
+  - The address marker is the brand home pin.
+  - Pickup tracking without a map has no grab handle.
+  - Compact rail cards drop the clipped "Ouvre le" line.
+
+  `pnpm audit:customer-a11y` 0/0/0. `pnpm perf:customer-feel` × 3: CLS 0, 60 fps on all four routes. `pnpm verify` exit 0. Real-phone steps written in docs/HUMAN_TODO.md.
+  Next: Mahdi runs "Real-phone check of the customer screens" in docs/HUMAN_TODO.md and records the numbers in docs/evidence/awid/perf.md; lane B then fixes any route that fails.

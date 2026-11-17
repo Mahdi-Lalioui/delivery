@@ -475,6 +475,11 @@
   display: none;
 }
 
+/* Compact rail cards: the cover's "Fermé" badge says it; the full card below gives the time. */
+.discovery-rail .restaurant-feed-opening {
+  display: none;
+}
+
 .restaurant-feed-meta li {
   white-space: nowrap;
 }

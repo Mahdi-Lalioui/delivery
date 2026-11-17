@@ -956,6 +956,10 @@ body:has(.restaurant-cart-bar) .customer-tabs {
   .restaurant-popular-list {
     grid-auto-columns: calc((100% - 2 * var(--space-12)) / 3);
   }
+  /* Two or three dishes share the row instead of leaving it half empty. */
+  .restaurant-popular-list:not(:has(> li:nth-child(4))) {
+    grid-auto-columns: minmax(0, 1fr);
+  }
   .restaurant-popular-card .restaurant-dish-photo {
     aspect-ratio: 16 / 9;
   }

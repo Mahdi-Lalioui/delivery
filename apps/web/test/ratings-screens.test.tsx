@@ -121,3 +121,22 @@ test("[MER-20] has empty, loading and not-found states", () => {
   expect(reviews({}, "en")).toContain('class="ui-skeleton"');
   expect(reviews({ view: { kind: "not-found" } }, "en")).toContain(retentionRatings.notFound);
 });
+
+test("[CUS-22] names the restaurant and the order being rated", async () => {
+  const html = rating(
+    {
+      view: { kind: "ready", rating: null },
+      order: { restaurantName: "Dar Yemma", shortCode: "K7P-4QX" },
+    },
+    true,
+  );
+  expect(html).toContain("<bdi>Dar Yemma</bdi>");
+  expect(html).toContain("K7P-4QX");
+  const { findRatedOrder } = await import("../src/retention/use-order-rating");
+  const order = { orderId: ids.orderId, restaurantName: "Dar Yemma", shortCode: "K7P-4QX" };
+  expect(findRatedOrder([order], ids.orderId)).toEqual({
+    restaurantName: "Dar Yemma",
+    shortCode: "K7P-4QX",
+  });
+  expect(findRatedOrder([order], "another")).toBeUndefined();
+});

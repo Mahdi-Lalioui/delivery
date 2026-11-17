@@ -659,6 +659,35 @@
     grid-column: 1;
   }
 
+  /* Step 3 keeps the same two columns: the receipt moves to the end side, cash on the start. */
+  .checkout:has(.checkout-payment-step) {
+    max-inline-size: 64rem;
+  }
+
+  .checkout-payment-step {
+    grid-template-columns: minmax(0, 1fr) 22rem;
+    column-gap: var(--space-32);
+    align-items: start;
+  }
+
+  /* Start-side blocks span two rows each, so the receipt column starts at the top too. */
+  .checkout-payment-step > * {
+    grid-column: 1;
+    grid-row: span 2;
+  }
+
+  .checkout-payment-step > h2 {
+    grid-column: 2;
+    grid-row: 1 / span 1;
+  }
+
+  .checkout-payment-step > .checkout-receipt {
+    position: sticky;
+    inset-block-start: var(--space-24);
+    grid-column: 2;
+    grid-row: 2 / span 3;
+  }
+
   .checkout-aside {
     display: grid;
     position: sticky;
