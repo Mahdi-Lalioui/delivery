@@ -64,3 +64,20 @@ check fails. Test proxy origins require a signed loopback port from the browser
 harness. Guest access for every admin page in Arabic, French and English and
 standard-session access failed the new browser checks before the fix. All 11
 operator, authenticated admin and production route browser tests passed after it.
+
+## Restaurant pages, invite continuations and dependency audit
+
+Restaurant operator pages check the current account's membership and role for
+the requested restaurant before rendering. Browser tests cover own-tenant
+roles and a different tenant. Staff and courier invitation continuations use
+15-minute Secure, HttpOnly, host-only cookies. Browser tests cover reload and
+sign-in continuation and absence of raw tokens in browser storage.
+
+All six npm advisories were cleared. Both full and production audits reported
+zero advisories after the lockfile update. Full workspace verification passed
+with 2,059 unit and 337 PostGIS integration tests. The focused browser run
+passed 30 checks across operator access, invitations and production routes.
+
+Gitleaks 8.30.1 scanned 536 commits from a fresh GitHub mirror across its
+advertised references and found no leaks. The local shared Git store has
+malformed duplicate refs, so this does not cover unpublished local history.

@@ -449,3 +449,6 @@
 
 - 2026-11-17 · Ultra · Moved staff and courier invitation continuations to short-lived HttpOnly cookies and retained existing redemption authorization. The connected browser suite passed 30 checks, including reload and sign-in continuation.
   Next: commit and push the dependency advisory fixes and record the history scan.
+
+- 2026-11-17 · High · Cleared six moderate npm advisories. Both audits reported zero findings, full pnpm verify passed, and Gitleaks found no leaks in 536 commits from the remote mirror.
+  Next: split public courier invite entry from the protected courier workspace and test anonymous, wrong-role and active courier access on the server.
