@@ -48,3 +48,20 @@ test("[M8-1] every shipped photo is credited with author, licence and source", a
     expect(credit.source).toMatch(/^https:\/\/commons\.wikimedia\.org\//u);
   }
 });
+
+test("[M8-1] the hero is credited food photography from the catalogue, with responsive sizes", async () => {
+  const html = await render(Landing({ locale: "fr" }));
+  const hero = html.slice(
+    html.indexOf('class="landing-slides"'),
+    html.indexOf("landing-hero-copy"),
+  );
+  const sources = [...hero.matchAll(/src="([^"]+)"/gu)].map(([, src]) => src);
+  expect(sources).toHaveLength(5);
+  const credited = new Set<string>(photoCredits.map(({ file }) => file));
+  for (const src of sources) {
+    expect(src).toMatch(/^\/preview-catalog\//u);
+    expect(credited.has(src ?? "")).toBe(true);
+  }
+  expect(hero).toContain("/preview-catalog/chorba-table-960.webp 960w");
+  expect(hero).not.toContain("/photos/algeria/");
+});

@@ -1,11 +1,11 @@
 import { brand } from "@zaafran/config/brand";
 import { localeDetails, publicLocales, type Locale } from "@zaafran/i18n/locales";
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
 import { DiscoveryExperience } from "../discovery/discovery-experience";
 import { CustomerWorker } from "../discovery/customer-worker";
 import { InstallPrompt } from "../customer/install-prompt";
 import { CustomerTabBar } from "../customer/tab-bar";
+import { LandingFooter } from "../marketing/landing-footer";
 import { SiteShell } from "./site-shell";
 
 export function homeMetadata(locale: Locale, subpath = ""): Metadata {
@@ -22,19 +22,14 @@ export function homeMetadata(locale: Locale, subpath = ""): Metadata {
 }
 
 export async function Home({ locale }: { locale: Locale }) {
-  const [translateAuth, translateMerchant] = await Promise.all([
-    getTranslations({ locale, namespace: "auth" }),
-    getTranslations({ locale, namespace: "merchant" }),
-  ]);
-
+  // Awaited here (an async server component) so the page renders in one pass.
+  const footer = await LandingFooter({ locale });
   return (
     <SiteShell locale={locale} subpath="/discover">
       <CustomerWorker />
       <DiscoveryExperience locale={locale} />
-      <div className="home-actions">
-        <a href={`/${locale}/sign-in`}>{translateAuth("title")}</a>
-        <a href={`/${locale}/merchant/apply`}>{translateMerchant("startApplication")}</a>
-      </div>
+      {/* A real footer instead of two bare links: the page ends on brand, links and credits. */}
+      {footer}
       <InstallPrompt locale={locale} />
       <CustomerTabBar locale={locale} current="home" />
     </SiteShell>
