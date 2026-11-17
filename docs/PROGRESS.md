@@ -13,6 +13,21 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-17 12:57 GMT — M2-12 local `pnpm gate m2` run (Claude, covering while Codex was out)
+
+- **Changed** — Added `docs/evidence/m2/gate.md`.
+- **Evidence** — At `39d1b4f`:
+  - `pnpm gate m2` → exit 0. Verify had 1,488 unit and 206 integration tests; `@merchant-onboarding` 1 passed; `test:authz` 200 passed; `test:design` 7 passed.
+  - `pnpm test:e2e:auth` → 23 passed (20.8 s).
+  - `pnpm trace --through m2` → 37/37.
+- **Reviewer** — Evidence only; no code changed.
+- **Next** — M2-12 has three items left, in this order:
+  1. When Mahdi clears the dev database drift (HUMAN_TODO), run the real `pnpm db:reset --confirm && pnpm db:seed` and record the twelve demo restaurants with photos.
+  2. Run the design critic's theme/locale/viewport review of the builder screens and the security auditor, writing their reports to `docs/evidence/m2/`.
+  3. Open the PR `m2: merchant onboarding` with this evidence and wait for green CI.
+  Until Mahdi answers, step 2 can proceed.
+- **Needs Mahdi** — HUMAN_TODO "Local dev database drift".
+
 ### 2026-11-17 12:55 GMT — M2-12 `seed-demo-media` command; demo imagery done (Claude, covering while Codex was out)
 
 - **Changed** — `b509da0`:
@@ -1307,7 +1322,7 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ## Current status
 
-- Milestone: M1 (last passing gate, M2 in progress; M2-8, M2-9 and M2-10 done; the `@merchant-onboarding` gate journey passes at `a8f2d80`)
+- Milestone: M2 in progress. `pnpm gate m2` passed locally at `39d1b4f` (`docs/evidence/m2/gate.md`). Left in M2-12: the real demo `pnpm db:seed` (blocked on the dev database drift in HUMAN_TODO), the auditors, and the PR.
 - Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import (M2-8) is complete, including its production browser journey. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
 - Last green `pnpm verify`: 2026-11-17 12:54 GMT on Docker Desktop with 1,488 unit and 206 PostGIS integration tests. `pnpm test:e2e:auth` passed 22/22 authenticated production journeys at `a8f2d80` (not rerun since; this run changed only the seed CLI and docs). `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 37/37 IDs at `8b45fdd`.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
