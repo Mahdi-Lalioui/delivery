@@ -13,6 +13,15 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-17 12:49 GMT — M2-12 demo cuisine icons (Claude, covering while Codex was out)
+
+- **Changed** — New `apps/worker/src/demo-cuisine-icons.ts`: original duotone 24-unit line icons for algerian (tagine), grill (skewer), pizza (slice), fast-food (burger), seafood (fish) and pastry (cupcake), plus a plate fallback. They use only `text` (ink) and `primary` (saffron) from `@zaafran/tokens/palettes.json`, which is a new export of `packages/tokens`. D-023 now places them in the worker until M3 needs them in `packages/ui`.
+- **Evidence** — `pnpm exec vitest run apps/worker/test/demo-cuisine-icons.test.ts`: red first (missing module). The first green attempt then failed for a real bug: a duplicated `stroke-width` attribute made librsvg reject the SVG. After the fix, 2/2 passed: icons are distinct, the fallback is stable, the colours are exactly ink and saffron with no text or images, and both colours appear in each raster. I also checked a contact sheet visually (`/tmp/d023-exp/icons.png`, not committed) and redrew the tagine so it does not read as a boat.
+- **Evidence** — `pnpm verify` → exit 0: 1,483 unit tests in 159 files, 204 integration tests in 42 files, knip, depcruise, trace.
+- **Reviewer** — Self-review against AGENTS §10: no P0/P1.
+- **Next** — Compose the 4:3 placeholder in `apps/worker/src/demo-placeholder.ts`. A gradient between two token colours, picked deterministically from the item id, sits behind `cuisineIcon` and the `demo-name-outline` ar + fr names, and the result is a PNG. Test it for determinism, size and ink presence. Then the `seed-demo-media` command (refuses any database except `zaafran_dev`; insert, prepare, `acceptDemoCrop`, publish, attach) wired into `pnpm db:seed`.
+- **Needs Mahdi** — none new.
+
 ### 2026-11-17 12:46 GMT — M2-12 HarfBuzz outlines for demo dish names (Claude, covering while Codex was out)
 
 - **Changed** — `964c9a1`:
@@ -1268,5 +1277,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress; M2-8, M2-9 and M2-10 done; the `@merchant-onboarding` gate journey passes at `a8f2d80`)
 - Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import (M2-8) is complete, including its production browser journey. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
-- Last green `pnpm verify`: 2026-11-17 12:45 GMT on Docker Desktop with 1,481 unit and 204 PostGIS integration tests (2026-11-17 12:45 GMT). `pnpm test:e2e:auth` passed 22/22 authenticated production journeys at `a8f2d80` (not rerun since; this run changed only the seed CLI and docs). `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 37/37 IDs at `8b45fdd`.
+- Last green `pnpm verify`: 2026-11-17 12:48 GMT on Docker Desktop with 1,483 unit and 204 PostGIS integration tests. `pnpm test:e2e:auth` passed 22/22 authenticated production journeys at `a8f2d80` (not rerun since; this run changed only the seed CLI and docs). `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 37/37 IDs at `8b45fdd`.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
