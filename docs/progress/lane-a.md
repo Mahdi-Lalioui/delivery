@@ -431,3 +431,6 @@
 
 - 2026-11-17 · High · Merged Lane B through `e21fc39` on lane-a, keeping both sets of performance evidence. Full local pnpm verify passed with 2,053 unit and 337 PostGIS integration tests.
   Next: finish all browser suites, then fast-forward main to this integration only after its exact GitHub checks pass.
+
+- 2026-11-17 · High · Integration review found courier updates could interrupt the tracking tilt. Both regression cases failed first, then passed with the selected pitch carried into the courier animation. Corrected the evidence to leave 3D frame timing open.
+  Next: require exact-head GitHub Verify and browser jobs on the corrected integration, fast-forward main, then start server route and page authorization.

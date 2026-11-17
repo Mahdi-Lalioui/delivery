@@ -59,7 +59,7 @@ Fixes made for these numbers:
 Still open: Tracking's remaining 2 % long frames come in the first seconds, while vector
 tiles and 3D buildings are parsed and uploaded on the 4× throttled CPU. A clean 60 fps there
 needs buildings revealed after the first `idle`, or a lighter building layer, then a check on a
-physical Android phone. Lab numbers on a Mac, not a phone.
+physical Android phone. The scroll samples ran before the taps. This capture did not measure the 3D toggle or its animation frames. Measurements used throttled Chromium on a Mac.
 
 ### Buildings after the first idle (13 November 2026, Claude covering while Codex was out)
 
@@ -119,6 +119,6 @@ Mahdi chose to open the street view only on request. The tracking map now stays 
 | Discovery | 0 | 60 | 0 % | 56 ms |
 | Restaurant | 0 | 60 | 0 % | 56 ms |
 | Checkout | 0 | 60 | 0 % | 32 ms |
-| Tracking | 0 | 60 / 60 / 59 | 0–1 % | 72 ms (3D toggle) |
+| Tracking | 0 | 60 / 60 / 59 | 0–1 % | 32 ms (Call focus) |
 
-Raw data: [perf/perf-feel-street-view-on-tap.json](perf/perf-feel-street-view-on-tap.json). Street view off and on: [fr](perf/street-view-off-fr-390.png) → [fr 3D](perf/street-view-on-fr-390.png), [ar](perf/street-view-off-ar-390.png) → [ar 3D](perf/street-view-on-ar-390.png). Lab numbers on a Mac, not a phone.
+Raw data: [perf/perf-feel-street-view-on-tap.json](perf/perf-feel-street-view-on-tap.json). Street view off and on: [fr](perf/street-view-off-fr-390.png) → [fr 3D](perf/street-view-on-fr-390.png), [ar](perf/street-view-off-ar-390.png) → [ar 3D](perf/street-view-on-ar-390.png). The scroll samples ran before the taps. This capture did not measure the 3D toggle or its animation frames. Measurements used throttled Chromium on a Mac.
