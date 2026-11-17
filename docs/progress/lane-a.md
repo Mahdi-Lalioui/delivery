@@ -437,3 +437,6 @@
 
 - 2026-11-17 · High · Linux WebKit spent 23 seconds creating a page before the map journey began. Moved page and PostGIS setup into a separately timed fixture. All 12 real-map cases passed locally with the original journey deadline and assertions.
   Next: wait for the exact-head GitHub integration gate, fast-forward main, then start server route and page authorization.
+
+- 2026-11-17 · High · Fast-forwarded main to `f1febe7` after all required GitHub checks and 175 local browser tests passed. Added API deny-all CSP and web isolation and frame headers. Seven API tests, six browser checks and the pinned Caddy TLS header probe passed.
+  Next: enforce authenticated operator page roles on the server and prove anonymous and wrong-role redirects with browser regressions.

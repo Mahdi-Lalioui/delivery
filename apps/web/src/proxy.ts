@@ -26,11 +26,13 @@ function createPolicy(nonce: string): string {
 
 export function proxy(request: NextRequest): NextResponse {
   const nonce = randomBytes(16).toString("base64");
-  const policy = createPolicy(nonce);
+  const { pathname } = request.nextUrl;
+  const policy = pathname.startsWith("/v1/")
+    ? "default-src 'none'; frame-ancestors 'none'"
+    : createPolicy(nonce);
   const headers = new Headers(request.headers);
   headers.set("Content-Security-Policy", policy);
 
-  const { pathname } = request.nextUrl;
   const locale = pathname.split("/")[1];
   const response =
     pathname === "/" || isPublicLocale(locale)
@@ -38,7 +40,10 @@ export function proxy(request: NextRequest): NextResponse {
       : NextResponse.next({ request: { headers } });
 
   response.headers.set("Content-Security-Policy", policy);
-  response.headers.set("Strict-Transport-Security", "max-age=31536000");
+  response.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
+  response.headers.set("Cross-Origin-Resource-Policy", "same-origin");
+  response.headers.set("X-Frame-Options", "DENY");
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   response.headers.set(

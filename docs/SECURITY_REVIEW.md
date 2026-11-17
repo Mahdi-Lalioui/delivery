@@ -41,3 +41,16 @@ the API and PostGIS. Exercise OTP enumeration, attempt caps and delivery rate li
 Verify session binding and revocation, CSRF, CSP, headers, rate
 limits, secret handling and the dependency audit. Record commands and results here as
 they pass, then rerun the full security and reliability pass from scratch.
+
+## Browser and API response headers
+
+The Fastify API and same-origin web API return a deny-all CSP, including
+`frame-ancestors 'none'`. Web documents retain their nonce-based script policy
+and now send same-origin opener and resource policies plus frame denial.
+The web and Caddy send HSTS with subdomains.
+
+The API regression failed on both a health response and a 404 before the
+change. All seven focused API tests passed afterwards. The production Playwright
+header regression and the existing CSP nonce check passed on mobile Chromium,
+mobile WebKit and desktop Chromium. The pinned Caddy image served the expected
+HSTS header over HTTPS using the checked-in configuration and a local CA.

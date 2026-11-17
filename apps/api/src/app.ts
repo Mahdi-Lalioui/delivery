@@ -170,6 +170,7 @@ export function createApi(options: ApiOptions): FastifyInstance {
   api.setSerializerCompiler(serializerCompiler);
   api.addHook("onRequest", (request, reply, done) => {
     reply.header("x-request-id", request.id);
+    reply.header("content-security-policy", "default-src 'none'; frame-ancestors 'none'");
     done();
   });
   recordRoutePolicies(api);
