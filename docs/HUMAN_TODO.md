@@ -20,6 +20,7 @@ Codex appends items here (what, why, exact steps). Mahdi ticks them. Items marke
 - [ ] Staging VPS (any provider; synthetic data only): 2 vCPU / 4 GB / 80 GB, Ubuntu LTS. Give Codex a deploy SSH key with limited rights.
 - [ ] **[before launch]** Production VPS **hosted in Algeria**: 4 vCPU / 8–16 GB / 160 GB SSD, Ubuntu LTS.
 - [ ] **[before launch]** Second backup location for encrypted backups.
+- [ ] Local dev database drift (2026-11-17). `zaafran_dev` records drizzle migrations 22 and 23 from another worktree (lane-a/lane-b/awid), so on `m2-merchant-onboarding` `pnpm db:migrate` and `pnpm db:seed` re-apply `0021_merchant_application_photos` and fail with `42P07`. Agents must not delete data without you. If nothing in `zaafran_dev` matters, run `pnpm db:reset --confirm` from the branch you work on (other worktrees then re-migrate their own branch). Otherwise tell the agents which branch's schema `zaafran_dev` should hold.
 
 ## Providers
 - [ ] **[before launch]** SMS gateway for login. In the provider console, register a transactional sender ID, enable its HTTPS send endpoint and request the delivery and idempotency documentation. Put the provider credential in the deployment secret store and share the credential reference and sender ID so the production adapter can be configured. Use approved test numbers on Mobilis, Djezzy and Ooredoo to confirm delivery before opening signup. Development and automated checks use the local fake inbox.

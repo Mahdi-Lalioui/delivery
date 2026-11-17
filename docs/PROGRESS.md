@@ -13,6 +13,17 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-17 12:38 GMT — M2-12 demo restaurant seed, and the demo imagery design (Claude, covering while Codex was out)
+
+- **Changed** — `1a802d6` finishes Codex's uncommitted seed work. `pnpm db:seed` now inserts twelve fictional, active `is_demo` Algiers restaurants, each with two bilingual ar/fr categories and at least five dishes. Every dish passes `findProhibitedGoods`. The seed is idempotent through `ON CONFLICT (slug)` and runs only against `zaafran_dev` (D-022). Files: `packages/db/src/demo-merchants{,-data}.ts`, `packages/db/src/cli.ts`, `packages/db/test/demo-merchants.integration.test.ts`.
+- **Changed** — The docs commit adds D-023, the demo imagery design: a worker `seed-demo-media` command, one seed-only uploader, and the existing prepare/publish phases. It also splits the imagery sub-step in PLAN into four tasks and adds a HUMAN_TODO for the local dev database drift.
+- **Evidence** — `pnpm test:int packages/db/test/demo-merchants.integration.test.ts` → 2/2 passed (twelve bilingual restaurants, and an unchanged re-seed).
+- **Evidence** — `pnpm verify` → exit 0: format, lint, typecheck, 1,476 unit tests in 157 files, build, OpenAPI check, 200 integration tests in 41 files, knip, depcruise, trace. `pnpm audit` reported one moderate issue, below the `high` threshold.
+- **Evidence** — `pnpm db:seed` on the shared local `zaafran_dev` → exit 1 with `42P07` while re-applying `0021_merchant_application_photos`. That database records drizzle migrations 22–23 from another worktree, so this predates the change and does not come from it. I did not reset it (§8: no data deletion without Mahdi). The seeder is proven on fresh migrated clones by the integration test above.
+- **Reviewer** — Self-review against AGENTS §10: no P0/P1. The seeder is reachable only through the local-only CLI guard, the demo text is screened, and no production path imports it. Risk: the `+2135509999NN` block is fictional by convention, not reserved by an operator. No flow sends SMS to a merchant's own phone today.
+- **Next** — First D-023 task: scout how to render ar/fr dish names deterministically in a sharp-rasterised SVG (librsvg uses fontconfig system fonts). Record the answer in D-023. Then draw the demo cuisine icons in `packages/ui`, write the failing integration tests for the `packages/db` demo-media inserts, and add the worker `seed-demo-media` command.
+- **Needs Mahdi** — HUMAN_TODO "Local dev database drift": approve `pnpm db:reset --confirm`, or say which branch's schema `zaafran_dev` should hold.
+
 ### 2026-11-16 18:06 GMT — M2-12 the `@merchant-onboarding` gate journey (Claude, covering while Codex was out)
 
 - **Changed** — `a8f2d80`: the new `e2e/auth-merchant-onboarding.spec.ts` (`[MER-01:onboarding] … @merchant-onboarding`) runs the whole gate m2 journey on the production build:
@@ -1222,5 +1233,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress; M2-8, M2-9 and M2-10 done; the `@merchant-onboarding` gate journey passes at `a8f2d80`)
 - Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import (M2-8) is complete, including its production browser journey. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
-- Last green `pnpm verify`: 2026-11-16 17:30 GMT on Docker Desktop with 1,476 unit and 198 PostGIS integration tests. `pnpm test:e2e:auth` passed 22/22 authenticated production journeys at the same tree. `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 37/37 IDs at `8b45fdd`.
+- Last green `pnpm verify`: 2026-11-17 12:36 GMT on Docker Desktop with 1,476 unit and 200 PostGIS integration tests (at `1a802d6`). `pnpm test:e2e:auth` passed 22/22 authenticated production journeys at `a8f2d80` (not rerun since; this run changed only the seed CLI and docs). `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 37/37 IDs at `8b45fdd`.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md

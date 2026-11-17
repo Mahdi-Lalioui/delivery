@@ -215,3 +215,16 @@ The flow has four parts:
 - **Repeat seeding.** Re-running the seed inserts nothing, because the slugs are unique (`ON CONFLICT (slug) DO NOTHING`), and a restaurant's menu is created only with the restaurant. Fixing the demo data needs `pnpm db:reset --confirm`.
 - **Imagery.** Synthetic placeholder imagery (DESIGN: gradient + dish icon + name) is a separate M2-12 step, because it needs the media pipeline's variants.
 - **Alternatives:** `status = 'approved'` (rejected: the demo would not be browsable until M3 adds a bypass); demo owner accounts (rejected: they would need seeded user phones and sessions, which no M2 flow uses).
+
+### D-023 — Demo dish imagery is rendered by a worker seed command and published through the media pipeline (2026-11-17)
+
+Status: design only. The first step needs a scout check (see "Open question").
+
+The demo images (DESIGN §6: gradient + dish icon + name) must end up as ordinary `media_uploads` rows with published `media_variants`. That way the M3 feed and item sheets read demo and real photos the same way, and nothing branches on `is_demo`.
+
+- **Where.** Add a worker command `seed-demo-media`, run by `pnpm db:seed` after `seedDemoMerchants`, and still only against `zaafran_dev`. The worker already owns sharp, ThumbHash and the `MediaStore`; `packages/db` must not depend on them.
+- **Uploader.** `media_uploads.owner_id` is `NOT NULL`, and the public repositories (`reserveMedia`, `acceptMediaCrop`) need a member session. So add one seed-only uploader user with the reserved phone `+213550999900` and no session or membership. A `packages/db` `demo-media` module inserts the upload directly as `preparing`, with a centred crop (focal 5000/5000, zoom 100), for every demo item that has no `photo_media_id`. The original goes under the normal quarantine key. This narrows D-022's "no demo owner accounts", which rejected per-restaurant owners with sessions.
+- **Rendering.** Build an SVG per dish from DESIGN tokens: a token-derived gradient picked deterministically from the item id, plus the cuisine's line icon. Rasterise it to PNG with sharp, then run the existing `prepare` and `publish` phases inline, so variants, ThumbHash and keys come from the same code as merchant photos.
+- **Icons.** DESIGN §6 says the cuisine icons are original in-repo SVGs. Draw them once in `packages/ui` (one per demo cuisine first) and reuse them for the chips.
+- **Open question (scout).** librsvg renders SVG `<text>` with system fonts through fontconfig, so Arabic shaping and the result differ between machines. Options to check: convert the name to outlines with the self-hosted font, or leave the name out of the image (the card already prints it) and propose a DESIGN amendment. Do not ship until this is answered.
+- **Alternatives:** inserting `ready` rows with fake preview keys (rejected: bypasses the pipeline and fakes state); static image files in git (rejected: binary churn, and they would skip the variant and ThumbHash code).
