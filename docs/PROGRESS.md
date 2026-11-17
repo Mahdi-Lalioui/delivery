@@ -13,6 +13,17 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-17 12:46 GMT — M2-12 HarfBuzz outlines for demo dish names (Claude, covering while Codex was out)
+
+- **Changed** — `964c9a1`:
+  - New `apps/worker/src/demo-name-outline.ts`. It shapes a name with `harfbuzzjs@1.6.4` from the pinned `apps/worker/assets/demo-fonts/ibm-plex-sans-arabic-600.ttf` and returns an SVG `<g>` of glyph paths with its fitted width and size. Long names shrink to fit the box. A `.notdef` glyph makes it throw instead of drawing boxes.
+  - The font is the unmodified OFL file from Google Fonts commit `86aced9` (SHA-256 `597bd550…d467`). Its licence and a README sit next to it. DECISIONS D-023 has the dependency line.
+- **Evidence** — `pnpm exec vitest run apps/worker/test/demo-name-outline.test.ts`: red first (`Cannot find module '../src/demo-name-outline.ts'`), then 5/5 passed. The tests cover ar/fr ink coverage after a sharp raster, determinism, fit-to-width, a CJK refusal, and a WOFF2 refusal.
+- **Evidence** — `pnpm verify` → exit 0: 1,481 unit tests in 158 files with coverage thresholds, 204 integration tests in 42 files, knip, depcruise, audit (one moderate, below `high`), trace.
+- **Reviewer** — Self-review against AGENTS §10: no P0/P1. Path data comes only from our pinned font. The module is used only by tests until the seed command imports it.
+- **Next** — Draw the original duotone line icons for the twelve demo restaurants' cuisines in `packages/ui` (DESIGN §6; ink + saffron tokens). Then add `apps/worker/src/demo-placeholder.ts`, which composes the token gradient + icon + `demo-name-outline` into a 4:3 PNG. Then the `seed-demo-media` command: refuse any database except `zaafran_dev`; insert, prepare, `acceptDemoCrop`, publish and attach; run it from `pnpm db:seed`.
+- **Needs Mahdi** — none new.
+
 ### 2026-11-17 12:43 GMT — M2-12 demo-media inserts in `packages/db` (Claude, covering while Codex was out)
 
 - **Changed** — New `packages/db/src/demo-media.ts` (D-023), not yet exported from the package; the worker command will add the export when it imports it:
@@ -1257,5 +1268,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress; M2-8, M2-9 and M2-10 done; the `@merchant-onboarding` gate journey passes at `a8f2d80`)
 - Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import (M2-8) is complete, including its production browser journey. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
-- Last green `pnpm verify`: 2026-11-17 12:36 GMT on Docker Desktop with 1,476 unit and 204 PostGIS integration tests (2026-11-17 12:42 GMT). `pnpm test:e2e:auth` passed 22/22 authenticated production journeys at `a8f2d80` (not rerun since; this run changed only the seed CLI and docs). `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 37/37 IDs at `8b45fdd`.
+- Last green `pnpm verify`: 2026-11-17 12:45 GMT on Docker Desktop with 1,481 unit and 204 PostGIS integration tests (2026-11-17 12:45 GMT). `pnpm test:e2e:auth` passed 22/22 authenticated production journeys at `a8f2d80` (not rerun since; this run changed only the seed CLI and docs). `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 37/37 IDs at `8b45fdd`.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
