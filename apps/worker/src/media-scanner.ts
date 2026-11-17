@@ -26,6 +26,7 @@ export function createClamScan(executable: string, database?: string): ScanMedia
         {
           timeout: 30_000,
           maxBuffer: 16_384,
+          env: {},
         },
       ).then(
         () => "clean",

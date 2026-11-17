@@ -478,3 +478,5 @@
   Next: expand valid-session isolation coverage for courier actions, realtime topics and admin routes.
 - 2026-11-17 · Ultra · Order actions now authorize an unlocked snapshot before acquiring the order row lock, then recheck after locking. The connected regression failed before and passed after. `pnpm verify` passed 2,061 unit and 342 Postgres tests, but stopped at audit on newly published, unpatched GHSA-fc5q-39xc-vjpf; [evidence](../evidence/awid/dependency-audit-nov17.md).
   Next: remove ClamAV's inherited process secrets and extend valid-session isolation coverage for courier actions, realtime topics and admin routes.
+- 2026-11-17 · Ultra · ClamAV now receives an empty process environment. A synthetic worker secret was visible to the fake scanner before the fix; the regression passed after. `pnpm exec vitest run --coverage.enabled=false apps/worker/test/media-scanner.test.ts` passed.
+  Next: extend valid-session isolation coverage for courier actions, realtime topics and admin routes; audit the production edge and runtime logs.
