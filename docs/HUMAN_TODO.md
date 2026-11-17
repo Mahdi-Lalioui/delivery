@@ -72,3 +72,9 @@ Codex appends items here (what, why, exact steps). Mahdi ticks them. Items marke
   `~/Documents/ChatGPT/zaafran` from sync or move the repos out of `~/Documents`. Then check
   that each `* 2` ref matches its original (`git -C delivery show-ref`) and delete only the
   duplicate ref files.
+
+## Third-party agent skills (lane B, 17 November 2026)
+
+What: decide whether to install find-skills, web-design-guidelines, taste-skill, the freshtechbro three.js and react-three-fiber skills, and microsoft/playwright-cli. Each one should be scanned with NVIDIA SkillSpector first.
+Why: these download and run code from outside repositories. The agent doesn't run unvetted downloads by itself, so it used the repo's own Playwright, axe and audit scripts instead.
+Steps: clone github.com/NVIDIA/skillspector, scan each skill repository, read the report, then run the `npx skills add …` commands from the lane B brief.

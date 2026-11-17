@@ -1141,3 +1141,13 @@ body:has(.restaurant-cart-bar) .customer-tabs {
 .restaurant-popular[data-pending="true"] .restaurant-popular-card {
   cursor: default;
 }
+
+/* Cart problems sit on the cart bar and panel, next to the action, never under the menu. */
+.restaurant-cart-notice {
+  margin: 0 0 var(--space-8);
+  padding: var(--space-8) var(--space-12);
+  border-radius: var(--radius-md);
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  font-size: var(--font-size-label);
+}

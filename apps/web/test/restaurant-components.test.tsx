@@ -207,3 +207,21 @@ test("[CUS-07:web] the popular placeholder waits only for the first category, no
   expect(isPopularPending("", 1)).toBe(false);
   expect(isPopularPending("chorba", 0)).toBe(false);
 });
+
+test("[CUS-07:web] a cart problem shows on the cart bar and panel, next to the action", async () => {
+  const { CartControls } = await import("../src/restaurant/cart-controls");
+  const basket = {
+    cart: null,
+    storageFailed: true,
+    expiredFrom: null,
+    save: () => undefined,
+  };
+  const html = renderToStaticMarkup(
+    <CartControls basket={basket} locale="fr" notice="Panier non enregistré" />,
+  );
+  expect(html.match(/restaurant-cart-notice/g)).toHaveLength(2);
+  expect(html).toContain("restaurant-cart-bar");
+  expect(renderToStaticMarkup(<CartControls basket={basket} locale="fr" />)).not.toContain(
+    "restaurant-cart-notice",
+  );
+});
