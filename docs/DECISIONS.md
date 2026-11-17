@@ -206,3 +206,12 @@ The flow has four parts:
 - **Text.** French: users store no locale yet, and the admin console starts in French (NOT-02 applies once a locale exists). The SMS carries no applicant data: no restaurant name, owner or phone, only "a new application is waiting" and the `/fr/admin/merchant-applications` path.
 
 - **Alternatives:** sending from the API after commit, like the OTP (rejected: an API crash between commit and send loses the notice, and a retry has no ledger); an in-app unread count only (rejected: does not reach an admin who is not signed in, and is not a notification).
+
+### D-022 — Demo restaurants are seeded active by `pnpm db:seed`, with reserved fictional phones (2026-11-16)
+
+`pnpm db:seed` inserts twelve fictional restaurants (`packages/db/src/demo-merchants-data.ts`) after the geography, and only into the local `zaafran_dev` database: the CLI's `assertLocalDatabaseUrl` refuses other databases, and no production code path imports the seeder. Each row has `is_demo = true` and `status = 'active'`, so the M3 feed and restaurant pages have content without a fake activation flow. Each sits at the centroid of a different Algiers commune and has two bilingual (ar/fr) categories with at least five dishes in total. The dish text goes through the same `findProhibitedGoods` screen as merchant writes (§17.3).
+
+- **Phones.** Demo phones use the block `+2135509999NN` (01–12). It is used only for demo rows and never receives SMS, because demo merchants have no member accounts.
+- **Repeat seeding.** Re-running the seed inserts nothing, because the slugs are unique (`ON CONFLICT (slug) DO NOTHING`), and a restaurant's menu is created only with the restaurant. Fixing the demo data needs `pnpm db:reset --confirm`.
+- **Imagery.** Synthetic placeholder imagery (DESIGN: gradient + dish icon + name) is a separate M2-12 step, because it needs the media pipeline's variants.
+- **Alternatives:** `status = 'approved'` (rejected: the demo would not be browsable until M3 adds a bypass); demo owner accounts (rejected: they would need seeded user phones and sessions, which no M2 flow uses).

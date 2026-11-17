@@ -174,6 +174,8 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
     - [x] Expose sent invitation tokens in the e2e auth harness and add the typed web client (`apps/web/src/merchant-staff/staff-http.ts`).
     - [x] Add the owner staff page, the accept page, ar/fr/en messages and `e2e/auth-merchant-staff.spec.ts` with the design matrix.
 - [ ] M2-12 Seed twelve fictional bilingual Algiers restaurants with synthetic imagery and `is_demo`, then run production-built onboarding, the complete route matrix, and the design critic's theme/locale/viewport checks. Record local and PR evidence.
+  - [x] Seed twelve fictional, bilingual Algiers restaurants (`is_demo`, active, two categories and at least five screened dishes each) in `pnpm db:seed`, idempotently and only into the local development database (D-022).
+  - [ ] Give the demo dishes synthetic placeholder imagery (DESIGN: gradient + dish icon + name) through the media pipeline's published variants.
   - [x] Wire the authenticated onboarding tag, complete the dedicated authorization matrix, and register the design screen gate check. See `docs/evidence/m2/baseline-audit.md`.
     - [x] Run every API route suite in `pnpm test:authz`, guarded by a tooling test.
     - [x] Route the gate's `e2e:@merchant-onboarding` check to the authenticated Playwright config.

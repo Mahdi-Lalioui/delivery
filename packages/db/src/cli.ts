@@ -1,6 +1,7 @@
 import process from "node:process";
 import { z } from "zod";
 import { openDatabase } from "./database.ts";
+import { seedDemoMerchants } from "./demo-merchants.ts";
 import { seedGeography } from "./geography.ts";
 import { assertLocalDatabaseUrl, assertPostgres18Database } from "./local-database.ts";
 import { migrateDatabase } from "./migrate.ts";
@@ -17,7 +18,11 @@ async function prepareDevelopmentDatabase(url: URL, action: "migrate" | "seed"):
   try {
     await assertPostgres18Database(connection.sql, developmentDatabase);
     await migrateDatabase(connection);
-    if (action === "seed") await seedGeography(connection);
+    if (action === "seed") {
+      await seedGeography(connection);
+      // Only the local development database reaches here (assertLocalDatabaseUrl).
+      await seedDemoMerchants(connection);
+    }
   } finally {
     await connection.close();
   }
@@ -76,7 +81,7 @@ async function main(): Promise<void> {
 
   await prepareDevelopmentDatabase(url, args.data[0]);
   if (args.data[0] === "seed") {
-    process.stdout.write("Seeded wilayas, communes, and Algiers boundaries.\n");
+    process.stdout.write("Seeded wilayas, communes, Algiers boundaries and demo restaurants.\n");
   }
 }
 
