@@ -189,3 +189,9 @@ test("[CUS-18] applies only a newer live position for the tracked delivery", () 
   expect(applyTrackingPosition(updated, { ...position, longitude: 4 })).toBe(updated);
   expect(applyTrackingPosition(active, { ...position, orderId: crypto.randomUUID() })).toBe(active);
 });
+
+test("[CUS-18] the tracking map stays flat until the diner asks for the 3D street view", async () => {
+  const { cameraPitch } = await import("../src/tracking/use-tracking-scene");
+  expect(cameraPitch(false)).toBe(0);
+  expect(cameraPitch(true)).toBe(55);
+});

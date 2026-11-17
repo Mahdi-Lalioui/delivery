@@ -107,3 +107,18 @@ route checks on the same throttled Pixel 7 profile. Discovery LCP was 1,528 /
 all six samples. Initial gzip JavaScript was 336,777 bytes for Discovery and
 258,444 bytes for Restaurant. Both exceeded the SPEC 180 KB target. Richer
 connected catalog measurements are still open.
+
+### 3D street view on tap (13 November 2026, lane B)
+
+Mahdi chose to open the street view only on request. The tracking map now stays flat, and a "Vue 3D" / "عرض ثلاثي الأبعاد" / "3D view" toggle on the map (`aria-pressed`) tilts it to 55° and back. Unit test `[CUS-18]` in `apps/web/test/tracking.test.ts` went red, then green.
+
+`pnpm perf:customer-feel http://127.0.0.1:3110 3` on the throttled Android profile, with a machine load of 20:
+
+| Route | CLS | Scroll fps | Long frames | Slowest tap |
+|---|---|---|---|---|
+| Discovery | 0 | 60 | 0 % | 56 ms |
+| Restaurant | 0 | 60 | 0 % | 56 ms |
+| Checkout | 0 | 60 | 0 % | 32 ms |
+| Tracking | 0 | 60 / 60 / 59 | 0–1 % | 72 ms (3D toggle) |
+
+Raw data: [perf/perf-feel-street-view-on-tap.json](perf/perf-feel-street-view-on-tap.json). Street view off and on: [fr](perf/street-view-off-fr-390.png) → [fr 3D](perf/street-view-on-fr-390.png), [ar](perf/street-view-off-ar-390.png) → [ar 3D](perf/street-view-on-ar-390.png). Lab numbers on a Mac, not a phone.

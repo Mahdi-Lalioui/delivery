@@ -428,3 +428,6 @@
 
 - 2026-11-13 · High · Both connected performance tests passed on the integrated candidate. Discovery peaked at 1.62 s and Restaurant at 1.42 s over three cold samples each. Initial JS remains over the SPEC budget.
   Next: profile the larger connected catalog and identify common route bundles to defer.
+
+- 2026-11-17 · High · Merged Lane B through `e21fc39` on lane-a, keeping both sets of performance evidence. Full local pnpm verify passed with 2,053 unit and 337 PostGIS integration tests.
+  Next: finish all browser suites, then fast-forward main to this integration only after its exact GitHub checks pass.
