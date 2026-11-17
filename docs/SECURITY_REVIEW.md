@@ -10,6 +10,8 @@ courier and administrator routes. All checks use synthetic data on local infrast
 | Structured log redaction missed authorization and cookie headers and the stored order contact and address aliases. | Normalized snake-case and hyphenated field names before removing credentials and contact fields. [Red-first logger regression](../apps/api/test/logger.test.ts) |
 | First-order promo checks read order history across restaurants. | Scoped the query to the promotion's merchant and tested a prior order at another merchant. [PostGIS regression](../packages/db/test/order-quotes.integration.test.ts) |
 | Courier invitations revealed whether a phone or email was an active courier at another restaurant. | Removed the cross-merchant registration lookup. Owners receive the same invitation result; the accepting account still cannot join a second restaurant. [PostGIS regression](../packages/db/test/couriers.integration.test.ts) |
+| An unauthorized order action acquired a row lock before checking customer/restaurant access, allowing lock contention on another tenant's order. | Authorize against an unlocked snapshot, then lock and reauthorize before mutation. A real-session regression held the foreign order lock and confirmed the outsider received 404 before release. [Connected Postgres test](../apps/api/test/order-session.integration.test.ts) |
+| The 17 November production audit now reports a new high ReDoS advisory in picomatch 4.0.7, pulled through Expo/Metro. The upstream advisory lists no patched release. | No safe upstream version is available to update to; the advisory is recorded and unsuppressed. The full verification run passed all prior stages, then failed at `pnpm audit --prod --audit-level high`. [Audit evidence](evidence/awid/dependency-audit-nov17.md) |
 
 ## Local evidence
 
@@ -135,6 +137,16 @@ read seven fixture addresses without a customer context before the migration.
 The regression now sees no rows without context, only the current customer's
 rows with context, and cannot delete another customer's address. Address,
 checkout quote and privacy integration suites passed 48 tests.
+
+## Order action isolation before locking
+
+Order commands now first read an unlocked candidate snapshot and verify the
+actor. Only an authorized actor may request the row lock; after acquiring it,
+the command rechecks membership/assignment and authorization against the
+locked state before replay or mutation. The connected test held the order row
+with another transaction: before the change the outsider request remained
+blocked, and after the change it returned 404 while the lock remained held.
+The legitimate restaurant owner still accepted and cancelled the same order.
 
 The route inventory and authorization matrix passed all 267 checks across 42
 suites. The connected order-session regression also confirmed that an owner

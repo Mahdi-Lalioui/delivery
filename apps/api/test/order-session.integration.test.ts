@@ -4,6 +4,7 @@ import { createOrderRepository } from "@zaafran/db/orders";
 import { runMigrations } from "graphile-worker";
 import { expect, onTestFinished, test } from "vitest";
 import { registerTestDatabase } from "../../../packages/db/test/database.ts";
+import { openDatabase } from "../../../packages/db/src/database.ts";
 import { createApi } from "../src/app.ts";
 import { hashSessionToken } from "../src/auth-crypto.ts";
 import { createAuthService } from "../src/auth-service.ts";
@@ -140,7 +141,31 @@ test("[AUTH-06][MER-03] real standard session cookies reach the board only for m
       payload: { expectedVersion: 1, prepMinutes: 15 },
     });
   expect((await accept(customer.headers)).statusCode).toBe(404);
-  expect((await accept(outsider.headers)).statusCode).toBe(404);
+  const lockDatabase = openDatabase(database.url());
+  const locked = Promise.withResolvers<undefined>();
+  const release = Promise.withResolvers<undefined>();
+  const lockTransaction = lockDatabase.sql.begin(async (tx) => {
+    await tx`SELECT id FROM public.orders WHERE id = ${orderId} FOR UPDATE`;
+    locked.resolve(undefined);
+    await release.promise;
+  });
+  await locked.promise;
+  const outsiderRequest = accept(outsider.headers);
+  try {
+    const response = await Promise.race([
+      outsiderRequest,
+      new Promise<undefined>((resolve) => {
+        setTimeout(() => {
+          resolve(undefined);
+        }, 150);
+      }),
+    ]);
+    expect(response?.statusCode).toBe(404);
+  } finally {
+    release.resolve(undefined);
+    await lockTransaction;
+    await lockDatabase.close();
+  }
   const accepted = await accept(owner.headers);
   expect(accepted.statusCode).toBe(200);
   expect(accepted.json()).toMatchObject({ status: "accepted", version: 2 });
