@@ -14,7 +14,7 @@
     "test:tooling": "node --test tooling/*.test.ts scripts/*.test.ts",
     "dev": "docker compose up -d --wait && pnpm db:migrate && turbo run dev",
     "db:migrate": "pnpm --dir packages/db db:migrate && pnpm worker:migrate",
-    "db:seed": "pnpm --dir packages/db db:seed",
+    "db:seed": "pnpm --dir packages/db db:seed && pnpm worker:seed-demo-media",
     "db:reset": "pnpm --dir packages/db db:reset",
     "test": "pnpm test:tooling && turbo run build --filter='./packages/*' && vitest run --coverage",
     "test:authz": "turbo run build --filter='./packages/*' && vitest run --coverage.enabled=false apps/api/test/policy.test.ts apps/api/test/*-http.test.ts",
@@ -36,6 +36,7 @@
     "gate": "node scripts/gate.ts",
     "fixtures:tiles": "node infra/scripts/create-synthetic-pmtiles.mjs",
     "worker:migrate": "turbo run build --filter=@zaafran/worker && pnpm --filter @zaafran/worker migrate",
+    "worker:seed-demo-media": "turbo run build --filter=@zaafran/worker && pnpm --filter @zaafran/worker seed:demo-media",
     "hooks:install": "sh scripts/install-hooks.sh",
     "lint:staged": "lint-staged"
   },

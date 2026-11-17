@@ -6,5 +6,5 @@
     "skipLibCheck": true,
     "types": ["node"]
   },
-  "files": ["src/worker.ts", "src/migrate.ts"]
+  "files": ["src/worker.ts", "src/migrate.ts", "src/seed-demo-media.ts"]
 }

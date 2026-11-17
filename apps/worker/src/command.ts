@@ -27,7 +27,7 @@ export function readWorkerEnvironment(
 }
 
 export async function runWorkerCommand(
-  command: "start" | "migrate",
+  command: "start" | "migrate" | "seed-demo-media",
   execute: (environment: WorkerEnvironment) => Promise<void>,
 ): Promise<void> {
   const environment = readWorkerEnvironment(process.env);

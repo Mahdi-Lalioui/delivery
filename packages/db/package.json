@@ -12,6 +12,14 @@
       "types": "./src/database.ts",
       "default": "./dist/database.js"
     },
+    "./demo-media": {
+      "types": "./src/demo-media.ts",
+      "default": "./dist/demo-media.js"
+    },
+    "./local-database": {
+      "types": "./src/local-database.ts",
+      "default": "./dist/local-database.js"
+    },
     "./geography": {
       "types": "./src/geography.ts",
       "default": "./dist/geography.js"

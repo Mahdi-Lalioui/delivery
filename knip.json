@@ -9,7 +9,7 @@
       "entry": ["src/server.ts", "test/**/*.test.ts"]
     },
     "apps/worker": {
-      "entry": ["src/migrate.ts", "test/**/*.test.ts"]
+      "entry": ["src/migrate.ts", "src/seed-demo-media.ts", "test/**/*.test.ts"]
     },
     "apps/web": {
       "entry": ["src/app/**/page.design.tsx"]

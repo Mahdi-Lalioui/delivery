@@ -8,7 +8,8 @@
     "dev": "tsx watch --env-file-if-exists=../../.env src/worker.ts",
     "start": "node dist/worker.js",
     "migrate": "node --env-file-if-exists=../../.env dist/migrate.js",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "seed:demo-media": "node --env-file-if-exists=../../.env dist/seed-demo-media.js"
   },
   "dependencies": {
     "@zaafran/contracts": "workspace:*",
