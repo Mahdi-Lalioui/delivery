@@ -13,6 +13,13 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-17 12:58 GMT — M2-12 design spot check (Claude, covering while Codex was out)
+
+- **Changed** — `docs/evidence/m2/gate.md` gains a "Design spot check" section. Two ar 390 px screenshots were reviewed; it is not the design critic's full pass.
+- **Evidence** — RTL and shaping are correct. Two P2s are recorded with file:line: availability is shown twice on builder item cards, and form-control `accent-color` mixes `info` and `primary`.
+- **Next** — Unchanged from the gate entry: the design critic's full matrix and the security auditor, then the PR. The real demo `db:seed` waits on Mahdi's go-ahead for the dev database reset.
+- **Needs Mahdi** — HUMAN_TODO "Local dev database drift".
+
 ### 2026-11-17 12:57 GMT — M2-12 local `pnpm gate m2` run (Claude, covering while Codex was out)
 
 - **Changed** — Added `docs/evidence/m2/gate.md`.

@@ -17,3 +17,10 @@ Tree: `39d1b4f` on `m2-merchant-onboarding`, Docker Desktop PostGIS, Node v26.13
 - **Real demo seed.** `pnpm db:seed` (twelve demo restaurants, D-022, and their generated photos, D-023) has only been proven on freshly migrated test clones. The shared `zaafran_dev` has schema drift from another worktree (see HUMAN_TODO) and needs Mahdi's go-ahead for `pnpm db:reset --confirm`.
 - **Auditors.** The design critic's theme × locale × viewport review of the builder screens and the security auditor's pass, as AGENTS §3.7 lists them. Their reports go in this directory.
 - **PR.** Open `m2: merchant onboarding` once the auditors report no P0/P1, and record the CI run here.
+
+## Design spot check (not the auditor pass)
+
+I looked at two committed screenshots: `bulk-price/bulk-price-ar-dark-390x844.webp` and `menu-preview/menu-preview-ar-light-390.webp`. RTL alignment, Arabic shaping, prices in `دج` and dark-theme contrast look correct. Two P2 notes for the design critic:
+
+- The item cards in the builder show the availability twice: "متاح" as a plain line and again as the select's value. Check whether the line should be a visually hidden label.
+- Checkbox and radio accents are inconsistent. `--color-info` is used in `apps/web/src/merchant/components/merchant.css:129` and `apps/web/src/merchant-onboarding/components/merchant-onboarding.css:94`; `--color-primary` is used in `menu-option-group/components/option-group.css:165` and `menu-item/components/menu-item.css:256`. Pick one token for all form-control accents.
