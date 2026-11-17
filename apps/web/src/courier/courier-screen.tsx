@@ -140,7 +140,7 @@ function CourierJobs({ locale }: { locale: Locale }) {
 
 export function CourierScreen({ locale }: { locale: Locale }) {
   const t = useTranslations("courier");
-  const { invite, dismiss } = useCourierInvite();
+  const { invite, dismiss, retry } = useCourierInvite();
   return (
     <div className="courier-screen">
       <header className="courier-heading">
@@ -152,12 +152,16 @@ export function CourierScreen({ locale }: { locale: Locale }) {
           <p>{t("subtitle")}</p>
         </div>
       </header>
-      {invite === undefined ? (
+      {invite.kind === "loading" ? (
         <div className="courier-panel">
           <Skeleton label={t("loading")} />
         </div>
-      ) : invite ? (
-        <CourierInvite inviteId={invite} locale={locale} onAccepted={dismiss} />
+      ) : invite.kind === "ready" ? (
+        <CourierInvite inviteId={invite.inviteId} locale={locale} onAccepted={dismiss} />
+      ) : invite.kind === "error" ? (
+        <div className="courier-panel">
+          <ErrorState title={t("error")} retryLabel={t("retry")} onRetry={retry} />
+        </div>
       ) : (
         <CourierJobs locale={locale} />
       )}

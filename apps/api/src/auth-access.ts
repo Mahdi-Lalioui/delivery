@@ -3,6 +3,7 @@ import type { FastifyReply, FastifyRequest, HookHandlerDoneFunction } from "fast
 import type { AuthService } from "./auth-service.js";
 import {
   hasSameOrigin,
+  hasSessionSetCookie,
   isNativeTransport,
   readSessionCredential,
   sessionCookie,
@@ -82,7 +83,8 @@ export function createAuthAccess(auth: Authentication | undefined) {
 
     refreshCookie(request: FastifyRequest, reply: FastifyReply) {
       const current = webSessions.get(request);
-      if (!current || reply.statusCode >= 400 || reply.hasHeader("set-cookie")) return;
+      if (!current || reply.statusCode >= 400 || hasSessionSetCookie(reply.getHeader("set-cookie")))
+        return;
       const { token, session } = current;
       reply.header(
         "set-cookie",

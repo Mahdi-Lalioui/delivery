@@ -1,12 +1,18 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
+import { withAuthHarness } from "./auth-fixture.ts";
 
 const merchantId = "01932f18-3150-7c33-8a7a-53acfd343001";
 const courierId = "01932f18-3150-7c33-8a7a-53acfd343002";
 const orderId = "01932f18-3150-7c33-8a7a-53acfd343003";
 const inviteId = "01932f18-3150-7c33-8a7a-53acfd343004";
 
-type Fixture = { startInDelivery?: boolean; lockCode?: boolean; waiting?: boolean };
+type Fixture = {
+  startInDelivery?: boolean;
+  lockCode?: boolean;
+  waiting?: boolean;
+  reloadsInvitation?: boolean;
+};
 async function courierFixture(page: Page, options: Fixture = {}) {
   let online = false;
   let onTheWay = options.startInDelivery ?? false;
@@ -56,8 +62,15 @@ async function courierFixture(page: Page, options: Fixture = {}) {
       },
     }),
   );
-  await page.route("**/v1/courier/invites/accept", (route) => {
-    expect(route.request().postDataJSON()).toEqual({ inviteId, displayName: "Sami" });
+  if (!options.reloadsInvitation) {
+    await page.route("**/v1/invitation-continuations/courier", (route) =>
+      route.fulfill({ json: { pending: false } }),
+    );
+  }
+  await page.route("**/v1/courier/invites/accept", async (route) => {
+    expect(route.request().postDataJSON()).toEqual({ displayName: "Sami" });
+    const { cookie } = await route.request().allHeaders();
+    expect(cookie).toContain(`__Host-courier-invitation=${inviteId}`);
     return route.fulfill({ json: { courierId, merchantId } });
   });
   await page.route("**/v1/courier/presence", (route) => {
@@ -99,28 +112,49 @@ async function courierFixture(page: Page, options: Fixture = {}) {
 }
 
 test("[COU-01][COU-02][COU-03] accepts an invite, goes online and confirms pickup", async ({
+  baseURL,
   page,
 }) => {
-  await courierFixture(page);
-  await page.goto("/fr/courier#invite=" + inviteId);
-  await expect(page).toHaveURL(/\/fr\/courier$/u);
-  await page.reload();
-  await page.getByLabel("Prénom").fill("Sami");
-  await page.getByRole("button", { name: "Accepter l’invitation" }).click();
-  await expect(page.getByText("K7M-4QX")).toBeVisible();
-  await page.getByText("Disponible", { exact: true }).click();
-  await expect(page.getByRole("switch", { name: "Disponible" })).toBeChecked();
-  await expect(page.getByRole("link", { name: "Google Maps", exact: true })).toHaveAttribute(
-    "href",
-    /36\.75%2C3\.0625/u,
-  );
-  await page.getByRole("button", { name: "Confirmer le retrait" }).press("Space");
-  await expect(page.getByText("En livraison", { exact: true })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Google Maps", exact: true })).toHaveAttribute(
-    "href",
-    /36\.761%2C3\.0678/u,
-  );
-  await expect(page.getByText("Porte bleue, près de la place")).toBeVisible();
+  await withAuthHarness(baseURL, async (auth) => {
+    await courierFixture(page, { reloadsInvitation: true });
+    await page.goto(`${auth.origin}/fr/courier#invite=${inviteId}`);
+    await expect(page.getByLabel("Prénom")).toBeVisible();
+    await expect(page).toHaveURL(/\/fr\/courier$/u);
+    const stored = await page.evaluate(
+      (token) =>
+        [sessionStorage, localStorage].some((storage) =>
+          Object.keys(storage).some((key) => storage.getItem(key)?.includes(token)),
+        ),
+      inviteId,
+    );
+    expect(stored).toBe(false);
+    expect(await page.context().cookies()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: "__Host-courier-invitation",
+          secure: true,
+          httpOnly: true,
+        }),
+      ]),
+    );
+    await page.reload();
+    await page.getByLabel("Prénom").fill("Sami");
+    await page.getByRole("button", { name: "Accepter l’invitation" }).click();
+    await expect(page.getByText("K7M-4QX")).toBeVisible();
+    await page.getByText("Disponible", { exact: true }).click();
+    await expect(page.getByRole("switch", { name: "Disponible" })).toBeChecked();
+    await expect(page.getByRole("link", { name: "Google Maps", exact: true })).toHaveAttribute(
+      "href",
+      /36\.75%2C3\.0625/u,
+    );
+    await page.getByRole("button", { name: "Confirmer le retrait" }).press("Space");
+    await expect(page.getByText("En livraison", { exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Google Maps", exact: true })).toHaveAttribute(
+      "href",
+      /36\.761%2C3\.0678/u,
+    );
+    await expect(page.getByText("Porte bleue, près de la place")).toBeVisible();
+  });
 });
 
 test("[COU-04][COU-05] sends a foreground fix and confirms the delivery code", async ({

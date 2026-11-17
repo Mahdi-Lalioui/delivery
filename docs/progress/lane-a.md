@@ -446,3 +446,6 @@
 
 - 2026-11-17 · Ultra · Merchant pages check the signed-in account's membership and role for the requested restaurant before rendering. The staff-as-manager regression failed first. The connected suite passed 30 checks, including a separate tenant and the existing board journeys.
   Next: commit and push the verified HttpOnly invitation continuations.
+
+- 2026-11-17 · Ultra · Moved staff and courier invitation continuations to short-lived HttpOnly cookies and retained existing redemption authorization. The connected browser suite passed 30 checks, including reload and sign-in continuation.
+  Next: commit and push the dependency advisory fixes and record the history scan.

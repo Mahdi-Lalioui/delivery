@@ -18,6 +18,7 @@ import type { createCourierRepository } from "@zaafran/db/couriers";
 import type { onSendAsyncHookHandler, FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
+import { clearWebInvitation, readWebInvitation } from "./invitation-continuations.js";
 import type { InvitationMessage } from "./merchant-staff-routes.js";
 import { getRequestActor, type Actor } from "./policy.js";
 import { sendProblem } from "./problems.js";
@@ -129,7 +130,7 @@ export function registerCourierRoutes(api: FastifyInstance, services?: CourierSe
       onSend: noStore,
       config: policy(["customer", "courier"]),
       schema: {
-        body: courierInviteAcceptInput,
+        body: courierInviteAcceptInput.partial({ inviteId: true }),
         response: { 200: courierInviteAcceptOutput, ...errors },
       },
     },
@@ -137,12 +138,18 @@ export function registerCourierRoutes(api: FastifyInstance, services?: CourierSe
       const actor = getRequestActor(request);
       if (!actor) return sendProblem(reply, 401);
       if (!services) return sendProblem(reply, 503);
+      const pending = readWebInvitation(request, "courier");
+      const inviteId = request.body.inviteId ?? pending;
+      if (!inviteId) return sendProblem(reply, 400);
       const result = await services.repository.accept({
         ...request.body,
+        inviteId,
         userId: actor.accountId,
         sessionId: actor.sessionId,
         now: services.now(),
       });
+      if (result.kind !== "unauthorized" && pending === inviteId)
+        clearWebInvitation(reply, "courier");
       if (result.kind === "accepted") return reply.send(result.courier);
       if (result.kind === "not_found") return sendProblem(reply, 404);
       if (result.kind === "unauthorized") return sendProblem(reply, 401);

@@ -16,6 +16,7 @@ import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
 import { commandIdentity, resolveSessionCommand } from "./command-identity.js";
+import { clearWebInvitation, readWebInvitation } from "./invitation-continuations.js";
 import { getRequestActor } from "./policy.js";
 import { sendProblem } from "./problems.js";
 
@@ -198,19 +199,24 @@ function registerAccept(api: FastifyInstance, services: MerchantStaffServices | 
     {
       config: memberConfig,
       schema: {
-        body: staffInvitationAcceptInput,
+        body: staffInvitationAcceptInput.partial(),
         response: { 200: staffInvitationAcceptOutput, ...errors },
       },
     },
     async (request, reply) => {
+      reply.header("cache-control", "no-store");
       const actor = getRequestActor(request);
       if (!actor) return sendProblem(reply, 401);
       if (!services) return sendProblem(reply, 503);
+      const pending = readWebInvitation(request, "staff");
+      const token = request.body.token ?? pending;
+      if (!token) return sendProblem(reply, 400);
       const result = await services.repository.accept({
         accountId: actor.accountId,
-        tokenHash: hashToken(request.body.token),
+        tokenHash: hashToken(token),
         now: services.now(),
       });
+      if (pending === token) clearWebInvitation(reply, "staff");
       if (result.kind !== "accepted") {
         return sendProblem(reply, failureStatus[result.kind], result.kind);
       }

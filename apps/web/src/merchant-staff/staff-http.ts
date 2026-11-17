@@ -160,9 +160,13 @@ export async function revokeStaffInvitation(request: {
 
 /** MER-23: the invitee, signed in with the invited phone, redeems the SMS token. */
 export async function acceptStaffInvitation(
-  token: string,
-): Promise<{ kind: "accepted"; accepted: Accepted } | { kind: "already-member" | Access }> {
-  const input = staffInvitationAcceptInput.safeParse({ token });
+  token?: string,
+): Promise<
+  { kind: "accepted"; accepted: Accepted } | { kind: "already-member" | "missing" | Access }
+> {
+  const input = staffInvitationAcceptInput
+    .partial()
+    .safeParse(token === undefined ? {} : { token });
   if (!input.success) return { kind: "not-found" };
   try {
     const response = await fetch("/v1/staff-invitations/accept", {
@@ -172,6 +176,7 @@ export async function acceptStaffInvitation(
       body: JSON.stringify(input.data),
     });
     if (!response.ok) {
+      if (response.status === 400 && token === undefined) return { kind: "missing" };
       const code = await readProblemCode(response);
       return { kind: code === "already_member" ? "already-member" : readAccess(response.status) };
     }
