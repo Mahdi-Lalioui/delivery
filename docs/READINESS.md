@@ -4,7 +4,8 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 
 ## Customer experience
 
-- [ ] **Lane A** Consistent dish and cover pipeline with crop ratios, warm grade, contrast and sharpening. Review the catalog, replace weak images and publish restaurant guidance. [Photo guide](RESTAURANT_PHOTOS.md)
+- [ ] **Lane A** Consistent dish and cover pipeline with crop ratios, warm grade, contrast and sharpening, and published restaurant guidance. [Photo guide](RESTAURANT_PHOTOS.md)
+- [ ] **Lane B** Review the photo catalogue and replace weak or off-style images (split from the pipeline line above; see [handover](requests/lane-b-perf-handover.md)).
 - [x] **Lane B** Short haptics for add-to-cart, order placement and acceptance. Optional acceptance sound, mute preference and reduced-motion support. [Haptics and mute note](evidence/awid/feel/README.md) (393969e)
 - [x] **Lane B** Arabic, French and English copy pass. Errors give the customer a next step. [Copy changes](evidence/awid/copy.md) (17a477c)
 - [x] **Lane B** Audit spacing, type, radii, shadows, icons, buttons and colours on every customer screen. Record and fix deviations in `docs/evidence/awid/consistency.md`. [Consistency list, 21 fixed](evidence/awid/consistency.md) (fb5d002)
@@ -20,11 +21,11 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 
 ## Performance and offers
 
-- [ ] **Lane A** Connected Discovery LCP below 2 s on the established throttled Android profile. [Small-fixture samples](evidence/awid/perf.md#connected-production-build)
-- [ ] **Lane A** Connected Restaurant LCP below 2 s on the same profile. [Small-fixture samples](evidence/awid/perf.md#connected-production-build)
+- [ ] **Lane B** Connected Discovery LCP below 2 s on the established throttled Android profile. [Small-fixture samples](evidence/awid/perf.md#connected-production-build)
+- [ ] **Lane B** Connected Restaurant LCP below 2 s on the same profile. [Small-fixture samples](evidence/awid/perf.md#connected-production-build)
 - [x] **Lane B** Customer tap feedback within 100 ms, with optimistic feedback where safe. [Worst tap 72 ms on the throttled Android profile](evidence/awid/perf.md#customer-feel-taps-frames-and-layout-shift-lane-b-13-november-2026)
 - [ ] **Lane B** Measure 60 fps scrolling and animation and CLS below 0.05. Defer offscreen images and 3D. Record connected results in [performance evidence](evidence/awid/perf.md). CLS 0 and 60 fps on Discovery, Restaurant and Checkout; Tracking scroll measured 59–60 fps with opt-in 3D. Tilt animation frame timing remains open. [Results](evidence/awid/perf.md#3d-street-view-on-tap-13-november-2026-lane-b)
-- [ ] **Lane A** Route bundle budgets enforced in CI at the SPEC target. [Provisional ceilings](evidence/awid/perf.md#connected-production-build)
+- [ ] **Lane B** Route bundle budgets enforced in CI at the SPEC target. [Provisional ceilings](evidence/awid/perf.md#connected-production-build)
 - [x] **Lane A** Quote and placement honour code and automatic offers and apply the published stacking rules. [PostGIS quote and placement tests](../packages/db/test/order-quotes.integration.test.ts)
 - [x] **Lane A** Per-customer and global offer limits and idempotent redemption hold under retries and concurrency. [PostGIS redemption tests](../packages/db/test/order-quotes.integration.test.ts)
 - [x] **Lane A** Discovery offers filter and badge data match redeemable offers. [PostGIS public feed tests](../packages/db/test/public-feed.integration.test.ts)
