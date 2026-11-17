@@ -21,5 +21,9 @@ COPY --from=build /app/packages ./packages
 COPY --from=decoder /usr/local/bin/zaafran-heic-decode /usr/local/bin/
 COPY --from=decoder /usr/local/lib/zaafran-heic /usr/local/lib/zaafran-heic
 COPY --from=decoder /usr/local/share/zaafran-heic /usr/local/share/zaafran-heic
-RUN install -d -o node -g node -m 0700 /var/awid/media
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends ca-certificates clamav=1.4.3+dfsg-1 clamav-freshclam=1.4.3+dfsg-1 \
+ && rm -rf /var/lib/apt/lists/* \
+ && install -d -o node -g node -m 0700 /var/awid/media /var/lib/awid-clamav
+COPY infra/deploy/freshclam.conf /etc/awid-freshclam.conf
 USER node

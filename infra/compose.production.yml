@@ -72,6 +72,34 @@ services:
       timeout: 5s
       retries: 9
 
+  clamav-signatures:
+    image: "awid-backend:${AWID_RELEASE_TAG:-local}"
+    init: true
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+    command: [freshclam, --daemon, --foreground, --config-file=/etc/awid-freshclam.conf]
+    tmpfs:
+      - /tmp:mode=1777
+    volumes:
+      - clamav-signatures:/var/lib/awid-clamav
+    networks: [signature-egress]
+    healthcheck:
+      test:
+        [
+          CMD,
+          clamscan,
+          --database=/var/lib/awid-clamav,
+          --fail-if-cvd-older-than=3,
+          --no-summary,
+          /etc/hostname,
+        ]
+      interval: 60s
+      timeout: 30s
+      retries: 4
+      start_period: 120s
+
   worker:
     <<: *runtime
     restart: unless-stopped
@@ -82,9 +110,15 @@ services:
       - "${AWID_WORKER_ENV_FILE:?Set AWID_WORKER_ENV_FILE}"
     environment:
       MEDIA_STORAGE_ROOT: /var/awid/media
+      CLAMSCAN_PATH: /usr/bin/clamscan
+      CLAMSCAN_DATABASE: /var/lib/awid-clamav
       HEIC_DECODER_PATH: /usr/local/bin/zaafran-heic-decode
     volumes:
       - media:/var/awid/media
+      - clamav-signatures:/var/lib/awid-clamav:ro
+    depends_on:
+      clamav-signatures:
+        condition: service_healthy
     networks: [edge, data]
     healthcheck:
       test:
@@ -164,8 +198,10 @@ volumes:
   media:
   caddy-data:
   caddy-config:
+  clamav-signatures:
 
 networks:
+  signature-egress: {}
   data:
     internal: true
   tiles:

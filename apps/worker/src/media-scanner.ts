@@ -8,7 +8,7 @@ export type ScanMedia = (bytes: Buffer) => Promise<boolean>;
 
 const run = promisify(execFile);
 
-export function createClamScan(executable: string): ScanMedia {
+export function createClamScan(executable: string, database?: string): ScanMedia {
   return async (bytes) => {
     const directory = await mkdtemp(join(tmpdir(), "awid-scan-"));
     try {
@@ -16,7 +16,13 @@ export function createClamScan(executable: string): ScanMedia {
       await writeFile(original, bytes, { mode: 0o600 });
       const verdict = await run(
         executable,
-        ["--no-summary", "--stdout", "--alert-exceeds-max=yes", original],
+        [
+          "--no-summary",
+          "--stdout",
+          "--alert-exceeds-max=yes",
+          ...(database ? ["--database=" + database, "--fail-if-cvd-older-than=3"] : []),
+          original,
+        ],
         {
           timeout: 30_000,
           maxBuffer: 16_384,

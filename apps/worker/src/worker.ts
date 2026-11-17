@@ -63,6 +63,7 @@ await runWorkerCommand("start", (environment) => {
     MEDIA_STORAGE_ROOT,
     HEIC_DECODER_PATH,
     CLAMSCAN_PATH,
+    CLAMSCAN_DATABASE,
     VAPID_PUBLIC_KEY,
     VAPID_PRIVATE_KEY,
     VAPID_SUBJECT,
@@ -72,7 +73,7 @@ await runWorkerCommand("start", (environment) => {
   return serveWorker(DATABASE_URL, {
     store: createLocalMediaStore({ root: MEDIA_STORAGE_ROOT }),
     heicDecoderPath: HEIC_DECODER_PATH,
-    scan: CLAMSCAN_PATH ? createClamScan(CLAMSCAN_PATH) : undefined,
+    scan: CLAMSCAN_PATH ? createClamScan(CLAMSCAN_PATH, CLAMSCAN_DATABASE) : undefined,
     orderPush:
       VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY && VAPID_SUBJECT
         ? createOrderPushAdapter({

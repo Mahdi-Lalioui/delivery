@@ -124,3 +124,11 @@ or writing a preview. A flagged original is rejected and removed from
 quarantine. A scanner failure keeps the original private for automatic
 job retry. Both worker regressions failed before the change and then passed.
 The production image, signature updates and live scanner verification remain open.
+
+The production backend image now includes ClamAV and CA certificates. The
+Compose updater downloaded and validated the signed daily, main and bytecode
+databases, then passed its health check. The complete backend image accepted a
+clean file, rejected the inert EICAR test marker and reported a missing
+database as an error with networking disabled. Compose configuration
+validation passed. The distro engine is 1.4.3 and FreshClam recommended
+1.4.6. The full-stack upload journey and image vulnerability audit remain open.

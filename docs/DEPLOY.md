@@ -93,3 +93,18 @@ Use `bash infra/deploy/test-restore-drill.sh` with `age` and `age-keygen` on the
 ## Local deployment evidence
 
 On a disposable Docker project, `deploy.sh` built the arm64 API and worker, ran migrations as the non-superuser role, and passed HTTPS smoke using the local Caddy CA. The check reached a nonempty tile from the national archive. An encrypted backup restored into a separate PostGIS database with 69 wilayas, 1,541 communes and no demo merchants, and the restored private media fixture matched byte-for-byte. The server timer and the Vercel forwarding checks remain staging tasks.
+
+### Upload malware scanning
+
+The production worker waits for the `clamav-signatures` service on initial
+startup. FreshClam checks for signed updates 12 times a day and writes to the
+`clamav-signatures` volume. Only the updater can write that volume. The worker
+mounts it read-only and requires a signature database no more than three days
+old for each preparation job. Keep outbound access to ClamAV's signature
+service available from the isolated updater network.
+
+Use `docker compose ps clamav-signatures` and
+`docker compose logs --tail 50 clamav-signatures` with the deployment's usual
+Compose arguments to check signature health. A missing or stale database
+leaves new uploads in quarantine for retry. Existing published photos continue
+to be served.
