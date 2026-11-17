@@ -13,6 +13,19 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-17 12:51 GMT — M2-12 demo placeholder composer (Claude, covering while Codex was out)
+
+- **Changed** — New `apps/worker/src/demo-placeholder.ts`. `renderDemoPlaceholder` draws a 1280×960 PNG:
+  - one of six light token gradient pairs, chosen by an FNV-1a hash of the item id;
+  - the cuisine icon (320 px) at the top;
+  - the Arabic name (96 px) and the French name (64 px) as ink outlines, centred and shrunk to 1,120 px if needed.
+  The names never enter the SVG as text.
+- **Evidence** — `pnpm exec vitest run apps/worker/test/demo-placeholder.test.ts`: red first (missing module). The first implementation then failed the gradient-spread test for a real reason: a position-weighted character sum had weight 36 ≡ 0 (mod 6), so ids differing only in the last character shared a gradient. With FNV-1a, 4/4 passed (format and size under the 8 MiB upload limit, byte-identical re-render, ink in the icon and name bands but not the top band, three or more gradients across six ids). A sample render was checked by eye (`/tmp/d023-exp/placeholder.png`, not committed): correct Arabic joining and RTL order, and French accents.
+- **Evidence** — `pnpm verify` → exit 0: 1,487 unit tests in 160 files, 204 integration tests in 42 files, knip, depcruise, trace.
+- **Reviewer** — Self-review against AGENTS §10: no P0/P1. Risk to check in M3: a centred 1:1 thumbnail cut from this 4:3 art keeps 960 of 1,280 px, so names wider than 960 px lose their edges there. Shrinking `nameMaxWidth` to 880 would fix it if the M3 thumbnails crop rather than letterbox.
+- **Next** — The worker `seed-demo-media` command: refuse any database except `zaafran_dev` (reuse `assertLocalDatabaseUrl` via a new `@zaafran/db` export). For each `listDemoItemsWithoutPhoto` row: render, put the PNG under `quarantine/<uuid>/demo.png`, `insertDemoPhotoUpload`, run the processor's `prepare`, `acceptDemoCrop`, run `publish`, then `attachDemoItemPhoto`. Write an integration test against a real store root first, then call it from `pnpm db:seed`.
+- **Needs Mahdi** — none new.
+
 ### 2026-11-17 12:49 GMT — M2-12 demo cuisine icons (Claude, covering while Codex was out)
 
 - **Changed** — New `apps/worker/src/demo-cuisine-icons.ts`: original duotone 24-unit line icons for algerian (tagine), grill (skewer), pizza (slice), fast-food (burger), seafood (fish) and pastry (cupcake), plus a plate fallback. They use only `text` (ink) and `primary` (saffron) from `@zaafran/tokens/palettes.json`, which is a new export of `packages/tokens`. D-023 now places them in the worker until M3 needs them in `packages/ui`.
@@ -1277,5 +1290,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress; M2-8, M2-9 and M2-10 done; the `@merchant-onboarding` gate journey passes at `a8f2d80`)
 - Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import (M2-8) is complete, including its production browser journey. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
-- Last green `pnpm verify`: 2026-11-17 12:48 GMT on Docker Desktop with 1,483 unit and 204 PostGIS integration tests. `pnpm test:e2e:auth` passed 22/22 authenticated production journeys at `a8f2d80` (not rerun since; this run changed only the seed CLI and docs). `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 37/37 IDs at `8b45fdd`.
+- Last green `pnpm verify`: 2026-11-17 12:50 GMT on Docker Desktop with 1,487 unit and 204 PostGIS integration tests. `pnpm test:e2e:auth` passed 22/22 authenticated production journeys at `a8f2d80` (not rerun since; this run changed only the seed CLI and docs). `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 37/37 IDs at `8b45fdd`.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
