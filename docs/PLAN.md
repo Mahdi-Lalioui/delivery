@@ -176,7 +176,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
 - [ ] M2-12 Seed twelve fictional bilingual Algiers restaurants with synthetic imagery and `is_demo`, then run production-built onboarding, the complete route matrix, and the design critic's theme/locale/viewport checks. Record local and PR evidence.
   - [x] Seed twelve fictional, bilingual Algiers restaurants (`is_demo`, active, two categories and at least five screened dishes each) in `pnpm db:seed`, idempotently and only into the local development database (D-022).
   - [ ] Give the demo dishes synthetic placeholder imagery (DESIGN: gradient + dish icon + name) through the media pipeline's published variants.
-    - [ ] Scout: how to render Arabic/French dish names deterministically in a sharp-rasterised SVG (D-023 open question).
+    - [x] Scout: how to render Arabic/French dish names deterministically in a sharp-rasterised SVG (D-023: outline them with harfbuzzjs from TTF sources).
     - [ ] Draw the original line icons for the demo cuisines in `packages/ui`.
     - [ ] Add the seed-only uploader and the `packages/db` demo-media inserts (integration tests first).
     - [ ] Add the worker `seed-demo-media` command that renders and publishes through the prepare/publish phases, and run it from `pnpm db:seed`.

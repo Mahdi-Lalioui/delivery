@@ -13,6 +13,17 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-17 12:40 GMT — M2-12 scout: deterministic dish-name text for demo imagery (Claude, covering while Codex was out)
+
+- **Changed** — D-023 now records the answer, and PLAN ticks the scout sub-task. No code changed.
+- **Evidence** — Rendered an SVG with `كسكس بالخضر` / `Couscous aux légumes` through `apps/worker`'s sharp 0.35.5 in a scratch directory (`/tmp/d023-exp`):
+  - The system and `FONTCONFIG_FILE`-pinned runs gave the same raw-pixel SHA-256 (`3c35a6bd…`), drawn in a macOS system font. The pinned fontconfig cache stayed empty. sharp's `text` input with `fontfile` = the repo's IBM Plex Sans Arabic WOFF2 gave the same hash as no `fontfile` (`83628d88…`).
+  - `npm view harfbuzzjs` → 1.6.4, MIT, official repo. Shaping the same string from the WOFF2 returned 11 glyphs, all ID 0, so HarfBuzz needs TTF/OTF.
+  - Nothing was added to the repo or lockfile.
+- **Reviewer** — Docs only; no P0/P1.
+- **Next** — Add the seed-only uploader and the `packages/db` demo-media inserts, failing integration tests first (D-023). After that: the OFL TTF sources and the harfbuzzjs line in DECISIONS, the cuisine icons, then the worker `seed-demo-media` command.
+- **Needs Mahdi** — none new.
+
 ### 2026-11-17 12:38 GMT — M2-12 demo restaurant seed, and the demo imagery design (Claude, covering while Codex was out)
 
 - **Changed** — `1a802d6` finishes Codex's uncommitted seed work. `pnpm db:seed` now inserts twelve fictional, active `is_demo` Algiers restaurants, each with two bilingual ar/fr categories and at least five dishes. Every dish passes `findProhibitedGoods`. The seed is idempotent through `ON CONFLICT (slug)` and runs only against `zaafran_dev` (D-022). Files: `packages/db/src/demo-merchants{,-data}.ts`, `packages/db/src/cli.ts`, `packages/db/test/demo-merchants.integration.test.ts`.
