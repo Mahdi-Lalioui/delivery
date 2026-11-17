@@ -218,7 +218,7 @@ The flow has four parts:
 
 ### D-023 — Demo dish imagery is rendered by a worker seed command and published through the media pipeline (2026-11-17)
 
-Status: design only. The text-rendering question is answered below; nothing is implemented yet.
+Status: implemented on 2026-11-17 (`apps/worker/src/demo-*.ts`, `apps/worker/src/seed-demo-media.ts`, `packages/db/src/demo-media.ts`). `pnpm db:seed` runs `pnpm worker:seed-demo-media` after the database seed. Like `pnpm db:migrate`'s worker step, it reads `DATABASE_URL` from `.env`.
 
 The demo images (DESIGN §6: gradient + dish icon + name) must end up as ordinary `media_uploads` rows with published `media_variants`. That way the M3 feed and item sheets read demo and real photos the same way, and nothing branches on `is_demo`.
 

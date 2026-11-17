@@ -13,6 +13,25 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-17 12:55 GMT — M2-12 `seed-demo-media` command; demo imagery done (Claude, covering while Codex was out)
+
+- **Changed** — `b509da0`:
+  - `apps/worker/src/demo-media-seed.ts` (`seedDemoMedia`). For each demo dish without a photo it renders the placeholder, puts the PNG under `quarantine/<uuid>/demo.png` and calls `insertDemoPhotoUpload`. It then runs the real processor's `prepare`, `acceptDemoCrop` and `publish`, and finally `attachDemoItemPhoto`. It returns how many photos it attached.
+  - `apps/worker/src/seed-demo-media.ts`: the built command. It calls `assertLocalDatabaseUrl(…, "zaafran_dev")` before connecting.
+  - New exports: `@zaafran/db/demo-media` and `@zaafran/db/local-database`.
+  - New scripts: `pnpm worker:seed-demo-media`, and the worker's `seed:demo-media`. `pnpm db:seed` now runs both seeds.
+  - knip lists the new entry. D-023 is marked implemented, and the PLAN imagery sub-step is ticked.
+- **Evidence** — `pnpm test:int apps/worker/test/demo-media-seed.integration.test.ts`: red first (missing module), then 2/2 passed. Two demo dishes reach `ready` with ten `media/<id>/<w>.<fmt>` variants and a ThumbHash, the 1280 WebP is 1280×960, the quarantined original is deleted, and a second run returns 0 and changes nothing.
+- **Evidence** — `pnpm exec vitest run apps/worker/test/seed-demo-media-command.test.ts`: red first (exit 1 with no log), then 1/1 passed. The command refuses `zaafran_test`, a non-loopback `zaafran_dev` and `zaafran`, without printing the password.
+- **Evidence** — `pnpm verify` → exit 1 on knip (`apps/worker/src/seed-demo-media.ts` unused). After registering the knip entry it exited 0: 1,488 unit tests in 161 files, 206 integration tests in 43 files.
+- **Evidence** — The built command against the shared `zaafran_dev` (URL from `.env.example`; there is no `.env` here) failed with `column item.photo_media_id does not exist`. That is the drift already in HUMAN_TODO (no `0020` there), not this change. The integration test proves the path on a freshly migrated clone.
+- **Reviewer** — Self-review against AGENTS §10: no P0/P1. The production worker image now contains the command, but it refuses anything except loopback `zaafran_dev` before connecting (tested). If the process is interrupted, the upload of the dish in progress is left unattached; the next run draws that dish again. This is acceptable for local data only.
+- **Next** — The rest of M2-12 is the gate run:
+  1. After Mahdi resolves the dev database drift in HUMAN_TODO, run `pnpm db:reset --confirm && pnpm db:seed` and record the twelve demo restaurants with photos.
+  2. Then `pnpm test:e2e:auth` and `pnpm test:design` on the production build, then `pnpm gate m2`.
+  3. Run the design critic's theme/locale/viewport checks and the security auditor, put the evidence in `docs/evidence/m2/`, and open the PR `m2: merchant onboarding`.
+- **Needs Mahdi** — HUMAN_TODO "Local dev database drift", needed for the real `pnpm db:seed` run.
+
 ### 2026-11-17 12:51 GMT — M2-12 demo placeholder composer (Claude, covering while Codex was out)
 
 - **Changed** — New `apps/worker/src/demo-placeholder.ts`. `renderDemoPlaceholder` draws a 1280×960 PNG:
@@ -1290,5 +1309,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress; M2-8, M2-9 and M2-10 done; the `@merchant-onboarding` gate journey passes at `a8f2d80`)
 - Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import (M2-8) is complete, including its production browser journey. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
-- Last green `pnpm verify`: 2026-11-17 12:50 GMT on Docker Desktop with 1,487 unit and 204 PostGIS integration tests. `pnpm test:e2e:auth` passed 22/22 authenticated production journeys at `a8f2d80` (not rerun since; this run changed only the seed CLI and docs). `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 37/37 IDs at `8b45fdd`.
+- Last green `pnpm verify`: 2026-11-17 12:54 GMT on Docker Desktop with 1,488 unit and 206 PostGIS integration tests. `pnpm test:e2e:auth` passed 22/22 authenticated production journeys at `a8f2d80` (not rerun since; this run changed only the seed CLI and docs). `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 37/37 IDs at `8b45fdd`.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
