@@ -14,6 +14,7 @@ import { runJobEffectOnce } from "./effects.js";
 import { defineJob } from "./jobs.js";
 import { queueLogger } from "./logger.js";
 import { createCropMediaJob } from "./media-crop.js";
+import type { ScanMedia } from "./media-scanner.js";
 import { createPrepareMediaJob } from "./media-prepare.js";
 import {
   createOrderNotificationJob,
@@ -41,6 +42,7 @@ export function createWorkerOptions(
   database: DatabaseConnection,
   options: NotificationSenders & {
     store: MediaStore;
+    scan?: ScanMedia | undefined;
     heicDecoderPath?: string | undefined;
   } = {
     store: createLocalMediaStore({ root: defaultMediaStorageRoot() }),

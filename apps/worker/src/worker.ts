@@ -7,6 +7,7 @@ import { createOrderPushAdapter } from "./order-push-adapter.js";
 import { createOrderSmsAdapter, type SendOrderSms } from "./order-sms-adapter.js";
 import { workerLogger } from "./logger.js";
 import { createWorkerOptions } from "./runtime.js";
+import { createClamScan } from "./media-scanner.js";
 
 async function serveWorker(
   databaseUrl: string,
@@ -61,6 +62,7 @@ await runWorkerCommand("start", (environment) => {
     DATABASE_URL,
     MEDIA_STORAGE_ROOT,
     HEIC_DECODER_PATH,
+    CLAMSCAN_PATH,
     VAPID_PUBLIC_KEY,
     VAPID_PRIVATE_KEY,
     VAPID_SUBJECT,
@@ -70,6 +72,7 @@ await runWorkerCommand("start", (environment) => {
   return serveWorker(DATABASE_URL, {
     store: createLocalMediaStore({ root: MEDIA_STORAGE_ROOT }),
     heicDecoderPath: HEIC_DECODER_PATH,
+    scan: CLAMSCAN_PATH ? createClamScan(CLAMSCAN_PATH) : undefined,
     orderPush:
       VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY && VAPID_SUBJECT
         ? createOrderPushAdapter({

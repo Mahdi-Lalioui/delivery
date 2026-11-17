@@ -115,3 +115,12 @@ suites. The connected order-session regression also confirmed that an owner
 of a separate restaurant receives 404 for the other tenant's board and
 acceptance command, and that another account receives 404 for the customer's
 tracking and receipt. The legitimate customer and merchant retain access.
+
+## Quarantined upload malware scanner
+
+The photo preparation worker can invoke ClamAV through an absolute
+`CLAMSCAN_PATH`. It scans the checksum-verified original before decoding
+or writing a preview. A flagged original is rejected and removed from
+quarantine. A scanner failure keeps the original private for automatic
+job retry. Both worker regressions failed before the change and then passed.
+The production image, signature updates and live scanner verification remain open.

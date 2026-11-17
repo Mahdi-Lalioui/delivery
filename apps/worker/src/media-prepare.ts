@@ -5,6 +5,7 @@ import { preparePhoto, type MediaStore } from "@zaafran/media";
 import { z } from "zod";
 import { defineJob } from "./jobs.js";
 import { readOriginal } from "./media-original.js";
+import type { ScanMedia } from "./media-scanner.js";
 
 const preparePayload = z.strictObject({ mediaId: z.uuid(), phase: z.literal("prepare") });
 type PreparationRepository = Pick<
@@ -16,6 +17,7 @@ interface PrepareMediaOptions {
   readonly repository: PreparationRepository;
   readonly store: MediaStore;
   readonly recordArtifact: (mediaId: string, key: string) => Promise<void>;
+  readonly scan?: ScanMedia | undefined;
   readonly heicDecoderPath?: string | undefined;
 }
 
@@ -41,6 +43,7 @@ export function createPrepareMediaJob({
   repository,
   store,
   heicDecoderPath,
+  scan,
   recordArtifact,
 }: PrepareMediaOptions) {
   return defineJob(preparePayload, async (payload) => {
@@ -54,11 +57,14 @@ export function createPrepareMediaJob({
     }
 
     const bytes = await readOriginal(store, source);
-    const result = await preparePhoto({
-      bytes,
-      contentType: source.contentType,
-      ...(heicDecoderPath === undefined ? {} : { heicDecoderPath }),
-    });
+    const result =
+      scan && !(await scan(bytes))
+        ? ({ status: "rejected", reason: "invalid_image" } as const)
+        : await preparePhoto({
+            bytes,
+            contentType: source.contentType,
+            ...(heicDecoderPath === undefined ? {} : { heicDecoderPath }),
+          });
     if (result.status === "rejected") {
       if (await repository.completePreparation({ mediaId, quarantineKey, result })) {
         await store.delete(quarantineKey);

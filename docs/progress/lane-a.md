@@ -464,3 +464,6 @@
 
 - 2026-11-17 · High · Reran all 267 authz checks. The connected order-session regression confirmed isolation for the board, acceptance, tracking and receipt, using a real separate restaurant owner and customer session.
   Next: extend cross-tenant API coverage for the remaining merchant management and customer data routes, then verify the pending upload scanner, webhook and runtime permissions controls.
+
+- 2026-11-17 · High · Added the ClamAV adapter to quarantine preparation. All 12 worker preparation tests, targeted lint and worker typecheck passed. Flagged files cannot generate previews, and scanner errors keep originals private for retry.
+  Next: provision ClamAV and fresh signatures in production Compose, then verify clean and flagged samples against the real scanner.
