@@ -131,4 +131,21 @@ databases, then passed its health check. The complete backend image accepted a
 clean file, rejected the inert EICAR test marker and reported a missing
 database as an error with networking disabled. Compose configuration
 validation passed. The distro engine is 1.4.3 and FreshClam recommended
-1.4.6. The full-stack upload journey and image vulnerability audit remain open.
+1.4.6.
+
+The production Compose upload journey passed against the running local stack:
+a clean PNG was scanned, cropped, published in ten AVIF/WebP variants and
+served over HTTPS. The inert EICAR marker was rejected as `invalid_image`,
+purged from quarantine, and produced no preview or variant. An initial 415 in
+the drill was traced to its request using the wrong binary content type; the
+temporary drill was corrected to `application/octet-stream` and rerun. The
+reservation keeps the declared `image/png` type. [Full evidence](evidence/awid/local-upload-scanner.md).
+
+The API, worker and signature updater ran as UID 1000 with read-only root
+filesystems, all capabilities dropped and `no-new-privileges`; the worker's
+ClamAV signature mount was read-only. The updater had only its signature
+egress network. Database, Caddy and Martin still use upstream runtime defaults
+and need a separate compatibility review before tightening their users or
+filesystem permissions. Repository inventory found no inbound webhook routes
+or signature verification surface; Twilio/Resend and the SMS webhook are
+outbound-only.

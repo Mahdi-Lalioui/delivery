@@ -468,5 +468,5 @@
 - 2026-11-17 · High · Added the ClamAV adapter to quarantine preparation. All 12 worker preparation tests, targeted lint and worker typecheck passed. Flagged files cannot generate previews, and scanner errors keep originals private for retry.
   Next: provision ClamAV and fresh signatures in production Compose, then verify clean and flagged samples against the real scanner.
 
-- 2026-11-17 · High · Wired ClamAV into production Compose. The updater became healthy with validated signatures. The full backend image passed clean, EICAR and unavailable database checks with networking disabled.
-  Next: rerun the full production Compose upload journey with the scanner enabled, then audit webhook inventory and runtime permissions.
+- 2026-11-17 · High · Completed the production Compose upload drill: clean PNG scanned, cropped and published as ten variants; inert EICAR rejected, purged and never previewed. Audited runtime identities and confirmed no inbound webhook route exists; evidence: [upload scanner drill](../evidence/awid/local-upload-scanner.md).
+  Next: continue the route-by-route authz and tenant-isolation audit, then exercise OTP enumeration and delivery limits.
