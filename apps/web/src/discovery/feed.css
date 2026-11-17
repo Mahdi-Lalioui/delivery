@@ -599,7 +599,13 @@
   }
 }
 
-/* Cuisine chips with photos. */
+/* Cuisine chips with photos. On phones 3.6 chips fit, so the next one always peeks. */
+@media (max-width: 959px) {
+  .discovery-cuisine-list .discovery-cuisine {
+    inline-size: calc((100vw - var(--page-padding) - 3 * var(--space-8)) / 3.6);
+  }
+}
+
 .discovery-cuisine-list {
   grid-auto-columns: auto;
   gap: var(--space-8);
@@ -742,18 +748,21 @@
 }
 
 @media (min-width: 960px) {
+  /* Half a card says swipe: a third of a card always peeks at the end of a rail. */
   .discovery-rail-list {
-    grid-auto-columns: calc((100% - 2 * var(--space-12)) / 3);
+    grid-auto-columns: calc((100% - 3 * var(--space-12)) / 3.4);
     margin-inline: 0;
     padding-inline: 0;
   }
 
+  /* Three collections fill the row exactly; they never scroll on desktop. */
   .discovery-collections .discovery-rail-list {
     grid-auto-columns: calc((100% - 2 * var(--space-12)) / 3);
   }
 
+  /* The cuisine row spans the page: no dead space at the end of a wide screen. */
   .discovery-cuisine-list {
-    justify-content: start;
+    justify-content: space-between;
     gap: var(--space-20);
   }
 
@@ -884,7 +893,7 @@
 
 @media (min-width: 960px) {
   .discovery-rail .discovery-rail-list {
-    grid-auto-columns: calc((100% - 3 * var(--space-12)) / 4);
+    grid-auto-columns: calc((100% - 4 * var(--space-12)) / 4.4);
   }
 }
 
@@ -1303,6 +1312,16 @@
   overflow: hidden;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-e1);
+}
+
+/* Tiles failed: the box stays (no jump) and says the list below has the same places. */
+.pickup-map-missing {
+  display: grid;
+  place-items: center;
+  padding: var(--space-24);
+  background: var(--color-mint-pale);
+  color: var(--color-text-2);
+  text-align: center;
 }
 
 .pickup-map .awid-map-canvas {

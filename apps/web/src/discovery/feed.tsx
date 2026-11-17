@@ -13,8 +13,10 @@ import { Collections, CuisineChips, FavouritesRail, FeedRail } from "./feed-sect
 import { getFeedMessages } from "./feed-messages";
 import "./feed.css";
 
+// The map's box is drawn at once: the chunk arrives later and must not push the list down.
 const PickupMap = dynamic(() => import("./pickup-map").then((module) => module.PickupMap), {
   ssr: false,
+  loading: () => <div className="pickup-map" aria-hidden="true" />,
 });
 
 const initialState: FeedState = { phase: "loading", restaurants: [], nextCursor: null };

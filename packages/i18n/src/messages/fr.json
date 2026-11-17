@@ -12,6 +12,7 @@
     "plus": "+",
     "minus": "−",
     "streetsMissing": "Le plan des rues n’a pas chargé. Votre commande avance quand même.",
+    "pickupMissing": "La carte n’a pas chargé. La liste ci-dessous montre les mêmes restaurants.",
     "streetView": "Vue 3D",
     "dataSaver": "Plan masqué pour économiser vos données."
   },
@@ -1352,7 +1353,7 @@
   },
   "retentionOrders": {
     "title": "Mes commandes",
-    "intro": "Vos adresses préférées et vos commandes passées.",
+    "intro": "Vos restaurants préférés et vos commandes passées.",
     "favourites": "Restaurants favoris",
     "noFavourites": "Aucun favori pour l’instant",
     "noFavouritesBody": "Touchez le cœur d’un restaurant pour le retrouver ici.",
@@ -1733,6 +1734,7 @@
     "noAddressesBody": "Ajoutez-en une pour voir les frais de livraison.",
     "when": "Pour quand ?",
     "continue": "Continuer",
+    "continueTotal": "Continuer · {total}",
     "back": "Retour",
     "summary": "Récapitulatif",
     "subtotal": "Sous-total",
@@ -1842,6 +1844,8 @@
     "etaLabel": "Arrivée estimée",
     "etaRange": "{from} – {to}",
     "etaPickupLabel": "Prête vers",
+    "etaPickupReady": "Prête depuis",
+    "directions": "Itinéraire",
     "endedFind": "Trouver un autre restaurant",
     "endedOrders": "Voir mes commandes"
   },

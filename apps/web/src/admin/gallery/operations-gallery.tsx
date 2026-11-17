@@ -79,15 +79,15 @@ export function OperationsGallery({
 }) {
   return (
     <div className="operations-gallery">
-      <details>
+      <details open>
         <summary>{labels.merchant}</summary>
         <BoardColumns board={board} locale={locale} offline refresh={noop} />
       </details>
-      <details>
+      <details open>
         <summary>{labels.courier}</summary>
         <CourierJob job={courier} locale={locale} offline refresh={noop} />
       </details>
-      <details>
+      <details open>
         <summary>{labels.admin}</summary>
         <OrderList page={adminPage} selected={orderId} locale={locale} onSelect={noop} />
       </details>

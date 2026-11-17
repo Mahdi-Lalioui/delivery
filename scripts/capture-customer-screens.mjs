@@ -24,6 +24,7 @@ const screens = {
   "pickup-tracking": "/dev/screens/tracking-pickup",
   rating: "/dev/screens/rating",
   orders: "/dev/screens/orders",
+  operations: "/dev/gallery",
 };
 // States (design build fixtures), captured only when named on the command line.
 for (const state of [

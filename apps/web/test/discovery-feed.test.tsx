@@ -152,3 +152,24 @@ test("[CUS-04] shows approximate distance with the card’s rating, ETA and fee"
   expect(html).toContain("1.8 km");
   expect(html).toContain('data-free="true"');
 });
+
+test("[CUS-04] pickup cards drop the delivery fee, delivery cards keep it", () => {
+  const card = { ...openRestaurant, deliveryFeeDzd: 150 };
+  const render = (fulfilment: "pickup" | undefined) =>
+    renderToStaticMarkup(
+      <FeedContent
+        locale="fr"
+        state={{ phase: "ready", restaurants: [card], nextCursor: null }}
+        onLoad={onLoad}
+        filters={fulfilment === undefined ? {} : { fulfilment }}
+      />,
+    );
+  expect(render(undefined)).toContain("150");
+  expect(render("pickup")).not.toContain("150");
+});
+
+test("[CUS-04] the pickup map keeps its box while pins load, so the list below never jumps", async () => {
+  const { PickupMap } = await import("../src/discovery/pickup-map");
+  const html = renderToStaticMarkup(<PickupMap locale="fr" pins={[]} />);
+  expect(html).toContain('class="pickup-map"');
+});

@@ -12,6 +12,7 @@
     "plus": "+",
     "minus": "−",
     "streetsMissing": "The street map didn’t load. Your order is still on its way.",
+    "pickupMissing": "The map didn’t load. The list below shows the same restaurants.",
     "streetView": "3D view",
     "dataSaver": "Map hidden to save your data."
   },
@@ -1352,7 +1353,7 @@
   },
   "retentionOrders": {
     "title": "My orders",
-    "intro": "Your favourite places and past orders.",
+    "intro": "Your favourite restaurants and past orders.",
     "favourites": "Favourite restaurants",
     "noFavourites": "No favourites yet",
     "noFavouritesBody": "Tap the heart on a restaurant to find it here.",
@@ -1733,6 +1734,7 @@
     "noAddressesBody": "Add one to see the delivery fee.",
     "when": "When?",
     "continue": "Continue",
+    "continueTotal": "Continue · {total}",
     "back": "Back",
     "summary": "Summary",
     "subtotal": "Subtotal",
@@ -1842,6 +1844,8 @@
     "etaLabel": "Estimated arrival",
     "etaRange": "{from} – {to}",
     "etaPickupLabel": "Ready around",
+    "etaPickupReady": "Ready since",
+    "directions": "Directions",
     "endedFind": "Find another restaurant",
     "endedOrders": "See my orders"
   },

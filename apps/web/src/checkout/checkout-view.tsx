@@ -9,7 +9,7 @@ import { useLowData } from "../discovery/low-data";
 import { Tagine3d } from "../marketing/moments/tagine-3d";
 import { TagineMoment } from "../marketing/moments/tagine-moment";
 import "../marketing/moments/moments.css";
-import { FulfilmentStep, PaymentStep, TimingStep } from "./checkout-steps";
+import { FulfilmentStep, OrderSummaryAside, PaymentStep, TimingStep } from "./checkout-steps";
 import {
   isTenderInRange,
   parseTender,
@@ -55,18 +55,25 @@ function canPlace(state: CheckoutState): boolean {
 }
 
 /** One primary action per step; Place order morphs loading → success. */
+/** The primary button's words: the next step with the total, then "place order · total". */
+function primaryLabel(
+  state: CheckoutState,
+  locale: Locale,
+  translate: ReturnType<typeof useTranslations<"checkout">>,
+): string {
+  const { step, place, quote } = state;
+  const total = quote.kind === "ready" ? formatDzd(quote.quote.totalDzd, locale) : undefined;
+  if (step < 3)
+    return total === undefined ? translate("continue") : translate("continueTotal", { total });
+  if (place.kind === "placed") return translate("placed");
+  return total === undefined ? translate("placeNoTotal") : translate("place", { total });
+}
+
 function Actions({ state, locale }: { state: CheckoutState; locale: Locale }) {
   const translate = useTranslations("checkout");
-  const { step, place, quote } = state;
+  const { step, place } = state;
   const isPlacing = place.kind === "placing";
-  const label =
-    step < 3
-      ? translate("continue")
-      : place.kind === "placed"
-        ? translate("placed")
-        : quote.kind === "ready"
-          ? translate("place", { total: formatDzd(quote.quote.totalDzd, locale) })
-          : translate("placeNoTotal");
+  const label = primaryLabel(state, locale, translate);
   const isDisabled = step < 3 ? !canContinue(state) : !canPlace(state) || isPlacing;
   return (
     <div className="checkout-actions">
@@ -249,6 +256,7 @@ export function CheckoutView({ state, locale }: { state: CheckoutState; locale: 
         <>
           <Progress step={state.step} />
           <StepBody state={state} locale={locale} />
+          {state.step < 3 && <OrderSummaryAside state={state} locale={locale} />}
           <Actions state={state} locale={locale} />
         </>
       )}

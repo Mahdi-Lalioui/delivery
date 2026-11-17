@@ -18,6 +18,7 @@ import {
   type Tracking,
 } from "./tracking-http";
 import type { TrackingState } from "./use-tracking";
+import { directionsUrl, readySince } from "./pickup-details";
 import "./tracking.css";
 
 function Eta({ tracking, locale }: { tracking: Tracking; locale: Locale }) {
@@ -27,14 +28,22 @@ function Eta({ tracking, locale }: { tracking: Tracking; locale: Locale }) {
   const from = formatAlgiersTime(new Date(eta.earliestAt), locale);
   const to = formatAlgiersTime(new Date(eta.latestAt), locale);
   const isPickup = tracking.fulfilment === "pickup";
+  const readyAt = isPickup ? readySince(tracking.timeline) : undefined;
+  const label = readyAt !== undefined ? "etaPickupReady" : isPickup ? "etaPickupLabel" : "etaLabel";
+  const time =
+    readyAt !== undefined
+      ? formatAlgiersTime(new Date(readyAt), locale)
+      : isPickup
+        ? to
+        : translate("etaRange", { from, to });
   return (
     <p className="tracking-eta">
       <small>
         <Icon name="clock" size={16} />
-        {translate(isPickup ? "etaPickupLabel" : "etaLabel")}
+        {translate(label)}
       </small>
       <strong>
-        <bdi dir="ltr">{isPickup ? to : translate("etaRange", { from, to })}</bdi>
+        <bdi dir="ltr">{time}</bdi>
       </strong>
     </p>
   );
@@ -74,6 +83,17 @@ function CodeCard({ tracking }: { tracking: Tracking }) {
       <p>{translate(isPickup ? "pickupCode" : "deliveryCode")}</p>
       <strong dir="ltr">{code}</strong>
       <small>{translate(isPickup ? "pickupCodeHint" : "deliveryCodeHint")}</small>
+      {tracking.fulfilment === "pickup" && (
+        <a
+          className="ui-button ui-button-secondary tracking-directions"
+          href={directionsUrl(tracking.pickupPin)}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Icon name="pin" size={18} />
+          {translate("directions")}
+        </a>
+      )}
     </div>
   );
 }

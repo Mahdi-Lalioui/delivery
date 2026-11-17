@@ -335,22 +335,44 @@ function ContactPhone({ contact }: { contact: CheckoutState["contact"] }) {
   );
 }
 
+/** The basket's lines and the quote; payment adds the promo field under it. */
+function OrderLines({ state, locale }: { state: CheckoutState; locale: Locale }) {
+  return (
+    <>
+      <ul className="checkout-lines" role="list">
+        {state.cart?.lines.map((line) => (
+          <li key={line.lineId}>
+            <span className="checkout-qty">{line.quantity}</span>
+            <bdi>{localizeRestaurantText(line.names, locale)}</bdi>
+            <LinePrice cart={state.cart} line={line} locale={locale} />
+          </li>
+        ))}
+      </ul>
+      <QuoteLines state={state} locale={locale} />
+    </>
+  );
+}
+
+/** Desktop only: the order stays in view beside the delivery and time steps. */
+export function OrderSummaryAside({ state, locale }: { state: CheckoutState; locale: Locale }) {
+  const translate = useTranslations("checkout");
+  return (
+    <aside className="checkout-aside" aria-labelledby="checkout-aside-title">
+      <h2 id="checkout-aside-title">{translate("summary")}</h2>
+      <div className="checkout-receipt">
+        <OrderLines state={state} locale={locale} />
+      </div>
+    </aside>
+  );
+}
+
 export function PaymentStep({ state, locale }: { state: CheckoutState; locale: Locale }) {
   const translate = useTranslations("checkout");
   return (
     <div className="checkout-step">
       <h2>{translate("summary")}</h2>
       <div className="checkout-receipt">
-        <ul className="checkout-lines" role="list">
-          {state.cart?.lines.map((line) => (
-            <li key={line.lineId}>
-              <span className="checkout-qty">{line.quantity}</span>
-              <bdi>{localizeRestaurantText(line.names, locale)}</bdi>
-              <LinePrice cart={state.cart} line={line} locale={locale} />
-            </li>
-          ))}
-        </ul>
-        <QuoteLines state={state} locale={locale} />
+        <OrderLines state={state} locale={locale} />
         <PromoField state={state} />
       </div>
       <ContactPhone contact={state.contact} />

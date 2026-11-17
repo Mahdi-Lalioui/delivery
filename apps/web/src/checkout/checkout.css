@@ -641,3 +641,30 @@
   outline-offset: var(--focus-ring-offset);
   border-radius: var(--radius-sm);
 }
+
+/* Desktop: the order summary fills the end column beside steps 1 and 2. */
+.checkout-aside {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .checkout:has(.checkout-aside) {
+    grid-template-columns: minmax(0, 1fr) 22rem;
+    column-gap: var(--space-32);
+    align-items: start;
+    max-inline-size: 64rem;
+  }
+
+  .checkout:has(.checkout-aside) > :not(.checkout-aside) {
+    grid-column: 1;
+  }
+
+  .checkout-aside {
+    display: grid;
+    position: sticky;
+    inset-block-start: var(--space-24);
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    gap: var(--space-12);
+  }
+}

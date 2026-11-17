@@ -493,6 +493,9 @@
 .orders-favourite {
   position: relative;
   display: grid;
+  /* The track follows the tile, not the name: a long name must not widen the cover. */
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
   gap: var(--space-8);
 }
 
