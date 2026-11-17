@@ -469,4 +469,6 @@
   Next: provision ClamAV and fresh signatures in production Compose, then verify clean and flagged samples against the real scanner.
 
 - 2026-11-17 · High · Completed the production Compose upload drill: clean PNG scanned, cropped and published as ten variants; inert EICAR rejected, purged and never previewed. Audited runtime identities and confirmed no inbound webhook route exists; evidence: [upload scanner drill](../evidence/awid/local-upload-scanner.md).
-  Next: continue the route-by-route authz and tenant-isolation audit, then exercise OTP enumeration and delivery limits.
+  Next: expand connected cross-account and cross-restaurant tests across the remaining customer and operator routes; then verify CSRF, sessions and security headers in the production stack.
+- 2026-11-17 · Ultra · Reran authz (267/267, 42 suites) and six connected isolation/auth suites (20 tests); added real-Postgres coverage for email's rolling 3-per-15-minute and 10-per-day OTP caps (27 auth repository tests passed). [Security evidence](../SECURITY_REVIEW.md#otp-abuse-and-delivery-limits).
+  Next: expand connected cross-account and cross-restaurant tests across the remaining customer and operator routes; then verify CSRF, sessions and security headers in the production stack.

@@ -22,6 +22,20 @@ courier and administrator routes. All checks use synthetic data on local infrast
   advisories and zero high or critical advisories.
 - All six structured logger tests passed.
 
+## OTP abuse and delivery limits
+
+On `lane-a` after `8b1675c`, `pnpm test:authz` passed 267 route/role checks
+across 42 suites. The connected integration run passed 20 tests across the
+auth, cross-tenant order/merchant, invitation, upload and menu-preview suites.
+The auth integration tests exercise the generic response shape for new and
+returning email accounts, normalized email, HMAC-only code storage, one-use
+codes, five-attempt lockout, resend cooldown, shared phone/email IP quotas,
+and the admin TOTP step. A separate real-Postgres run passed all 27 auth
+repository integration tests, including new cases for the 3-per-15-minute and
+10-per-day email identifier caps, plus existing phone and shared-IP rolling
+caps and concurrency checks. See `apps/api/test/auth.integration.test.ts` and
+`packages/db/test/auth.integration.test.ts`.
+
 ## Upload validation
 
 On 13 November 2026, the focused media and logger run passed 44 tests. The

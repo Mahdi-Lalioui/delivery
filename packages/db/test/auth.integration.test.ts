@@ -9,6 +9,7 @@ type Repository = ReturnType<typeof createAuthRepository>;
 type Transaction = Parameters<Parameters<Repository["transaction"]>[0]>[0];
 type OtpReservation = Parameters<Transaction["reserveOtpChallenge"]>[0];
 type PhoneOtpReservation = Extract<OtpReservation, { phoneE164: string }>;
+type EmailOtpReservation = Extract<OtpReservation, { email: string }>;
 type SessionInsertion = Parameters<Transaction["insertSession"]>[0];
 
 const database = registerTestDatabase();
@@ -59,6 +60,22 @@ function reservation(
     purpose: "sign_in",
     codeHmac,
     idempotencyKeyHash: hash(`otp-request-${serial.toString()}`),
+    now: instant(),
+    ...overrides,
+  };
+}
+
+function emailReservation(
+  serial: number,
+  overrides: Partial<EmailOtpReservation> = {},
+): EmailOtpReservation {
+  return {
+    id: fixtureId(serial),
+    email: `buyer-${serial.toString()}@example.test`,
+    requestIp: `192.0.2.${(Math.floor(serial / 100) + 1).toString()}`,
+    purpose: "sign_in",
+    codeHmac,
+    idempotencyKeyHash: hash(`email-otp-request-${serial.toString()}`),
     now: instant(),
     ...overrides,
   };
@@ -264,6 +281,48 @@ test("[AUTH-02:db] the rolling daily phone cap releases the oldest request at 24
     expect(result).toMatchObject({ kind: "created" });
   }
   const eleventh = reservation(410, { phoneE164 });
+  expect(await reserve({ ...eleventh, now: instant(day - 1) })).toEqual({
+    kind: "rate_limited",
+    retryAt: instant(day),
+  });
+  expect(await reserve({ ...eleventh, now: instant(day) })).toMatchObject({ kind: "created" });
+});
+
+test("[AUTH-02:db] the rolling email cap allows three requests per 15 minutes", async () => {
+  const email = "email-window@example.test";
+  for (let index = 0; index < 3; index += 1) {
+    const result = await reserve(
+      emailReservation(1_200 + index, {
+        email,
+        now: instant(index * 5 * minute),
+      }),
+    );
+    expect(result).toMatchObject({ kind: "created" });
+  }
+
+  const fourth = emailReservation(1_203, { email });
+  expect(await reserve({ ...fourth, now: instant(15 * minute - 1) })).toEqual({
+    kind: "rate_limited",
+    retryAt: instant(15 * minute),
+  });
+  expect(await reserve({ ...fourth, now: instant(15 * minute) })).toMatchObject({
+    kind: "created",
+  });
+});
+
+test("[AUTH-02:db] the rolling daily email cap releases its oldest request at 24 hours", async () => {
+  const email = "email-daily@example.test";
+  for (let index = 0; index < 10; index += 1) {
+    const result = await reserve(
+      emailReservation(1_300 + index, {
+        email,
+        now: instant(index * 16 * minute),
+      }),
+    );
+    expect(result).toMatchObject({ kind: "created" });
+  }
+
+  const eleventh = emailReservation(1_310, { email });
   expect(await reserve({ ...eleventh, now: instant(day - 1) })).toEqual({
     kind: "rate_limited",
     retryAt: instant(day),
