@@ -434,3 +434,6 @@
 
 - 2026-11-17 · High · Integration review found courier updates could interrupt the tracking tilt. Both regression cases failed first, then passed with the selected pitch carried into the courier animation. Corrected the evidence to leave 3D frame timing open.
   Next: require exact-head GitHub Verify and browser jobs on the corrected integration, fast-forward main, then start server route and page authorization.
+
+- 2026-11-17 · High · Linux WebKit spent 23 seconds creating a page before the map journey began. Moved page and PostGIS setup into a separately timed fixture. All 12 real-map cases passed locally with the original journey deadline and assertions.
+  Next: wait for the exact-head GitHub integration gate, fast-forward main, then start server route and page authorization.
