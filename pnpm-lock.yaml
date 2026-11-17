@@ -354,6 +354,9 @@ importers:
       '@zaafran/media':
         specifier: workspace:*
         version: link:../../packages/media
+      '@zaafran/tokens':
+        specifier: workspace:*
+        version: link:../../packages/tokens
       graphile-worker:
         specifier: 0.18.0
         version: 0.18.0(supports-color@7.2.0)(typescript@6.0.3)

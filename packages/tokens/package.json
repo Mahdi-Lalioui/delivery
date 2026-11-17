@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./theme.css": "./dist/theme.css"
+    "./theme.css": "./dist/theme.css",
+    "./palettes.json": "./src/palettes.json"
   },
   "scripts": {
     "build": "node scripts/build.ts",
