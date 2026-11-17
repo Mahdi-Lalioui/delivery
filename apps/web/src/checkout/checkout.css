@@ -139,7 +139,8 @@
   gap: var(--space-16);
 }
 
-.checkout-step h2 {
+.checkout-step h2,
+.checkout-aside h2 {
   font: var(--font-weight-h2) var(--font-size-h2) / var(--line-height-h2) var(--font-display);
 }
 
@@ -659,33 +660,41 @@
     grid-column: 1;
   }
 
-  /* Step 3 keeps the same two columns: the receipt moves to the end side, cash on the start. */
+  /*
+   * Step 3 uses the same page grid as steps 1–2: the stepper stays in the start column and the
+   * summary heading sits at the top of the end column. The step's own wrappers dissolve
+   * (display: contents) so the heading and receipt become items of the page grid.
+   */
   .checkout:has(.checkout-payment-step) {
-    max-inline-size: 64rem;
-  }
-
-  .checkout-payment-step {
     grid-template-columns: minmax(0, 1fr) 22rem;
     column-gap: var(--space-32);
     align-items: start;
+    max-inline-size: 64rem;
   }
 
-  /* Start-side blocks span two rows each, so the receipt column starts at the top too. */
+  .checkout:has(.checkout-payment-step) > *,
   .checkout-payment-step > * {
     grid-column: 1;
-    grid-row: span 2;
   }
 
-  .checkout-payment-step > h2 {
+  .checkout-body:has(.checkout-payment-step),
+  .checkout-payment-step {
+    display: contents;
+  }
+
+  /* ".checkout" in front: the minifier merges the start-column rule into a stronger :is(). */
+  .checkout .checkout-payment-step > h2 {
     grid-column: 2;
-    grid-row: 1 / span 1;
+    grid-row: 1;
   }
 
-  .checkout-payment-step > .checkout-receipt {
+  /* Starts under the heading by the heading's height, exactly as in the steps 1–2 aside. */
+  .checkout .checkout-payment-step > .checkout-receipt {
     position: sticky;
     inset-block-start: var(--space-24);
     grid-column: 2;
-    grid-row: 2 / span 3;
+    grid-row: 1 / span 5;
+    margin-block-start: calc(var(--line-height-h2) + var(--space-20));
   }
 
   .checkout-aside {
@@ -693,8 +702,8 @@
     position: sticky;
     inset-block-start: var(--space-24);
     grid-column: 2;
-    grid-row: 1 / span 3;
-    gap: var(--space-12);
+    grid-row: 1 / span 4;
+    gap: var(--space-20);
   }
 }
 

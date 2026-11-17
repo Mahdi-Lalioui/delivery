@@ -125,3 +125,10 @@
 
   `pnpm audit:customer-a11y` 0/0/0. `pnpm perf:customer-feel` × 3: CLS 0, 60 fps on all four routes. `pnpm verify` exit 0. Real-phone steps written in docs/HUMAN_TODO.md.
   Next: Mahdi runs "Real-phone check of the customer screens" in docs/HUMAN_TODO.md and records the numbers in docs/evidence/awid/perf.md; lane B then fixes any route that fails.
+- 2026-11-17 · Critic round 4: every screen scores 8–9 and ten of fifteen score 9. Its one regression is fixed: at ≥ 1024 px the checkout stepper, summary heading and receipt now sit at the same pixel offsets on steps 1 and 3. The operations gallery headers use the icon set's chevron. Commands and results:
+  - `pnpm audit:customer-a11y`: 0/0/0.
+  - `pnpm perf:customer-feel` × 3: CLS 0 and 60 fps on all four routes; taps ≤ 72 ms except the known heart tap during the pickup map's first frame (112–128 ms).
+  - `pnpm verify`: exit 0.
+
+  docs/RELEASE_REPORT.md now holds the round 4 scores and fresh contact sheets.
+  Next: Mahdi runs "Real-phone check of the customer screens" in docs/HUMAN_TODO.md and records the numbers in docs/evidence/awid/perf.md. Lane B then fixes any route that fails, followed by the P2 Pickup footer.

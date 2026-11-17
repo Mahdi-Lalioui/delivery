@@ -17,7 +17,7 @@
       },
       {
         "label": "Favourite heart",
-        "inputToPaintMs": 48
+        "inputToPaintMs": 32
       }
     ]
   },
@@ -31,7 +31,7 @@
     "taps": [
       {
         "label": "Dish + (opens the sheet)",
-        "inputToPaintMs": 40
+        "inputToPaintMs": 48
       },
       {
         "label": "Opening hours",
@@ -45,7 +45,7 @@
     "cls": 0,
     "fps": 60,
     "p95FrameMs": 17,
-    "droppedShare": 0.005076142131979695,
+    "droppedShare": 0.004901960784313725,
     "taps": [
       {
         "label": "Add a promo code",
@@ -59,7 +59,7 @@
     "cls": 0,
     "fps": 60,
     "p95FrameMs": 17,
-    "droppedShare": 0.004273504273504274,
+    "droppedShare": 0.004405286343612335,
     "taps": [
       {
         "label": "Call the restaurant (focus)",
@@ -89,7 +89,7 @@
       },
       {
         "label": "Favourite heart",
-        "inputToPaintMs": 136
+        "inputToPaintMs": 128
       }
     ]
   },
@@ -117,7 +117,7 @@
     "cls": 0,
     "fps": 60,
     "p95FrameMs": 17,
-    "droppedShare": 0.0049504950495049506,
+    "droppedShare": 0.0049261083743842365,
     "taps": [
       {
         "label": "Add a promo code",
@@ -161,7 +161,7 @@
       },
       {
         "label": "Favourite heart",
-        "inputToPaintMs": 120
+        "inputToPaintMs": 112
       }
     ]
   },
@@ -189,7 +189,7 @@
     "cls": 0,
     "fps": 60,
     "p95FrameMs": 17,
-    "droppedShare": 0.005,
+    "droppedShare": 0.004901960784313725,
     "taps": [
       {
         "label": "Add a promo code",
@@ -203,7 +203,7 @@
     "cls": 0,
     "fps": 60,
     "p95FrameMs": 17,
-    "droppedShare": 0.004405286343612335,
+    "droppedShare": 0.004291845493562232,
     "taps": [
       {
         "label": "Call the restaurant (focus)",
