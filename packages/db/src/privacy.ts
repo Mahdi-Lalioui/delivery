@@ -1,6 +1,6 @@
 import type { customerPrivacyExportOutput } from "@zaafran/contracts/retention";
-import type { ISql } from "postgres";
-import { listAddresses } from "./addresses.js";
+import type { TransactionSql } from "postgres";
+import { listAddresses, setAddressCustomerScope } from "./addresses.js";
 import type { DatabaseConnection } from "./database.js";
 import { readCustomerRatings } from "./order-rating.js";
 import { readCustomerOrderReceipts } from "./order-receipts.js";
@@ -16,9 +16,13 @@ import { pruneDeletionState } from "./privacy-retention.js";
 
 type PrivacyExport = ReturnType<typeof customerPrivacyExportOutput.parse>;
 
-async function exportAccount(sql: ISql, scope: PrivacyScope): Promise<PrivacyExport | undefined> {
+async function exportAccount(
+  sql: TransactionSql,
+  scope: PrivacyScope,
+): Promise<PrivacyExport | undefined> {
   const identifiers = await readPrivacyIdentifiers(sql, scope);
   if (!identifiers) return undefined;
+  await setAddressCustomerScope(sql, scope.userId);
   const addresses = await listAddresses(sql, scope.userId);
   const orderContacts = await sql<{ orderId: string; phoneE164: string }[]>`
     SELECT id AS "orderId", contact_phone_e164 AS "phoneE164" FROM public.orders

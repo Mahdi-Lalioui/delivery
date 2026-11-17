@@ -428,3 +428,55 @@
 
 - 2026-11-13 · High · Both connected performance tests passed on the integrated candidate. Discovery peaked at 1.62 s and Restaurant at 1.42 s over three cold samples each. Initial JS remains over the SPEC budget.
   Next: profile the larger connected catalog and identify common route bundles to defer.
+
+- 2026-11-17 · High · Merged Lane B through `e21fc39` on lane-a, keeping both sets of performance evidence. Full local pnpm verify passed with 2,053 unit and 337 PostGIS integration tests.
+  Next: finish all browser suites, then fast-forward main to this integration only after its exact GitHub checks pass.
+
+- 2026-11-17 · High · Integration review found courier updates could interrupt the tracking tilt. Both regression cases failed first, then passed with the selected pitch carried into the courier animation. Corrected the evidence to leave 3D frame timing open.
+  Next: require exact-head GitHub Verify and browser jobs on the corrected integration, fast-forward main, then start server route and page authorization.
+
+- 2026-11-17 · High · Linux WebKit spent 23 seconds creating a page before the map journey began. Moved page and PostGIS setup into a separately timed fixture. All 12 real-map cases passed locally with the original journey deadline and assertions.
+  Next: wait for the exact-head GitHub integration gate, fast-forward main, then start server route and page authorization.
+
+- 2026-11-17 · High · Fast-forwarded main to `f1febe7` after all required GitHub checks and 175 local browser tests passed. Added API deny-all CSP and web isolation and frame headers. Seven API tests, six browser checks and the pinned Caddy TLS header probe passed.
+  Next: enforce authenticated operator page roles on the server and prove anonymous and wrong-role redirects with browser regressions.
+
+- 2026-11-17 · Ultra · Enforced server-side access checks before rendering admin pages. Guests and standard sessions redirect to admin sign-in. All 11 authenticated browser and production route checks passed, including existing TOTP journeys.
+  Next: enforce merchant tenant and role on server-rendered operator pages while preserving onboarding, then guard the courier workspace.
+
+- 2026-11-17 · Ultra · Merchant pages check the signed-in account's membership and role for the requested restaurant before rendering. The staff-as-manager regression failed first. The connected suite passed 30 checks, including a separate tenant and the existing board journeys.
+  Next: commit and push the verified HttpOnly invitation continuations.
+
+- 2026-11-17 · Ultra · Moved staff and courier invitation continuations to short-lived HttpOnly cookies and retained existing redemption authorization. The connected browser suite passed 30 checks, including reload and sign-in continuation.
+  Next: commit and push the dependency advisory fixes and record the history scan.
+
+- 2026-11-17 · High · Cleared six moderate npm advisories. Both audits reported zero findings, full pnpm verify passed, and Gitleaks found no leaks in 536 commits from the remote mirror.
+  Next: split public courier invite entry from the protected courier workspace and test anonymous, wrong-role and active courier access on the server.
+
+- 2026-11-17 · High · Separated the courier invitation entry from the server-protected workspace. All 21 connected checks passed, covering guest and wrong-role redirects, active courier access, existing invite links, and delivery and pickup journeys.
+  Next: audit the authz route matrix for missing cross-customer and cross-restaurant isolation checks, then add scoped Postgres RLS where the repository can pass transaction-local actor context.
+
+- 2026-11-17 · Ultra · Forced customer favourites RLS and set transaction-local scope for the authenticated customer and account erasure. The restricted-role regression failed first and then passed. Full pnpm verify exited zero.
+  Next: add transaction-scoped RLS for merchant menu command receipts, then continue the cross-tenant route matrix audit.
+
+- 2026-11-17 · Ultra · Forced RLS on merchant menu command receipts. The restricted-role regression first read all three receipts, then passed with actor and restaurant scope. Full pnpm verify passed.
+  Next: rerun the authz route matrix and add missing API isolation coverage for order, tracking and restaurant operations before starting production scanner work.
+
+- 2026-11-17 · High · Reran all 267 authz checks. The connected order-session regression confirmed isolation for the board, acceptance, tracking and receipt, using a real separate restaurant owner and customer session.
+  Next: extend cross-tenant API coverage for the remaining merchant management and customer data routes, then verify the pending upload scanner, webhook and runtime permissions controls.
+
+- 2026-11-17 · High · Added the ClamAV adapter to quarantine preparation. All 12 worker preparation tests, targeted lint and worker typecheck passed. Flagged files cannot generate previews, and scanner errors keep originals private for retry.
+  Next: provision ClamAV and fresh signatures in production Compose, then verify clean and flagged samples against the real scanner.
+
+- 2026-11-17 · High · Completed the production Compose upload drill: clean PNG scanned, cropped and published as ten variants; inert EICAR rejected, purged and never previewed. Audited runtime identities and confirmed no inbound webhook route exists; evidence: [upload scanner drill](../evidence/awid/local-upload-scanner.md).
+  Next: expand connected cross-account and cross-restaurant tests across the remaining customer and operator routes; then verify CSRF, sessions and security headers in the production stack.
+- 2026-11-17 · Ultra · Reran authz (267/267, 42 suites) and six connected isolation/auth suites (20 tests); added real-Postgres coverage for email's rolling 3-per-15-minute and 10-per-day OTP caps (27 auth repository tests passed). [Security evidence](../SECURITY_REVIEW.md#otp-abuse-and-delivery-limits).
+  Next: remove the cross-restaurant courier invitation registration disclosure, then fix foreign-order row locking before the broader connected authz pass.
+- 2026-11-17 · Ultra · Forced row-level security on customer addresses and set transaction-local customer scope for address CRUD, checkout quotes, privacy export and erasure. The restricted-role test failed before the migration; address, quote and privacy Postgres suites passed 48 tests after.
+  Next: fix foreign-order row locking before the broader connected authz pass.
+- 2026-11-17 · Ultra · Fixed the P0 courier invitation enumeration leak. Owners now receive the same invitation shape for active couriers and unregistered contacts; acceptance still rejects a second-restaurant assignment. Regression failed before fix; full `pnpm verify` passed (2,061 unit, 342 Postgres integration tests). [Finding](../SECURITY_REVIEW.md#findings).
+  Next: expand valid-session isolation coverage for courier actions, realtime topics and admin routes.
+- 2026-11-17 · Ultra · Order actions now authorize an unlocked snapshot before acquiring the order row lock, then recheck after locking. The connected regression failed before and passed after. `pnpm verify` passed 2,061 unit and 342 Postgres tests, but stopped at audit on newly published, unpatched GHSA-fc5q-39xc-vjpf; [evidence](../evidence/awid/dependency-audit-nov17.md).
+  Next: remove ClamAV's inherited process secrets and extend valid-session isolation coverage for courier actions, realtime topics and admin routes.
+- 2026-11-17 · Ultra · ClamAV now receives an empty process environment. A synthetic worker secret was visible to the fake scanner before the fix; the regression passed after. `pnpm exec vitest run --coverage.enabled=false apps/worker/test/media-scanner.test.ts` passed.
+  Next: extend valid-session isolation coverage for courier actions, realtime topics and admin routes; audit the production edge and runtime logs.

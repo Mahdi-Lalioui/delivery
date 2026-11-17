@@ -23,7 +23,7 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 - [ ] **Lane A** Connected Discovery LCP below 2 s on the established throttled Android profile. [Small-fixture samples](evidence/awid/perf.md#connected-production-build)
 - [ ] **Lane A** Connected Restaurant LCP below 2 s on the same profile. [Small-fixture samples](evidence/awid/perf.md#connected-production-build)
 - [x] **Lane B** Customer tap feedback within 100 ms, with optimistic feedback where safe. [Worst tap 72 ms on the throttled Android profile](evidence/awid/perf.md#customer-feel-taps-frames-and-layout-shift-lane-b-13-november-2026)
-- [x] **Lane B** Measure 60 fps scrolling and animation and CLS below 0.05. Defer offscreen images and 3D. Record connected results in [performance evidence](evidence/awid/perf.md). CLS 0 and 60 fps on Discovery, Restaurant and Checkout; Tracking 59–60 fps once the 3D street view became opt-in. [Results](evidence/awid/perf.md#3d-street-view-on-tap-13-november-2026-lane-b)
+- [ ] **Lane B** Measure 60 fps scrolling and animation and CLS below 0.05. Defer offscreen images and 3D. Record connected results in [performance evidence](evidence/awid/perf.md). CLS 0 and 60 fps on Discovery, Restaurant and Checkout; Tracking scroll measured 59–60 fps with opt-in 3D. Tilt animation frame timing remains open. [Results](evidence/awid/perf.md#3d-street-view-on-tap-13-november-2026-lane-b)
 - [ ] **Lane A** Route bundle budgets enforced in CI at the SPEC target. [Provisional ceilings](evidence/awid/perf.md#connected-production-build)
 - [x] **Lane A** Quote and placement honour code and automatic offers and apply the published stacking rules. [PostGIS quote and placement tests](../packages/db/test/order-quotes.integration.test.ts)
 - [x] **Lane A** Per-customer and global offer limits and idempotent redemption hold under retries and concurrency. [PostGIS redemption tests](../packages/db/test/order-quotes.integration.test.ts)
@@ -32,7 +32,7 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 ## Security
 
 - [ ] **Lane A** Review SPEC §17 and AGENTS §10. Cover every route in the authz matrix and verify customer and merchant isolation.
-- [ ] **Lane A** Verify OTP enumeration resistance, attempt caps and SMS/email delivery limits by identifier and IP.
+- [x] **Lane A** Verify OTP enumeration resistance, attempt caps and SMS/email delivery limits by identifier and IP. [Connected auth and Postgres regressions](SECURITY_REVIEW.md#otp-abuse-and-delivery-limits) (8b1675c plus current lane-a test commit)
 - [x] **Lane A** Verify upload type, size, decompression limits and metadata stripping. [Upload validation evidence](SECURITY_REVIEW.md#upload-validation)
 - [ ] **Lane A** Verify input handling, CSRF, CSP and security headers, session fixation protections and revocation.
 - [ ] **Lane A** Review route rate limits, secret handling and dependencies. Resolve high and critical findings.
@@ -52,5 +52,5 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 - [ ] **Lane A** Verify error tracking and alerts through test incidents.
 - [x] **Lane A** Complete the SPEC §20 runbooks for deploy, rollback, restore, Ramadan peak, API down, DB full, SMS down, tiles down, OSRM down and restaurant complaint surges. [Runbooks](runbooks/service-incidents.md)
 - [x] **Lane A** Keep the encrypted restore drill green with fresh evidence. [Local restore results](evidence/awid/local-operations.md)
-- [ ] **Lane A** Integrate Lane B regularly. Require full `pnpm verify` and every browser suite green in GitHub CI before merging.
+- [x] **Lane A** Integrate Lane B regularly. Require full `pnpm verify` and every browser suite green in GitHub CI before merging. [Exact integration run](https://github.com/Mahdi-Lalioui/delivery/actions/runs/44093493915) (`f1febe7`)
 - [ ] **Lane A** After all preceding Lane A criteria pass, rerun security and reliability from scratch and record the result.

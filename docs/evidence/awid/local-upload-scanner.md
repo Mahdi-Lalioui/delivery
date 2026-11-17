@@ -1,0 +1,9 @@
+# Local production Compose upload scanner drill
+
+- Tested commit: `84245ea` (`fix(media): provision fresh ClamAV signatures in Compose`).
+- Stack: `awid-upload-readiness`, production `infra/compose.production.yml`, synthetic local account/session, locally generated 2×1 PNG and inert EICAR test marker, local HTTPS CA. No provider credentials or real user data.
+- Command: `bash /private/tmp/awid-compose-upload.sh` (the temporary script uses the active local Compose override and certificate; it is not committed).
+- Result: passed. The PNG was reserved, streamed as `application/octet-stream`, scanned, cropped, published in all 10 AVIF/WebP variants, and served over HTTPS as WebP. The EICAR marker reached `rejected/invalid_image`; its quarantine object was removed and no preview or variant was created.
+- Drill correction: the initial attempt received HTTP 415 because the upload endpoint accepts binary payloads as `application/octet-stream`; the reservation still declares the image's actual `image/png` type. After correcting the temporary script, both journeys passed.
+- Runtime inspection: API, worker and signature updater run as UID/GID 1000 (`node`), with read-only root filesystems, all Linux capabilities dropped, and `no-new-privileges`. The worker sees the signature volume read-only. The updater is isolated on `signature-egress`. Database, Caddy and Martin retain their upstream image users/root filesystem behavior; these exceptions need a separate compatibility review before changing ports, entrypoints or data ownership.
+- Webhook inventory: no inbound webhook route or signature-verification path exists in `apps/api`, `apps/worker` or `packages`. Twilio and Resend are outbound adapters; `ORDER_SMS_WEBHOOK_URL` is outbound SMS delivery. There is no inbound signature surface to verify in the current feature set.

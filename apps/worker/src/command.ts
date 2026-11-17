@@ -12,6 +12,8 @@ const workerEnvironment = z
   .object({
     DATABASE_URL: z.url({ protocol: /^postgres(?:ql)?$/ }),
     MEDIA_STORAGE_ROOT: z.string().refine(isAbsolute).default(defaultMediaStorageRoot),
+    CLAMSCAN_DATABASE: z.string().refine(isAbsolute).optional(),
+    CLAMSCAN_PATH: z.string().refine(isAbsolute).optional(),
     HEIC_DECODER_PATH: z.string().refine(isAbsolute).optional(),
     ORDER_SMS_WEBHOOK_URL: z
       .url({ protocol: /^https$/u })

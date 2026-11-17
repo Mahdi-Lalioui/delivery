@@ -300,3 +300,23 @@ for (const locale of ["ar", "fr"]) {
     });
   }
 }
+
+test("[NFR-07] production pages isolate browsing contexts and forbid framing @smoke", async ({
+  request,
+}) => {
+  const page = await request.get(productionUrl + "/fr");
+  expect(page.status()).toBe(200);
+  expect(page.headers()).toMatchObject({
+    "cross-origin-opener-policy": "same-origin",
+    "cross-origin-resource-policy": "same-origin",
+    "x-frame-options": "DENY",
+    "strict-transport-security": "max-age=31536000; includeSubDomains",
+  });
+  expect(page.headers()["content-security-policy"]).toContain("frame-ancestors 'none'");
+
+  const api = await request.get(productionUrl + "/v1/unknown");
+  expect(api.status()).toBe(404);
+  expect(api.headers()["content-security-policy"]).toBe(
+    "default-src 'none'; frame-ancestors 'none'",
+  );
+});

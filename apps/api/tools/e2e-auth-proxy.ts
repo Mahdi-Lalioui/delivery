@@ -1,4 +1,5 @@
 import { execFile } from "node:child_process";
+import { createHmac } from "node:crypto";
 import { once } from "node:events";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import {
@@ -47,7 +48,11 @@ async function certificate() {
 function forward(
   incoming: IncomingMessage,
   response: ServerResponse,
-  { target, protocol }: { target: URL; protocol: "http" | "https" },
+  {
+    target,
+    protocol,
+    testHeaders,
+  }: { target: URL; protocol: "http" | "https"; testHeaders?: Record<string, string> },
 ): void {
   const upstream = request(
     target,
@@ -56,6 +61,7 @@ function forward(
       path: incoming.url,
       headers: {
         ...incoming.headers,
+        ...testHeaders,
         "x-forwarded-host": incoming.headers.host,
         "x-forwarded-proto": protocol,
       },
@@ -80,11 +86,17 @@ export async function startAuthProxy(webOrigin: string, protocol: "http" | "http
     throw new Error("The authentication test proxy requires a loopback web server.");
   }
   let api: URL | undefined;
+  let testHeaders: Record<string, string> | undefined;
   const handle = (incoming: IncomingMessage, response: ServerResponse) => {
     const path = incoming.url?.split("?", 1)[0];
     const target = path === "/v1" || path?.startsWith("/v1/") ? api : web;
     if (target === undefined) response.writeHead(503).end();
-    else forward(incoming, response, { target, protocol });
+    else
+      forward(incoming, response, {
+        target,
+        protocol,
+        ...(target === web && testHeaders && { testHeaders }),
+      });
   };
   const server =
     protocol === "https"
@@ -100,7 +112,15 @@ export async function startAuthProxy(webOrigin: string, protocol: "http" | "http
   return {
     origin: `${protocol}://${loopback}:${address.port.toString()}`,
     connectApi(port: number) {
-      api = new URL(`http://${loopback}:${port.toString()}`);
+      const key = process.env.AWID_AUTH_E2E_PROXY_KEY;
+      const value = port.toString();
+      api = new URL(`http://${loopback}:${value}`);
+      if (key) {
+        testHeaders = {
+          "x-awid-test-api-port": value,
+          "x-awid-test-api-signature": createHmac("sha256", key).update(value).digest("hex"),
+        };
+      }
     },
     close: () =>
       new Promise<void>((resolve, reject) => {

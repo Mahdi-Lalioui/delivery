@@ -1,5 +1,5 @@
 import type { Map } from "maplibre-gl";
-import { useEffect, useRef, type RefObject } from "react";
+import { useEffect, useEffectEvent, useRef, type RefObject } from "react";
 import type { ScooterPose } from "./scooter-layer";
 
 type Scooter = { setPose: (pose: ScooterPose) => void };
@@ -79,6 +79,7 @@ export function useTrackingScene(
 ) {
   const heading = useRef(0);
   const hasPlaced = useRef(false);
+  const readPitch = useEffectEvent(() => cameraPitch(isStreetView));
 
   useEffect(() => {
     const map = mapRef.current;
@@ -102,7 +103,8 @@ export function useTrackingScene(
     // The first position is a jump (the map is still settling); later moves glide.
     const duration = isReducedMotion() || !hasPlaced.current ? 0 : 850;
     hasPlaced.current = true;
-    map.easeTo({ center: [pose.longitude, pose.latitude], duration });
+    // A position update can interrupt an active tilt, so keep its requested pitch.
+    map.easeTo({ center: [pose.longitude, pose.latitude], pitch: readPitch(), duration });
     if (!isReducedMotion()) placeScooter(map, pose);
   }, [courier, isReady, mapRef]);
 }

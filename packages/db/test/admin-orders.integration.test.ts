@@ -498,3 +498,27 @@ test("[MON-05] preserves legacy receipts and enforces discounted order totals", 
     code: "23514",
   });
 });
+
+test("[CUS-23] Postgres isolates favourite rows even without a customer predicate", async () => {
+  const { sql } = database.get();
+  const reader = sql("favourites_rls_" + randomUUID().replaceAll("-", ""));
+  await sql.begin(async (tx) => {
+    await tx`INSERT INTO public.customer_favourites (customer_id, merchant_id, created_at)
+      VALUES (${customerId}, ${merchantId}, now()), (${otherId}, ${otherMerchantId}, now())`;
+    await tx`CREATE ROLE ${reader} NOLOGIN`;
+    await tx`GRANT SELECT, DELETE ON public.customer_favourites TO ${reader}`;
+    await tx`SET LOCAL ROLE ${reader}`;
+    expect(await tx`SELECT customer_id FROM public.customer_favourites`).toEqual([]);
+    await tx`SELECT set_config('awid.customer_id', ${customerId}, true)`;
+    expect(await tx`SELECT customer_id FROM public.customer_favourites`).toEqual([
+      { customer_id: customerId },
+    ]);
+    expect(
+      (await tx`DELETE FROM public.customer_favourites WHERE customer_id = ${otherId}`).count,
+    ).toBe(0);
+    await tx`RESET ROLE`;
+    await tx`DELETE FROM public.customer_favourites WHERE merchant_id IN (${merchantId}, ${otherMerchantId})`;
+    await tx`REVOKE SELECT, DELETE ON public.customer_favourites FROM ${reader}`;
+    await tx`DROP ROLE ${reader}`;
+  });
+});

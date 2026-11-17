@@ -202,6 +202,19 @@ const matrix: readonly MatrixRoute[] = [
     expected: 503,
   },
   { method: "GET", url: "/v1/auth/methods", expected: 200 },
+  {
+    method: "GET",
+    url: "/v1/invitation-continuations/:kind",
+    requestUrl: "/v1/invitation-continuations/staff",
+    expected: 200,
+  },
+  {
+    method: "POST",
+    url: "/v1/invitation-continuations/:kind",
+    requestUrl: "/v1/invitation-continuations/staff",
+    payload: { token: "A".repeat(42) + "E" },
+    expected: 503,
+  },
   { method: "POST", url: "/v1/auth/otp/verify", payload: verification, expected: 503 },
   { method: "POST", url: "/v1/auth/totp/verify", payload: verification, expected: 503 },
   {

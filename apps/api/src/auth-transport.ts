@@ -1,6 +1,13 @@
 const sessionCookieName = "__Host-session";
 const cookieAttributes = "Secure; HttpOnly; SameSite=Lax";
 
+export function hasSessionSetCookie(value: number | string | string[] | undefined): boolean {
+  const cookies = Array.isArray(value) ? value : [value];
+  return cookies.some(
+    (cookie) => typeof cookie === "string" && cookie.startsWith(sessionCookieName + "="),
+  );
+}
+
 type Credential = { readonly transport: "web" | "bearer"; readonly token: string };
 type BrowserHeaders = {
   readonly origin?: string | undefined;

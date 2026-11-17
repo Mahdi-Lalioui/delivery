@@ -16,6 +16,7 @@ import { registerPushSubscriptionRoutes } from "./push-subscription-routes.js";
 import { registerRealtimeRoutes } from "./realtime-routes.js";
 import { registerTrackingRoutes } from "./tracking-routes.js";
 import { registerCourierRoutes } from "./courier-routes.js";
+import { registerInvitationContinuations } from "./invitation-continuations.js";
 import { registerMerchantBoardRoutes } from "./merchant-board-routes.js";
 import { registerAdminOrdersRoutes } from "./admin-orders-routes.js";
 import { registerOrderActionRoutes } from "./order-action-routes.js";
@@ -170,6 +171,7 @@ export function createApi(options: ApiOptions): FastifyInstance {
   api.setSerializerCompiler(serializerCompiler);
   api.addHook("onRequest", (request, reply, done) => {
     reply.header("x-request-id", request.id);
+    reply.header("content-security-policy", "default-src 'none'; frame-ancestors 'none'");
     done();
   });
   recordRoutePolicies(api);
@@ -199,6 +201,7 @@ export function createApi(options: ApiOptions): FastifyInstance {
       return Promise.resolve(payload);
     });
     registerAuthRoutes(api, access);
+    registerInvitationContinuations(api, access.auth?.publicOrigin);
     registerPrivacyRoutes(api, options.privacy);
     registerAddressRoutes(api, options.addresses);
     registerOrderQuoteRoutes(api, options.orderQuotes);

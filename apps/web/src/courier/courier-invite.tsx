@@ -4,47 +4,61 @@ import { courierInviteAcceptInput } from "@zaafran/contracts/courier";
 import type { Locale } from "@zaafran/i18n/locales";
 import { Button, ButtonLink, TextField } from "@zaafran/ui";
 import { useTranslations } from "next-intl";
-import { useEffect, useState, type SubmitEvent } from "react";
+import { useEffect, useRef, useState, type SubmitEvent } from "react";
+import {
+  clearInvitationFragment,
+  readPendingInvitation,
+  stageInvitation,
+} from "../auth/invitation-continuations";
 import { acceptCourierInvite } from "./courier-http";
 
-const storageKey = "zaafran.courierInvite";
+type InviteView = { kind: "loading" | "absent" | "error" } | { kind: "ready"; inviteId?: string };
+const acceptDetails = courierInviteAcceptInput.pick({ displayName: true });
 
-function parseInvite(inviteId: string | null) {
-  const input = courierInviteAcceptInput.safeParse({ inviteId });
-  return input.success ? input.data.inviteId : undefined;
-}
-
-function rememberInvite(inviteId?: string) {
+async function openCourierInvite(): Promise<InviteView> {
+  const fragment = window.location.hash;
+  const params = new URLSearchParams(fragment.slice(1));
+  const input = courierInviteAcceptInput.shape.inviteId.safeParse(params.get("invite"));
   try {
-    if (inviteId) sessionStorage.setItem(storageKey, inviteId);
-    else sessionStorage.removeItem(storageKey);
+    if (input.success) {
+      const inviteId = input.data;
+      if (!(await stageInvitation("courier", inviteId))) return { kind: "error" };
+      clearInvitationFragment(fragment);
+      return { kind: "ready", inviteId };
+    }
+    if (params.has("invite")) clearInvitationFragment(fragment);
+    const pending = await readPendingInvitation("courier");
+    return pending ? { kind: "ready" } : { kind: "absent" };
   } catch {
-    // The invite can be reopened after sign-in if session storage is unavailable.
+    return { kind: "error" };
   }
 }
 
 export function useCourierInvite() {
-  const [invite, setInvite] = useState<string | null | undefined>(undefined);
+  const [invite, setInvite] = useState<InviteView>({ kind: "loading" });
+  const [attempt, setAttempt] = useState(0);
+  const request = useRef<{ attempt: number; result: Promise<InviteView> } | undefined>(undefined);
   useEffect(() => {
-    const params = new URLSearchParams(window.location.hash.slice(1));
-    const fromLink = parseInvite(params.get("invite"));
-    if (fromLink) rememberInvite(fromLink);
-    if (params.has("invite"))
-      history.replaceState(history.state, "", window.location.pathname + window.location.search);
-    let remembered: string | undefined;
-    try {
-      remembered = parseInvite(sessionStorage.getItem(storageKey));
-    } catch {
-      remembered = undefined;
+    if (request.current?.attempt !== attempt) {
+      request.current = { attempt, result: openCourierInvite() };
     }
-    setInvite(fromLink ?? remembered ?? null);
-  }, []);
+    let isCurrent = true;
+    void request.current.result.then((result) => {
+      if (isCurrent) setInvite(result);
+    });
+    return () => {
+      isCurrent = false;
+    };
+  }, [attempt]);
 
   return {
     invite,
     dismiss: () => {
-      rememberInvite();
-      setInvite(null);
+      setInvite({ kind: "absent" });
+    },
+    retry: () => {
+      setInvite({ kind: "loading" });
+      setAttempt((current) => current + 1);
     },
   };
 }
@@ -54,7 +68,7 @@ export function CourierInvite({
   locale,
   onAccepted,
 }: {
-  inviteId: string;
+  inviteId?: string | undefined;
   locale: Locale;
   onAccepted: () => void;
 }) {
@@ -65,19 +79,18 @@ export function CourierInvite({
   async function accept(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     const name = displayName.trim();
-    const input = courierInviteAcceptInput.safeParse({
-      inviteId,
-      ...(name ? { displayName: name } : {}),
-    });
+    const input = acceptDetails.safeParse(name ? { displayName: name } : {});
     if (!input.success || state === "saving") return;
     setState("saving");
-    const result = await acceptCourierInvite(input.data);
+    const result = await acceptCourierInvite({
+      ...input.data,
+      ...(inviteId === undefined ? {} : { inviteId }),
+    });
     if (result.kind === "ready") {
       onAccepted();
       return;
     }
     if (result.kind === "sign-in") {
-      rememberInvite(inviteId);
       setState("sign-in");
       return;
     }

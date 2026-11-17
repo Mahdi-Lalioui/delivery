@@ -175,6 +175,7 @@ test("[M0-6] the generated OpenAPI document describes the readiness problem resp
       "/v1/feed",
       "/v1/flags",
       "/v1/geo/serviceability",
+      "/v1/invitation-continuations/{kind}",
       "/v1/me",
       "/v1/me/addresses",
       "/v1/me/addresses/{addressId}",
@@ -271,6 +272,22 @@ test("[M0-6] the generated OpenAPI document describes the readiness problem resp
     expect(schema.paths?.["/readyz"]?.get?.responses).toMatchObject({
       503: { content: { "application/problem+json": { schema: { type: "object" } } } },
     });
+  } finally {
+    await api.close();
+  }
+});
+
+test.each([
+  ["/healthz", 200],
+  ["/v1/unknown", 404],
+] as const)("[NFR-07] serves a deny-all CSP on %s", async (url, status) => {
+  const api = createApi({ checkReadiness: () => Promise.resolve() });
+  try {
+    const response = await api.inject(url);
+    expect(response.statusCode).toBe(status);
+    expect(response.headers["content-security-policy"]).toBe(
+      "default-src 'none'; frame-ancestors 'none'",
+    );
   } finally {
     await api.close();
   }

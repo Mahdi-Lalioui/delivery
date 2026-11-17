@@ -85,6 +85,47 @@ function setup(options?: Pick<Parameters<typeof createApi>[0], "rateLimit">) {
   return { api, service };
 }
 
+test.each([
+  ["staff", "A".repeat(42) + "E"],
+  ["courier", challengeId],
+])("[MER-23][COU-01] stages a %s invitation in an HttpOnly cookie", async (kind, invitation) => {
+  const { api } = setup();
+  const url = `/v1/invitation-continuations/${kind}`;
+  const request = { method: "POST", url, payload: { token: invitation } } as const;
+  const foreign = await api.inject({ ...request, headers: { origin: "https://other.test" } });
+  expect(foreign.statusCode).toBe(403);
+  expect(foreign.headers["set-cookie"]).toBeUndefined();
+  expect(
+    (await api.inject({ ...request, headers: browserHeaders, payload: { token: "bad" } }))
+      .statusCode,
+  ).toBe(400);
+
+  const response = await api.inject({ ...request, headers: browserHeaders });
+  expect(response.statusCode).toBe(204);
+  expect(response.body).toBe("");
+  expect(response.headers["cache-control"]).toBe("no-store");
+  const cookies = response.cookies;
+  expect(cookies).toEqual([
+    expect.objectContaining({
+      name: `__Host-${kind}-invitation`,
+      value: invitation,
+      maxAge: 900,
+      path: "/",
+      secure: true,
+      httpOnly: true,
+      sameSite: "Strict",
+    }),
+  ]);
+
+  expect((await api.inject(url)).json()).toEqual({ pending: false });
+  const headers = { cookie: `__Host-${kind}-invitation=${invitation}` };
+  const pending = await api.inject({ url, headers });
+  expect(pending.statusCode).toBe(200);
+  expect(pending.json()).toEqual({ pending: true });
+  expect(pending.headers["cache-control"]).toBe("no-store");
+  expect(pending.headers["set-cookie"]).toBeUndefined();
+});
+
 test("[AUTH-01:http] OTP request returns only the accepted challenge and its timing", async () => {
   const { api, service } = setup();
   const challenge = {
