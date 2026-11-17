@@ -124,6 +124,17 @@ could originally read all three fixture receipts. The same unfiltered query
 now returns zero without scope and exactly one with scope, excluding both
 the other restaurant and another staff member at the same restaurant.
 
+## Customer address row isolation
+
+Migration 0063 enables and forces RLS on customer addresses. Address reads and
+writes set the authenticated customer ID inside the same transaction; checkout
+sets that scope before resolving a delivery pin, and privacy export and
+erasure use the same transaction-local scope. A restricted Postgres role could
+read seven fixture addresses without a customer context before the migration.
+The regression now sees no rows without context, only the current customer's
+rows with context, and cannot delete another customer's address. Address,
+checkout quote and privacy integration suites passed 48 tests.
+
 The route inventory and authorization matrix passed all 267 checks across 42
 suites. The connected order-session regression also confirmed that an owner
 of a separate restaurant receives 404 for the other tenant's board and

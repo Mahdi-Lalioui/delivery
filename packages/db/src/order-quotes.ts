@@ -4,6 +4,7 @@ import { priceCashQuote } from "@zaafran/domain/order-quote";
 import type { ISql, TransactionSql } from "postgres";
 import type { z } from "zod";
 import type { DatabaseConnection } from "./database.js";
+import { setAddressCustomerScope } from "./addresses.js";
 import { readItemOptionGroups } from "./menu-option-group-queries.js";
 import {
   readDeliveryZone,
@@ -165,6 +166,7 @@ export async function evaluateQuote(sql: TransactionSql, request: QuoteRequest) 
 async function createQuote(sql: TransactionSql, request: QuoteRequest) {
   if (!(await lockOrderingCustomer(sql, request.customerId)))
     return { kind: "unauthorized" } as const;
+  await setAddressCustomerScope(sql, request.customerId);
   const evaluated = await evaluateQuote(sql, request);
   return evaluated.kind === "priced" ? persistQuote(sql, request, evaluated) : evaluated;
 }

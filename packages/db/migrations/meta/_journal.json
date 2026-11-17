@@ -442,6 +442,13 @@
       "when": 1794927220000,
       "tag": "0062_menu_receipts_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 63,
+      "version": "7",
+      "when": 1794929285160,
+      "tag": "0063_customer_addresses_rls",
+      "breakpoints": true
     }
   ]
 }

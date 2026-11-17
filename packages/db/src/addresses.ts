@@ -21,7 +21,11 @@ export function addressProjection(sql: ISql) {
   ))`;
 }
 
-export async function listAddresses(sql: ISql, userId: string): Promise<Address[]> {
+export async function setAddressCustomerScope(sql: TransactionSql, userId: string) {
+  await sql`SELECT set_config('awid.customer_id', ${userId.toLowerCase()}, true)`;
+}
+
+export async function listAddresses(sql: TransactionSql, userId: string): Promise<Address[]> {
   const rows = await sql<{ address: Address }[]>`
     SELECT ${addressProjection(sql)} AS address
     FROM public.addresses WHERE user_id = ${userId}
@@ -143,12 +147,25 @@ async function removeAddress(sql: TransactionSql, userId: string, addressId: str
 
 export function createAddressRepository({ sql }: DatabaseConnection) {
   return {
-    list: (userId: string) => listAddresses(sql, userId),
+    list: (userId: string) =>
+      sql.begin(async (tx) => {
+        await setAddressCustomerScope(tx, userId);
+        return listAddresses(tx, userId);
+      }),
     create: (userId: string, input: AddressInput) =>
-      sql.begin((tx) => writeAddress(tx, { userId }, input)),
+      sql.begin(async (tx) => {
+        await setAddressCustomerScope(tx, userId);
+        return writeAddress(tx, { userId }, input);
+      }),
     update: (userId: string, addressId: string, input: AddressInput) =>
-      sql.begin((tx) => writeAddress(tx, { userId, addressId }, input)),
+      sql.begin(async (tx) => {
+        await setAddressCustomerScope(tx, userId);
+        return writeAddress(tx, { userId, addressId }, input);
+      }),
     remove: (userId: string, addressId: string) =>
-      sql.begin((tx) => removeAddress(tx, userId, addressId)),
+      sql.begin(async (tx) => {
+        await setAddressCustomerScope(tx, userId);
+        return removeAddress(tx, userId, addressId);
+      }),
   };
 }
