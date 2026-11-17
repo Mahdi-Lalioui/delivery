@@ -443,3 +443,6 @@
 
 - 2026-11-17 · Ultra · Enforced server-side access checks before rendering admin pages. Guests and standard sessions redirect to admin sign-in. All 11 authenticated browser and production route checks passed, including existing TOTP journeys.
   Next: enforce merchant tenant and role on server-rendered operator pages while preserving onboarding, then guard the courier workspace.
+
+- 2026-11-17 · Ultra · Merchant pages check the signed-in account's membership and role for the requested restaurant before rendering. The staff-as-manager regression failed first. The connected suite passed 30 checks, including a separate tenant and the existing board journeys.
+  Next: commit and push the verified HttpOnly invitation continuations.

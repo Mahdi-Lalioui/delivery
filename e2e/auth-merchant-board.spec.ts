@@ -1,10 +1,32 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test as base, type Page } from "@playwright/test";
 
-const merchantId = "01932f18-3150-7c33-8a7a-53acfd343001";
+import { withAuthHarness } from "./auth-fixture.ts";
+import { authenticate } from "./auth-session-helpers.ts";
+
+const test = base.extend<{ merchantBoard: { origin: string; merchantId: string } }>({
+  merchantBoard: [
+    async ({ baseURL, page }, use) => {
+      await withAuthHarness(baseURL, async (harness) => {
+        const phone = "+213550000793";
+        await authenticate(page.request, harness, { phone });
+        const owner = (await harness.seedMenuMemberships(phone)).find(
+          ({ role }) => role === "owner",
+        );
+        if (!owner) throw new Error("Missing synthetic board owner");
+        await use({ origin: harness.origin, merchantId: owner.merchantId });
+      });
+    },
+    { timeout: 60_000 },
+  ],
+});
 const orderId = "01932f18-3150-7c33-8a7a-53acfd343002";
 
-async function mockBoard(page: Page, canHandover = false, addProof = false) {
+async function mockBoard(
+  page: Page,
+  merchantId: string,
+  { canHandover = false, addProof = false } = {},
+) {
   let accepted = false;
   let handedOver = false;
   let assignedCourier: string | undefined;
@@ -120,9 +142,12 @@ async function mockBoard(page: Page, canHandover = false, addProof = false) {
   };
 }
 
-test("[MER-03][MER-04] merchant accepts a ticket and it moves to preparing", async ({ page }) => {
-  await mockBoard(page);
-  await page.goto(`/fr/merchant/${merchantId}/board`);
+test("[MER-03][MER-04] merchant accepts a ticket and it moves to preparing", async ({
+  page,
+  merchantBoard: { origin, merchantId },
+}) => {
+  await mockBoard(page, merchantId);
+  await page.goto(origin + `/fr/merchant/${merchantId}/board`);
   await expect(page.getByRole("heading", { name: "Commandes en direct" })).toBeVisible();
   await expect(page.getByText("K7M-4QX")).toBeVisible();
   await page.getByRole("button", { name: "Accepter", exact: true }).click();
@@ -138,7 +163,10 @@ for (const { locale, width, scheme } of [
   { locale: "fr", width: 1280, scheme: "light" },
   { locale: "fr", width: 1280, scheme: "dark" },
 ] as const) {
-  test(`[MER-03] board layout ${locale} ${String(width)} ${scheme}`, async ({ page }, info) => {
+  test(`[MER-03] board layout ${locale} ${String(width)} ${scheme}`, async ({
+    page,
+    merchantBoard: { origin, merchantId },
+  }, info) => {
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
     page.on("console", (message) => {
@@ -146,8 +174,8 @@ for (const { locale, width, scheme } of [
     });
     await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
     await page.emulateMedia({ colorScheme: scheme, reducedMotion: "reduce" });
-    await mockBoard(page);
-    await page.goto(`/${locale}/merchant/${merchantId}/board`);
+    await mockBoard(page, merchantId);
+    await page.goto(origin + `/${locale}/merchant/${merchantId}/board`);
     await expect(page.getByText("K7M-4QX")).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
       width,
@@ -167,9 +195,10 @@ for (const { locale, width, scheme } of [
 
 test("[MER-03] keeps visible tickets and disables actions while the board is offline", async ({
   page,
+  merchantBoard: { origin, merchantId },
 }) => {
-  await mockBoard(page);
-  await page.goto(`/fr/merchant/${merchantId}/board`);
+  await mockBoard(page, merchantId);
+  await page.goto(origin + `/fr/merchant/${merchantId}/board`);
   await expect(page.getByText("K7M-4QX")).toBeVisible();
   const url = `**/v1/merchants/${merchantId}/order-board*`;
   const fail = (route: Parameters<Parameters<typeof page.route>[1]>[0]) =>
@@ -186,9 +215,12 @@ test("[MER-03] keeps visible tickets and disables actions while the board is off
   });
 });
 
-test("[MER-03] hands a ready delivery to its assigned courier", async ({ page }) => {
-  await mockBoard(page, true);
-  await page.goto(`/fr/merchant/${merchantId}/board`);
+test("[MER-03] hands a ready delivery to its assigned courier", async ({
+  page,
+  merchantBoard: { origin, merchantId },
+}) => {
+  await mockBoard(page, merchantId, { canHandover: true });
+  await page.goto(origin + `/fr/merchant/${merchantId}/board`);
   await expect(page.getByText("G8N-2RY")).toBeVisible();
   await page.getByRole("button", { name: "Remettre au livreur" }).click();
   await expect(page.getByText("G8N-2RY")).toHaveCount(0);
@@ -196,8 +228,9 @@ test("[MER-03] hands a ready delivery to its assigned courier", async ({ page })
 
 test("[RT-02] a streamed event immediately refreshes the board from its saved cursor", async ({
   page,
+  merchantBoard: { origin, merchantId },
 }) => {
-  await mockBoard(page);
+  await mockBoard(page, merchantId);
   const send = Promise.withResolvers<boolean>();
   await page.route("**/v1/realtime?*", async (route) => {
     await send.promise;
@@ -207,7 +240,7 @@ test("[RT-02] a streamed event immediately refreshes the board from its saved cu
     });
   });
   const connection = page.waitForRequest((request) => request.url().includes("/v1/realtime?"));
-  await page.goto(`/fr/merchant/${merchantId}/board`);
+  await page.goto(origin + `/fr/merchant/${merchantId}/board`);
   await expect(page.getByText("K7M-4QX")).toBeVisible();
   const request = await connection;
   expect(new URL(request.url()).searchParams.get("after")).toBe("2");
@@ -220,10 +253,11 @@ test("[RT-02] a streamed event immediately refreshes the board from its saved cu
 
 test("[COU-01][MER-03] owner creates a courier invitation and assigns the ready ticket", async ({
   page,
+  merchantBoard: { origin, merchantId },
 }) => {
   const courierId = "01932f18-3150-7c33-8a7a-53acfd343006";
   const inviteId = "01932f18-3150-7c33-8a7a-53acfd343007";
-  const board = await mockBoard(page);
+  const board = await mockBoard(page, merchantId);
   await page.route("**/v1/me/merchants", (route) =>
     route.fulfill({
       json: {
@@ -264,7 +298,7 @@ test("[COU-01][MER-03] owner creates a courier invitation and assigns the ready 
       },
     });
   });
-  await page.goto(`/fr/merchant/${merchantId}/board`);
+  await page.goto(origin + `/fr/merchant/${merchantId}/board`);
   await page.getByText("Équipe de livraison", { exact: true }).click();
   await page.getByLabel("Téléphone du livreur").fill("0500000007");
   await page.getByRole("button", { name: "Créer l’invitation" }).click();
@@ -276,8 +310,11 @@ test("[COU-01][MER-03] owner creates a courier invitation and assigns the ready 
   await expect(page.getByText("Changer de livreur", { exact: true })).toBeVisible();
 });
 
-test("[COU-05] flags a handover without code and opens the private evidence", async ({ page }) => {
-  await mockBoard(page, false, true);
+test("[COU-05] flags a handover without code and opens the private evidence", async ({
+  page,
+  merchantBoard: { origin, merchantId },
+}) => {
+  await mockBoard(page, merchantId, { addProof: true });
   const photo = `/v1/media/${merchantId}/variants/webp/640`;
   await page.route("**" + photo, (route) =>
     route.fulfill({
@@ -285,7 +322,7 @@ test("[COU-05] flags a handover without code and opens the private evidence", as
       contentType: "image/png",
     }),
   );
-  await page.goto(`/fr/merchant/${merchantId}/board`);
+  await page.goto(origin + `/fr/merchant/${merchantId}/board`);
   await expect(page.getByRole("heading", { name: "Photos de remise à vérifier" })).toBeVisible();
   await page.getByText("C7X-5DW", { exact: true }).click();
   await expect(page.getByText("Code indisponible", { exact: true })).toBeVisible();

@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { merchantMembershipsOutput } from "@zaafran/contracts/merchant";
 import { previewApiDestination } from "../preview-settings";
 
 function testApiOrigin(headers: Headers): string | undefined {
@@ -40,20 +41,47 @@ function readSessionCookie(headers: Headers): string | undefined {
   return session;
 }
 
-export async function canRenderAdminPage(headers: Headers): Promise<boolean> {
+async function readOperatorAccess(headers: Headers, path: string): Promise<Response | undefined> {
   const session = readSessionCookie(headers);
-  if (!session) return false;
+  if (!session) return undefined;
   try {
     const origin = apiOrigin(headers);
-    if (!origin) return false;
-    const response = await fetch(origin + "/v1/admin/merchant-applications/notice", {
+    if (!origin) return undefined;
+    return await fetch(origin + path, {
       cache: "no-store",
       redirect: "error",
       headers: { cookie: session },
       signal: AbortSignal.timeout(5_000),
     });
-    return response.status === 200;
   } catch {
-    return false;
+    return undefined;
   }
+}
+
+export async function canRenderAdminPage(headers: Headers): Promise<boolean> {
+  const response = await readOperatorAccess(headers, "/v1/admin/merchant-applications/notice");
+  return response?.status === 200;
+}
+
+function roleAllowsPage(role: "owner" | "manager" | "staff", section: string): boolean {
+  if (section === "board") return true;
+  if (section === "billing" || section === "staff") return role === "owner";
+  return role !== "staff";
+}
+
+export async function canRenderMerchantPage(
+  headers: Headers,
+  { merchantId, section }: { merchantId: string; section: string },
+): Promise<boolean> {
+  const response = await readOperatorAccess(headers, "/v1/me/merchants");
+  if (response?.status !== 200) return false;
+  const payload: unknown = await response.json().catch(() => undefined);
+  const result = merchantMembershipsOutput.safeParse(payload);
+  return (
+    result.success &&
+    result.data.memberships.some(
+      (entry) =>
+        entry.merchantId === merchantId.toLowerCase() && roleAllowsPage(entry.role, section),
+    )
+  );
 }

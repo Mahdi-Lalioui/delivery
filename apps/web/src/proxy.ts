@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 import { isPublicLocale } from "@zaafran/i18n/locales";
 import createMiddleware from "next-intl/middleware";
 import { NextRequest, NextResponse } from "next/server";
-import { canRenderAdminPage } from "./auth/admin-page-access";
+import { canRenderAdminPage, canRenderMerchantPage } from "./auth/operator-page-access";
 import { routing } from "./i18n/routing";
 
 const localize = createMiddleware(routing);
@@ -25,6 +25,27 @@ function createPolicy(nonce: string): string {
   ].join("; ");
 }
 
+function operatorPage({
+  locale,
+  area,
+  target,
+  section,
+}: {
+  locale: string;
+  area: string | undefined;
+  target: string | undefined;
+  section: string | undefined;
+}) {
+  if (area === "admin") {
+    return { signIn: "/" + locale + "/sign-in?purpose=admin", allowed: canRenderAdminPage };
+  }
+  if (area !== "merchant" || !target || target === "apply" || !section) return undefined;
+  return {
+    signIn: "/" + locale + "/sign-in?continue=merchant-status",
+    allowed: (headers: Headers) => canRenderMerchantPage(headers, { merchantId: target, section }),
+  };
+}
+
 export async function proxy(request: NextRequest): Promise<NextResponse> {
   const nonce = randomBytes(16).toString("base64");
   const { pathname } = request.nextUrl;
@@ -34,16 +55,18 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   const headers = new Headers(request.headers);
   headers.set("Content-Security-Policy", policy);
 
-  const locale = pathname.split("/")[1];
-  const adminPage = isPublicLocale(locale) && /^\/[^/]+\/admin(?:\/|$)/u.test(pathname);
-  const denied = adminPage && !(await canRenderAdminPage(request.headers));
+  const [, locale, area, target, section] = pathname.split("/");
+  const operator = isPublicLocale(locale)
+    ? operatorPage({ locale, area, target, section })
+    : undefined;
+  const denied = operator && !(await operator.allowed(request.headers));
   const response = denied
-    ? NextResponse.redirect(new URL("/" + locale + "/sign-in?purpose=admin", request.url))
+    ? NextResponse.redirect(new URL(operator.signIn, request.url))
     : pathname === "/" || isPublicLocale(locale)
       ? localize(new NextRequest(request, { headers }))
       : NextResponse.next({ request: { headers } });
 
-  if (adminPage) response.headers.set("Cache-Control", "no-store");
+  if (operator) response.headers.set("Cache-Control", "no-store");
   response.headers.set("Content-Security-Policy", policy);
   response.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
   response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
