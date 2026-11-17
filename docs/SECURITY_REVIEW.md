@@ -109,3 +109,9 @@ existing membership and menu-edit check succeeds. A restricted Postgres role
 could originally read all three fixture receipts. The same unfiltered query
 now returns zero without scope and exactly one with scope, excluding both
 the other restaurant and another staff member at the same restaurant.
+
+The route inventory and authorization matrix passed all 267 checks across 42
+suites. The connected order-session regression also confirmed that an owner
+of a separate restaurant receives 404 for the other tenant's board and
+acceptance command, and that another account receives 404 for the customer's
+tracking and receipt. The legitimate customer and merchant retain access.

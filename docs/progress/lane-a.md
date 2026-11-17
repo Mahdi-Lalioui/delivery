@@ -461,3 +461,6 @@
 
 - 2026-11-17 · Ultra · Forced RLS on merchant menu command receipts. The restricted-role regression first read all three receipts, then passed with actor and restaurant scope. Full pnpm verify passed.
   Next: rerun the authz route matrix and add missing API isolation coverage for order, tracking and restaurant operations before starting production scanner work.
+
+- 2026-11-17 · High · Reran all 267 authz checks. The connected order-session regression confirmed isolation for the board, acceptance, tracking and receipt, using a real separate restaurant owner and customer session.
+  Next: extend cross-tenant API coverage for the remaining merchant management and customer data routes, then verify the pending upload scanner, webhook and runtime permissions controls.

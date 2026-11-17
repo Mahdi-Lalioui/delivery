@@ -40,7 +40,7 @@ async function standardSession(phoneE164: string) {
   return { userId: user.id, headers };
 }
 
-async function seedOrder(customerId: string, merchantUserId: string) {
+async function seedOrder(customerId: string, merchantUserId: string, otherOwnerId: string) {
   const { sql } = database.get();
   const merchantId = randomUUID();
   const orderId = randomUUID();
@@ -56,6 +56,15 @@ async function seedOrder(customerId: string, merchantUserId: string) {
     FROM commune
   `;
   await sql`INSERT INTO merchant_members (merchant_id, user_id, role) VALUES (${merchantId}, ${merchantUserId}, 'owner')`;
+  await sql`
+    WITH other_restaurant AS (
+      INSERT INTO merchants (slug, restaurant_name, owner_name, phone_e164, commune_id, location, cuisines, status, created_at)
+      SELECT 'fixture-other-tenant', restaurant_name, owner_name, phone_e164, commune_id, location, cuisines, status, created_at
+      FROM merchants WHERE id = ${merchantId} RETURNING id
+    )
+    INSERT INTO merchant_members (merchant_id, user_id, role)
+    SELECT id, ${otherOwnerId}, 'owner' FROM other_restaurant
+  `;
   await sql`
     INSERT INTO orders (
       id, quote_id, customer_id, merchant_id, restaurant_name, short_code, order_day, status, fulfilment,
@@ -76,7 +85,7 @@ test("[AUTH-06][MER-03] real standard session cookies reach the board only for m
     standardSession("+213500000002"),
     standardSession("+213500000003"),
   ]);
-  const { merchantId, orderId } = await seedOrder(customer.userId, owner.userId);
+  const { merchantId, orderId } = await seedOrder(customer.userId, owner.userId, outsider.userId);
   const repository = createOrderRepository(database.get());
   const auth = createAuthService({
     repository: createAuthRepository(database.get()),
@@ -90,6 +99,8 @@ test("[AUTH-06][MER-03] real standard session cookies reach the board only for m
     checkReadiness: () => Promise.resolve(),
     auth: { service: auth, publicOrigin },
     merchantBoard: repository,
+    orderTracking: repository.tracking,
+    orderHistory: repository,
     orderActions: { repository, now: () => now },
     realtime: {
       async replay(scope) {
@@ -110,6 +121,14 @@ test("[AUTH-06][MER-03] real standard session cookies reach the board only for m
   expect((await api.inject({ url: board, headers: owner.headers })).statusCode).toBe(200);
   expect((await api.inject({ url: board, headers: customer.headers })).statusCode).toBe(404);
   const url = `/v1/orders/${orderId}`;
+  expect((await api.inject({ url: board, headers: outsider.headers })).statusCode).toBe(404);
+  for (const privateUrl of [url + "/tracking", "/v1/me/orders/" + orderId + "/receipt"]) {
+    const allowed = await api.inject({ url: privateUrl, headers: customer.headers });
+    const denied = await api.inject({ url: privateUrl, headers: outsider.headers });
+    expect(allowed.statusCode).toBe(200);
+    expect(denied.statusCode).toBe(404);
+    expect(denied.body).not.toContain(orderId);
+  }
   expect((await api.inject({ url, headers: outsider.headers })).statusCode).toBe(404);
   expect((await api.inject({ url, headers: owner.headers })).statusCode).toBe(200);
   expect((await api.inject({ url, headers: customer.headers })).statusCode).toBe(200);
@@ -121,6 +140,7 @@ test("[AUTH-06][MER-03] real standard session cookies reach the board only for m
       payload: { expectedVersion: 1, prepMinutes: 15 },
     });
   expect((await accept(customer.headers)).statusCode).toBe(404);
+  expect((await accept(outsider.headers)).statusCode).toBe(404);
   const accepted = await accept(owner.headers);
   expect(accepted.statusCode).toBe(200);
   expect(accepted.json()).toMatchObject({ status: "accepted", version: 2 });
