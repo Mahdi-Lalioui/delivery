@@ -178,7 +178,7 @@ Run red → green → `pnpm verify` → reviewer → commit and push for each im
   - [ ] Give the demo dishes synthetic placeholder imagery (DESIGN: gradient + dish icon + name) through the media pipeline's published variants.
     - [x] Scout: how to render Arabic/French dish names deterministically in a sharp-rasterised SVG (D-023: outline them with harfbuzzjs from TTF sources).
     - [ ] Draw the original line icons for the demo cuisines in `packages/ui`.
-    - [ ] Add the seed-only uploader and the `packages/db` demo-media inserts (integration tests first).
+    - [x] Add the seed-only uploader and the `packages/db` demo-media inserts (integration tests first).
     - [ ] Add the worker `seed-demo-media` command that renders and publishes through the prepare/publish phases, and run it from `pnpm db:seed`.
   - [x] Wire the authenticated onboarding tag, complete the dedicated authorization matrix, and register the design screen gate check. See `docs/evidence/m2/baseline-audit.md`.
     - [x] Run every API route suite in `pnpm test:authz`, guarded by a tooling test.

@@ -13,6 +13,19 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 ---
 
+### 2026-11-17 12:43 GMT — M2-12 demo-media inserts in `packages/db` (Claude, covering while Codex was out)
+
+- **Changed** — New `packages/db/src/demo-media.ts` (D-023), not yet exported from the package; the worker command will add the export when it imports it:
+  - `listDemoItemsWithoutPhoto`: active `is_demo` dishes without a photo, with the restaurant's first cuisine for the icon.
+  - `insertDemoPhotoUpload`: an adopted `preparing` PNG item upload owned by the seed-only uploader `+213550999900`, which is upserted. It refuses non-demo merchants.
+  - `acceptDemoCrop`: the centred 5000/5000/100 crop, applied only in `awaiting_crop`.
+  - `attachDemoItemPhoto`: links only a `ready` item photo of the same demo merchant to a dish with no photo.
+- **Evidence** — `pnpm test:int packages/db/test/demo-media.integration.test.ts`: red first (`Cannot find module '../src/demo-media.ts'`), then 4/4 passed.
+- **Evidence** — `pnpm verify` → exit 0: 1,476 unit tests in 157 files, 204 integration tests in 42 files, knip, depcruise, trace. The first run failed lint on two `expect.any` unsafe assignments in the new test; I replaced them with explicit Arabic/Latin assertions.
+- **Reviewer** — Self-review against AGENTS §10: no P0/P1. Each function has an allow test and a refuse test. Note: the uploader upsert would reuse a local user who signed in with `+213550999900`, which is acceptable only because the seed is dev-only.
+- **Next** — Add the OFL TTF sources of IBM Plex Sans Arabic 600 and Inter plus `harfbuzzjs@1.6.4` (one DECISIONS line each, with URL and checksum). Then draw the demo cuisine icons, then the worker `seed-demo-media` command. The command must refuse any database except `zaafran_dev`, render, put the original, prepare, `acceptDemoCrop`, publish and attach, and `pnpm db:seed` must run it.
+- **Needs Mahdi** — none new.
+
 ### 2026-11-17 12:40 GMT — M2-12 scout: deterministic dish-name text for demo imagery (Claude, covering while Codex was out)
 
 - **Changed** — D-023 now records the answer, and PLAN ticks the scout sub-task. No code changed.
@@ -1244,5 +1257,5 @@ Newest entry first. One entry per task. Evidence = the commands you ran and thei
 
 - Milestone: M1 (last passing gate, M2 in progress; M2-8, M2-9 and M2-10 done; the `@merchant-onboarding` gate journey passes at `a8f2d80`)
 - Audited baseline `88363b7`: `pnpm trace --through m2` covered 35 of 37 IDs and identified missing `MER-01` and `MER-14`. Import (M2-8) is complete, including its production browser journey. See `docs/evidence/m2/baseline-audit.md` for feature and gate gaps.
-- Last green `pnpm verify`: 2026-11-17 12:36 GMT on Docker Desktop with 1,476 unit and 200 PostGIS integration tests (at `1a802d6`). `pnpm test:e2e:auth` passed 22/22 authenticated production journeys at `a8f2d80` (not rerun since; this run changed only the seed CLI and docs). `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 37/37 IDs at `8b45fdd`.
+- Last green `pnpm verify`: 2026-11-17 12:36 GMT on Docker Desktop with 1,476 unit and 204 PostGIS integration tests (2026-11-17 12:42 GMT). `pnpm test:e2e:auth` passed 22/22 authenticated production journeys at `a8f2d80` (not rerun since; this run changed only the seed CLI and docs). `pnpm test:e2e:auth` passed all 19 authenticated production journeys at `6f005ca`, including the MER-14 item photo journey. `pnpm trace --through m2` covered 37/37 IDs at `8b45fdd`.
 - Open HUMAN_TODO items: see docs/HUMAN_TODO.md
