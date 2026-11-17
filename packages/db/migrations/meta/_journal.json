@@ -435,6 +435,13 @@
       "when": 1794927000000,
       "tag": "0061_customer_favourites_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "7",
+      "when": 1794927220000,
+      "tag": "0062_menu_receipts_rls",
+      "breakpoints": true
     }
   ]
 }

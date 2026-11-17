@@ -126,6 +126,8 @@ export async function runMenuCommand<Value extends object, Failure extends Write
   const revision = await lockEditableMenu(sql, request, access);
   if (revision === undefined) return { kind: "not_found" };
 
+  await sql`SELECT set_config('awid.merchant_id', ${request.merchantId}, true),
+                   set_config('awid.menu_actor_id', ${request.accountId}, true)`;
   const receipt = await readReceipt<Value>(sql, request, operation);
   if (receipt) {
     return receipt.matches

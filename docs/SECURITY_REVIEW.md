@@ -100,3 +100,12 @@ Postgres regression first exposed both customers' rows using a restricted
 role without context. It now verifies no rows without context, only the
 customer's own rows with context, and no deletion of another customer's rows.
 Full workspace verification passed.
+
+## Merchant menu receipt row isolation
+
+Migration 0062 forces row-level security on menu command receipts. The
+repository sets transaction-local restaurant and actor scope after the
+existing membership and menu-edit check succeeds. A restricted Postgres role
+could originally read all three fixture receipts. The same unfiltered query
+now returns zero without scope and exactly one with scope, excluding both
+the other restaurant and another staff member at the same restaurant.

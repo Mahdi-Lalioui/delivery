@@ -458,3 +458,6 @@
 
 - 2026-11-17 · Ultra · Forced customer favourites RLS and set transaction-local scope for the authenticated customer and account erasure. The restricted-role regression failed first and then passed. Full pnpm verify exited zero.
   Next: add transaction-scoped RLS for merchant menu command receipts, then continue the cross-tenant route matrix audit.
+
+- 2026-11-17 · Ultra · Forced RLS on merchant menu command receipts. The restricted-role regression first read all three receipts, then passed with actor and restaurant scope. Full pnpm verify passed.
+  Next: rerun the authz route matrix and add missing API isolation coverage for order, tracking and restaurant operations before starting production scanner work.
