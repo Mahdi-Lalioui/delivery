@@ -357,6 +357,9 @@ importers:
       graphile-worker:
         specifier: 0.18.0
         version: 0.18.0(supports-color@7.2.0)(typescript@6.0.3)
+      harfbuzzjs:
+        specifier: 1.6.4
+        version: 1.6.4
       pino:
         specifier: 10.4.0
         version: 10.4.0
@@ -2943,6 +2946,9 @@ packages:
     resolution: {integrity: sha512-WDpuFp7v6TUoTeA5k9YFHfopaomZkyIy90PvRWMuM5BV0igRnNScw82HI6IehAiaI7wWpS56IWloLZ8ugZ2ceA==}
     engines: {node: '>=22.18.0'}
     hasBin: true
+
+  harfbuzzjs@1.6.4:
+    resolution: {integrity: sha512-T/PyfhVt1gGR2Tkf5KJUj1DQFkVBXHw552lS1iLEEDhV1Lukb3eq1pk2ov85kgbT2YUiZtJBTak9w+M7YgzUEQ==}
 
   has-flag@4.0.0:
     resolution: {integrity: sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==}
@@ -6196,6 +6202,8 @@ snapshots:
       - pg-native
       - supports-color
       - typescript
+
+  harfbuzzjs@1.6.4: {}
 
   has-flag@4.0.0: {}
 
