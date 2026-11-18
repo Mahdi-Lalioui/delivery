@@ -449,6 +449,13 @@
       "when": 1794929285160,
       "tag": "0063_customer_addresses_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 64,
+      "version": "7",
+      "when": 1795008268000,
+      "tag": "0064_account_otp_rate_limit",
+      "breakpoints": true
     }
   ]
 }

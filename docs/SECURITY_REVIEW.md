@@ -16,14 +16,19 @@ courier and administrator routes. All checks use synthetic data on local infrast
 
 ## Local evidence
 
-- `pnpm test:authz` passed 265 tests across 42 suites. The route policy suite checks
+- `pnpm test:authz` passed 267 tests across 42 suites. The route policy suite checks
   its inventory against registered routes. The HTTP suite also exercises cross-origin
   writes and foreign session identifiers.
+- On 18 November, `pnpm test:authz` passed again (42 suites, 267 tests), and
+  `pnpm test:int` passed 51 files and 348 tests against local PostgreSQL. The
+  route inventory and broad tenant regressions are green; the route-by-route
+  ownership map is still being checked, so the isolation readiness item remains open.
 - `pnpm test:int apps/api/test/auth.integration.test.ts apps/api/test/media-reservation.integration.test.ts`
   passed 13 tests against PostGIS. It covers real phone and email OTP attempts, shared IP
   quota, resend cooldown, HMAC storage, TOTP and upload reservations.
-- `pnpm audit --prod --audit-level high` exited zero. The registry reported two moderate
-  advisories and zero high or critical advisories.
+- `pnpm audit --prod --audit-level high` was rerun on 18 November and exited 1
+  with one high finding, `GHSA-fc5q-39xc-vjpf` in `picomatch@4.0.7`; upstream
+  still lists no patched version. `pnpm verify` remains blocked at audit.
 - All six structured logger tests passed.
 
 ## OTP abuse and delivery limits
@@ -39,6 +44,13 @@ repository integration tests, including new cases for the 3-per-15-minute and
 10-per-day email identifier caps, plus existing phone and shared-IP rolling
 caps and concurrency checks. See `apps/api/test/auth.integration.test.ts` and
 `packages/db/test/auth.integration.test.ts`.
+
+Signed-in identifier changes now share those same 3-per-15-minute and 10-per-day
+caps across an account's sessions, IPs and target identifiers. An advisory
+transaction lock serializes the account bucket; durable history stores only an
+HMAC account key and is preserved by challenge deletion and account erasure.
+The four-request, concurrent, pruning and deletion Postgres regressions passed;
+the focused auth and privacy integration files passed 48 tests.
 
 ## Upload validation
 
@@ -154,6 +166,74 @@ suites. The connected order-session regression also confirmed that an owner
 of a separate restaurant receives 404 for the other tenant's board and
 acceptance command, and that another account receives 404 for the customer's
 tracking and receipt. The legitimate customer and merchant retain access.
+
+## Authenticated courier isolation
+
+The connected Postgres API regression creates separate valid standard sessions
+for a courier assigned to the order, a courier at another restaurant, and an
+active courier at the same restaurant with no assignment. Each jobs response
+contains only that courier's assigned deliveries. Foreign and unassigned
+position, delivery-attempt and pickup requests return 404; denied position and
+attempt writes leave no rows and denied pickup leaves the order at its original
+status and version. The assigned courier can post a position, start a delivery
+wait and pick up their order. `courier-session.integration.test.ts` passed.
+
+## Realtime and administrator session isolation
+
+Connected sessions can replay only their own merchant and customer order
+topics: the order-session integration test returns 404 without order data for
+a foreign restaurant owner and a different customer. The admin moderation
+integration test accepts a valid admin session and rejects a standard session.
+The route authorization suite passed all 267 checks across 42 suites, and the
+operator browser suite passed all seven tests, including guest redirects for
+every admin page in Arabic, French and English and denial of a standard session
+before the admin dashboard renders.
+
+## Session fixation and browser request protections
+
+The real-Postgres auth integration now submits a known attacker-chosen
+pre-authentication `__Host-session` token during OTP verification and confirms
+the authenticated cookie is newly generated while the known token remains
+unauthenticated. The auth integration suite passed 11 tests. The focused API
+health/header, auth-route and transport suites passed 52 tests, covering
+same-origin cookie writes, cross-origin denial, secure cookie attributes,
+session revocation and API CSP. Production browser CSP nonce and COOP/CORP/XFO
+checks across Chromium and WebKit are recorded in the browser/header section.
+The broader readiness item remains open until the full input/injection review is
+complete.
+
+## Caddy upstream error privacy
+
+The local production stack initially returned a 502 without the shared security
+headers when the web upstream was unavailable. Caddy's runtime error record also
+included the original request URI, IP address, user agent and headers. A local
+failure regression now checks a synthetic marker in the query and headers. The
+5xx handler returns the original status with CSP, HSTS, frame denial, COOP/CORP
+and Permissions-Policy. The default structured logger removes request URI,
+headers, host and IP fields. The marker was absent after the fix, and the web
+container returned healthy after the test. `caddy validate` and
+`infra/deploy/test-caddy-failure.sh` passed. API and PostgreSQL log privacy
+checks are recorded below.
+
+## API and PostgreSQL log privacy
+
+API validation uses a synthetic invalid email and header marker and returns
+400 without writing either marker to API or Caddy logs. PostgreSQL 18 previously
+logged a synthetic duplicate-key value in error detail. Production Compose now
+uses terse error logging and explicitly disables bind-parameter logging on
+errors. The regression issues a duplicate value through the production API
+image's parameterized `postgres` driver and verifies neither marker reaches the
+database log. The API/Caddy and Postgres scripts passed, and both containers
+were healthy afterward.
+
+## Worker log privacy
+
+The worker logger removes personal fields by normalized key at any object depth
+after Pino serialization, including free-form `address` values. The regression
+in `apps/worker/test/logger.test.ts` checks nested phone, email, address-object
+and address-string values while confirming safe metadata remains. It passed
+with `pnpm exec vitest run --coverage.enabled=false
+apps/worker/test/logger.test.ts`; worker typecheck and ESLint also passed.
 
 ## Quarantined upload malware scanner
 

@@ -32,8 +32,8 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 
 ## Security
 
-- [ ] **Lane A** Review SPEC §17 and AGENTS §10. Cover every route in the authz matrix and verify customer and merchant isolation.
-- [x] **Lane A** Verify OTP enumeration resistance, attempt caps and SMS/email delivery limits by identifier and IP. [Connected auth and Postgres regressions](SECURITY_REVIEW.md#otp-abuse-and-delivery-limits) (8b1675c plus current lane-a test commit)
+- [ ] **Lane A** Review SPEC §17 and AGENTS §10. Cover every route in the authz matrix and verify customer and merchant isolation. The [route/resource evidence map](evidence/awid/tenant-isolation.md) links the current matrix and Postgres regressions; exhaustive per-endpoint ownership coverage remains open. Connected courier, realtime and admin-session evidence is recorded in [security review](SECURITY_REVIEW.md#authenticated-courier-isolation) and [realtime/admin evidence](SECURITY_REVIEW.md#realtime-and-administrator-session-isolation).
+- [x] **Lane A** Verify OTP enumeration resistance, attempt caps and SMS/email delivery limits by identifier, IP and signed-in account. [Connected auth and Postgres regressions](SECURITY_REVIEW.md#otp-abuse-and-delivery-limits) (8b1675c plus account-limit change below)
 - [x] **Lane A** Verify upload type, size, decompression limits and metadata stripping. [Upload validation evidence](SECURITY_REVIEW.md#upload-validation)
 - [ ] **Lane A** Verify input handling, CSRF, CSP and security headers, session fixation protections and revocation.
 - [ ] **Lane A** Review route rate limits, secret handling and dependencies. Resolve high and critical findings.
@@ -49,7 +49,7 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 
 ## Operations and release verification
 
-- [ ] **Lane A** Verify health checks and structured logs without personal data.
+- [x] **Lane A** Verify health checks and structured logs without personal data. Web, API, worker, Caddy and Martin health are covered in the [local Compose evidence](evidence/awid/web-compose-local.md); [API, Caddy and PostgreSQL probes](SECURITY_REVIEW.md#api-and-postgresql-log-privacy) and the [worker logger regression](SECURITY_REVIEW.md#worker-log-privacy) pass.
 - [ ] **Lane A** Verify error tracking and alerts through test incidents.
 - [x] **Lane A** Complete the SPEC §20 runbooks for deploy, rollback, restore, Ramadan peak, API down, DB full, SMS down, tiles down, OSRM down and restaurant complaint surges. [Runbooks](runbooks/service-incidents.md)
 - [x] **Lane A** Keep the encrypted restore drill green with fresh evidence. [Local restore results](evidence/awid/local-operations.md)

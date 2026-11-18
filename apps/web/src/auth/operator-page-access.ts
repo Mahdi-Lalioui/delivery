@@ -22,6 +22,18 @@ function testApiOrigin(headers: Headers): string | undefined {
 }
 
 function apiOrigin(headers: Headers): string | undefined {
+  const composeOrigin = process.env.AWID_OPERATOR_API_ORIGIN;
+  if (composeOrigin !== undefined) {
+    const url = URL.parse(composeOrigin);
+    if (
+      url?.protocol !== "http:" ||
+      url.hostname !== "api" ||
+      url.port !== "3002" ||
+      url.origin !== composeOrigin
+    )
+      return undefined;
+    return url.origin;
+  }
   const destination = previewApiDestination(process.env);
   if (destination) return new URL(destination).origin;
   if (process.env.NODE_ENV === "development")

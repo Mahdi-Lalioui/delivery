@@ -33,6 +33,12 @@ function fixturePhone(serial: number): string {
   return `+2135${String(serial).padStart(8, "0")}`;
 }
 
+function sessionAt<T extends { readonly id: string }>(sessions: readonly T[], index: number): T {
+  const entry = sessions[index];
+  if (entry === undefined) throw new Error(`Missing fixture session ${index.toString()}`);
+  return entry;
+}
+
 function hash(value: string) {
   return createHash("sha256").update(value).digest();
 }
@@ -328,6 +334,204 @@ test("[AUTH-02:db] the rolling daily email cap releases its oldest request at 24
     retryAt: instant(day),
   });
   expect(await reserve({ ...eleventh, now: instant(day) })).toMatchObject({ kind: "created" });
+});
+
+test("[AUTH-02:db] identifier-change OTPs share the three-per-15-minute budget across an account", async () => {
+  const auth = repository();
+  const owner = await createUser(1_700);
+  const sessions = Array.from({ length: 4 }, (_, index) => session(1_700 + index, owner.id));
+  for (const entry of sessions) await auth.transaction((tx) => tx.insertSession(entry));
+
+  let deliveries = 0;
+  const results = [];
+  for (let index = 0; index < 4; index += 1) {
+    const now = instant(index * minute);
+    const input = {
+      id: fixtureId(1_710 + index),
+      email: `account-limit-${index.toString()}@example.test`,
+      requestIp: `198.51.100.${(index + 1).toString()}`,
+      codeHmac,
+      idempotencyKeyHash: hash(`account-limit-${index.toString()}`),
+      now,
+    };
+    const result = await auth.transaction((tx) =>
+      tx.reserveIdentifierChange(input, {
+        userId: owner.id,
+        sessionId: sessionAt(sessions, index).id,
+        now,
+      }),
+    );
+    results.push(result);
+    if (result.kind === "created" || result.kind === "replayed") {
+      await auth.deliverOtp({
+        id: input.id,
+        now,
+        send: () => {
+          deliveries += 1;
+        },
+      });
+    }
+  }
+
+  expect(results.slice(0, 3).map(({ kind }) => kind)).toEqual(["created", "created", "created"]);
+  expect(results[3]).toEqual({ kind: "rate_limited", retryAt: instant(15 * minute) });
+  expect(deliveries).toBe(3);
+});
+
+test("[AUTH-02:db] concurrent identifier-change requests cannot exceed the account budget", async () => {
+  const auth = repository();
+  const owner = await createUser(1_720);
+  const sessions = Array.from({ length: 4 }, (_, index) => session(1_720 + index, owner.id));
+  for (const entry of sessions) await auth.transaction((tx) => tx.insertSession(entry));
+
+  const request = (index: number, elapsed: number) => {
+    const now = instant(elapsed);
+    return {
+      id: fixtureId(1_730 + index),
+      email: `concurrent-account-limit-${index.toString()}@example.test`,
+      requestIp: `198.51.100.${(index + 20).toString()}`,
+      codeHmac,
+      idempotencyKeyHash: hash(`concurrent-account-limit-${index.toString()}`),
+      now,
+      scope: { userId: owner.id, sessionId: sessionAt(sessions, index).id, now },
+    };
+  };
+
+  for (let index = 0; index < 2; index += 1) {
+    const input = request(index, index * minute);
+    expect(
+      await auth.transaction((tx) => tx.reserveIdentifierChange(input, input.scope)),
+    ).toMatchObject({ kind: "created" });
+  }
+
+  const third = request(2, 2 * minute);
+  const fourth = request(3, 2 * minute);
+  const results = await concurrently(
+    (tx) => tx.reserveIdentifierChange(third, third.scope),
+    (tx) => tx.reserveIdentifierChange(fourth, fourth.scope),
+  );
+  expect(results.map(({ kind }) => kind).sort()).toEqual(["created", "rate_limited"]);
+  expect(results).toContainEqual({ kind: "rate_limited", retryAt: instant(15 * minute) });
+});
+
+test("[AUTH-02:db] account rate history survives pruning identifier-change challenges", async () => {
+  const auth = repository();
+  const owner = await createUser(1_740);
+  const sessions = Array.from({ length: 4 }, (_, index) => session(1_740 + index, owner.id));
+  for (const entry of sessions) await auth.transaction((tx) => tx.insertSession(entry));
+
+  for (let index = 0; index < 3; index += 1) {
+    const now = instant(index * minute);
+    const input = {
+      id: fixtureId(1_750 + index),
+      email: `pruned-account-limit-${index.toString()}@example.test`,
+      requestIp: `198.51.100.${(index + 40).toString()}`,
+      codeHmac,
+      idempotencyKeyHash: hash(`pruned-account-limit-${index.toString()}`),
+      now,
+    };
+    expect(
+      await auth.transaction((tx) =>
+        tx.reserveIdentifierChange(input, {
+          userId: owner.id,
+          sessionId: sessionAt(sessions, index).id,
+          now,
+        }),
+      ),
+    ).toMatchObject({ kind: "created" });
+  }
+
+  const { sql } = database.get();
+  const [expected] = await sql<{ digest: Buffer }[]>`
+    SELECT public.auth_otp_rate_digest('account', ${owner.id}) AS digest
+  `;
+  if (expected === undefined) throw new Error("Missing account rate digest fixture");
+  await sql`DELETE FROM public.otp_challenges WHERE binding_user_id = ${owner.id}`;
+
+  const nextNow = instant(3 * minute);
+  const next = {
+    id: fixtureId(1_753),
+    email: "pruned-account-limit-next@example.test",
+    requestIp: "198.51.100.43",
+    codeHmac,
+    idempotencyKeyHash: hash("pruned-account-limit-next"),
+    now: nextNow,
+  };
+  expect(
+    await auth.transaction((tx) =>
+      tx.reserveIdentifierChange(next, {
+        userId: owner.id,
+        sessionId: sessionAt(sessions, 3).id,
+        now: nextNow,
+      }),
+    ),
+  ).toEqual({ kind: "rate_limited", retryAt: instant(15 * minute) });
+
+  const history = await sql<{ digest: Buffer }[]>`
+    SELECT account_hash AS digest FROM public.auth_otp_rate_history
+    WHERE account_hash = ${expected.digest}
+  `;
+  expect(history).toHaveLength(3);
+  expect(history.every((entry) => Buffer.compare(entry.digest, expected.digest) === 0)).toBe(true);
+});
+
+test("[AUTH-02:db] the rolling daily account cap releases its oldest request at 24 hours", async () => {
+  const auth = repository();
+  const owner = await createUser(1_760);
+  const sessions = Array.from({ length: 11 }, (_, index) => session(1_760 + index, owner.id));
+  for (const entry of sessions) await auth.transaction((tx) => tx.insertSession(entry));
+
+  for (let index = 0; index < 10; index += 1) {
+    const now = instant(index * 16 * minute);
+    const input = {
+      id: fixtureId(1_780 + index),
+      email: `daily-account-limit-${index.toString()}@example.test`,
+      requestIp: `198.51.100.${(index + 60).toString()}`,
+      codeHmac,
+      idempotencyKeyHash: hash(`daily-account-limit-${index.toString()}`),
+      now,
+    };
+    expect(
+      await auth.transaction((tx) =>
+        tx.reserveIdentifierChange(input, {
+          userId: owner.id,
+          sessionId: sessionAt(sessions, index).id,
+          now,
+        }),
+      ),
+    ).toMatchObject({ kind: "created" });
+  }
+
+  const eleventhNow = instant(day - 1);
+  const eleventh = {
+    id: fixtureId(1_790),
+    email: "daily-account-limit-eleventh@example.test",
+    requestIp: "198.51.100.71",
+    codeHmac,
+    idempotencyKeyHash: hash("daily-account-limit-eleventh"),
+    now: eleventhNow,
+  };
+  expect(
+    await auth.transaction((tx) =>
+      tx.reserveIdentifierChange(eleventh, {
+        userId: owner.id,
+        sessionId: sessionAt(sessions, 10).id,
+        now: eleventhNow,
+      }),
+    ),
+  ).toEqual({ kind: "rate_limited", retryAt: instant(day) });
+  expect(
+    await auth.transaction((tx) =>
+      tx.reserveIdentifierChange(
+        { ...eleventh, now: instant(day) },
+        {
+          userId: owner.id,
+          sessionId: sessionAt(sessions, 10).id,
+          now: instant(day),
+        },
+      ),
+    ),
+  ).toMatchObject({ kind: "created" });
 });
 
 test("[AUTH-02:db] simultaneous OTP requests for a phone cannot bypass cooldown", async () => {

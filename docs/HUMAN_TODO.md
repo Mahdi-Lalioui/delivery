@@ -17,8 +17,8 @@ Codex appends items here (what, why, exact steps). Mahdi ticks them. Items marke
 - [ ] **[before launch]** ANPDP declaration for personal-data processing (Law 18-07).
 
 ## Infrastructure
-- [ ] Staging VPS for the connected web release. Provision Ubuntu LTS with Docker Compose, a static IPv4, at least 4 GB RAM and 80 GB disk. Open TCP 80/443. Create a deployment account with access to the AWID Docker project and install its public SSH key. Share the host and deployment username or the credential reference. Set up the file paths and map data in [DEPLOY.md](DEPLOY.md) and [MAPS.md](../infra/MAPS.md).
-- [ ] Connect the AWID web project in the Vercel team. Import `Mahdi-Lalioui/delivery` with Root Directory `apps/web` and workspace access. Give the staging environment a stable alias, then set its `ZAAFRAN_API_ORIGIN` to the API's TLS origin. Share the project and alias so cookies, media and SSE can be verified against the connected deployment. See [DEPLOY.md](DEPLOY.md).
+- [ ] Staging server for the connected web release. Provision Ubuntu LTS with Docker Compose, a static IPv4, at least 4 GB RAM and 80 GB disk. Open TCP 80/443. Create a deployment account with access to the AWID Docker project and install its public SSH key. Point API, bare web and `www` DNS A records to the server; give the deployment account the DNS provider access needed to verify them. Set up the file paths and map data in [DEPLOY.md](DEPLOY.md) and [MAPS.md](../infra/MAPS.md).
+- [ ] **[local readiness]** The local production Compose test has an empty map directory. Prepare the pinned Algeria PMTiles and OSRM files with the exact checksums and commands in [MAPS.md](../infra/MAPS.md), set `AWID_MAP_DIRECTORY` in the local Compose environment to that directory, restart Martin and OSRM, and rerun `infra/deploy/production-smoke.sh` against the local HTTPS domains. This is needed to prove the real vector tile path.
 - [ ] **[before launch]** Production VPS **hosted in Algeria**: 4 vCPU / 8–16 GB / 160 GB SSD, Ubuntu LTS.
 - [ ] **[before launch]** Second backup location for encrypted backups.
 
@@ -43,11 +43,6 @@ Codex appends items here (what, why, exact steps). Mahdi ticks them. Items marke
 - [ ] Visit restaurants and sign 3–5 pilot restaurants for 11–20 Jan; photograph their menus (with permission).
 - [ ] Recruit 20–30 pilot customers in the pilot neighbourhoods.
 - [ ] Confirm the subscription price: 5 000 DA or 3 000 DA (admin setting, no code change).
-
-- [ ] **[team preview]** Import `Mahdi-Lalioui/delivery` in the team’s Vercel account and deploy
-  `lane-a` as Preview. Set the Root Directory to `apps/web`, enable access to workspace
-  packages and system environment variables, and set `ZAAFRAN_PREVIEW_DEMO=1` for Preview
-  only. See [team preview steps](TEAM_PREVIEW.md) for Node, build, and opening the demo.
 
 - [ ] **[before launch]** Configure customer order-status SMS in the worker. Set
   `ORDER_SMS_WEBHOOK_URL` and `ORDER_SMS_WEBHOOK_TOKEN` in the deployment secret store.

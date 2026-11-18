@@ -28,6 +28,12 @@ services:
     image: postgis/postgis:18-3.7@sha256:440bdd14e3edccfce04d080d8a1a0cbae5763fa16a1c4172bff83530828461de
     platform: linux/amd64
     restart: unless-stopped
+    command:
+      - postgres
+      - -c
+      - log_error_verbosity=terse
+      - -c
+      - log_parameter_max_length_on_error=0
     environment:
       POSTGRES_DB: awid
       POSTGRES_USER: postgres
@@ -135,6 +141,39 @@ services:
       timeout: 6s
       retries: 4
 
+  web:
+    image: "awid-web:${AWID_RELEASE_TAG:-local}"
+    build:
+      context: ..
+      dockerfile: infra/deploy/Dockerfile.web
+    init: true
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs:
+      - /tmp:mode=1777
+      - /app/apps/web/.next/cache:mode=1777
+    environment:
+      HOSTNAME: 0.0.0.0
+      PORT: 3000
+      AWID_OPERATOR_API_ORIGIN: http://api:3002
+    networks: [edge]
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          CMD,
+          node,
+          -e,
+          "fetch('http://127.0.0.1:3000/fr').then(r => { if (!r.ok && !r.redirected) process.exitCode = 1 })",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 9
+
   martin:
     image: ghcr.io/maplibre/martin:1.16.0@sha256:caa63e4618ef8f326141d1a867d6ee15bddcf649260c979193bbf487b433a7e0
     restart: unless-stopped
@@ -175,6 +214,7 @@ services:
     restart: unless-stopped
     environment:
       AWID_API_HOST: "${AWID_API_HOST:?Set AWID_API_HOST}"
+      AWID_WEB_DOMAIN: "${AWID_WEB_DOMAIN:?Set AWID_WEB_DOMAIN}"
     ports:
       - "${AWID_BIND_ADDRESS:-0.0.0.0}:${AWID_HTTP_PORT:-80}:80"
       - "${AWID_BIND_ADDRESS:-0.0.0.0}:${AWID_HTTPS_PORT:-443}:443"
@@ -182,6 +222,13 @@ services:
       - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy-data:/data
       - caddy-config:/config
+    depends_on:
+      api:
+        condition: service_healthy
+      web:
+        condition: service_healthy
+      martin:
+        condition: service_healthy
     networks:
       edge:
         ipv4_address: "${AWID_PROXY_IP:-172.29.78.2}"

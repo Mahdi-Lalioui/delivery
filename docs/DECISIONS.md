@@ -278,3 +278,11 @@ Configure Twilio or the existing SMS webhook and configure Resend for email. The
 ## D-032 · three.js for the live tracking scooter (2026-11-12)
 
 Add `three` 0.187.0 (MIT, no runtime deps) to `apps/web` for the procedural scooter drawn as a MapLibre custom layer on the 3D tracking map. It loads through a dynamic import only once the map is ready, never under reduced motion; the flat rider marker stays as the fallback.
+
+## D-033 · Host web and API on the same Compose server (2026-11-18)
+
+Supersedes the Vercel deployment target in earlier deployment notes. Build `apps/web` as a Next.js standalone container in the production Compose project. Caddy remains the only public entrypoint, serving the bare `AWID_WEB_DOMAIN`, redirecting `www` to it and serving the API on `AWID_API_HOST`. Preserve the nonce CSP from Next.js, add a deny-all CSP only as an edge fallback, and apply the shared security headers at Caddy. Browser API and tile paths remain same-origin.
+
+## D-034 · Rate-limit identifier changes per account (2026-11-18)
+
+Signed-in identifier-change OTP requests share a per-account budget of three requests in any rolling 15 minutes and ten in any rolling 24 hours, alongside the existing identifier and source-IP limits. Serialize the account bucket inside the reservation transaction so requests from different sessions, target identifiers, or IP addresses cannot spend the budget concurrently. Persistent rate history stores only an HMAC of the account UUID, derived with the database-managed OTP rate secret, and challenge deletion archives that digest before pruning or account erasure. The account budget applies only to signed-in identifier changes.

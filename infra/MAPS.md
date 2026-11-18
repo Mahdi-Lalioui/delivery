@@ -15,7 +15,7 @@ The overlay reads `infra/data/maps` by default. Set `ZAAFRAN_MAP_DATA_DIR` to re
 
 ## Web map
 
-For a local production build, run `ZAAFRAN_TILE_ORIGIN=http://127.0.0.1:3001 pnpm --filter @zaafran/web build` after starting the national overlay. The browser uses only the application origin. The hosted app derives its tile upstream from `ZAAFRAN_API_ORIGIN` and expects the backend to expose `/tiles/algeria/{z}/{x}/{y}`.
+The browser always requests tiles from the application origin. In production Compose, Caddy forwards `/tiles/algeria/{z}/{x}/{y}` on both the web and API domains to Martin; the web build does not need a separate public tile origin. For local development, the web dev proxy can use `ZAAFRAN_TILE_ORIGIN=http://127.0.0.1:3001` after starting the national overlay.
 
 Run `pnpm exec playwright test --config e2e/maps.config.ts` against that build and the PostGIS test database. This suite requires the national archive and checks Arabic and French pin selection, tile and glyph responses, canvas sizing and console errors.
 
