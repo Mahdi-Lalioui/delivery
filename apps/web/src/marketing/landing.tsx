@@ -27,6 +27,7 @@ const cuisines = [
   ["sandwiches", "karantika-sandwich"],
   ["pastry", "baklawa-tray"],
   ["bakery", "msemen-griddle"],
+  ["pizza", "pizza"],
 ] as const;
 const cities = [
   ["algiers", "algiers-casbah-market"],

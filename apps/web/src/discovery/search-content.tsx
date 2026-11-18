@@ -217,12 +217,12 @@ export function SearchContent({
   );
 }
 
-// Credited catalogue photos; null until a licensed one exists (the drawn plate stands in).
+// Credited catalogue photos (docs/PHOTO_CREDITS.md).
 const browseCuisines = [
   ["algerian", "couscous"],
   ["grill", "grill-plate"],
   ["sandwiches", "karantika-sandwich"],
-  ["pizza", null],
+  ["pizza", "pizza"],
   ["pastry", "baklawa-tray"],
   ["bakery", "msemen-griddle"],
 ] as const;
@@ -237,18 +237,14 @@ function BrowseCuisines({ locale }: { locale: Locale }) {
       <ul className="discovery-search-browse" role="list">
         {browseCuisines.map(([cuisine, photo]) => (
           <li key={cuisine}>
-            <a href={`/${locale}/discover?cuisine=${cuisine}`} data-photo={photo !== null}>
-              {photo === null ? (
-                <FeedPlate />
-              ) : (
-                <img
-                  src={`/preview-catalog/${photo}-320.webp`}
-                  alt=""
-                  width="320"
-                  height="240"
-                  loading="lazy"
-                />
-              )}
+            <a href={`/${locale}/discover?cuisine=${cuisine}`}>
+              <img
+                src={`/preview-catalog/${photo}-320.webp`}
+                alt=""
+                width="320"
+                height="240"
+                loading="lazy"
+              />
               <span>{feed.chipNames[cuisine]}</span>
             </a>
           </li>

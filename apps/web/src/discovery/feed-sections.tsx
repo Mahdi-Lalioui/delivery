@@ -18,7 +18,7 @@ const cuisinePhotos: readonly (readonly [ChipCuisine, string | null])[] = [
   ["algerian", "couscous"],
   ["grill", "brochettes"],
   ["sandwiches", "karantika-sandwich"],
-  ["pizza", null],
+  ["pizza", "pizza"],
   ["pastry", "baklawa"],
   ["bakery", "msemen"],
 ];

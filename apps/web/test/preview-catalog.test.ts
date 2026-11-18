@@ -138,13 +138,12 @@ test("serves a synthetic dish photo only for the associated menu item", async ()
       ),
     ).json(),
   );
-  // The house shawarma has no licensed photo, so the first photographed dishes are used.
   const [dish, otherDish] = list.items.filter((item) => item.photoId !== null);
   assert(dish?.photoId && otherDish);
   const dishPath = `merchants/${merchantId}/items/${dish.itemId}/photos/${dish.photoId}`;
   const photo = GET(request(dishPath + "/variants/webp/320"));
   expect(photo.status).toBe(307);
-  expect(photo.headers.get("location")).toBe("/preview-catalog/brochettes-320.webp");
+  expect(photo.headers.get("location")).toBe("/preview-catalog/chawarma-320.webp");
   expect(
     GET(request(dishPath.replace(dish.itemId, otherDish.itemId) + "/variants/webp/320")).status,
   ).toBe(404);

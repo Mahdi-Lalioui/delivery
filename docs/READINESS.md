@@ -5,7 +5,7 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 ## Customer experience
 
 - [ ] **Lane A** Consistent dish and cover pipeline with crop ratios, warm grade, contrast and sharpening, and published restaurant guidance. [Photo guide](RESTAURANT_PHOTOS.md)
-- [ ] **Lane B** Review the photo catalogue and replace weak or off-style images. Reviewed: two uncredited off-style photos removed, and a test guards the credits. Three weak photos wait for licensed replacements (Mahdi, HUMAN_TODO). [Review](evidence/awid/photos/README.md)
+- [x] **Lane B** Review the photo catalogue and replace weak or off-style images. Two uncredited images and three weak or mislabelled ones were replaced with licensed, graded Wikimedia Commons photos, and a test checks that every catalogue photo is credited. [Review](evidence/awid/photos/README.md)
 - [x] **Lane B** Short haptics for add-to-cart, order placement and acceptance. Optional acceptance sound, mute preference and reduced-motion support. [Haptics and mute note](evidence/awid/feel/README.md) (393969e)
 - [x] **Lane B** Arabic, French and English copy pass. Errors give the customer a next step. [Copy changes](evidence/awid/copy.md) (17a477c)
 - [x] **Lane B** Audit spacing, type, radii, shadows, icons, buttons and colours on every customer screen. Record and fix deviations in `docs/evidence/awid/consistency.md`. [Consistency list, 21 fixed](evidence/awid/consistency.md) (fb5d002)
