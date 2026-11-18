@@ -30,6 +30,22 @@ courier and administrator routes. All checks use synthetic data on local infrast
   with one high finding, `GHSA-fc5q-39xc-vjpf` in `picomatch@4.0.7`; upstream
   still lists no patched version. `pnpm verify` remains blocked at audit.
 - All six structured logger tests passed.
+- Local scanner pass on 18 November: Semgrep `p/security-audit` scanned 918
+  first-party files with zero findings; TruffleHog found no verified secrets;
+  Gitleaks scanned 527 advertised commits from the remote mirror with no leaks;
+  ClamAV scanned 7,996 files (2.39 GiB) with zero detections. Nuclei scanned
+  the local production Caddy endpoint with TLS validation and OAST disabled:
+  two informational findings (missing `X-Permitted-Cross-Domain-Policies` and
+  `Cross-Origin-Embedder-Policy`); required CSP/HSTS/COOP/CORP/X-Frame-Options
+  remain covered by dedicated header tests.
+- Trivy filesystem scan found zero secrets, one high picomatch advisory across
+  two lockfile paths, one medium `:latest` Docker tag and three low missing
+  health checks. Trivy scans of the currently running web and backend images
+  found respectively 54 high / 106 medium / 66 low / 11 unknown and 151 high /
+  1 critical / 174 medium / 140 low / 14 unknown findings, with zero image
+  secrets. These images predate the current source/lockfile and are not release
+  evidence; rebuild from the current checkout, rescan, then triage every
+  remaining high/critical finding. No findings were suppressed.
 
 ## OTP abuse and delivery limits
 
@@ -103,10 +119,12 @@ roles and a different tenant. Staff and courier invitation continuations use
 15-minute Secure, HttpOnly, host-only cookies. Browser tests cover reload and
 sign-in continuation and absence of raw tokens in browser storage.
 
-All six npm advisories were cleared. Both full and production audits reported
-zero advisories after the lockfile update. Full workspace verification passed
-with 2,059 unit and 337 PostGIS integration tests. The focused browser run
-passed 30 checks across operator access, invitations and production routes.
+An earlier audit reported all six then-known npm advisories cleared, and an
+earlier full workspace verification passed 2,059 unit and 337 PostGIS
+integration tests. The current 18 November audit has since found the high
+picomatch advisory recorded above, so dependency security is not cleared.
+The focused browser run passed 30 checks across operator access, invitations
+and production routes.
 
 Gitleaks 8.30.1 scanned 536 commits from a fresh GitHub mirror across its
 advertised references and found no leaks. The local shared Git store has
