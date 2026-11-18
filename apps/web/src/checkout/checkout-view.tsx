@@ -1,5 +1,6 @@
 "use client";
 
+import { StateArt } from "../customer/state-art";
 import { formatDzd } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
 import { ButtonLink, EmptyState, Icon, Skeleton } from "@zaafran/ui";
@@ -178,29 +179,34 @@ function Blocked({ state, locale }: { state: CheckoutState; locale: Locale }) {
     state.contact.kind === "sign-in";
   if (isSignIn)
     return (
+      <div className="checkout-blocked decor-zellige decor-lamplight">
+        <EmptyState
+          icon="user"
+          title={translate("signIn")}
+          body={translate("signInBody")}
+          action={
+            <ButtonLink variant="primary" href={`/${locale}/sign-in`}>
+              {translate("signInAction")}
+            </ButtonLink>
+          }
+        />
+      </div>
+    );
+  const name = state.expiredFrom;
+  // A designed, full-height panel: an empty basket is a moment, not a blank page.
+  return (
+    <div className="checkout-blocked decor-zellige decor-lamplight">
       <EmptyState
-        icon="user"
-        title={translate("signIn")}
-        body={translate("signInBody")}
+        art={<StateArt kind="bag" />}
+        title={translate(name === null ? "emptyCart" : "cartExpired")}
+        body={name === null ? translate("emptyCartBody") : translate("cartExpiredBody", { name })}
         action={
-          <ButtonLink variant="primary" href={`/${locale}/sign-in`}>
-            {translate("signInAction")}
+          <ButtonLink variant="primary" href={`/${locale}/discover`}>
+            {translate("browse")}
           </ButtonLink>
         }
       />
-    );
-  const name = state.expiredFrom;
-  return (
-    <EmptyState
-      icon="bag"
-      title={translate(name === null ? "emptyCart" : "cartExpired")}
-      body={name === null ? translate("emptyCartBody") : translate("cartExpiredBody", { name })}
-      action={
-        <ButtonLink variant="primary" href={`/${locale}/discover`}>
-          {translate("browse")}
-        </ButtonLink>
-      }
-    />
+    </div>
   );
 }
 

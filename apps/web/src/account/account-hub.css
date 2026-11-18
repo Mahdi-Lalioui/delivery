@@ -258,7 +258,15 @@
   }
 }
 
-/* Wide screens: who you are and where to go on the start side, settings on the end side. */
+/* Settings and the restaurant pitch share a plaster side panel. */
+.account-hub-side {
+  display: grid;
+  gap: var(--space-16);
+  align-content: start;
+}
+
+/* Wide screens: who you are and where to go on the start side; the side panel fills the height of
+   the end column, so neither column ends on dead space. */
 @media (min-width: 1024px) {
   .account-hub {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -274,8 +282,12 @@
     grid-column: 1 / -1;
   }
 
-  .account-hub > .feel-settings {
+  .account-hub > .account-hub-side {
     grid-column: 2;
     grid-row: 2 / span 3;
+    align-self: stretch;
+    padding: var(--space-20);
+    border-radius: var(--radius-xl);
+    background-color: var(--color-sand);
   }
 }

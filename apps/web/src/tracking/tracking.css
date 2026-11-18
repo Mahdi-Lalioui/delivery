@@ -680,3 +680,20 @@
 .tracking[data-map="false"] .tracking-grip {
   display: none;
 }
+
+/* Pickup (no map): the card sits on a full-height plaster band with the zellige lattice. */
+@media (min-width: 960px) {
+  .tracking[data-map="false"] {
+    min-block-size: calc(100dvb - var(--space-120) - var(--space-48));
+    align-content: center;
+    padding: var(--space-48) var(--space-24);
+    border-radius: var(--radius-xl);
+    background-color: var(--color-sand);
+    justify-content: stretch;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 32rem) minmax(0, 1fr);
+  }
+
+  .tracking[data-map="false"] > * {
+    grid-column: 2;
+  }
+}

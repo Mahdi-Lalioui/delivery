@@ -93,7 +93,8 @@
   align-items: start;
 }
 .restaurant-heading h1 {
-  font: var(--font-weight-display) var(--font-size-h1) / var(--line-height-h1) var(--font-display);
+  font: var(--font-weight-display) clamp(30px, 24px + 1.6vw, 44px) / 1.1 var(--font-display);
+  letter-spacing: var(--letter-spacing-display-xl, -0.02em);
   overflow-wrap: anywhere;
 }
 .restaurant-cuisines {

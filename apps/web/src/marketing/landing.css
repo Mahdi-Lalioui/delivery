@@ -133,6 +133,36 @@
   padding: var(--space-120) var(--page-padding) var(--space-48);
 }
 
+/* Dar Zellige: a gold star rule above the headline, and a zellige border along the hero's foot. */
+.landing-hero-ornament {
+  inline-size: min(12rem, 60%);
+  color: var(--color-food-saffron);
+}
+
+.landing-hero-ornament::before,
+.landing-hero-ornament::after {
+  background: linear-gradient(90deg, transparent, currentColor, transparent);
+}
+
+.landing-hero-ornament svg {
+  fill: currentColor;
+}
+
+.landing-hero::after {
+  --decor-zellige-colour: rgb(242 169 0 / 0.55);
+  position: absolute;
+  z-index: 1;
+  inset-inline: 0;
+  inset-block-end: 0;
+  block-size: 18px;
+  background-color: var(--decor-zellige-colour);
+  mask-image: var(--decor-zellige);
+  mask-size: 18px;
+  mask-repeat: repeat-x;
+  pointer-events: none;
+  content: "";
+}
+
 .landing-hero-copy h1 {
   font: var(--font-weight-display-xl) var(--font-size-display-xl) / var(--line-height-display-xl)
     var(--font-display);

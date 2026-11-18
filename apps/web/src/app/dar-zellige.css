@@ -59,3 +59,49 @@ body::after {
   background: linear-gradient(90deg, transparent, var(--color-border-strong), transparent);
   content: "";
 }
+
+/* Motion language "settle" (DESIGN §0): content set down like a dish on a table. Scroll-driven,
+   transform-only (no fading, so nothing delays the main image), and off under reduced motion. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .restaurant-feed-grid > li,
+    .landing-section,
+    .landing-footer,
+    .restaurant-dish,
+    .orders-card {
+      animation: dar-settle linear both;
+      animation-range: entry 0% entry 55%;
+      animation-timeline: view();
+    }
+  }
+}
+
+@keyframes dar-settle {
+  from {
+    transform: translateY(28px) scale(0.985);
+  }
+}
+
+/* Page transitions: a quick, soft cross-fade with a small rise for the incoming page. */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: dar-page-out 160ms ease-in both;
+  }
+
+  ::view-transition-new(root) {
+    animation: dar-page-in 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+}
+
+@keyframes dar-page-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes dar-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}

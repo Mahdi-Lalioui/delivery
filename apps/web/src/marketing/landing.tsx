@@ -86,6 +86,11 @@ async function Hero({ locale }: { locale: Locale }) {
         ))}
       </div>
       <div className="landing-hero-copy">
+        <span className="landing-hero-ornament decor-divider" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="18" height="18">
+            <path d="M12 1 14.6 7.4 21 5 18.6 11.4 23 12 18.6 12.6 21 19 14.6 16.6 12 23 9.4 16.6 3 19 5.4 12.6 1 12 5.4 11.4 3 5 9.4 7.4Z" />
+          </svg>
+        </span>
         <h1 id="landing-title">{translate("title", { brand: name })}</h1>
         <p className="landing-intro">{translate("intro")}</p>
         <div className="landing-actions">

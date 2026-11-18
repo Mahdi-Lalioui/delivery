@@ -168,7 +168,7 @@ export function OrderRatingView({
   const { view } = state;
   return (
     <section className="rating-page" aria-labelledby="order-rating-title">
-      <header className="rating-hero">
+      <header className="rating-hero decor-zellige decor-lamplight">
         <span className="rating-hero-photo" aria-hidden="true">
           <img src="/preview-catalog/couscous-320.webp" alt="" width="320" height="240" />
         </span>

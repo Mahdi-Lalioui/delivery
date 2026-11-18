@@ -143,3 +143,9 @@
   - `pnpm verify` passes every step except `pnpm audit` (GHSA-fc5q-39xc-vjpf; Mahdi chose to wait for a patch). All of this is committed locally only.
 
   Next: once picomatch publishes a patched release, run `pnpm install`, `pnpm verify`, merge origin/lane-a and push lane-b. Then Mahdi sources the licensed photos listed in HUMAN_TODO.
+- 2026-11-18 · Dar Zellige creative pass (D-036), in progress.
+  - Done: a warmer palette with night, sand, glow and zellige tokens; Fraunces and El Messiri display faces; the CSS decor system; Discovery's night-garden band; landing hero ornament and zellige border; "settle" scroll motion and page transitions.
+  - Pushed at 8dca7e2 with `pnpm verify` green; a11y 0/0/0.
+  - Added `pnpm audit:fullness`: the largest empty rectangle must stay ≤ 30 % at 8 widths × ar/fr × light/dark, plus `e2e/page-fullness.spec.ts` for CI. A before/after section is on `/dev/gallery`.
+
+  Next: fix every page the fullness audit flags, capture the "after" set, then run fresh-critic rounds and the RELEASE_REPORT section.

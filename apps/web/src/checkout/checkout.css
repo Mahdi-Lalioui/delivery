@@ -750,3 +750,28 @@
 .checkout-cash .ui-field-money .ui-input-box {
   max-inline-size: 10rem;
 }
+
+/* Empty basket or sign-in: a full-height plaster panel with the zellige lattice and lamp light. */
+.checkout-blocked {
+  display: grid;
+  place-items: center;
+  min-block-size: calc(100dvb - var(--space-120) - var(--space-120));
+  padding: var(--space-32) var(--space-16);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-sand);
+}
+
+/* Tablets and up: the checkout sits on a plaster "table" that fills the page above the action bar. */
+@media (min-width: 768px) {
+  .checkout:not(:has(.checkout-blocked)) {
+    min-block-size: calc(100dvb - var(--space-120) - var(--space-80));
+    padding: var(--space-32);
+    border-radius: var(--radius-xl);
+    background-color: var(--color-sand);
+    background-image: radial-gradient(60% 80% at 100% 0%, var(--color-glow), transparent 70%);
+  }
+}
+
+.checkout:has(.checkout-blocked) {
+  max-inline-size: 72rem;
+}
