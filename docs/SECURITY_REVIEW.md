@@ -268,3 +268,17 @@ and need a separate compatibility review before tightening their users or
 filesystem permissions. Repository inventory found no inbound webhook routes
 or signature verification surface; Twilio/Resend and the SMS webhook are
 outbound-only.
+
+## Audit exception: GHSA-fc5q-39xc-vjpf (picomatch ReDoS), 18 November 2026
+
+**Decision (Mahdi):** ignore this one advisory in `pnpm audit` instead of waiting for a patch. The exception is the `auditConfig.ignoreGhsas` entry in `pnpm-workspace.yaml`. `pnpm audit --prod --audit-level high` keeps failing on every other advisory.
+
+**Why it is safe:**
+- `picomatch` ≤ 4.0.7 can be slowed down (ReDoS) by a hostile glob pattern. No patched release exists yet.
+- In this repository it is only reached by build and test tooling: vite, vitest, knip, Expo CLI and Metro, the typescript-eslint glob, and `@parcel/watcher` under next-intl's development watcher.
+- Those tools compile the repository's own glob patterns. No request, upload or user input in the production web or API runtime reaches `picomatch`.
+
+**Re-check:**
+- Run `npm view picomatch version` at the start of each milestone gate, and whenever `pnpm audit` output changes.
+- When a release fixes GHSA-fc5q-39xc-vjpf: update the lockfile, delete the `ignoreGhsas` entry and its comment, run `pnpm audit --prod --audit-level high`, and record the result here.
+- If a production runtime path to `picomatch` appears, the exception no longer holds. Remove it and treat the advisory as blocking.
