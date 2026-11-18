@@ -11,14 +11,10 @@
     "./vitest": "./vitest.ts",
     "./brand": "./src/brand.ts"
   },
-  "dependencies": {
+  "devDependencies": {
     "@eslint/js": "10.0.1",
     "eslint-config-prettier": "10.1.8",
-    "typescript-eslint": "8.72.1"
-  },
-  "peerDependencies": {
-    "eslint": "10.14.0",
-    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.1",
     "vitest": "5.1.0"
   }
 }
