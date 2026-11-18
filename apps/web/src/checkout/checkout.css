@@ -297,9 +297,12 @@
 }
 
 .checkout-qty {
-  display: grid;
-  place-items: center;
+  /* Inline flex, not grid: the "×" pseudo-element must sit beside the number, not under it. */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-inline-size: var(--space-24);
+  direction: ltr;
   padding-inline: var(--space-4);
   white-space: nowrap;
   block-size: var(--space-24);
