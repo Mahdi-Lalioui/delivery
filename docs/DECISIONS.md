@@ -286,3 +286,7 @@ Supersedes the Vercel deployment target in earlier deployment notes. Build `apps
 ## D-034 · Rate-limit identifier changes per account (2026-11-18)
 
 Signed-in identifier-change OTP requests share a per-account budget of three requests in any rolling 15 minutes and ten in any rolling 24 hours, alongside the existing identifier and source-IP limits. Serialize the account bucket inside the reservation transaction so requests from different sessions, target identifiers, or IP addresses cannot spend the budget concurrently. Persistent rate history stores only an HMAC of the account UUID, derived with the database-managed OTP rate secret, and challenge deletion archives that digest before pruning or account erasure. The account budget applies only to signed-in identifier changes.
+
+## D-035 · Audit exception for GHSA-fc5q-39xc-vjpf (2026-11-18)
+
+Mahdi's decision: `pnpm-workspace.yaml` `auditConfig.ignoreGhsas` ignores only GHSA-fc5q-39xc-vjpf, the `picomatch` ReDoS with no patched release, which is reached solely by build and test tooling. Every other advisory still fails `pnpm audit`. Reasoning and re-check steps are in docs/SECURITY_REVIEW.md.
