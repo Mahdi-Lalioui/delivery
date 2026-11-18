@@ -224,6 +224,45 @@ test("[SECURITY] valid courier sessions see and change only assigned deliveries"
     callAttempts: 0,
   });
 
+  const deliveryOrderIds = [firstOrderId, otherOrderId];
+  const beforeCompletion = await sql`
+    SELECT id, status, version, courier_id, delivery_code_attempts, delivery_code_digest
+    FROM public.orders WHERE id = ANY(${deliveryOrderIds}::uuid[]) ORDER BY id
+  `;
+  for (const action of [
+    { name: "deliver", payload: { expectedVersion: 5, proof: { kind: "code", code: "0123" } } },
+    { name: "fail", payload: { expectedVersion: 5, reason: "Synthetic failed delivery" } },
+  ]) {
+    for (const [session, orderId] of [
+      [otherCourierSession, firstOrderId],
+      [unassignedSession, firstOrderId],
+      [firstCourierSession, otherOrderId],
+      [customer, firstOrderId],
+      [customer, otherOrderId],
+    ] as const) {
+      const response = await api.inject({
+        method: "POST",
+        url: `/v1/orders/${orderId}/${action.name}`,
+        headers: { ...session.headers, "idempotency-key": `courier-isolation-${action.name}` },
+        payload: action.payload,
+      });
+      expect(response.statusCode, `${action.name} by ${session.userId} on ${orderId}`).toBe(404);
+      expect(response.json()).toMatchObject({ code: "not_found" });
+    }
+  }
+  expect(
+    await sql`
+      SELECT id, status, version, courier_id, delivery_code_attempts, delivery_code_digest
+      FROM public.orders WHERE id = ANY(${deliveryOrderIds}::uuid[]) ORDER BY id
+    `,
+  ).toEqual(beforeCompletion);
+  expect(
+    await sql`SELECT FROM public.order_action_receipts WHERE order_id = ANY(${deliveryOrderIds}::uuid[])`,
+  ).toHaveLength(0);
+  expect(
+    await sql`SELECT FROM public.order_events WHERE order_id = ANY(${deliveryOrderIds}::uuid[])`,
+  ).toHaveLength(0);
+
   const pickUp = (headers: typeof firstCourierSession.headers) =>
     api.inject({
       method: "POST",
