@@ -12,6 +12,7 @@ courier and administrator routes. All checks use synthetic data on local infrast
 | Courier invitations revealed whether a phone or email was an active courier at another restaurant. | Removed the cross-merchant registration lookup. Owners receive the same invitation result; the accepting account still cannot join a second restaurant. [PostGIS regression](../packages/db/test/couriers.integration.test.ts) |
 | An unauthorized order action acquired a row lock before checking customer/restaurant access, allowing lock contention on another tenant's order. | Authorize against an unlocked snapshot, then lock and reauthorize before mutation. A real-session regression held the foreign order lock and confirmed the outsider received 404 before release. [Connected Postgres test](../apps/api/test/order-session.integration.test.ts) |
 | The media worker launched ClamAV with the worker's full environment, exposing database, delivery and push secrets to the scanner process. | ClamAV now runs with an empty environment. A regression launches a fake scanner with a synthetic secret in the parent and asserts the child cannot read it. [Worker test](../apps/worker/test/media-scanner.test.ts) |
+| Production runtime images inherited npm and its vulnerable bundled `undici` and `picomatch` packages even though the app only needs Node at runtime. | Both runtime Dockerfiles now remove npm/npx and assert those paths are absent while Node remains. Both images rebuilt; container checks passed and current Trivy reports no longer contain `undici` or npm's picomatch. |
 | The 17 November production audit now reports a new high ReDoS advisory in picomatch 4.0.7, pulled through Expo/Metro. The upstream advisory lists no patched release. | No safe upstream version is available to update to; the advisory is recorded and unsuppressed. The full verification run passed all prior stages, then failed at `pnpm audit --prod --audit-level high`. [Audit evidence](evidence/awid/dependency-audit-nov17.md) |
 
 ## Local evidence
@@ -40,14 +41,13 @@ courier and administrator routes. All checks use synthetic data on local infrast
   remain covered by dedicated header tests.
 - Trivy filesystem scan found zero secrets, one high picomatch advisory across
   two lockfile paths, one medium `:latest` Docker tag and three low missing
-  health checks. Trivy scans of web and backend images rebuilt from the current
-  checkout found respectively 54 high / 106 medium / 66 low / 17 unknown and
-  151 high / 1 critical / 174 medium / 140 low / 20 unknown findings, with
-  zero image secrets. The backend findings include Debian `libxml2`
-  CVE-2026-6653 and ClamAV 1.4.3 advisories; both images also contain vulnerable
-  `undici` 6.28.0. No findings were suppressed. These builds are not
-  release-ready; resolve all available fixes and record upstream-blocked
-  findings explicitly.
+  health checks. Before runtime-pruning, web/backend images had 54/151 high
+  findings. After removing npm/npx, fresh reports show web at 47 high / 94
+  medium / 65 low / 17 unknown and backend at 144 high / 1 critical / 162
+  medium / 139 low / 20 unknown; both have zero image secrets and neither
+  report includes `undici`. Backend findings include Debian `libxml2`
+  CVE-2026-6653 and ClamAV 1.4.3 advisories. No findings were suppressed;
+  these images are not release-ready while high/critical findings remain.
 
 ## OTP abuse and delivery limits
 
