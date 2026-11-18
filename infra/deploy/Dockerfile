@@ -14,6 +14,11 @@ RUN --mount=type=cache,target=/app/.pnpm-store \
 FROM node AS runtime
 ENV NODE_ENV=production
 WORKDIR /app
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx \
+ && test ! -e /usr/local/lib/node_modules/npm \
+ && test ! -e /usr/local/bin/npm \
+ && test ! -e /usr/local/bin/npx \
+ && command -v node >/dev/null
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/apps/api ./apps/api
 COPY --from=build /app/apps/worker ./apps/worker
