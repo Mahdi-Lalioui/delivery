@@ -111,3 +111,10 @@
   color: var(--color-text-2);
   font-size: var(--font-size-caption);
 }
+
+/* The gallery's screen links sit together at the start, not spread across the page. */
+.billing-page > nav.ui-page-header {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: var(--space-12);
+}

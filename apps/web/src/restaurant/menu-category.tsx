@@ -85,7 +85,8 @@ export function MenuCategory({
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting)) setNear(true);
       },
-      { rootMargin: "200px" },
+      // Load a category a full screen before it arrives, so scrolling never meets skeletons.
+      { rootMargin: "100% 0px" },
     );
     observer.observe(target);
     return () => {

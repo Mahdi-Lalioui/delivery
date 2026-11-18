@@ -881,7 +881,7 @@
 @media (min-width: 960px) {
   .rating-page {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    grid-template-rows: auto 1fr;
+    grid-template-rows: 1fr auto;
     align-items: stretch;
     max-inline-size: 72rem;
     min-block-size: calc(100dvb - var(--space-120) - var(--space-48));
