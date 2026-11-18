@@ -189,6 +189,19 @@ operator browser suite passed all seven tests, including guest redirects for
 every admin page in Arabic, French and English and denial of a standard session
 before the admin dashboard renders.
 
+## Session fixation and browser request protections
+
+The real-Postgres auth integration now submits a known attacker-chosen
+pre-authentication `__Host-session` token during OTP verification and confirms
+the authenticated cookie is newly generated while the known token remains
+unauthenticated. The auth integration suite passed 11 tests. The focused API
+health/header, auth-route and transport suites passed 52 tests, covering
+same-origin cookie writes, cross-origin denial, secure cookie attributes,
+session revocation and API CSP. Production browser CSP nonce and COOP/CORP/XFO
+checks across Chromium and WebKit are recorded in the browser/header section.
+The broader readiness item remains open until the full input/injection review is
+complete.
+
 ## Caddy upstream error privacy
 
 The local production stack initially returned a 502 without the shared security

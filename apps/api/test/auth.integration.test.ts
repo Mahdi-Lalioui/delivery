@@ -152,6 +152,47 @@ test("[AUTH-01] [AUTH-03] [AUTH-09] uses live Postgres for HMAC and opaque web s
   }
 });
 
+test("[AUTH-03] OTP verification replaces any pre-authentication session token", async () => {
+  const { api, sent } = await openAuthApi();
+  const knownToken = "A".repeat(43);
+  try {
+    const challenge = requestOtpOutput.parse((await requestOtp(api, "+213500000019")).json());
+    const code = sent.get(challenge.challengeId);
+    if (!code) throw new Error("Missing synthetic OTP.");
+    const response = await api.inject({
+      method: "POST",
+      url: "/v1/auth/otp/verify",
+      headers: {
+        ...originHeaders,
+        cookie: "__Host-session=" + knownToken,
+        "idempotency-key": randomUUIDv7(),
+      },
+      payload: { challengeId: challenge.challengeId, code, transport: "web" },
+    });
+    const cookie = response.cookies.find(({ name }) => name === "__Host-session");
+    if (!cookie) throw new Error("Missing authenticated session cookie.");
+    expect(cookie.value).not.toBe(knownToken);
+    expect(
+      (
+        await api.inject({
+          url: "/v1/me/sessions",
+          headers: { cookie: "__Host-session=" + knownToken },
+        })
+      ).statusCode,
+    ).toBe(401);
+    expect(
+      (
+        await api.inject({
+          url: "/v1/me/sessions",
+          headers: { cookie: "__Host-session=" + cookie.value },
+        })
+      ).statusCode,
+    ).toBe(200);
+  } finally {
+    await api.close();
+  }
+});
+
 test("[AUTH-02] retries SMS delivery under the original challenge and enforces cooldown", async () => {
   const runtime = await openAuthApi();
   const { api, sent, attempts } = runtime;
