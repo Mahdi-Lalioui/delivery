@@ -89,6 +89,25 @@ export function GalleryPage({
               labels={{
                 screen: messages.designGallery.screens,
                 state: messages.designGallery.state,
+                screens: {
+                  "merchant-billing": messages.merchantBilling.title,
+                  "admin-billing": messages.designGallery.adminBillingScreen,
+                  "billing-settings": messages.adminBillingSettings.title,
+                  promotions: messages.retentionPromotions.title,
+                  reviews: messages.retentionRatings.reviewsTitle,
+                  rating: messages.retentionRatings.title,
+                  checkout: messages.checkout.title,
+                  tracking: messages.tracking.title,
+                  platform: messages.adminPlatform.title,
+                  orders: messages.retentionOrders.title,
+                  analytics: messages.retentionAnalytics.title,
+                },
+                modes: {
+                  ready: messages.designGallery.modeReady,
+                  empty: messages.designGallery.modeEmpty,
+                  loading: messages.designGallery.modeLoading,
+                  error: messages.designGallery.modeError,
+                },
               }}
             />
           </section>

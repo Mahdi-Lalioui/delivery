@@ -1698,7 +1698,12 @@
     "priceSample": "1 450 دج",
     "namePlaceholder": "أمينة",
     "screens": "الشاشات",
-    "state": "الحالة"
+    "state": "الحالة",
+    "modeReady": "جاهز",
+    "modeEmpty": "فارغ",
+    "modeLoading": "تحميل",
+    "modeError": "خطأ",
+    "adminBillingScreen": "الفوترة (الإدارة)"
   },
   "checkout": {
     "cashLimit": "يتجاوز هذا الطلب الحدّ الأقصى للدفع نقدًا في طلبك الأول.",
@@ -1870,7 +1875,7 @@
     "orders": "طلباتي",
     "ordersBody": "الإيصالات وإعادة الطلب بلمسة",
     "favourites": "المطاعم المفضلة",
-    "favouritesBody": "الأماكن التي حفظتها",
+    "favouritesBody": "المطاعم التي حفظتها",
     "devices": "الأجهزة المتصلة",
     "devicesBody": "اعرض أجهزتك وسجّل خروجها",
     "privacy": "الخصوصية والبيانات",

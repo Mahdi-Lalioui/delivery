@@ -1,7 +1,7 @@
 "use client";
 
 import type { Locale } from "@zaafran/i18n/locales";
-import { SegmentedControl } from "@zaafran/ui";
+import { SegmentedControl, SelectField } from "@zaafran/ui";
 import { useState, type ReactNode } from "react";
 import { AdminBillingView } from "../billing/admin-billing";
 import { BillingSettingsView } from "../billing/billing-settings";
@@ -41,6 +41,20 @@ type Screen =
   | "orders"
   | "analytics";
 type Mode = "ready" | "empty" | "loading" | "error";
+const screenOrder: readonly Screen[] = [
+  "merchant-billing",
+  "admin-billing",
+  "billing-settings",
+  "promotions",
+  "reviews",
+  "rating",
+  "checkout",
+  "tracking",
+  "platform",
+  "orders",
+  "analytics",
+];
+const modeOrder: readonly Mode[] = ["ready", "empty", "loading", "error"];
 const noop = () => undefined;
 const noopAsync = () => Promise.resolve();
 
@@ -411,7 +425,12 @@ export function LaneBGallery({
 }: {
   locale: Locale;
   initialScreen?: string | string[] | undefined;
-  labels: { screen: string; state: string };
+  labels: {
+    screen: string;
+    state: string;
+    screens: Readonly<Record<Screen, string>>;
+    modes: Readonly<Record<Mode, string>>;
+  };
 }) {
   const [screen, setScreen] = useState<Screen>(
     isScreen(initialScreen) ? initialScreen : "merchant-billing",
@@ -420,36 +439,28 @@ export function LaneBGallery({
   return (
     <div className="billing-layout">
       <div className="billing-kpis">
-        <SegmentedControl
-          legend={labels.screen}
+        {/* Eleven screens: a native select, not a segmented track that wraps on phones. */}
+        <SelectField
+          label={labels.screen}
           name="screen"
           value={screen}
-          onChange={setScreen}
-          options={[
-            { value: "merchant-billing", label: "MER-22" },
-            { value: "admin-billing", label: "ADM-07" },
-            { value: "billing-settings", label: "BIL-01" },
-            { value: "promotions", label: "MER-19" },
-            { value: "reviews", label: "MER-20" },
-            { value: "rating", label: "CUS-22" },
-            { value: "checkout", label: "CUS-13/15" },
-            { value: "tracking", label: "CUS-18" },
-            { value: "platform", label: "ADM-08" },
-            { value: "orders", label: "CUS-21" },
-            { value: "analytics", label: "MER-21" },
-          ]}
-        />
+          onChange={(event) => {
+            const next = event.currentTarget.value;
+            if (isScreen(next)) setScreen(next);
+          }}
+        >
+          {screenOrder.map((value) => (
+            <option key={value} value={value}>
+              {labels.screens[value]}
+            </option>
+          ))}
+        </SelectField>
         <SegmentedControl
           legend={labels.state}
           name="mode"
           value={mode}
           onChange={setMode}
-          options={[
-            { value: "ready", label: "ready" },
-            { value: "empty", label: "empty" },
-            { value: "loading", label: "loading" },
-            { value: "error", label: "error" },
-          ]}
+          options={modeOrder.map((value) => ({ value, label: labels.modes[value] }))}
         />
       </div>
       {samples[screen]({ mode, locale })}

@@ -1698,7 +1698,12 @@
     "priceSample": "1 450 DA",
     "namePlaceholder": "Amina",
     "screens": "Écrans",
-    "state": "État"
+    "state": "État",
+    "modeReady": "Prêt",
+    "modeEmpty": "Vide",
+    "modeLoading": "Chargement",
+    "modeError": "Erreur",
+    "adminBillingScreen": "Facturation (admin)"
   },
   "checkout": {
     "cashLimit": "Cette commande dépasse le plafond en espèces de votre première commande.",
@@ -1870,7 +1875,7 @@
     "orders": "Mes commandes",
     "ordersBody": "Reçus et recommande en un geste",
     "favourites": "Restaurants favoris",
-    "favouritesBody": "Les adresses que vous avez gardées",
+    "favouritesBody": "Les restaurants que vous avez gardés",
     "devices": "Appareils connectés",
     "devicesBody": "Voir et déconnecter vos appareils",
     "privacy": "Confidentialité et données",

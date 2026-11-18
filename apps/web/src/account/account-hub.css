@@ -257,3 +257,25 @@
     transition: none;
   }
 }
+
+/* Wide screens: who you are and where to go on the start side, settings on the end side. */
+@media (min-width: 1024px) {
+  .account-hub {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    max-inline-size: 64rem;
+  }
+
+  .account-hub > * {
+    grid-column: 1;
+  }
+
+  .account-hub > .account-hub-header {
+    grid-column: 1 / -1;
+  }
+
+  .account-hub > .feel-settings {
+    grid-column: 2;
+    grid-row: 2 / span 3;
+  }
+}

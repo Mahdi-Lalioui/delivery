@@ -1698,7 +1698,12 @@
     "priceSample": "1,450 DA",
     "namePlaceholder": "Amina",
     "screens": "Screens",
-    "state": "State"
+    "state": "State",
+    "modeReady": "Ready",
+    "modeEmpty": "Empty",
+    "modeLoading": "Loading",
+    "modeError": "Error",
+    "adminBillingScreen": "Billing (admin)"
   },
   "checkout": {
     "cashLimit": "This order exceeds the cash limit for your first order.",
@@ -1870,7 +1875,7 @@
     "orders": "My orders",
     "ordersBody": "Receipts and one-tap reorder",
     "favourites": "Favourite restaurants",
-    "favouritesBody": "The places you saved",
+    "favouritesBody": "The restaurants you saved",
     "devices": "Signed-in devices",
     "devicesBody": "See and sign out other devices",
     "privacy": "Privacy and data",

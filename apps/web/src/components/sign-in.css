@@ -31,20 +31,24 @@
 }
 
 @media (min-width: 960px) {
+  /* The page is full: the photo runs the height of the window, the form sits in its middle. */
   .auth-layout {
     grid-template-columns: 1fr 1fr;
     gap: var(--space-48);
-    align-items: center;
+    align-items: stretch;
+    min-block-size: calc(100dvb - var(--space-120) - var(--space-48));
     margin-block-start: 0;
   }
 
   .auth-photo {
-    block-size: 36rem;
+    block-size: auto;
+    min-block-size: 36rem;
     margin: 0;
     border-radius: var(--radius-xl);
   }
 
   .auth-panel {
+    align-self: center;
     margin: 0;
   }
 }
@@ -203,9 +207,4 @@
   flex-wrap: wrap;
   gap: var(--space-4);
   justify-content: space-between;
-}
-
-/* The placeholder already shows the format; the hint below stays quiet. */
-.auth-field input:placeholder-shown ~ * {
-  opacity: 0.7;
 }

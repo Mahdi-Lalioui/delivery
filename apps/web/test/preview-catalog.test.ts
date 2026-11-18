@@ -148,3 +148,14 @@ test("serves a synthetic dish photo only for the associated menu item", async ()
     GET(request(dishPath.replace(dish.itemId, otherDish.itemId) + "/variants/webp/320")).status,
   ).toBe(404);
 });
+
+test("[AUTH-01] the preview answers like production for a signed-out visitor", async () => {
+  const methods = GET(request("auth/methods"));
+  expect(methods.status).toBe(200);
+  expect(await methods.json()).toEqual({ methods: ["phone", "email"] });
+  for (const path of ["me/identifiers", "me/sessions", "me/favourites"]) {
+    const response = GET(request(path));
+    expect(response.status).toBe(401);
+    expect(await response.text()).toContain('"code":"unauthenticated"');
+  }
+});
