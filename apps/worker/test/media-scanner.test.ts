@@ -1,31 +1,56 @@
-import { chmod, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { createServer, type Server } from "node:net";
 import { afterEach, expect, test } from "vitest";
-import { createClamScan } from "../src/media-scanner.js";
+import { createClamDScan } from "../src/media-scanner.js";
 
-const roots: string[] = [];
+let server: Server | undefined;
 const previousSecret = process.env.AWID_SCANNER_TEST_SECRET;
 
 afterEach(async () => {
   if (previousSecret === undefined) delete process.env.AWID_SCANNER_TEST_SECRET;
   else process.env.AWID_SCANNER_TEST_SECRET = previousSecret;
-  await Promise.all(roots.splice(0).map((root) => rm(root, { recursive: true, force: true })));
+  if (server?.listening) {
+    await new Promise<void>((resolve) => {
+      server?.close(() => {
+        resolve();
+      });
+    });
+  }
+  server = undefined;
 });
 
-test("[SECURITY] ClamAV child process does not inherit worker secrets", async () => {
+test("[SECURITY] sends only the upload bytes, never worker environment secrets", async () => {
   process.env.AWID_SCANNER_TEST_SECRET = "synthetic-worker-secret";
-  const root = await mkdtemp(join(tmpdir(), "awid-clamav-env-test-"));
-  roots.push(root);
-  const output = join(root, "inherited-environment");
-  const executable = join(root, "scanner");
-  await writeFile(
-    executable,
-    `#!/bin/sh\nprintf '%s' "\${AWID_SCANNER_TEST_SECRET-unset}" > '${output}'\n`,
-    { mode: 0o700 },
-  );
-  await chmod(executable, 0o700);
+  let received = Buffer.alloc(0);
+  server = createServer((socket) => {
+    let input = Buffer.alloc(0);
+    let commandRead = false;
+    socket.on("data", (data) => {
+      const chunk = typeof data === "string" ? Buffer.from(data) : data;
+      input = Buffer.concat([input, chunk]);
+      if (!commandRead) {
+        if (input.length < 10) return;
+        expect(input.subarray(0, 10).toString("binary")).toBe("zINSTREAM\0");
+        input = input.subarray(10);
+        commandRead = true;
+      }
+      while (input.length >= 4) {
+        const size = input.readUInt32BE(0);
+        if (input.length < size + 4) return;
+        input = input.subarray(4);
+        if (size === 0) {
+          socket.end(Buffer.from("stream: OK\0"));
+          return;
+        }
+        received = Buffer.concat([received, input.subarray(0, size)]);
+        input = input.subarray(size);
+      }
+    });
+  });
+  await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
+  const address = server.address();
+  if (address === null || typeof address === "string") throw new Error("No TCP address");
 
-  await expect(createClamScan(executable)(Buffer.from("synthetic image"))).resolves.toBe(true);
-  await expect(readFile(output, "utf8")).resolves.toBe("unset");
+  const upload = Buffer.from("synthetic image");
+  await expect(createClamDScan("127.0.0.1", address.port)(upload)).resolves.toBe(true);
+  expect(received).toEqual(upload);
 });

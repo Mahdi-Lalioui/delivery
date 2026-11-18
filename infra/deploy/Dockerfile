@@ -1,4 +1,9 @@
-FROM node:26.13.0-trixie-slim@sha256:5adad64f9a1fca2d51972caa65983634c8a774eb300d72b20f7f2a0f60368072 AS node
+FROM node:26.13.1-trixie-slim@sha256:e6bedef217677b276c591795e169840edd9096dbf13f29df8ef8d1856b8820bc AS node
+RUN apt-get update \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get install -y --no-install-recommends ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+
 FROM heic AS decoder
 
 FROM node AS build
@@ -27,9 +32,5 @@ COPY --from=build /app/packages ./packages
 COPY --from=decoder /usr/local/bin/zaafran-heic-decode /usr/local/bin/
 COPY --from=decoder /usr/local/lib/zaafran-heic /usr/local/lib/zaafran-heic
 COPY --from=decoder /usr/local/share/zaafran-heic /usr/local/share/zaafran-heic
-RUN apt-get update \
- && apt-get install -y --no-install-recommends ca-certificates clamav=1.4.3+dfsg-1 clamav-freshclam=1.4.3+dfsg-1 \
- && rm -rf /var/lib/apt/lists/* \
- && install -d -o node -g node -m 0700 /var/awid/media /var/lib/awid-clamav
-COPY infra/deploy/freshclam.conf /etc/awid-freshclam.conf
+RUN install -d -o node -g node -m 0700 /var/awid/media
 USER node

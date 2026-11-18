@@ -12,8 +12,13 @@ const workerEnvironment = z
   .object({
     DATABASE_URL: z.url({ protocol: /^postgres(?:ql)?$/ }),
     MEDIA_STORAGE_ROOT: z.string().refine(isAbsolute).default(defaultMediaStorageRoot),
-    CLAMSCAN_DATABASE: z.string().refine(isAbsolute).optional(),
-    CLAMSCAN_PATH: z.string().refine(isAbsolute).optional(),
+    CLAMD_HOST: z
+      .string()
+      .min(1)
+      .max(253)
+      .regex(/^[A-Za-z0-9.-]+$/u)
+      .optional(),
+    CLAMD_PORT: z.coerce.number().int().min(1).max(65535).optional(),
     HEIC_DECODER_PATH: z.string().refine(isAbsolute).optional(),
     ORDER_SMS_WEBHOOK_URL: z
       .url({ protocol: /^https$/u })
@@ -84,7 +89,11 @@ const workerEnvironment = z
       return count === 0 || count === 3;
     },
     { path: ["VAPID_PUBLIC_KEY"], message: "Set all VAPID variables or omit all three." },
-  );
+  )
+  .refine(({ CLAMD_HOST, CLAMD_PORT }) => Boolean(CLAMD_HOST) === Boolean(CLAMD_PORT), {
+    path: ["CLAMD_HOST"],
+    message: "Set both CLAMD_HOST and CLAMD_PORT or omit both.",
+  });
 
 export type WorkerEnvironment = z.output<typeof workerEnvironment>;
 
