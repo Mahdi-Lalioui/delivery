@@ -1,9 +1,14 @@
 import { expect, test } from "@playwright/test";
 import { publicFeedOutput } from "../packages/contracts/src/feed.ts";
+import { getMessages } from "../packages/i18n/src/messages.ts";
 import { withAuthHarness } from "./auth-fixture.ts";
 import { attachPageScreenshot } from "./visual.ts";
 
 const headings = { ar: "كل المطاعم", fr: "Tous les restaurants" } as const;
+const startLabels = {
+  ar: getMessages("ar").marketingLanding.start,
+  fr: getMessages("fr").marketingLanding.start,
+} as const;
 
 for (const locale of ["ar", "fr"] as const) {
   test(`[CUS-01:browser] ${locale} browses published restaurants and a cover without an account @discovery-feed`, async ({
@@ -33,11 +38,8 @@ for (const locale of ["ar", "fr"] as const) {
         const published = [...first.restaurants, ...next.restaurants];
         expect(new Set(published.map(({ merchantId }) => merchantId)).size).toBe(3);
         expect(published.map(({ name }) => name)).toContain(fixture.publishedName);
-        await page.goto(harness.origin + "/" + locale + "/discover");
-        await page
-          .getByRole("link")
-          .and(page.locator(`a[href="/${locale}/discover"]`))
-          .click();
+        await page.goto(harness.origin + "/" + locale);
+        await page.getByRole("link", { name: startLabels[locale] }).click();
         await expect(page).toHaveURL(harness.origin + "/" + locale + "/discover");
         const feed = page.getByRole("region", { name: headings[locale] });
         const results = feed.getByRole("list", { name: headings[locale] });
