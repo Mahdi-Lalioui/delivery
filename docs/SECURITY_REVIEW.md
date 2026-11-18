@@ -29,7 +29,10 @@ courier and administrator routes. All checks use synthetic data on local infrast
   quota, resend cooldown, HMAC storage, TOTP and upload reservations.
 - `pnpm audit --prod --audit-level high` passed after the D-035 scoped exception
   for `GHSA-fc5q-39xc-vjpf`; all other advisories remain blocking. Full
-  `pnpm verify` is pending the requested Lane B merge.
+  `pnpm verify` passed after Lane B was merged on 18 November: 55 tooling,
+  2,081 unit, 4 native and 349 PostgreSQL integration tests passed; lint,
+  typecheck, production build, OpenAPI, Knip, dependency-cruiser, audit and trace
+  also exited zero. Browser E2E remains separate from this verification script.
 - All six structured logger tests passed.
 - Local scanner pass on 18 November: Semgrep `p/security-audit` scanned 918
   first-party files with zero findings; TruffleHog found no verified secrets;
