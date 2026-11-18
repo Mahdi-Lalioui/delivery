@@ -484,3 +484,5 @@
   Next: add valid-session isolation regressions for courier actions, realtime topics and administrator routes; the missing local map extract is listed in HUMAN_TODO.
 - 2026-11-18 · Ultra · Added connected Postgres coverage for separate assigned, foreign and unassigned courier sessions. Jobs, positions, delivery attempts and pickup are tenant-scoped; denied writes stay unchanged. `courier-session.integration.test.ts` passed.
   Next: add valid-session realtime topic replay tests for foreign customers and restaurant owners.
+- 2026-11-18 · Ultra · Added connected-session realtime replay checks: owners and customers receive only their own topics; foreign merchant/customer sessions get 404 without order data. Focused integration test, typecheck and ESLint passed.
+  Next: add valid-session isolation regressions for administrator routes and pages.

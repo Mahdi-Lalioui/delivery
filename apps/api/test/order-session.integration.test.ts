@@ -95,7 +95,6 @@ test("[AUTH-06][MER-03] real standard session cookies reach the board only for m
     now: () => now,
     sendSms: () => undefined,
   });
-  let replayed = false;
   const api = createApi({
     checkReadiness: () => Promise.resolve(),
     auth: { service: auth, publicOrigin },
@@ -105,16 +104,19 @@ test("[AUTH-06][MER-03] real standard session cookies reach the board only for m
     orderActions: { repository, now: () => now },
     realtime: {
       async replay(scope) {
-        if (replayed) return undefined;
-        replayed = true;
-        return repository.merchantReplay(scope);
+        return scope.after === "0" ? repository.merchantReplay(scope) : undefined;
       },
-      replayOrder: repository.orderReplay,
+      async replayOrder(scope) {
+        return scope.after === "0" ? repository.orderReplay(scope) : undefined;
+      },
       subscribe(_merchantId, wake) {
         wake();
         return () => undefined;
       },
-      subscribeOrder: () => () => undefined,
+      subscribeOrder(_orderId, wake) {
+        wake();
+        return () => undefined;
+      },
     },
   });
   onTestFinished(() => api.close());
@@ -184,4 +186,23 @@ test("[AUTH-06][MER-03] real standard session cookies reach the board only for m
   });
   expect(stream.statusCode).toBe(200);
   expect(stream.body).toContain('"status":"accepted"');
+  const foreignMerchantStream = await api.inject({
+    url: "/v1/realtime?topic=merchantOrders&merchantId=" + merchantId + "&after=0",
+    headers: outsider.headers,
+  });
+  expect(foreignMerchantStream.statusCode).toBe(404);
+  expect(foreignMerchantStream.body).not.toContain(orderId);
+
+  const customerStream = await api.inject({
+    url: "/v1/realtime?topic=order&orderId=" + orderId + "&after=0",
+    headers: customer.headers,
+  });
+  expect(customerStream.statusCode).toBe(200);
+  expect(customerStream.body).toContain('"orderId":"' + orderId + '"');
+  const foreignCustomerStream = await api.inject({
+    url: "/v1/realtime?topic=order&orderId=" + orderId + "&after=0",
+    headers: outsider.headers,
+  });
+  expect(foreignCustomerStream.statusCode).toBe(404);
+  expect(foreignCustomerStream.body).not.toContain(orderId);
 });
