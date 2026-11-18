@@ -9,6 +9,7 @@ COPY . .
 RUN --mount=type=cache,target=/app/.pnpm-store \
     pnpm --filter @zaafran/api... --filter @zaafran/worker... install --frozen-lockfile \
  && pnpm -r --filter @zaafran/api... --filter @zaafran/worker... run build \
+ && rm -rf node_modules apps/*/node_modules packages/*/node_modules \
  && pnpm --filter @zaafran/api... --filter @zaafran/worker... install --prod --frozen-lockfile --offline
 
 FROM node AS runtime

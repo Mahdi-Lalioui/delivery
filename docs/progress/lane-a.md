@@ -492,5 +492,6 @@
 - 2026-11-18 · High · Re-ran `pnpm test:authz` (267/267, 42 suites) and `pnpm test:int` (348/348, 51 files) against local Postgres; route inventory and cross-tenant suites passed. [Evidence](../SECURITY_REVIEW.md#local-evidence).
 - 2026-11-18 · Ultra · Added a Postgres regression proving OTP sign-in replaces an attacker-chosen pre-auth cookie; 11 auth integration and 52 CSRF/header/auth transport tests pass. Input/injection review remains open. [Evidence](../SECURITY_REVIEW.md#session-fixation-and-browser-request-protections).
 - 2026-11-18 · High · Added a route/resource evidence map; it distinguishes 267 RBAC checks from 348 real-Postgres tests and records current RLS coverage. Route-by-route ownership coverage remains open. [Map](../evidence/awid/tenant-isolation.md).
-- 2026-11-18 · High · Removed unused npm/npx from both runtime images; image checks confirm Node and app entry points remain, npm/undici are gone, and Trivy counts fell to 47/144 high with one backend critical. [Review](../SECURITY_REVIEW.md#local-evidence).
-  Next: identify and apply available fixes for current Debian, ClamAV and app dependency CVEs, then rebuild and rescan both images.
+- 2026-11-18 · High · Runtime images now use a clean production-only backend install; image builds and package assertions passed, direct ESLint passed. Trivy: 47/143 high, one backend critical, zero secrets; `pnpm lint` stalled before lint at lockfile policy verification and was interrupted. [Review](../SECURITY_REVIEW.md#local-evidence).
+  Next: identify and apply available fixes for current Debian and ClamAV image CVEs, then rebuild and rescan both images.
+  Next: identify and apply available fixes for current Debian and ClamAV image CVEs, then rebuild and rescan both images.
