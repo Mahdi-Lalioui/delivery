@@ -1,44 +1,57 @@
-import { execFile } from "node:child_process";
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-import { promisify } from "node:util";
+import { connect } from "node:net";
 
 export type ScanMedia = (bytes: Buffer) => Promise<boolean>;
 
-const run = promisify(execFile);
+const chunkSize = 64 * 1024;
+const maximumReplySize = 16 * 1024;
+const unavailable = "Media scanner unavailable";
 
-export function createClamScan(executable: string, database?: string): ScanMedia {
-  return async (bytes) => {
-    const directory = await mkdtemp(join(tmpdir(), "awid-scan-"));
-    try {
-      const original = join(directory, "original");
-      await writeFile(original, bytes, { mode: 0o600 });
-      const verdict = await run(
-        executable,
-        [
-          "--no-summary",
-          "--stdout",
-          "--alert-exceeds-max=yes",
-          ...(database ? ["--database=" + database, "--fail-if-cvd-older-than=3"] : []),
-          original,
-        ],
-        {
-          timeout: 30_000,
-          maxBuffer: 16_384,
-          env: {},
-        },
-      ).then(
-        () => "clean",
-        (error: unknown) =>
-          typeof error === "object" && error !== null && "code" in error && error.code === 1
-            ? "flagged"
-            : "unavailable",
-      );
-      if (verdict === "unavailable") throw new Error("Media scanner unavailable");
-      return verdict === "clean";
-    } finally {
-      await rm(directory, { recursive: true, force: true });
-    }
-  };
+export function createClamDScan(host: string, port: number, timeoutMs = 30_000): ScanMedia {
+  return (bytes) =>
+    new Promise((resolve, reject) => {
+      const socket = connect({ host, port });
+      let response = Buffer.alloc(0);
+      let settled = false;
+
+      const fail = () => {
+        if (settled) return;
+        settled = true;
+        socket.destroy();
+        reject(new Error(unavailable));
+      };
+
+      socket.setTimeout(timeoutMs, fail);
+      socket.on("error", fail);
+      socket.on("connect", () => {
+        socket.write(Buffer.from("zINSTREAM\0"));
+        for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+          const chunk = bytes.subarray(offset, Math.min(offset + chunkSize, bytes.length));
+          const frame = Buffer.allocUnsafe(4 + chunk.length);
+          frame.writeUInt32BE(chunk.length, 0);
+          chunk.copy(frame, 4);
+          socket.write(frame);
+        }
+        socket.end(Buffer.alloc(4));
+      });
+      socket.on("data", (data) => {
+        const chunk = typeof data === "string" ? Buffer.from(data) : data;
+        if (response.length + chunk.length > maximumReplySize) {
+          fail();
+          return;
+        }
+        response = Buffer.concat([response, chunk]);
+      });
+      socket.on("end", () => {
+        if (settled) return;
+        settled = true;
+        const verdict = response.toString("utf8").replace(/\0+$/u, "").trim();
+        if (/^stream: OK$/u.test(verdict)) {
+          resolve(true);
+        } else if (/^stream: .+ FOUND$/u.test(verdict)) {
+          resolve(false);
+        } else {
+          reject(new Error(unavailable));
+        }
+      });
+    });
 }

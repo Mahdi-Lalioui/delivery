@@ -79,24 +79,34 @@ services:
       retries: 9
 
   clamav-signatures:
-    image: "awid-backend:${AWID_RELEASE_TAG:-local}"
+    image: "awid-clamav:${AWID_RELEASE_TAG:-local}"
+    build:
+      context: ..
+      dockerfile: infra/deploy/Dockerfile.clamav
+    platform: linux/amd64
     init: true
     read_only: true
     cap_drop: [ALL]
+    cap_add: [CHOWN, SETUID, SETGID]
     security_opt: [no-new-privileges:true]
     restart: unless-stopped
-    command: [freshclam, --daemon, --foreground, --config-file=/etc/awid-freshclam.conf]
+    environment:
+      CLAMAV_NO_CLAMD: "true"
+      CLAMAV_NO_MILTERD: "true"
+      FRESHCLAM_CHECKS: "12"
     tmpfs:
       - /tmp:mode=1777
+      - /run:mode=0755
+      - /var/log/clamav:uid=100,gid=101,mode=0755
     volumes:
-      - clamav-signatures:/var/lib/awid-clamav
+      - clamav-signatures:/var/lib/clamav
     networks: [signature-egress]
     healthcheck:
       test:
         [
           CMD,
           clamscan,
-          --database=/var/lib/awid-clamav,
+          --database=/var/lib/clamav,
           --fail-if-cvd-older-than=3,
           --no-summary,
           /etc/hostname,
@@ -105,6 +115,36 @@ services:
       timeout: 30s
       retries: 4
       start_period: 120s
+
+  clamav:
+    image: "awid-clamav:${AWID_RELEASE_TAG:-local}"
+    platform: linux/amd64
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    user: clamav
+    entrypoint: [/init-unprivileged]
+    environment:
+      CLAMAV_NO_FRESHCLAMD: "true"
+      CLAMAV_NO_MILTERD: "true"
+    tmpfs:
+      - /tmp:mode=1777
+      - /run:mode=0755
+      - /var/log/clamav:uid=100,gid=101,mode=0755
+    volumes:
+      - clamav-signatures:/var/lib/clamav:ro
+    networks: [scanner]
+    depends_on:
+      clamav-signatures:
+        condition: service_healthy
+    mem_limit: 4g
+    healthcheck:
+      test: [CMD, clamdscan, --ping=1, --config-file=/etc/clamav/clamd.conf]
+      interval: 30s
+      timeout: 10s
+      retries: 4
+      start_period: 180s
 
   worker:
     <<: *runtime
@@ -116,16 +156,15 @@ services:
       - "${AWID_WORKER_ENV_FILE:?Set AWID_WORKER_ENV_FILE}"
     environment:
       MEDIA_STORAGE_ROOT: /var/awid/media
-      CLAMSCAN_PATH: /usr/bin/clamscan
-      CLAMSCAN_DATABASE: /var/lib/awid-clamav
+      CLAMD_HOST: clamav
+      CLAMD_PORT: "3310"
       HEIC_DECODER_PATH: /usr/local/bin/zaafran-heic-decode
     volumes:
       - media:/var/awid/media
-      - clamav-signatures:/var/lib/awid-clamav:ro
     depends_on:
-      clamav-signatures:
+      clamav:
         condition: service_healthy
-    networks: [edge, data]
+    networks: [edge, data, scanner]
     healthcheck:
       test:
         - CMD
@@ -249,6 +288,8 @@ volumes:
 
 networks:
   signature-egress: {}
+  scanner:
+    internal: true
   data:
     internal: true
   tiles:

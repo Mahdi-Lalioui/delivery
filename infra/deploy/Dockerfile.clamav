@@ -1,0 +1,5 @@
+FROM clamav/clamav:1.5.4_base@sha256:fe043f7049c7931b8cb05a9738e2b7d1eb8045ae495ffee9f3bc43d88baadd83
+
+USER root
+RUN apk upgrade --no-cache \
+ && clamscan --version | grep -F "ClamAV 1.5.4"

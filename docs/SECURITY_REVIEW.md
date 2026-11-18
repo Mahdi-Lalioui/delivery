@@ -13,7 +13,7 @@ courier and administrator routes. All checks use synthetic data on local infrast
 | An unauthorized order action acquired a row lock before checking customer/restaurant access, allowing lock contention on another tenant's order. | Authorize against an unlocked snapshot, then lock and reauthorize before mutation. A real-session regression held the foreign order lock and confirmed the outsider received 404 before release. [Connected Postgres test](../apps/api/test/order-session.integration.test.ts) |
 | The media worker launched ClamAV with the worker's full environment, exposing database, delivery and push secrets to the scanner process. | ClamAV now runs with an empty environment. A regression launches a fake scanner with a synthetic secret in the parent and asserts the child cannot read it. [Worker test](../apps/worker/test/media-scanner.test.ts) |
 | Production runtime images inherited npm and development tooling, including vulnerable bundled packages, despite needing only Node and production dependencies. | Both runtime Dockerfiles remove npm/npx and assert they are absent while Node remains. The backend build removes workspace `node_modules` after compilation, installs production dependencies cleanly, and declares shared config lint/test tools as dev-only. Rebuilt images pass checks retaining their app entry points and excluding npm, test/lint tools, `undici` and app `picomatch`. |
-| The 17 November production audit now reports a new high ReDoS advisory in picomatch 4.0.7, pulled through Expo/Metro. The upstream advisory lists no patched release. | No safe upstream version is available to update to; the advisory is recorded and unsuppressed. The full verification run passed all prior stages, then failed at `pnpm audit --prod --audit-level high`. [Audit evidence](evidence/awid/dependency-audit-nov17.md) |
+| The 17 November production audit reported GHSA-fc5q-39xc-vjpf in build/test-only picomatch 4.0.7; upstream has no patched release. | Mahdi approved a single-GHSA scope exception in D-035. `pnpm audit --prod --audit-level high` passed with all other advisories still blocking; the runtime reachability analysis and recheck trigger are below. [Audit evidence](evidence/awid/dependency-audit-nov17.md) |
 
 ## Local evidence
 
@@ -27,9 +27,9 @@ courier and administrator routes. All checks use synthetic data on local infrast
 - `pnpm test:int apps/api/test/auth.integration.test.ts apps/api/test/media-reservation.integration.test.ts`
   passed 13 tests against PostGIS. It covers real phone and email OTP attempts, shared IP
   quota, resend cooldown, HMAC storage, TOTP and upload reservations.
-- `pnpm audit --prod --audit-level high` was rerun on 18 November and exited 1
-  with one high finding, `GHSA-fc5q-39xc-vjpf` in `picomatch@4.0.7`; upstream
-  still lists no patched version. `pnpm verify` remains blocked at audit.
+- `pnpm audit --prod --audit-level high` passed after the D-035 scoped exception
+  for `GHSA-fc5q-39xc-vjpf`; all other advisories remain blocking. Full
+  `pnpm verify` is pending the requested Lane B merge.
 - All six structured logger tests passed.
 - Local scanner pass on 18 November: Semgrep `p/security-audit` scanned 918
   first-party files with zero findings; TruffleHog found no verified secrets;
@@ -39,15 +39,18 @@ courier and administrator routes. All checks use synthetic data on local infrast
   two informational findings (missing `X-Permitted-Cross-Domain-Policies` and
   `Cross-Origin-Embedder-Policy`); required CSP/HSTS/COOP/CORP/X-Frame-Options
   remain covered by dedicated header tests.
-- Trivy filesystem scan found zero secrets, one high picomatch advisory across
-  two lockfile paths, one medium `:latest` Docker tag and three low missing
-  health checks. Fresh reports on final rebuilt images show web at 47 high / 94
-  medium / 65 low / 17 unknown and backend at 143 high / 1 critical / 162
-  medium / 139 low / 20 unknown; both have zero image secrets and neither
-  report includes `undici`, `picomatch`, or the moved config tooling. Backend
-  findings include Debian `libxml2` CVE-2026-6653 and ClamAV 1.4.3 advisories.
-  No findings were suppressed; these images are not release-ready while
-  high/critical findings remain.
+- Trivy 0.76.2 rescanned the rebuilt `awid-web`, `awid-backend`, and
+  `awid-clamav` images on 18 November with `--ignore-unfixed --scanners
+  vuln,secret`: zero high or critical findings and zero image secrets. The
+  patched Node base is pinned to the `node:26.13.1-trixie-slim` manifest digest;
+  both Debian images apply `apt-get upgrade` during build. The isolated scanner
+  image is pinned to ClamAV 1.5.4 and applies `apk upgrade`.
+- The companion unfiltered Trivy reports contain no fixed high/critical
+  versions for 11 unique CVEs in Debian 13.7 packages (46 package/CVE matches
+  per Node image); ClamAV has no reported vulnerabilities. These remaining
+  findings, package groups, runtime reachability limits and recheck date are
+  recorded below. They are not suppressed from the audit; no further image
+  changes are planned for them until a fixed Debian release appears.
 
 ## OTP abuse and delivery limits
 
@@ -123,8 +126,9 @@ sign-in continuation and absence of raw tokens in browser storage.
 
 An earlier audit reported all six then-known npm advisories cleared, and an
 earlier full workspace verification passed 2,059 unit and 337 PostGIS
-integration tests. The current 18 November audit has since found the high
-picomatch advisory recorded above, so dependency security is not cleared.
+integration tests. The current dependency audit passes with only the single
+scoped build/test-only exception recorded below; the full security review
+remains in progress.
 The focused browser run passed 30 checks across operator access, invitations
 and production routes.
 
@@ -257,20 +261,46 @@ apps/worker/test/logger.test.ts`; worker typecheck and ESLint also passed.
 
 ## Quarantined upload malware scanner
 
-The photo preparation worker can invoke ClamAV through an absolute
-`CLAMSCAN_PATH`. It scans the checksum-verified original before decoding
-or writing a preview. A flagged original is rejected and removed from
-quarantine. A scanner failure keeps the original private for automatic
-job retry. Both worker regressions failed before the change and then passed.
-The production image, signature updates and live scanner verification remain open.
+The photo preparation worker streams the checksum-verified original to a
+private ClamAV daemon using INSTREAM before decoding or writing a preview. A
+malware verdict rejects and removes the upload; a scanner failure keeps it
+private for automatic retry. The daemon has a separate `clamav/clamav:1.5.4`
+image and internal-only network; the Node runtime no longer contains ClamAV or
+its scanner tools. Five worker tests cover clean, malware, protocol error,
+timeout/unavailable daemon and exclusion of worker environment secrets. All
+five passed; production Compose configuration validation passed.
 
-The production backend image now includes ClamAV and CA certificates. The
-Compose updater downloaded and validated the signed daily, main and bytecode
-databases, then passed its health check. The complete backend image accepted a
-clean file, rejected the inert EICAR test marker and reported a missing
-database as an error with networking disabled. Compose configuration
-validation passed. The distro engine is 1.4.3 and FreshClam recommended
-1.4.6.
+The former integrated ClamAV 1.4.3 image and its CVE findings are superseded by
+the current pinned 1.5.4 image. The built production worker reached the
+production Compose daemon over its private scanner network: clean bytes were
+accepted and the inert EICAR marker was flagged, in addition to the five unit
+tests and worker typecheck. The older full-stack upload evidence below covers
+the upload pipeline before this scanner transport change.
+
+## Unfixed image findings (recheck 2026-12-18)
+
+Trivy 0.76.2 reports these 11 unique HIGH CVEs with no `FixedVersion` in the
+current Debian 13.7 web and backend images. Each listed package is present in
+both images. The affected utilities and libraries are not called by the
+Node.js app paths. Containers run as non-root and drop all Linux capabilities;
+there is no privileged mount or cgroup operation exposed to requests.
+
+| Package(s) | CVE | Why not reachable/exploitable in these images |
+| --- | --- | --- |
+| `bsdutils`, `libblkid1`, `liblastlog2-2`, `libmount1`, `libsmartcols1`, `libuuid1`, `login`, `mount`, `util-linux` | CVE-2026-76642 | External mount-helper post-hooks require invoking privileged mount behavior. The app never invokes mount helpers and containers lack `CAP_SYS_ADMIN`. |
+| same util-linux package set | CVE-2026-78408 | `nsenter --join-cgroup` is not used; app processes do not enter or move between cgroups and have no capabilities. |
+| same util-linux package set | CVE-2026-78409 | `X-mount.subdir` requires the vulnerable mount option path; no app feature configures mounts from user input. |
+| same util-linux package set | CVE-2026-78410 | Restricted bind-mount redirection requires mount configuration; containers expose no mount API and lack `CAP_SYS_ADMIN`. |
+| `libacl1` | CVE-2026-54369 | No application path calls libacl functions; request and upload code uses Node filesystem APIs without changing ACLs. |
+| `libsqlite3-0` | CVE-2026-119373 | The application uses PostgreSQL; production dependencies contain no SQLite driver and no user data is processed by SQLite FTS5. |
+| `libsqlite3-0` | CVE-2026-119374 | No SQLite FTS5 database or parser is used by API, worker, or web request paths. |
+| `libsqlite3-0` | CVE-2026-119379 | The app does not create or apply SQLite session changesets; persistence is PostgreSQL. |
+| `libsystemd0`, `libudev1` | CVE-2026-16742 | The containers do not run systemd/systemd-homed and the app does not call their local home-record interfaces. |
+| `libtinfo6`, `ncurses-base`, `ncurses-bin` | CVE-2025-69720 | Noninteractive Node services do not render terminal input or load ncurses/terminfo libraries. |
+| `perl-base` | CVE-2026-9538 | No Perl or tar process is invoked. Uploads accept validated raster images and the worker uses a dedicated image decoder, not Archive::Tar. |
+
+The recheck date is 2026-12-18, or earlier when Debian publishes a fixed
+Trixie package. No fix is claimed for these findings.
 
 The production Compose upload journey passed against the running local stack:
 a clean PNG was scanned, cropped, published in ten AVIF/WebP variants and
@@ -291,7 +321,7 @@ outbound-only.
 
 ## Audit exception: GHSA-fc5q-39xc-vjpf (picomatch ReDoS), 18 November 2026
 
-**Decision (Mahdi):** ignore this one advisory in `pnpm audit` instead of waiting for a patch. The exception is the `auditConfig.ignoreGhsas` entry in `pnpm-workspace.yaml`. `pnpm audit --prod --audit-level high` keeps failing on every other advisory.
+**Decision (Mahdi):** ignore this one advisory in `pnpm audit` instead of waiting for a patch. The exception is the `auditConfig.ignoreGhsas` entry in `pnpm-workspace.yaml`. `pnpm audit --prod --audit-level high` passed on 18 November with the exception; other high/critical advisories still fail the command.
 
 **Why it is safe:**
 - `picomatch` ≤ 4.0.7 can be slowed down (ReDoS) by a hostile glob pattern. No patched release exists yet.
