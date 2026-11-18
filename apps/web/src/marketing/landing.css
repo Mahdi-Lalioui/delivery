@@ -451,8 +451,9 @@
     padding-inline: var(--space-64);
   }
 
+  /* However many cards there are, they share the row: no empty end on wide screens. */
   .landing-carousel {
-    grid-auto-columns: calc((100% - 5 * var(--space-12)) / 6);
+    grid-auto-columns: minmax(0, 1fr);
     margin-inline: 0;
     padding-inline: 0;
   }

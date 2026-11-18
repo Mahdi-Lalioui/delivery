@@ -225,3 +225,16 @@ test("[CUS-07:web] a cart problem shows on the cart bar and panel, next to the a
     "restaurant-cart-notice",
   );
 });
+
+test("[CUS-07:web] most ordered never opens on a dish without a photo", async () => {
+  const { pickPopular } = await import("../src/restaurant/restaurant-screen");
+  const dish = (id: string, photoId: string | null) => ({
+    dish: { ...detail.item, itemId: id, photoId, tags: ["popular" as const] },
+    revision: 1,
+    categoryId: "c",
+  });
+  const ids = pickPopular([dish("bare", null), dish("shot", detail.item.photoId ?? "p")]).map(
+    (s) => s.dish.itemId,
+  );
+  expect(ids).toEqual(["shot", "bare"]);
+});

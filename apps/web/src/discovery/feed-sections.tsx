@@ -4,8 +4,8 @@ import type { Locale } from "@zaafran/i18n/locales";
 import { Icon } from "@zaafran/ui";
 import { useEffect, useId, useState } from "react";
 import { readFavourites } from "./favourites";
-import { FeedCard } from "./feed-card";
 import { readDiscoveryFeed, type FeedFilters, type FeedRestaurant } from "./feed-http";
+import { FeedCard, FeedPlate } from "./feed-card";
 import { getFeedMessages } from "./feed-messages";
 
 type ChipCuisine = keyof ReturnType<typeof getFeedMessages>["chipNames"];
@@ -25,6 +25,14 @@ const cuisinePhotos: readonly (readonly [ChipCuisine, string | null])[] = [
 
 function photoSrc(name: string, isSmall = true) {
   return `/preview-catalog/${name}${isSmall ? "-320" : ""}.webp`;
+}
+
+/** Rails lead with a photo: restaurants without a cover keep their order, after the others. */
+export function photographedFirst(restaurants: readonly FeedRestaurant[]): FeedRestaurant[] {
+  return [
+    ...restaurants.filter(({ coverMediaId }) => coverMediaId !== null),
+    ...restaurants.filter(({ coverMediaId }) => coverMediaId === null),
+  ];
 }
 
 export function CuisineChips({
@@ -55,9 +63,13 @@ export function CuisineChips({
                 onChange(cuisine);
               }}
             >
-              {photo === undefined || photo === null ? (
+              {photo === undefined ? (
                 <span className="discovery-cuisine-all" aria-hidden="true">
                   <Icon name="plate" size={26} />
+                </span>
+              ) : photo === null ? (
+                <span className="discovery-cuisine-plate" aria-hidden="true">
+                  <FeedPlate />
                 </span>
               ) : (
                 <img src={photoSrc(photo)} alt="" width="64" height="64" loading="lazy" />
@@ -198,7 +210,7 @@ export function FeedRail({
       Object.fromEntries(new URLSearchParams(query)),
     ).then((page) => {
       if (!controller.signal.aborted)
-        setState({ phase: "ready", restaurants: page?.restaurants ?? [] });
+        setState({ phase: "ready", restaurants: photographedFirst(page?.restaurants ?? []) });
     });
     return () => {
       controller.abort();

@@ -3,7 +3,7 @@ import { Badge, Icon } from "@zaafran/ui";
 import { localeDetails, type Locale } from "@zaafran/i18n/locales";
 import { formatAlgiersDate } from "@zaafran/i18n/formats";
 import { useLowData } from "../discovery/low-data";
-import { FeedMeta } from "../discovery/feed-card";
+import { FeedMeta, FeedPlate } from "../discovery/feed-card";
 import "../discovery/feed.css";
 import { getFeedCuisineLabel } from "../discovery/feed-messages";
 import { getRestaurantMessages } from "./restaurant-messages";
@@ -44,7 +44,7 @@ export function RestaurantHeader({ data, locale }: { data: Restaurant; locale: L
     <header className="restaurant-header">
       <div className="restaurant-cover" aria-hidden="true">
         <div className="restaurant-photo-placeholder">
-          <Icon name="plate" size={64} />
+          <FeedPlate />
         </div>
         {restaurant.coverMediaId !== null && !photoFailed && (
           <img

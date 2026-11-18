@@ -8,7 +8,7 @@ The branch is `lane-b`, merged with `origin/lane-a`. Every push below passed the
 
 ### Verdict
 
-The customer screens are ready for review, with no open accessibility, layout-shift or frame-rate gaps on the measured routes. The design critic's fourth round scored every screen between 8 and 9 out of 10, with ten of fifteen at 9. Each remaining point has a named reason: a product limit, or one of the six open defects listed below.
+The customer screens are ready for review, with no open accessibility, layout-shift or frame-rate gaps on the measured routes. The design critic's sixth round scored twelve of fifteen screens at 9. The other three are at 8.5, held back by named limits only. Each remaining point has a named reason: a product limit, or one of the six open defects listed below.
 
 The numbers are lab results on a Mac using lane A's throttled Android profile. They have not been confirmed on a physical Android phone.
 
@@ -22,27 +22,29 @@ The numbers are lab results on a Mac using lane A's throttled Android profile. T
 | Tap to paint | ≤ 72 ms. One exception: the favourite heart takes 112–128 ms when tapped within a second of switching to Pickup, while the map draws its first frame. It takes 32 ms otherwise. | same, [perf.md](evidence/awid/perf.md) |
 | Security review of lane B's diff | No findings. Browser storage holds no secrets, tokens, phone numbers or street addresses. | [security.md](evidence/awid/security.md) |
 
-### Design critic scores (round 4, weakest variant)
+### Design critic scores (round 6, weakest variant)
 
-A separate reviewer agent scored 15 screens in four variants: 390 px Arabic, 390 px French, 1280 px French and 390 px dark. It did not take part in building them. This is its fourth round; round 1 is shown for comparison. Motion is capped at 7 because still frames can't show it; the motion evidence is in [feel](evidence/awid/feel/README.md) and [perf.md](evidence/awid/perf.md).
+A separate reviewer agent scored 15 screens in four variants: 390 px Arabic, 390 px French, 1280 px French and 390 px dark. It did not take part in building them. Motion is capped at 7 because still frames can't show it.
 
 | Screen | Visual | UX | Motion | A11y | RTL | Overall | Round 1 | What holds it under 10 |
 |---|---|---|---|---|---|---|---|---|
-| Landing | 8 | 9 | 7 | 9 | 9 | 8.5 | 8 | Limit: the hero photo is a monument, not food (imagery pending) |
+| Landing | 9 | 9 | 7 | 9 | 9 | 9 | 8 | Motion only |
 | Discover | 9 | 9 | 7 | 9 | 9 | 9 | 7 | Motion only |
-| Pickup | 9 | 9 | 7 | 9 | 9 | 9 | 7 | Open (P2): a 1280 page ends on bare links, with no footer. Limit: the grid's last row depends on the data |
-| Restaurant | 9 | 9 | 7 | 9 | 9 | 9 | 7 | By design: later categories load as you scroll near them, so full-page captures show their skeletons |
+| Pickup | 9 | 9 | 7 | 9 | 9 | 9 | 7 | Motion only |
+| Restaurant | 9 | 9 | 7 | 9 | 9 | 9 | 7 | Motion only |
 | Sign-in | 8 | 8 | – | 9 | 9 | 8.5 | 7 | Limit: the preview build has no login backend |
 | Account | 8 | 9 | – | 9 | 9 | 8.5 | 7.5 | Limit: no login backend |
-| Checkout | 9 | 9 | 7 | 9 | 8 | 8.5 | 6.5 | Fixed after round 4: the stepper, summary heading and receipt sit at the same place on steps 1 and 3 (measured: identical pixel offsets). Limit: saved address labels such as "Maison" are the customer's own words |
+| Checkout | 9 | 9 | 7 | 9 | 9 | 9 | 6.5 | Motion only |
 | Payment | 9 | 9 | 7 | 9 | 9 | 9 | 7 | Motion only |
-| Confirmed | 7 | 9 | 7 | 9 | 9 | 8 | 8 | Open: the cloche drawing needs redrawing (illustration work) |
+| Confirmed | 9 | 9 | 7 | 9 | 9 | 9 | 8 | Motion only |
 | Tracking | 9 | 9 | 7 | 9 | 9 | 9 | 7 | Limit: the restaurant marker needs lane A's tracking data |
-| Waiting | 9 | 9 | 7 | 9 | 9 | 9 | 7 | Limit: same lane A dependency |
+| Waiting | 9 | 9 | 7 | 9 | 9 | 9 | 7 | Same lane A dependency |
 | Pickup tracking | 9 | 9 | 7 | 9 | 9 | 9 | 6 | Motion only |
 | Rating | 9 | 9 | 7 | 9 | 9 | 9 | 7 | Motion only |
 | Orders | 9 | 9 | 7 | 9 | 9 | 9 | 5.5 | Limit: letter logos until restaurants upload their own |
-| Operations gallery | 8 | 8 | – | 9 | 8 | 8.5 | 5 | Fixed after round 4: chevron markers on the section headers. Limit: lane A's screens shown in a dev gallery whose state switch is a dev tool. Lane A (P2): the overdue notice sits in a banner instead of on its invoice row |
+| Operations gallery | 8 | 8 | – | 9 | 8 | 8.5 | 5 | Limit: lane A screens in a dev gallery. Lane A (P2): the overdue notice should sit on its invoice row |
+
+Round 6 found nothing that got worse.
 
 Final contact sheets: [ar-390](evidence/awid/final/sheet-ar-390.jpg), [fr-390](evidence/awid/final/sheet-fr-390.jpg), [fr-1280](evidence/awid/final/sheet-fr-1280.jpg), [fr-390 dark](evidence/awid/final/sheet-fr-390-dark.jpg).
 

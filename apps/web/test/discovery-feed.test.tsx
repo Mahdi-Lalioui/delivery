@@ -173,3 +173,13 @@ test("[CUS-04] the pickup map keeps its box while pins load, so the list below n
   const html = renderToStaticMarkup(<PickupMap locale="fr" pins={[]} />);
   expect(html).toContain('class="pickup-map"');
 });
+
+test("[CUS-04] curated rails lead with photographed restaurants", async () => {
+  const { photographedFirst } = await import("../src/discovery/feed-sections");
+  const bare = { ...openRestaurant, merchantId: "bare", coverMediaId: null };
+  const shot = { ...openRestaurant, merchantId: "shot" };
+  expect(photographedFirst([bare, shot]).map(({ merchantId }) => merchantId)).toEqual([
+    "shot",
+    "bare",
+  ]);
+});

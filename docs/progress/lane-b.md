@@ -134,3 +134,12 @@
   Next: Mahdi runs "Real-phone check of the customer screens" in docs/HUMAN_TODO.md and records the numbers in docs/evidence/awid/perf.md. Lane B then fixes any route that fails, followed by the P2 Pickup footer.
 - 2026-11-17 · Pickup/Discovery now end on the real site footer, and the landing hero is credited catalogue food photography with 640/960/1600 sizes (`[MER-01:web]`, `[M8-1]` tests). Lane B took the Discovery LCP, Restaurant LCP, bundle budget and photo catalogue review items (docs/requests/lane-b-perf-handover.md). Connected baseline (`pnpm test:e2e:auth e2e/auth-customer-performance.spec.ts`, 3-restaurant fixture): Discovery LCP 1,916 / 1,772 / 1,760 ms, CLS 0, initial JS 337,145 B gzip. The Restaurant run hit the 90 s test timeout. Committed locally only: `pnpm verify` fails at `pnpm audit` on GHSA-fc5q-39xc-vjpf (picomatch ReDoS, no patched release, reached only through build tooling). Adding an audit exception was refused by the safety check and needs Mahdi's decision.
   Next: once Mahdi decides on GHSA-fc5q-39xc-vjpf, rerun `pnpm verify` and push. Then analyse the Discovery chunks to cut 337 KB toward the 180 KB SPEC budget, and rerun the Restaurant connected sample.
+- 2026-11-18 · Every customer route now ships under 180 KB of initial JS: 135–164 KB, enforced by `e2e/customer-bundle-budget.spec.ts`.
+  - Connected LCP: Discovery 1.49–1.63 s, Restaurant 1.44–1.48 s, CLS 0. READINESS lines ticked.
+  - Photos: the uncredited shawarma and pizza photos were removed. A test checks that every catalogue photo is credited, and every no-photo state uses the patterned plate artwork.
+  - The cloche is redrawn as a tagine.
+  - Critic round 6: 12 of 15 screens at 9, 3 at 8.5 on named limits.
+  - `pnpm audit:customer-a11y` 0/0/0; `pnpm perf:customer-feel` CLS 0 and 60 fps.
+  - `pnpm verify` passes every step except `pnpm audit` (GHSA-fc5q-39xc-vjpf; Mahdi chose to wait for a patch). All of this is committed locally only.
+
+  Next: once picomatch publishes a patched release, run `pnpm install`, `pnpm verify`, merge origin/lane-a and push lane-b. Then Mahdi sources the licensed photos listed in HUMAN_TODO.

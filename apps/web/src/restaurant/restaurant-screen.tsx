@@ -271,7 +271,12 @@ export function pickPopular(selections: readonly DishSelection[]): DishSelection
   const available = selections.filter(({ dish }) => dish.isAvailable);
   const tagged = available.filter(({ dish }) => dish.tags.includes("popular"));
   const rest = available.filter(({ dish }) => !dish.tags.includes("popular"));
-  const row = [...tagged, ...rest].slice(0, 6);
+  // Photographed dishes lead the row; a placeholder never opens it.
+  const withPhotoFirst = (list: readonly DishSelection[]) => [
+    ...list.filter(({ dish }) => dish.photoId !== null),
+    ...list.filter(({ dish }) => dish.photoId === null),
+  ];
+  const row = withPhotoFirst([...tagged, ...rest]).slice(0, 6);
   // Two is a row; one is a lone card. Two also fills the placeholder from the first category.
   return row.length >= 2 ? row : [];
 }

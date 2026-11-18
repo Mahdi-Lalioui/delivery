@@ -203,7 +203,7 @@ const grill: RestaurantSeed = {
   slug: "atelier-sidi-yahia",
   name: "L’Atelier Sidi Yahia",
   cuisines: ["grill", "sandwiches"],
-  cover: "grill-plate",
+  cover: "brochettes",
   feed: {
     pin: { latitude: 36.765, longitude: 3.051 },
     minimumOrderDzd: 800,

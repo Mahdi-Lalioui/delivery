@@ -640,6 +640,24 @@
   white-space: nowrap;
 }
 
+/* No licensed photo yet: the drawn plate, photo-sized, on the patterned mint of the covers. */
+.discovery-cuisine-plate {
+  display: grid;
+  place-items: center;
+  inline-size: var(--space-64);
+  block-size: var(--space-64);
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--color-mint-pale);
+  color: var(--color-accent-strong);
+  box-shadow: var(--shadow-e1);
+}
+
+.discovery-cuisine-plate .restaurant-feed-plate {
+  inline-size: 140%;
+  max-inline-size: none;
+}
+
 .discovery-cuisine-all {
   display: grid;
   place-items: center;

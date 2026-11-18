@@ -293,6 +293,17 @@
   background: var(--color-mint-pale);
   color: var(--color-accent-strong);
 }
+/* No photo: the zellige pattern and drawn plate of the restaurant cards, not a flat block. */
+.restaurant-dish-photo:not(:has(img)),
+.restaurant-cover:not(:has(img)) {
+  background-color: var(--color-mint-pale);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cpath d='M24 4 44 24 24 44 4 24Z' fill='none' stroke='%2300A37A' stroke-opacity='.25' stroke-width='2'/%3E%3C/svg%3E");
+  background-size: 48px;
+  color: var(--color-accent-strong);
+}
+.restaurant-photo-placeholder .restaurant-feed-plate {
+  inline-size: min(80%, calc(var(--space-120) + var(--space-64)));
+}
 .restaurant-photo-placeholder {
   display: grid;
   justify-items: center;
