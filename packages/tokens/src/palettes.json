@@ -42,7 +42,7 @@
     "on-night": "#FBF3E4",
     "sand": "#F1E2C4",
     "terracotta": "#B4512A",
-    "glow": "rgb(242 169 0 / 0.22)",
+    "glow": "rgb(255 176 72 / 0.30)",
     "zellige": "rgb(0 122 90 / 0.13)",
     "plaster": "rgb(255 250 240 / 0.72)"
   },
@@ -89,7 +89,7 @@
     "on-night": "#FBF3E4",
     "sand": "#1C3A2D",
     "terracotta": "#E8845A",
-    "glow": "rgb(255 196 87 / 0.16)",
+    "glow": "rgb(255 176 72 / 0.20)",
     "zellige": "rgb(77 227 180 / 0.09)",
     "plaster": "rgb(7 35 25 / 0.72)"
   }

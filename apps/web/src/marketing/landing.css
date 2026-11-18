@@ -356,8 +356,9 @@
   gap: var(--space-32);
   padding: var(--space-32) var(--space-24);
   border-radius: var(--radius-xl);
-  background: var(--color-primary);
-  color: var(--color-on-primary);
+  /* A night-garden band in both themes (primary turns mint in dark, which glared). */
+  background-color: var(--color-night);
+  color: var(--color-on-night);
 }
 
 .landing-pitch h2 {

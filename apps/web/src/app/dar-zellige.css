@@ -40,8 +40,8 @@ body::after {
 /* Lamp light: two soft saffron pools, like a courtyard lantern at dusk. */
 .decor-lamplight {
   background-image:
-    radial-gradient(60% 80% at 85% 0%, var(--color-glow), transparent 70%),
-    radial-gradient(45% 60% at 0% 100%, var(--color-glow), transparent 70%);
+    radial-gradient(38% 55% at 88% 0%, var(--color-glow), transparent 62%),
+    radial-gradient(30% 45% at 0% 100%, var(--color-glow), transparent 62%);
 }
 
 /* Ornamental divider: a thin line with a small star at its centre. */

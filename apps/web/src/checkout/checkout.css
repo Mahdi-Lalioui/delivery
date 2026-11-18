@@ -453,7 +453,7 @@
 
 /* Order confirmed: a full-screen celebration. */
 .checkout-confirmed {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cpath d='M28 4 52 28 28 52 4 28Z' fill='none' stroke='%234DE3B4' stroke-opacity='.07' stroke-width='2'/%3E%3C/svg%3E");
+  --decor-zellige-colour: rgb(242 169 0 / 0.14);
   position: fixed;
   z-index: 30;
   inset: 0;
@@ -463,8 +463,8 @@
   gap: var(--space-16);
   padding: var(--page-padding);
   overflow-y: auto;
-  background-color: var(--color-primary);
-  color: var(--color-on-primary);
+  background-color: var(--color-night);
+  color: var(--color-on-night);
   text-align: center;
 }
 
@@ -472,12 +472,25 @@
   position: absolute;
   z-index: -1;
   inset: 0;
-  background: radial-gradient(circle at 50% 45%, var(--color-primary) 30%, transparent 75%);
+  /* The lamp over the table: warm light pooling where the tagine sits. */
+  background: radial-gradient(circle at 50% 40%, var(--color-glow) 0%, transparent 55%);
   content: "";
 }
 
 .checkout-confirmed {
   isolation: isolate;
+}
+
+/* The eight-point zellige lattice in lantern gold (its own layer: this screen is fixed). */
+.checkout-confirmed::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background-color: var(--decor-zellige-colour);
+  mask-image: var(--decor-zellige);
+  mask-size: 64px;
+  pointer-events: none;
+  content: "";
 }
 
 /* The total rolls up into place whenever it changes (keyed re-mount). */
@@ -530,7 +543,8 @@
   inline-size: min(72vi, 42svh, 18rem);
   aspect-ratio: 1;
   border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--color-mint) 12%, transparent);
+  background: radial-gradient(circle, rgb(255 247 232 / 0.12), transparent 70%);
+  direction: ltr;
 }
 
 .checkout-confirmed-scene :is(.tagine-3d, .tagine-moment) {
@@ -774,4 +788,9 @@
 
 .checkout:has(.checkout-blocked) {
   max-inline-size: 72rem;
+}
+
+/* Quantities read as quantities: "2×", not a line number. */
+.checkout-qty::after {
+  content: "×";
 }

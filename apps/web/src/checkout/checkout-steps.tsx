@@ -116,7 +116,7 @@ function AddressList({ state }: { state: CheckoutState }) {
               state.setAddressId(address.addressId);
             }}
           />
-          <Icon name="home" size={20} />
+          <Icon name="pin" size={20} />
           <span>
             <strong>
               <bdi>{address.label}</bdi>
