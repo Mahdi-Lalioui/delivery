@@ -66,6 +66,11 @@ interface StoredOtp extends StoredIdentifier {
   readonly attempts: number;
 }
 
+interface OtpAccountBudget {
+  readonly userId: string;
+  readonly digest: Uint8Array;
+}
+
 type OtpAttemptResult =
   | (AuthIdentifier & { readonly kind: "verified"; readonly purpose: OtpPurpose })
   | { readonly kind: "invalid" | "locked" };
@@ -102,15 +107,38 @@ function bindingScope(sql: TransactionSql, binding: OtpBinding | undefined) {
     AND binding_session_id IS NOT DISTINCT FROM ${binding?.sessionId ?? null}::uuid`;
 }
 
+async function lockOtpAccount(sql: TransactionSql, userId: string): Promise<OtpAccountBudget> {
+  const [account] = await sql<{ digest: Uint8Array }[]>`
+    SELECT public.auth_otp_rate_digest('account', ${userId}::uuid::text) AS digest
+  `;
+  if (!account) throw new Error("Could not derive the OTP account rate key.");
+  await sql`
+    SELECT pg_advisory_xact_lock(63842, hashtext(encode(${account.digest}, 'hex')))
+  `;
+  return { userId, digest: account.digest };
+}
+
 async function findRetryAt(
   sql: TransactionSql,
   input: AuthIdentifier & Pick<OtpReservation, "requestIp" | "now">,
+  account?: OtpAccountBudget,
 ): Promise<Date | undefined> {
   const { now, requestIp } = input;
   const identifier = input.email ?? input.phoneE164;
   const channel = input.email === undefined ? "phone" : "email";
   const [limits] = await sql<{ retryAt: Date | null }[]>`
-    WITH identifier_requests AS (
+    WITH account_requests AS (
+      SELECT requested_at FROM (
+        SELECT requested_at FROM public.otp_challenges
+        WHERE binding_user_id = ${account?.userId ?? null}::uuid AND purpose = 'identifier_change'
+        UNION ALL
+        SELECT requested_at FROM public.auth_otp_rate_history
+        WHERE account_hash = ${account?.digest ?? null}
+      ) AS history
+      WHERE requested_at > ${now.toISOString()}::timestamptz - interval '24 hours'
+      ORDER BY requested_at DESC LIMIT 10
+    ),
+    identifier_requests AS (
       SELECT requested_at FROM (
         SELECT requested_at FROM public.otp_challenges
         WHERE ${identifierScope(sql, input)}
@@ -136,6 +164,8 @@ async function findRetryAt(
       (SELECT requested_at + interval '45 seconds' FROM identifier_requests ORDER BY requested_at DESC LIMIT 1),
       (SELECT requested_at + interval '15 minutes' FROM identifier_requests ORDER BY requested_at DESC OFFSET 2 LIMIT 1),
       (SELECT requested_at + interval '24 hours' FROM identifier_requests ORDER BY requested_at DESC OFFSET 9 LIMIT 1),
+      (SELECT requested_at + interval '15 minutes' FROM account_requests ORDER BY requested_at DESC OFFSET 2 LIMIT 1),
+      (SELECT requested_at + interval '24 hours' FROM account_requests ORDER BY requested_at DESC OFFSET 9 LIMIT 1),
       (SELECT requested_at + interval '1 hour' FROM ip_requests ORDER BY requested_at DESC OFFSET 19 LIMIT 1)
     ) AS "retryAt"
   `.parsers(timestampParsers);
@@ -143,47 +173,49 @@ async function findRetryAt(
   return retryAt && retryAt > now ? retryAt : undefined;
 }
 
+async function insertOtpChallenge(context: {
+  readonly sql: TransactionSql;
+  readonly input: OtpReservation;
+  readonly binding: OtpBinding | undefined;
+  readonly requestIp: string;
+}): Promise<ReservationResult> {
+  const { sql, input, binding, requestIp } = context;
+  const expiresAt = new Date(input.now.getTime() + otpLifetimeMs);
+  await sql`
+    INSERT INTO public.otp_challenges
+      (id, phone_e164, email, request_ip, purpose, code_hmac, idempotency_key_hash, requested_at, expires_at, binding_user_id, binding_session_id)
+    VALUES (${input.id}, ${input.phoneE164 ?? null}, ${input.email ?? null}, ${requestIp}::inet, ${input.purpose}, ${input.codeHmac}, ${input.idempotencyKeyHash}, ${input.now.toISOString()}, ${expiresAt.toISOString()}, ${binding?.userId ?? null}, ${binding?.sessionId ?? null})
+  `;
+  return {
+    kind: "created",
+    challenge: { id: input.id, expiresAt, resendAt: new Date(input.now.getTime() + resendMs) },
+  };
+}
+
 export async function reserveOtpChallenge(
   sql: TransactionSql,
   input: OtpReservation,
   binding?: OtpBinding,
 ): Promise<ReservationResult> {
-  const {
-    id,
-    phoneE164 = null,
-    email = null,
-    requestIp,
-    purpose,
-    codeHmac,
-    idempotencyKeyHash,
-    now,
-  } = input;
-  const { userId = null, sessionId = null } = binding ?? {};
-  // Acquire the identifier namespace before the IP namespace.
+  // Acquire the target identifier, account bucket, and IP namespaces in a fixed order.
   await lockOtpIdentifier(sql, input.email ?? input.phoneE164);
   const [receipt] = await sql<OtpReceipt[]>`
     SELECT id, purpose, requested_at AS "requestedAt", expires_at AS "expiresAt"
     FROM public.otp_challenges
-    WHERE ${identifierScope(sql, input)} AND idempotency_key_hash = ${idempotencyKeyHash}
+    WHERE ${identifierScope(sql, input)} AND idempotency_key_hash = ${input.idempotencyKeyHash}
       AND ${bindingScope(sql, binding)}
   `.parsers(timestampParsers);
-  if (receipt) return replayOtp(receipt, purpose);
+  if (receipt) return replayOtp(receipt, input.purpose);
 
-  const ip = await normalizeOtpIp(sql, requestIp);
+  const account =
+    input.purpose === "identifier_change" && binding
+      ? await lockOtpAccount(sql, binding.userId)
+      : undefined;
+  const ip = await normalizeOtpIp(sql, input.requestIp);
   await sql`SELECT pg_advisory_xact_lock(63841, hashtext(${ip}))`;
-  const retryAt = await findRetryAt(sql, { ...input, requestIp: ip });
+  const retryAt = await findRetryAt(sql, { ...input, requestIp: ip }, account);
   if (retryAt) return { kind: "rate_limited", retryAt };
-
-  const expiresAt = new Date(now.getTime() + otpLifetimeMs);
-  await sql`
-    INSERT INTO public.otp_challenges
-      (id, phone_e164, email, request_ip, purpose, code_hmac, idempotency_key_hash, requested_at, expires_at, binding_user_id, binding_session_id)
-    VALUES (${id}, ${phoneE164}, ${email}, ${ip}::inet, ${purpose}, ${codeHmac}, ${idempotencyKeyHash}, ${now.toISOString()}, ${expiresAt.toISOString()}, ${userId}, ${sessionId})
-  `;
-  return {
-    kind: "created",
-    challenge: { id, expiresAt, resendAt: new Date(now.getTime() + resendMs) },
-  };
+  return insertOtpChallenge({ sql, input, binding, requestIp: ip });
 }
 
 export interface OtpDelivery {

@@ -41,6 +41,13 @@ repository integration tests, including new cases for the 3-per-15-minute and
 caps and concurrency checks. See `apps/api/test/auth.integration.test.ts` and
 `packages/db/test/auth.integration.test.ts`.
 
+Signed-in identifier changes now share those same 3-per-15-minute and 10-per-day
+caps across an account's sessions, IPs and target identifiers. An advisory
+transaction lock serializes the account bucket; durable history stores only an
+HMAC account key and is preserved by challenge deletion and account erasure.
+The four-request, concurrent, pruning and deletion Postgres regressions passed;
+the focused auth and privacy integration files passed 48 tests.
+
 ## Upload validation
 
 On 13 November 2026, the focused media and logger run passed 44 tests. The

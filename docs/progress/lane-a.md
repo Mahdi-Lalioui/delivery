@@ -487,4 +487,5 @@
 - 2026-11-18 · Ultra · Connected Postgres admin moderation and all 267 authz checks passed; all 7 operator browser checks passed, including admin guest redirects in ar/fr/en. Realtime/admin results are in [security review](../SECURITY_REVIEW.md#realtime-and-administrator-session-isolation).
 - 2026-11-18 · Ultra · Fixed Caddy's local upstream-failure path: 502 keeps security headers and default logs drop request PII. New failure injection failed before and passed after; Caddy recovered healthy. [Evidence](../SECURITY_REVIEW.md#caddy-upstream-error-privacy).
 - 2026-11-18 · High · Production API/Caddy validation and parameterized Postgres error probes logged no synthetic PII; all three containers stayed healthy. `pnpm audit` still fails on the unpatched high picomatch advisory.
+- 2026-11-18 · Ultra · Account-wide identifier-change OTP caps now serialize across sessions, IPs and targets; HMAC history survives pruning/erasure. Auth/privacy Postgres integration passed 48 tests, DB typecheck and formatting passed; D-034 records the policy.
   Next: redact personal fields in worker logs and add worker logger regression tests.

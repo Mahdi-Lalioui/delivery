@@ -475,6 +475,48 @@ test("[CUS-24] preserves sign-in phone and IP throttles after removing old OTPs"
   });
 });
 
+test("[CUS-24] preserves hashed identifier-change account history when deleting an account", async () => {
+  const auth = createAuthRepository(database.get());
+  const repo = createPrivacyRepository(database.get());
+  const { sql } = database.get();
+  const account = await customer();
+
+  for (let index = 0; index < 3; index += 1) {
+    const requestedAt = at(index * 60);
+    const id = randomUUID();
+    expect(
+      await auth.transaction((tx) =>
+        tx.reserveIdentifierChange(
+          {
+            id,
+            email: `delete-history-${index.toString()}@example.test`,
+            requestIp: `198.51.100.${(index + 200).toString()}`,
+            codeHmac: digest(id),
+            idempotencyKeyHash: digest(`delete-history-key-${index.toString()}`),
+            now: requestedAt,
+          },
+          { userId: account.userId, sessionId: account.sessionId, now: requestedAt },
+        ),
+      ),
+    ).toMatchObject({ kind: "created" });
+  }
+
+  const deletion = challenge(account, "192.0.2.199");
+  await issueDelivered(deletion);
+  expect(await repo.deleteAccount({ ...deletion, now: at(299) })).toBe("deleted");
+
+  const [expected] = await sql<{ digest: Buffer }[]>`
+    SELECT public.auth_otp_rate_digest('account', ${account.userId}) AS digest
+  `;
+  if (expected === undefined) throw new Error("Missing account rate digest fixture");
+  const history = await sql<{ digest: Buffer }[]>`
+    SELECT account_hash AS digest FROM public.auth_otp_rate_history
+    WHERE account_hash = ${expected.digest}
+  `;
+  expect(history).toHaveLength(3);
+  expect(history.every((entry) => Buffer.compare(entry.digest, expected.digest) === 0)).toBe(true);
+});
+
 test("[CUS-24] queues erasure of unattached media and retains attached application records", async () => {
   const repo = createPrivacyRepository(database.get());
   const { sql } = database.get();
