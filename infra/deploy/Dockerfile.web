@@ -1,0 +1,20 @@
+FROM node:26.13.0-trixie-slim@sha256:5adad64f9a1fca2d51972caa65983634c8a774eb300d72b20f7f2a0f60368072 AS node
+
+FROM node AS build
+ENV CI=1
+WORKDIR /app
+RUN npm install --global --ignore-scripts pnpm@12.18.0
+COPY . .
+RUN --mount=type=cache,target=/app/.pnpm-store \
+    pnpm --filter @zaafran/web... install --frozen-lockfile \
+ && pnpm -r --filter @zaafran/web... run build
+
+FROM node AS runtime
+ENV NODE_ENV=production HOSTNAME=0.0.0.0 PORT=3000
+WORKDIR /app
+COPY --from=build --chown=node:node /app/apps/web/.next/standalone ./
+COPY --from=build --chown=node:node /app/apps/web/.next/static ./apps/web/.next/static
+COPY --from=build --chown=node:node /app/apps/web/public ./apps/web/public
+USER node
+EXPOSE 3000
+CMD ["node", "apps/web/server.js"]

@@ -479,4 +479,6 @@
 - 2026-11-17 · Ultra · Order actions now authorize an unlocked snapshot before acquiring the order row lock, then recheck after locking. The connected regression failed before and passed after. `pnpm verify` passed 2,061 unit and 342 Postgres tests, but stopped at audit on newly published, unpatched GHSA-fc5q-39xc-vjpf; [evidence](../evidence/awid/dependency-audit-nov17.md).
   Next: remove ClamAV's inherited process secrets and extend valid-session isolation coverage for courier actions, realtime topics and admin routes.
 - 2026-11-17 · Ultra · ClamAV now receives an empty process environment. A synthetic worker secret was visible to the fake scanner before the fix; the regression passed after. `pnpm exec vitest run --coverage.enabled=false apps/worker/test/media-scanner.test.ts` passed.
-  Next: extend valid-session isolation coverage for courier actions, realtime topics and admin routes; audit the production edge and runtime logs.
+  Next: add a Next.js standalone web image to production Compose, route web/API domains through Caddy with the existing CSP and headers, and prove the local production stack.
+- 2026-11-18 · Ultra · Added the standalone web service, same-origin Caddy routing, `www`→bare 308, CSP fallback and security headers; image built and local API/web checks passed. Full smoke reaches only the absent local map asset; [evidence](../evidence/awid/web-compose-local.md).
+  Next: add valid-session isolation regressions for courier actions, realtime topics and administrator routes; the missing local map extract is listed in HUMAN_TODO.

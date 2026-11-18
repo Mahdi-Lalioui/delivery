@@ -1,4 +1,6 @@
 import process from "node:process";
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import type { NextConfig } from "next";
 import { PHASE_DEVELOPMENT_SERVER } from "next/constants";
 import createNextIntlPlugin from "next-intl/plugin";
@@ -9,6 +11,7 @@ import {
 } from "./src/preview-settings.ts";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
+const workspaceRoot = resolve(fileURLToPath(new URL("../..", import.meta.url)));
 
 function apiDestination(development: boolean, demo: boolean) {
   return (
@@ -48,6 +51,8 @@ export default function config(phase: string): NextConfig {
 
   return withNextIntl({
     distDir: designBuild ? ".next-design" : ".next",
+    output: "standalone",
+    outputFileTracingRoot: workspaceRoot,
     env: { ZAAFRAN_DESIGN_ENABLED: includeDesign ? "1" : "0" },
     pageExtensions: includeDesign ? ["design.tsx", "tsx", "ts"] : ["tsx", "ts"],
     poweredByHeader: false,

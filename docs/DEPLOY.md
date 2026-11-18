@@ -1,6 +1,6 @@
 # Deploy AWID
 
-The backend runs as a pinned Docker Compose stack. Caddy terminates TLS and is the only service with published ports. API and worker share a private media volume. PostGIS, OSRM and Martin use private networks. The web runs on Vercel and calls the API and tiles through same-origin rewrites.
+AWID runs as a pinned Docker Compose stack on one server. Caddy terminates TLS and is the only service with published ports. It serves the Next.js standalone web container at `AWID_WEB_DOMAIN`, redirects `www.AWID_WEB_DOMAIN` to the bare domain, and serves the API at `AWID_API_HOST`. Browser API and tile requests use same-origin paths through Caddy. The web server uses the API host for server-side role checks. API and worker share a private media volume; PostGIS, OSRM and Martin use private networks.
 
 ## Backend server
 
@@ -14,6 +14,7 @@ The backend runs as a pinned Docker Compose stack. Caddy terminates TLS and is t
 ```dotenv
 AWID_RELEASE_TAG=<approved-git-sha>
 AWID_API_HOST=<dashed-ip>.sslip.io
+AWID_WEB_DOMAIN=<web-domain>
 AWID_MAP_DIRECTORY=/srv/awid/infra/data/maps
 AWID_POSTGRES_PASSWORD_FILE=/etc/awid/postgres-password
 AWID_DB_PASSWORD_FILE=/etc/awid/database-password
@@ -22,10 +23,12 @@ AWID_API_ENV_FILE=/etc/awid/api.env
 AWID_WORKER_ENV_FILE=/etc/awid/worker.env
 ```
 
-Run one command after installing the files.
+Create DNS A records for the API host, web domain and `www` web domain pointing to the server IP. Use a real domain for launch; `.sslip.io` is suitable only for an API-only smoke because the www name is derived from the configured web domain. Set the backend's `AUTH_PUBLIC_ORIGIN` to `https://<web-domain>`.
+
+Run one command after installing the files. It builds the API, worker and Next.js standalone images, migrates the database, starts the full stack and checks both public domains.
 
 ```sh
-/srv/awid/infra/deploy/deploy.sh /etc/awid/compose.env https://<api-host>
+/srv/awid/infra/deploy/deploy.sh /etc/awid/compose.env https://<api-host> https://<web-domain> https://www.<web-domain>
 ```
 
 The command validates Compose, builds the API and worker, waits for the data services, runs application and Graphile migrations, loads the public Algeria geography, starts Caddy, and checks TLS, API readiness, the 69 wilayas, a populated vector tile and the absence of a test route. The local-only restaurant seed stays outside this deployment command. Save the previous image tag and take an encrypted backup before deploying a database migration. Roll back by selecting the previous image only if it remains compatible with the migrated schema.
@@ -46,15 +49,9 @@ See [HUMAN_TODO](HUMAN_TODO.md) for provider setup.
 
 The API posts `{to, text}` with a bearer credential and an `Idempotency-Key` header. Accept the message once per key and return 2xx only after accepting it. Keys use `otp:` or `invite:` plus the server delivery ID. OTP and invitation retries send the same payload. Keep destination and message text out of gateway logs. Verify delivery using approved provider test numbers before enabling signup.
 
-## Vercel
+The web container has no published host port; requests enter through Caddy on the API and web domains. Caddy forwards `/v1/*`, health routes and vector tiles to their existing internal services, with all other web-domain paths proxied to Next.js. The Next.js proxy keeps its per-response nonce CSP and operator role checks. Caddy supplies the remaining security headers and a deny-all CSP fallback only when the upstream did not set one.
 
-In the `mahdi-2040` team, import `Mahdi-Lalioui/delivery` as a Next.js monorepo project. Set the Root Directory to `apps/web`, include files outside the Root Directory and use the Node LTS line supported by the repo. Keep the build command in [vercel.json](../apps/web/vercel.json). Set `ZAAFRAN_API_ORIGIN=https://<api-host>` in the target environment and use the stable web alias as the backend's `AUTH_PUBLIC_ORIGIN`. Leave `ZAAFRAN_PREVIEW_DEMO` unset on the connected environment. [Vercel monorepos](https://vercel.com/docs/monorepos) · [Vercel rewrites](https://vercel.com/docs/routing/rewrites)
-
-Deploy the Discovery and order history response changes with the matching web build. Older web
-bundles reject the new pickup, dietary and restaurant slug fields. For the first connected rollout,
-verify the API and the new web preview together before promoting the alias.
-
-Use a protected Preview with approved synthetic accounts before promotion. On the Vercel hostname, verify that the session cookie is host-only, Secure, HttpOnly, and sent on subsequent requests, and that unsafe cross-origin requests are rejected. Verify public and private media separately. Use an authenticated browser to verify first SSE event delivery, a heartbeat and reconnect replay through the rewrite. Caddy streams event responses without a response buffer. If the hosted rewrite buffers events, keep the client's polling fallback active and verify a same-origin streaming path before enabling live delivery for the pilot. Verify distinct clients get independent IP rate-limit buckets. [Caddy reverse proxy](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy)
+For the first connected rollout, verify the API and web images use the same release tag. Confirm the session cookie is host-only, Secure, HttpOnly, and sent on subsequent requests; unsafe cross-origin writes are rejected; public and private media are served separately; and authenticated SSE delivers its first event, heartbeat and replay after reconnect. Verify distinct clients get independent IP rate-limit buckets. Caddy streams event responses without response buffering. The deployment smoke checks the API and web, all security headers, the `www` redirect, the national catalog, a vector tile and absence of a test route.
 
 ## Encrypted nightly backups
 
@@ -92,7 +89,7 @@ Use `bash infra/deploy/test-restore-drill.sh` with `age` and `age-keygen` on the
 
 ## Local deployment evidence
 
-On a disposable Docker project, `deploy.sh` built the arm64 API and worker, ran migrations as the non-superuser role, and passed HTTPS smoke using the local Caddy CA. The check reached a nonempty tile from the national archive. An encrypted backup restored into a separate PostGIS database with 69 wilayas, 1,541 communes and no demo merchants, and the restored private media fixture matched byte-for-byte. The server timer and the Vercel forwarding checks remain staging tasks.
+The local production-like Compose stack built and started the standalone web image as a non-root, read-only container. HTTPS checks against Caddy verified the web domain, nonce CSP, required security headers, same-origin API forwarding and the 308 `www` redirect. The full deployment smoke remains blocked locally because `/private/tmp/awid-national-assets` has no Algeria PMTiles extract; Martin is healthy but the selected vector tile is absent. The API and worker deployment, migrations and encrypted restore evidence are recorded in [local operations](evidence/awid/local-operations.md). DNS, a real server and a complete map extract remain required for staging.
 
 ### Upload malware scanning
 
