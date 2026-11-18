@@ -19,3 +19,12 @@ SIL Open Font License notices came from the Google Fonts repository at
 [`86aced91de05cd4f96a06838124cca45be337b2b`](https://github.com/google/fonts/tree/86aced91de05cd4f96a06838124cca45be337b2b/ofl).
 The notices are in [licenses](./licenses/) with normalized line endings and
 trailing whitespace removed.
+
+## Dar Zellige display faces (18 November 2026)
+
+| File                                                                | Versioned source                                                                                                                             |
+| ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `fraunces-latin-{600,700}.woff2`, `fraunces-latin-600-italic.woff2` | `@fontsource/fraunces` (latest at download) `files/fraunces-latin-*.woff2`, SIL OFL 1.1, notice in `licenses/OFL-fraunces.txt`               |
+| `el-messiri-arabic-{600,700}.woff2`                                 | `@fontsource/el-messiri` (latest at download) `files/el-messiri-arabic-*-normal.woff2`, SIL OFL 1.1, notice in `licenses/OFL-el-messiri.txt` |
+
+They are served from the app like every other font: no runtime font requests leave the origin.

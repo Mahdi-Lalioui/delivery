@@ -38,6 +38,8 @@ const pairs: readonly ContrastPair<ColorToken>[] = [
   ["danger", "surface", 4.5],
   ["text", "mint-pale", 7],
   ["text", "cream", 4.5],
+  ["text", "sand", 4.5],
+  ["on-night", "night", 7],
   ["on-accent", "accent", 4.5],
   ["on-accent", "mint", 4.5],
   ["accent-strong", "bg", 3],
