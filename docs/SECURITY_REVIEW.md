@@ -209,6 +209,15 @@ image's parameterized `postgres` driver and verifies neither marker reaches the
 database log. The API/Caddy and Postgres scripts passed, and both containers
 were healthy afterward.
 
+## Worker log privacy
+
+The worker logger removes personal fields by normalized key at any object depth
+after Pino serialization, including free-form `address` values. The regression
+in `apps/worker/test/logger.test.ts` checks nested phone, email, address-object
+and address-string values while confirming safe metadata remains. It passed
+with `pnpm exec vitest run --coverage.enabled=false
+apps/worker/test/logger.test.ts`; worker typecheck and ESLint also passed.
+
 ## Quarantined upload malware scanner
 
 The photo preparation worker can invoke ClamAV through an absolute
