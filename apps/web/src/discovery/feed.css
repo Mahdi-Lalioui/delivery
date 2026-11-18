@@ -1491,3 +1491,44 @@
     transition: none;
   }
 }
+
+/* The list ends on a closing tile that fills its row exactly: never a ragged last row. */
+.restaurant-feed-closer {
+  --decor-zellige-colour: rgb(242 169 0 / 0.16);
+  display: grid;
+  gap: var(--space-12);
+  place-content: center;
+  justify-items: center;
+  min-block-size: 12rem;
+  padding: var(--space-24);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-night);
+  color: var(--color-on-night);
+  text-align: center;
+}
+
+.restaurant-feed-closer .ui-button {
+  min-block-size: var(--touch-target-min);
+  padding-inline: var(--space-24);
+  line-height: 1.2;
+}
+
+.restaurant-feed-closer p {
+  font: var(--font-weight-h2) var(--font-size-h2) / var(--line-height-h2) var(--font-display);
+}
+
+@media (min-width: 640px) and (max-width: 959px) {
+  .restaurant-feed-closer:nth-child(2n + 1) {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 960px) {
+  .restaurant-feed-closer:nth-child(3n + 1) {
+    grid-column: 1 / -1;
+  }
+
+  .restaurant-feed-closer:nth-child(3n + 2) {
+    grid-column: span 2;
+  }
+}

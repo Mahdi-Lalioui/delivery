@@ -38,7 +38,7 @@ export async function SignInPage({ locale, searchParams }: LocalizedSignInPagePr
         locale={localeDetails[locale].tag}
         messages={{ auth: getMessages(locale).auth }}
       >
-        <div className="auth-layout">
+        <div className="auth-layout decor-zellige decor-lamplight">
           <figure className="auth-photo" aria-hidden="true">
             <img src="/preview-catalog/chorba-table.webp" alt="" width="1600" height="1067" />
           </figure>

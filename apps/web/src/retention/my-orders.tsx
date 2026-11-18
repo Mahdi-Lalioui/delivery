@@ -42,6 +42,14 @@ const canReorder: ReadonlySet<Status> = new Set([
   "expired",
 ]);
 
+/** Orders still on their way lead the list; finished ones keep their date order below. */
+export function liveFirst(orders: readonly OrderSummary[]): OrderSummary[] {
+  return [
+    ...orders.filter(({ status }) => !canReorder.has(status)),
+    ...orders.filter(({ status }) => canReorder.has(status)),
+  ];
+}
+
 function Money({ amountDzd, locale }: { amountDzd: number; locale: Locale }) {
   return <bdi className="billing-money">{formatDzd(amountDzd, locale)}</bdi>;
 }
@@ -333,7 +341,7 @@ function History({ state, locale }: { state: MyOrdersState; locale: Locale }) {
   return (
     <>
       <ul className="review-list">
-        {history.orders.map((order) => (
+        {liveFirst(history.orders).map((order) => (
           <OrderCard key={order.orderId} order={order} state={state} locale={locale} />
         ))}
       </ul>

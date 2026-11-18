@@ -109,3 +109,12 @@ test("[CUS-21] a live order's primary action follows it, not orders it again", (
   expect(html).toContain(retentionOrders.follow);
   expect(html).not.toContain(retentionOrders.orderAgain);
 });
+
+test("[CUS-21] live orders come first, finished ones keep their order below", async () => {
+  const { liveFirst } = await import("../src/retention/my-orders");
+  const [first] = orders;
+  if (!first) throw new Error("fixture has an order");
+  const done = { ...first, orderId: "done", status: "delivered" as const };
+  const live = { ...first, orderId: "live", status: "out_for_delivery" as const };
+  expect(liveFirst([done, live]).map(({ orderId }) => orderId)).toEqual(["live", "done"]);
+});

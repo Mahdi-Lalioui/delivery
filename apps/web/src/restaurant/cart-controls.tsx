@@ -3,6 +3,7 @@ import { getCartSummary, removeCartLine, setCartQuantity } from "@zaafran/domain
 import { formatDzd } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
 import { Icon } from "@zaafran/ui";
+import { StateArt } from "../customer/state-art";
 import { CartContents } from "./cart-contents";
 import { CountingDzd } from "./counting-dzd";
 import { RestaurantDialog } from "./restaurant-dialog";
@@ -44,8 +45,8 @@ export function CartControls({
         <aside className="restaurant-cart-panel" aria-label={messages.panelTitle}>
           <CartNotice text={notice} />
           <h2>{messages.panelTitle}</h2>
-          <p className="restaurant-cart-panel-empty">
-            <Icon name="bag" size={32} />
+          <p className="restaurant-cart-panel-empty decor-zellige">
+            <StateArt kind="bag" />
             {messages.panelEmpty}
           </p>
         </aside>

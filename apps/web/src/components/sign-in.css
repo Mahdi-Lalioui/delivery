@@ -1,7 +1,13 @@
 /* A food photo band with the sign-in panel lifted over it. */
+/* Dar Zellige: sign-in is one full-height sand panel holding the photo and the form. */
 .auth-layout {
   display: grid;
+  align-content: start;
+  min-block-size: calc(100dvb - var(--space-120) - var(--space-32));
   margin-block-start: calc(-1 * var(--space-32));
+  margin-inline: calc(-1 * var(--page-padding));
+  padding-block-end: var(--space-32);
+  background-color: var(--color-sand);
 }
 
 .auth-photo {
@@ -37,7 +43,9 @@
     gap: var(--space-48);
     align-items: stretch;
     min-block-size: calc(100dvb - var(--space-120) - var(--space-48));
-    margin-block-start: 0;
+    margin: 0;
+    padding: var(--space-24);
+    border-radius: var(--radius-xl);
   }
 
   .auth-photo {

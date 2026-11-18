@@ -902,3 +902,10 @@
     block-size: 14rem;
   }
 }
+
+/* Wide screens: a few favourites share the card's width instead of leaving half of it empty. */
+@media (min-width: 1024px) {
+  .orders-favourites:not(:has(> li:nth-child(5))) {
+    grid-auto-columns: minmax(0, 1fr);
+  }
+}
