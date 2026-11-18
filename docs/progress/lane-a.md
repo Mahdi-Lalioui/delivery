@@ -485,4 +485,5 @@
 - 2026-11-18 · Ultra · Added connected Postgres coverage for separate assigned, foreign and unassigned courier sessions. Jobs, positions, delivery attempts and pickup are tenant-scoped; denied writes stay unchanged. `courier-session.integration.test.ts` passed.
   Next: add valid-session realtime topic replay tests for foreign customers and restaurant owners.
 - 2026-11-18 · Ultra · Connected Postgres admin moderation and all 267 authz checks passed; all 7 operator browser checks passed, including admin guest redirects in ar/fr/en. Realtime/admin results are in [security review](../SECURITY_REVIEW.md#realtime-and-administrator-session-isolation).
-  Next: audit SPEC §17 controls still open: CSRF, session fixation/revocation, sensitive-route limits, secrets and dependency findings; add regressions for each.
+- 2026-11-18 · Ultra · Fixed Caddy's local upstream-failure path: 502 keeps security headers and default logs drop request PII. New failure injection failed before and passed after; Caddy recovered healthy. [Evidence](../SECURITY_REVIEW.md#caddy-upstream-error-privacy).
+  Next: probe API and PostgreSQL production logs with synthetic PII markers, fix any leaks and add regression coverage.

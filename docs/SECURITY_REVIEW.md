@@ -177,6 +177,19 @@ operator browser suite passed all seven tests, including guest redirects for
 every admin page in Arabic, French and English and denial of a standard session
 before the admin dashboard renders.
 
+## Caddy upstream error privacy
+
+The local production stack initially returned a 502 without the shared security
+headers when the web upstream was unavailable. Caddy's runtime error record also
+included the original request URI, IP address, user agent and headers. A local
+failure regression now checks a synthetic marker in the query and headers. The
+5xx handler returns the original status with CSP, HSTS, frame denial, COOP/CORP
+and Permissions-Policy. The default structured logger removes request URI,
+headers, host and IP fields. The marker was absent after the fix, and the web
+container returned healthy after the test. `caddy validate` and
+`infra/deploy/test-caddy-failure.sh` passed. API and PostgreSQL log privacy
+checks remain open.
+
 ## Quarantined upload malware scanner
 
 The photo preparation worker can invoke ClamAV through an absolute
