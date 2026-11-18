@@ -155,6 +155,17 @@ of a separate restaurant receives 404 for the other tenant's board and
 acceptance command, and that another account receives 404 for the customer's
 tracking and receipt. The legitimate customer and merchant retain access.
 
+## Authenticated courier isolation
+
+The connected Postgres API regression creates separate valid standard sessions
+for a courier assigned to the order, a courier at another restaurant, and an
+active courier at the same restaurant with no assignment. Each jobs response
+contains only that courier's assigned deliveries. Foreign and unassigned
+position, delivery-attempt and pickup requests return 404; denied position and
+attempt writes leave no rows and denied pickup leaves the order at its original
+status and version. The assigned courier can post a position, start a delivery
+wait and pick up their order. `courier-session.integration.test.ts` passed.
+
 ## Quarantined upload malware scanner
 
 The photo preparation worker can invoke ClamAV through an absolute
