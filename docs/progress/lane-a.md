@@ -492,5 +492,5 @@
 - 2026-11-18 · High · Re-ran `pnpm test:authz` (267/267, 42 suites) and `pnpm test:int` (348/348, 51 files) against local Postgres; route inventory and cross-tenant suites passed. [Evidence](../SECURITY_REVIEW.md#local-evidence).
 - 2026-11-18 · Ultra · Added a Postgres regression proving OTP sign-in replaces an attacker-chosen pre-auth cookie; 11 auth integration and 52 CSRF/header/auth transport tests pass. Input/injection review remains open. [Evidence](../SECURITY_REVIEW.md#session-fixation-and-browser-request-protections).
 - 2026-11-18 · High · Added a route/resource evidence map; it distinguishes 267 RBAC checks from 348 real-Postgres tests and records current RLS coverage. Route-by-route ownership coverage remains open. [Map](../evidence/awid/tenant-isolation.md).
-- 2026-11-18 · High · Recorded local Semgrep, TruffleHog, Gitleaks, ClamAV, Nuclei and Trivy results. The running images are stale and have unresolved high/critical findings; no clean release claim. [Review](../SECURITY_REVIEW.md#local-evidence).
-  Next: rebuild production images from current source, triage their Trivy findings, and fix available high/critical advisories.
+- 2026-11-18 · High · Rebuilt web and backend production images from current source and rescanned: 54/151 high, one backend critical, zero embedded secrets. Release blocked on dependency/base-image fixes. [Review](../SECURITY_REVIEW.md#local-evidence).
+  Next: identify and apply available fixes for current image CVEs, then rebuild and rescan both images.

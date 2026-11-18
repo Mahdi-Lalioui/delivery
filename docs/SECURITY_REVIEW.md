@@ -40,12 +40,14 @@ courier and administrator routes. All checks use synthetic data on local infrast
   remain covered by dedicated header tests.
 - Trivy filesystem scan found zero secrets, one high picomatch advisory across
   two lockfile paths, one medium `:latest` Docker tag and three low missing
-  health checks. Trivy scans of the currently running web and backend images
-  found respectively 54 high / 106 medium / 66 low / 11 unknown and 151 high /
-  1 critical / 174 medium / 140 low / 14 unknown findings, with zero image
-  secrets. These images predate the current source/lockfile and are not release
-  evidence; rebuild from the current checkout, rescan, then triage every
-  remaining high/critical finding. No findings were suppressed.
+  health checks. Trivy scans of web and backend images rebuilt from the current
+  checkout found respectively 54 high / 106 medium / 66 low / 17 unknown and
+  151 high / 1 critical / 174 medium / 140 low / 20 unknown findings, with
+  zero image secrets. The backend findings include Debian `libxml2`
+  CVE-2026-6653 and ClamAV 1.4.3 advisories; both images also contain vulnerable
+  `undici` 6.28.0. No findings were suppressed. These builds are not
+  release-ready; resolve all available fixes and record upstream-blocked
+  findings explicitly.
 
 ## OTP abuse and delivery limits
 
