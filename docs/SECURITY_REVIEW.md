@@ -166,6 +166,17 @@ attempt writes leave no rows and denied pickup leaves the order at its original
 status and version. The assigned courier can post a position, start a delivery
 wait and pick up their order. `courier-session.integration.test.ts` passed.
 
+## Realtime and administrator session isolation
+
+Connected sessions can replay only their own merchant and customer order
+topics: the order-session integration test returns 404 without order data for
+a foreign restaurant owner and a different customer. The admin moderation
+integration test accepts a valid admin session and rejects a standard session.
+The route authorization suite passed all 267 checks across 42 suites, and the
+operator browser suite passed all seven tests, including guest redirects for
+every admin page in Arabic, French and English and denial of a standard session
+before the admin dashboard renders.
+
 ## Quarantined upload malware scanner
 
 The photo preparation worker can invoke ClamAV through an absolute

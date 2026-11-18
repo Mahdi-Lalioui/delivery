@@ -31,7 +31,7 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 
 ## Security
 
-- [ ] **Lane A** Review SPEC §17 and AGENTS §10. Cover every route in the authz matrix and verify customer and merchant isolation. Connected courier session isolation is recorded in [security review](SECURITY_REVIEW.md#authenticated-courier-isolation); realtime and admin coverage remain open.
+- [ ] **Lane A** Review SPEC §17 and AGENTS §10. Cover every route in the authz matrix and verify customer and merchant isolation. Connected courier, realtime and admin-session evidence is recorded in [security review](SECURITY_REVIEW.md#authenticated-courier-isolation) and [realtime/admin evidence](SECURITY_REVIEW.md#realtime-and-administrator-session-isolation); route-by-route customer and merchant isolation review remains open.
 - [x] **Lane A** Verify OTP enumeration resistance, attempt caps and SMS/email delivery limits by identifier and IP. [Connected auth and Postgres regressions](SECURITY_REVIEW.md#otp-abuse-and-delivery-limits) (8b1675c plus current lane-a test commit)
 - [x] **Lane A** Verify upload type, size, decompression limits and metadata stripping. [Upload validation evidence](SECURITY_REVIEW.md#upload-validation)
 - [ ] **Lane A** Verify input handling, CSRF, CSP and security headers, session fixation protections and revocation.
