@@ -8,12 +8,26 @@ import {
   type RatingLoad,
   type RatingSave,
 } from "./ratings-http";
+import { loadOrderHistory } from "./orders-http";
+
+/** Which order is being rated, in the diner's words: the restaurant and the order code. */
+export type RatedOrder = { restaurantName: string; shortCode: string };
+
+export function findRatedOrder(
+  orders: readonly { orderId: string; restaurantName: string; shortCode: string }[],
+  orderId: string,
+): RatedOrder | undefined {
+  const found = orders.find((order) => order.orderId === orderId);
+  return found && { restaurantName: found.restaurantName, shortCode: found.shortCode };
+}
 
 export type OrderRatingState = {
   view: RatingLoad | { kind: "loading" };
   outcome: RatingSave | undefined;
   isSaving: boolean;
   save: (draft: RatingDraft) => Promise<void>;
+  /** From the first page of history: ratings are for recent orders. Absent, the page stays generic. */
+  order?: RatedOrder | undefined;
 };
 
 function sameDraft(left: RatingDraft, right: RatingDraft): boolean {
@@ -29,6 +43,18 @@ export function useOrderRating(orderId: string, isDelivery: boolean): OrderRatin
   const [outcome, setOutcome] = useState<RatingSave>();
   const [isSaving, setIsSaving] = useState(false);
   const attempt = useRef<{ draft: RatingDraft; key: string }>(undefined);
+  const [order, setOrder] = useState<RatedOrder>();
+
+  useEffect(() => {
+    const controller = new AbortController();
+    void loadOrderHistory({ signal: controller.signal }).then((page) => {
+      if (!controller.signal.aborted && page.kind === "ready")
+        setOrder(findRatedOrder(page.orders, orderId));
+    });
+    return () => {
+      controller.abort();
+    };
+  }, [orderId]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -58,5 +84,5 @@ export function useOrderRating(orderId: string, isDelivery: boolean): OrderRatin
     [orderId, isDelivery],
   );
 
-  return { view, outcome, isSaving, save };
+  return { view, outcome, isSaving, save, order };
 }

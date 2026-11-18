@@ -128,12 +128,25 @@
   fill: var(--color-harissa);
 }
 
+/* The dish's rim reads as the opening the lid sits in. */
+.tagine-rim {
+  fill: var(--color-harissa-text);
+}
+
+.tagine-band {
+  fill: none;
+  stroke: var(--color-food-steam);
+  stroke-linecap: round;
+  stroke-width: 3;
+  opacity: 0.85;
+}
+
 .tagine-lid-knob {
-  fill: var(--color-primary);
+  fill: var(--color-food-saffron);
 }
 
 .tagine-lid {
-  transform-origin: 100px 128px;
+  transform-origin: 100px 140px;
   animation: tagine-lift var(--motion-emphasis) var(--ease-spring-bouncy) 200ms both;
 }
 

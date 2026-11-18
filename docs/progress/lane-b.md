@@ -109,3 +109,37 @@
   Next: Tracking 60 fps while loading. Options: check on a physical Android phone (Mahdi), or show the 3D street view only on request.
 - 2026-11-13 · Tracking 3D street view on tap (Mahdi's choice): the map stays flat, and a toggle tilts it to 55°. Tracking now scrolls at 59–60 fps with 0–1 % long frames; CLS is 0 and the slowest tap is 72 ms on all four routes. `[CUS-18]` went red, then green. `pnpm verify` exit 0. READINESS 60 fps line ticked. Evidence docs/evidence/awid/perf.md.
   Next: a physical Android check (Mahdi). Every lane B READINESS item is ticked.
+- 2026-11-17 · Final run: merged origin/lane-a (2e2ffeb, verify exit 0). Third-party skill installs and the SkillSpector scan were skipped: they download and run code from outside repositories, and that waits for Mahdi (docs/HUMAN_TODO.md). The security review of lane B found nothing (docs/evidence/awid/security.md); browser storage holds no secrets, tokens, phone numbers or addresses. UX law "next to the action": Restaurant cart errors moved from under the menu onto the cart bar and panel (`[CUS-07:web]` test). `pnpm verify` exit 0.
+  Next: check rails, empty gaps and one primary action at 390/1280 on customer and operator screens, then the design-critic scoring round.
+- 2026-11-17 · UX laws and critic round 1 fixes. Every rail ends on a partly cut-off card at 390 and 1280: the Arabic cuisine chips at 3.6 per row, desktop rails at 3.4 and 4.4, and the three collections filling the row. Favourite tiles no longer overlap. The Orders intro says "restaurants". Pickup tracking says "Prête depuis" with the ready time and has an "Itinéraire" link. Pickup cards drop the delivery fee. Checkout puts the total on "Continuer" and shows a sticky summary beside steps 1–2 at ≥1024 px. Pending timeline dots use `border-strong`. The pickup map keeps its box while pins load and when tiles fail, which fixed a 0.282 Discovery CLS. `pnpm perf:customer-feel` × 3: CLS 0 and 59–60 fps on all four routes. Taps are ≤ 72 ms, except the favourite heart at 136–152 ms when tapped while the pickup map builds its first frame (32 ms otherwise). `pnpm verify` exit 0.
+  Next: critic round 2 on fresh captures, then the lane B section of docs/RELEASE_REPORT.md.
+- 2026-11-17 · Critic rounds 2–3 and release report (cd85b2a). The Tracking map fills its column at 1280 and "Vue 3D" sits inside it. Cash quick amounts. "Suivre la commande" on live orders. "Itinéraire" is a 44 px pill. Short rails share the row. Sold-out dishes keep full text contrast. `pnpm audit:customer-a11y`: 0/0/0 on 60 route-variants. `pnpm perf:customer-feel` × 3: CLS 0, 60 fps on all four routes. Final critic scores 8–9 on every screen, with each remaining point named in docs/RELEASE_REPORT.md (lane B section). `pnpm verify` exit 0.
+  Next: fix the six open defects in docs/RELEASE_REPORT.md (Lane B → Design critic scores), starting with the Rating subtitle that names the restaurant and order, then the one-column payment step at 1280.
+- 2026-11-17 · Fixed the critic's six open defects:
+  - Rating names the restaurant and the order code (`[CUS-22]` test went red, then green).
+  - Payment keeps two columns at ≥ 1024 px.
+  - Restaurant's "most ordered" row shares the width at 1280.
+  - The address marker is the brand home pin.
+  - Pickup tracking without a map has no grab handle.
+  - Compact rail cards drop the clipped "Ouvre le" line.
+
+  `pnpm audit:customer-a11y` 0/0/0. `pnpm perf:customer-feel` × 3: CLS 0, 60 fps on all four routes. `pnpm verify` exit 0. Real-phone steps written in docs/HUMAN_TODO.md.
+  Next: Mahdi runs "Real-phone check of the customer screens" in docs/HUMAN_TODO.md and records the numbers in docs/evidence/awid/perf.md; lane B then fixes any route that fails.
+- 2026-11-17 · Critic round 4: every screen scores 8–9 and ten of fifteen score 9. Its one regression is fixed: at ≥ 1024 px the checkout stepper, summary heading and receipt now sit at the same pixel offsets on steps 1 and 3. The operations gallery headers use the icon set's chevron. Commands and results:
+  - `pnpm audit:customer-a11y`: 0/0/0.
+  - `pnpm perf:customer-feel` × 3: CLS 0 and 60 fps on all four routes; taps ≤ 72 ms except the known heart tap during the pickup map's first frame (112–128 ms).
+  - `pnpm verify`: exit 0.
+
+  docs/RELEASE_REPORT.md now holds the round 4 scores and fresh contact sheets.
+  Next: Mahdi runs "Real-phone check of the customer screens" in docs/HUMAN_TODO.md and records the numbers in docs/evidence/awid/perf.md. Lane B then fixes any route that fails, followed by the P2 Pickup footer.
+- 2026-11-17 · Pickup/Discovery now end on the real site footer, and the landing hero is credited catalogue food photography with 640/960/1600 sizes (`[MER-01:web]`, `[M8-1]` tests). Lane B took the Discovery LCP, Restaurant LCP, bundle budget and photo catalogue review items (docs/requests/lane-b-perf-handover.md). Connected baseline (`pnpm test:e2e:auth e2e/auth-customer-performance.spec.ts`, 3-restaurant fixture): Discovery LCP 1,916 / 1,772 / 1,760 ms, CLS 0, initial JS 337,145 B gzip. The Restaurant run hit the 90 s test timeout. Committed locally only: `pnpm verify` fails at `pnpm audit` on GHSA-fc5q-39xc-vjpf (picomatch ReDoS, no patched release, reached only through build tooling). Adding an audit exception was refused by the safety check and needs Mahdi's decision.
+  Next: once Mahdi decides on GHSA-fc5q-39xc-vjpf, rerun `pnpm verify` and push. Then analyse the Discovery chunks to cut 337 KB toward the 180 KB SPEC budget, and rerun the Restaurant connected sample.
+- 2026-11-18 · Every customer route now ships under 180 KB of initial JS: 135–164 KB, enforced by `e2e/customer-bundle-budget.spec.ts`.
+  - Connected LCP: Discovery 1.49–1.63 s, Restaurant 1.44–1.48 s, CLS 0. READINESS lines ticked.
+  - Photos: the uncredited shawarma and pizza photos were removed. A test checks that every catalogue photo is credited, and every no-photo state uses the patterned plate artwork.
+  - The cloche is redrawn as a tagine.
+  - Critic round 6: 12 of 15 screens at 9, 3 at 8.5 on named limits.
+  - `pnpm audit:customer-a11y` 0/0/0; `pnpm perf:customer-feel` CLS 0 and 60 fps.
+  - `pnpm verify` passes every step except `pnpm audit` (GHSA-fc5q-39xc-vjpf; Mahdi chose to wait for a patch). All of this is committed locally only.
+
+  Next: once picomatch publishes a patched release, run `pnpm install`, `pnpm verify`, merge origin/lane-a and push lane-b. Then Mahdi sources the licensed photos listed in HUMAN_TODO.

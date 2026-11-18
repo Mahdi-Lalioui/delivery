@@ -196,9 +196,11 @@ function RestaurantLoaded({
       <p className="restaurant-announcement" role="status">
         {announcement}
       </p>
-      {cartError && <p role="alert">{messages.cartError}</p>}
-      {basket.storageFailed && <p role="alert">{messages.storageError}</p>}
-      <CartControls basket={basket} locale={locale} />
+      <CartControls
+        basket={basket}
+        locale={locale}
+        notice={cartNotice(cartError, basket, messages)}
+      />
       {selected !== null && (
         <ItemDialog
           key={selected.dish.itemId}
@@ -252,6 +254,15 @@ function RestaurantLoaded({
  * Menu categories load as the diner scrolls near them, so only the first one is guaranteed:
  * hold the popular row's space until that one arrives, never until every category has.
  */
+function cartNotice(
+  cartError: boolean,
+  basket: { storageFailed: boolean },
+  messages: { cartError: string; storageError: string },
+): string | undefined {
+  if (cartError) return messages.cartError;
+  return basket.storageFailed ? messages.storageError : undefined;
+}
+
 export function isPopularPending(query: string, loadedCategories: number): boolean {
   return query.trim() === "" && loadedCategories === 0;
 }
@@ -260,7 +271,12 @@ export function pickPopular(selections: readonly DishSelection[]): DishSelection
   const available = selections.filter(({ dish }) => dish.isAvailable);
   const tagged = available.filter(({ dish }) => dish.tags.includes("popular"));
   const rest = available.filter(({ dish }) => !dish.tags.includes("popular"));
-  const row = [...tagged, ...rest].slice(0, 6);
+  // Photographed dishes lead the row; a placeholder never opens it.
+  const withPhotoFirst = (list: readonly DishSelection[]) => [
+    ...list.filter(({ dish }) => dish.photoId !== null),
+    ...list.filter(({ dish }) => dish.photoId === null),
+  ];
+  const row = withPhotoFirst([...tagged, ...rest]).slice(0, 6);
   // Two is a row; one is a lone card. Two also fills the placeholder from the first category.
   return row.length >= 2 ? row : [];
 }

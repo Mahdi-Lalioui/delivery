@@ -276,8 +276,13 @@
   background: var(--color-surface);
   box-shadow: var(--shadow-e1);
 }
-.restaurant-dish[data-sold-out="true"] {
-  opacity: 0.6;
+/* Sold out: the photo fades and turns grey; the text keeps full contrast and the badge says why. */
+.restaurant-dish[data-sold-out="true"] .restaurant-dish-photo {
+  opacity: 0.5;
+  filter: grayscale(1);
+}
+.restaurant-dish[data-sold-out="true"] .restaurant-price {
+  text-decoration: line-through;
 }
 .restaurant-dish-photo {
   position: relative;
@@ -287,6 +292,17 @@
   overflow: hidden;
   background: var(--color-mint-pale);
   color: var(--color-accent-strong);
+}
+/* No photo: the zellige pattern and drawn plate of the restaurant cards, not a flat block. */
+.restaurant-dish-photo:not(:has(img)),
+.restaurant-cover:not(:has(img)) {
+  background-color: var(--color-mint-pale);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cpath d='M24 4 44 24 24 44 4 24Z' fill='none' stroke='%2300A37A' stroke-opacity='.25' stroke-width='2'/%3E%3C/svg%3E");
+  background-size: 48px;
+  color: var(--color-accent-strong);
+}
+.restaurant-photo-placeholder .restaurant-feed-plate {
+  inline-size: min(80%, calc(var(--space-120) + var(--space-64)));
 }
 .restaurant-photo-placeholder {
   display: grid;
@@ -951,6 +967,10 @@ body:has(.restaurant-cart-bar) .customer-tabs {
   .restaurant-popular-list {
     grid-auto-columns: calc((100% - 2 * var(--space-12)) / 3);
   }
+  /* Two or three dishes share the row instead of leaving it half empty. */
+  .restaurant-popular-list:not(:has(> li:nth-child(4))) {
+    grid-auto-columns: minmax(0, 1fr);
+  }
   .restaurant-popular-card .restaurant-dish-photo {
     aspect-ratio: 16 / 9;
   }
@@ -1140,4 +1160,14 @@ body:has(.restaurant-cart-bar) .customer-tabs {
 
 .restaurant-popular[data-pending="true"] .restaurant-popular-card {
   cursor: default;
+}
+
+/* Cart problems sit on the cart bar and panel, next to the action, never under the menu. */
+.restaurant-cart-notice {
+  margin: 0 0 var(--space-8);
+  padding: var(--space-8) var(--space-12);
+  border-radius: var(--radius-md);
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  font-size: var(--font-size-label);
 }

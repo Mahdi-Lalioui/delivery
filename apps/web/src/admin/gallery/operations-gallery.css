@@ -16,8 +16,12 @@
   padding-block-end: var(--space-16);
 }
 
+/* The icon set's chevron replaces the browser's default ▼ marker and turns when open. */
 .operations-gallery > details > summary {
-  align-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  list-style: none;
   min-block-size: var(--touch-target-min);
   color: var(--color-text);
   font-weight: var(--font-weight-label);
@@ -26,4 +30,30 @@
 
 .operations-gallery > details[open] > summary {
   margin-block-end: var(--space-12);
+}
+
+.operations-gallery > details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.operations-gallery > details > summary svg {
+  transform: rotate(90deg);
+  transition: transform var(--motion-fast) var(--ease-standard);
+}
+
+.operations-gallery > details[open] > summary svg {
+  transform: rotate(-90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .operations-gallery > details > summary svg {
+    transition: none;
+  }
+}
+
+/* Gallery state switch: whole words only, never "Attent/e". */
+.billing-kpis .ui-segment-face {
+  overflow-wrap: normal;
+  word-break: keep-all;
+  font-size: var(--font-size-caption);
 }

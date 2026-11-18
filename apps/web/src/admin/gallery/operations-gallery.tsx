@@ -1,6 +1,7 @@
 "use client";
 
 import type { Locale } from "@zaafran/i18n/locales";
+import { Icon } from "@zaafran/ui";
 import type { AdminOrderPage } from "../orders/orders-http";
 import { OrderList } from "../orders/admin-orders-screen";
 import type { Jobs } from "../../courier/courier-http";
@@ -79,16 +80,25 @@ export function OperationsGallery({
 }) {
   return (
     <div className="operations-gallery">
-      <details>
-        <summary>{labels.merchant}</summary>
+      <details open>
+        <summary>
+          {labels.merchant}
+          <Icon name="chevron" size={20} />
+        </summary>
         <BoardColumns board={board} locale={locale} offline refresh={noop} />
       </details>
-      <details>
-        <summary>{labels.courier}</summary>
+      <details open>
+        <summary>
+          {labels.courier}
+          <Icon name="chevron" size={20} />
+        </summary>
         <CourierJob job={courier} locale={locale} offline refresh={noop} />
       </details>
-      <details>
-        <summary>{labels.admin}</summary>
+      <details open>
+        <summary>
+          {labels.admin}
+          <Icon name="chevron" size={20} />
+        </summary>
         <OrderList page={adminPage} selected={orderId} locale={locale} onSelect={noop} />
       </details>
     </div>

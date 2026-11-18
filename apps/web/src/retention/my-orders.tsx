@@ -5,6 +5,7 @@ import { formatDzd } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
 import {
   Badge,
+  ButtonLink,
   Button,
   Card,
   EmptyState,
@@ -280,6 +281,11 @@ function OrderCard({
         >
           {translate(isReceiptOpen ? "hideReceipt" : "receipt")}
         </Button>
+        {!canReorder.has(order.status) && (
+          <ButtonLink variant="primary" icon="bike" href={`/${locale}/orders/${order.orderId}`}>
+            {translate("follow")}
+          </ButtonLink>
+        )}
         {canReorder.has(order.status) && (
           <Button
             variant="primary"

@@ -195,3 +195,13 @@ test("[CUS-18] the tracking map stays flat until the diner asks for the 3D stree
   expect(cameraPitch(false)).toBe(0);
   expect(cameraPitch(true)).toBe(55);
 });
+
+test("[CUS-18] pickup says when the order became ready and links directions to the restaurant", async () => {
+  const { readySince, directionsUrl } = await import("../src/tracking/pickup-details");
+  const at = "2026-11-12T19:52:00.000Z";
+  expect(readySince([{ status: "placed", at: "2026-11-12T19:40:00.000Z" }])).toBeUndefined();
+  expect(readySince([{ status: "ready", at }])).toBe(at);
+  const url = new URL(directionsUrl({ latitude: 36.7538, longitude: 3.0588 }));
+  expect(url.origin).toBe("https://www.openstreetmap.org");
+  expect(url.searchParams.get("route")).toBe(";36.7538,3.0588");
+});

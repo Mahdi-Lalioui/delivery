@@ -151,11 +151,11 @@ export const photoCredits = [
   },
   {
     file: "/preview-catalog/bourek.webp",
-    title: "Bourek laadjine.jpg",
-    author: "Waran18",
+    title: "Bourek in Libya.jpg",
+    author: "NAWARAH ALI FARAJ",
     licence: "CC BY-SA 4.0",
     licenceUrl: "https://creativecommons.org/licenses/by-sa/4.0",
-    source: "https://commons.wikimedia.org/wiki/File:Bourek_laadjine.jpg",
+    source: "https://commons.wikimedia.org/wiki/File:Bourek_in_Libya.jpg",
   },
   {
     file: "/preview-catalog/brochettes.webp",
@@ -175,11 +175,11 @@ export const photoCredits = [
   },
   {
     file: "/preview-catalog/chorba.webp",
-    title: "Harira..JPG",
-    author: "Miansari66",
-    licence: "CC0",
-    licenceUrl: "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
-    source: "https://commons.wikimedia.org/wiki/File:Harira..JPG",
+    title: "Chorba frik algerienne.jpg",
+    author: "Slothtysloth",
+    licence: "CC BY-SA 4.0",
+    licenceUrl: "https://creativecommons.org/licenses/by-sa/4.0",
+    source: "https://commons.wikimedia.org/wiki/File:Chorba_frik_algerienne.jpg",
   },
   {
     file: "/preview-catalog/grill-plate.webp",
@@ -199,11 +199,11 @@ export const photoCredits = [
   },
   {
     file: "/preview-catalog/karantika.webp",
-    title: "Farinata di ceci 01.jpg",
-    author: "Alessio Sbarbaro User_talk:Yoggysot",
+    title: "Calentita.jpg",
+    author: "Gibmetal77",
     licence: "CC BY-SA 3.0",
     licenceUrl: "https://creativecommons.org/licenses/by-sa/3.0",
-    source: "https://commons.wikimedia.org/wiki/File:Farinata_di_ceci_01.jpg",
+    source: "https://commons.wikimedia.org/wiki/File:Calentita.jpg",
   },
   {
     file: "/preview-catalog/msemen-griddle.webp",
@@ -220,5 +220,21 @@ export const photoCredits = [
     licence: "CC BY-SA 3.0",
     licenceUrl: "https://creativecommons.org/licenses/by-sa/3.0",
     source: "https://commons.wikimedia.org/wiki/File:Smen_msemmen.jpg",
+  },
+  {
+    file: "/preview-catalog/pizza.webp",
+    title: "Margherita Originale.JPG",
+    author: "Mario56",
+    licence: "CC BY-SA 3.0",
+    licenceUrl: "https://creativecommons.org/licenses/by-sa/3.0",
+    source: "https://commons.wikimedia.org/wiki/File:Margherita_Originale.JPG",
+  },
+  {
+    file: "/preview-catalog/chawarma.webp",
+    title: "Handmade Chicken Shawarma Wrap - Lavash.jpg",
+    author: "Andy Li",
+    licence: "CC0",
+    licenceUrl: "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    source: "https://commons.wikimedia.org/wiki/File:Handmade_Chicken_Shawarma_Wrap_-_Lavash.jpg",
   },
 ] as const;

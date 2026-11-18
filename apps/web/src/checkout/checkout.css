@@ -139,7 +139,8 @@
   gap: var(--space-16);
 }
 
-.checkout-step h2 {
+.checkout-step h2,
+.checkout-aside h2 {
   font: var(--font-weight-h2) var(--font-size-h2) / var(--line-height-h2) var(--font-display);
 }
 
@@ -640,4 +641,112 @@
   outline: var(--focus-ring-width) solid var(--color-focus);
   outline-offset: var(--focus-ring-offset);
   border-radius: var(--radius-sm);
+}
+
+/* Desktop: the order summary fills the end column beside steps 1 and 2. */
+.checkout-aside {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .checkout:has(.checkout-aside) {
+    grid-template-columns: minmax(0, 1fr) 22rem;
+    column-gap: var(--space-32);
+    align-items: start;
+    max-inline-size: 64rem;
+  }
+
+  .checkout:has(.checkout-aside) > :not(.checkout-aside) {
+    grid-column: 1;
+  }
+
+  /*
+   * Step 3 uses the same page grid as steps 1–2: the stepper stays in the start column and the
+   * summary heading sits at the top of the end column. The step's own wrappers dissolve
+   * (display: contents) so the heading and receipt become items of the page grid.
+   */
+  .checkout:has(.checkout-payment-step) {
+    grid-template-columns: minmax(0, 1fr) 22rem;
+    column-gap: var(--space-32);
+    align-items: start;
+    max-inline-size: 64rem;
+  }
+
+  .checkout:has(.checkout-payment-step) > *,
+  .checkout-payment-step > * {
+    grid-column: 1;
+  }
+
+  .checkout-body:has(.checkout-payment-step),
+  .checkout-payment-step {
+    display: contents;
+  }
+
+  /* ".checkout" in front: the minifier merges the start-column rule into a stronger :is(). */
+  .checkout .checkout-payment-step > h2 {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  /* Starts under the heading by the heading's height, exactly as in the steps 1–2 aside. */
+  .checkout .checkout-payment-step > .checkout-receipt {
+    position: sticky;
+    inset-block-start: var(--space-24);
+    grid-column: 2;
+    grid-row: 1 / span 5;
+    margin-block-start: calc(var(--line-height-h2) + var(--space-20));
+  }
+
+  .checkout-aside {
+    display: grid;
+    position: sticky;
+    inset-block-start: var(--space-24);
+    grid-column: 2;
+    grid-row: 1 / span 4;
+    gap: var(--space-20);
+  }
+}
+
+/* Quick cash amounts: chips above the field, the chosen one filled. */
+.checkout-tender-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+}
+
+.checkout-tender-chip {
+  min-block-size: var(--touch-target-min);
+  padding-inline: var(--space-16);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: var(--font-weight-label);
+  cursor: pointer;
+  transition: transform var(--motion-fast) var(--ease-spring-snappy);
+}
+
+.checkout-tender-chip:active {
+  transform: scale(0.96);
+}
+
+.checkout-tender-chip[aria-pressed="true"] {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.checkout-tender-chip:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* The amount box stays compact; its label, hint and error use the card's full width. */
+.checkout-cash .ui-field-money {
+  max-inline-size: none;
+}
+
+.checkout-cash .ui-field-money .ui-input-box {
+  max-inline-size: 10rem;
 }

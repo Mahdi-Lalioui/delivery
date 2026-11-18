@@ -1,4 +1,4 @@
-import { photoRatios } from "@zaafran/contracts/media";
+import { photoRatios } from "@zaafran/contracts/media-constants";
 import type { Crop, PhotoKind } from "./media-photo-http";
 
 type Dimensions = { width: number; height: number };

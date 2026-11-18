@@ -8,13 +8,11 @@ import { NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { orderRatingOutput } from "@zaafran/contracts/ratings";
-import { CustomerTabBar } from "../customer/tab-bar";
 import { SiteShell } from "../components/site-shell";
 import "../admin/admin-merchant.css";
 import "../admin/billing/admin-billing.css";
 import { MerchantReviews } from "./merchant-reviews";
 import { MerchantAnalytics } from "./analytics/analytics-views";
-import { MyOrders } from "./my-orders";
 import { PrivacyScreen } from "./privacy/privacy-screen";
 import { OrderRating } from "./order-rating";
 import { PromotionsEditor } from "./promotions-editor";
@@ -126,27 +124,6 @@ export function SharePage({ merchantId, locale }: { merchantId: string; locale: 
           />
         </ToastProvider>
       </NextIntlClientProvider>
-    </SiteShell>
-  );
-}
-
-export async function ordersMetadata(locale: Locale): Promise<Metadata> {
-  const translate = await getTranslations({ locale, namespace: "retentionOrders" });
-  return { title: translate("title"), robots: { index: false, follow: false } };
-}
-
-export function MyOrdersPage({ locale }: { locale: Locale }) {
-  return (
-    <SiteShell locale={locale} subpath="/orders">
-      <NextIntlClientProvider
-        locale={localeDetails[locale].tag}
-        timeZone="Africa/Algiers"
-        messages={{ retentionOrders: getMessages(locale).retentionOrders }}
-      >
-        <MyOrders locale={locale} />
-      </NextIntlClientProvider>
-      {/* Orders is a tab: keep the tab bar, as Home, Search and Profile do. */}
-      <CustomerTabBar locale={locale} current="orders" />
     </SiteShell>
   );
 }

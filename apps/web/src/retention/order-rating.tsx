@@ -175,7 +175,15 @@ export function OrderRatingView({
         <h1 id="order-rating-title" className="ui-page-title">
           {translate("title")}
         </h1>
-        <p className="ui-page-intro">{translate("intro")}</p>
+        {state.order === undefined ? (
+          <p className="ui-page-intro">{translate("intro")}</p>
+        ) : (
+          <p className="ui-page-intro rating-order">
+            <bdi>{state.order.restaurantName}</bdi>
+            <span className="rating-order-dot" aria-hidden="true" />
+            <bdi dir="ltr">{state.order.shortCode}</bdi>
+          </p>
+        )}
       </header>
       {view.kind === "loading" && <Skeleton label={translate("loading")} lines={5} />}
       {view.kind === "ready" && (

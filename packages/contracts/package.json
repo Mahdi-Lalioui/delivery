@@ -36,6 +36,10 @@
       "types": "./src/health.ts",
       "default": "./dist/health.js"
     },
+    "./media-constants": {
+      "types": "./src/media-constants.ts",
+      "default": "./dist/media-constants.js"
+    },
     "./media": {
       "types": "./src/media.ts",
       "default": "./dist/media.js"
