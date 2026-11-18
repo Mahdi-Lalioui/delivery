@@ -1,11 +1,23 @@
 "use client";
 
 import type { Locale } from "@zaafran/i18n/locales";
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import type { SavedDiscoveryLocation } from "./location";
-import { LocationDialog } from "./location-dialog";
 import { getDiscoveryMessages } from "./messages";
 import "./discovery-location.css";
+
+// The dialog (and the map and catalogue it needs) is not part of Discovery's first load.
+// It starts downloading as soon as the diner reaches for the pill (hover, focus or touch),
+// so it is usually ready by the time the tap lands.
+const loadDialog = () => import("./location-dialog");
+const LocationDialog = dynamic(() => loadDialog().then((module) => module.LocationDialog), {
+  ssr: false,
+});
+
+function preloadDialog() {
+  void loadDialog();
+}
 
 export function DiscoveryLocationSelector({
   locale,
@@ -58,6 +70,9 @@ function LocationPill({
       type="button"
       className="discovery-location-pill"
       aria-haspopup="dialog"
+      onPointerEnter={preloadDialog}
+      onPointerDown={preloadDialog}
+      onFocus={preloadDialog}
       onClick={onOpen}
     >
       <span className="discovery-location-emblem" aria-hidden="true">

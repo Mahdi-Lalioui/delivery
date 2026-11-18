@@ -1,10 +1,13 @@
-import {
+import type {
   customerFavouritesOutput,
-  customerFavouriteWriteOutput,
   customerOrderHistoryOutput,
   customerOrderReceiptOutput,
   customerReorderOutput,
 } from "@zaafran/contracts/retention";
+
+// Schemas load on use, not in the Orders page's first scripts (NFR-02).
+const loadContracts = () => import("@zaafran/contracts/retention");
+type Contracts = Awaited<ReturnType<typeof loadContracts>>;
 
 // CUS-21 / CUS-23 client on lane A's retention contract. Routes follow
 // docs/requests/lane-b-retention-admin.md and run on MSW until lane A stores orders.
@@ -25,7 +28,7 @@ const requestOptions = {
 
 async function read<T>(
   path: string,
-  parse: (body: unknown) => T | undefined,
+  parse: (body: unknown) => Promise<T | undefined>,
   init: RequestInit = {},
 ): Promise<{ kind: "ready"; data: T } | Failure> {
   try {
@@ -33,18 +36,20 @@ async function read<T>(
     if (response.status === 401 || response.status === 403) return { kind: "sign-in" };
     if (response.status === 404) return { kind: "not-found" };
     if (!response.ok) return { kind: "error" };
-    const data = parse(await response.json());
+    const data = await parse(await response.json());
     return data === undefined ? { kind: "error" } : { kind: "ready", data };
   } catch {
     return { kind: "error" };
   }
 }
 
-function parser<T>(schema: {
-  safeParse: (body: unknown) => { success: true; data: T } | { success: false };
-}) {
-  return (body: unknown) => {
-    const result = schema.safeParse(body);
+function parser<T>(
+  pick: (contracts: Contracts) => {
+    safeParse: (body: unknown) => { success: true; data: T } | { success: false };
+  },
+) {
+  return async (body: unknown) => {
+    const result = pick(await loadContracts()).safeParse(body);
     return result.success ? result.data : undefined;
   };
 }
@@ -57,7 +62,7 @@ export async function loadOrderHistory(input: {
   if (input.cursor !== undefined) query.set("cursor", input.cursor);
   const result = await read(
     `/v1/me/orders?${query.toString()}`,
-    parser(customerOrderHistoryOutput),
+    parser((contracts) => contracts.customerOrderHistoryOutput),
     input.signal ? { signal: input.signal } : {},
   );
   if (result.kind !== "ready") return result;
@@ -74,7 +79,10 @@ function orderPath(orderId: string, suffix: string): string {
 export async function loadReceipt(
   orderId: string,
 ): Promise<{ kind: "ready"; receipt: Receipt } | Failure> {
-  const result = await read(orderPath(orderId, "receipt"), parser(customerOrderReceiptOutput));
+  const result = await read(
+    orderPath(orderId, "receipt"),
+    parser((contracts) => contracts.customerOrderReceiptOutput),
+  );
   if (result.kind !== "ready") return result;
   return result.data.orderId === orderId
     ? { kind: "ready", receipt: result.data }
@@ -87,10 +95,14 @@ export async function reorder(input: {
   merchantId: string;
   key: string;
 }): Promise<{ kind: "ready"; reorder: Reorder } | Failure> {
-  const result = await read(orderPath(input.orderId, "reorder"), parser(customerReorderOutput), {
-    method: "POST",
-    headers: { "Idempotency-Key": input.key },
-  });
+  const result = await read(
+    orderPath(input.orderId, "reorder"),
+    parser((contracts) => contracts.customerReorderOutput),
+    {
+      method: "POST",
+      headers: { "Idempotency-Key": input.key },
+    },
+  );
   if (result.kind !== "ready") return result;
   return result.data.draft.merchantId === input.merchantId
     ? { kind: "ready", reorder: result.data }
@@ -102,7 +114,7 @@ export async function loadFavourites(
 ): Promise<{ kind: "ready"; restaurants: Favourite[] } | Failure> {
   const result = await read(
     "/v1/me/favourites",
-    parser(customerFavouritesOutput),
+    parser((contracts) => contracts.customerFavouritesOutput),
     signal ? { signal } : {},
   );
   return result.kind === "ready" ? { kind: "ready", restaurants: result.data.restaurants } : result;
@@ -115,7 +127,7 @@ export async function setFavourite(
 ): Promise<{ kind: "saved" } | Failure> {
   const result = await read(
     `/v1/me/favourites/${encodeURIComponent(merchantId)}`,
-    parser(customerFavouriteWriteOutput),
+    parser((contracts) => contracts.customerFavouriteWriteOutput),
     { method: isFavourite ? "PUT" : "DELETE" },
   );
   if (result.kind !== "ready") return result;

@@ -1,4 +1,4 @@
-import { photoRatios } from "@zaafran/contracts/media";
+import { photoRatios } from "@zaafran/contracts/media-constants";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { cropRegion } from "./crop-region";

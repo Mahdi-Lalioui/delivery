@@ -1,10 +1,8 @@
 import { getMaghribCountdownMs } from "@zaafran/domain/ramadan";
-import {
-  customerSlotsOutput,
-  customerSlotsQuery,
-  ramadanTodayOutput,
-  ramadanTodayQuery,
-} from "@zaafran/contracts/scheduling";
+import type { customerSlotsOutput, customerSlotsQuery } from "@zaafran/contracts/scheduling";
+
+// Schemas load on use, not in the checkout and home first scripts (NFR-02).
+const loadContracts = () => import("@zaafran/contracts/scheduling");
 
 // CUS-13 / HRS-02 / HRS-03 slot loading and grouping, plus the Maghrib countdown.
 
@@ -22,6 +20,7 @@ const algiersDate = new Intl.DateTimeFormat("en-CA", {
 });
 
 export async function loadSlots(query: SlotsQuery, signal?: AbortSignal): Promise<SlotsLoad> {
+  const { customerSlotsOutput, customerSlotsQuery } = await loadContracts();
   const parsed = customerSlotsQuery.safeParse(query);
   if (!parsed.success) return { kind: "error" };
   const params = new URLSearchParams(Object.entries(parsed.data));
@@ -80,6 +79,7 @@ export async function loadRamadanToday(
   communeId: string,
   signal?: AbortSignal,
 ): Promise<RamadanToday> {
+  const { ramadanTodayOutput, ramadanTodayQuery } = await loadContracts();
   const query = ramadanTodayQuery.safeParse({ communeId });
   if (!query.success) return { kind: "error" };
   try {

@@ -1,8 +1,11 @@
-import { addressInput, addressListOutput, addressOutput } from "@zaafran/contracts/addresses";
-import type { orderPlacementWithContactInput, orderQuoteInput } from "@zaafran/contracts/orders";
-import { problemResponseSchema } from "@zaafran/contracts/health";
-import { orderQuoteOutput, orderSummary } from "@zaafran/contracts/orders";
-import { quotePromotionRejectionCode } from "@zaafran/contracts/promotions";
+import type { addressInput, addressOutput } from "@zaafran/contracts/addresses";
+import type {
+  orderPlacementWithContactInput,
+  orderQuoteInput,
+  orderQuoteOutput,
+  orderSummary,
+} from "@zaafran/contracts/orders";
+import type { quotePromotionRejectionCode } from "@zaafran/contracts/promotions";
 import type { Cart } from "@zaafran/domain/cart";
 
 // CUS-13 / CUS-14 / ORD-01 checkout client on lane A's published order and address contracts
@@ -15,6 +18,17 @@ export type PlacedOrder = ReturnType<typeof orderSummary.parse>;
 type QuoteInput = ReturnType<typeof orderQuoteInput.parse>;
 type Placement = ReturnType<typeof orderPlacementWithContactInput.parse>;
 
+// Schemas load on use, not in the checkout page's first scripts (NFR-02).
+async function loadContracts() {
+  const [addresses, health, orders, promotions] = await Promise.all([
+    import("@zaafran/contracts/addresses"),
+    import("@zaafran/contracts/health"),
+    import("@zaafran/contracts/orders"),
+    import("@zaafran/contracts/promotions"),
+  ]);
+  return { ...addresses, ...health, ...orders, ...promotions };
+}
+
 export type Fulfilment = { fulfilment: "pickup" } | { fulfilment: "delivery"; addressId: string };
 export type Timing = QuoteInput["timing"];
 export type AddressLoad = { kind: "ready"; addresses: Address[] } | { kind: "sign-in" | "error" };
@@ -26,7 +40,9 @@ export type QuoteResult =
 
 /** A 400 naming one of the published promotion codes: the code, not the basket, is the problem. */
 async function promotionRejection(response: Response): Promise<PromotionRejection | null> {
-  const problem = problemResponseSchema.safeParse(await response.json().catch(() => undefined));
+  const body: unknown = await response.json().catch(() => undefined);
+  const { problemResponseSchema, quotePromotionRejectionCode } = await loadContracts();
+  const problem = problemResponseSchema.safeParse(body);
   if (!problem.success) return null;
   const code = quotePromotionRejectionCode.safeParse(problem.data.code);
   return code.success ? code.data : null;
@@ -74,7 +90,9 @@ export async function loadAddresses(signal?: AbortSignal): Promise<AddressLoad> 
     const response = await fetch("/v1/me/addresses", { ...base, ...(signal && { signal }) });
     if (isAuthFailure(response.status)) return { kind: "sign-in" };
     if (!response.ok) return { kind: "error" };
-    const parsed = addressListOutput.safeParse(await response.json());
+    const body: unknown = await response.json();
+    const { addressListOutput } = await loadContracts();
+    const parsed = addressListOutput.safeParse(body);
     return parsed.success ? { kind: "ready", addresses: parsed.data.addresses } : { kind: "error" };
   } catch {
     return { kind: "error" };
@@ -85,6 +103,7 @@ export async function saveAddress(
   draft: AddressDraft,
   key: string,
 ): Promise<{ kind: "saved"; address: Address } | { kind: "sign-in" | "invalid" | "error" }> {
+  const { addressInput, addressOutput } = await loadContracts();
   const input = addressInput.safeParse(draft);
   if (!input.success) return { kind: "invalid" };
   try {
@@ -109,7 +128,9 @@ export async function requestQuote(input: QuoteInput, signal?: AbortSignal): Pro
       return rejection === null ? { kind: "error" } : { kind: "promotion", rejection };
     }
     if (!response.ok) return { kind: "error" };
-    const parsed = orderQuoteOutput.safeParse(await response.json());
+    const body: unknown = await response.json();
+    const { orderQuoteOutput } = await loadContracts();
+    const parsed = orderQuoteOutput.safeParse(body);
     return parsed.success ? { kind: "ready", quote: parsed.data } : { kind: "error" };
   } catch {
     return { kind: "error" };
@@ -120,7 +141,9 @@ async function placementError(response: Response): Promise<PlaceResult> {
   if (isAuthFailure(response.status)) return { kind: "sign-in" };
   if (response.status === 409 || response.status === 410) return { kind: "expired" };
   if (response.status === 400) {
-    const problem = problemResponseSchema.safeParse(await response.json().catch(() => undefined));
+    const body: unknown = await response.json().catch(() => undefined);
+    const { problemResponseSchema } = await loadContracts();
+    const problem = problemResponseSchema.safeParse(body);
     if (problem.success && problem.data.code === "contact_phone_required")
       return { kind: "contact-required" };
     if (problem.success && problem.data.code === "cash_limit") return { kind: "cash-limit" };
@@ -133,7 +156,9 @@ export async function placeOrder(placement: Placement, key: string): Promise<Pla
   try {
     const response = await fetch("/v1/orders", post(placement, key));
     if (!response.ok) return await placementError(response);
-    const parsed = orderSummary.safeParse(await response.json());
+    const body: unknown = await response.json();
+    const { orderSummary } = await loadContracts();
+    const parsed = orderSummary.safeParse(body);
     return parsed.success ? { kind: "placed", order: parsed.data } : { kind: "error" };
   } catch {
     return { kind: "error" };

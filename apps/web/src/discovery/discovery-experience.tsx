@@ -14,11 +14,20 @@ export function DiscoveryExperience({ locale }: { locale: Locale }) {
   const messages = getFeedMessages(locale);
 
   useEffect(() => {
-    try {
-      setSaved(readSavedLocation(window.localStorage));
-    } catch {
-      setSaved(null);
-    }
+    let isCurrent = true;
+    const read = (() => {
+      try {
+        return readSavedLocation(window.localStorage);
+      } catch {
+        return Promise.resolve(null);
+      }
+    })();
+    void read.then((value) => {
+      if (isCurrent) setSaved(value);
+    });
+    return () => {
+      isCurrent = false;
+    };
   }, []);
 
   function confirm(location: SavedDiscoveryLocation) {

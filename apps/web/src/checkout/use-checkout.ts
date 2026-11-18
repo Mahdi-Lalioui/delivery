@@ -131,9 +131,9 @@ function useSlots(cart: Cart | null | undefined, fulfilment: FulfilmentKind, add
   return slots;
 }
 
-function readPin() {
+async function readPin() {
   try {
-    const saved = readSavedLocation(window.localStorage);
+    const saved = await readSavedLocation(window.localStorage);
     return saved === null
       ? null
       : { latitude: saved.location.latitude, longitude: saved.location.longitude };
@@ -165,7 +165,13 @@ export function useCheckout(locale: Locale): CheckoutState {
 
   useEffect(() => {
     setRestored(true);
-    setPin(readPin());
+    let isCurrent = true;
+    void readPin().then((pin) => {
+      if (isCurrent) setPin(pin);
+    });
+    return () => {
+      isCurrent = false;
+    };
   }, []);
 
   useEffect(() => {
