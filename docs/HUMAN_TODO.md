@@ -120,3 +120,9 @@ Steps:
 8. Record the numbers and phone model in `docs/evidence/awid/perf.md` under "Physical Android check". Tell lane B about any route that fails; DevTools → Performance → "Save profile" gives a file lane B can read.
 
 When done, run `adb reverse --remove-all` and stop the server with Ctrl+C.
+
+## Licensed food photos for five dishes (lane B, 18 November 2026)
+
+What: source photos, with a licence that allows commercial use plus attribution (CC BY / BY-SA / CC0, or our own shoot), for **pizza** and **shawarma**, which currently have none, and for **bourek**, **karantika** and **chorba**, which are weak.
+Why: the pizza and shawarma images had no source or licence on record, so lane B removed them. The app now shows designed placeholders for those dishes.
+Steps: for each photo, give lane B the file, author, licence and source URL. Lane B adds it to `apps/web/src/marketing/photo-credits.ts` and `docs/PHOTO_CREDITS.md`, makes the 320/640/960 variants in `apps/web/public/preview-catalog`, and puts the photo back on the chip, card and dish.

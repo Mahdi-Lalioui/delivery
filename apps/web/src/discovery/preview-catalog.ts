@@ -77,7 +77,8 @@ interface DishSeed {
   names: Names;
   descriptions: Names;
   priceDzd: number;
-  photo: string;
+  /** A credited catalogue photo, or null: the dish shows the designed plate placeholder. */
+  photo: string | null;
   tags?: MenuItemDetail["item"]["tags"];
   optionGroups?: MenuOptionGroup[];
   /** One dish per demo shows the sold-out state. */
@@ -89,7 +90,8 @@ interface RestaurantSeed {
   slug: string;
   name: string;
   cuisines: string[];
-  cover: string;
+  /** A credited catalogue photo, or null: the card and header show the plate placeholder. */
+  cover: string | null;
   isOpen?: boolean;
   feed: FeedExtras;
   categories: { names: Names; dishes: DishSeed[] }[];
@@ -97,7 +99,7 @@ interface RestaurantSeed {
 
 const photos = new Map<string, string>();
 
-function dishDetail(seed: DishSeed, itemId: string, photoId: string): MenuItemDetail {
+function dishDetail(seed: DishSeed, itemId: string, photoId: string | null): MenuItemDetail {
   return {
     revision,
     item: {
@@ -114,16 +116,16 @@ function dishDetail(seed: DishSeed, itemId: string, photoId: string): MenuItemDe
 }
 
 function build(seed: RestaurantSeed): PreviewRestaurant {
-  const coverMediaId = demoId(seed.id + 500);
-  photos.set(coverMediaId, seed.cover);
+  const coverMediaId = seed.cover === null ? null : demoId(seed.id + 500);
+  if (coverMediaId !== null && seed.cover !== null) photos.set(coverMediaId, seed.cover);
   const categoryOf = new Map<string, string>();
   const menu: MenuItemDetail[] = [];
   const categories = seed.categories.map(({ names, dishes }, position) => {
     const categoryId = demoId(seed.id + 1 + position * 1000);
     dishes.forEach((dish, index) => {
       const itemId = demoId(seed.id + 2 + position * 1000 + index);
-      const photoId = demoId(seed.id + 502 + position * 1000 + index);
-      photos.set(photoId, dish.photo);
+      const photoId = dish.photo === null ? null : demoId(seed.id + 502 + position * 1000 + index);
+      if (photoId !== null && dish.photo !== null) photos.set(photoId, dish.photo);
       categoryOf.set(itemId, categoryId);
       menu.push(dishDetail(dish, itemId, photoId));
     });
@@ -201,7 +203,7 @@ const grill: RestaurantSeed = {
   slug: "atelier-sidi-yahia",
   name: "L’Atelier Sidi Yahia",
   cuisines: ["grill", "sandwiches"],
-  cover: "chawarma",
+  cover: "grill-plate",
   feed: {
     pin: { latitude: 36.765, longitude: 3.051 },
     minimumOrderDzd: 800,
@@ -226,7 +228,7 @@ const grill: RestaurantSeed = {
             "Grilled chicken, fresh vegetables and garlic sauce.",
           ),
           priceDzd: 650,
-          photo: "chawarma",
+          photo: null,
           tags: ["popular"],
           optionGroups: [size, extras],
         },
@@ -265,7 +267,7 @@ const grill: RestaurantSeed = {
             "Flatbread, roast chicken, pickles.",
           ),
           priceDzd: 450,
-          photo: "chawarma",
+          photo: null,
         },
       ],
     },
@@ -277,7 +279,7 @@ const pizza: RestaurantSeed = {
   slug: "four-belcourt",
   name: "Le Four de Belcourt",
   cuisines: ["pizza"],
-  cover: "pizza",
+  cover: null,
   feed: {
     offer: { kind: "free_delivery", minimumSubtotalDzd: 2000 },
     minimumOrderDzd: 1200,
@@ -303,7 +305,7 @@ const pizza: RestaurantSeed = {
             "Tomato, mozzarella and roasted peppers.",
           ),
           priceDzd: 1100,
-          photo: "pizza",
+          photo: null,
         },
       ],
     },

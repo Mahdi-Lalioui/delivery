@@ -118,9 +118,9 @@ test("serves a synthetic cover at supported variant widths", async () => {
   const coverPath = `merchants/${merchantId}/profile/photos/${coverMediaId ?? ""}/variants`;
   const cover = GET(request(coverPath + "/avif/640"));
   expect(cover.status).toBe(307);
-  expect(cover.headers.get("location")).toBe("/preview-catalog/chawarma-640.webp");
+  expect(cover.headers.get("location")).toBe("/preview-catalog/grill-plate-640.webp");
   expect(GET(request(coverPath + "/webp/960")).headers.get("location")).toBe(
-    "/preview-catalog/chawarma-960.webp",
+    "/preview-catalog/grill-plate-960.webp",
   );
   expect(cover.headers.get("cache-control")).toBe("no-store");
   expect(GET(request(coverPath + "/webp/1")).status).toBe(400);
@@ -138,12 +138,13 @@ test("serves a synthetic dish photo only for the associated menu item", async ()
       ),
     ).json(),
   );
-  const [dish, otherDish] = list.items;
+  // The house shawarma has no licensed photo, so the first photographed dishes are used.
+  const [dish, otherDish] = list.items.filter((item) => item.photoId !== null);
   assert(dish?.photoId && otherDish);
   const dishPath = `merchants/${merchantId}/items/${dish.itemId}/photos/${dish.photoId}`;
   const photo = GET(request(dishPath + "/variants/webp/320"));
   expect(photo.status).toBe(307);
-  expect(photo.headers.get("location")).toBe("/preview-catalog/chawarma-320.webp");
+  expect(photo.headers.get("location")).toBe("/preview-catalog/brochettes-320.webp");
   expect(
     GET(request(dishPath.replace(dish.itemId, otherDish.itemId) + "/variants/webp/320")).status,
   ).toBe(404);

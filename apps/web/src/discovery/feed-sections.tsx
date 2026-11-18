@@ -8,15 +8,20 @@ import { FeedCard } from "./feed-card";
 import { readDiscoveryFeed, type FeedFilters, type FeedRestaurant } from "./feed-http";
 import { getFeedMessages } from "./feed-messages";
 
-/** Brand photos for the cuisine chips (credited in docs/PHOTO_CREDITS.md). */
-const cuisinePhotos = [
+type ChipCuisine = keyof ReturnType<typeof getFeedMessages>["chipNames"];
+
+/**
+ * Brand photos for the cuisine chips (credited in docs/PHOTO_CREDITS.md). Null until a
+ * licensed photo exists: the chip shows the plate icon instead.
+ */
+const cuisinePhotos: readonly (readonly [ChipCuisine, string | null])[] = [
   ["algerian", "couscous"],
   ["grill", "brochettes"],
   ["sandwiches", "karantika-sandwich"],
-  ["pizza", "pizza"],
+  ["pizza", null],
   ["pastry", "baklawa"],
   ["bakery", "msemen"],
-] as const;
+];
 
 function photoSrc(name: string, isSmall = true) {
   return `/preview-catalog/${name}${isSmall ? "-320" : ""}.webp`;
@@ -50,7 +55,7 @@ export function CuisineChips({
                 onChange(cuisine);
               }}
             >
-              {photo === undefined ? (
+              {photo === undefined || photo === null ? (
                 <span className="discovery-cuisine-all" aria-hidden="true">
                   <Icon name="plate" size={26} />
                 </span>

@@ -424,6 +424,25 @@ html:has(.discovery-search-dialog[open]) {
   object-fit: cover;
 }
 
+/* No licensed photo yet: the drawn plate on mint, with the label in dark text. */
+.discovery-search-browse a[data-photo="false"] {
+  background: var(--color-mint-pale);
+  color: var(--color-text);
+}
+
+.discovery-search-browse a[data-photo="false"] .restaurant-feed-plate {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  margin: auto;
+  inline-size: 70%;
+  color: var(--color-accent-strong);
+}
+
+.discovery-search-browse a[data-photo="false"] span {
+  background: none;
+}
+
 .discovery-search-browse span {
   padding: var(--space-24) var(--space-12) var(--space-8);
   background: linear-gradient(transparent, var(--color-photo-scrim));

@@ -122,3 +122,40 @@ Mahdi chose to open the street view only on request. The tracking map now stays 
 | Tracking | 0 | 60 / 60 / 59 | 0–1 % | 32 ms (Call focus) |
 
 Raw data: [perf/perf-feel-street-view-on-tap.json](perf/perf-feel-street-view-on-tap.json). Street view off and on: [fr](perf/street-view-off-fr-390.png) → [fr 3D](perf/street-view-on-fr-390.png), [ar](perf/street-view-off-ar-390.png) → [ar 3D](perf/street-view-on-ar-390.png). The scroll samples ran before the taps. This capture did not measure the 3D toggle or its animation frames. Measurements used throttled Chromium on a Mac.
+
+## Lane B: initial JS under 180 KB and connected LCP (18 November 2026)
+
+**What changed:**
+- **Location dialog:** now a lazy chunk, loaded on intent (pointer over, focus or touch on the pill). Its eager `AlgeriaMap` import had pulled the whole i18n catalogue (69 KB gzip) into Discovery.
+- **Search:** split into a field and a lazy dialog.
+- **Schemas:** each API client loads its zod schema beside the request that needs it, instead of at module load. This covers feed, search, location, restaurant, checkout, slots, identifiers and orders. Zod was a 90 KB gzip chunk on every customer route.
+- **Media constants:** moved to the zod-free `@zaafran/contracts/media-constants`.
+- **Orders page:** now has its own server module, so it no longer ships the rating, promotions, analytics and share pages' client code.
+
+**Initial JS** is the module scripts the server HTML references, gzip. `noModule` polyfills are excluded because modern browsers never fetch them. Production build:
+
+| Route | Before | After |
+|---|---|---|
+| `/fr` (landing) | – | 135,060 |
+| `/fr/discover` | 337,145 | 159,433 |
+| `/fr/restaurants/:slug` | 258,975 | 163,692 |
+| `/fr/checkout` | 264,097 | 164,344 |
+| `/fr/orders` | 278,865 | 160,660 |
+
+CI enforces this in `e2e/customer-bundle-budget.spec.ts` (`[NFR-02]`, part of `pnpm test:e2e`), which fails above 180,000 bytes. Run on the production build: 5 passed.
+
+**Connected LCP:** `pnpm test:e2e:auth e2e/auth-customer-performance.spec.ts`, Pixel 7, 4× CPU, 75 ms, 4/1.5 Mbit/s, cold cache, three samples:
+
+| Route | Before (17 Nov) | After | CLS | All JS downloaded during load |
+|---|---|---|---|---|
+| Discovery | 1,916 / 1,772 / 1,760 ms | 1,628 / 1,500 / 1,488 ms | 0 | 253,006 B (includes the lazy schemas) |
+| Restaurant | timed out | 1,476 / 1,440 / 1,460 ms | 0 | 259,062 B |
+
+That fixture has three restaurants. On the richer preview catalogue, with the same profile and three cold samples:
+- Discovery fr: 1,600 / 1,484 / 1,500 ms; it was 4.4 s on 12 November.
+- Discovery ar: 1,768 / 1,760 / 1,832 ms.
+- Restaurant: 1,920 / 1,916 / 1,912 ms.
+
+CLS was 0 throughout, and the LCP element is an image every time. Restaurant has the least margin, because its cover can only start loading after the restaurant JSON arrives on the client. Server-rendering that first response is the next lever.
+
+These are lab measurements in Chromium on a Mac, not on a physical Android phone.

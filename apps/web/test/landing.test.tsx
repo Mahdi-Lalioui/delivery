@@ -65,3 +65,14 @@ test("[M8-1] the hero is credited food photography from the catalogue, with resp
   expect(hero).toContain("/preview-catalog/chorba-table-960.webp 960w");
   expect(hero).not.toContain("/photos/algeria/");
 });
+
+test("[M8-1] every catalogue photo shipped in public/ is credited (no unknown rights)", async () => {
+  const { readdirSync } = await import("node:fs");
+  const credited = new Set<string>(photoCredits.map(({ file }) => file));
+  const originals = readdirSync(new URL("../public/preview-catalog/", import.meta.url)).filter(
+    (name) => /\.webp$/u.test(name) && !/-(?:320|640|960)\.webp$/u.test(name),
+  );
+  const uncredited = originals.filter((name) => !credited.has(`/preview-catalog/${name}`));
+  // Chakhchoukha and couscous are crops of credited photos in /photos/algeria.
+  expect(uncredited.sort()).toEqual(["chakhchoukha.webp", "couscous.webp"]);
+});
