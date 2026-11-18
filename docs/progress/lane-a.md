@@ -489,4 +489,5 @@
 - 2026-11-18 · High · Production API/Caddy validation and parameterized Postgres error probes logged no synthetic PII; all three containers stayed healthy. `pnpm audit` still fails on the unpatched high picomatch advisory.
 - 2026-11-18 · Ultra · Account-wide identifier-change OTP caps now serialize across sessions, IPs and targets; HMAC history survives pruning/erasure. Auth/privacy Postgres integration passed 48 tests, DB typecheck and formatting passed; D-034 records the policy.
 - 2026-11-18 · High · Worker Pino serialization now removes personal keys at any depth; nested phone/email/address and plain address regression, worker typecheck and ESLint passed. [Evidence](../SECURITY_REVIEW.md#worker-log-privacy).
-  Next: continue the final security and reliability checks, starting with the remaining route-isolation audit.
+- 2026-11-18 · High · Re-ran `pnpm test:authz` (267/267, 42 suites) and `pnpm test:int` (348/348, 51 files) against local Postgres; route inventory and cross-tenant suites passed. [Evidence](../SECURITY_REVIEW.md#local-evidence).
+  Next: finish the route-by-route ownership review; its readiness item stays open pending exhaustive coverage.
