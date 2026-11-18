@@ -48,7 +48,7 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 
 ## Operations and release verification
 
-- [ ] **Lane A** Verify health checks and structured logs without personal data. Web, API, worker, Caddy and Martin health and web headers are covered in the [local Compose evidence](evidence/awid/web-compose-local.md); [Caddy 502 headers and request-log filtering](SECURITY_REVIEW.md#caddy-upstream-error-privacy) now pass, while API and PostgreSQL log privacy remains open.
+- [ ] **Lane A** Verify health checks and structured logs without personal data. Web, API, worker, Caddy and Martin health and web headers are covered in the [local Compose evidence](evidence/awid/web-compose-local.md); [API, Caddy and PostgreSQL log probes](SECURITY_REVIEW.md#api-and-postgresql-log-privacy) pass, while worker logger redaction remains open.
 - [ ] **Lane A** Verify error tracking and alerts through test incidents.
 - [x] **Lane A** Complete the SPEC §20 runbooks for deploy, rollback, restore, Ramadan peak, API down, DB full, SMS down, tiles down, OSRM down and restaurant complaint surges. [Runbooks](runbooks/service-incidents.md)
 - [x] **Lane A** Keep the encrypted restore drill green with fresh evidence. [Local restore results](evidence/awid/local-operations.md)

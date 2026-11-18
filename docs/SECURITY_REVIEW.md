@@ -16,14 +16,15 @@ courier and administrator routes. All checks use synthetic data on local infrast
 
 ## Local evidence
 
-- `pnpm test:authz` passed 265 tests across 42 suites. The route policy suite checks
+- `pnpm test:authz` passed 267 tests across 42 suites. The route policy suite checks
   its inventory against registered routes. The HTTP suite also exercises cross-origin
   writes and foreign session identifiers.
 - `pnpm test:int apps/api/test/auth.integration.test.ts apps/api/test/media-reservation.integration.test.ts`
   passed 13 tests against PostGIS. It covers real phone and email OTP attempts, shared IP
   quota, resend cooldown, HMAC storage, TOTP and upload reservations.
-- `pnpm audit --prod --audit-level high` exited zero. The registry reported two moderate
-  advisories and zero high or critical advisories.
+- `pnpm audit --prod --audit-level high` was rerun on 18 November and exited 1
+  with one high finding, `GHSA-fc5q-39xc-vjpf` in `picomatch@4.0.7`; upstream
+  still lists no patched version. `pnpm verify` remains blocked at audit.
 - All six structured logger tests passed.
 
 ## OTP abuse and delivery limits
@@ -188,7 +189,18 @@ and Permissions-Policy. The default structured logger removes request URI,
 headers, host and IP fields. The marker was absent after the fix, and the web
 container returned healthy after the test. `caddy validate` and
 `infra/deploy/test-caddy-failure.sh` passed. API and PostgreSQL log privacy
-checks remain open.
+checks are recorded below.
+
+## API and PostgreSQL log privacy
+
+API validation uses a synthetic invalid email and header marker and returns
+400 without writing either marker to API or Caddy logs. PostgreSQL 18 previously
+logged a synthetic duplicate-key value in error detail. Production Compose now
+uses terse error logging and explicitly disables bind-parameter logging on
+errors. The regression issues a duplicate value through the production API
+image's parameterized `postgres` driver and verifies neither marker reaches the
+database log. The API/Caddy and Postgres scripts passed, and both containers
+were healthy afterward.
 
 ## Quarantined upload malware scanner
 
