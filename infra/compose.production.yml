@@ -28,6 +28,12 @@ services:
     image: postgis/postgis:18-3.7@sha256:440bdd14e3edccfce04d080d8a1a0cbae5763fa16a1c4172bff83530828461de
     platform: linux/amd64
     restart: unless-stopped
+    command:
+      - postgres
+      - -c
+      - log_error_verbosity=terse
+      - -c
+      - log_parameter_max_length_on_error=0
     environment:
       POSTGRES_DB: awid
       POSTGRES_USER: postgres
@@ -72,6 +78,74 @@ services:
       timeout: 5s
       retries: 9
 
+  clamav-signatures:
+    image: "awid-clamav:${AWID_RELEASE_TAG:-local}"
+    build:
+      context: ..
+      dockerfile: infra/deploy/Dockerfile.clamav
+    platform: linux/amd64
+    init: true
+    read_only: true
+    cap_drop: [ALL]
+    cap_add: [CHOWN, SETUID, SETGID]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+    environment:
+      CLAMAV_NO_CLAMD: "true"
+      CLAMAV_NO_MILTERD: "true"
+      FRESHCLAM_CHECKS: "12"
+    tmpfs:
+      - /tmp:mode=1777
+      - /run:mode=0755
+      - /var/log/clamav:uid=100,gid=101,mode=0755
+    volumes:
+      - clamav-signatures:/var/lib/clamav
+    networks: [signature-egress]
+    healthcheck:
+      test:
+        [
+          CMD,
+          clamscan,
+          --database=/var/lib/clamav,
+          --fail-if-cvd-older-than=3,
+          --no-summary,
+          /etc/hostname,
+        ]
+      interval: 60s
+      timeout: 30s
+      retries: 4
+      start_period: 120s
+
+  clamav:
+    image: "awid-clamav:${AWID_RELEASE_TAG:-local}"
+    platform: linux/amd64
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    user: clamav
+    entrypoint: [/init-unprivileged]
+    environment:
+      CLAMAV_NO_FRESHCLAMD: "true"
+      CLAMAV_NO_MILTERD: "true"
+    tmpfs:
+      - /tmp:mode=1777
+      - /run:mode=0755
+      - /var/log/clamav:uid=100,gid=101,mode=0755
+    volumes:
+      - clamav-signatures:/var/lib/clamav:ro
+    networks: [scanner]
+    depends_on:
+      clamav-signatures:
+        condition: service_healthy
+    mem_limit: 4g
+    healthcheck:
+      test: [CMD, clamdscan, --ping=1, --config-file=/etc/clamav/clamd.conf]
+      interval: 30s
+      timeout: 10s
+      retries: 4
+      start_period: 180s
+
   worker:
     <<: *runtime
     restart: unless-stopped
@@ -82,10 +156,15 @@ services:
       - "${AWID_WORKER_ENV_FILE:?Set AWID_WORKER_ENV_FILE}"
     environment:
       MEDIA_STORAGE_ROOT: /var/awid/media
+      CLAMD_HOST: clamav
+      CLAMD_PORT: "3310"
       HEIC_DECODER_PATH: /usr/local/bin/zaafran-heic-decode
     volumes:
       - media:/var/awid/media
-    networks: [edge, data]
+    depends_on:
+      clamav:
+        condition: service_healthy
+    networks: [edge, data, scanner]
     healthcheck:
       test:
         - CMD
@@ -100,6 +179,39 @@ services:
       interval: 15s
       timeout: 6s
       retries: 4
+
+  web:
+    image: "awid-web:${AWID_RELEASE_TAG:-local}"
+    build:
+      context: ..
+      dockerfile: infra/deploy/Dockerfile.web
+    init: true
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs:
+      - /tmp:mode=1777
+      - /app/apps/web/.next/cache:mode=1777
+    environment:
+      HOSTNAME: 0.0.0.0
+      PORT: 3000
+      AWID_OPERATOR_API_ORIGIN: http://api:3002
+    networks: [edge]
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          CMD,
+          node,
+          -e,
+          "fetch('http://127.0.0.1:3000/fr').then(r => { if (!r.ok && !r.redirected) process.exitCode = 1 })",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 9
 
   martin:
     image: ghcr.io/maplibre/martin:1.16.0@sha256:caa63e4618ef8f326141d1a867d6ee15bddcf649260c979193bbf487b433a7e0
@@ -141,6 +253,7 @@ services:
     restart: unless-stopped
     environment:
       AWID_API_HOST: "${AWID_API_HOST:?Set AWID_API_HOST}"
+      AWID_WEB_DOMAIN: "${AWID_WEB_DOMAIN:?Set AWID_WEB_DOMAIN}"
     ports:
       - "${AWID_BIND_ADDRESS:-0.0.0.0}:${AWID_HTTP_PORT:-80}:80"
       - "${AWID_BIND_ADDRESS:-0.0.0.0}:${AWID_HTTPS_PORT:-443}:443"
@@ -148,6 +261,13 @@ services:
       - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy-data:/data
       - caddy-config:/config
+    depends_on:
+      api:
+        condition: service_healthy
+      web:
+        condition: service_healthy
+      martin:
+        condition: service_healthy
     networks:
       edge:
         ipv4_address: "${AWID_PROXY_IP:-172.29.78.2}"
@@ -164,8 +284,12 @@ volumes:
   media:
   caddy-data:
   caddy-config:
+  clamav-signatures:
 
 networks:
+  signature-egress: {}
+  scanner:
+    internal: true
   data:
     internal: true
   tiles:

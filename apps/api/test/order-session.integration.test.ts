@@ -4,6 +4,7 @@ import { createOrderRepository } from "@zaafran/db/orders";
 import { runMigrations } from "graphile-worker";
 import { expect, onTestFinished, test } from "vitest";
 import { registerTestDatabase } from "../../../packages/db/test/database.ts";
+import { openDatabase } from "../../../packages/db/src/database.ts";
 import { createApi } from "../src/app.ts";
 import { hashSessionToken } from "../src/auth-crypto.ts";
 import { createAuthService } from "../src/auth-service.ts";
@@ -40,7 +41,7 @@ async function standardSession(phoneE164: string) {
   return { userId: user.id, headers };
 }
 
-async function seedOrder(customerId: string, merchantUserId: string) {
+async function seedOrder(customerId: string, merchantUserId: string, otherOwnerId: string) {
   const { sql } = database.get();
   const merchantId = randomUUID();
   const orderId = randomUUID();
@@ -56,6 +57,15 @@ async function seedOrder(customerId: string, merchantUserId: string) {
     FROM commune
   `;
   await sql`INSERT INTO merchant_members (merchant_id, user_id, role) VALUES (${merchantId}, ${merchantUserId}, 'owner')`;
+  await sql`
+    WITH other_restaurant AS (
+      INSERT INTO merchants (slug, restaurant_name, owner_name, phone_e164, commune_id, location, cuisines, status, created_at)
+      SELECT 'fixture-other-tenant', restaurant_name, owner_name, phone_e164, commune_id, location, cuisines, status, created_at
+      FROM merchants WHERE id = ${merchantId} RETURNING id
+    )
+    INSERT INTO merchant_members (merchant_id, user_id, role)
+    SELECT id, ${otherOwnerId}, 'owner' FROM other_restaurant
+  `;
   await sql`
     INSERT INTO orders (
       id, quote_id, customer_id, merchant_id, restaurant_name, short_code, order_day, status, fulfilment,
@@ -76,7 +86,7 @@ test("[AUTH-06][MER-03] real standard session cookies reach the board only for m
     standardSession("+213500000002"),
     standardSession("+213500000003"),
   ]);
-  const { merchantId, orderId } = await seedOrder(customer.userId, owner.userId);
+  const { merchantId, orderId } = await seedOrder(customer.userId, owner.userId, outsider.userId);
   const repository = createOrderRepository(database.get());
   const auth = createAuthService({
     repository: createAuthRepository(database.get()),
@@ -85,24 +95,28 @@ test("[AUTH-06][MER-03] real standard session cookies reach the board only for m
     now: () => now,
     sendSms: () => undefined,
   });
-  let replayed = false;
   const api = createApi({
     checkReadiness: () => Promise.resolve(),
     auth: { service: auth, publicOrigin },
     merchantBoard: repository,
+    orderTracking: repository.tracking,
+    orderHistory: repository,
     orderActions: { repository, now: () => now },
     realtime: {
       async replay(scope) {
-        if (replayed) return undefined;
-        replayed = true;
-        return repository.merchantReplay(scope);
+        return scope.after === "0" ? repository.merchantReplay(scope) : undefined;
       },
-      replayOrder: repository.orderReplay,
+      async replayOrder(scope) {
+        return scope.after === "0" ? repository.orderReplay(scope) : undefined;
+      },
       subscribe(_merchantId, wake) {
         wake();
         return () => undefined;
       },
-      subscribeOrder: () => () => undefined,
+      subscribeOrder(_orderId, wake) {
+        wake();
+        return () => undefined;
+      },
     },
   });
   onTestFinished(() => api.close());
@@ -110,6 +124,14 @@ test("[AUTH-06][MER-03] real standard session cookies reach the board only for m
   expect((await api.inject({ url: board, headers: owner.headers })).statusCode).toBe(200);
   expect((await api.inject({ url: board, headers: customer.headers })).statusCode).toBe(404);
   const url = `/v1/orders/${orderId}`;
+  expect((await api.inject({ url: board, headers: outsider.headers })).statusCode).toBe(404);
+  for (const privateUrl of [url + "/tracking", "/v1/me/orders/" + orderId + "/receipt"]) {
+    const allowed = await api.inject({ url: privateUrl, headers: customer.headers });
+    const denied = await api.inject({ url: privateUrl, headers: outsider.headers });
+    expect(allowed.statusCode).toBe(200);
+    expect(denied.statusCode).toBe(404);
+    expect(denied.body).not.toContain(orderId);
+  }
   expect((await api.inject({ url, headers: outsider.headers })).statusCode).toBe(404);
   expect((await api.inject({ url, headers: owner.headers })).statusCode).toBe(200);
   expect((await api.inject({ url, headers: customer.headers })).statusCode).toBe(200);
@@ -121,6 +143,31 @@ test("[AUTH-06][MER-03] real standard session cookies reach the board only for m
       payload: { expectedVersion: 1, prepMinutes: 15 },
     });
   expect((await accept(customer.headers)).statusCode).toBe(404);
+  const lockDatabase = openDatabase(database.url());
+  const locked = Promise.withResolvers<undefined>();
+  const release = Promise.withResolvers<undefined>();
+  const lockTransaction = lockDatabase.sql.begin(async (tx) => {
+    await tx`SELECT id FROM public.orders WHERE id = ${orderId} FOR UPDATE`;
+    locked.resolve(undefined);
+    await release.promise;
+  });
+  await locked.promise;
+  const outsiderRequest = accept(outsider.headers);
+  try {
+    const response = await Promise.race([
+      outsiderRequest,
+      new Promise<undefined>((resolve) => {
+        setTimeout(() => {
+          resolve(undefined);
+        }, 150);
+      }),
+    ]);
+    expect(response?.statusCode).toBe(404);
+  } finally {
+    release.resolve(undefined);
+    await lockTransaction;
+    await lockDatabase.close();
+  }
   const accepted = await accept(owner.headers);
   expect(accepted.statusCode).toBe(200);
   expect(accepted.json()).toMatchObject({ status: "accepted", version: 2 });
@@ -139,4 +186,23 @@ test("[AUTH-06][MER-03] real standard session cookies reach the board only for m
   });
   expect(stream.statusCode).toBe(200);
   expect(stream.body).toContain('"status":"accepted"');
+  const foreignMerchantStream = await api.inject({
+    url: "/v1/realtime?topic=merchantOrders&merchantId=" + merchantId + "&after=0",
+    headers: outsider.headers,
+  });
+  expect(foreignMerchantStream.statusCode).toBe(404);
+  expect(foreignMerchantStream.body).not.toContain(orderId);
+
+  const customerStream = await api.inject({
+    url: "/v1/realtime?topic=order&orderId=" + orderId + "&after=0",
+    headers: customer.headers,
+  });
+  expect(customerStream.statusCode).toBe(200);
+  expect(customerStream.body).toContain('"orderId":"' + orderId + '"');
+  const foreignCustomerStream = await api.inject({
+    url: "/v1/realtime?topic=order&orderId=" + orderId + "&after=0",
+    headers: outsider.headers,
+  });
+  expect(foreignCustomerStream.statusCode).toBe(404);
+  expect(foreignCustomerStream.body).not.toContain(orderId);
 });

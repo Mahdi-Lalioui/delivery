@@ -1,4 +1,4 @@
-import { publicFeedOutput, type publicRestaurantCard } from "@zaafran/contracts/feed";
+import type { publicFeedOutput, publicRestaurantCard } from "@zaafran/contracts/feed";
 
 type FeedPage = ReturnType<typeof publicFeedOutput.parse>;
 export type FeedRestaurant = ReturnType<typeof publicRestaurantCard.parse>;
@@ -23,6 +23,8 @@ export async function readDiscoveryFeed(
   filters: FeedFilters = {},
 ): Promise<FeedPage | null> {
   const url = feedUrl(cursor, filters);
+  // The schema loads beside the request, not in the route's first scripts (NFR-02).
+  const contract = import("@zaafran/contracts/feed");
   try {
     const response = await fetch(url, {
       method: "GET",
@@ -32,7 +34,9 @@ export async function readDiscoveryFeed(
       signal: AbortSignal.any([signal, AbortSignal.timeout(15_000)]),
     });
     if (!response.ok) return null;
-    const result = publicFeedOutput.safeParse(await response.json());
+    const body: unknown = await response.json();
+    const { publicFeedOutput: schema } = await contract;
+    const result = schema.safeParse(body);
     return result.success ? result.data : null;
   } catch {
     return null;

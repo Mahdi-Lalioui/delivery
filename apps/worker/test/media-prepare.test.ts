@@ -49,10 +49,11 @@ async function fixture(contentType: "image/png" | "image/jpeg" = "image/png") {
   const recordArtifact = vi
     .fn<(id: string, key: string) => Promise<void>>()
     .mockResolvedValue(undefined);
-  const job = (overrides: Partial<MediaStore> = {}) =>
+  const job = (overrides: Partial<MediaStore> = {}, scan?: (bytes: Buffer) => Promise<boolean>) =>
     createPrepareMediaJob({
       store: { ...store, ...overrides },
       recordArtifact,
+      ...(scan && { scan }),
       repository: {
         findPreparation: (id) => Promise.resolve(id === mediaId ? source : undefined),
         completePreparation: complete,
@@ -175,4 +176,29 @@ test.each([
   expect(body.destroyed).toBe(true);
   expect(put).not.toHaveBeenCalled();
   expect(complete).not.toHaveBeenCalled();
+});
+
+test("[MER-14:worker] rejects a flagged upload before writing a preview", async () => {
+  const { store, complete, job, recordArtifact } = await fixture();
+  const scan = vi.fn<(bytes: Buffer) => Promise<boolean>>().mockResolvedValue(false);
+  await job({}, scan)(payload);
+  expect(scan).toHaveBeenCalledWith(testPng);
+  expect(recordArtifact).not.toHaveBeenCalled();
+  expect(complete).toHaveBeenCalledWith(
+    expect.objectContaining({
+      result: { status: "rejected", reason: "invalid_image" },
+    }),
+  );
+  expect(await store.get(quarantineKey)).toBeUndefined();
+});
+
+test("[MER-14:worker] retains quarantine and retries when the scanner is unavailable", async () => {
+  const { store, complete, job, recordArtifact } = await fixture();
+  const scan = vi
+    .fn<(bytes: Buffer) => Promise<boolean>>()
+    .mockRejectedValue(new Error("Scanner unavailable"));
+  await expect(job({}, scan)(payload)).rejects.toThrow("Scanner unavailable");
+  expect(complete).not.toHaveBeenCalled();
+  expect(recordArtifact).not.toHaveBeenCalled();
+  expect(await store.get(quarantineKey)).toBeDefined();
 });

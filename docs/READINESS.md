@@ -4,7 +4,8 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 
 ## Customer experience
 
-- [ ] **Lane A** Consistent dish and cover pipeline with crop ratios, warm grade, contrast and sharpening. Review the catalog, replace weak images and publish restaurant guidance. [Photo guide](RESTAURANT_PHOTOS.md)
+- [ ] **Lane A** Consistent dish and cover pipeline with crop ratios, warm grade, contrast and sharpening, and published restaurant guidance. [Photo guide](RESTAURANT_PHOTOS.md)
+- [x] **Lane B** Review the photo catalogue and replace weak or off-style images. Two uncredited images and three weak or mislabelled ones were replaced with licensed, graded Wikimedia Commons photos, and a test checks that every catalogue photo is credited. [Review](evidence/awid/photos/README.md)
 - [x] **Lane B** Short haptics for add-to-cart, order placement and acceptance. Optional acceptance sound, mute preference and reduced-motion support. [Haptics and mute note](evidence/awid/feel/README.md) (393969e)
 - [x] **Lane B** Arabic, French and English copy pass. Errors give the customer a next step. [Copy changes](evidence/awid/copy.md) (17a477c)
 - [x] **Lane B** Audit spacing, type, radii, shadows, icons, buttons and colours on every customer screen. Record and fix deviations in `docs/evidence/awid/consistency.md`. [Consistency list, 21 fixed](evidence/awid/consistency.md) (fb5d002)
@@ -20,19 +21,19 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 
 ## Performance and offers
 
-- [ ] **Lane A** Connected Discovery LCP below 2 s on the established throttled Android profile. [Small-fixture samples](evidence/awid/perf.md#connected-production-build)
-- [ ] **Lane A** Connected Restaurant LCP below 2 s on the same profile. [Small-fixture samples](evidence/awid/perf.md#connected-production-build)
+- [x] **Lane B** Connected Discovery LCP below 2 s on the established throttled Android profile. Connected 1,488–1,628 ms; richer preview catalogue 1,484–1,600 ms (ar 1,760–1,832 ms); CLS 0. [Evidence](evidence/awid/perf.md#lane-b-initial-js-under-180-kb-and-connected-lcp-18-november-2026)
+- [x] **Lane B** Connected Restaurant LCP below 2 s on the same profile. Connected 1,440–1,476 ms; richer preview catalogue 1,912–1,920 ms (smallest margin); CLS 0. [Evidence](evidence/awid/perf.md#lane-b-initial-js-under-180-kb-and-connected-lcp-18-november-2026)
 - [x] **Lane B** Customer tap feedback within 100 ms, with optimistic feedback where safe. [Worst tap 72 ms on the throttled Android profile](evidence/awid/perf.md#customer-feel-taps-frames-and-layout-shift-lane-b-13-november-2026)
 - [ ] **Lane B** Measure 60 fps scrolling and animation and CLS below 0.05. Defer offscreen images and 3D. Record connected results in [performance evidence](evidence/awid/perf.md). CLS 0 and 60 fps on Discovery, Restaurant and Checkout; Tracking scroll measured 59–60 fps with opt-in 3D. Tilt animation frame timing remains open. [Results](evidence/awid/perf.md#3d-street-view-on-tap-13-november-2026-lane-b)
-- [ ] **Lane A** Route bundle budgets enforced in CI at the SPEC target. [Provisional ceilings](evidence/awid/perf.md#connected-production-build)
+- [x] **Lane B** Route bundle budgets enforced in CI at the SPEC target. Initial JS 135–164 KB gzip on the five customer routes; `e2e/customer-bundle-budget.spec.ts` fails above 180 KB. [Evidence](evidence/awid/perf.md#lane-b-initial-js-under-180-kb-and-connected-lcp-18-november-2026)
 - [x] **Lane A** Quote and placement honour code and automatic offers and apply the published stacking rules. [PostGIS quote and placement tests](../packages/db/test/order-quotes.integration.test.ts)
 - [x] **Lane A** Per-customer and global offer limits and idempotent redemption hold under retries and concurrency. [PostGIS redemption tests](../packages/db/test/order-quotes.integration.test.ts)
 - [x] **Lane A** Discovery offers filter and badge data match redeemable offers. [PostGIS public feed tests](../packages/db/test/public-feed.integration.test.ts)
 
 ## Security
 
-- [ ] **Lane A** Review SPEC §17 and AGENTS §10. Cover every route in the authz matrix and verify customer and merchant isolation.
-- [ ] **Lane A** Verify OTP enumeration resistance, attempt caps and SMS/email delivery limits by identifier and IP.
+- [ ] **Lane A** Review SPEC §17 and AGENTS §10. Cover every route in the authz matrix and verify customer and merchant isolation. The [route/resource evidence map](evidence/awid/tenant-isolation.md) links the current matrix and Postgres regressions; exhaustive per-endpoint ownership coverage remains open. Connected courier, realtime and admin-session evidence is recorded in [security review](SECURITY_REVIEW.md#authenticated-courier-isolation) and [realtime/admin evidence](SECURITY_REVIEW.md#realtime-and-administrator-session-isolation).
+- [x] **Lane A** Verify OTP enumeration resistance, attempt caps and SMS/email delivery limits by identifier, IP and signed-in account. [Connected auth and Postgres regressions](SECURITY_REVIEW.md#otp-abuse-and-delivery-limits) (8b1675c plus account-limit change below)
 - [x] **Lane A** Verify upload type, size, decompression limits and metadata stripping. [Upload validation evidence](SECURITY_REVIEW.md#upload-validation)
 - [ ] **Lane A** Verify input handling, CSRF, CSP and security headers, session fixation protections and revocation.
 - [ ] **Lane A** Review route rate limits, secret handling and dependencies. Resolve high and critical findings.
@@ -48,9 +49,9 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 
 ## Operations and release verification
 
-- [ ] **Lane A** Verify health checks and structured logs without personal data.
+- [x] **Lane A** Verify health checks and structured logs without personal data. Web, API, worker, Caddy and Martin health are covered in the [local Compose evidence](evidence/awid/web-compose-local.md); [API, Caddy and PostgreSQL probes](SECURITY_REVIEW.md#api-and-postgresql-log-privacy) and the [worker logger regression](SECURITY_REVIEW.md#worker-log-privacy) pass.
 - [ ] **Lane A** Verify error tracking and alerts through test incidents.
 - [x] **Lane A** Complete the SPEC §20 runbooks for deploy, rollback, restore, Ramadan peak, API down, DB full, SMS down, tiles down, OSRM down and restaurant complaint surges. [Runbooks](runbooks/service-incidents.md)
 - [x] **Lane A** Keep the encrypted restore drill green with fresh evidence. [Local restore results](evidence/awid/local-operations.md)
-- [ ] **Lane A** Integrate Lane B regularly. Require full `pnpm verify` and every browser suite green in GitHub CI before merging.
+- [x] **Lane A** Integrate Lane B regularly. Require full `pnpm verify` and every browser suite green in GitHub CI before merging. [Exact integration run](https://github.com/Mahdi-Lalioui/delivery/actions/runs/44093493915) (`f1febe7`)
 - [ ] **Lane A** After all preceding Lane A criteria pass, rerun security and reliability from scratch and record the result.

@@ -493,6 +493,9 @@
 .orders-favourite {
   position: relative;
   display: grid;
+  /* The track follows the tile, not the name: a long name must not widen the cover. */
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
   gap: var(--space-8);
 }
 
@@ -837,4 +840,25 @@
 
 .orders-favourites {
   max-inline-size: 100%;
+}
+
+/* The order being rated: restaurant and code, so the diner knows which meal this is about. */
+.rating-order {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  justify-content: center;
+  font-weight: var(--font-weight-label);
+}
+
+/* A drawn dot between name and code: it sits in the flex row, so it stays between in RTL. */
+.rating-order {
+  align-items: center;
+}
+
+.rating-order-dot {
+  inline-size: var(--space-4);
+  block-size: var(--space-4);
+  border-radius: var(--radius-pill);
+  background: currentColor;
 }

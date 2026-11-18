@@ -12,13 +12,15 @@ import { LandingFooter } from "./landing-footer";
 import "./landing.css";
 import "./marketing.css";
 
+// Food leads: credited catalogue photos (same grade as the dishes), widest first for the LCP.
 const slides = [
-  ["maqam", "/photos/algeria/algiers-maqam-echahid.webp"],
-  ["casbah", "/photos/algeria/algiers-casbah.webp"],
-  ["constantine", "/photos/algeria/constantine-bridge.webp"],
-  ["ghardaia", "/photos/algeria/ghardaia-melika.webp"],
-  ["sahara", "/photos/algeria/sahara-nomad.webp"],
+  ["chorba", "chorba-table"],
+  ["grill", "grill-plate"],
+  ["msemen", "msemen-griddle"],
+  ["baklawa", "baklawa-tray"],
+  ["brochettes", "brochettes"],
 ] as const;
+const slideWidths = [640, 960] as const;
 const cuisines = [
   ["algerian", "couscous"],
   ["grill", "grill-plate"],
@@ -63,10 +65,17 @@ async function Hero({ locale }: { locale: Locale }) {
   return (
     <section className="landing-hero" aria-labelledby="landing-title">
       <div className="landing-slides" role="img" aria-label={translate("heroImage")}>
-        {slides.map(([key, src], index) => (
+        {slides.map(([key, photo], index) => (
           <figure key={key} className="landing-slide">
             <img
-              src={src}
+              src={`/preview-catalog/${photo}.webp`}
+              srcSet={[
+                ...slideWidths.map(
+                  (width) => `/preview-catalog/${photo}-${String(width)}.webp ${String(width)}w`,
+                ),
+                `/preview-catalog/${photo}.webp 1600w`,
+              ].join(", ")}
+              sizes="100vw"
               alt=""
               width="1600"
               height="1067"

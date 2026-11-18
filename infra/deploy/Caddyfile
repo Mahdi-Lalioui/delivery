@@ -1,15 +1,74 @@
 {
 	admin off
 	skip_install_trust
+	log default {
+		output stdout
+		format filter {
+			wrap json
+			fields {
+				request>remote_ip delete
+				request>remote_port delete
+				request>client_ip delete
+				request>uri delete
+				request>headers delete
+				request>host delete
+			}
+		}
+	}
+}
+
+(security_headers) {
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		Cross-Origin-Opener-Policy same-origin
+		Cross-Origin-Resource-Policy same-origin
+		X-Frame-Options DENY
+		Permissions-Policy "geolocation=(self), camera=(self), microphone=(self)"
+		?Content-Security-Policy "default-src 'none'; frame-ancestors 'none'"
+		-Server
+	}
+}
+
+(upstream_errors) {
+	handle_errors 5xx {
+		import security_headers
+		respond "Service temporarily unavailable" {err.status_code}
+	}
+}
+
+{$AWID_WEB_DOMAIN} {
+	import security_headers
+	import upstream_errors
+
+	@tiles path_regexp ^/tiles/algeria/[0-9]{1,2}/[0-9]{1,5}/[0-9]{1,5}$
+	handle @tiles {
+		uri strip_prefix /tiles
+		reverse_proxy martin:3000 {
+			header_up -Cookie
+			header_up -Authorization
+		}
+	}
+
+	@api path /v1/* /healthz /readyz
+	handle @api {
+		reverse_proxy api:3002
+	}
+
+	handle {
+		reverse_proxy web:3000
+	}
+}
+
+www.{$AWID_WEB_DOMAIN} {
+	import security_headers
+	redir https://{$AWID_WEB_DOMAIN}{uri} 308
 }
 
 {$AWID_API_HOST} {
-	header {
-		Strict-Transport-Security "max-age=31536000"
-		X-Content-Type-Options nosniff
-		Referrer-Policy strict-origin-when-cross-origin
-		-Server
-	}
+	import security_headers
+	import upstream_errors
 
 	@tiles path_regexp ^/tiles/algeria/[0-9]{1,2}/[0-9]{1,5}/[0-9]{1,5}$
 	handle @tiles {

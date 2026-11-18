@@ -1,4 +1,4 @@
-import { photoRatios, type photoVariantWidths } from "@zaafran/contracts/media";
+import { photoRatios, type photoVariantWidths } from "@zaafran/contracts/media-constants";
 import { formatAlgiersDate, formatAlgiersTime, formatDzd } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
 import { Icon } from "@zaafran/ui";

@@ -1,4 +1,5 @@
 import { queueDeliveryProofErasure } from "./delivery-proof-retention.js";
+import { setFavouriteCustomerScope } from "./customer-favourites.js";
 import type { ISql, TransactionSql } from "postgres";
 import { lockOtpIdentifier } from "./auth-otp-lock.js";
 import type { AuthTransport } from "./auth-types.js";
@@ -88,18 +89,9 @@ async function clearPersonalData(
       device_name = NULL, request_ip = NULL
     WHERE user_id = ${userId}
   `;
-  await sql`
-    WITH discarded AS (
-      DELETE FROM public.otp_challenges WHERE phone_e164 = ${phoneE164} OR email = ${email}
-        OR binding_user_id = ${userId}
-      RETURNING phone_e164, email, request_ip, requested_at
-    )
-    INSERT INTO public.auth_otp_rate_history (phone_hash, ip_hash, requested_at)
-    SELECT CASE WHEN phone_e164 IS NULL THEN public.auth_otp_rate_digest('email', email)
-      ELSE public.auth_otp_rate_digest('phone', phone_e164) END,
-      public.auth_otp_rate_digest('ip', host(request_ip)), requested_at
-    FROM discarded WHERE requested_at > ${now.toISOString()}::timestamptz - interval '24 hours'
-  `;
+  // The database delete trigger archives HMAC rate keys for account erasure and challenge pruning.
+  await sql`DELETE FROM public.otp_challenges WHERE phone_e164 = ${phoneE164} OR email = ${email}
+    OR binding_user_id = ${userId}`;
   await sql`
     UPDATE public.ratings SET comment = NULL
     WHERE order_id IN (SELECT id FROM public.orders WHERE customer_id = ${userId})
@@ -118,6 +110,7 @@ async function clearPersonalData(
   `;
   await sql`UPDATE public.order_events SET actor_id = NULL, payload = payload - 'reason'
     WHERE actor_id = ${userId} AND actor_kind = 'customer'`;
+  await setFavouriteCustomerScope(sql, userId);
   await sql`DELETE FROM public.customer_favourites WHERE customer_id = ${userId}`;
   await sql`DELETE FROM public.merchant_review_receipts WHERE account_id = ${userId}`;
   await sql`DELETE FROM public.order_rating_receipts WHERE customer_id = ${userId}`;

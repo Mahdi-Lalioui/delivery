@@ -68,12 +68,6 @@ async function createInvitation(sql: TransactionSql, request: InviteRequest) {
 export async function inviteCourier(sql: TransactionSql, request: InviteRequest) {
   await lockOtpIdentifier(sql, request.email ?? request.phone);
   if (!(await canInvite(sql, request))) return { kind: "not_found" } as const;
-  const [registered] = await sql`
-    SELECT FROM public.couriers AS courier JOIN public.users AS account ON account.id = courier.user_id
-    WHERE (account.phone_e164 = ${request.phone ?? null} OR account.email = ${request.email ?? null})
-      AND courier.active
-  `;
-  if (registered) return { kind: "courier_already_registered" } as const;
   return createInvitation(sql, request);
 }
 

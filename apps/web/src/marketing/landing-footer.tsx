@@ -2,6 +2,7 @@ import { brand } from "@zaafran/config/brand";
 import type { Locale } from "@zaafran/i18n/locales";
 import { Logo } from "@zaafran/ui";
 import { getTranslations } from "next-intl/server";
+import "./landing-footer.css";
 
 /** The landing's real footer: brand, customer and restaurant links, legal and credits. */
 export async function LandingFooter({ locale }: { locale: Locale }) {

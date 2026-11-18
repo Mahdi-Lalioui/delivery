@@ -1,6 +1,9 @@
+import { randomBytes } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { defineConfig, devices } from "@playwright/test";
 import { authPort, loopbackOrigin } from "./ports.ts";
+
+process.env.AWID_AUTH_E2E_PROXY_KEY ??= randomBytes(32).toString("hex");
 
 const workspace = fileURLToPath(new URL("../", import.meta.url));
 const webOrigin = loopbackOrigin(authPort);

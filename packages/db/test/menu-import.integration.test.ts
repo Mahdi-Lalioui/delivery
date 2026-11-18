@@ -378,3 +378,29 @@ test("[MER-12:db] receipt failure rolls back imported categories, items and revi
   expect(await repo().preview({ ...scope, rows: [] })).toMatchObject({ revision: 0 });
   expect(await repo().apply(request)).toMatchObject({ kind: "applied", revision: 1 });
 });
+
+test("[MER-12] menu receipts are private to the scoped restaurant and actor", async () => {
+  const first = await merchant(990);
+  const second = await merchant(991);
+  const { sql } = database.get();
+  await sql.begin(async (tx) => {
+    await tx`INSERT INTO public.menu_command_receipts
+      (merchant_id, actor_id, operation, key_hash, request_hash, revision, result, recorded_at)
+      VALUES
+      (${first.merchantId}, ${ownerId}, 'category_create', ${hash("a")}, ${hash("a")}, 1, '{}', now()),
+      (${first.merchantId}, ${managerId}, 'category_create', ${hash("b")}, ${hash("b")}, 1, '{}', now()),
+      (${second.merchantId}, ${ownerId}, 'category_create', ${hash("c")}, ${hash("c")}, 1, '{}', now())`;
+    await tx`CREATE ROLE awid_menu_receipt_rls_test NOLOGIN`;
+    await tx`GRANT SELECT ON public.menu_command_receipts TO awid_menu_receipt_rls_test`;
+    await tx`SET LOCAL ROLE awid_menu_receipt_rls_test`;
+    expect(await tx`SELECT merchant_id FROM public.menu_command_receipts`).toEqual([]);
+    await tx`SELECT set_config('awid.merchant_id', ${first.merchantId}, true),
+                   set_config('awid.menu_actor_id', ${ownerId}, true)`;
+    expect(await tx`SELECT merchant_id, actor_id FROM public.menu_command_receipts`).toEqual([
+      { merchant_id: first.merchantId, actor_id: ownerId },
+    ]);
+    await tx`RESET ROLE`;
+    await tx`REVOKE SELECT ON public.menu_command_receipts FROM awid_menu_receipt_rls_test`;
+    await tx`DROP ROLE awid_menu_receipt_rls_test`;
+  });
+});

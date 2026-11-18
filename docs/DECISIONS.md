@@ -166,7 +166,7 @@ SPEC §17.3 screening is the pure `findProhibitedGoods` in `@zaafran/domain/mode
 
 MER-23 invitations live in `@zaafran/contracts/merchant-staff`. Only an owner creates, lists or revokes them (managers get "everything except billing and staff"). An invitation grants `manager` or `staff` only, because owners come from MER-01 signup. The server creates a random 32-byte Base64url token, stores only its SHA-256, and sends it in the SMS link through the SMS adapter after the commit, as the OTP flow does. A replayed create (matched by the idempotency key stored on the invitation row) rotates the token hash and resends while the invitation is still open, so a retry after a lost or failed SMS delivers a working link and the earlier one stops working. A closed or expired invitation replays without an SMS. The create response never returns it. The invitee redeems it at `POST /v1/staff-invitations/accept` while signed in with the invited phone. In one transaction, acceptance checks the phone, the expiry (7 days) and that the invitation is unconsumed and unrevoked, consumes it, and inserts the `merchant_members` row. A second accept, another account's phone, an expired or revoked token, or an existing membership is rejected.
 - **Alternatives:** an invite code the inviter reads out (rejected: it leaks into the inviter's screen and logs); auto-joining whoever signs in with the phone (rejected: a reassigned number would silently gain access).
-- **Web:** the SMS link is `/{locale}/staff/accept#token=…`. The page clears the fragment on load. When the invitee is signed out, it keeps the token in `sessionStorage` only until the sign-in round trip (`continue=staff-accept`) ends in a terminal answer, so the token never reaches a server log or another tab's history.
+- **Web:** the SMS link is `/{locale}/staff/accept#token=…`. The page stages the token in a host-only HttpOnly cookie over a same-origin POST and clears the fragment. The cookie lasts 15 minutes and the API uses it to resume acceptance after the sign-in round trip (`continue=staff-accept`). The courier invitation uses a separate cookie with the same lifetime. Redemption clears the matching cookie once the API reaches a terminal outcome.
 - **Consequences:** a lost SMS means the owner revokes and re-invites; the M5 courier invitation (MER-08/COU-01) can reuse the same table with a `courier` role later.
 
 ### D-016 — Menu import validates raw cells on the server (2026-11-08)
@@ -278,3 +278,15 @@ Configure Twilio or the existing SMS webhook and configure Resend for email. The
 ## D-032 · three.js for the live tracking scooter (2026-11-12)
 
 Add `three` 0.187.0 (MIT, no runtime deps) to `apps/web` for the procedural scooter drawn as a MapLibre custom layer on the 3D tracking map. It loads through a dynamic import only once the map is ready, never under reduced motion; the flat rider marker stays as the fallback.
+
+## D-033 · Host web and API on the same Compose server (2026-11-18)
+
+Supersedes the Vercel deployment target in earlier deployment notes. Build `apps/web` as a Next.js standalone container in the production Compose project. Caddy remains the only public entrypoint, serving the bare `AWID_WEB_DOMAIN`, redirecting `www` to it and serving the API on `AWID_API_HOST`. Preserve the nonce CSP from Next.js, add a deny-all CSP only as an edge fallback, and apply the shared security headers at Caddy. Browser API and tile paths remain same-origin.
+
+## D-034 · Rate-limit identifier changes per account (2026-11-18)
+
+Signed-in identifier-change OTP requests share a per-account budget of three requests in any rolling 15 minutes and ten in any rolling 24 hours, alongside the existing identifier and source-IP limits. Serialize the account bucket inside the reservation transaction so requests from different sessions, target identifiers, or IP addresses cannot spend the budget concurrently. Persistent rate history stores only an HMAC of the account UUID, derived with the database-managed OTP rate secret, and challenge deletion archives that digest before pruning or account erasure. The account budget applies only to signed-in identifier changes.
+
+## D-035 · Audit exception for GHSA-fc5q-39xc-vjpf (2026-11-18)
+
+Mahdi's decision: `pnpm-workspace.yaml` `auditConfig.ignoreGhsas` ignores only GHSA-fc5q-39xc-vjpf, the `picomatch` ReDoS with no patched release, which is reached solely by build and test tooling. Every other advisory still fails `pnpm audit`. Reasoning and re-check steps are in docs/SECURITY_REVIEW.md.

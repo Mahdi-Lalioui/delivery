@@ -428,6 +428,34 @@
       "when": 1794146700000,
       "tag": "0060_order_discounts",
       "breakpoints": true
+    },
+    {
+      "idx": 61,
+      "version": "7",
+      "when": 1794927000000,
+      "tag": "0061_customer_favourites_rls",
+      "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "7",
+      "when": 1794927220000,
+      "tag": "0062_menu_receipts_rls",
+      "breakpoints": true
+    },
+    {
+      "idx": 63,
+      "version": "7",
+      "when": 1794929285160,
+      "tag": "0063_customer_addresses_rls",
+      "breakpoints": true
+    },
+    {
+      "idx": 64,
+      "version": "7",
+      "when": 1795008268000,
+      "tag": "0064_account_otp_rate_limit",
+      "breakpoints": true
     }
   ]
 }

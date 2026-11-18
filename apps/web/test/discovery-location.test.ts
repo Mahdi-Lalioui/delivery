@@ -99,7 +99,7 @@ test("[CUS-02] coverage failures cannot become persisted selections", async () =
   await expect(resolveLocation(point, signal)).resolves.toBeNull();
 });
 
-test("[CUS-02] restores a confirmed location across visits and ignores malformed storage", () => {
+test("[CUS-02] restores a confirmed location across visits and ignores malformed storage", async () => {
   let persisted: string | null = null;
   const storage = {
     getItem: () => persisted,
@@ -109,17 +109,17 @@ test("[CUS-02] restores a confirmed location across visits and ignores malformed
   };
   const saved = { location: outcome, commune: { nameAr: commune.nameAr, nameFr: commune.nameFr } };
 
-  expect(readSavedLocation(storage)).toBeNull();
+  expect(await readSavedLocation(storage)).toBeNull();
   saveLocation(storage, saved);
-  expect(readSavedLocation(storage)).toEqual(saved);
+  expect(await readSavedLocation(storage)).toEqual(saved);
 
   persisted = JSON.stringify({ location: { ...outcome, longitude: 181 }, commune: saved.commune });
-  expect(readSavedLocation(storage)).toBeNull();
+  expect(await readSavedLocation(storage)).toBeNull();
   persisted = "{";
-  expect(readSavedLocation(storage)).toBeNull();
+  expect(await readSavedLocation(storage)).toBeNull();
 });
 
-test("[CUS-02] a blocked storage provider leaves location selection usable for the visit", () => {
+test("[CUS-02] a blocked storage provider leaves location selection usable for the visit", async () => {
   const storage = {
     getItem: () => {
       throw new Error("Storage blocked");
@@ -129,7 +129,7 @@ test("[CUS-02] a blocked storage provider leaves location selection usable for t
     },
   };
 
-  expect(readSavedLocation(storage)).toBeNull();
+  expect(await readSavedLocation(storage)).toBeNull();
   expect(() => {
     saveLocation(storage, { location: outcome, commune: null });
   }).not.toThrow();

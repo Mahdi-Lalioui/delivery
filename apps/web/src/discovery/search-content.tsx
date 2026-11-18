@@ -1,4 +1,4 @@
-import { photoRatios } from "@zaafran/contracts/media";
+import { photoRatios } from "@zaafran/contracts/media-constants";
 import { StateArt } from "../customer/state-art";
 import { getLocalizedContent } from "@zaafran/i18n/content";
 import { formatDzd } from "@zaafran/i18n/formats";
@@ -217,6 +217,7 @@ export function SearchContent({
   );
 }
 
+// Credited catalogue photos (docs/PHOTO_CREDITS.md).
 const browseCuisines = [
   ["algerian", "couscous"],
   ["grill", "grill-plate"],

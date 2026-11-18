@@ -1,16 +1,18 @@
-import {
-  publicRestaurantOutput,
-  publicRestaurantItemsOutput,
-  publicRestaurantItemOutput,
-} from "@zaafran/contracts/restaurant";
+// The schemas load beside each request, not in the Restaurant page's first scripts (NFR-02).
+const loadContracts = () => import("@zaafran/contracts/restaurant");
+type Contracts = Awaited<ReturnType<typeof loadContracts>>;
+type Schema<Value> = {
+  safeParse(value: unknown): { success: true; data: Value } | { success: false };
+};
 
 type ReadResult<Value> = { kind: "ready"; value: Value } | { kind: "stale" } | { kind: "error" };
 
 async function readPublic<Value>(
   path: string,
-  schema: { safeParse(value: unknown): { success: true; data: Value } | { success: false } },
+  pickSchema: (contracts: Contracts) => Schema<Value>,
   { signal, fetcher }: { signal: AbortSignal; fetcher: typeof fetch },
 ): Promise<ReadResult<Value>> {
+  const contracts = loadContracts();
   try {
     const response = await fetcher(path, {
       credentials: "omit",
@@ -20,7 +22,8 @@ async function readPublic<Value>(
     });
     if (response.status === 409) return { kind: "stale" };
     if (!response.ok) return { kind: "error" };
-    const result = schema.safeParse(await response.json());
+    const body: unknown = await response.json();
+    const result = pickSchema(await contracts).safeParse(body);
     return result.success ? { kind: "ready", value: result.data } : { kind: "error" };
   } catch {
     return { kind: "error" };
@@ -30,7 +33,7 @@ async function readPublic<Value>(
 export async function readRestaurant(slug: string, signal: AbortSignal, fetcher = fetch) {
   const result = await readPublic(
     "/v1/merchants/" + encodeURIComponent(slug),
-    publicRestaurantOutput,
+    (contracts) => contracts.publicRestaurantOutput,
     {
       signal,
       fetcher,
@@ -47,10 +50,14 @@ export function readRestaurantItems(
   const path = `/v1/merchants/${encodeURIComponent(input.slug)}/categories/${input.categoryId}/items`;
   const query = new URLSearchParams({ limit: "24" });
   if (input.cursor) query.set("cursor", input.cursor);
-  return readPublic(path + "?" + query.toString(), publicRestaurantItemsOutput, {
-    signal,
-    fetcher,
-  });
+  return readPublic(
+    path + "?" + query.toString(),
+    (contracts) => contracts.publicRestaurantItemsOutput,
+    {
+      signal,
+      fetcher,
+    },
+  );
 }
 
 export function readRestaurantItem(
@@ -60,5 +67,12 @@ export function readRestaurantItem(
 ) {
   const path = `/v1/merchants/${encodeURIComponent(input.slug)}/items/${input.itemId}`;
   const query = new URLSearchParams({ expectedRevision: String(input.expectedRevision) });
-  return readPublic(path + "?" + query.toString(), publicRestaurantItemOutput, { signal, fetcher });
+  return readPublic(
+    path + "?" + query.toString(),
+    (contracts) => contracts.publicRestaurantItemOutput,
+    {
+      signal,
+      fetcher,
+    },
+  );
 }

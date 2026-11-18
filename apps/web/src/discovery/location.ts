@@ -1,11 +1,17 @@
-import { discoveryLocationInput, discoveryLocationOutput } from "@zaafran/contracts/discovery";
-import { communeListOutput } from "@zaafran/contracts/merchant";
+import type { discoveryLocationInput, discoveryLocationOutput } from "@zaafran/contracts/discovery";
 import type { Commune } from "../merchant/merchant-http";
+
+// Schemas load on use (NFR-02): this module is part of Discovery's first scripts.
+const loadDiscovery = () => import("@zaafran/contracts/discovery");
+
+async function loadCommuneNames() {
+  const { communeListOutput } = await import("@zaafran/contracts/merchant");
+  return communeListOutput.shape.communes.element.pick({ nameAr: true, nameFr: true });
+}
 
 type LocationInput = ReturnType<typeof discoveryLocationInput.parse>;
 type Location = ReturnType<typeof discoveryLocationOutput.parse>;
-const communeNames = communeListOutput.shape.communes.element.pick({ nameAr: true, nameFr: true });
-type CommuneNames = ReturnType<typeof communeNames.parse>;
+type CommuneNames = { nameAr: string; nameFr: string };
 type LocationStorage = Pick<Storage, "getItem" | "setItem">;
 
 export type PointInput = Extract<LocationInput, { kind: "point" }>;
@@ -44,6 +50,7 @@ export async function readBrowserLocation(
   if (!geolocation) return null;
 
   try {
+    const { discoveryLocationInput } = await loadDiscovery();
     return await new Promise((resolve) => {
       geolocation.getCurrentPosition(
         ({ coords: { latitude, longitude, accuracy } }) => {
@@ -85,7 +92,9 @@ export async function resolveLocation(
       signal,
     });
     if (!response.ok) return null;
-    const result = discoveryLocationOutput.safeParse(await response.json());
+    const body: unknown = await response.json();
+    const { discoveryLocationOutput } = await loadDiscovery();
+    const result = discoveryLocationOutput.safeParse(body);
     if (!result.success) return null;
     if (input.kind === "commune" && result.data.communeId !== input.communeId) return null;
     return result.data;
@@ -94,7 +103,9 @@ export async function resolveLocation(
   }
 }
 
-export function readSavedLocation(storage: LocationStorage): SavedDiscoveryLocation | null {
+export async function readSavedLocation(
+  storage: LocationStorage,
+): Promise<SavedDiscoveryLocation | null> {
   try {
     const raw = storage.getItem(storageKey);
     if (raw === null) return null;
@@ -107,6 +118,10 @@ export function readSavedLocation(storage: LocationStorage): SavedDiscoveryLocat
     ) {
       return null;
     }
+    const [{ discoveryLocationOutput }, communeNames] = await Promise.all([
+      loadDiscovery(),
+      loadCommuneNames(),
+    ]);
     const location = discoveryLocationOutput.safeParse(stored.location);
     const commune = communeNames.nullable().safeParse(stored.commune);
     return location.success && commune.success

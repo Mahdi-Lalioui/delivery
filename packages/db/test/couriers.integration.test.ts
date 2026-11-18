@@ -77,16 +77,38 @@ test("[COU-01] owner-only invites are phone-bound, idempotent and exclusive to o
   const [first, second] = await Promise.all([repo().accept(acceptance), repo().accept(acceptance)]);
   expect(first).toEqual(second);
   expect(first).toMatchObject({ kind: "accepted", courier: { merchantId } });
+  const unregisteredInvite = await repo().invite({
+    ...other,
+    merchantId: otherMerchantId,
+    phone: "+213500000099",
+    now,
+  });
+  const foreignInvite = await repo().invite({
+    ...other,
+    merchantId: otherMerchantId,
+    phone: courierPhone,
+    now,
+  });
+  expect(foreignInvite).toMatchObject({ kind: "invited" });
+  expect(foreignInvite.kind).toBe(unregisteredInvite.kind);
+  if (unregisteredInvite.kind !== "invited") throw new Error("Expected an invite for a new driver");
+  if (foreignInvite.kind !== "invited") throw new Error("Expected opaque invitation receipt");
+  expect(Object.keys(foreignInvite.invite).sort()).toEqual(
+    Object.keys(unregisteredInvite.invite).sort(),
+  );
+  expect(await repo().accept({ ...courier, inviteId: foreignInvite.invite.inviteId, now })).toEqual(
+    { kind: "courier_already_registered" },
+  );
+  const { sql } = database.get();
   expect(
-    await repo().invite({ ...other, merchantId: otherMerchantId, phone: courierPhone, now }),
-  ).toEqual({ kind: "courier_already_registered" });
+    await sql`SELECT merchant_id, active FROM public.couriers WHERE user_id = ${courier.userId}`,
+  ).toEqual([{ merchant_id: merchantId, active: true }]);
   expect(await repo().list({ ...other, merchantId })).toBeUndefined();
   expect(await repo().list({ ...owner, merchantId })).toMatchObject([
     { displayName: "Sami", online: false },
   ]);
   expect(await repo().setPresence({ ...other, online: true })).toBe(false);
   expect(await repo().setPresence({ ...courier, online: true })).toBe(true);
-  const { sql } = database.get();
   expect(await sql.begin((tx) => lockDeletableAccount(tx, { ...courier, now }))).toBeUndefined();
   expect(await repo().list({ ...owner, merchantId })).toMatchObject([
     { displayName: "Sami", online: true },

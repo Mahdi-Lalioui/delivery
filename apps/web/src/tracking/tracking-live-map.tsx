@@ -10,6 +10,7 @@ import { checkBasemap } from "./basemap-check";
 import { useLowData } from "../discovery/low-data";
 import type { Tracking } from "./tracking-http";
 import { useTrackingScene } from "./use-tracking-scene";
+import "../maps/algeria-map.css";
 
 const MapCanvas = dynamic(() => import("../maps/map-canvas").then(({ MapCanvas }) => MapCanvas), {
   ssr: false,

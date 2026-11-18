@@ -90,9 +90,19 @@ export function PickupMap({ locale, pins }: { locale: Locale; pins: readonly Pic
   const mapRef = useRef<Map>(null);
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const isLowData = useLowData();
-  const centre = pinsCentre(pins);
+  // Filters empty the pins for a moment: keep the last centre so the box never collapses.
+  const lastCentre = useRef<ReturnType<typeof pinsCentre>>(null);
+  const centre = pinsCentre(pins) ?? lastCentre.current;
+  lastCentre.current = centre;
   usePins(state === "ready" ? mapRef.current : null, pins, locale);
-  if (centre === null || isLowData || state === "error") return null;
+  if (isLowData) return null;
+  if (centre === null) return <div className="pickup-map" aria-hidden="true" />;
+  if (state === "error")
+    return (
+      <section className="pickup-map pickup-map-missing" aria-label={messages.pickupMap}>
+        <p role="status">{getMessages(locale).maps.pickupMissing}</p>
+      </section>
+    );
   return (
     <section className="pickup-map" aria-label={messages.pickupMap} aria-busy={state === "loading"}>
       <MapCanvas

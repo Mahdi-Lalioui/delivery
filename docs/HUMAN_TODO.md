@@ -17,8 +17,8 @@ Codex appends items here (what, why, exact steps). Mahdi ticks them. Items marke
 - [ ] **[before launch]** ANPDP declaration for personal-data processing (Law 18-07).
 
 ## Infrastructure
-- [ ] Staging VPS for the connected web release. Provision Ubuntu LTS with Docker Compose, a static IPv4, at least 4 GB RAM and 80 GB disk. Open TCP 80/443. Create a deployment account with access to the AWID Docker project and install its public SSH key. Share the host and deployment username or the credential reference. Set up the file paths and map data in [DEPLOY.md](DEPLOY.md) and [MAPS.md](../infra/MAPS.md).
-- [ ] Connect the AWID web project in the Vercel team. Import `Mahdi-Lalioui/delivery` with Root Directory `apps/web` and workspace access. Give the staging environment a stable alias, then set its `ZAAFRAN_API_ORIGIN` to the API's TLS origin. Share the project and alias so cookies, media and SSE can be verified against the connected deployment. See [DEPLOY.md](DEPLOY.md).
+- [ ] Staging server for the connected web release. Provision Ubuntu LTS with Docker Compose, a static IPv4, at least 4 GB RAM and 80 GB disk. Open TCP 80/443. Create a deployment account with access to the AWID Docker project and install its public SSH key. Point API, bare web and `www` DNS A records to the server; give the deployment account the DNS provider access needed to verify them. Set up the file paths and map data in [DEPLOY.md](DEPLOY.md) and [MAPS.md](../infra/MAPS.md).
+- [ ] **[local readiness]** The local production Compose test has an empty map directory. Prepare the pinned Algeria PMTiles and OSRM files with the exact checksums and commands in [MAPS.md](../infra/MAPS.md), set `AWID_MAP_DIRECTORY` in the local Compose environment to that directory, restart Martin and OSRM, and rerun `infra/deploy/production-smoke.sh` against the local HTTPS domains. This is needed to prove the real vector tile path.
 - [ ] **[before launch]** Production VPS **hosted in Algeria**: 4 vCPU / 8–16 GB / 160 GB SSD, Ubuntu LTS.
 - [ ] **[before launch]** Second backup location for encrypted backups.
 
@@ -44,11 +44,6 @@ Codex appends items here (what, why, exact steps). Mahdi ticks them. Items marke
 - [ ] Recruit 20–30 pilot customers in the pilot neighbourhoods.
 - [ ] Confirm the subscription price: 5 000 DA or 3 000 DA (admin setting, no code change).
 
-- [ ] **[team preview]** Import `Mahdi-Lalioui/delivery` in the team’s Vercel account and deploy
-  `lane-a` as Preview. Set the Root Directory to `apps/web`, enable access to workspace
-  packages and system environment variables, and set `ZAAFRAN_PREVIEW_DEMO=1` for Preview
-  only. See [team preview steps](TEAM_PREVIEW.md) for Node, build, and opening the demo.
-
 - [ ] **[before launch]** Configure customer order-status SMS in the worker. Set
   `ORDER_SMS_WEBHOOK_URL` and `ORDER_SMS_WEBHOOK_TOKEN` in the deployment secret store.
   The HTTPS gateway must accept a bearer token and a JSON body with `to` and `text`.
@@ -72,3 +67,51 @@ Codex appends items here (what, why, exact steps). Mahdi ticks them. Items marke
   `~/Documents/ChatGPT/zaafran` from sync or move the repos out of `~/Documents`. Then check
   that each `* 2` ref matches its original (`git -C delivery show-ref`) and delete only the
   duplicate ref files.
+
+## Third-party agent skills (lane B, 17 November 2026)
+
+What: decide whether to install find-skills, web-design-guidelines, taste-skill, the freshtechbro three.js and react-three-fiber skills, and microsoft/playwright-cli. Each one should be scanned with NVIDIA SkillSpector first.
+Why: these download and run code from outside repositories. The agent doesn't run unvetted downloads by itself, so it used the repo's own Playwright, axe and audit scripts instead.
+Steps: clone github.com/NVIDIA/skillspector, scan each skill repository, read the report, then run the `npx skills add …` commands from the lane B brief.
+
+## Real-phone check of the customer screens (lane B, 17 November 2026)
+
+What: confirm on a physical mid-range Android phone what the lab measured on the Mac under the throttled Android profile:
+- taps paint in 100 ms or less;
+- scrolling holds 60 fps;
+- layout shift stays under 0.05 on Discovery, Restaurant, Checkout and Tracking.
+
+Why: the lab numbers come from Chrome on a Mac with 4× CPU throttling, not real phone hardware. The READINESS lines are ticked on lab evidence only.
+
+You need: an Android phone with Chrome, a USB cable, and the Mac with this repo on branch `lane-b`.
+
+Steps:
+1. On the phone, open Settings → About phone and tap "Build number" 7 times. Then open Settings → System → Developer options and turn on "USB debugging". Connect the cable and accept the "Allow USB debugging" prompt.
+2. On the Mac, start the map servers and the preview build:
+   - `cd delivery-lane-b`
+   - `docker start lane-b-martin-1 lane-b-osrm-1`
+   - `cd apps/web`
+   - `ZAAFRAN_TILE_ORIGIN=http://127.0.0.1:3101 ZAAFRAN_PREVIEW_DEMO=1 VERCEL_ENV=preview pnpm exec next build`
+   - `ZAAFRAN_TILE_ORIGIN=http://127.0.0.1:3101 ZAAFRAN_PREVIEW_DEMO=1 VERCEL_ENV=preview pnpm exec next start --hostname 127.0.0.1 --port 3110`
+3. Make the phone's localhost reach the Mac. In a second terminal, run `adb reverse tcp:3110 tcp:3110 && adb reverse tcp:3101 tcp:3101`. If `adb` is missing, run `brew install android-platform-tools` first.
+4. On the Mac, open Chrome at `chrome://inspect/#devices`. The phone should be listed. On the phone, open Chrome at `http://localhost:3110/fr/discover`, then click "inspect" next to that tab on the Mac.
+5. In the DevTools window that opens, go to the Performance panel and check the live metrics card (LCP, CLS, INP). For each route below:
+   - press Record;
+   - wait 3 s;
+   - scroll for about 5 s;
+   - do the taps listed;
+   - stop;
+   - write down CLS, the worst INP or interaction, and whether the Frames track shows dropped frames, i.e. red or yellow frames over 16.7 ms.
+
+   | Route (on the phone) | Taps |
+   |---|---|
+   | `/fr/discover` | Livraison / À emporter switch, a cuisine chip, a favourite heart |
+   | `/fr/restaurants/atelier-sidi-yahia` | a dish's "+", "Horaires d'ouverture" |
+   | `/fr/dev/screens/checkout-payment` | "Montant exact", "Ajouter un code promo" |
+   | `/fr/dev/screens/tracking` | "Vue 3D" (on and off), "Appeler le restaurant" |
+
+6. Repeat once in Arabic (`/ar/...`) for Discovery and Tracking, to check the right-to-left layout on the real screen.
+7. Pass: on every route, CLS < 0.05, every interaction ≤ 100 ms, and no run of dropped frames while scrolling.
+8. Record the numbers and phone model in `docs/evidence/awid/perf.md` under "Physical Android check". Tell lane B about any route that fails; DevTools → Performance → "Save profile" gives a file lane B can read.
+
+When done, run `adb reverse --remove-all` and stop the server with Ctrl+C.

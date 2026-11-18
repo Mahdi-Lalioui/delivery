@@ -115,12 +115,32 @@ test("[MER-23:browser] an owner invites staff, revokes an invitation, and the in
         await inviteePage.goto(`${auth.origin}/fr/staff/accept#token=${token}`);
         await expect(inviteePage.getByText(fr.merchantStaff.acceptSignIn)).toBeVisible();
         await expect(inviteePage).toHaveURL(`${auth.origin}/fr/staff/accept`);
+        const stored = await inviteePage.evaluate(
+          (invitation) =>
+            [sessionStorage, localStorage].some((storage) =>
+              Object.keys(storage).some((key) => storage.getItem(key)?.includes(invitation)),
+            ),
+          token,
+        );
+        expect(stored).toBe(false);
+        expect(await inviteeContext.cookies()).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              name: "__Host-staff-invitation",
+              secure: true,
+              httpOnly: true,
+            }),
+          ]),
+        );
         await inviteePage.getByRole("link", { name: fr.merchantStaff.signIn }).click();
         await enterOtp(inviteePage, auth, invitee);
         await inviteePage.getByRole("link", { name: fr.auth.continueInvitation }).click();
         const accepted = inviteePage.getByRole("status");
         await expect(accepted).toContainText(restaurantName);
         await expect(accepted).toContainText(fr.merchantStaff.roleStaff);
+        expect(await inviteeContext.cookies()).not.toEqual(
+          expect.arrayContaining([expect.objectContaining({ name: "__Host-staff-invitation" })]),
+        );
       });
 
       await test.step("The same link cannot be used again", async () => {

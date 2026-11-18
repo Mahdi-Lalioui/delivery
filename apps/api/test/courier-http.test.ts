@@ -18,12 +18,13 @@ test("[COU-01:http] invites and accepts using the signed-in standard session", a
     .fn<ReturnType<typeof createCourierRepository>["invite"]>()
     .mockResolvedValueOnce({ kind: "invited", invite: { inviteId, expiresAt } })
     .mockResolvedValueOnce({ kind: "not_found" })
-    .mockResolvedValueOnce({ kind: "courier_already_registered" })
+    .mockResolvedValueOnce({ kind: "invited", invite: { inviteId, expiresAt } })
     .mockResolvedValueOnce({ kind: "invited", invite: { inviteId, expiresAt } });
   const accept = vi
     .fn<ReturnType<typeof createCourierRepository>["accept"]>()
     .mockResolvedValueOnce({ kind: "accepted", courier: { courierId, merchantId } })
-    .mockResolvedValueOnce({ kind: "invite_expired" });
+    .mockResolvedValueOnce({ kind: "invite_expired" })
+    .mockResolvedValueOnce({ kind: "accepted", courier: { courierId, merchantId } });
   const list = vi
     .fn<ReturnType<typeof createCourierRepository>["list"]>()
     .mockResolvedValueOnce([{ courierId, online: true, displayName: "Sami" }])
@@ -74,7 +75,7 @@ test("[COU-01:http] invites and accepts using the signed-in standard session", a
   expect(issued.json()).toEqual({ inviteId, expiresAt });
   expect(invite).toHaveBeenCalledWith({ merchantId, phone, userId: accountId, sessionId, now });
   expect((await send(rosterPath + "/invites", { phone })).statusCode).toBe(404);
-  expect((await send(rosterPath + "/invites", { phone })).statusCode).toBe(409);
+  expect((await send(rosterPath + "/invites", { phone })).statusCode).toBe(201);
 
   const email = "courier@example.test";
   expect(
@@ -82,6 +83,7 @@ test("[COU-01:http] invites and accepts using the signed-in standard session", a
       .statusCode,
   ).toBe(201);
   expect(sendInvitation.mock.calls).toEqual([
+    [{ phone, token: inviteId, deliveryKey: inviteId }],
     [{ phone, token: inviteId, deliveryKey: inviteId }],
     [{ email, token: inviteId, deliveryKey: inviteId, locale: "en" }],
   ]);
@@ -102,6 +104,25 @@ test("[COU-01:http] invites and accepts using the signed-in standard session", a
   expect(
     (await send("/v1/courier/invites/accept", { inviteId, displayName: "   " })).statusCode,
   ).toBe(400);
+
+  const resumed = await api.inject({
+    method: "POST",
+    url: "/v1/courier/invites/accept",
+    headers: { cookie: `__Host-session=web-session; __Host-courier-invitation=${inviteId}` },
+    payload: { displayName: "Sami" },
+  });
+  expect(resumed.statusCode).toBe(200);
+  expect(resumed.json()).toEqual({ courierId, merchantId });
+  expect(resumed.cookies).toEqual([
+    expect.objectContaining({ name: "__Host-courier-invitation", maxAge: 0 }),
+  ]);
+  expect(accept).toHaveBeenLastCalledWith({
+    inviteId,
+    displayName: "Sami",
+    userId: accountId,
+    sessionId,
+    now,
+  });
 
   expect((await api.inject(rosterPath)).json()).toEqual({
     couriers: [{ courierId, online: true, displayName: "Sami" }],

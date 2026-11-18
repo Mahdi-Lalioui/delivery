@@ -1,3 +1,4 @@
+import { FeedPlate } from "../discovery/feed-card";
 import { Badge, Icon } from "@zaafran/ui";
 import { formatDzd } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
@@ -30,7 +31,7 @@ export function DishPhoto({ merchantId, dish }: { merchantId: string; dish: Rest
   return (
     <div className="restaurant-dish-photo" aria-hidden="true">
       <div className="restaurant-photo-placeholder">
-        <Icon name="plate" size={32} />
+        <FeedPlate />
       </div>
       {dish.photoId !== null && !failed && (
         <img

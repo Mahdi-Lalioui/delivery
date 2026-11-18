@@ -11,8 +11,9 @@ vi.mock("../src/components/site-shell", () => ({
   SiteShell: ({ children }: PropsWithChildren) => children,
 }));
 
-test("[MER-01:web] the public Arabic homepage links to restaurant signup", async () => {
+test("[MER-01:web] the public Arabic homepage links to restaurant signup in a real footer", async () => {
   const html = renderToStaticMarkup(await Home({ locale: "ar" }));
-  expect(html).toMatch(/<a[^>]*href="\/ar\/merchant\/apply"[^>]*>merchant.startApplication<\/a>/);
+  expect(html).toMatch(/<footer class="landing-footer"/);
+  expect(html).toMatch(/<a[^>]*href="\/ar\/merchant\/apply"[^>]*>marketingLanding.footerJoin<\/a>/);
   expect(html).toContain('href="/ar/sign-in"');
 });

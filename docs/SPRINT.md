@@ -10,7 +10,7 @@ and records those edits in the [customer handoff](requests/lane-a-readiness-cust
 This phase includes promotion redemption and local k6 testing.
 
 ## Goal
-Customer orders (delivery or pickup, cash) → restaurant accepts on a live board → courier delivers and is visible on the customer's map → customer rates. Web on Vercel, backend on one server. People who open it should be impressed within five seconds, and nothing may look broken, empty or generic.
+Customer orders (delivery or pickup, cash) → restaurant accepts on a live board → courier delivers and is visible on the customer's map → customer rates. Web and backend run on one server in production Compose. People who open it should be impressed within five seconds, and nothing may look broken, empty or generic.
 
 ## How to work
 - Do everything on your list, in order, without waiting for Mahdi. If something needs him, add it to docs/HUMAN_TODO.md and continue with the next task. When the list is done, re-check every finished item against the definitions of done and fix what fails.
@@ -79,7 +79,7 @@ Loading skeleton, empty state, error state. 390 px Arabic and 1280 px French, li
 4. Add realtime SSE with polling fallback, web push for status changes, and an environment-configured SMS adapter.
 5. Build the courier API, then courier screens: invite acceptance, assigned deliveries, start, validated position updates every 5 seconds, delivery code confirmation and customer broadcasts.
 6. Add nationwide maps and location: AWID-styled PMTiles, OSRM ETA with fallback, wilaya and commune selection for all 69 wilayas, restaurant-defined delivery radius, and 40 seeded restaurants across at least eight cities with menus, photos, ratings and reviews.
-7. Deploy the backend on one server with production Compose, Caddy and TLS on an sslip.io hostname, API, worker, PostGIS, tiles, OSRM, one-command deploy, health checks and nightly encrypted backups. Deploy the web on Vercel through the existing `ZAAFRAN_API_ORIGIN` rewrite and verify cookies, media and realtime. Connect directly for realtime if the rewrite buffers. Document the settings in `docs/DEPLOY.md`.
+7. Deploy the backend and Next.js standalone web on one server with production Compose and Caddy. Serve the bare `AWID_WEB_DOMAIN`, redirect `www` to it, and serve the API on `AWID_API_HOST`; route same-origin API and tile traffic through Caddy. Verify TLS, CSP and security headers, cookies, media, realtime, health checks and nightly encrypted backups. Document settings in `docs/DEPLOY.md`.
 8. Build admin live orders and complete both open handoffs in `docs/requests/` (merchant notice and moderation token).
 9. Add production-build e2e for the delivery golden path, pickup, rejection, timeout and customer cancellation. Port `e2e/demo-smoke.ts` as a route smoke check for Arabic and French, covering console errors and overflow.
 10. Restyle merchant, courier and admin screens with Lane B’s design system and run the design loop on each.

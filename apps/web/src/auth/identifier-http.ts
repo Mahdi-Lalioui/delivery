@@ -1,4 +1,4 @@
-import { verifiedIdentifiersOutput } from "@zaafran/contracts/auth";
+import type { verifiedIdentifiersOutput } from "@zaafran/contracts/auth";
 
 export type VerifiedIdentifiers = ReturnType<typeof verifiedIdentifiersOutput.parse>;
 export type IdentifierRead =
@@ -14,7 +14,10 @@ export async function readIdentifiers(signal: AbortSignal): Promise<IdentifierRe
     });
     if (response.status === 401) return { kind: "sign-in" };
     if (!response.ok) return { kind: "error" };
-    const result = verifiedIdentifiersOutput.safeParse(await response.json());
+    const body: unknown = await response.json();
+    // The schema loads on use, not in the checkout page's first scripts (NFR-02).
+    const { verifiedIdentifiersOutput } = await import("@zaafran/contracts/auth");
+    const result = verifiedIdentifiersOutput.safeParse(body);
     return result.success ? { kind: "ready", value: result.data } : { kind: "error" };
   } catch {
     return { kind: "error" };

@@ -71,3 +71,30 @@ test("[CUS-11] serializes concurrent writes to keep exactly one default", async 
   expect(results.map(({ kind }) => kind)).toEqual(["saved", "saved"]);
   expect((await repo().list(userId)).filter(({ isDefault }) => isDefault)).toHaveLength(1);
 });
+
+test("[CUS-11:security] Postgres hides addresses without and beyond customer scope", async () => {
+  const own = await repo().create(userId, { label: "Privée", pin });
+  const foreign = await repo().create(otherUserId, { label: "Autre privée", pin });
+  if (own.kind !== "saved" || foreign.kind !== "saved")
+    throw new Error("Expected fixture addresses to be saved");
+  const ownAddressIds = (await repo().list(userId)).map(({ addressId }) => ({ id: addressId }));
+
+  const { sql } = database.get();
+  const reader = sql("addresses_rls_" + randomUUID().replaceAll("-", ""));
+  await sql.begin(async (tx) => {
+    await tx`CREATE ROLE ${reader} NOLOGIN`;
+    await tx`GRANT SELECT, UPDATE, DELETE ON public.addresses TO ${reader}`;
+    await tx`SET LOCAL ROLE ${reader}`;
+    expect(await tx`SELECT id FROM public.addresses`).toEqual([]);
+    await tx`SELECT set_config('awid.customer_id', ${userId}, true)`;
+    expect(await tx`SELECT id FROM public.addresses ORDER BY id DESC`).toEqual(
+      [...ownAddressIds].sort((left, right) => right.id.localeCompare(left.id)),
+    );
+    expect(
+      (await tx`DELETE FROM public.addresses WHERE id = ${foreign.address.addressId}`).count,
+    ).toBe(0);
+    await tx`RESET ROLE`;
+    await tx`REVOKE SELECT, UPDATE, DELETE ON public.addresses FROM ${reader}`;
+    await tx`DROP ROLE ${reader}`;
+  });
+});

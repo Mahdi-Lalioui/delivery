@@ -98,3 +98,14 @@ test("[CUS-21] has empty, loading and error states", () => {
   expect(render({}, "ar")).toContain('class="ui-skeleton"');
   expect(render({ history: { kind: "error" } }, "ar")).toContain(retentionOrders.retry);
 });
+
+test("[CUS-21] a live order's primary action follows it, not orders it again", () => {
+  const [first] = orders;
+  if (!first) throw new Error("fixture has an order");
+  const live = { ...first, status: "out_for_delivery" as const };
+  const html = render({ history: { kind: "ready", orders: [live], nextCursor: null } });
+  const { retentionOrders } = getMessages("fr");
+  expect(html).toContain(`href="/fr/orders/${live.orderId}"`);
+  expect(html).toContain(retentionOrders.follow);
+  expect(html).not.toContain(retentionOrders.orderAgain);
+});

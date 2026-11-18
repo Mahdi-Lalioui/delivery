@@ -1,7 +1,7 @@
 import type { Locale } from "@zaafran/i18n/locales";
 import type { MouseEventHandler } from "react";
 import { FeedCard, FeedPlate } from "./feed-card";
-import type { FeedFilters, FeedState } from "./feed-http";
+import type { FeedFilters, FeedRestaurant, FeedState } from "./feed-http";
 import { filterLabel, without } from "./feed-filters";
 import { activeFilters } from "./filter-state";
 import { fillFeedMessage, getFeedMessages } from "./feed-messages";
@@ -121,6 +121,13 @@ function EmptyResults({
   );
 }
 
+/** In pickup mode nobody pays delivery: the card shows distance and time, not a fee. */
+function withoutFee(restaurant: FeedRestaurant): FeedRestaurant {
+  const card = { ...restaurant };
+  delete card.deliveryFeeDzd;
+  return card;
+}
+
 export function FeedContent({ locale, state, onLoad, filters = {}, onFilters }: ContentProps) {
   const { restaurants, phase } = state;
   const messages = getFeedMessages(locale);
@@ -136,7 +143,10 @@ export function FeedContent({ locale, state, onLoad, filters = {}, onFilters }: 
         <ul className="restaurant-feed-grid" role="list" aria-label={messages.heading}>
           {restaurants.map((restaurant) => (
             <li key={restaurant.merchantId} data-feed-restaurant={restaurant.merchantId}>
-              <FeedCard restaurant={restaurant} locale={locale} />
+              <FeedCard
+                restaurant={filters.fulfilment === "pickup" ? withoutFee(restaurant) : restaurant}
+                locale={locale}
+              />
             </li>
           ))}
         </ul>

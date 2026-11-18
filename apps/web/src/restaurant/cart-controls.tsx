@@ -9,12 +9,25 @@ import { RestaurantDialog } from "./restaurant-dialog";
 import { getRestaurantMessages } from "./restaurant-messages";
 import type { useBrowserCart } from "./use-browser-cart";
 
+/** A cart problem, shown on the cart itself (bar and panel), right where the diner acts. */
+function CartNotice({ text }: { text: string | undefined }) {
+  if (text === undefined) return null;
+  return (
+    <p className="restaurant-cart-notice" role="alert">
+      {text}
+    </p>
+  );
+}
+
 export function CartControls({
   basket,
   locale,
+  notice,
 }: {
   basket: ReturnType<typeof useBrowserCart>;
   locale: Locale;
+  /** An add or save failure from the menu, shown next to the cart rather than under the menu. */
+  notice?: string | undefined;
 }) {
   const [cartVisible, setCartVisible] = useState(false);
   const [cartError, setCartError] = useState(false);
@@ -22,13 +35,21 @@ export function CartControls({
   const { cart } = basket;
   if (cart === null)
     return (
-      <aside className="restaurant-cart-panel" aria-label={messages.panelTitle}>
-        <h2>{messages.panelTitle}</h2>
-        <p className="restaurant-cart-panel-empty">
-          <Icon name="bag" size={32} />
-          {messages.panelEmpty}
-        </p>
-      </aside>
+      <>
+        {notice !== undefined && (
+          <div className="restaurant-cart-bar">
+            <CartNotice text={notice} />
+          </div>
+        )}
+        <aside className="restaurant-cart-panel" aria-label={messages.panelTitle}>
+          <CartNotice text={notice} />
+          <h2>{messages.panelTitle}</h2>
+          <p className="restaurant-cart-panel-empty">
+            <Icon name="bag" size={32} />
+            {messages.panelEmpty}
+          </p>
+        </aside>
+      </>
     );
   const summary = getCartSummary(cart);
   if (!summary.ok) return null;
@@ -58,6 +79,7 @@ export function CartControls({
   return (
     <>
       <div className="restaurant-cart-bar">
+        <CartNotice text={notice} />
         <button
           type="button"
           className="restaurant-cart-button"
@@ -86,6 +108,7 @@ export function CartControls({
       </div>
 
       <aside className="restaurant-cart-panel" aria-label={messages.panelTitle}>
+        <CartNotice text={notice} />
         <h2>{messages.panelTitle}</h2>
         <CartContents cart={activeCart} locale={locale} onQuantity={edit} onRemove={remove} />
         <a

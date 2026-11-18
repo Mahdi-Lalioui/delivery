@@ -1,6 +1,5 @@
 import { publicSearchQuery } from "@zaafran/contracts/search";
 
-export const searchHistoryKey = "zaafran.discovery.search-history.v1";
 const historyLimit = 10;
 
 export function readRecentSearches(raw: string | null): string[] {

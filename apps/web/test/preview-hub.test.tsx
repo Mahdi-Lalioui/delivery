@@ -57,6 +57,26 @@ test("asks robots to skip both preview route variants", () => {
   expect(latinMetadata.robots).toEqual({ index: false, follow: false });
 });
 
+// Plain names: this test checks the selection, not the copy.
+const galleryLabels = {
+  screen: "Screen",
+  state: "State",
+  screens: {
+    "merchant-billing": "merchant-billing",
+    "admin-billing": "admin-billing",
+    "billing-settings": "billing-settings",
+    promotions: "promotions",
+    reviews: "reviews",
+    rating: "rating",
+    checkout: "checkout",
+    tracking: "tracking",
+    platform: "platform",
+    orders: "orders",
+    analytics: "analytics",
+  },
+  modes: { ready: "Ready", empty: "Empty", loading: "Loading", error: "Error" },
+};
+
 test("the admin link opens the gallery with the administration billing example selected", async () => {
   const page = await ArabicLaneBGallery({
     searchParams: Promise.resolve({ screen: "admin-billing" }),
@@ -64,10 +84,10 @@ test("the admin link opens the gallery with the administration billing example s
   const html = renderToStaticMarkup(
     <NextIntlClientProvider locale="ar-DZ" timeZone="Africa/Algiers" messages={getMessages("ar")}>
       <ToastProvider closeLabel="إغلاق">
-        <LaneBGallery locale="ar" labels={{ screen: "Screen", state: "State" }} {...page.props} />
+        <LaneBGallery locale="ar" labels={galleryLabels} {...page.props} />
       </ToastProvider>
     </NextIntlClientProvider>,
   );
 
-  expect(html).toContain('name="screen" checked="" value="admin-billing"');
+  expect(html).toMatch(/<option value="admin-billing" selected="">/u);
 });

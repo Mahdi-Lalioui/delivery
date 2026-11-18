@@ -418,6 +418,35 @@ function deliveryActor(sql: TransactionSql, scope: AuthorizationScope, order: St
     : undefined;
 }
 
+async function authorizeCommandActor(
+  sql: TransactionSql,
+  {
+    request,
+    order,
+    lockRole,
+  }: {
+    request: OrderCommandRequest;
+    order: StateRow;
+    lockRole: boolean;
+  },
+) {
+  const scope: AuthorizationScope = {
+    ...request,
+    lockRole,
+    preferMerchant:
+      request.action.kind !== "cancel" || order.status === "accepted" || order.status === "ready",
+    allowCourier: request.action.kind === "pickUp",
+  };
+  switch (request.action.kind) {
+    case "deliver":
+    case "deliverPhoto":
+    case "fail":
+      return deliveryActor(sql, scope, order);
+    default:
+      return authorizeOrder(sql, scope, order);
+  }
+}
+
 export async function applyOrderCommand(
   sql: TransactionSql,
   request: OrderCommandRequest,
@@ -427,22 +456,15 @@ export async function applyOrderCommand(
     SELECT FROM public.users WHERE id = ${request.accountId} AND deleted_at IS NULL AND blocked_at IS NULL FOR SHARE
   `;
   if (!account) return { kind: "not_found" } as const;
+  const candidate = await readOrderSnapshot(sql, request.orderId, false);
+  if (
+    !candidate ||
+    !(await authorizeCommandActor(sql, { request, order: candidate, lockRole: false }))
+  )
+    return { kind: "not_found" } as const;
   const order = await readOrderSnapshot(sql, request.orderId, true);
   if (!order) return { kind: "not_found" } as const;
-  const preferMerchant =
-    request.action.kind !== "cancel" || order.status === "accepted" || order.status === "ready";
-  const scope = {
-    ...request,
-    lockRole: true,
-    preferMerchant,
-    allowCourier: request.action.kind === "pickUp",
-  };
-  const actor =
-    request.action.kind === "deliver" ||
-    request.action.kind === "deliverPhoto" ||
-    request.action.kind === "fail"
-      ? await deliveryActor(sql, scope, order)
-      : await authorizeOrder(sql, scope, order);
+  const actor = await authorizeCommandActor(sql, { request, order, lockRole: true });
   return actor
     ? commitCommand(sql, request, { order, actor, deliveryKey })
     : ({ kind: "not_found" } as const);

@@ -41,7 +41,9 @@ test("[CUS-13] step 1 shows progress, the fulfilment switch and saved addresses"
   expect(html).toContain("À emporter");
   expect(html).toContain("Maison");
   expect(html).toContain("Nouvelle adresse");
-  expect(html).toContain(">Continuer<");
+  // The step button carries the total, and desktop keeps the order summary beside the step.
+  expect(html).toMatch(/>Continuer · 3\s100\sDA</u);
+  expect(html).toContain('class="checkout-aside"');
 });
 
 test("[CUS-13] an empty cart offers to find a restaurant, loading shows a skeleton", () => {

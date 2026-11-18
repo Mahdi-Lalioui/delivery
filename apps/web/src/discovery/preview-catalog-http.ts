@@ -24,6 +24,7 @@ const noStore = { "cache-control": "no-store" };
 const problems = {
   400: { code: "invalid_request", title: "Invalid request" },
   404: { code: "not_found", title: "Not found" },
+  401: { code: "unauthenticated", title: "Sign-in required" },
   405: { code: "method_not_allowed", title: "Method not allowed" },
   409: { code: "revision_conflict", title: "Menu revision conflict" },
 };
@@ -236,6 +237,10 @@ export function readPreviewCatalog(request: Request) {
 }
 
 function dispatch({ pathname, searchParams }: URL) {
+  // The preview has no auth backend: answer as production does for a signed-out visitor, so
+  // Sign-in and Account show their real signed-out states rather than a load error.
+  if (pathname === "/v1/auth/methods") return json({ methods: ["phone", "email"] });
+  if (pathname.startsWith("/v1/me/")) return problem(401);
   if (pathname === "/v1/feed") return feed(searchParams);
   if (pathname === "/v1/search") return search(searchParams);
 

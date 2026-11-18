@@ -1,4 +1,4 @@
-import { MyOrdersPage, ordersMetadata } from "../../../retention/retention-pages";
+import { MyOrdersPage, ordersMetadata } from "../../../retention/my-orders-page";
 
 export function generateMetadata() {
   return ordersMetadata("ar");
