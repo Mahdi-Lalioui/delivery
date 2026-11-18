@@ -50,3 +50,10 @@
     transition: none;
   }
 }
+
+/* Gallery state switch: whole words only, never "Attent/e". */
+.billing-kpis .ui-segment-face {
+  overflow-wrap: normal;
+  word-break: keep-all;
+  font-size: var(--font-size-caption);
+}

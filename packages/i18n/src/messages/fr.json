@@ -1701,7 +1701,7 @@
     "state": "État",
     "modeReady": "Prêt",
     "modeEmpty": "Vide",
-    "modeLoading": "Chargement",
+    "modeLoading": "Attente",
     "modeError": "Erreur",
     "adminBillingScreen": "Facturation (admin)"
   },
