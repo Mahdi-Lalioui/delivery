@@ -522,3 +522,5 @@
   Next: push the merged lane-a head, inspect GitHub CI for that exact commit, then merge into main only after every required check is green.
 - 2026-11-19 · Low · Took over Lane B’s design handoff; replaced the mixed-language French footer tagline with “Imaginée et livrée en Algérie.” Landing regression test (6 passed), i18n typecheck and web typecheck pass.
   Next: finish the five remaining customer design handoff items from docs/progress/lane-b.md, then refresh the customer design score evidence.
+- 2026-11-19 · Medium · Checkout design handoff: localized the French landing tagline; payment repeats address/pickup point and chosen time; order confirmation shows server ETA beside the tagine, localized in ar/fr/en. Landing tests (6), checkout tests (8), web typecheck, ESLint, Prettier pass.
+  Next: finish pickup tracking/orders desktop side content and pickup-mode header copy, then refresh design evidence; retry pushing commits when GitHub resolves.

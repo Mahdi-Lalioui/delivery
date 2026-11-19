@@ -188,6 +188,8 @@ export function CheckoutSample({
           orderId={id(500)}
           shortCode="K7P-4QX"
           restaurant="Dar Yemma"
+          fulfilment="delivery"
+          eta={{ earliestAt: "2026-11-11T19:30:00.000Z", latestAt: "2026-11-11T19:40:00.000Z" }}
           redirectMs={null}
         />
       ) : (

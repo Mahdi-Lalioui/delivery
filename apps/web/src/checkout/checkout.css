@@ -148,6 +148,51 @@
   justify-self: stretch;
 }
 
+.checkout-recap {
+  display: grid;
+  gap: var(--space-12);
+  padding: var(--space-16);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-e1);
+}
+
+.checkout-recap h3 {
+  margin: 0;
+  color: var(--color-text-2);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-label);
+}
+
+.checkout-recap p {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-12);
+  margin: 0;
+}
+
+.checkout-recap svg {
+  flex: none;
+  margin-block-start: 2px;
+  color: var(--color-accent-strong);
+}
+
+.checkout-recap span {
+  display: grid;
+  gap: var(--space-4);
+  min-inline-size: 0;
+}
+
+.checkout-recap strong {
+  font-size: var(--font-size-caption);
+}
+
+.checkout-recap bdi {
+  color: var(--color-text-2);
+  font-size: var(--font-size-caption);
+}
+
 /* Address and option cards. */
 .checkout-addresses {
   display: grid;
@@ -534,6 +579,22 @@
   font-weight: var(--font-weight-h3);
   font-variant-numeric: var(--font-variant-numeric-numbers);
   letter-spacing: var(--letter-spacing-micro);
+}
+
+.checkout-confirmed-eta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+  margin: 0;
+  padding: var(--space-8) var(--space-16);
+  border: 1px solid color-mix(in srgb, var(--color-glow) 56%, transparent);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-glow) 20%, transparent);
+  color: var(--color-on-night);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-label);
+  font-variant-numeric: var(--font-variant-numeric-numbers);
 }
 
 .checkout-confirmed .ui-button {

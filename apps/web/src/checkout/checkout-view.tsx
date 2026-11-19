@@ -1,7 +1,7 @@
 "use client";
 
 import { StateArt } from "../customer/state-art";
-import { formatDzd } from "@zaafran/i18n/formats";
+import { formatAlgiersTime, formatDzd } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
 import { ButtonLink, EmptyState, Icon, Skeleton } from "@zaafran/ui";
 import { useTranslations } from "next-intl";
@@ -121,18 +121,29 @@ export function OrderConfirmed({
   orderId,
   shortCode,
   restaurant,
+  fulfilment,
+  eta,
   redirectMs = 4500,
 }: {
   locale: Locale;
   orderId: string;
   shortCode: string;
   restaurant: string;
+  fulfilment: "delivery" | "pickup";
+  eta: { earliestAt: string; latestAt: string } | null;
   redirectMs?: number | null;
 }) {
   const translate = useTranslations("checkout");
   const href = `/${locale}/orders/${orderId}`;
   const lowData = useLowData();
   const title = translate("confirmedTitle");
+  const etaLabel =
+    eta === null
+      ? undefined
+      : translate(fulfilment === "pickup" ? "confirmedEtaPickup" : "confirmedEtaDelivery", {
+          from: formatAlgiersTime(new Date(eta.earliestAt), locale),
+          to: formatAlgiersTime(new Date(eta.latestAt), locale),
+        });
   const goToTracking = useCallback(() => {
     if (redirectMs !== null) window.location.assign(href);
   }, [href, redirectMs]);
@@ -159,6 +170,12 @@ export function OrderConfirmed({
           <Tagine3d label={title} onDone={goToTracking} />
         )}
       </div>
+      {etaLabel !== undefined && (
+        <p className="checkout-confirmed-eta">
+          <Icon name="clock" size={18} />
+          {etaLabel}
+        </p>
+      )}
       <h1 id="checkout-confirmed-title">{title}</h1>
       <p>{translate("confirmedBody", { restaurant })}</p>
       <p className="checkout-confirmed-code">{translate("confirmedCode", { code: shortCode })}</p>
@@ -243,6 +260,8 @@ export function CheckoutView({ state, locale }: { state: CheckoutState; locale: 
         orderId={place.order.orderId}
         shortCode={place.order.shortCode}
         restaurant={state.cart?.merchant.name ?? ""}
+        fulfilment={place.order.fulfilment}
+        eta={place.order.eta}
       />
     );
   const isBlocked = isCheckoutBlocked(state);
