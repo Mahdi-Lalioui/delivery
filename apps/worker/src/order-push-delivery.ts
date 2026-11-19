@@ -29,7 +29,16 @@ function expiration(sql: ISql) {
   `;
 }
 
-export async function listPushRecipients(sql: ISql, orderId: string) {
+async function setPushCustomerScope(sql: TransactionSql, userId: string) {
+  await sql`SELECT set_config('awid.customer_id', ${userId.toLowerCase()}, true)`;
+}
+
+export async function listPushRecipients(sql: TransactionSql, orderId: string) {
+  const [order] = await sql<{ customerId: string }[]>`
+    SELECT customer_id AS "customerId" FROM public.orders WHERE id = ${orderId}
+  `;
+  if (!order?.customerId) return [];
+  await setPushCustomerScope(sql, order.customerId);
   return sql<Recipient[]>`
     SELECT subscription.endpoint, subscription.session_id AS "sessionId"
     ${activeDevices(sql)} ${orderId} ${expiration(sql)}
@@ -41,6 +50,11 @@ export async function readPushDelivery(
   event: PushEvent,
   recipient: Recipient,
 ) {
+  const [order] = await sql<{ customerId: string }[]>`
+    SELECT customer_id AS "customerId" FROM public.orders WHERE id = ${event.orderId}
+  `;
+  if (!order?.customerId) return undefined;
+  await setPushCustomerScope(sql, order.customerId);
   const [delivery] = await sql<Delivery[]>`
     SELECT subscription.endpoint, subscription.session_id AS "sessionId",
       jsonb_build_object('p256dh', subscription.p256dh, 'auth', subscription.auth_key) AS keys,
@@ -61,12 +75,11 @@ export async function readPushDelivery(
 
 export async function pruneInactivePushSubscriptions(sql: ISql) {
   await sql`
-    DELETE FROM public.push_subscriptions WHERE endpoint IN (
-      SELECT subscription.endpoint FROM public.push_subscriptions AS subscription
-      JOIN public.sessions AS session ON session.id = subscription.session_id
-      WHERE session.revoked_at IS NOT NULL OR session.expires_at <= statement_timestamp()
-        OR subscription.expires_ms <= extract(epoch FROM statement_timestamp()) * 1000
-      LIMIT 5000 FOR UPDATE OF subscription SKIP LOCKED
-    )
+    DELETE FROM public.push_subscriptions AS subscription
+    WHERE subscription.expires_ms <= extract(epoch FROM statement_timestamp()) * 1000
+      OR EXISTS (
+        SELECT FROM public.sessions AS session WHERE session.id = subscription.session_id
+          AND (session.revoked_at IS NOT NULL OR session.expires_at <= statement_timestamp())
+      )
   `;
 }

@@ -566,3 +566,5 @@
   Next: inspect remaining registered merchant/customer routes for missing production-session ownership tests; keep exhaustive isolation open.
 - 2026-11-19 · Ultra · Added production-API/Postgres push-subscription isolation coverage: another customer cannot claim/remove a live endpoint, revoked sessions cannot remove it, and row ownership remains unchanged. Focused integration 1/1 pass; evidence map updated.
   Next: inspect the remaining customer/merchant/courier route inventory for missing real-session ownership tests; keep exhaustive isolation open.
+- 2026-11-19 · Ultra · Forced RLS on push subscriptions and scoped order notifications, worker delivery/cleanup, and privacy erasure; stale-token cleanup is limited to expired tokens or revoked sessions. DB suites passed 48/48 and worker queue passed 7/7; DB/worker typecheck and formatting passed. [Evidence](../SECURITY_REVIEW.md#customer-push-subscription-row-isolation)
+  Next: inspect remaining customer/merchant/courier routes for missing real-session isolation tests; then continue security controls and k6 readiness.

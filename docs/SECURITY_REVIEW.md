@@ -265,6 +265,15 @@ The regression now sees no rows without context, only the current customer's
 rows with context, and cannot delete another customer's address. Address,
 checkout quote and privacy integration suites passed 48 tests.
 
+## Customer push-subscription row isolation
+
+Migration 0065 forces RLS on push subscriptions. Save, remove, notification
+preference selection, delivery, and account erasure use transaction-local
+customer scope. A separate database role sees no active cross-account rows;
+the cleanup policy reveals and deletes only expired subscriptions or tokens
+whose session is revoked/expired. Push, order quote/notification, privacy and
+worker queue Postgres suites passed (48 + 7 tests).
+
 ## Order action isolation before locking
 
 Order commands now first read an unlocked candidate snapshot and verify the

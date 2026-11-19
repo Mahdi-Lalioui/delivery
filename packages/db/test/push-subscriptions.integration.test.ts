@@ -50,6 +50,46 @@ test("[NOT-04] registration is idempotent and cannot steal a live account's subs
   expect(await sql`SELECT FROM push_subscriptions WHERE endpoint = ${endpoint}`).toHaveLength(0);
 });
 
+test("[NOT-04][SECURITY] push subscription RLS hides rows and rejects cross-account writes", async () => {
+  const repository = createPushSubscriptionRepository(database.get());
+  const [owner, outsider] = await Promise.all([customer(), customer()]);
+  const scopedEndpoint = endpoint + "/rls";
+  const expiredEndpoint = endpoint + "/rls-expired";
+  expect(await repository.save(owner, { endpoint: scopedEndpoint, keys })).toBe("saved");
+  expect(await repository.save(owner, { endpoint: expiredEndpoint, keys })).toBe("saved");
+
+  const { sql } = database.get();
+  await sql`UPDATE public.push_subscriptions SET expires_ms = 1 WHERE endpoint = ${expiredEndpoint}`;
+  const reader = sql("push_rls_" + randomUUID().replaceAll("-", ""));
+  await sql.begin(async (tx) => {
+    await tx`CREATE ROLE ${reader} NOLOGIN`;
+    await tx`GRANT SELECT ON public.push_subscriptions TO ${reader}`;
+    await tx`GRANT DELETE ON public.push_subscriptions TO ${reader}`;
+    await tx`GRANT SELECT ON public.sessions TO ${reader}`;
+    await tx`SET LOCAL ROLE ${reader}`;
+    expect(
+      await tx`SELECT endpoint FROM public.push_subscriptions WHERE endpoint = ${scopedEndpoint}`,
+    ).toEqual([]);
+    await tx`SELECT set_config('awid.customer_id', ${owner.userId}, true)`;
+    expect(
+      await tx`SELECT endpoint FROM public.push_subscriptions WHERE endpoint = ${scopedEndpoint}`,
+    ).toEqual([{ endpoint: scopedEndpoint }]);
+    await tx`SELECT set_config('awid.customer_id', ${outsider.userId}, true)`;
+    expect(
+      await tx`SELECT endpoint FROM public.push_subscriptions WHERE endpoint = ${scopedEndpoint}`,
+    ).toEqual([]);
+    await tx`DELETE FROM public.push_subscriptions WHERE expires_ms <= extract(epoch FROM statement_timestamp()) * 1000`;
+    await tx`RESET ROLE`;
+    await tx`REVOKE DELETE ON public.push_subscriptions FROM ${reader}`;
+    await tx`REVOKE SELECT ON public.push_subscriptions FROM ${reader}`;
+    await tx`REVOKE SELECT ON public.sessions FROM ${reader}`;
+    await tx`DROP ROLE ${reader}`;
+  });
+  expect(
+    await sql`SELECT endpoint FROM public.push_subscriptions WHERE endpoint LIKE ${endpoint + "/rls%"} ORDER BY endpoint`,
+  ).toEqual([{ endpoint: scopedEndpoint }]);
+});
+
 test("[NOT-04] concurrent subscriptions respect the active account cap", async () => {
   const repository = createPushSubscriptionRepository(database.get());
   const account = await customer();

@@ -6,6 +6,10 @@ type Scope = { userId: string; sessionId: string };
 type Subscription = ReturnType<typeof pushSubscriptionInput.parse>;
 const maximumDevices = 10;
 
+async function setCustomerScope(sql: TransactionSql, userId: string) {
+  await sql`SELECT set_config('awid.customer_id', ${userId.toLowerCase()}, true)`;
+}
+
 async function lockActiveSession(sql: TransactionSql, { userId, sessionId }: Scope) {
   const [account] = await sql`
     SELECT FROM public.users WHERE id = ${userId} AND deleted_at IS NULL AND blocked_at IS NULL
@@ -39,6 +43,7 @@ async function reserveSubscription(sql: TransactionSql, scope: Scope, input: Sub
 
 async function save(sql: TransactionSql, scope: Scope, input: Subscription) {
   if (!(await lockActiveSession(sql, scope))) return "unauthorized";
+  await setCustomerScope(sql, scope.userId);
   const { userId } = scope;
   await sql`
     DELETE FROM public.push_subscriptions AS subscription USING public.sessions AS session
@@ -56,6 +61,7 @@ async function save(sql: TransactionSql, scope: Scope, input: Subscription) {
 
 async function remove(sql: TransactionSql, scope: Scope, endpoint: string) {
   if (!(await lockActiveSession(sql, scope))) return "unauthorized";
+  await setCustomerScope(sql, scope.userId);
   await sql`
     DELETE FROM public.push_subscriptions WHERE user_id = ${scope.userId} AND endpoint = ${endpoint}
   `;
