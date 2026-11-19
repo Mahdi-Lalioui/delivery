@@ -208,3 +208,77 @@ test("[MER-10:http] [MER-23:http] reuses and edits one option group across two i
   expect(listed.items).toContainEqual(firstItem.item);
   expect(listed.items).toContainEqual(secondItem.item);
 });
+
+test("[AUTH-07][MER-10] a restaurant owner cannot read, edit or attach another restaurant's option group", async () => {
+  const api = await openApi();
+  const ownerA = await seedActor("+213500000056", "standard");
+  const ownerB = await seedActor("+213500000057", "standard");
+  const restaurantA = await seedMenuMerchants(ownerA.userId, "1604");
+  const restaurantB = await seedMenuMerchants(ownerB.userId, "1605");
+  const clientA = menuClient(api, ownerA, restaurantA.owned);
+  const clientB = menuClient(api, ownerB, restaurantB.owned);
+  const options = [
+    { names: { fr: "Harissa" }, priceDeltaDzd: 0, isDefault: false, isAvailable: true },
+  ];
+  const groupResponse = await clientA.write({
+    path: "/option-groups",
+    payload: {
+      names: { fr: "Sauce" },
+      minimum: 0,
+      maximum: 1,
+      options,
+      expectedRevision: 0,
+    },
+  });
+  expect(groupResponse.statusCode).toBe(201);
+  const created = menuOptionGroupWriteOutput.parse(groupResponse.json());
+  const group = created.optionGroup;
+  const groupPath = "/option-groups/" + group.optionGroupId;
+  expect((await clientB.get("/option-groups")).json()).toMatchObject({ optionGroups: [] });
+  expect((await clientB.get(groupPath)).statusCode).toBe(404);
+  expect(
+    (
+      await clientB.write({
+        method: "PUT",
+        path: groupPath,
+        payload: { names: group.names, minimum: 0, maximum: 1, options, expectedRevision: 0 },
+      })
+    ).statusCode,
+  ).toBe(404);
+
+  const category = await clientB.write({
+    path: "/categories",
+    payload: { names: { fr: "Plats" }, availability: null, expectedRevision: 0 },
+  });
+  expect(category.statusCode).toBe(201);
+  const categoryId = menuCategoryWriteOutput.parse(category.json()).category.categoryId;
+  const item = await clientB.write({
+    path: "/items",
+    payload: {
+      categoryId,
+      names: { fr: "Plat fictif" },
+      descriptions: { fr: "Description fictive" },
+      priceDzd: 1_000,
+      photoId: null,
+      tags: [],
+      extraPrepMinutes: 0,
+      optionGroupIds: [group.optionGroupId],
+      expectedRevision: 1,
+    },
+  });
+  expect(item.statusCode).toBe(404);
+  expect((await clientB.get("/option-groups")).json()).toMatchObject({
+    revision: 1,
+    optionGroups: [],
+  });
+  expect(
+    menuItemPageOutput.parse((await clientB.get("/items?categoryId=" + categoryId)).json()),
+  ).toMatchObject({
+    revision: 1,
+    items: [],
+  });
+  expect(menuOptionGroupDetailOutput.parse((await clientA.get(groupPath)).json())).toEqual({
+    ...created,
+    sessionId: ownerA.sessionId,
+  });
+});

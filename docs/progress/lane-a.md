@@ -568,3 +568,5 @@
   Next: inspect the remaining customer/merchant/courier route inventory for missing real-session ownership tests; keep exhaustive isolation open.
 - 2026-11-19 · Ultra · Forced RLS on push subscriptions and scoped order notifications, worker delivery/cleanup, and privacy erasure; stale-token cleanup is limited to expired tokens or revoked sessions. Full `pnpm verify` passed, including 2,092 unit and 374 integration tests. [Evidence](../SECURITY_REVIEW.md#customer-push-subscription-row-isolation)
   Next: inspect remaining customer/merchant/courier routes for missing real-session isolation tests; then continue security controls and k6 readiness.
+- 2026-11-19 · Ultra · Added real-session owner-A/owner-B option-group read, update and item-attachment denial coverage; post-denial checks prove source details and target revision/data remain unchanged. Full `pnpm verify` passed (2,092 unit tests; 375 integration tests); reviewer-requested mutation-state assertions are included. [Evidence](../evidence/awid/tenant-isolation.md)
+  Next: close the next concrete route/resource isolation gap, then continue security controls and k6 readiness.
