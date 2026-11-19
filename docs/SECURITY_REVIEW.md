@@ -90,11 +90,38 @@ verify that another account or restaurant cannot access private uploads.
 
 ## Verification remaining
 
-Review the route and role inventory, then verify tenant and customer scoping through
-the API and PostGIS. Exercise OTP enumeration, attempt caps and delivery rate limits.
-Verify session binding and revocation, CSRF, CSP, headers, rate
-limits, secret handling and the dependency audit. Record commands and results here as
-they pass, then rerun the full security and reliability pass from scratch.
+The 19 November connected Postgres tests extend tenant evidence for courier
+completion, merchant order commands, customer addresses/quotes, ratings/reorder,
+admin orders/dashboard/billing/platform/moderation/applications, and privacy
+export/deletion. The route/resource map links each regression:
+[tenant-isolation.md](evidence/awid/tenant-isolation.md). OTP limits, upload
+validation, session fixation, API CSP, web/Caddy headers, CSRF and log redaction
+have existing passing evidence in this review. These checks are not a substitute
+for closing the remaining gaps below.
+
+Open security review items:
+
+- Complete the exhaustive registered-route-to-resource ownership map. Connected
+  tests now cover high-risk routes, but not every customer, merchant, courier and
+  administrator endpoint. See the explicit omissions in
+  [tenant-isolation.md](evidence/awid/tenant-isolation.md).
+- Trace every input schema and query through SQL, process and HTML boundaries;
+  adversarial input coverage is not yet complete. No new injectable defect was
+  confirmed in the latest source review.
+- Finish the route-by-route abuse-limit inventory. The API applies a default
+  per-IP limiter before actor resolution, OTP has durable per-identifier/IP/
+  account caps, and courier/order domains have additional limits. The intended
+  effective limit and key for every sensitive route still needs evidence.
+- Finish API header coverage on success, 404 and 5xx paths and prove the full
+  required header set at every externally reachable entry point. Caddy and web
+  header tests pass; direct API header evidence currently focuses on deny-all
+  CSP.
+- Re-scan all locally reachable Git history after the local ref repair. The
+  previously recorded Gitleaks mirror covered advertised remote history only.
+- Run the remaining local and connected security tools against the current
+  commit, then rerun the full security and reliability pass from scratch after
+  all readiness criteria pass. Deployment and staging DAST are intentionally
+  paused per Mahdi's no-deployment direction.
 
 ## Browser and API response headers
 
