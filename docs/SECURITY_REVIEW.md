@@ -99,6 +99,12 @@ validation, session fixation, API CSP, web/Caddy headers, CSRF and log redaction
 have existing passing evidence in this review. These checks are not a substitute
 for closing the remaining gaps below.
 
+The customer-favourites endpoints now also have a production-wired, real-cookie
+two-customer regression. Each customer sees only their own restaurant list, and
+unfavouriting a public restaurant under one account leaves the other account's
+relationship intact. See
+[customer-favourites-session.integration.test.ts](../apps/api/test/customer-favourites-session.integration.test.ts).
+
 Open security review items:
 
 - Complete the exhaustive registered-route-to-resource ownership map. Connected
