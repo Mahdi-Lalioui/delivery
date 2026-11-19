@@ -113,9 +113,11 @@ Open security review items:
   account caps, and courier/order domains have additional limits. The intended
   effective limit and key for every sensitive route still needs evidence.
 - Finish API header coverage on success, 404 and 5xx paths and prove the full
-  required header set at every externally reachable entry point. Caddy and web
-  header tests pass; direct API header evidence currently focuses on deny-all
-  CSP.
+  required header set at every externally reachable entry point. The production
+  smoke now asserts the shared header set on API health and private 404 responses
+  as well as web documents; `bash -n infra/deploy/production-smoke.sh` passes.
+  The smoke has not yet run on Compose because no deployment env file is present
+  and no local Compose services are running. API 5xx coverage remains open.
 - Re-scan all locally reachable Git history after the local ref repair. The
   previously recorded Gitleaks mirror covered advertised remote history only.
 - Run the remaining local and connected security tools against the current

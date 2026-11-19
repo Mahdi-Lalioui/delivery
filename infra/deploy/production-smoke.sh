@@ -10,22 +10,30 @@ if [[ -n "$certificate" ]]; then options+=(--cacert "$certificate"); fi
 headers="$(mktemp)"
 trap 'rm -f "$headers"' EXIT
 
-curl --fail "${options[@]}" "$api_origin/healthz" | jq -e '.status == "ok"' >/dev/null
+assert_security_headers() {
+  grep -Eiq "^Content-Security-Policy:.*frame-ancestors .none." "$headers"
+  if [[ "${1:-}" == "api" ]]; then
+    grep -Eiq "^Content-Security-Policy:.*default-src 'none'; frame-ancestors 'none'" "$headers"
+  fi
+  grep -Eiq '^Strict-Transport-Security: .*includeSubDomains' "$headers"
+  grep -Eiq '^Cross-Origin-Opener-Policy: same-origin' "$headers"
+  grep -Eiq '^Cross-Origin-Resource-Policy: same-origin' "$headers"
+  grep -Eiq '^X-Frame-Options: DENY' "$headers"
+  grep -Eiq '^X-Content-Type-Options: nosniff' "$headers"
+  grep -Eiq '^Referrer-Policy: strict-origin-when-cross-origin' "$headers"
+  grep -Eiq '^Permissions-Policy: geolocation=\(self\), camera=\(self\), microphone=\(self\)' "$headers"
+}
+
+curl --fail "${options[@]}" --dump-header "$headers" "$api_origin/healthz" | jq -e '.status == "ok"' >/dev/null
+assert_security_headers api
 curl --fail "${options[@]}" "$api_origin/readyz" | jq -e '.status == "ready"' >/dev/null
 curl --fail "${options[@]}" "$api_origin/v1/wilayas" | jq -e '.wilayas | length == 69' >/dev/null
 status="$(curl "${options[@]}" -o /dev/null \
   --dump-header "$headers" --write-out '%{http_code}' "$api_origin/__test__/outbox")"
 [[ "$status" == 404 ]]
-grep -Eiq "^Content-Security-Policy:.*default-src 'none'; frame-ancestors 'none'" "$headers"
+assert_security_headers api
 curl --fail "${options[@]}" --dump-header "$headers" --output /dev/null "$web_origin/fr"
-grep -Eiq '^Content-Security-Policy:.*frame-ancestors .none.' "$headers"
-grep -Eiq '^Cross-Origin-Opener-Policy: same-origin' "$headers"
-grep -Eiq '^Cross-Origin-Resource-Policy: same-origin' "$headers"
-grep -Eiq '^X-Frame-Options: DENY' "$headers"
-grep -Eiq '^Strict-Transport-Security: .*includeSubDomains' "$headers"
-grep -Eiq '^X-Content-Type-Options: nosniff' "$headers"
-grep -Eiq '^Referrer-Policy: strict-origin-when-cross-origin' "$headers"
-grep -Eiq '^Permissions-Policy: geolocation=\(self\), camera=\(self\), microphone=\(self\)' "$headers"
+assert_security_headers web
 status="$(curl "${options[@]}" --output /dev/null --dump-header "$headers" \
   --write-out '%{http_code}' "$www_origin/fr?source=smoke")"
 [[ "$status" == 308 ]]
