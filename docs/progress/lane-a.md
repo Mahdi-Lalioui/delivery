@@ -550,3 +550,5 @@
   Next: push this design-test fix, confirm CI is green, then resume the remaining security and readiness items.
 - 2026-11-19 · Ultra · Added production-API/Postgres coverage for admin billing subscription, invoice and transfer-proof lists. Active admins see records; guests/revoked admins receive 401 and customer/restaurant sessions 403 with no private values in responses. Integration 1/1, API typecheck and ESLint pass; route evidence updated.
   Next: check CI for the pushed browser fixes, then close the next registered-route isolation gap and keep exhaustive security readiness open until its full route map is proven.
+- 2026-11-19 · Ultra · Added real-session Postgres regressions for bulk price preview/apply mixed IDs and owner A using owner B's valid URL/item/batch. Foreign undo is denied under both URLs; prices, revisions, batches, history and command receipts remain unchanged. Integration 1/1, API typecheck, ESLint and reviewer pass.
+  Next: push this route-isolation proof and continue the remaining security review gaps; leave exhaustive route readiness unticked.

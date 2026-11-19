@@ -129,6 +129,12 @@ production-wired real-session regression. Active admins see seeded records;
 customers, restaurant owners, guests and revoked admins cannot read them. See
 [admin-billing-session.integration.test.ts](../apps/api/test/admin-billing-session.integration.test.ts).
 
+Bulk menu-price preview and apply now cover mixed-tenant items and owner A
+requesting owner B's valid menu resources. Undo also denies a foreign batch
+under both the caller's own restaurant URL and the foreign URL. The regression
+compares prices, menu revisions, batches, price history and command receipts
+before/after denial: [menu-price-session.integration.test.ts](../apps/api/test/menu-price-session.integration.test.ts).
+
 Hours, Ramadan schedule, pause, hours preview and delivery settings reads now
 have production-wired owner-versus-outsider Postgres coverage; foreign owners
 and customers receive concealed 404s across all five routes. The matching
