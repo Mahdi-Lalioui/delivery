@@ -564,3 +564,5 @@
   Next: add a synthetic order fixture to the local test stack, measure Tracking 3D frames, then continue the remaining security, k6 and alert-readiness gaps.
 - 2026-11-19 · Ultra · Added a real-session Postgres regression for merchant courier rosters/invitations: foreign owners receive concealed 404s, cannot see the courier marker or create an invite, and invitation rows stay unchanged; valid owner invitation succeeds. Courier/staff integration 3/3, API typecheck and ESLint pass; tenant map updated.
   Next: inspect remaining registered merchant/customer routes for missing production-session ownership tests; keep exhaustive isolation open.
+- 2026-11-19 · Ultra · Added production-API/Postgres push-subscription isolation coverage: another customer cannot claim/remove a live endpoint, revoked sessions cannot remove it, and row ownership remains unchanged. Focused integration 1/1 pass; evidence map updated.
+  Next: inspect the remaining customer/merchant/courier route inventory for missing real-session ownership tests; keep exhaustive isolation open.
