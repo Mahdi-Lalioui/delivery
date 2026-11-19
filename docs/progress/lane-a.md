@@ -580,3 +580,5 @@
   Next: extend customer order-history isolation across pages, then continue remaining security review and k6 readiness.
 - 2026-11-19 · High · Documented shared and durable abuse controls, keys and verified coverage; reviewer corrections now flag untested proof-photo, courier-ceiling and TOTP thresholds. Replica and provider-spend checks remain open. Full `pnpm verify` passed (2,095 unit; 377 integration tests). [Inventory](../evidence/awid/rate-limits.md)
   Next: extend customer order-history isolation across pages, then continue remaining security review and k6 readiness.
+- 2026-11-19 · Ultra · Added connected two-customer/Postgres coverage for six interleaved orders across every `limit=1` history page and B's cursor replayed under A's session; focused suite passed (2 tests), full `pnpm verify` passed (2,095 unit; 378 integration tests), reviewer pass. [Evidence](../evidence/awid/tenant-isolation.md)
+  Next: add boundary regressions for proof-reservation, courier-call and admin TOTP ceilings, then continue remaining security review and k6 readiness.

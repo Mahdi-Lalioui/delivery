@@ -1,25 +1,31 @@
 import { randomUUID } from "node:crypto";
 import { orderRatingOutput } from "@zaafran/contracts/ratings";
-import { customerReorderOutput } from "@zaafran/contracts/retention";
+import { customerOrderHistoryOutput, customerReorderOutput } from "@zaafran/contracts/retention";
 import { expect, test } from "vitest";
 import { registerMerchantApiFixture } from "./merchant-api-fixture.ts";
 
 const now = new Date().toISOString();
 const { database, openApi, seedActor } = registerMerchantApiFixture(now);
+let restaurantSequence = 0;
 
 async function seedRestaurant() {
   const { sql } = database.get();
+  restaurantSequence += 1;
   const merchantId = randomUUID();
   const communeId = randomUUID();
   const categoryId = randomUUID();
   const itemId = randomUUID();
-  await sql`INSERT INTO public.wilayas (code, name_ar, name_fr) VALUES (16, 'الجزائر', 'Alger')`;
+  const code = String(1698 + restaurantSequence).padStart(4, "0");
+  const slug = `order-isolation-${String(restaurantSequence)}`;
+  const phone = `+2135${String(restaurantSequence).padStart(8, "0")}`;
+  await sql`INSERT INTO public.wilayas (code, name_ar, name_fr)
+    VALUES (16, 'الجزائر', 'Alger') ON CONFLICT (code) DO NOTHING`;
   await sql`INSERT INTO public.communes (id, code, wilaya_code, name_ar, name_fr, centroid)
-    VALUES (${communeId}, '1699', 16, 'تجريبي', 'Test', ST_GeogFromText('SRID=4326;POINT(3.0625 36.75)'))`;
+    VALUES (${communeId}, ${code}, 16, 'تجريبي', 'Test', ST_GeogFromText('SRID=4326;POINT(3.0625 36.75)'))`;
   await sql`INSERT INTO public.merchants (
       id, slug, restaurant_name, owner_name, phone_e164, commune_id, location, cuisines, status, created_at
-    ) VALUES (${merchantId}, 'order-isolation', 'Synthetic restaurant', 'Synthetic owner',
-      '+213500000003', ${communeId}, ST_GeogFromText('SRID=4326;POINT(3.0625 36.75)'),
+    ) VALUES (${merchantId}, ${slug}, 'Synthetic restaurant', 'Synthetic owner',
+      ${phone}, ${communeId}, ST_GeogFromText('SRID=4326;POINT(3.0625 36.75)'),
       ARRAY['algerian'], 'active', ${now})`;
   await sql`INSERT INTO public.categories (id, merchant_id, names, sort)
     VALUES (${categoryId}, ${merchantId}, '{"fr":"Plats"}', 0)`;
@@ -64,6 +70,121 @@ async function seedRatedOrder(input: {
     VALUES (${ratingId}, ${orderId}, 4, ${input.comment}, ${now})`;
   return { orderId, ratingId, quantity: input.quantity, comment: input.comment };
 }
+
+async function seedHistoryOrder(input: {
+  customerId: string;
+  merchantId: string;
+  placedAt: string;
+  shortCode: string;
+}) {
+  const { sql } = database.get();
+  const orderId = randomUUID();
+  await sql`INSERT INTO public.orders (
+      id, quote_id, customer_id, merchant_id, restaurant_name, short_code, order_day,
+      status, fulfilment, version, placed_at, last_event_at,
+      subtotal_dzd, delivery_fee_dzd, total_dzd, paying_with_dzd, lines
+    ) VALUES (${orderId}, ${randomUUID()}, ${input.customerId}, ${input.merchantId},
+      'Synthetic restaurant', ${input.shortCode}, ${input.placedAt}::timestamptz::date,
+      'collected', 'pickup', 4, ${input.placedAt}, ${input.placedAt}, 500, 0, 500, 500, '[]'::jsonb)`;
+  return orderId;
+}
+
+test("[AUTH-07] customer order-history pages remain isolated with interleaved orders and foreign cursors", async () => {
+  const [first, second] = await Promise.all([
+    seedActor("+213500000011", "standard"),
+    seedActor("+213500000012", "standard"),
+  ]);
+  const { merchantId } = await seedRestaurant();
+  const base = Date.now();
+  const timeline = [
+    { owner: second, shortCode: "B2C-234", offset: 6 },
+    { owner: first, shortCode: "A2C-234", offset: 5 },
+    { owner: second, shortCode: "B3D-234", offset: 4 },
+    { owner: first, shortCode: "A3D-234", offset: 3 },
+    { owner: second, shortCode: "B4E-234", offset: 2 },
+    { owner: first, shortCode: "A4E-234", offset: 1 },
+  ];
+  const seeded = await Promise.all(
+    timeline.map(async (entry) => ({
+      ...entry,
+      orderId: await seedHistoryOrder({
+        customerId: entry.owner.userId,
+        merchantId,
+        placedAt: new Date(base - entry.offset * 60_000).toISOString(),
+        shortCode: entry.shortCode,
+      }),
+    })),
+  );
+  const api = await openApi();
+
+  async function readPage(headers: Record<string, string>, cursor?: string) {
+    const query = new URLSearchParams({ limit: "1" });
+    if (cursor) query.set("cursor", cursor);
+    const response = await api.inject({ url: `/v1/me/orders?${query}`, headers });
+    expect(response.statusCode).toBe(200);
+    const page = customerOrderHistoryOutput.parse(response.json());
+    expect(page.orders.length).toBeLessThanOrEqual(1);
+    return page;
+  }
+
+  async function readAll(actor: typeof first, cursor?: string) {
+    const orderIds: string[] = [];
+    let nextCursor = cursor;
+    for (let pageNumber = 0; pageNumber < 5; pageNumber += 1) {
+      const page = await readPage(actor.headers, nextCursor);
+      orderIds.push(...page.orders.map((order) => order.orderId));
+      nextCursor = page.nextCursor ?? undefined;
+      if (!nextCursor) return orderIds;
+    }
+    throw new Error("Customer order history did not finish within the page bound.");
+  }
+
+  const { sql } = database.get();
+  const databaseOrder = await sql<{ orderId: string; customerId: string }[]>`
+    SELECT id AS "orderId", customer_id AS "customerId" FROM public.orders
+    WHERE id = ANY(${seeded.map((order) => order.orderId)}::uuid[])
+    ORDER BY placed_at DESC, id DESC
+  `;
+  expect(databaseOrder.map((order) => order.customerId)).toEqual([
+    first.userId,
+    second.userId,
+    first.userId,
+    second.userId,
+    first.userId,
+    second.userId,
+  ]);
+  const firstExpected = databaseOrder
+    .filter((order) => order.customerId === first.userId)
+    .map((order) => order.orderId);
+  const secondExpected = databaseOrder
+    .filter((order) => order.customerId === second.userId)
+    .map((order) => order.orderId);
+  expect(await readAll(first)).toEqual(firstExpected);
+  const secondFirstPage = await readPage(second.headers);
+  expect(secondFirstPage.orders.map((order) => order.orderId)).toEqual([secondExpected[0]]);
+  expect(secondFirstPage.nextCursor).not.toBeNull();
+  expect(await readAll(second)).toEqual(secondExpected);
+
+  const firstAfterForeignCursor = await readAll(first, secondFirstPage.nextCursor ?? undefined);
+  const foreignPosition = secondFirstPage.orders[0];
+  if (!foreignPosition)
+    throw new Error("The foreign account's first page should contain an order.");
+  const afterPositionExpected = await sql<{ orderId: string }[]>`
+    SELECT id AS "orderId" FROM public.orders
+    WHERE customer_id = ${first.userId}
+      AND (placed_at, id) < (${foreignPosition.placedAt}::timestamptz, ${foreignPosition.orderId}::uuid)
+    ORDER BY placed_at DESC, id DESC
+  `;
+  expect(firstAfterForeignCursor).toEqual(afterPositionExpected.map((order) => order.orderId));
+  expect(firstAfterForeignCursor.length).toBeGreaterThan(0);
+  expect(firstAfterForeignCursor).not.toContain(secondExpected[0]);
+  for (const order of [...firstExpected, ...secondExpected]) {
+    const owner = firstExpected.includes(order) ? first : second;
+    const foreign = owner.userId === first.userId ? second : first;
+    const foreignPage = await readPage(foreign.headers);
+    expect(foreignPage.orders.map((item) => item.orderId)).not.toContain(order);
+  }
+});
 
 test("[CUS-21][CUS-22][AUTH-07] real customer sessions conceal foreign order ratings and reorder drafts", async () => {
   const [first, second] = await Promise.all([
