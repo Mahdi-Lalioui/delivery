@@ -11,7 +11,7 @@ export function registerMerchantApiFixture(now: string) {
 
   async function openApi(
     clock: () => Date = () => new Date(now),
-    sendInvitation?: StartOptions["sendInvitation"],
+    invitationAdapters?: Pick<StartOptions, "sendInvitation" | "sendCourierInvitation">,
     mediaRoot?: string,
   ) {
     const api = await startApi({
@@ -23,7 +23,12 @@ export function registerMerchantApiFixture(now: string) {
         AUTH_TOTP_KEY: Buffer.alloc(32, 26).toString("hex"),
       },
       now: clock,
-      ...(sendInvitation === undefined ? {} : { sendInvitation }),
+      ...(invitationAdapters?.sendInvitation === undefined
+        ? {}
+        : { sendInvitation: invitationAdapters.sendInvitation }),
+      ...(invitationAdapters?.sendCourierInvitation === undefined
+        ? {}
+        : { sendCourierInvitation: invitationAdapters.sendCourierInvitation }),
       async listen(app) {
         await app.ready();
         return "http://127.0.0.1:3002";
