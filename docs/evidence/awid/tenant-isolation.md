@@ -43,6 +43,7 @@ Postgres FORCE ROW LEVEL SECURITY currently provides a second wall for:
 - Customer favourites: [migration 0061](../../../packages/db/migrations/0061_customer_favourites_rls.sql).
 - Menu command receipts, scoped by merchant and actor: [migration 0062](../../../packages/db/migrations/0062_menu_receipts_rls.sql).
 - Customer addresses: [migration 0063](../../../packages/db/migrations/0063_customer_addresses_rls.sql).
+- Customer push subscriptions: [migration 0065](../../../packages/db/migrations/0065_push_subscriptions_rls.sql); worker cleanup can only see/delete expired tokens or tokens with revoked/expired sessions.
 
 Orders and most merchant-owned domain tables do **not** currently have RLS; they rely on explicit repository membership/account predicates and the integration coverage linked above. Orders are read and transitioned by customers, restaurant members, couriers and admins, so adding RLS requires a complete role-aware transaction context and regression coverage.
 
