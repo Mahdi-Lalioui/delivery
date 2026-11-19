@@ -162,9 +162,9 @@ remains in progress.
 The focused browser run passed 30 checks across operator access, invitations
 and production routes.
 
-Gitleaks 8.30.1 scanned 536 commits from a fresh GitHub mirror across its
-advertised references and found no leaks. The local shared Git store has
-malformed duplicate refs, so this does not cover unpublished local history.
+Gitleaks 8.30.1 scanned all locally reachable references after their repair:
+`gitleaks git --log-opts="--all" --redact --no-banner --verbose` scanned 572
+commits (11.96 MB) at `16688e5` and found no leaks.
 
 ## Courier page access
 
