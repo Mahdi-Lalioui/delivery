@@ -24,6 +24,10 @@ courier and administrator routes. All checks use synthetic data on local infrast
   `pnpm test:int` passed 51 files and 348 tests against local PostgreSQL. The
   route inventory and broad tenant regressions are green; the route-by-route
   ownership map is still being checked, so the isolation readiness item remains open.
+- On 19 November, `pnpm exec vitest run --config vitest.integration.config.ts
+  apps/api/test/admin-audit-session.integration.test.ts` passed against local
+  PostgreSQL. A live admin reads its audit record; guest, customer and revoked
+  admin sessions are denied without the record's marker or actor identifier.
 - `pnpm test:int apps/api/test/auth.integration.test.ts apps/api/test/media-reservation.integration.test.ts`
   passed 13 tests against PostGIS. It covers real phone and email OTP attempts, shared IP
   quota, resend cooldown, HMAC storage, TOTP and upload reservations.

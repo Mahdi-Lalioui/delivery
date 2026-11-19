@@ -552,3 +552,5 @@
   Next: check CI for the pushed browser fixes, then close the next registered-route isolation gap and keep exhaustive security readiness open until its full route map is proven.
 - 2026-11-19 · Ultra · Added real-session Postgres regressions for bulk price preview/apply mixed IDs and owner A using owner B's valid URL/item/batch. Foreign undo is denied under both URLs; prices, revisions, batches, history and command receipts remain unchanged. Integration 1/1, API typecheck, ESLint and reviewer pass.
   Next: push this route-isolation proof and continue the remaining security review gaps; leave exhaustive route readiness unticked.
+- 2026-11-19 · Ultra · Added a production-API/Postgres session regression for `/v1/admin/audit`: active admin access passes; guest, customer and revoked admin cannot read records or infer identifiers. Focused integration 1/1, API typecheck and ESLint pass.
+  Next: continue the open route-by-route ownership and security review; keep readiness unticked until each route has direct evidence.
