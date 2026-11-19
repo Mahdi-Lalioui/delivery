@@ -520,3 +520,5 @@
 - 2026-11-19 · Medium · Fixed PR #15 CI findings: registered the k6 entry and its built-in module for knip; made Martin readiness retry transient connection resets. `pnpm knip`, Prettier, whitespace checks, and a temporary local Martin startup probe pass. [Workflow](../../.github/workflows/ci.yml).
 - 2026-11-19 · Ultra · Merged current `origin/lane-b` (12 commits, merge `15438ad`) into lane-a; full `pnpm verify` exits 0 on the merged tree after a path-scoped dependency-cruiser allowance for k6 runtime modules.
   Next: push the merged lane-a head, inspect GitHub CI for that exact commit, then merge into main only after every required check is green.
+- 2026-11-19 · Low · Took over Lane B’s design handoff; replaced the mixed-language French footer tagline with “Imaginée et livrée en Algérie.” Landing regression test (6 passed), i18n typecheck and web typecheck pass.
+  Next: finish the five remaining customer design handoff items from docs/progress/lane-b.md, then refresh the customer design score evidence.

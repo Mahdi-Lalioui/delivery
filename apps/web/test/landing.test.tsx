@@ -40,6 +40,12 @@ test("[M8-1] the Arabic landing localizes the tagline and the footer", async () 
   expect(html).toContain("حقوق الصور");
 });
 
+test("[M8-1] the French landing footer keeps its Algeria identity in French", async () => {
+  const html = await render(Landing({ locale: "fr" }));
+  expect(html).toContain("Imaginée et livrée en Algérie.");
+  expect(html).not.toContain("made in Algeria");
+});
+
 test("[M8-1] every shipped photo is credited with author, licence and source", async () => {
   const html = await render(await CreditsPage({ locale: "fr" }));
   expect(photoCredits.length).toBeGreaterThanOrEqual(15);
