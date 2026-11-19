@@ -54,6 +54,8 @@ test("[CUS-21][CUS-23] shows favourites with a heart and order cards with status
   expect(html).toContain("K7Q2");
   expect(html).toContain("2 350 DA");
   expect(html).toContain("orders-cover");
+  expect(html).toContain('class="orders-layout"');
+  expect(html).toContain('class="orders-sidebar"');
   // Only finished orders offer "Order again" (both mock orders are finished).
   expect(html.split(retentionOrders.orderAgain)).toHaveLength(3);
 });

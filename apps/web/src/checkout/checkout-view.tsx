@@ -137,13 +137,13 @@ export function OrderConfirmed({
   const href = `/${locale}/orders/${orderId}`;
   const lowData = useLowData();
   const title = translate("confirmedTitle");
-  const etaLabel =
+  const etaRange =
     eta === null
       ? undefined
-      : translate(fulfilment === "pickup" ? "confirmedEtaPickup" : "confirmedEtaDelivery", {
-          from: formatAlgiersTime(new Date(eta.earliestAt), locale),
-          to: formatAlgiersTime(new Date(eta.latestAt), locale),
-        });
+      : `${formatAlgiersTime(new Date(eta.earliestAt), locale)}–${formatAlgiersTime(
+          new Date(eta.latestAt),
+          locale,
+        )}`;
   const goToTracking = useCallback(() => {
     if (redirectMs !== null) window.location.assign(href);
   }, [href, redirectMs]);
@@ -170,10 +170,13 @@ export function OrderConfirmed({
           <Tagine3d label={title} onDone={goToTracking} />
         )}
       </div>
-      {etaLabel !== undefined && (
+      {etaRange !== undefined && (
         <p className="checkout-confirmed-eta">
           <Icon name="clock" size={18} />
-          {etaLabel}
+          <span>
+            {translate(fulfilment === "pickup" ? "confirmedEtaPickup" : "confirmedEtaDelivery")}
+          </span>
+          <bdi dir="ltr">{etaRange}</bdi>
         </p>
       )}
       <h1 id="checkout-confirmed-title">{title}</h1>
@@ -268,7 +271,9 @@ export function CheckoutView({ state, locale }: { state: CheckoutState; locale: 
   return (
     <section className="checkout" aria-labelledby="checkout-title">
       <header className="checkout-header">
-        <h1 id="checkout-title">{translate("title")}</h1>
+        <h1 id="checkout-title">
+          {translate(state.fulfilment === "pickup" ? "titlePickup" : "title")}
+        </h1>
         {state.cart && (
           <p className="checkout-merchant">
             <span aria-hidden="true">{Array.from(state.cart.merchant.name)[0]}</span>

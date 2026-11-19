@@ -151,3 +151,5 @@
   Next: fix every page the fullness audit flags, capture the "after" set, then run fresh-critic rounds and the RELEASE_REPORT section.
 - 2026-11-18 · Dar Zellige creative pass pushed in small commits through 6f04522, each with `pnpm verify` green. a11y 0/0/0; fullness 480 checks with 0 failures; connected LCP under 2 s; 60 fps. Fresh-critic round 3 scores 6.5–9; Payment's 6.5 was the badge wrap, now fixed. See docs/RELEASE_REPORT.md, "Dar Zellige creative pass".
   Next: pickup-mode header copy; a shaded tagine with ETA on confirmed; an address and time recap on payment; side content for pickup tracking and orders at 1280; localise "made in Algeria". Then re-score.
+- 2026-11-19 · Medium · Lane A completed all five handed-off customer design items: pickup header, server ETA beside tagine, payment address/time recap, pickup tracking and order-history desktop side content, and French footer localization. 21 focused tests pass; design build passes; 390px Arabic and 1280px French captures inspected in `docs/evidence/awid/lane-a-design/`.
+  Next: Lane A continues the open security, reliability and operations items in `docs/READINESS.md`.

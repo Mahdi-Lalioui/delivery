@@ -134,12 +134,7 @@ Discover 9 · restaurant 8.5 · sign-in 8.5 · rating 8.5 · landing 8 · pickup
 - **Placeholders:** letter logos until restaurants upload their own.
 - **Catalogue size:** 15 licensed demo photos repeat across restaurants.
 - **Motion:** can't be judged from stills.
-- **Open follow-ups:**
-  - pickup-mode header copy;
-  - a shaded 3D-style tagine with ETA and items on confirmed;
-  - an address and time recap on payment;
-  - side content for pickup tracking and wide order cards at 1280;
-  - the English "made in Algeria" in the French footer tagline.
+- **Former Lane B design handoff (completed 19 November):** pickup-mode heading; server ETA beside the tagine on confirmation; address and time recap on payment; a desktop pickup tracking location/code panel; a desktop order-history favourites rail; French footer localization. The author captured and inspected the 390 px Arabic and 1280 px French variants in [`docs/evidence/awid/lane-a-design/`](evidence/awid/lane-a-design/). These captures are not an independent critic score or real-device measurement.
 
 ### Not done
 

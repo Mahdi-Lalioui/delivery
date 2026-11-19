@@ -148,15 +148,17 @@ export function CheckoutSample({
   initialView,
   isBare = false,
   promo,
+  initialFulfilment = "delivery",
 }: {
   mode: Mode;
   locale: Locale;
   initialView?: View;
   isBare?: boolean;
   promo?: PromoStory;
+  initialFulfilment?: FulfilmentKind;
 }) {
   const [view, setView] = useState<View>(initialView ?? (mode === "error" ? "3" : "1"));
-  const [fulfilment, setFulfilment] = useState<FulfilmentKind>("delivery");
+  const [fulfilment, setFulfilment] = useState<FulfilmentKind>(initialFulfilment);
   const [slot, setSlot] = useState<SlotChoice>({ kind: "asap" });
   const state = {
     ...fixture({ mode, step: steps[view], fulfilment, slot, promo }),
