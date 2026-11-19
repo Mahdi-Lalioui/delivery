@@ -9,8 +9,14 @@ module.exports = {
     {
       name: "no-unresolved-dependencies",
       severity: "error",
-      from: {},
+      from: { pathNot: "^load/pilot\\.js$" },
       to: { couldNotResolve: true },
+    },
+    {
+      name: "load-harness-only-uses-k6-runtime-modules-for-externals",
+      severity: "error",
+      from: { path: "^load/pilot\\.js$" },
+      to: { couldNotResolve: true, pathNot: "^k6(?:/|$)" },
     },
     {
       name: "packages-do-not-import-apps",
