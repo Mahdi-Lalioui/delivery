@@ -105,6 +105,11 @@ unfavouriting a public restaurant under one account leaves the other account's
 relationship intact. See
 [customer-favourites-session.integration.test.ts](../apps/api/test/customer-favourites-session.integration.test.ts).
 
+Merchant promotion list/create/update now also have a real-session, two-tenant
+regression: foreign owners and customers receive concealed 404s, and denied
+writes produce no promotion row or command receipt. See
+[merchant-promotions-session.integration.test.ts](../apps/api/test/merchant-promotions-session.integration.test.ts).
+
 Open security review items:
 
 - Complete the exhaustive registered-route-to-resource ownership map. Connected
