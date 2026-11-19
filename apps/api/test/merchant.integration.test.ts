@@ -164,12 +164,70 @@ test("[MER-01:http] [ADM-03:http] submits, scopes and reviews a merchant on the 
       },
       payload: { decision: "approve", reason: "Verified synthetic application" },
     });
+  const beforeApplication = await sql`SELECT to_jsonb(merchant) AS data
+    FROM public.merchants AS merchant WHERE id = ${result.merchantId}`;
+  const beforeReceipts = await sql`SELECT to_jsonb(receipt) AS data
+    FROM public.merchant_command_receipts AS receipt WHERE merchant_id = ${result.merchantId}
+    ORDER BY operation, actor_id, key_hash`;
+  const beforeAudit =
+    await sql`SELECT to_jsonb(event) AS data FROM public.audit_log AS event ORDER BY id`;
+  expect(beforeApplication).toHaveLength(1);
+  expect(beforeReceipts).toHaveLength(1);
   expect((await review(other.headers)).statusCode).toBe(403);
   const staleReview = await review(otherAdmin.headers);
   expect(problemResponseSchema.parse(staleReview.json())).toMatchObject({
     status: 409,
     code: "session_changed",
   });
+  await sql`UPDATE public.sessions SET revoked_at = ${now} WHERE id = ${otherAdmin.sessionId}`;
+  for (const actor of [
+    { label: "guest", headers: {}, sessionId: admin.sessionId, expected: 401 },
+    { label: "standard", headers: other.headers, sessionId: other.sessionId, expected: 403 },
+    {
+      label: "revoked",
+      headers: otherAdmin.headers,
+      sessionId: otherAdmin.sessionId,
+      expected: 401,
+    },
+  ]) {
+    const deniedQueue = await api.inject({ url: queuePath, headers: actor.headers });
+    const deniedReview = await api.inject({
+      method: "POST",
+      url: queuePath + "/" + result.merchantId + "/review",
+      headers: {
+        ...actor.headers,
+        "idempotency-key": randomUUIDv7(),
+        "x-expected-session-id": actor.sessionId,
+      },
+      payload: { decision: "approve", reason: "Verified synthetic application" },
+    });
+    for (const response of [deniedQueue, deniedReview]) {
+      expect(response.statusCode, actor.label).toBe(actor.expected);
+      expect(problemResponseSchema.parse(response.json())).toMatchObject({
+        code: actor.expected === 401 ? "unauthenticated" : "forbidden",
+      });
+      for (const privateValue of [
+        result.merchantId,
+        applicantPhone,
+        application.restaurantName,
+        application.ownerName,
+      ]) {
+        expect(response.body).not.toContain(privateValue);
+      }
+    }
+    expect(
+      await sql`SELECT to_jsonb(merchant) AS data
+      FROM public.merchants AS merchant WHERE id = ${result.merchantId}`,
+    ).toEqual(beforeApplication);
+    expect(
+      await sql`SELECT to_jsonb(receipt) AS data
+      FROM public.merchant_command_receipts AS receipt WHERE merchant_id = ${result.merchantId}
+      ORDER BY operation, actor_id, key_hash`,
+    ).toEqual(beforeReceipts);
+    expect(
+      await sql`SELECT to_jsonb(event) AS data FROM public.audit_log AS event ORDER BY id`,
+    ).toEqual(beforeAudit);
+  }
   const approved = await review(admin.headers);
   expect(approved.statusCode).toBe(200);
   expect(adminMerchantReviewOutput.parse(approved.json())).toEqual({
