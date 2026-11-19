@@ -538,3 +538,5 @@
   Next: audit remaining merchant write routes against direct production-session evidence, then measure tracking frame pacing on a complete connected build.
 - 2026-11-19 · High · Added a production API regression for deny-all CSP on an unhandled 500; it also checks the exception message is not returned. Health suite passes 8/8; API typecheck, lint and Prettier pass. Caddy's external 5xx header path is still open.
   Next: map and verify API-level write isolation for remaining merchant endpoints; recheck the pushed lane-a CI once GitHub's API responds.
+- 2026-11-19 · High · Full `pnpm test:int` rerun by itself passes 67 files / 366 tests. The earlier two service-area failures occurred during concurrent lint/typecheck load; isolated service-area also passed 6/6. No timeout or assertion was changed.
+  Next: continue open security/readiness items; merge lane-a to main only after PR #15's Verify, Browser smoke and Domain mutation checks pass.
