@@ -12,3 +12,11 @@ export function mayIgnoreLocalCertificateErrors(value: string): boolean {
     return false;
   }
 }
+
+export function readPerfRestaurantSlug(value: string | undefined): string {
+  const slug = value ?? "atelier-sidi-yahia";
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/u.test(slug)) {
+    throw new Error("Expected a safe restaurant slug for the performance run.");
+  }
+  return slug;
+}

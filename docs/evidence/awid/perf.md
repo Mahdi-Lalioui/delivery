@@ -174,6 +174,33 @@ The Restaurant URL returned the app's retryable error state because this stack's
 `/v1/feed` returned zero restaurants and the requested slug returned 404. Its
 1,096 ms LCP is therefore invalid as a content performance result. The other
 measured app routes were empty in this stack, so their frame and tap numbers do
-not count toward acceptance. Populate a synthetic restaurant in the isolated
-production stack, then repeat three cold samples per route. The measurement
-harness ignores TLS errors only when its target host is loopback or `.localhost`.
+not count toward acceptance. This canary is superseded by the data-backed rerun
+below. The measurement harness ignores TLS errors only when its target host is
+loopback or `.localhost`.
+
+### Data-backed connected Compose rerun (19 November 2026)
+
+To exercise the production image with a populated catalogue, the local-only
+`awid-upload-readiness` database was seeded with the repository's fictional
+Algiers restaurants. Their `is_demo` flag and approved status were temporarily
+changed only in that loopback test database for the run, then restored; the
+public feed was empty again afterward. No provider credentials or real customer
+or restaurant data was used.
+
+LCP/CLS came from three cold Pixel 7 emulation runs in Chromium against the
+production web/API/Caddy stack, at 4× CPU slowdown, 75 ms latency, 4/1.5 Mbit/s.
+Discovery displayed 24 restaurant cards; Restaurant displayed the bilingual
+seed menu, popular dishes and hours with no console/request errors.
+
+| Route | LCP (ms), 3 cold runs | CLS | Scroll fps, 3 runs | Measured taps (input → paint, ms) |
+|---|---:|---:|---:|---|
+| Discovery | 1,896 / 1,840 / 1,840 | 0 / 0 / 0 | 60 / 60 / 60 | Fulfilment 72 / 48 / 48; cuisine 32 / 32 / 32 |
+| Restaurant | 1,288 / 1,276 / 1,292 | 0 / 0 / 0 | 60 / 60 / 60 | Dish add 48 / 40 / 40; hours 32 / 32 / 32 |
+
+The run used `PERF_RESTAURANT_SLUG=demo-lune-de-semoule pnpm perf:customer-feel
+https://awid.localhost:18544 3`; the runner validates the override and ignores
+TLS errors only for loopback/`.localhost`. Discovery's favourite action was
+unavailable to a guest session. Checkout and Tracking had no fixture order, so
+their 60 fps numbers do not count. Tracking 3D tilt frame pacing remains open.
+These are throttled desktop Chromium measurements, not physical Android-device
+results.

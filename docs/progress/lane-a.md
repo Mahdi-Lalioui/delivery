@@ -560,3 +560,5 @@
   Next: seed the isolated production Compose stack with synthetic restaurant data, rerun three cold Discovery and Restaurant measurements, then continue the remaining security and k6 readiness gaps.
 - 2026-11-19 · Medium · Fixed CI Knip failure by moving the local-TLS guard to a typed TypeScript helper, removing the unused declaration. Tooling 56/56, helper test, ESLint, Prettier, Knip and the connected performance runner pass.
   Next: wait for CI on this pushed commit; then resume route-ownership/security gaps and the connected performance fixture.
+- 2026-11-19 · High · Repeated connected production-stack performance with 40 fictional restaurants, restoring their hidden demo status afterward. Discovery LCP 1,840–1,896 ms; Restaurant 1,276–1,292 ms; CLS 0 and scroll 60 fps across three runs; tested taps 32–72 ms. Checkout/Tracking and 3D animation remain unproven without an order fixture/device. [Evidence](../evidence/awid/perf.md#data-backed-connected-compose-rerun-19-november-2026)
+  Next: add a synthetic order fixture to the local test stack, measure Tracking 3D frames, then continue the remaining security, k6 and alert-readiness gaps.
