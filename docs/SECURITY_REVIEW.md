@@ -128,6 +128,11 @@ email challenge, neither row changes, and the original session can still attach
 the verified email. The connected Postgres API test passes at
 `apps/api/test/auth.integration.test.ts`.
 
+Device-session routes now have a connected two-account check: lists are scoped
+to each customer, a foreign session-id revoke returns concealed 404 and leaves
+the target session active, the owner can revoke its own device, and account-wide
+logout leaves the other customer's session usable and unrevoked in Postgres.
+
 The customer-favourites endpoints now also have a production-wired, real-cookie
 two-customer regression. Each customer sees only their own restaurant list, and
 unfavouriting a public restaurant under one account leaves the other account's

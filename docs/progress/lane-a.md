@@ -576,3 +576,5 @@
   Next: inspect remaining registered customer routes for ownership gaps, then continue the rate-limit inventory and k6 readiness.
 - 2026-11-19 · Ultra · Extended connected Auth/Postgres coverage so a second session and another account cannot redeem the owner's verified-email challenge; both records remain unchanged, then the issuing session completes linking. Authz 267/267, focused integration and full `pnpm verify` pass; reviewer found no remaining issues. [Evidence](../evidence/awid/tenant-isolation.md)
   Next: inspect remaining registered customer routes for ownership gaps, then continue the rate-limit inventory and k6 readiness.
+- 2026-11-19 · Ultra · Added connected Postgres/API coverage for two devices on customer A and one on B: private lists, foreign revoke denial, owner revoke, and logout-all isolation with persisted active-session assertions. Auth suite 11/11, authz 267/267, full `pnpm verify` (73 files/377 integration tests) and reviewer pass. [Evidence](../evidence/awid/tenant-isolation.md)
+  Next: inspect remaining registered customer routes for ownership gaps, then continue the rate-limit inventory and k6 readiness.

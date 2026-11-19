@@ -54,6 +54,9 @@ async function openAuthApi(at = Date.parse("2026-11-07T12:00:00Z")) {
     sent,
     emails,
     attempts,
+    now() {
+      return new Date(time);
+    },
     failNextDelivery() {
       shouldFail = true;
     },
@@ -109,9 +112,12 @@ async function loginWeb(api: FastifyInstance, sent: Map<string, string>, phone: 
 }
 
 test("[AUTH-01] [AUTH-03] [AUTH-09] uses live Postgres for HMAC and opaque web sessions", async () => {
-  const { api, sent } = await openAuthApi();
+  const auth = await openAuthApi();
+  const { api, sent } = auth;
   try {
-    const { challenge, code, response, cookie } = await loginWeb(api, sent, "+213500000010");
+    const phone = "+213500000010";
+    const otherPhone = "+213500000044";
+    const { challenge, code, response, cookie } = await loginWeb(api, sent, phone);
     expect(response.statusCode).toBe(200);
     expect(verifyOtpOutput.parse(response.json())).toEqual({
       status: "authenticated",
@@ -132,10 +138,77 @@ test("[AUTH-01] [AUTH-03] [AUTH-09] uses live Postgres for HMAC and opaque web s
     expect(session?.tokenHash).toEqual(hashSessionToken(cookie.value));
 
     const cookieHeader = { cookie: "__Host-session=" + cookie.value };
+    auth.advance(61_000);
+    const secondOwnerLogin = await loginWeb(api, sent, phone);
+    const secondOwnerCookie = {
+      cookie: "__Host-session=" + secondOwnerLogin.cookie.value,
+    };
+    const otherLogin = await loginWeb(api, sent, otherPhone);
+    const otherCookieHeader = { cookie: "__Host-session=" + otherLogin.cookie.value };
+
     const listed = await api.inject({ url: "/v1/me/sessions", headers: cookieHeader });
-    const [current] = sessionListOutput.parse(listed.json()).sessions;
-    expect(current?.current).toBe(true);
-    if (!current) throw new Error("Expected an authenticated session");
+    const ownerSessions = sessionListOutput.parse(listed.json()).sessions;
+    expect(ownerSessions).toHaveLength(2);
+    expect(ownerSessions.filter(({ current: isCurrent }) => isCurrent)).toHaveLength(1);
+    const secondOwnerSessions = sessionListOutput.parse(
+      (await api.inject({ url: "/v1/me/sessions", headers: secondOwnerCookie })).json(),
+    ).sessions;
+    expect(secondOwnerSessions.map(({ id }) => id).sort()).toEqual(
+      ownerSessions.map(({ id }) => id).sort(),
+    );
+    const otherSessions = sessionListOutput.parse(
+      (await api.inject({ url: "/v1/me/sessions", headers: otherCookieHeader })).json(),
+    ).sessions;
+    expect(otherSessions).toHaveLength(1);
+    expect(ownerSessions.map(({ id }) => id)).not.toContain(otherSessions[0]?.id);
+
+    const secondOwnerSession = ownerSessions.find(({ current: isCurrent }) => !isCurrent);
+    if (!secondOwnerSession) throw new Error("Expected the other owner device session");
+    const foreignRevoke = await api.inject({
+      method: "DELETE",
+      url: "/v1/me/sessions/" + secondOwnerSession.id,
+      headers: { ...originHeaders, ...otherCookieHeader },
+    });
+    expect(foreignRevoke.statusCode).toBe(404);
+    expect(problemResponseSchema.parse(foreignRevoke.json())).toMatchObject({
+      status: 404,
+      code: "not_found",
+    });
+    expect(
+      sessionListOutput.parse(
+        (await api.inject({ url: "/v1/me/sessions", headers: cookieHeader })).json(),
+      ).sessions,
+    ).toHaveLength(2);
+
+    const ownRevoke = await api.inject({
+      method: "DELETE",
+      url: "/v1/me/sessions/" + secondOwnerSession.id,
+      headers: { ...originHeaders, ...cookieHeader },
+    });
+    expect(ownRevoke.statusCode).toBe(204);
+    expect(
+      (await api.inject({ url: "/v1/me/sessions", headers: secondOwnerCookie })).statusCode,
+    ).toBe(401);
+    const ownerOnlySession = sessionListOutput.parse(
+      (await api.inject({ url: "/v1/me/sessions", headers: cookieHeader })).json(),
+    ).sessions;
+    expect(ownerOnlySession).toHaveLength(1);
+    const [current] = ownerOnlySession;
+    if (!current?.current) throw new Error("Expected the current owner session");
+
+    auth.advance(61_000);
+    const thirdOwnerLogin = await loginWeb(api, sent, phone);
+    const thirdOwnerCookie = {
+      cookie: "__Host-session=" + thirdOwnerLogin.cookie.value,
+    };
+    const beforeLogoutAll = sessionListOutput.parse(
+      (await api.inject({ url: "/v1/me/sessions", headers: cookieHeader })).json(),
+    ).sessions;
+    expect(beforeLogoutAll).toHaveLength(2);
+    expect(
+      (await api.inject({ url: "/v1/me/sessions", headers: thirdOwnerCookie })).statusCode,
+    ).toBe(200);
+
     const logout = await api.inject({
       method: "POST",
       url: "/v1/auth/logout",
@@ -147,6 +220,24 @@ test("[AUTH-01] [AUTH-03] [AUTH-09] uses live Postgres for HMAC and opaque web s
     expect((await api.inject({ url: "/v1/me/sessions", headers: cookieHeader })).statusCode).toBe(
       401,
     );
+    expect(
+      (await api.inject({ url: "/v1/me/sessions", headers: thirdOwnerCookie })).statusCode,
+    ).toBe(401);
+    expect(
+      (await api.inject({ url: "/v1/me/sessions", headers: otherCookieHeader })).statusCode,
+    ).toBe(200);
+    const activeAt = auth.now().toISOString();
+    const activeSessions = await database.get().sql<{ phoneE164: string; count: number }[]>`
+      SELECT users.phone_e164 AS "phoneE164", count(sessions.id)::int AS count
+      FROM public.users LEFT JOIN public.sessions ON sessions.user_id = users.id
+        AND sessions.revoked_at IS NULL AND sessions.expires_at > ${activeAt}::timestamptz
+      WHERE users.phone_e164 = ANY(${[phone, otherPhone]})
+      GROUP BY users.phone_e164 ORDER BY users.phone_e164
+    `;
+    expect([...activeSessions]).toEqual([
+      { phoneE164: phone, count: 0 },
+      { phoneE164: otherPhone, count: 1 },
+    ]);
   } finally {
     await api.close();
   }
