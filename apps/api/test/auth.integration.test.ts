@@ -407,6 +407,68 @@ test("[AUTH-05] requires the enrolled TOTP for admin and enforces its absolute e
   }
 });
 
+test("[AUTH-05:abuse] locks an administrator TOTP challenge after five incorrect codes", async () => {
+  const clock = 2_000_000_000_000;
+  const { api, sent } = await openAuthApi(clock);
+  const phone = "+213600000012";
+  const userId = randomUUIDv7();
+  const sealed = sealTotpSecret({
+    key: totpKey,
+    userId,
+    secret: Buffer.from("12345678901234567890"),
+  });
+  try {
+    await database.get()
+      .sql`INSERT INTO users (id, phone_e164, created_at) VALUES (${userId}, ${phone}, ${new Date(clock).toISOString()}::timestamptz)`;
+    await database.get()
+      .sql`INSERT INTO admins (user_id, totp_secret_encrypted) VALUES (${userId}, ${sealed})`;
+    const { challengeId } = requestOtpOutput.parse(
+      (await requestOtp(api, phone, { purpose: "admin_sign_in" })).json(),
+    );
+    const firstFactorCode = sent.get(challengeId);
+    if (!firstFactorCode) throw new Error("Missing synthetic admin OTP.");
+    const firstFactor = await verifyOtp(api, {
+      challengeId,
+      code: firstFactorCode,
+      transport: "bearer",
+    });
+    const pending = verifyOtpOutput.parse(firstFactor.json());
+    if (pending.status !== "totp_required") throw new Error("Expected a pending admin factor.");
+
+    for (let attempt = 1; attempt <= 5; attempt += 1) {
+      const response = await api.inject({
+        method: "POST",
+        url: "/v1/auth/totp/verify",
+        headers: { "idempotency-key": randomUUIDv7() },
+        payload: { challengeId: pending.challengeId, code: "000000", transport: "bearer" },
+      });
+      expect(response.statusCode).toBe(attempt === 5 ? 429 : 401);
+      expect(problemResponseSchema.parse(response.json()).code).toBe(
+        attempt === 5 ? "totp_locked" : "totp_invalid",
+      );
+    }
+
+    const validCodeAfterLock = await api.inject({
+      method: "POST",
+      url: "/v1/auth/totp/verify",
+      headers: { "idempotency-key": randomUUIDv7() },
+      payload: { challengeId: pending.challengeId, code: "279037", transport: "bearer" },
+    });
+    expect(validCodeAfterLock.statusCode).toBe(429);
+    expect(problemResponseSchema.parse(validCodeAfterLock.json()).code).toBe("totp_locked");
+    expect(validCodeAfterLock.cookies).toHaveLength(0);
+    const [storedChallenge] = await database.get().sql<{ attempts: number }[]>`
+      SELECT attempts FROM public.admin_challenges WHERE id = ${pending.challengeId}
+    `;
+    expect(storedChallenge?.attempts).toBe(5);
+    expect(
+      await database.get().sql`SELECT FROM public.sessions WHERE user_id = ${userId}`,
+    ).toHaveLength(0);
+  } finally {
+    await api.close();
+  }
+});
+
 test("[AUTH-01:replay] one wrong verification consumes one attempt across identical retries", async () => {
   const { api, sent } = await openAuthApi();
   const phone = "+213700000011";

@@ -22,7 +22,7 @@ by replicas.
 | All registered API routes | 120/IP/60s shared limiter | Normalized IP; before authorization | [`health.test.ts`](../../../apps/api/test/health.test.ts), [`auth-http.test.ts`](../../../apps/api/test/auth-http.test.ts), policy route inventory [`policy.test.ts`](../../../apps/api/test/policy.test.ts) |
 | OTP issuance and verified-identifier challenge initiation | 45s resend cooldown; 3/15m and 10/24h per phone/email; identifier changes also 3/15m and 10/24h per account; 20/hour per IP | Postgres request history, serialized reservations and HMAC digests for identifier/account/IP. Confirmation requests do not consume issuance quota. | [`auth.integration.test.ts`](../../../apps/api/test/auth.integration.test.ts), [`auth.integration.test.ts`](../../../packages/db/test/auth.integration.test.ts) |
 | OTP verification | 5 wrong codes per challenge, then locked | Attempts persisted per challenge; shared IP limiter also applies | Same API and DB auth tests above |
-| Admin TOTP verification | 5 wrong codes per challenge, then locked | Attempts persisted per admin challenge; shared IP limiter also applies. Current API integration coverage proves the successful TOTP flow and expiry, but does not yet exercise the five-failure threshold. | [`auth-admin.ts`](../../../packages/db/src/auth-admin.ts); coverage gap remains open |
+| Admin TOTP verification | 5 wrong codes per challenge, then locked | Attempts persisted per admin challenge; shared IP limiter also applies. Connected API/Postgres regression proves the first four errors, fifth lock, and that a valid code cannot redeem the locked challenge. | [`auth.integration.test.ts`](../../../apps/api/test/auth.integration.test.ts) (`[AUTH-05:abuse]`) |
 | Account-deletion challenge issuance | 45s cooldown; 3/15m and 10/24h per account; 20/hour per IP | Postgres account history, HMAC IP digest and serialized issuance. Confirmation allows five wrong codes before the challenge expires. | [`privacy.integration.test.ts`](../../../packages/db/test/privacy.integration.test.ts), [`privacy-deletion-session.integration.test.ts`](../../../apps/api/test/privacy-deletion-session.integration.test.ts) |
 | Order delivery-code proof | 5 incorrect codes, then locked | Per order; replay-safe command receipts | [`order-quotes.integration.test.ts`](../../../packages/db/test/order-quotes.integration.test.ts) (`verifyDeliveryCode`) |
 | Delivery proof photo reservations | 5 reservations per assigned order; incomplete reservations count | Postgres count; same idempotency-key replay is resolved before quota rejection. The implementation is present, but there is no test for the sixth reservation or replay at the quota boundary yet. | [`media-reservation.ts`](../../../packages/db/src/media-reservation.ts); threshold regression remains open |
@@ -39,8 +39,7 @@ issuance budgets.
 
 The source currently enforces the proof-reservation and courier-call ceilings,
 but their exact threshold boundaries are not yet covered by regressions. Add
-those cases before treating these two controls as fully verified. The same is
-true of the admin TOTP five-failure ceiling noted above.
+those cases before treating these two controls as fully verified.
 
 ## Deployment limitation
 

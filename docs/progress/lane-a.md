@@ -582,3 +582,5 @@
   Next: extend customer order-history isolation across pages, then continue remaining security review and k6 readiness.
 - 2026-11-19 · Ultra · Added connected two-customer/Postgres coverage for six interleaved orders across every `limit=1` history page and B's cursor replayed under A's session; focused suite passed (2 tests), full `pnpm verify` passed (2,095 unit; 378 integration tests), reviewer pass. [Evidence](../evidence/awid/tenant-isolation.md)
   Next: add boundary regressions for proof-reservation, courier-call and admin TOTP ceilings, then continue remaining security review and k6 readiness.
+- 2026-11-19 · Ultra · Added admin TOTP lockout coverage: four invalid responses, fifth lock, a known-valid retry still locked, persisted attempts=5 and zero issued sessions; auth suite 12/12, reviewer and full `pnpm verify` passed (2,095 unit; 379 integration tests). [Coverage](../../apps/api/test/auth.integration.test.ts)
+  Next: add the fifth/sixth delivery-proof reservation boundary regression, then test the courier-call ceiling and continue remaining security review.
