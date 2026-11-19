@@ -159,22 +159,22 @@ test("[M0-8] the Arabic and Latin guides load four self-hosted fonts @smoke", as
           .getPropertyValue(language === "ar" ? "--font-ibm-plex-sans-arabic" : "--font-poppins")
           .split(",")[0]
           ?.trim();
-        if (!family) throw new Error("The brand font variable is missing.");
+        const headingFamily = body
+          .getPropertyValue(language === "ar" ? "--font-el-messiri" : "--font-fraunces")
+          .split(",")[0]
+          ?.trim();
+        if (!family || !headingFamily) throw new Error("A brand font variable is missing.");
         const firstFamily = (value: string) => value.split(",")[0]?.trim().replace(/['"]/gu, "");
         const sample = language === "ar" ? "مرحبا بكم" : "Bienvenue à Alger";
-        const bodyWeight = "400";
-        const headingWeight = language === "ar" ? "600" : "700";
-        const load = async (weight: string) =>
-          (await document.fonts.load(`${weight} 20px ${family}`, sample)).some(
+        const load = async (fontFamily: string, weight: string) =>
+          (await document.fonts.load(`${weight} 20px ${fontFamily}`, sample)).some(
             (face) => face.weight === weight && face.status === "loaded",
           );
         return {
           bodyUsesBrand: firstFamily(body.fontFamily) === firstFamily(family),
-          headingUsesBrand: Boolean(
-            family && firstFamily(heading.fontFamily) === firstFamily(family),
-          ),
-          bodyLoaded: await load(bodyWeight),
-          headingLoaded: await load(headingWeight),
+          headingUsesBrand: firstFamily(heading.fontFamily) === firstFamily(headingFamily),
+          bodyLoaded: await load(family, "400"),
+          headingLoaded: await load(headingFamily, heading.fontWeight),
         };
       }, locale);
       expect(fonts).toEqual({

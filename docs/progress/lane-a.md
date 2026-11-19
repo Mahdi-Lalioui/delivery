@@ -546,3 +546,5 @@
   Next: rerun the latest GitHub Verify and Browser smoke jobs, then continue open Lane A readiness items; do not merge while any required check is red.
 - 2026-11-19 · Ultra · Added a real-session Postgres regression for admin order force: guest, customer, revoked admin and stale-session requests are denied with expected codes and leave order, events, receipts and audit unchanged; an active admin force is audited. Focused integration 2/2, API typecheck, ESLint and reviewer pass.
   Next: diagnose the current GitHub Browser smoke failure, then continue remaining tenant-isolation gaps and verify the resulting commit in CI.
+- 2026-11-19 · Medium · Aligned the font smoke test with DESIGN.md: Latin headings use Fraunces, Arabic headings use El Messiri, and body text stays Poppins/IBM Plex Arabic. ESLint passed; the production font test passed on mobile Chromium, mobile WebKit and desktop Chromium (3/3).
+  Next: push this design-test fix, confirm CI is green, then resume the remaining security and readiness items.
