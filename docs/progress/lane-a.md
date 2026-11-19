@@ -536,3 +536,5 @@
   Next: audit remaining merchant write routes against production-session tests, then verify tracking frame pacing on a complete connected build instead of the incomplete preview route.
 - 2026-11-19 · Ultra · Extended merchant settings coverage to 12 foreign writes across hours, Ramadan, pause and delivery. All return concealed 404s; the persisted settings tables and command receipts remain empty. Focused Postgres suite passes 2/2.
   Next: audit remaining merchant write routes against direct production-session evidence, then measure tracking frame pacing on a complete connected build.
+- 2026-11-19 · High · Added a production API regression for deny-all CSP on an unhandled 500; it also checks the exception message is not returned. Health suite passes 8/8; API typecheck, lint and Prettier pass. Caddy's external 5xx header path is still open.
+  Next: map and verify API-level write isolation for remaining merchant endpoints; recheck the pushed lane-a CI once GitHub's API responds.

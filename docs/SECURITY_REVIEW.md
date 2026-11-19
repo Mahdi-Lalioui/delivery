@@ -148,8 +148,10 @@ Open security review items:
   required header set at every externally reachable entry point. The production
   smoke now asserts the shared header set on API health and private 404 responses
   as well as web documents; `bash -n infra/deploy/production-smoke.sh` passes.
-  The smoke has not yet run on Compose because no deployment env file is present
-  and no local Compose services are running. API 5xx coverage remains open.
+  The API's deny-all CSP is now tested on success, 404 and an unhandled 500 in
+  [health.test.ts](../apps/api/test/health.test.ts). The smoke has not yet run on
+  Compose because no deployment env file is present and no local Compose services
+  are running; external Caddy 5xx headers remain unverified.
 - Re-scan all locally reachable Git history after the local ref repair. The
   previously recorded Gitleaks mirror covered advertised remote history only.
 - Run the remaining local and connected security tools against the current
