@@ -862,3 +862,50 @@
   border-radius: var(--radius-pill);
   background: currentColor;
 }
+
+/* Dar Zellige: the meal being rated sits in a night-garden panel with lamp light. */
+.rating-hero {
+  --decor-zellige-colour: rgb(242 169 0 / 0.16);
+  padding: var(--space-24) var(--space-20);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-night);
+  color: var(--color-on-night);
+}
+
+.rating-hero .ui-page-title,
+.rating-hero .ui-page-intro {
+  color: var(--color-on-night);
+}
+
+/* Wide screens: the meal on the start side, the form on the end side, both full height. */
+@media (min-width: 960px) {
+  .rating-page {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: 1fr auto;
+    align-items: stretch;
+    max-inline-size: 72rem;
+    min-block-size: calc(100dvb - var(--space-120) - var(--space-48));
+  }
+
+  .rating-page > * {
+    grid-column: 2;
+  }
+
+  .rating-page > .rating-hero {
+    grid-column: 1;
+    grid-row: 1 / span 3;
+    align-content: center;
+  }
+
+  .rating-hero-photo {
+    inline-size: 14rem;
+    block-size: 14rem;
+  }
+}
+
+/* Wide screens: a few favourites share the card's width instead of leaving half of it empty. */
+@media (min-width: 1024px) {
+  .orders-favourites:not(:has(> li:nth-child(5))) {
+    grid-auto-columns: minmax(0, 1fr);
+  }
+}

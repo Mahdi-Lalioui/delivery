@@ -119,8 +119,10 @@
   block-size: auto;
 }
 
+/* The same glazed plate in both themes (it sits on the night-garden confirmed screen). */
 .tagine-plate {
-  fill: var(--color-surface-3);
+  fill: var(--color-food-steam);
+  opacity: 0.92;
 }
 
 .tagine-base,

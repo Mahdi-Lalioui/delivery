@@ -126,7 +126,7 @@ function CashCard({ state, locale }: { state: CheckoutState; locale: Locale }) {
   return (
     <div className="checkout-cash">
       <p>
-        <Icon name="card" size={20} />
+        <Icon name="cash" size={20} />
         {translate(state.fulfilment === "pickup" ? "cashPickup" : "cash")}
       </p>
       {total !== undefined && <TenderChips state={state} totalDzd={total} locale={locale} />}

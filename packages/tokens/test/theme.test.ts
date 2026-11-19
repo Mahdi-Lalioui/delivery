@@ -4,12 +4,12 @@ import { renderTheme } from "../src/theme.ts";
 test("[M0-8] generates a stylesheet with light defaults and dark preference and override rules", () => {
   const stylesheet = renderTheme();
 
-  expect(stylesheet).toMatch(/:root \{[^}]*color-scheme: light;[^}]*--color-bg: #FFFCF5;/);
+  expect(stylesheet).toMatch(/:root \{[^}]*color-scheme: light;[^}]*--color-bg: #FBF6EC;/);
   expect(stylesheet).toMatch(
-    /@media \(prefers-color-scheme: dark\) \{\s*:root:not\(\[data-theme="light"\], \[data-theme="dark"\]\) \{[^}]*color-scheme: dark;[^}]*--color-bg: #05221A;/,
+    /@media \(prefers-color-scheme: dark\) \{\s*:root:not\(\[data-theme="light"\], \[data-theme="dark"\]\) \{[^}]*color-scheme: dark;[^}]*--color-bg: #03180F;/,
   );
   expect(stylesheet).toMatch(
-    /:root\[data-theme="dark"\] \{[^}]*color-scheme: dark;[^}]*--color-bg: #05221A;[^}]*--shadow-e1: 0 1px 2px rgb\(0 0 0 \/ \.4\);/,
+    /:root\[data-theme="dark"\] \{[^}]*color-scheme: dark;[^}]*--color-bg: #03180F;[^}]*--shadow-e1: 0 1px 2px rgb\(0 0 0 \/ \.4\);/,
   );
 });
 

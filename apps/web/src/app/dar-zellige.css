@@ -1,0 +1,107 @@
+/* Dar Zellige decor (DESIGN §0). Purely decorative: no content, no events, no layout. Everything
+   is CSS and inline SVG from the tokens; nothing is fetched at runtime. */
+
+:root {
+  --decor-zellige: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' stroke='%23000' stroke-width='1.2'%3E%3Cpath d='M32 6 38 20 52 14 46 28 60 32 46 36 52 50 38 44 32 58 26 44 12 50 18 36 4 32 18 28 12 14 26 20Z'/%3E%3Ccircle cx='32' cy='32' r='7'/%3E%3Cpath d='M0 0 6 6M64 0 58 6M0 64 6 58M64 64 58 58'/%3E%3C/g%3E%3C/svg%3E");
+  --decor-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23n%29'/%3E%3C/svg%3E");
+}
+
+/* Fine paper grain over the whole page: warmth without a flat digital look. A plain, faint
+   layer (no blend mode) so scrolling stays on the compositor. */
+body::after {
+  position: fixed;
+  z-index: 2147483000;
+  inset: 0;
+  background-image: var(--decor-grain);
+  background-size: 160px;
+  opacity: 0.03;
+  pointer-events: none;
+  content: "";
+}
+
+/* Zellige lattice: an eight-point star tile, coloured by the theme through a mask. */
+.decor-zellige {
+  position: relative;
+  isolation: isolate;
+}
+
+.decor-zellige::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: inherit;
+  background-color: var(--decor-zellige-colour, var(--color-zellige));
+  mask-image: var(--decor-zellige);
+  mask-size: 64px;
+  pointer-events: none;
+  content: "";
+}
+
+/* Lamp light: two soft saffron pools, like a courtyard lantern at dusk. */
+.decor-lamplight {
+  background-image:
+    radial-gradient(38% 55% at 88% 0%, var(--color-glow), transparent 62%),
+    radial-gradient(30% 45% at 0% 100%, var(--color-glow), transparent 62%);
+}
+
+/* Ornamental divider: a thin line with a small star at its centre. */
+.decor-divider {
+  display: flex;
+  gap: var(--space-12);
+  align-items: center;
+  color: var(--color-accent-strong);
+}
+
+.decor-divider::before,
+.decor-divider::after {
+  flex: 1;
+  block-size: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-border-strong), transparent);
+  content: "";
+}
+
+/* Motion language "settle" (DESIGN §0): content set down like a dish on a table. Scroll-driven,
+   transform-only (no fading, so nothing delays the main image), and off under reduced motion. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .restaurant-feed-grid > li,
+    .landing-section,
+    .landing-footer,
+    .restaurant-dish,
+    .orders-card {
+      animation: dar-settle linear both;
+      animation-range: entry 0% entry 55%;
+      animation-timeline: view();
+    }
+  }
+}
+
+@keyframes dar-settle {
+  from {
+    transform: translateY(28px) scale(0.985);
+  }
+}
+
+/* Page transitions: a quick, soft cross-fade with a small rise for the incoming page. */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: dar-page-out 160ms ease-in both;
+  }
+
+  ::view-transition-new(root) {
+    animation: dar-page-in 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+}
+
+@keyframes dar-page-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes dar-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}

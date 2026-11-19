@@ -93,7 +93,8 @@
   align-items: start;
 }
 .restaurant-heading h1 {
-  font: var(--font-weight-display) var(--font-size-h1) / var(--line-height-h1) var(--font-display);
+  font: var(--font-weight-display) clamp(30px, 24px + 1.6vw, 44px) / 1.1 var(--font-display);
+  letter-spacing: var(--letter-spacing-display-xl, -0.02em);
   overflow-wrap: anywhere;
 }
 .restaurant-cuisines {
@@ -945,8 +946,14 @@ body:has(.restaurant-cart-bar) .customer-tabs {
   .restaurant-cart-panel h2 {
     font: var(--font-weight-h2) var(--font-size-h2) / var(--line-height-h2) var(--font-display);
   }
+  /* An empty cart is a full-height, illustrated invitation, not a small card over dead space. */
+  .restaurant-cart-panel:has(.restaurant-cart-panel-empty) {
+    grid-template-rows: auto 1fr;
+    block-size: calc(100dvb - var(--space-120) - var(--space-48));
+  }
   .restaurant-cart-panel-empty {
     display: grid;
+    align-content: center;
     justify-items: center;
     gap: var(--space-8);
     padding: var(--space-24) var(--space-16);

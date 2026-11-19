@@ -1703,7 +1703,11 @@
     "modeEmpty": "Vide",
     "modeLoading": "Attente",
     "modeError": "Erreur",
-    "adminBillingScreen": "Facturation (admin)"
+    "adminBillingScreen": "Facturation (admin)",
+    "beforeAfterTitle": "Avant / après Dar Zellige",
+    "beforeAfterIntro": "Chaque écran, capturé avant et après la passe créative.",
+    "before": "Avant",
+    "after": "Après"
   },
   "checkout": {
     "cashLimit": "Cette commande dépasse le plafond en espèces de votre première commande.",

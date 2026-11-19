@@ -1703,7 +1703,11 @@
     "modeEmpty": "فارغ",
     "modeLoading": "تحميل",
     "modeError": "خطأ",
-    "adminBillingScreen": "الفوترة (الإدارة)"
+    "adminBillingScreen": "الفوترة (الإدارة)",
+    "beforeAfterTitle": "قبل / بعد دار الزليج",
+    "beforeAfterIntro": "كل شاشة، قبل التصميم الجديد وبعده.",
+    "before": "قبل",
+    "after": "بعد"
   },
   "checkout": {
     "cashLimit": "يتجاوز هذا الطلب الحدّ الأقصى للدفع نقدًا في طلبك الأول.",

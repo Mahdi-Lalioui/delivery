@@ -3,6 +3,8 @@ import type { Locale } from "@zaafran/i18n/locales";
 const en = {
   eyebrow: "Dining in Algiers",
   heading: "All restaurants",
+  closerTitle: "Run a restaurant in Algiers?",
+  closerAction: "Join AWID",
   loading: "Loading restaurants…",
   loadMore: "Load more restaurants",
   loadingMore: "Loading more restaurants…",
@@ -132,6 +134,8 @@ const messages = {
   fr: {
     eyebrow: "À table à Alger",
     heading: "Tous les restaurants",
+    closerTitle: "Vous tenez un restaurant à Alger ?",
+    closerAction: "Rejoindre AWID",
     loading: "Chargement des restaurants…",
     loadMore: "Voir plus de restaurants",
     loadingMore: "Chargement des restaurants suivants…",
@@ -257,6 +261,8 @@ const messages = {
   ar: {
     eyebrow: "على مائدة الجزائر العاصمة",
     heading: "كل المطاعم",
+    closerTitle: "هل تدير مطعمًا في الجزائر العاصمة؟",
+    closerAction: "انضم إلى أويد",
     loading: "جارٍ تحميل المطاعم…",
     loadMore: "عرض المزيد من المطاعم",
     loadingMore: "جارٍ تحميل المزيد من المطاعم…",

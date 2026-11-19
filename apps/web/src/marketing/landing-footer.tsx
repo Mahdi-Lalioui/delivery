@@ -32,7 +32,7 @@ export async function LandingFooter({ locale }: { locale: Locale }) {
     },
   ] as const;
   return (
-    <footer className="landing-footer">
+    <footer className="landing-footer decor-zellige">
       <div className="landing-footer-brand">
         <Logo height={44} name={locale === "ar" ? brand.arabicName : brand.name} />
         <p>{translate("footerTagline")}</p>

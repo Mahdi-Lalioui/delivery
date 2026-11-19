@@ -133,6 +133,36 @@
   padding: var(--space-120) var(--page-padding) var(--space-48);
 }
 
+/* Dar Zellige: a gold star rule above the headline, and a zellige border along the hero's foot. */
+.landing-hero-ornament {
+  inline-size: min(12rem, 60%);
+  color: var(--color-food-saffron);
+}
+
+.landing-hero-ornament::before,
+.landing-hero-ornament::after {
+  background: linear-gradient(90deg, transparent, currentColor, transparent);
+}
+
+.landing-hero-ornament svg {
+  fill: currentColor;
+}
+
+.landing-hero::after {
+  --decor-zellige-colour: rgb(242 169 0 / 0.55);
+  position: absolute;
+  z-index: 1;
+  inset-inline: 0;
+  inset-block-end: 0;
+  block-size: 18px;
+  background-color: var(--decor-zellige-colour);
+  mask-image: var(--decor-zellige);
+  mask-size: 18px;
+  mask-repeat: repeat-x;
+  pointer-events: none;
+  content: "";
+}
+
 .landing-hero-copy h1 {
   font: var(--font-weight-display-xl) var(--font-size-display-xl) / var(--line-height-display-xl)
     var(--font-display);
@@ -326,8 +356,9 @@
   gap: var(--space-32);
   padding: var(--space-32) var(--space-24);
   border-radius: var(--radius-xl);
-  background: var(--color-primary);
-  color: var(--color-on-primary);
+  /* A night-garden band in both themes (primary turns mint in dark, which glared). */
+  background-color: var(--color-night);
+  color: var(--color-on-night);
 }
 
 .landing-pitch h2 {
@@ -373,7 +404,7 @@
   align-items: center;
   padding: var(--space-12) var(--space-16);
   border-radius: var(--radius-lg);
-  background: color-mix(in srgb, var(--color-on-primary) 8%, transparent);
+  background: color-mix(in srgb, var(--color-on-night) 8%, transparent);
 }
 
 .landing-stats dd {
@@ -382,7 +413,7 @@
   place-items: center;
   min-inline-size: 4.5rem;
   margin: 0;
-  color: light-dark(var(--color-mint), var(--color-on-primary));
+  color: var(--color-food-saffron);
   font: var(--font-weight-display) var(--font-size-h1) / var(--line-height-h1) var(--font-numbers);
 }
 

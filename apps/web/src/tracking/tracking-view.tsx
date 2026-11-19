@@ -180,7 +180,10 @@ function Ready({
   const isLive = !isTerminal(order.status);
   const showMap = tracking.fulfilment === "delivery";
   return (
-    <div className="tracking" data-map={showMap}>
+    <div
+      className={showMap ? "tracking" : "tracking decor-zellige decor-lamplight"}
+      data-map={showMap}
+    >
       {tracking.fulfilment === "delivery" ? (
         <TrackingLiveMap
           tracking={tracking}
