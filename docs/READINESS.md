@@ -36,7 +36,7 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 - [x] **Lane A** Verify OTP enumeration resistance, attempt caps and SMS/email delivery limits by identifier, IP and signed-in account. [Connected auth and Postgres regressions](SECURITY_REVIEW.md#otp-abuse-and-delivery-limits) (8b1675c plus account-limit change below)
 - [x] **Lane A** Verify upload type, size, decompression limits and metadata stripping. [Upload validation evidence](SECURITY_REVIEW.md#upload-validation)
 - [ ] **Lane A** Verify input handling, CSRF, CSP and security headers, session fixation protections and revocation.
-- [ ] **Lane A** Review route rate limits, secret handling and dependencies. Resolve high and critical findings.
+- [ ] **Lane A** Review route rate limits, secret handling and dependencies. The route-family inventory records the shared 120/IP/minute API limit and durable OTP, deletion-challenge and courier limits; the shared limiter is process-local, so multi-replica protection and remaining secret/dependency review are still open. [Rate-limit inventory](evidence/awid/rate-limits.md)
 - [ ] **Lane A** Record findings and their regression evidence in `docs/SECURITY_REVIEW.md`.
 
 ## Local production reliability

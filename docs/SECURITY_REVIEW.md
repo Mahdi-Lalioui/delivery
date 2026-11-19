@@ -190,10 +190,11 @@ Open security review items:
 - Trace every input schema and query through SQL, process and HTML boundaries;
   adversarial input coverage is not yet complete. No new injectable defect was
   confirmed in the latest source review.
-- Finish the route-by-route abuse-limit inventory. The API applies a default
-  per-IP limiter before actor resolution, OTP has durable per-identifier/IP/
-  account caps, and courier/order domains have additional limits. The intended
-  effective limit and key for every sensitive route still needs evidence.
+- The current abuse-limit inventory is recorded in
+  [rate-limits.md](evidence/awid/rate-limits.md). The shared Fastify limiter is
+  process-local; do not horizontally scale until a shared store is configured
+  and tested. External provider spend limits remain unverified without live
+  credentials.
 - Finish API header coverage on success, 404 and 5xx paths and prove the full
   required header set at every externally reachable entry point. The production
   smoke now asserts the shared header set on API health and private 404 responses
