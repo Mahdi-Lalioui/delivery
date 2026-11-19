@@ -115,3 +115,7 @@ Steps:
 8. Record the numbers and phone model in `docs/evidence/awid/perf.md` under "Physical Android check". Tell lane B about any route that fails; DevTools → Performance → "Save profile" gives a file lane B can read.
 
 When done, run `adb reverse --remove-all` and stop the server with Ctrl+C.
+
+## 10× local load run
+
+To prove the k6 placement/position target without disabling production abuse limits, prepare an isolated synthetic load environment with k6 2.3.0, local production Compose dependencies, and at least 350 source IPs routed through Caddy. The default 700 combined requests/second workload needs 350 IPs at the API's shared 120 requests/minute per-IP limit. Keep all data synthetic and do not point the run at production. Then follow [the load guide](../load/README.md) to prepare 30,000 unique quotes plus 1,000 courier session/order fixtures, run `k6 run load/pilot.js` with the exact environment variables, and save the output in `docs/evidence/awid/k6/`.
