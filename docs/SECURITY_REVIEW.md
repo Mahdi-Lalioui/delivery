@@ -110,6 +110,10 @@ regression: foreign owners and customers receive concealed 404s, and denied
 writes produce no promotion row or command receipt. See
 [merchant-promotions-session.integration.test.ts](../apps/api/test/merchant-promotions-session.integration.test.ts).
 
+Menu category list/create/rename/reorder also have a real-session cross-tenant
+regression; foreign requests return 404 without changing rows or receipts. See
+[menu-category-session.integration.test.ts](../apps/api/test/menu-category-session.integration.test.ts).
+
 Open security review items:
 
 - Complete the exhaustive registered-route-to-resource ownership map. Connected
