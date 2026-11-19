@@ -119,6 +119,11 @@ session regression: each owner can read its own routes, while foreign owners and
 customers receive concealed 404s for another restaurant. See
 [billing-session.integration.test.ts](../apps/api/test/billing-session.integration.test.ts).
 
+Merchant analytics and review read routes have the same real-session isolation
+coverage: the owning restaurant succeeds, while a foreign owner and customer
+receive concealed 404s. See
+[merchant-insights-session.integration.test.ts](../apps/api/test/merchant-insights-session.integration.test.ts).
+
 Open security review items:
 
 - Complete the exhaustive registered-route-to-resource ownership map. Connected
