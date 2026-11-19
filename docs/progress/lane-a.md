@@ -554,3 +554,5 @@
   Next: push this route-isolation proof and continue the remaining security review gaps; leave exhaustive route readiness unticked.
 - 2026-11-19 · Ultra · Added a production-API/Postgres session regression for `/v1/admin/audit`: active admin access passes; guest, customer and revoked admin cannot read records or infer identifiers. Focused integration 1/1, API typecheck and ESLint pass.
   Next: continue the open route-by-route ownership and security review; keep readiness unticked until each route has direct evidence.
+- 2026-11-19 · High · Re-scanned local Git history with Gitleaks: 597 commits / 12.05 MB checked, no leaks found. Remote-only refs and unreachable Git objects are outside this scan.
+  Next: resume local production security tooling and k6 readiness; Docker currently reports no running Compose services and k6 is not installed.

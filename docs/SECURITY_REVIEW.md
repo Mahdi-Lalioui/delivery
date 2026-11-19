@@ -37,6 +37,10 @@ courier and administrator routes. All checks use synthetic data on local infrast
   2,081 unit, 4 native and 349 PostgreSQL integration tests passed; lint,
   typecheck, production build, OpenAPI, Knip, dependency-cruiser, audit and trace
   also exited zero. Browser E2E remains separate from this verification script.
+- On 19 November, `gitleaks detect --source . --redact --no-banner` scanned
+  597 commits and 12.05 MB of local repository history with no leaks found.
+  This result covers the local checkout's reachable history, not unreachable
+  Git objects or remote-only refs.
 - All six structured logger tests passed.
 - Local scanner pass on 18 November: Semgrep `p/security-audit` scanned 918
   first-party files with zero findings; TruffleHog found no verified secrets;
