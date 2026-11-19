@@ -239,8 +239,8 @@ test("[M0-8] the public production build excludes both design guide routes @smok
 
 const themes: readonly ("light" | "dark")[] = ["light", "dark"];
 const backgrounds = {
-  light: { token: "#FFFCF5", painted: "rgb(255, 252, 245)" },
-  dark: { token: "#05221A", painted: "rgb(5, 34, 26)" },
+  light: { token: "#FBF6EC", painted: "rgb(251, 246, 236)" },
+  dark: { token: "#03180F", painted: "rgb(3, 24, 15)" },
 };
 
 async function checkScreen(

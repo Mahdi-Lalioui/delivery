@@ -221,7 +221,9 @@ for (const flow of ["delivery", "pickup", "reject", "expire", "cancel"] as const
             await customerStatus(page, tracking.status_ready);
             if (flow === "pickup") {
               await verifyScheduledPickup(page, harness, fixture);
-              await expect(page.getByText(tracking.pickupCodeHint)).toBeVisible();
+              await expect(
+                page.getByText(tracking.pickupCodeHint).filter({ visible: true }),
+              ).toBeVisible();
               await ticket(board, order).getByRole("button", { name: merchant.collect }).click();
               await customerStatus(page, tracking.status_collected);
             } else {
