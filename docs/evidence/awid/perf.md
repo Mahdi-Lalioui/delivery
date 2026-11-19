@@ -159,3 +159,21 @@ That fixture has three restaurants. On the richer preview catalogue, with the sa
 CLS was 0 throughout, and the LCP element is an image every time. Restaurant has the least margin, because its cover can only start loading after the restaurant JSON arrives on the client. Server-rendering that first response is the next lever.
 
 These are lab measurements in Chromium on a Mac, not on a physical Android phone.
+
+### Connected local production canary (19 November 2026)
+
+Ran against the healthy local production Compose web/API behind Caddy at
+`https://awid.localhost:18544`, with the same Pixel 7 emulation, 4× CPU throttle,
+75 ms latency and 4/1.5 Mbit/s network profile. One cold Discovery sample measured
+1,872 ms LCP, CLS 0, 59 fps average scroll (17 ms p95 frame, 0.99% long frames),
+and 64 ms / 32 ms input-to-paint for the fulfilment switch / cuisine chip.
+The LCP was an image and the page showed its restaurant rails. This single sample
+is a canary, not the three-run acceptance measurement.
+
+The Restaurant URL returned the app's retryable error state because this stack's
+`/v1/feed` returned zero restaurants and the requested slug returned 404. Its
+1,096 ms LCP is therefore invalid as a content performance result. The other
+measured app routes were empty in this stack, so their frame and tap numbers do
+not count toward acceptance. Populate a synthetic restaurant in the isolated
+production stack, then repeat three cold samples per route. The measurement
+harness ignores TLS errors only when its target host is loopback or `.localhost`.

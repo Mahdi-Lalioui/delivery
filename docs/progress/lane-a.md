@@ -555,4 +555,6 @@
 - 2026-11-19 · Ultra · Added a production-API/Postgres session regression for `/v1/admin/audit`: active admin access passes; guest, customer and revoked admin cannot read records or infer identifiers. Focused integration 1/1, API typecheck and ESLint pass.
   Next: continue the open route-by-route ownership and security review; keep readiness unticked until each route has direct evidence.
 - 2026-11-19 · High · Re-scanned local Git history with Gitleaks: 597 commits / 12.05 MB checked, no leaks found. Remote-only refs and unreachable Git objects are outside this scan.
-  Next: resume local production security tooling and k6 readiness; Docker currently reports no running Compose services and k6 is not installed.
+  Next: populate the isolated production Compose database with synthetic restaurant data, repeat three connected Discovery and Restaurant performance samples, then continue the remaining security and k6 readiness gaps.
+- 2026-11-19 · High · Connected local-production canary: Discovery LCP 1,872 ms, CLS 0, 59 fps, and switch/chip taps 64/32 ms; restaurant content was absent (feed empty and slug 404), so its LCP is invalid. Added loopback-only certificate bypass to the perf harness and proved its guard with a test. [Evidence and limits](../evidence/awid/perf.md#connected-local-production-canary-19-november-2026)
+  Next: seed the isolated production Compose stack with synthetic restaurant data, rerun three cold Discovery and Restaurant measurements, then continue the remaining security and k6 readiness gaps.
