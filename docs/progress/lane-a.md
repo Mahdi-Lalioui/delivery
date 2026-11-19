@@ -570,3 +570,5 @@
   Next: inspect remaining customer/merchant/courier routes for missing real-session isolation tests; then continue security controls and k6 readiness.
 - 2026-11-19 · Ultra · Added real-session owner-A/owner-B option-group read, update and item-attachment denial coverage; post-denial checks prove source details and target revision/data remain unchanged. Full `pnpm verify` passed (2,092 unit tests; 375 integration tests); reviewer-requested mutation-state assertions are included. [Evidence](../evidence/awid/tenant-isolation.md)
   Next: close the next concrete route/resource isolation gap, then continue security controls and k6 readiness.
+- 2026-11-19 · Ultra · Added owner-A/owner-B menu-item denial coverage for foreign update, duplicate, availability toggle and archive; both restaurants' rows and menu revisions remain unchanged. Full `pnpm verify` passed (2,092 unit tests; 376 integration tests); independent review found no gaps. [Evidence](../evidence/awid/tenant-isolation.md)
+  Next: close the next concrete route/resource isolation gap, then continue security controls and k6 readiness.
