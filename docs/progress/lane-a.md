@@ -540,3 +540,5 @@
   Next: map and verify API-level write isolation for remaining merchant endpoints; recheck the pushed lane-a CI once GitHub's API responds.
 - 2026-11-19 · High · Full `pnpm test:int` rerun by itself passes 67 files / 366 tests. The earlier two service-area failures occurred during concurrent lint/typecheck load; isolated service-area also passed 6/6. No timeout or assertion was changed.
   Next: continue open security/readiness items; merge lane-a to main only after PR #15's Verify, Browser smoke and Domain mutation checks pass.
+- 2026-11-19 · Ultra · Added a production-wired Postgres session regression for restaurant profile-photo reads and writes. Foreign owner/customer attempts return concealed 404s; both restaurants’ photo IDs and command receipts stay unchanged. Focused integration passes. [Test](../../apps/api/test/merchant-profile-photos-session.integration.test.ts)
+  Next: inspect remaining merchant routes for missing production-session ownership tests; do not count the local performance preview until the national map fixture and live controls are available.

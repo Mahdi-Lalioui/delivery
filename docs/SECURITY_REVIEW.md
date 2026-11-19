@@ -131,6 +131,11 @@ settings writes deny foreign owner/customer sessions across all four write
 routes without creating data or command receipts. See
 [merchant-settings-session.integration.test.ts](../apps/api/test/merchant-settings-session.integration.test.ts).
 
+The restaurant profile-photo API now also has real-cookie owner/outsider
+coverage. Foreign owner and customer read/write requests receive concealed 404s
+and leave both restaurant photo fields and command receipts unchanged. See
+[merchant-profile-photos-session.integration.test.ts](../apps/api/test/merchant-profile-photos-session.integration.test.ts).
+
 Open security review items:
 
 - Complete the exhaustive registered-route-to-resource ownership map. Connected
