@@ -3,7 +3,7 @@
 // Usage: pnpm perf:customer-feel <baseUrl> [runs]
 import process from "node:process";
 import { chromium, devices } from "@playwright/test";
-import { mayIgnoreLocalCertificateErrors } from "./perf-url.mjs";
+import { mayIgnoreLocalCertificateErrors } from "./perf-url.ts";
 
 const [baseUrl = "http://127.0.0.1:3110", runsText = "3"] = process.argv.slice(2);
 const runs = Number(runsText);

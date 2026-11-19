@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { mayIgnoreLocalCertificateErrors } from "./perf-url.mjs";
+import { mayIgnoreLocalCertificateErrors } from "./perf-url.ts";
 
 void test("the performance harness ignores TLS errors only for local HTTPS origins", () => {
   assert.equal(mayIgnoreLocalCertificateErrors("https://awid.localhost:18544"), true);

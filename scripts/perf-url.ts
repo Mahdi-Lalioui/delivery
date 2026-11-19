@@ -1,7 +1,6 @@
-/** @param {string} value @returns {boolean} */
-export function mayIgnoreLocalCertificateErrors(value) {
+export function mayIgnoreLocalCertificateErrors(value: string): boolean {
   try {
-    const url = new globalThis.URL(value);
+    const url = new URL(value);
     return (
       url.protocol === "https:" &&
       (url.hostname === "localhost" ||

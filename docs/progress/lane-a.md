@@ -558,3 +558,5 @@
   Next: populate the isolated production Compose database with synthetic restaurant data, repeat three connected Discovery and Restaurant performance samples, then continue the remaining security and k6 readiness gaps.
 - 2026-11-19 · High · Connected local-production canary: Discovery LCP 1,872 ms, CLS 0, 59 fps, and switch/chip taps 64/32 ms; restaurant content was absent (feed empty and slug 404), so its LCP is invalid. Added loopback-only certificate bypass to the perf harness and proved its guard with a test. [Evidence and limits](../evidence/awid/perf.md#connected-local-production-canary-19-november-2026)
   Next: seed the isolated production Compose stack with synthetic restaurant data, rerun three cold Discovery and Restaurant measurements, then continue the remaining security and k6 readiness gaps.
+- 2026-11-19 · Medium · Fixed CI Knip failure by moving the local-TLS guard to a typed TypeScript helper, removing the unused declaration. Tooling 56/56, helper test, ESLint, Prettier, Knip and the connected performance runner pass.
+  Next: wait for CI on this pushed commit; then resume route-ownership/security gaps and the connected performance fixture.
