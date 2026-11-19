@@ -126,7 +126,9 @@ receive concealed 404s. See
 
 Hours, Ramadan schedule, pause, hours preview and delivery settings reads now
 have production-wired owner-versus-outsider Postgres coverage; foreign owners
-and customers receive concealed 404s across all five routes. See
+and customers receive concealed 404s across all five routes. The matching
+settings writes deny foreign owner/customer sessions across all four write
+routes without creating data or command receipts. See
 [merchant-settings-session.integration.test.ts](../apps/api/test/merchant-settings-session.integration.test.ts).
 
 Open security review items:

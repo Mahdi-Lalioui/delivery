@@ -534,3 +534,5 @@
   Next: inventory remaining merchant routes with owner-controlled data and add real-session cases where the route/resource map lacks direct isolation proof.
 - 2026-11-19 · Ultra · Added real-session Postgres coverage for hours, Ramadan, pause, hours preview and delivery settings reads. Owner succeeds; foreign owner and customer receive concealed 404s on all five routes. Focused integration passed; corrected evidence links to the actual DB suites. [Test](../../apps/api/test/merchant-settings-session.integration.test.ts)
   Next: audit remaining merchant write routes against production-session tests, then verify tracking frame pacing on a complete connected build instead of the incomplete preview route.
+- 2026-11-19 · Ultra · Extended merchant settings coverage to 12 foreign writes across hours, Ramadan, pause and delivery. All return concealed 404s; the persisted settings tables and command receipts remain empty. Focused Postgres suite passes 2/2.
+  Next: audit remaining merchant write routes against direct production-session evidence, then measure tracking frame pacing on a complete connected build.
