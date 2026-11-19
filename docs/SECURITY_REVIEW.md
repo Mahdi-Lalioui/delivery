@@ -122,6 +122,12 @@ validation, session fixation, API CSP, web/Caddy headers, CSRF and log redaction
 have existing passing evidence in this review. These checks are not a substitute
 for closing the remaining gaps below.
 
+The verified-identifier API now also has an owner-versus-outsider regression:
+a second session of the same account and a different account cannot use the
+email challenge, neither row changes, and the original session can still attach
+the verified email. The connected Postgres API test passes at
+`apps/api/test/auth.integration.test.ts`.
+
 The customer-favourites endpoints now also have a production-wired, real-cookie
 two-customer regression. Each customer sees only their own restaurant list, and
 unfavouriting a public restaurant under one account leaves the other account's

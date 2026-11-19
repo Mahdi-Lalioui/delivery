@@ -468,8 +468,10 @@ test("[AUTH-05] email-admin sign-in still requires enrolled TOTP", async () => {
 });
 
 test("[AUTH-01] links an email with a code and preserves the authenticated phone account", async () => {
-  const { api, emails, sent } = await openAuthApi();
+  const auth = await openAuthApi();
+  const { api, emails, sent } = auth;
   const phone = "+213500000042";
+  const otherPhone = "+213500000043";
   const email = "linked@example.test";
   try {
     expect((await api.inject({ url: "/v1/auth/methods" })).json()).toEqual({
@@ -498,6 +500,63 @@ test("[AUTH-01] links an email with a code and preserves the authenticated phone
     if (!message) throw new Error("Missing identifier change code.");
     expect(message.email).toBe(email);
     expect((await verifyOtp(api, { challengeId, code: message.code })).statusCode).toBe(401);
+
+    auth.advance(61_000);
+    const { cookie: secondOwnerCookie } = await loginWeb(api, sent, phone);
+    const secondOwnerHeaders = {
+      ...originHeaders,
+      cookie: "__Host-session=" + secondOwnerCookie.value,
+    };
+    const secondOwnerProfile = await api.inject({
+      url: "/v1/me/identifiers",
+      headers: secondOwnerHeaders,
+    });
+    expect(secondOwnerProfile.json()).toMatchObject({ phone, email: null });
+    const secondSessionAttempt = await api.inject({
+      method: "PUT",
+      url: "/v1/me/identifiers",
+      headers: {
+        ...secondOwnerHeaders,
+        "x-expected-session-id": secondOwnerProfile.json<{ sessionId: string }>().sessionId,
+        "idempotency-key": randomUUIDv7(),
+      },
+      payload: { challengeId, code: message.code },
+    });
+    expect(problemResponseSchema.parse(secondSessionAttempt.json())).toMatchObject({
+      status: 401,
+      code: "otp_invalid",
+    });
+
+    const { cookie: otherCookie } = await loginWeb(api, sent, otherPhone);
+    const otherHeaders = {
+      ...originHeaders,
+      cookie: "__Host-session=" + otherCookie.value,
+    };
+    const otherProfile = await api.inject({ url: "/v1/me/identifiers", headers: otherHeaders });
+    expect(otherProfile.json()).toMatchObject({ phone: otherPhone, email: null });
+    const foreignAttempt = await api.inject({
+      method: "PUT",
+      url: "/v1/me/identifiers",
+      headers: {
+        ...otherHeaders,
+        "x-expected-session-id": otherProfile.json<{ sessionId: string }>().sessionId,
+        "idempotency-key": randomUUIDv7(),
+      },
+      payload: { challengeId, code: message.code },
+    });
+    expect(problemResponseSchema.parse(foreignAttempt.json())).toMatchObject({
+      status: 401,
+      code: "otp_invalid",
+    });
+    const unchanged = await database.get().sql`
+      SELECT phone_e164, email FROM public.users
+      WHERE phone_e164 = ANY(${[phone, otherPhone]}) ORDER BY phone_e164
+    `;
+    expect([...unchanged]).toEqual([
+      { phone_e164: phone, email: null },
+      { phone_e164: otherPhone, email: null },
+    ]);
+
     const confirm = await api.inject({
       method: "PUT",
       url: "/v1/me/identifiers",
@@ -506,9 +565,14 @@ test("[AUTH-01] links an email with a code and preserves the authenticated phone
     });
     expect(confirm.statusCode).toBe(200);
     expect(confirm.json()).toEqual({ ...profile, email });
-    const rows = await database.get()
-      .sql`SELECT id FROM public.users WHERE phone_e164 = ${phone} OR email = ${email}`;
-    expect(rows).toHaveLength(1);
+    const rows = await database.get().sql`
+      SELECT phone_e164, email FROM public.users
+      WHERE phone_e164 = ANY(${[phone, otherPhone]}) ORDER BY phone_e164
+    `;
+    expect([...rows]).toEqual([
+      { phone_e164: phone, email },
+      { phone_e164: otherPhone, email: null },
+    ]);
   } finally {
     await api.close();
   }
