@@ -124,6 +124,11 @@ coverage: the owning restaurant succeeds, while a foreign owner and customer
 receive concealed 404s. See
 [merchant-insights-session.integration.test.ts](../apps/api/test/merchant-insights-session.integration.test.ts).
 
+Hours, Ramadan schedule, pause, hours preview and delivery settings reads now
+have production-wired owner-versus-outsider Postgres coverage; foreign owners
+and customers receive concealed 404s across all five routes. See
+[merchant-settings-session.integration.test.ts](../apps/api/test/merchant-settings-session.integration.test.ts).
+
 Open security review items:
 
 - Complete the exhaustive registered-route-to-resource ownership map. Connected
