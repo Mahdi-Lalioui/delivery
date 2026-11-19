@@ -548,3 +548,5 @@
   Next: diagnose the current GitHub Browser smoke failure, then continue remaining tenant-isolation gaps and verify the resulting commit in CI.
 - 2026-11-19 · Medium · Aligned the font smoke test with DESIGN.md: Latin headings use Fraunces, Arabic headings use El Messiri, and body text stays Poppins/IBM Plex Arabic. ESLint passed; the production font test passed on mobile Chromium, mobile WebKit and desktop Chromium (3/3).
   Next: push this design-test fix, confirm CI is green, then resume the remaining security and readiness items.
+- 2026-11-19 · Ultra · Added production-API/Postgres coverage for admin billing subscription, invoice and transfer-proof lists. Active admins see records; guests/revoked admins receive 401 and customer/restaurant sessions 403 with no private values in responses. Integration 1/1, API typecheck and ESLint pass; route evidence updated.
+  Next: check CI for the pushed browser fixes, then close the next registered-route isolation gap and keep exhaustive security readiness open until its full route map is proven.

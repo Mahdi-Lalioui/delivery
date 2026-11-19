@@ -124,6 +124,11 @@ coverage: the owning restaurant succeeds, while a foreign owner and customer
 receive concealed 404s. See
 [merchant-insights-session.integration.test.ts](../apps/api/test/merchant-insights-session.integration.test.ts).
 
+Admin billing subscription, invoice and transfer-proof lists now have a
+production-wired real-session regression. Active admins see seeded records;
+customers, restaurant owners, guests and revoked admins cannot read them. See
+[admin-billing-session.integration.test.ts](../apps/api/test/admin-billing-session.integration.test.ts).
+
 Hours, Ramadan schedule, pause, hours preview and delivery settings reads now
 have production-wired owner-versus-outsider Postgres coverage; foreign owners
 and customers receive concealed 404s across all five routes. The matching
