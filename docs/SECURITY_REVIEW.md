@@ -96,6 +96,21 @@ verify that another account or restaurant cannot access private uploads.
 - [Published variants](../packages/media/test/photo-crop.test.ts)
 - [Private media isolation](../apps/api/test/media-reservation.integration.test.ts)
 
+## Worker alerts (NFR-07)
+
+Worker jobs emit an operations alert only after Graphile Worker marks the job
+permanently failed (`attempts >= max_attempts`). The alert adapter receives a
+stable key, trusted internal task identifier, attempt count and timestamp; it
+never receives the job payload or thrown error. The optional Resend adapter
+uses the stable key as its idempotency key and escapes dynamic content in HTML.
+An exhausted synthetic watchdog incident on local Postgres reaches the fake
+outbox once; duplicate adapter sends deduplicate. [Unit and integration proof](evidence/awid/ops-alerts.md).
+
+No provider credentials or destination are configured in this checkout, so
+external delivery is unverified and the readiness item remains open. Failed
+provider delivery is logged with only task name and attempt count; without an
+external error-tracking sink this log alone is not an alert. See [HUMAN_TODO](HUMAN_TODO.md).
+
 ## Verification remaining
 
 The 19 November connected Postgres tests extend tenant evidence for courier

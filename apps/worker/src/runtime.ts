@@ -44,11 +44,12 @@ export function createWorkerOptions(
     store: MediaStore;
     scan?: ScanMedia | undefined;
     heicDecoderPath?: string | undefined;
+    checkOpsHealth?: (() => Promise<void>) | undefined;
   } = {
     store: createLocalMediaStore({ root: defaultMediaStorageRoot() }),
   },
 ) {
-  const { orderSms, orderPush, orderEmail, ...media } = options;
+  const { orderSms, orderPush, orderEmail, checkOpsHealth, ...media } = options;
   const notifyOrder = createOrderNotificationJob(database, { orderSms, orderPush, orderEmail });
   const privacy = createPrivacyRepository(database);
   const orders = createOrderRepository(database);
@@ -93,7 +94,8 @@ export function createWorkerOptions(
         taskIdentifier: watchdogIdentifier,
         effectKey: checkId,
         apply: async (transaction) => {
-          await transaction`select postgis_version()`;
+          if (checkOpsHealth) await checkOpsHealth();
+          else await transaction`select postgis_version()`;
         },
       });
     }),

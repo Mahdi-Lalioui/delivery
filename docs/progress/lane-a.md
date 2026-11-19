@@ -572,3 +572,5 @@
   Next: close the next concrete route/resource isolation gap, then continue security controls and k6 readiness.
 - 2026-11-19 · Ultra · Added owner-A/owner-B menu-item denial coverage for foreign update, duplicate, availability toggle and archive; both restaurants' rows and menu revisions remain unchanged. Full `pnpm verify` passed (2,092 unit tests; 376 integration tests); independent review found no gaps. [Evidence](../evidence/awid/tenant-isolation.md)
   Next: close the next concrete route/resource isolation gap, then continue security controls and k6 readiness.
+- 2026-11-19 · High · Added PII-safe worker failure alerts with fake outbox and optional Resend delivery; all 3 alert unit tests, 8 queue integration tests, reviewer, and full `pnpm verify` pass. External email delivery/error tracking remain open. [Evidence](../evidence/awid/ops-alerts.md)
+  Next: inspect the remaining registered merchant/customer routes for a concrete ownership gap; then continue security controls and k6 readiness.

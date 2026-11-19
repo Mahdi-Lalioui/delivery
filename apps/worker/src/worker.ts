@@ -8,12 +8,15 @@ import { createOrderSmsAdapter, type SendOrderSms } from "./order-sms-adapter.js
 import { workerLogger } from "./logger.js";
 import { createWorkerOptions } from "./runtime.js";
 import { createClamDScan } from "./media-scanner.js";
+import { attachWorkerFailureAlerts, createResendOpsAlertAdapter } from "./ops-alerts.js";
 
-async function serveWorker(
-  databaseUrl: string,
-  media: Parameters<typeof createWorkerOptions>[2],
-): Promise<void> {
+type WorkerServices = NonNullable<Parameters<typeof createWorkerOptions>[2]> & {
+  opsAlert?: Parameters<typeof attachWorkerFailureAlerts>[1] | undefined;
+};
+
+async function serveWorker(databaseUrl: string, media: WorkerServices): Promise<void> {
   const database = openDatabase(databaseUrl);
+  const { opsAlert, ...workerServices } = media;
   const shutdown = Promise.withResolvers<"signal">();
   const requestShutdown = () => {
     shutdown.resolve("signal");
@@ -23,9 +26,17 @@ async function serveWorker(
 
   try {
     const runner = await run({
-      ...createWorkerOptions(databaseUrl, database, media),
+      ...createWorkerOptions(databaseUrl, database, workerServices),
       noHandleSignals: true,
     });
+    if (opsAlert) {
+      attachWorkerFailureAlerts(runner.events, opsAlert, (alert) => {
+        workerLogger.error(
+          { taskIdentifier: alert.taskIdentifier, attempts: alert.attempts },
+          "Operations alert delivery failed",
+        );
+      });
+    }
     runner.events.on("job:failed", ({ job }) => {
       workerLogger.error(
         { jobId: job.id, taskIdentifier: job.task_identifier, attempts: job.attempts },
@@ -57,6 +68,18 @@ function configureSms(environment: WorkerEnvironment): SendOrderSms | undefined 
   return url && token ? createOrderSmsAdapter({ url, token }) : undefined;
 }
 
+function configureOpsAlert(
+  apiKey: string | undefined,
+  from: string | undefined,
+  recipient: string | undefined,
+) {
+  if (!apiKey || !from || !recipient) return undefined;
+  return createResendOpsAlertAdapter({
+    recipient,
+    send: createResendSender({ apiKey, from: `AWID <${from}>` }),
+  });
+}
+
 await runWorkerCommand("start", (environment) => {
   const {
     DATABASE_URL,
@@ -69,6 +92,7 @@ await runWorkerCommand("start", (environment) => {
     VAPID_SUBJECT,
     AUTH_RESEND_API_KEY: apiKey,
     AUTH_RESEND_FROM: from,
+    OPS_ALERT_EMAIL: alertEmail,
   } = environment;
   return serveWorker(DATABASE_URL, {
     store: createLocalMediaStore({ root: MEDIA_STORAGE_ROOT }),
@@ -84,5 +108,6 @@ await runWorkerCommand("start", (environment) => {
         : undefined,
     orderSms: configureSms(environment),
     orderEmail: apiKey && from ? createResendSender({ apiKey, from: `AWID <${from}>` }) : undefined,
+    opsAlert: configureOpsAlert(apiKey, from, alertEmail),
   });
 });
