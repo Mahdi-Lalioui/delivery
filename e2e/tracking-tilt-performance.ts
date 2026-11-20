@@ -23,20 +23,38 @@ export async function measureConnectedTrackingTilt(page: Page) {
     await action.scrollIntoViewIfNeeded();
     const frames = page.evaluate(
       () =>
-        new Promise<number[]>((resolve) => {
+        new Promise<{ deltas: number[]; longTasks: number[]; tiles: number }>((resolve) => {
           const button = document.querySelector(".tracking-map-attribution .awid-map-action");
           button?.addEventListener(
             "click",
             () => {
               const times: number[] = [];
               const start = performance.now();
+              const longTasks: number[] = [];
+              const observer = new PerformanceObserver((entries) => {
+                for (const entry of entries.getEntries()) longTasks.push(entry.duration);
+              });
+              observer.observe({ type: "longtask" });
               let last = start;
               const frame = (now: number) => {
                 const delta = now - last;
                 if (delta > 0) times.push(delta);
                 last = now;
                 if (now - start < 600) requestAnimationFrame(frame);
-                else resolve(times);
+                else {
+                  const tiles = performance
+                    .getEntriesByType("resource")
+                    .filter(
+                      (entry) =>
+                        new URL(entry.name).pathname.startsWith("/tiles/algeria/") &&
+                        entry.startTime + entry.duration >= start &&
+                        entry.startTime + entry.duration <= now,
+                    ).length;
+                  setTimeout(() => {
+                    observer.disconnect();
+                    resolve({ deltas: times, longTasks, tiles });
+                  }, 0);
+                }
               };
               requestAnimationFrame(frame);
             },
@@ -46,7 +64,7 @@ export async function measureConnectedTrackingTilt(page: Page) {
     );
     await action.click();
     await expect(action).toHaveAttribute("aria-pressed", "true");
-    const deltas = await frames;
+    const { deltas, longTasks, tiles } = await frames;
     expect(deltas.length).toBeGreaterThan(0);
     const ordered = deltas.toSorted((a, b) => a - b);
     const intervals = deltas.slice(1);
@@ -62,6 +80,8 @@ export async function measureConnectedTrackingTilt(page: Page) {
         activeFps: Math.round((1_000 * intervals.length) / activeElapsed),
         maxFrameMs: ordered.at(-1),
         p95FrameMs: ordered[Math.ceil(ordered.length * 0.95) - 1],
+        longTasks,
+        tiles,
         longFrames: deltas.filter((delta) => delta > 1_000 / 60 + 4).length,
       }) + "\n",
     );

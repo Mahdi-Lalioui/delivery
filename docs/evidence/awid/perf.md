@@ -237,3 +237,9 @@ AWID_MEASURE_TRACKING_TILT=1 ZAAFRAN_TILE_ORIGIN=http://127.0.0.1:5501 \
 ```
 
 [Raw timing samples](perf/tracking-tilt-connected.json)
+
+A follow-up connected profile passed three more delivery journeys. All three
+tilts measured 54 fps. The browser Long Tasks API recorded one task per run
+at 78, 76 and 75 ms respectively. No Algeria tile requests completed during
+the sampled intervals. This demonstrates main-thread contention but does
+not identify the responsible function.
