@@ -584,3 +584,5 @@
   Next: add boundary regressions for proof-reservation, courier-call and admin TOTP ceilings, then continue remaining security review and k6 readiness.
 - 2026-11-19 · Ultra · Added admin TOTP lockout coverage: four invalid responses, fifth lock, a known-valid retry still locked, persisted attempts=5 and zero issued sessions; auth suite 12/12, reviewer and full `pnpm verify` passed (2,095 unit; 379 integration tests). [Coverage](../../apps/api/test/auth.integration.test.ts)
   Next: add the fifth/sixth delivery-proof reservation boundary regression, then test the courier-call ceiling and continue remaining security review.
+- 2026-11-20 · Ultra · Proved five concurrent delivery-proof reservations serialize at the order lock, idempotent replay succeeds at quota, a fresh sixth gets `proof_photo_limit`, and exactly five rows persist; reviewer and full `pnpm verify` passed (2,095 unit; 379 integration tests). [Coverage](../../packages/db/test/order-quotes.integration.test.ts)
+  Next: test the courier delivery-call ceiling at 20, then continue remaining security review.

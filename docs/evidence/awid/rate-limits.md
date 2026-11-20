@@ -25,7 +25,7 @@ by replicas.
 | Admin TOTP verification | 5 wrong codes per challenge, then locked | Attempts persisted per admin challenge; shared IP limiter also applies. Connected API/Postgres regression proves the first four errors, fifth lock, and that a valid code cannot redeem the locked challenge. | [`auth.integration.test.ts`](../../../apps/api/test/auth.integration.test.ts) (`[AUTH-05:abuse]`) |
 | Account-deletion challenge issuance | 45s cooldown; 3/15m and 10/24h per account; 20/hour per IP | Postgres account history, HMAC IP digest and serialized issuance. Confirmation allows five wrong codes before the challenge expires. | [`privacy.integration.test.ts`](../../../packages/db/test/privacy.integration.test.ts), [`privacy-deletion-session.integration.test.ts`](../../../apps/api/test/privacy-deletion-session.integration.test.ts) |
 | Order delivery-code proof | 5 incorrect codes, then locked | Per order; replay-safe command receipts | [`order-quotes.integration.test.ts`](../../../packages/db/test/order-quotes.integration.test.ts) (`verifyDeliveryCode`) |
-| Delivery proof photo reservations | 5 reservations per assigned order; incomplete reservations count | Postgres count; same idempotency-key replay is resolved before quota rejection. The implementation is present, but there is no test for the sixth reservation or replay at the quota boundary yet. | [`media-reservation.ts`](../../../packages/db/src/media-reservation.ts); threshold regression remains open |
+| Delivery proof photo reservations | 5 reservations per assigned order; incomplete reservations count | Postgres count; same idempotency-key replay resolves before quota rejection. Connected integration coverage concurrently creates five, replays an existing key at quota, proves the sixth new key is rejected and checks exactly five rows remain. | [`order-quotes.integration.test.ts`](../../../packages/db/test/order-quotes.integration.test.ts) (`verifyPhotoFallback`) |
 | Realtime streams | 4 concurrent streams per session | In-memory session counter per API process; fifth stream gets 429 | [`realtime-http.test.ts`](../../../apps/api/test/realtime-http.test.ts) |
 | Push subscriptions | 10 active endpoints per customer account | Customer row lock in Postgres; expired/revoked entries removed before counting | [`push-subscriptions.integration.test.ts`](../../../packages/db/test/push-subscriptions.integration.test.ts) |
 | Courier position intake | One request per active courier every 3s | `couriers.last_position_request_at` updated atomically after assigned-order scope is locked | [`order-quotes.integration.test.ts`](../../../packages/db/test/order-quotes.integration.test.ts) (`verifyCourierPositions`) |
@@ -37,9 +37,9 @@ independent controls, not substitutes for rate-limit tests. The normalizer's
 IP grouping is not identical to the canonical IP digest used by Postgres
 issuance budgets.
 
-The source currently enforces the proof-reservation and courier-call ceilings,
-but their exact threshold boundaries are not yet covered by regressions. Add
-those cases before treating these two controls as fully verified.
+The source currently enforces the courier-call ceiling, but its exact threshold
+boundary is not yet covered by a regression. Add that case before treating the
+control as fully verified.
 
 ## Deployment limitation
 
