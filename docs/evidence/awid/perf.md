@@ -243,3 +243,9 @@ tilts measured 54 fps. The browser Long Tasks API recorded one task per run
 at 78, 76 and 75 ms respectively. No Algeria tile requests completed during
 the sampled intervals. This demonstrates main-thread contention but does
 not identify the responsible function.
+
+Set `AWID_PROFILE_TRACKING_TILT=1` alongside the existing measurement flag
+to include a Chromium CPU sampling summary. One connected profile run
+passed the journey and recorded 60 active fps with no long task. That sample
+did not reproduce the earlier 75–78 ms stall, so it does not establish a fix
+or change the readiness verdict.

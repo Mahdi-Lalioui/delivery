@@ -636,3 +636,5 @@
   Next: capture a Chromium CPU profile for the connected tilt to identify the long task and verify a targeted fix.
 - 2026-11-20 · High · Final security checkpoint: authz 267/267, production audit, Gitleaks history and high/critical Trivy gates passed. The cached backend and web image scans predate the current commit.
   Next: provision the connected synthetic quotes and active courier assignments for the local 10× capacity run.
+- 2026-11-20 · High · Optional Chromium CPU profiling passed one connected delivery run at 60 active fps with no long task. The profile did not reproduce the earlier stall. Local rehearsal database has zero quotes and zero couriers, so the 10× load run has no valid fixture set yet.
+  Next: provision 30,000 unconsumed quotes and 1,000 active courier assignments on a disposable stack and verify the source-address distribution.

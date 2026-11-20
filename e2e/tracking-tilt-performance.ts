@@ -1,4 +1,4 @@
-import { expect, type Page } from "@playwright/test";
+import { expect, type CDPSession, type Page } from "@playwright/test";
 
 export async function measureConnectedTrackingTilt(page: Page) {
   const cdp = await page.context().newCDPSession(page);
@@ -62,10 +62,15 @@ export async function measureConnectedTrackingTilt(page: Page) {
           );
         }),
     );
+    const profileTilt = process.env.AWID_PROFILE_TRACKING_TILT === "1";
+    if (profileTilt) {
+      await cdp.send("Profiler.enable");
+      await cdp.send("Profiler.start");
+    }
     await action.click();
     await expect(action).toHaveAttribute("aria-pressed", "true");
     const { deltas, longTasks, tiles } = await frames;
-    expect(deltas.length).toBeGreaterThan(0);
+    const hot = profileTilt ? await readHotFunctions(cdp) : undefined;
     const ordered = deltas.toSorted((a, b) => a - b);
     const intervals = deltas.slice(1);
     const activeElapsed = intervals.reduce((sum, delta) => sum + delta, 0);
@@ -80,6 +85,7 @@ export async function measureConnectedTrackingTilt(page: Page) {
         activeFps: Math.round((1_000 * intervals.length) / activeElapsed),
         maxFrameMs: ordered.at(-1),
         p95FrameMs: ordered[Math.ceil(ordered.length * 0.95) - 1],
+        hot,
         longTasks,
         tiles,
         longFrames: deltas.filter((delta) => delta > 1_000 / 60 + 4).length,
@@ -90,4 +96,20 @@ export async function measureConnectedTrackingTilt(page: Page) {
     await cdp.send("Network.disable");
     await cdp.detach();
   }
+}
+
+async function readHotFunctions(cdp: CDPSession) {
+  const { profile } = await cdp.send("Profiler.stop");
+  await cdp.send("Profiler.disable");
+  return profile.nodes
+    .filter((node) => (node.hitCount ?? 0) > 0)
+    .toSorted((a, b) => (b.hitCount ?? 0) - (a.hitCount ?? 0))
+    .slice(0, 12)
+    .map(({ callFrame, hitCount }) => ({
+      name: callFrame.functionName,
+      hits: hitCount,
+      line: callFrame.lineNumber,
+      column: callFrame.columnNumber,
+      script: callFrame.url.split("/").at(-1),
+    }));
 }
