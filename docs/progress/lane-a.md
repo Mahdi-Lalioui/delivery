@@ -654,3 +654,5 @@
   Next: profile Tracking renderer work without CPU-sampler startup and keep PR #18 integration gated on current green CI.
 - 2026-11-20 · High · PR #18 merged after seven green checks. The connected tilt trace captured an overlapping 78.5 ms task, 60.7 ms compositor commit and 56.2 ms GPU task. Deferring buildings did not improve three measured journeys and was reverted.
   Next: identify the GPU work using a narrower trace and compare with a physical Android device when available.
+- 2026-11-20 · High · Verified populated application notice denial for guest, standard and revoked admin sessions with no merchant ID in responses. Merchant Postgres suite passed 2/2 with scoped lint.
+  Next: continue route ownership coverage with the remaining merchant billing commands, and keep the release verdict NOT READY until the live checks and Tracking target pass.
