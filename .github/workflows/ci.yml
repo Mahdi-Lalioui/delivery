@@ -43,6 +43,15 @@ jobs:
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
       - run: pnpm install --frozen-lockfile
       - run: pnpm verify
+      - name: Scan production web assets for server secrets
+        run: |
+          export AWID_CLIENT_SECRET_CANARY="awid-server-only-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          export AUTH_OTP_KEY="${AWID_CLIENT_SECRET_CANARY}-otp"
+          export AUTH_TOTP_KEY="${AWID_CLIENT_SECRET_CANARY}-totp"
+          export AUTH_RESEND_API_KEY="${AWID_CLIENT_SECRET_CANARY}-email"
+          export AUTH_TWILIO_AUTH_TOKEN="${AWID_CLIENT_SECRET_CANARY}-sms"
+          pnpm --filter @zaafran/web build
+          bash infra/deploy/check-client-secrets.sh
       - run: pnpm bench:search
       - name: Verify the real HEVC preview decoder
         run: |

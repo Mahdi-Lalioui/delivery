@@ -550,3 +550,10 @@ restored an existing table grant, blocked a runtime write to the Graphile
 ledger, and consumed an enqueued job under the runtime role.
 See [the role regression](../infra/deploy/test-database-roles.sh) and
 [the volume upgrade procedure](DEPLOY.md#upgrade-an-existing-database-volume).
+
+## Browser build secret check
+
+The CI Verify job builds the production web app with synthetic OTP, TOTP,
+email and SMS server credentials. It scans Next static output and public
+assets, including source maps present in those directories. The local build
+scan passed, and a fixture with the marker in a JavaScript chunk was rejected.

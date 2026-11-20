@@ -614,3 +614,5 @@
   Next: verify runtime job consumption, add an existing-volume upgrade procedure, then run full verify before committing the database role change.
 - 2026-11-20 · Ultra · Verified the split migration and runtime roles on disposable PostGIS. Existing-table grant repair, queue consumption, migration ledger protection, and DDL denial passed. Full `pnpm verify` passed. [Evidence](../SECURITY_REVIEW.md#database-ownership-and-runtime-roles).
   Next: add a client bundle scan with synthetic server secrets, then continue the alert incident and load readiness work.
+- 2026-11-20 · High · Added a CI scan for synthetic provider and authentication secrets in production web assets. The local production build passed and an injected marker was detected. [Evidence](../SECURITY_REVIEW.md#browser-build-secret-check).
+  Next: add a local test incident for application error tracking and Telegram alert delivery.
