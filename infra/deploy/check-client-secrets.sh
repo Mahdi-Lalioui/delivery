@@ -7,7 +7,7 @@ if [[ ! -d apps/web/.next/static/chunks ]]; then
   exit 1
 fi
 
-if rg --text --fixed-strings --files-with-matches --hidden --no-ignore \
+if LC_ALL=C grep -a -r -F -l \
     -e "$marker" apps/web/.next/static apps/web/public; then
   printf '%s\n' 'A synthetic server secret reached public web assets.' >&2
   exit 1

@@ -620,3 +620,5 @@
   Next: capture a synthetic API 500 in the application error tracker and verify live alert delivery when credentials are available.
 - 2026-11-20 · High · Added a structured API failure event. The synthetic 500 regression proves it omits exception text and concrete route values. API health suite 8/8, scoped lint and API typecheck passed. [Evidence](../evidence/awid/ops-alerts.md).
   Next: wire a monitored collector for API incidents and exercise the k6 fixture and source-address setup on an isolated stack.
+- 2026-11-20 · Medium · PR #16 passed Browser smoke, mutation and security checks. Verify failed because its runner lacked ripgrep. Switched the asset scanner to standard grep and proved it detects an injected marker in a hidden binary source map. Full local verify passed on the preceding PR head.
+  Next: verify PR #16 CI on the portable scanner commit and merge, then continue the load and live incident checks.

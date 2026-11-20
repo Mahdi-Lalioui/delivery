@@ -139,3 +139,17 @@ Discover 9 · restaurant 8.5 · sign-in 8.5 · rating 8.5 · landing 8 · pickup
 ### Not done
 
 - **Third-party skills and SkillSpector:** not installed; they would download and run code from outside repositories. The repo's Playwright, axe and audit scripts did the work, along with the installed UI UX Pro Max guidance.
+
+## Overall release verdict, 20 November 2026
+
+**NOT READY.** Full local `pnpm verify` passed at `50f76b7f`.
+The local production Compose drills cover delivery, pickup, service restarts,
+event replay and timer recovery. Production deployment is pending.
+
+| Release area | Evidence and remaining work |
+|---|---|
+| Customer experience and performance | Connected Discovery and Restaurant LCP are below 2 s, and CI enforces bundle budgets. Tracking tilt frame timing still needs measurement. [Performance evidence](evidence/awid/perf.md) |
+| Security | Local scans, credential isolation and connected role tests are recorded. Exhaustive endpoint ownership, input handling and multi-replica rate limits remain open. [Security review](SECURITY_REVIEW.md) |
+| Reliability | Delivery, pickup, restart, replay and timer drills passed. The 10× capacity run remains open. [Local operations](evidence/awid/local-operations.md) · [Load preflight](evidence/awid/k6/preflight.md) |
+| Operations | Local worker alerts and the structured API incident passed. Live provider delivery and monitoring still need a test incident. [Alert evidence](evidence/awid/ops-alerts.md) |
+| Integration and release | [PR #16](https://github.com/Mahdi-Lalioui/delivery/pull/16) carries the latest locally verified fixes. Follow the [readiness checklist](READINESS.md) for each open criterion and the [operator steps](HUMAN_TODO.md) for external setup. |
