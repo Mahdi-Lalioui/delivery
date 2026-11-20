@@ -598,3 +598,5 @@
   Next: close the remaining server-side operator-page authorization gaps and rerun the route ownership matrix.
 - 2026-11-20 · High · Re-scanned all locally reachable refs with Gitleaks 8.30.1 after `90a7759`: 619 commits, 12.15 MB, zero leaks. Remote-only refs and unreachable Git objects remain outside the scan. [Security review](../SECURITY_REVIEW.md).
   Next: close the remaining server-side operator-page authorization gaps and rerun the route ownership matrix.
+- 2026-11-20 · Ultra · Extended production browser authorization checks: guests, customer sessions and revoked admin cookies redirect across all seven admin pages in ar/fr/en; retained session was confirmed valid before logout. Reviewer approved; focused auth E2E 6/6 passed. [Test and evidence](../../e2e/auth-operator-pages.spec.ts).
+  Next: close the remaining exhaustive customer, merchant and courier route ownership gaps, then continue k6 and alert verification.

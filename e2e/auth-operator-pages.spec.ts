@@ -1,6 +1,7 @@
-import { expect, request as http, test } from "@playwright/test";
+import { expect, request as http, test, type APIRequestContext } from "@playwright/test";
+import { sessionListOutput } from "../packages/contracts/src/auth.ts";
 import { withAuthHarness } from "./auth-fixture.ts";
-import { authenticate } from "./auth-session-helpers.ts";
+import { authenticate, sessionCommand } from "./auth-session-helpers.ts";
 
 const adminPages = [
   "billing",
@@ -12,17 +13,25 @@ const adminPages = [
   "platform",
 ];
 
-for (const locale of ["ar", "fr", "en"]) {
+const locales = ["ar", "fr", "en"];
+
+async function expectAdminRedirects(request: APIRequestContext, locale: string, origin = "") {
+  for (const page of adminPages) {
+    const path = `/${locale}/admin/${page}`;
+    const response = await request.get(origin + path, { maxRedirects: 0 });
+    expect(response.status(), path).toBe(307);
+    const target = new URL(response.headers()["location"] ?? "", response.url());
+    expect(target.pathname, path).toBe(`/${locale}/sign-in`);
+    expect(target.searchParams.get("purpose"), path).toBe("admin");
+    expect(response.headers()["cache-control"], path).toContain("no-store");
+  }
+}
+
+for (const locale of locales) {
   test(`[AUTH-05] ${locale} admin pages redirect before rendering for guests`, async ({
     request,
   }) => {
-    for (const page of adminPages) {
-      const response = await request.get(`/${locale}/admin/${page}`, { maxRedirects: 0 });
-      expect(response.status()).toBe(307);
-      const target = new URL(response.headers()["location"] ?? "", response.url());
-      expect(target.pathname).toBe(`/${locale}/sign-in`);
-      expect(target.searchParams.get("purpose")).toBe("admin");
-    }
+    await expectAdminRedirects(request, locale);
   });
 }
 
@@ -32,11 +41,38 @@ test("[AUTH-05] a standard session cannot render the admin workspace", async ({
 }) => {
   await withAuthHarness(baseURL, async (harness) => {
     await authenticate(request, harness, { phone: "+213550000791" });
-    const response = await request.get(harness.origin + "/fr/admin/dashboard", { maxRedirects: 0 });
-    expect(response.status()).toBe(307);
-    expect(new URL(response.headers()["location"] ?? "", response.url()).pathname).toBe(
-      "/fr/sign-in",
-    );
+    for (const locale of locales) await expectAdminRedirects(request, locale, harness.origin);
+  });
+});
+
+test("[AUTH-05] a revoked admin cookie cannot reopen any admin page", async ({
+  baseURL,
+  request,
+}) => {
+  await withAuthHarness(baseURL, async (harness) => {
+    const { origin } = harness;
+    await authenticate(request, harness, { phone: "+213550000797", admin: true });
+    const response = await request.get(origin + "/v1/me/sessions");
+    expect(response.status()).toBe(200);
+    const { sessions } = sessionListOutput.parse(await response.json());
+    const current = sessions.find((session) => session.current);
+    if (!current) throw new Error("Missing active admin session");
+    const retained = await http.newContext({
+      ignoreHTTPSErrors: true,
+      storageState: await request.storageState(),
+    });
+    try {
+      const before = await retained.get(origin + "/fr/admin/dashboard", { maxRedirects: 0 });
+      expect(before.status()).toBe(200);
+      const logout = await request.post(origin + "/v1/auth/logout", {
+        headers: sessionCommand(origin),
+        data: { scope: "current", expectedSessionId: current.id },
+      });
+      expect(logout.status()).toBe(204);
+      for (const locale of locales) await expectAdminRedirects(retained, locale, origin);
+    } finally {
+      await retained.dispose();
+    }
   });
 });
 

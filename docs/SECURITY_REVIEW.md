@@ -258,6 +258,14 @@ harness. Guest access for every admin page in Arabic, French and English and
 standard-session access failed the new browser checks before the fix. All 11
 operator, authenticated admin and production route browser tests passed after it.
 
+On 20 November, the production route checks covered all seven admin screens in
+Arabic, French and English. Guests, a signed-in customer and a revoked admin
+received a 307 redirect to the localized admin sign-in with `Cache-Control:
+no-store` on all 21 routes. The admin session completed OTP and TOTP and
+opened the dashboard before logout. A separate client kept the original cookie
+across logout, so its redirects also verify server-side revocation. All eight
+tests in [the operator route suite](../e2e/auth-operator-pages.spec.ts) passed.
+
 ## Restaurant pages, invite continuations and dependency audit
 
 Restaurant operator pages check the current account's membership and role for
