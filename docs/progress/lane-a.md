@@ -634,3 +634,5 @@
   Next: profile the 83 ms Tracking tilt interval on the connected fixture, then provision synthetic quotes and courier assignments for the 10× load run.
 - 2026-11-20 · High · Three connected delivery journeys passed with the tilt diagnostic. All three measured 54 fps, with one 75–78 ms main-thread task each and no tile completions during the measured windows.
   Next: capture a Chromium CPU profile for the connected tilt to identify the long task and verify a targeted fix.
+- 2026-11-20 · High · Final security checkpoint: authz 267/267, production audit, Gitleaks history and high/critical Trivy gates passed. The cached backend and web image scans predate the current commit.
+  Next: provision the connected synthetic quotes and active courier assignments for the local 10× capacity run.

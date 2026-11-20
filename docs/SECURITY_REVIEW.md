@@ -569,3 +569,16 @@ and upload routes enforce their own byte limits. Order placement validates
 its body and idempotency header and passes the authenticated account ID to
 the repository. The focused push, placement, auth transport and health
 suites passed 16 tests. The exhaustive input review remains open.
+
+## Final run security checkpoint
+
+At `55e4c5a6`, `pnpm test:authz` passed 267 tests across 42 suites,
+`pnpm audit --prod --audit-level high` passed with the existing scoped
+exception, and Gitleaks reported zero leaks across 636 reachable commits.
+Trivy 0.76.2 with `--ignore-unfixed` and a HIGH/CRITICAL gate exited zero
+on the committed source archive (vulnerabilities, secrets and configuration)
+and cached backend, web and ClamAV images (vulnerabilities and secrets).
+The backend and web archives were from the earlier `595e33cb` checkpoint.
+Refresh the image results on a current production rebuild before release.
+Exhaustive tenant and input coverage and deployment rate-limit evidence
+remain open.
