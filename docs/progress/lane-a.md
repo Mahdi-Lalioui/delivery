@@ -602,3 +602,5 @@
   Next: close the remaining exhaustive customer, merchant and courier route ownership gaps, then continue k6 and alert verification.
 - 2026-11-20 · Ultra · Current-ref Semgrep scanned 1,284 files/101 rules with zero findings; Trivy had zero high/critical or secrets; TruffleHog found zero verified secrets and three synthetic test-fixture matches. Gitleaks scanned 621 refs/12.16 MB with zero leaks. [Scan record](../SECURITY_REVIEW.md).
   Next: continue remaining customer, merchant and courier ownership coverage, then complete feasible k6 and alert verification.
+- 2026-11-20 · Ultra · Added real-session/Postgres draft-menu preview isolation in both tenant directions, including crossed resource IDs under valid owner URLs; denial leaves draft rows unchanged and leaks no markers. Focused integration, API typecheck, lint/format, and reviewer pass. [Evidence](../evidence/awid/tenant-isolation.md).
+  Next: close duplicate invitation SMS delivery on retries, then finish remaining least-privilege, k6 and alert verification.
