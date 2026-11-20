@@ -588,3 +588,5 @@
   Next: test the courier delivery-call ceiling at 20, then continue remaining security review.
 - 2026-11-20 · Ultra · Verified courier call cooldown and ceiling at the connected Postgres boundary: 20 spaced calls accepted, call 21 rejected, exactly 20 persisted; reviewer and full `pnpm verify` passed (2,095 unit; 379 integration tests). [Coverage](../../packages/db/test/order-quotes.integration.test.ts)
   Next: resume the open server-side operator-page authorization and security review items, then complete the k6 load and alert incident evidence.
+- 2026-11-20 · Ultra · Added real-session/Postgres owner-versus-outsider coverage for merchant review reply/report routes: foreign calls via either restaurant URL return 404 without reply, report or receipt writes; owner succeeds. Focused integration, reviewer and full `pnpm verify` passed (2,095 unit; 380 integration tests). [Evidence](../evidence/awid/tenant-isolation.md)
+  Next: add real-session courier-invitation acceptance isolation for wrong-account and revoked-session attempts, then continue the route audit and load/alert evidence.

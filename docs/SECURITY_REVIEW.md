@@ -41,6 +41,10 @@ courier and administrator routes. All checks use synthetic data on local infrast
   597 commits and 12.05 MB of local repository history with no leaks found.
   This result covers the local checkout's reachable history, not unreachable
   Git objects or remote-only refs.
+- Fresh history scan on `8c5bfc9`: `gitleaks git
+  --log-opts=--all --redact --no-banner --verbose` scanned 615 reachable commits
+  and 12.13 MB across local refs with no leaks. This is a local-ref scan, not a
+  scan of unreachable Git objects or commits never fetched from remotes.
 - All six structured logger tests passed.
 - Local scanner pass on 18 November: Semgrep `p/security-audit` scanned 918
   first-party files with zero findings; TruffleHog found no verified secrets;
