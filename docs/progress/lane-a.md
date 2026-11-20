@@ -624,3 +624,5 @@
   Next: verify PR #16 CI on the portable scanner commit and merge, then continue the load and live incident checks.
 - 2026-11-20 · Medium · Switched k6 quote and courier fixture pools to shared arrays to avoid parsing and storing them per virtual user. Offline k6 2.3.0 inspection, ESLint and formatting passed.
   Next: merge PR #16 once its exact commit is green, then push the shared fixture change and provision the connected load dataset.
+- 2026-11-20 · High · PR #16 merged at b723afb. Fresh authz passed 267/267, and the Postgres queue suite passed 8/8 with a terminal incident reaching the Telegram adapter's fake receiver exactly once. [Evidence](../evidence/awid/ops-alerts.md).
+  Next: prove live alert delivery and collector ingestion, then provision the isolated 10× load dataset and finish the release rerun.

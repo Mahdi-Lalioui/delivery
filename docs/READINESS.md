@@ -50,7 +50,7 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 ## Operations and release verification
 
 - [x] **Lane A** Verify health checks and structured logs without personal data. Web, API, worker, Caddy and Martin health are covered in the [local Compose evidence](evidence/awid/web-compose-local.md); [API, Caddy and PostgreSQL probes](SECURITY_REVIEW.md#api-and-postgresql-log-privacy) and the [worker logger regression](SECURITY_REVIEW.md#worker-log-privacy) pass.
-- [ ] **Lane A** Verify error tracking and alerts through test incidents. The synthetic exhausted-worker-job alert reaches the inspectable fake in the Postgres worker test; Resend delivery is configured but not externally confirmed, and application error tracking is still unconfigured. [Local alert evidence](evidence/awid/ops-alerts.md)
+- [ ] **Lane A** Verify error tracking and alerts through test incidents. A terminal Postgres worker incident reaches a fake Telegram receiver exactly once. A synthetic API 500 emits a privacy-safe event. Live Telegram and Resend delivery and external collector ingestion remain open. [Local alert evidence](evidence/awid/ops-alerts.md)
 - [x] **Lane A** Complete the SPEC §20 runbooks for deploy, rollback, restore, Ramadan peak, API down, DB full, SMS down, tiles down, OSRM down and restaurant complaint surges. [Runbooks](runbooks/service-incidents.md)
 - [x] **Lane A** Keep the encrypted restore drill green with fresh evidence. [Local restore results](evidence/awid/local-operations.md)
 - [x] **Lane A** Integrate Lane B regularly. Require full `pnpm verify` and every browser suite green in GitHub CI before merging. [Exact integration run](https://github.com/Mahdi-Lalioui/delivery/actions/runs/44093493915) (`f1febe7`)

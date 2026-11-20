@@ -46,3 +46,8 @@ registered route pattern, and request ID. A synthetic repository failure
 verified that the exception text and concrete route value stay out of the
 structured log. All eight API health tests passed. An external collector
 still needs to ingest the event and prove delivery to operations.
+
+A connected Postgres watchdog failure also exercised the production Telegram
+adapter through an injected fetch receiver. The receiver saw exactly one
+request with the expected alert body and no private job payload or exception
+text. The queue suite passed 8/8. The receiver uses synthetic settings.
