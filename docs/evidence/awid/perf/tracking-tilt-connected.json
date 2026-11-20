@@ -1,0 +1,61 @@
+{
+  "baseline": [
+    {
+      "route": "connected-tracking",
+      "frames": 33,
+      "elapsed": 605.6000000000004,
+      "fps": 54,
+      "firstFrameMs": 5.699999999999818,
+      "activeFps": 53,
+      "maxFrameMs": 83.30000000000018,
+      "p95FrameMs": 16.800000000000182,
+      "longFrames": 1
+    },
+    {
+      "route": "connected-tracking",
+      "frames": 33,
+      "elapsed": 607.5000000178816,
+      "fps": 54,
+      "firstFrameMs": 7.600000017881484,
+      "activeFps": 53,
+      "maxFrameMs": 83.30000000000018,
+      "p95FrameMs": 16.800000000000182,
+      "longFrames": 1
+    },
+    {
+      "route": "connected-tracking",
+      "frames": 33,
+      "elapsed": 607.8000000059601,
+      "fps": 54,
+      "firstFrameMs": 7.800000005960555,
+      "activeFps": 53,
+      "maxFrameMs": 83.40000000000009,
+      "p95FrameMs": 16.800000000000182,
+      "longFrames": 1
+    }
+  ],
+  "noOpCameraTrial": [
+    {
+      "route": "connected-tracking",
+      "frames": 33,
+      "elapsed": 606.9000000119213,
+      "fps": 54,
+      "firstFrameMs": 6.900000011920838,
+      "activeFps": 53,
+      "maxFrameMs": 83.39999999999964,
+      "p95FrameMs": 16.800000000000182,
+      "longFrames": 1
+    },
+    {
+      "route": "connected-tracking",
+      "frames": 32,
+      "elapsed": 607.0000000238415,
+      "fps": 53,
+      "firstFrameMs": 7.000000023841949,
+      "activeFps": 52,
+      "maxFrameMs": 99.89999999999964,
+      "p95FrameMs": 16.800000000000182,
+      "longFrames": 1
+    }
+  ]
+}

@@ -12,6 +12,7 @@ import { formatDzd } from "../packages/i18n/src/formats.ts";
 import fr from "../packages/i18n/src/messages/fr.json" with { type: "json" };
 import { withAuthHarness } from "./auth-fixture.ts";
 import { authenticate, sessionCommand } from "./auth-session-helpers.ts";
+import { measureConnectedTrackingTilt } from "./tracking-tilt-performance.ts";
 
 const customerPhone = "+213550000341";
 const ownerPhone = "+213550000342";
@@ -333,6 +334,7 @@ async function deliver({
     throw new Error("Missing live delivery code");
   expect(result.courier?.position).toMatchObject(fixture.commune.pin);
   await expect(customer.getByText(result.deliveryCode, { exact: true })).toBeVisible();
+  if (process.env.AWID_MEASURE_TRACKING_TILT === "1") await measureConnectedTrackingTilt(customer);
   await courier.getByRole("textbox", { name: copy.deliveryCode }).fill(result.deliveryCode);
   await courier.getByRole("button", { name: copy.confirmDropoff }).press("Enter");
   await expect(courier.getByText(copy.deliveryComplete, { exact: true })).toBeVisible();

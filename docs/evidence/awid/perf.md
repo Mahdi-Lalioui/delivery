@@ -204,3 +204,36 @@ unavailable to a guest session. Checkout and Tracking had no fixture order, so
 their 60 fps numbers do not count. Tracking 3D tilt frame pacing remains open.
 These are throttled desktop Chromium measurements, not physical Android-device
 results.
+
+### Connected Tracking tilt (20 November 2026)
+
+Local production Next build, real API and PostgreSQL fixture order, and the
+repository's Algiers Martin tile fixture. Chromium used a 390 × 844 viewport,
+4× CPU slowdown and the 75 ms / 4 Mbit down / 1.5 Mbit up network profile.
+The probe requires a successful vector tile response and a ready map. It
+samples the first 600 ms after clicking the 3D control, including the
+click-to-first-frame interval. Active FPS separately excludes that interval.
+
+| Build | Journey results | Click-window fps | Active fps | p95 frame | Longest frame |
+|---|---|---|---|---|---|
+| Baseline | 3/3 passed | 54 / 54 / 54 | 53 / 53 / 53 | 16.8 ms | 83.3–83.4 ms |
+| Trial removing the initial no-op camera animation | 2/3 passed | 54 / 53 | 53 / 52 | 16.8 ms | 83.4–99.9 ms |
+
+Each measured sample had one interval over 20.7 ms. The baseline first frame
+arrived in 5.7–7.8 ms. The long interval fell during the active tilt. The third
+trial journey hit a loopback connection reset before placing the order and
+produced no performance sample. The camera trial was reverted because it
+did not improve measured pacing. The 60 fps criterion stays open. These lab
+samples use a mobile-size viewport with desktop Chromium on a Mac.
+
+With the Algiers fixture served by Martin on loopback port 5501, reproduce with:
+
+```sh
+ZAAFRAN_TILE_ORIGIN=http://127.0.0.1:5501 pnpm --filter @zaafran/web build
+AWID_MEASURE_TRACKING_TILT=1 ZAAFRAN_TILE_ORIGIN=http://127.0.0.1:5501 \
+  pnpm exec playwright test --config=e2e/auth.config.ts \
+  e2e/auth-order-journey.spec.ts --grep 'real cash order · delivery' \
+  --workers=1 --repeat-each=3
+```
+
+[Raw timing samples](perf/tracking-tilt-connected.json)
