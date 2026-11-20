@@ -77,3 +77,34 @@ export function attachWorkerFailureAlerts(
     events.off("job:failed", onFailed);
   };
 }
+
+export function createTelegramOpsAlertAdapter(
+  token: string,
+  chatId: string,
+  fetcher = fetch,
+): SendOpsAlert {
+  return async ({ attempts, occurredAt }) => {
+    const response = await fetcher("https://api.telegram.org/bot" + token + "/sendMessage", {
+      method: "POST",
+      redirect: "error",
+      signal: AbortSignal.timeout(5_000),
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text:
+          "AWID background job exhausted " + String(attempts) + " attempts at " + occurredAt + ".",
+      }),
+    });
+    await response.body?.cancel();
+    if (!response.ok) throw new Error("Telegram alert delivery failed");
+  };
+}
+
+export function combineOpsAlerts(
+  ...adapters: (SendOpsAlert | undefined)[]
+): SendOpsAlert | undefined {
+  if (!adapters.some(Boolean)) return undefined;
+  return async (alert) => {
+    await Promise.all(adapters.map(async (send) => send?.(alert)));
+  };
+}

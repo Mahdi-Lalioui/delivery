@@ -36,7 +36,7 @@ import { createOrderRealtimeSignals } from "./order-realtime-signals.js";
 import { createPrivacyService } from "./privacy-service.js";
 import { createStaffInvitationToken } from "./auth-crypto.js";
 import { createAuthSmsAdapter, createSmsMessages } from "./auth-sms-adapter.js";
-import { createResendSender, createTwilioSender } from "@zaafran/notifications";
+import { createResendSender, createTwilioSender, DeliveryRejected } from "@zaafran/notifications";
 import { invitationCopy, otpCopy, type InvitationKind } from "./message-copy.js";
 import { createAuthService } from "./auth-service.js";
 import type { CourierServices } from "./courier-routes.js";
@@ -248,11 +248,11 @@ function courierDelivery(
       if (!sendSms) return unavailableSms();
       return sendSms(message);
     }
-    if (!sendEmail) throw new Error("Email delivery is unavailable.");
+    if (!sendEmail) throw new DeliveryRejected("Email delivery is unavailable.");
     return sendEmail({ ...message, kind: "courier" });
   };
 }
 
 function unavailableSms(): never {
-  throw new Error("SMS delivery is unavailable.");
+  throw new DeliveryRejected("SMS delivery is unavailable.");
 }

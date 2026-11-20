@@ -30,3 +30,19 @@ configure `OPS_ALERT_EMAIL` and confirm the provider path before launch.
 It does not provide application error tracking, durable retries of failed alert
 delivery, or evidence of a real email reaching the monitored inbox. The
 readiness checkbox therefore remains open.
+
+## Telegram worker alerts
+
+The worker can send the same terminal failure incident independently to email
+and Telegram. Telegram receives a fixed summary with attempts and timestamp.
+The adapter test passed using a fake receiver, including a provider refusal.
+The Postgres queue suite passed 8 tests, including the terminal incident hook.
+Live Telegram delivery and API error tracking remain open.
+
+## API incident event
+
+An unexpected API failure emits `api.request.failed` with the status,
+registered route pattern, and request ID. A synthetic repository failure
+verified that the exception text and concrete route value stay out of the
+structured log. All eight API health tests passed. An external collector
+still needs to ingest the event and prove delivery to operations.

@@ -6,8 +6,8 @@ AWID runs as a pinned Docker Compose stack on one server. Caddy terminates TLS a
 
 1. Use a staging server with a static IPv4 address and Docker Compose. Open TCP 80 and 443. For temporary TLS, set the API host to the dashed address plus `.sslip.io`. The address `203.0.113.10` would use `203-0-113-10.sslip.io`. Verify that the name resolves to the server and that ACME can reach it. [Caddy automatic HTTPS](https://caddyserver.com/docs/automatic-https)
 2. Check out the approved Git commit under `/srv/awid`. Install `curl`, `jq`, and the pinned go-pmtiles binary. Prepare and verify the national map data with [MAPS.md](../infra/MAPS.md). The build host needs enough memory and disk for OSRM preprocessing and the HEIC image build.
-3. Create a private directory such as `/etc/awid` with mode 0700. Generate two separate 32-byte hex passwords with `openssl rand -hex 32` and save them in `postgres-password` and `database-password`. Keep secret files in that directory. If the Postgres container cannot read its mounted secret, allow read access to the container user while keeping the host directory private.
-4. Write `database.env` with `DATABASE_URL=postgresql://awid:<database-password>@db:5432/awid`. The database initializer creates a database owner without superuser or role-creation privileges.
+3. Create a private directory such as `/etc/awid` with mode 0700. Generate three separate 32-byte hex passwords with `openssl rand -hex 32` and save them in `postgres-password` `database-password`, and `runtime-password`. Keep secret files in that directory. If the Postgres container cannot read its mounted secret, allow read access to the container user while keeping the host directory private.
+4. Write `migration.env` with `DATABASE_URL=postgresql://awid:<database-password>@db:5432/awid` and `database.env` with `DATABASE_URL=postgresql://awid_runtime:<runtime-password>@db:5432/awid`. Keep both files mode 0600. The migration service uses the owner credential. The API and worker use the runtime credential. These initialization steps apply to a fresh database volume. For existing volumes, use the upgrade procedure below.
 5. Write `api.env` with the final web origin in `AUTH_PUBLIC_ORIGIN`, plus independent 32-byte hex values for `AUTH_OTP_KEY` and `AUTH_TOTP_KEY`. Keep the keys stable across releases. Set the delivery credentials below in `api.env`. Keep it mode 0600. Write `worker.env` with the provider and push settings listed in [.env.example](../.env.example). The file may be empty for an infrastructure smoke test.
 6. Write `/etc/awid/compose.env` with the paths below. Set `AWID_RELEASE_TAG` to the reviewed short Git SHA for each release.
 
@@ -18,6 +18,8 @@ AWID_WEB_DOMAIN=<web-domain>
 AWID_MAP_DIRECTORY=/srv/awid/infra/data/maps
 AWID_POSTGRES_PASSWORD_FILE=/etc/awid/postgres-password
 AWID_DB_PASSWORD_FILE=/etc/awid/database-password
+AWID_RUNTIME_PASSWORD_FILE=/etc/awid/runtime-password
+AWID_MIGRATION_ENV_FILE=/etc/awid/migration.env
 AWID_DATABASE_ENV_FILE=/etc/awid/database.env
 AWID_API_ENV_FILE=/etc/awid/api.env
 AWID_WORKER_ENV_FILE=/etc/awid/worker.env
@@ -32,6 +34,21 @@ Run one command after installing the files. It builds the API, worker and Next.j
 ```
 
 The command validates Compose, builds the API and worker, waits for the data services, runs application and Graphile migrations, loads the public Algeria geography, starts Caddy, and checks TLS, API readiness, the 69 wilayas, a populated vector tile and the absence of a test route. The local-only restaurant seed stays outside this deployment command. Save the previous image tag and take an encrypted backup before deploying a database migration. Roll back by selecting the previous image only if it remains compatible with the migrated schema.
+
+## Upgrade an existing database volume
+
+Take a verified backup and stop the API and worker before switching database
+credentials. Keep the existing owner password in `migration.env`. Generate a
+separate runtime password, set the new Compose paths above, then run the
+following with the same Compose file, project name and env file used for the
+deployment:
+
+1. Run `docker compose up -d --wait db` with the new configuration to mount the new secret.
+2. Run `docker compose exec -T db bash /docker-entrypoint-initdb.d/30-awid.sh`.
+   The initializer adds the runtime role and grants access to existing tables
+   without recreating data or resetting passwords.
+3. Run the normal deployment command. The migration job installs the queue
+   policies before the API and worker start with the runtime credential.
 
 ## Sign-in delivery
 
@@ -107,3 +124,7 @@ Use `docker compose ps clamav-signatures` and
 Compose arguments to check signature health. A missing or stale database
 leaves new uploads in quarantine for retry. Existing published photos continue
 to be served.
+
+Set `OPS_TELEGRAM_BOT_TOKEN` and `OPS_TELEGRAM_CHAT_ID` together in
+`worker.env` to enable Telegram worker alerts. Add the bot to the operations
+chat and verify delivery with an approved synthetic terminal job failure.

@@ -1,5 +1,9 @@
-import { expect, test } from "vitest";
-import { createFakeOpsAlertAdapter, createResendOpsAlertAdapter } from "../src/ops-alerts.ts";
+import { expect, test, vi } from "vitest";
+import {
+  createFakeOpsAlertAdapter,
+  createResendOpsAlertAdapter,
+  createTelegramOpsAlertAdapter,
+} from "../src/ops-alerts.ts";
 
 test("[NFR-07] fake operations alerts deduplicate stable keys and contain only safe fields", async () => {
   const adapter = createFakeOpsAlertAdapter();
@@ -62,4 +66,31 @@ test("[NFR-07] Resend alert HTML escapes task identifiers", async () => {
 
   expect(messages[0]?.html).not.toContain("<img");
   expect(messages[0]?.html).toContain("&lt;img");
+});
+
+test("[NFR-07] Telegram receives a privacy-safe incident and rejects provider failure", async () => {
+  const fetcher = vi
+    .fn<typeof fetch>()
+    .mockResolvedValueOnce(new Response(null, { status: 200 }))
+    .mockResolvedValueOnce(new Response(null, { status: 429 }));
+  const send = createTelegramOpsAlertAdapter("123:synthetic-token", "-123", fetcher);
+  const incident = {
+    key: "private-job-id",
+    taskIdentifier: "private-task",
+    attempts: 3,
+    occurredAt: "2026-11-20T12:00:00.000Z",
+  };
+  await send(incident);
+  expect(fetcher).toHaveBeenCalledWith(
+    "https://api.telegram.org/bot123:synthetic-token/sendMessage",
+    expect.objectContaining({
+      method: "POST",
+      redirect: "error",
+      body: JSON.stringify({
+        chat_id: "-123",
+        text: "AWID background job exhausted 3 attempts at 2026-11-20T12:00:00.000Z.",
+      }),
+    }),
+  );
+  await expect(send(incident)).rejects.toThrow("Telegram alert delivery failed");
 });

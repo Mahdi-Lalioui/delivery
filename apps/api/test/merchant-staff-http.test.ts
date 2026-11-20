@@ -45,6 +45,9 @@ function expectProblem(response: LightMyRequestResponse, status: number, code: s
 function setup() {
   const repository = {
     create: vi.fn<StaffRepository["create"]>(),
+    deliver: vi
+      .fn<StaffRepository["deliver"]>()
+      .mockImplementation(async ({ send }) => (await send()) === "accepted"),
     list: vi.fn<StaffRepository["list"]>(),
     revoke: vi.fn<StaffRepository["revoke"]>(),
     accept: vi.fn<StaffRepository["accept"]>(),

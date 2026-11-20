@@ -6,7 +6,6 @@ x-runtime: &runtime
   security_opt: [no-new-privileges:true]
   tmpfs:
     - /tmp:mode=1777
-  env_file: ["${AWID_DATABASE_ENV_FILE:?Set AWID_DATABASE_ENV_FILE}"]
 
 services:
   heic:
@@ -16,6 +15,9 @@ services:
 
   migrate:
     <<: *runtime
+    env_file: ["${AWID_MIGRATION_ENV_FILE:?Set AWID_MIGRATION_ENV_FILE}"]
+    environment:
+      AWID_SPLIT_DATABASE_ROLES: "1"
     build:
       context: ..
       dockerfile: infra/deploy/Dockerfile
@@ -39,7 +41,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_admin_password
       POSTGRES_HOST_AUTH_METHOD: scram-sha-256
-    secrets: [postgres_admin_password, awid_database_password]
+    secrets: [postgres_admin_password, awid_database_password, awid_runtime_password]
     volumes:
       - postgres-data:/var/lib/postgresql
       - ./deploy/init-db.sh:/docker-entrypoint-initdb.d/30-awid.sh:ro
@@ -276,6 +278,8 @@ services:
 secrets:
   postgres_admin_password:
     file: "${AWID_POSTGRES_PASSWORD_FILE:?Set AWID_POSTGRES_PASSWORD_FILE}"
+  awid_runtime_password:
+    file: "${AWID_RUNTIME_PASSWORD_FILE:?Set AWID_RUNTIME_PASSWORD_FILE}"
   awid_database_password:
     file: "${AWID_DB_PASSWORD_FILE:?Set AWID_DB_PASSWORD_FILE}"
 

@@ -11,6 +11,7 @@ import { recordDeliveryAttempt, type DeliveryAttemptRequest } from "./courier-de
 import { recordCourierPositions, type CourierPositionRequest } from "./courier-positions.js";
 import { activeStandardSession } from "./standard-session.js";
 import type { DatabaseConnection } from "./database.js";
+import { deliverInvitation, type InviteDelivery } from "./invitation-delivery.js";
 
 import { orderStateColumns, orderSummaryFor, type OrderStateRow } from "./order-state-store.js";
 import { timestampParsers } from "./timestamp-parsers.js";
@@ -94,6 +95,7 @@ async function readCourierJobs(
 export function createCourierRepository({ sql }: DatabaseConnection) {
   return {
     invite: (request: InviteRequest) => sql.begin((tx) => inviteCourier(tx, request)),
+    deliver: (request: InviteDelivery) => deliverInvitation(sql, request, { kind: "courier" }),
     accept: (request: AcceptRequest) => sql.begin((tx) => acceptCourierInvitation(tx, request)),
     list: (request: RosterRequest) =>
       sql.begin("isolation level repeatable read read only", (tx) => listCouriers(tx, request)),

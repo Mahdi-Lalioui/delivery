@@ -11,7 +11,7 @@
     "format:check": "prettier --check .",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit && turbo run typecheck",
-    "test:tooling": "node --test tooling/*.test.ts scripts/*.test.ts",
+    "test:tooling": "node --test tooling/*.test.ts scripts/*.test.ts load/*.test.js",
     "dev": "docker compose up -d --wait && pnpm db:migrate && turbo run dev",
     "db:migrate": "pnpm --dir packages/db db:migrate && pnpm worker:migrate",
     "db:seed": "turbo run build --filter=@zaafran/media --filter=@zaafran/domain && pnpm --dir packages/db db:seed",

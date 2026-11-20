@@ -56,6 +56,7 @@ test("[COU-01:http] invites and accepts using the signed-in standard session", a
     couriers: {
       repository: {
         invite,
+        deliver: async ({ send }) => (await send()) === "accepted",
         accept,
         list,
         setPresence,

@@ -54,6 +54,14 @@ const workerEnvironment = z
       .regex(/^[!-~]+$/u)
       .optional(),
     AUTH_RESEND_FROM: z.email().max(254).optional(),
+    OPS_TELEGRAM_BOT_TOKEN: z
+      .string()
+      .regex(/^\d{1,20}:[A-Za-z0-9_-]{20,100}$/u)
+      .optional(),
+    OPS_TELEGRAM_CHAT_ID: z
+      .string()
+      .regex(/^-?\d{1,20}$/u)
+      .optional(),
     OPS_ALERT_EMAIL: z.email().max(254).optional(),
     VAPID_PUBLIC_KEY: pushPublicKey.optional(),
     VAPID_PRIVATE_KEY: z
@@ -83,6 +91,11 @@ const workerEnvironment = z
       path: ["AUTH_RESEND_FROM"],
       message: "Set both Resend settings or omit both.",
     },
+  )
+  .refine(
+    ({ OPS_TELEGRAM_BOT_TOKEN, OPS_TELEGRAM_CHAT_ID }) =>
+      Boolean(OPS_TELEGRAM_BOT_TOKEN) === Boolean(OPS_TELEGRAM_CHAT_ID),
+    { path: ["OPS_TELEGRAM_CHAT_ID"], message: "Set both Telegram settings or omit both." },
   )
   .refine(
     ({ OPS_ALERT_EMAIL, AUTH_RESEND_API_KEY: apiKey, AUTH_RESEND_FROM: from }) =>

@@ -602,3 +602,23 @@
   Next: close the remaining exhaustive customer, merchant and courier route ownership gaps, then continue k6 and alert verification.
 - 2026-11-20 · Ultra · Current-ref Semgrep scanned 1,284 files/101 rules with zero findings; Trivy had zero high/critical or secrets; TruffleHog found zero verified secrets and three synthetic test-fixture matches. Gitleaks scanned 621 refs/12.16 MB with zero leaks. [Scan record](../SECURITY_REVIEW.md).
   Next: continue remaining customer, merchant and courier ownership coverage, then complete feasible k6 and alert verification.
+- 2026-11-20 · Ultra · Added real-session/Postgres draft-menu preview isolation in both tenant directions, including crossed resource IDs under valid owner URLs; denial leaves draft rows unchanged and leaks no markers. Focused integration, API typecheck, lint/format, and reviewer pass. [Evidence](../evidence/awid/tenant-isolation.md).
+  Next: close duplicate invitation SMS delivery on retries, then finish remaining least-privilege, k6 and alert verification.
+- 2026-11-20 · Ultra · Fixed k6 courier sample generation: 12/12 scheduled points now pass the production position validator with arrival jitter (previously 4/12). Tooling 59/59 and offline k6 2.3.0 inspect passed; this is harness preflight, not capacity evidence. [Preflight](../evidence/awid/k6/preflight.md).
+  Next: finish invitation-delivery idempotency review and tests, then continue database least-privilege and operations alerts.
+- 2026-11-20 · Ultra · Added Postgres delivery claims to prevent duplicate staff and courier invitation sends. Six connected tests and full `pnpm verify` passed. [Evidence and recovery limits](../SECURITY_REVIEW.md#invitation-delivery-retries).
+  Next: separate migration ownership from API and worker database privileges and verify grants on local Postgres.
+- 2026-11-20 · Ultra · Drafted separate migration and runtime credentials. A disposable PostGIS database accepted runtime inserts into application and queue schemas and denied application table creation and alteration. Full stack validation remains open.
+  Next: exercise actual application and Graphile migrations against the split roles, protect migration metadata, and verify the upgrade path for existing volumes before committing.
+- 2026-11-20 · Ultra · Ran production application and Graphile migrations on disposable PostGIS with separate roles. Runtime read the 69 wilayas and enqueued a job after adding queue policies. The runtime role cannot modify Graphile migration records. Worker build and scoped lint passed.
+  Next: verify runtime job consumption, add an existing-volume upgrade procedure, then run full verify before committing the database role change.
+- 2026-11-20 · Ultra · Verified the split migration and runtime roles on disposable PostGIS. Existing-table grant repair, queue consumption, migration ledger protection, and DDL denial passed. Full `pnpm verify` passed. [Evidence](../SECURITY_REVIEW.md#database-ownership-and-runtime-roles).
+  Next: add a client bundle scan with synthetic server secrets, then continue the alert incident and load readiness work.
+- 2026-11-20 · High · Added a CI scan for synthetic provider and authentication secrets in production web assets. The local production build passed and an injected marker was detected. [Evidence](../SECURITY_REVIEW.md#browser-build-secret-check).
+  Next: add a local test incident for application error tracking and Telegram alert delivery.
+- 2026-11-20 · High · Added Telegram delivery for terminal worker incidents. Four alert unit tests, eight Postgres queue tests, worker typecheck and scoped lint passed. [Evidence](../evidence/awid/ops-alerts.md).
+  Next: capture a synthetic API 500 in the application error tracker and verify live alert delivery when credentials are available.
+- 2026-11-20 · High · Added a structured API failure event. The synthetic 500 regression proves it omits exception text and concrete route values. API health suite 8/8, scoped lint and API typecheck passed. [Evidence](../evidence/awid/ops-alerts.md).
+  Next: wire a monitored collector for API incidents and exercise the k6 fixture and source-address setup on an isolated stack.
+- 2026-11-20 · Medium · PR #16 passed Browser smoke, mutation and security checks. Verify failed because its runner lacked ripgrep. Switched the asset scanner to standard grep and proved it detects an injected marker in a hidden binary source map. Full local verify passed on the preceding PR head.
+  Next: verify PR #16 CI on the portable scanner commit and merge, then continue the load and live incident checks.

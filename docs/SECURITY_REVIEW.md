@@ -522,3 +522,38 @@ outbound-only.
 - Run `npm view picomatch version` at the start of each milestone gate, and whenever `pnpm audit` output changes.
 - When a release fixes GHSA-fc5q-39xc-vjpf: update the lockfile, delete the `ignoreGhsas` entry and its comment, run `pnpm audit --prod --audit-level high`, and record the result here.
 - If a production runtime path to `picomatch` appears, the exception no longer holds. Remove it and treat the advisory as blocking.
+
+## Invitation delivery retries
+
+Staff and courier invitations claim delivery in Postgres before contacting the
+provider. Concurrent or completed retries cannot send another SMS. A confirmed
+provider refusal permits a retry. An interrupted connection leaves delivery
+uncertain and prevents automatic resend. Restaurant owners can revoke and replace a staff invitation after checking
+provider records. An open courier invitation must expire before a replacement
+can be issued. Existing invitations without delivery receipts are also treated
+as uncertain.
+
+Six connected regressions cover both invitation routes and use a fake Twilio
+transport. They verify concurrent retries across two API instances, retry
+after refusal, and suppression after an interrupted connection.
+
+## Database ownership and runtime roles
+
+The migration container uses its own database credential. The API and worker
+share a non-owner role with application data permissions and no schema creation
+rights. Graphile queue policies target that role, and the Graphile migration
+ledger is read only for it. The application migration ledger remains in the
+separate Drizzle schema.
+
+The disposable PostGIS drill ran the application and Graphile migrations,
+restored an existing table grant, blocked a runtime write to the Graphile
+ledger, and consumed an enqueued job under the runtime role.
+See [the role regression](../infra/deploy/test-database-roles.sh) and
+[the volume upgrade procedure](DEPLOY.md#upgrade-an-existing-database-volume).
+
+## Browser build secret check
+
+The CI Verify job builds the production web app with synthetic OTP, TOTP,
+email and SMS server credentials. It scans Next static output and public
+assets, including source maps present in those directories. The local build
+scan passed, and a fixture with the marker in a JavaScript chunk was rejected.

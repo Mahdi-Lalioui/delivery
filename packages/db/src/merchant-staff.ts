@@ -1,6 +1,7 @@
 import type { TransactionSql } from "postgres";
 import { lockOtpIdentifier } from "./auth-otp-lock.js";
 import type { DatabaseConnection } from "./database.js";
+import { deliverInvitation, type InviteDelivery } from "./invitation-delivery.js";
 
 type InvitedRole = "manager" | "staff";
 
@@ -111,7 +112,7 @@ async function readReplay(sql: TransactionSql, request: StaffInvitationCreate) {
   // Update legacy or explicitly rotated tokens while preserving a stable delivery retry.
   if (isOpen) {
     await sql`
-      UPDATE public.merchant_staff_invitations SET token_hash = ${request.tokenHash}
+      UPDATE public.merchant_staff_invitations SET token_hash = ${request.tokenHash}, delivery_state = 'ready'
       WHERE id = ${invitation.invitationId} AND token_hash IS DISTINCT FROM ${request.tokenHash}
     `;
   }
@@ -282,6 +283,8 @@ async function acceptInvitation(
 export function createMerchantStaffRepository({ sql }: DatabaseConnection) {
   return {
     create: (request: StaffInvitationCreate) => sql.begin((tx) => createInvitation(tx, request)),
+    deliver: (request: InviteDelivery & { tokenHash: Uint8Array }) =>
+      deliverInvitation(sql, request, { kind: "staff", tokenHash: request.tokenHash }),
     list: (scope: OwnerScope & { readonly now: Date }) =>
       sql.begin("isolation level repeatable read read only", (tx) => listStaff(tx, scope)),
     revoke: (request: RevokeRequest) => sql.begin((tx) => revokeInvitation(tx, request)),
