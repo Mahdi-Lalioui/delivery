@@ -3,6 +3,7 @@
 import http from "k6/http";
 import { check } from "k6";
 import exec from "k6/execution";
+import { SharedArray } from "k6/data";
 import { Counter, Rate } from "k6/metrics";
 import { courierSample } from "./courier-sample.js";
 
@@ -99,21 +100,27 @@ function validateRateSettings() {
   }
 }
 
-function validateFixtures(fixtures) {
-  if (!Array.isArray(fixtures.placements) || fixtures.placements.length === 0) {
+validateEndpointSettings();
+validateRateSettings();
+
+// Validate each fixture pool once when k6 initializes its shared data.
+const placements = new SharedArray("placement fixtures", () => {
+  const { placements } = readFixtures();
+  if (!Array.isArray(placements) || placements.length === 0) {
     throw new Error("Fixtures need a non-empty placements array");
   }
-  if (!Array.isArray(fixtures.couriers) || fixtures.couriers.length < positionDrivers) {
+  validatePlacementEntries(placements);
+  return placements;
+});
+
+const couriers = new SharedArray("courier fixtures", () => {
+  const { couriers } = readFixtures();
+  if (!Array.isArray(couriers) || couriers.length < positionDrivers) {
     throw new Error("Fixtures need at least 1,000 distinct courier/order assignments");
   }
-  validateEndpointSettings();
-  validateRateSettings();
-  validatePlacementEntries(fixtures.placements);
-  validateCourierEntries(fixtures.couriers);
-  return fixtures;
-}
-
-const fixtures = validateFixtures(readFixtures());
+  validateCourierEntries(couriers);
+  return couriers;
+});
 
 export const options = {
   scenarios: {
@@ -159,7 +166,7 @@ function requestHeaders(sessionCookie) {
 
 export function placeOrder() {
   const iteration = exec.scenario.iterationInTest;
-  const fixture = fixtures.placements[iteration];
+  const fixture = placements[iteration];
   const payload = {
     quoteId: fixture.quoteId,
     ...(fixture.payingWithDzd === undefined ? {} : { payingWithDzd: fixture.payingWithDzd }),
@@ -179,7 +186,7 @@ export function placeOrder() {
 
 export function sendPosition() {
   const iteration = exec.scenario.iterationInTest;
-  const courier = fixtures.couriers[iteration % positionDrivers];
+  const courier = couriers[iteration % positionDrivers];
   const position = courierSample(courier, {
     iteration,
     drivers: positionDrivers,

@@ -622,3 +622,5 @@
   Next: wire a monitored collector for API incidents and exercise the k6 fixture and source-address setup on an isolated stack.
 - 2026-11-20 · Medium · PR #16 passed Browser smoke, mutation and security checks. Verify failed because its runner lacked ripgrep. Switched the asset scanner to standard grep and proved it detects an injected marker in a hidden binary source map. Full local verify passed on the preceding PR head.
   Next: verify PR #16 CI on the portable scanner commit and merge, then continue the load and live incident checks.
+- 2026-11-20 · Medium · Switched k6 quote and courier fixture pools to shared arrays to avoid parsing and storing them per virtual user. Offline k6 2.3.0 inspection, ESLint and formatting passed.
+  Next: merge PR #16 once its exact commit is green, then push the shared fixture change and provision the connected load dataset.

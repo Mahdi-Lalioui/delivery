@@ -19,3 +19,7 @@ Checks run:
 
 This does **not** prove 10× API capacity. The full run still requires the
 fixtures and source-IP distribution listed in [the load guide](../../../../load/README.md).
+
+The harness now validates and shares each fixture pool once during k6
+initialization. Offline inspection with k6 2.3.0 passed using synthetic
+fixtures and networking disabled. The capacity run remains open.
