@@ -191,3 +191,26 @@ event replay and timer recovery. Production deployment is pending.
 
 Follow the exact commands and configuration paths in [DEPLOY.md](DEPLOY.md).
 The release verdict remains **NOT READY**.
+
+### Final run results
+
+- GitHub [PR #17](https://github.com/Mahdi-Lalioui/delivery/pull/17) carries the final run changes.
+- Local browser results were 127 passed and 10 existing conditional skips
+  in the main suite, 82 passed in authenticated Chromium at two workers,
+  and 3 passed in preview. The initial seven-worker authenticated run had
+  seven timeouts.
+- Fresh backend, web and ClamAV images passed the Trivy fixable HIGH/CRITICAL
+  gate. Exhaustive tenant and input evidence and verified provider limits
+  remain open.
+- The connected 10× test failed at 6,422 ms placement p95 and 6,334 ms
+  position p95, with 29,282 dropped iterations. The 1× comparison passed at
+  15.97 and 6.79 ms p95 with no drops. [Capacity evidence](evidence/awid/k6/connected-pilot.md)
+- The requested design changes are present and the latest French mobile
+  light and dark captures were inspected. [Captures](evidence/awid/lane-a-design/README.md)
+- Tracking still has reproducible 54 fps runs. A single 60 fps CPU profile
+  did not reproduce the stall.
+- A live Telegram incident and a full deployment rehearsal need the
+  configured bot and national map assets, respectively. No deployment ran.
+
+**NOT READY.** The final clean rerun and release are gated on the eight open
+items in [READINESS.md](READINESS.md).

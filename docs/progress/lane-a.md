@@ -646,3 +646,5 @@
   Next: attach the load runner to a disposable HTTPS Compose edge and run against the generated fixture database with production rate limits.
 - 2026-11-20 · High · Completed the connected 10× run against the current API image and disposable HTTPS/PostGIS stack. Placement and position p95 were 6,422/6,334 ms, with 29,282 dropped iterations and zero errors among completed requests. Current image scans passed.
   Next: compare the 1× baseline and finish the authenticated browser rerun, then record final verdict and CI integration status.
+- 2026-11-20 · High · 1× connected load passed at 15.97/6.79 ms p95 without errors or drops. Main/auth/preview browser suites recorded 127/82/3 passes. Inspected French mobile light/dark design captures. Verdict remains NOT READY.
+  Next: confirm PR #17 CI, then profile the 10× saturation on production-sized Linux before changing capacity controls.

@@ -24,3 +24,11 @@ rehearsal with no deployed worker, not a production hardware benchmark.
 iteration threshold failed. The completed-request success rate does not
 include unscheduled iterations. A production-sized Linux run and resource
 profile are needed before attributing this to a specific query or subsystem.
+
+## 1× comparison
+
+A fresh disposable database on the same setup passed at 50 placements and
+20 positions per second for one minute. Placement p95 was 15.97 ms and
+position p95 was 6.79 ms. All 3,001 placements and 1,201 positions succeeded,
+with zero HTTP failures and zero dropped iterations. This confirms the
+fixture and request path work at the lower rate.
