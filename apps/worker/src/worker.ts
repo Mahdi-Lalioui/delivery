@@ -8,7 +8,12 @@ import { createOrderSmsAdapter, type SendOrderSms } from "./order-sms-adapter.js
 import { workerLogger } from "./logger.js";
 import { createWorkerOptions } from "./runtime.js";
 import { createClamDScan } from "./media-scanner.js";
-import { attachWorkerFailureAlerts, createResendOpsAlertAdapter } from "./ops-alerts.js";
+import {
+  attachWorkerFailureAlerts,
+  combineOpsAlerts,
+  createResendOpsAlertAdapter,
+  createTelegramOpsAlertAdapter,
+} from "./ops-alerts.js";
 
 type WorkerServices = NonNullable<Parameters<typeof createWorkerOptions>[2]> & {
   opsAlert?: Parameters<typeof attachWorkerFailureAlerts>[1] | undefined;
@@ -93,6 +98,8 @@ await runWorkerCommand("start", (environment) => {
     AUTH_RESEND_API_KEY: apiKey,
     AUTH_RESEND_FROM: from,
     OPS_ALERT_EMAIL: alertEmail,
+    OPS_TELEGRAM_BOT_TOKEN: alertBot,
+    OPS_TELEGRAM_CHAT_ID: alertChat,
   } = environment;
   return serveWorker(DATABASE_URL, {
     store: createLocalMediaStore({ root: MEDIA_STORAGE_ROOT }),
@@ -108,6 +115,9 @@ await runWorkerCommand("start", (environment) => {
         : undefined,
     orderSms: configureSms(environment),
     orderEmail: apiKey && from ? createResendSender({ apiKey, from: `AWID <${from}>` }) : undefined,
-    opsAlert: configureOpsAlert(apiKey, from, alertEmail),
+    opsAlert: combineOpsAlerts(
+      configureOpsAlert(apiKey, from, alertEmail),
+      alertBot && alertChat ? createTelegramOpsAlertAdapter(alertBot, alertChat) : undefined,
+    ),
   });
 });

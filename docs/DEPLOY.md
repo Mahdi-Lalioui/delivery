@@ -124,3 +124,7 @@ Use `docker compose ps clamav-signatures` and
 Compose arguments to check signature health. A missing or stale database
 leaves new uploads in quarantine for retry. Existing published photos continue
 to be served.
+
+Set `OPS_TELEGRAM_BOT_TOKEN` and `OPS_TELEGRAM_CHAT_ID` together in
+`worker.env` to enable Telegram worker alerts. Add the bot to the operations
+chat and verify delivery with an approved synthetic terminal job failure.

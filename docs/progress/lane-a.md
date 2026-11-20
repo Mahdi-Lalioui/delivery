@@ -616,3 +616,5 @@
   Next: add a client bundle scan with synthetic server secrets, then continue the alert incident and load readiness work.
 - 2026-11-20 · High · Added a CI scan for synthetic provider and authentication secrets in production web assets. The local production build passed and an injected marker was detected. [Evidence](../SECURITY_REVIEW.md#browser-build-secret-check).
   Next: add a local test incident for application error tracking and Telegram alert delivery.
+- 2026-11-20 · High · Added Telegram delivery for terminal worker incidents. Four alert unit tests, eight Postgres queue tests, worker typecheck and scoped lint passed. [Evidence](../evidence/awid/ops-alerts.md).
+  Next: capture a synthetic API 500 in the application error tracker and verify live alert delivery when credentials are available.
