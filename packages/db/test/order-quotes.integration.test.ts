@@ -673,11 +673,32 @@ async function verifyFailedDelivery(
       now: new Date(started.getTime() + 60_000),
     }),
   ).toMatchObject({ kind: "recorded", state: { callAttempts: 2 } });
+  for (let callAttempts = 3; callAttempts <= 20; callAttempts += 1) {
+    expect(
+      await courier.recordDeliveryAttempt({
+        ...firstCall,
+        idempotencyKey: randomUUID(),
+        now: new Date(started.getTime() + 60_000 + (callAttempts - 2) * 20_000),
+      }),
+    ).toMatchObject({ kind: "recorded", state: { callAttempts } });
+  }
+  expect(
+    await courier.recordDeliveryAttempt({
+      ...firstCall,
+      idempotencyKey: randomUUID(),
+      now: new Date(started.getTime() + 440_000),
+    }),
+  ).toEqual({ kind: "rate_limited" });
+  const [callCount] = await database.get().sql`
+    SELECT count(*)::int AS count FROM public.courier_delivery_attempts
+    WHERE order_id = ${orderId} AND action = 'call'
+  `;
+  expect(callCount?.count).toBe(20);
   expect(await courier.jobs(driver)).toMatchObject({
     jobs: [
       {
         order: { orderId },
-        deliveryAttempt: { waitStartedAt: started.toISOString(), callAttempts: 2 },
+        deliveryAttempt: { waitStartedAt: started.toISOString(), callAttempts: 20 },
       },
     ],
   });

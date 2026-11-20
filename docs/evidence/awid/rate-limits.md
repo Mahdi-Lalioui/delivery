@@ -29,7 +29,7 @@ by replicas.
 | Realtime streams | 4 concurrent streams per session | In-memory session counter per API process; fifth stream gets 429 | [`realtime-http.test.ts`](../../../apps/api/test/realtime-http.test.ts) |
 | Push subscriptions | 10 active endpoints per customer account | Customer row lock in Postgres; expired/revoked entries removed before counting | [`push-subscriptions.integration.test.ts`](../../../packages/db/test/push-subscriptions.integration.test.ts) |
 | Courier position intake | One request per active courier every 3s | `couriers.last_position_request_at` updated atomically after assigned-order scope is locked | [`order-quotes.integration.test.ts`](../../../packages/db/test/order-quotes.integration.test.ts) (`verifyCourierPositions`) |
-| Courier delivery call attempts | One new call per order per 20s; maximum 20 | Quota is per order; authorization is assigned-courier scoped. Matching idempotency replays return the stored response. Current integration coverage proves cooldown/replay, not the 20-call ceiling. | [`courier-delivery-attempts.ts`](../../../packages/db/src/courier-delivery-attempts.ts), [`order-quotes.integration.test.ts`](../../../packages/db/test/order-quotes.integration.test.ts) (`verifyFailedDelivery`); ceiling regression remains open |
+| Courier delivery call attempts | One new call per order per 20s; maximum 20 | Quota is per order; authorization is assigned-courier scoped. Matching idempotency replays return the stored response. Connected Postgres regression accepts the 20th spaced call, rejects the 21st, and asserts 20 persisted rows. | [`courier-delivery-attempts.ts`](../../../packages/db/src/courier-delivery-attempts.ts), [`order-quotes.integration.test.ts`](../../../packages/db/test/order-quotes.integration.test.ts) (`verifyFailedDelivery`) |
 
 All other routes inherit the shared limiter; the table adds durable or resource
 specific controls where present. Authorization and tenant predicates are
@@ -37,9 +37,9 @@ independent controls, not substitutes for rate-limit tests. The normalizer's
 IP grouping is not identical to the canonical IP digest used by Postgres
 issuance budgets.
 
-The source currently enforces the courier-call ceiling, but its exact threshold
-boundary is not yet covered by a regression. Add that case before treating the
-control as fully verified.
+The route-family threshold cases listed above now have connected regressions.
+The inventory does not prove rate-limit behavior across multiple API replicas
+or external SMS/email spend limits.
 
 ## Deployment limitation
 

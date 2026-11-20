@@ -586,3 +586,5 @@
   Next: add the fifth/sixth delivery-proof reservation boundary regression, then test the courier-call ceiling and continue remaining security review.
 - 2026-11-20 · Ultra · Proved five concurrent delivery-proof reservations serialize at the order lock, idempotent replay succeeds at quota, a fresh sixth gets `proof_photo_limit`, and exactly five rows persist; reviewer and full `pnpm verify` passed (2,095 unit; 379 integration tests). [Coverage](../../packages/db/test/order-quotes.integration.test.ts)
   Next: test the courier delivery-call ceiling at 20, then continue remaining security review.
+- 2026-11-20 · Ultra · Verified courier call cooldown and ceiling at the connected Postgres boundary: 20 spaced calls accepted, call 21 rejected, exactly 20 persisted; reviewer and full `pnpm verify` passed (2,095 unit; 379 integration tests). [Coverage](../../packages/db/test/order-quotes.integration.test.ts)
+  Next: resume the open server-side operator-page authorization and security review items, then complete the k6 load and alert incident evidence.
