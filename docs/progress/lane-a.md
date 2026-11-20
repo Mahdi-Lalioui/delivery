@@ -608,3 +608,9 @@
   Next: finish invitation-delivery idempotency review and tests, then continue database least-privilege and operations alerts.
 - 2026-11-20 · Ultra · Added Postgres delivery claims to prevent duplicate staff and courier invitation sends. Six connected tests and full `pnpm verify` passed. [Evidence and recovery limits](../SECURITY_REVIEW.md#invitation-delivery-retries).
   Next: separate migration ownership from API and worker database privileges and verify grants on local Postgres.
+- 2026-11-20 · Ultra · Drafted separate migration and runtime credentials. A disposable PostGIS database accepted runtime inserts into application and queue schemas and denied application table creation and alteration. Full stack validation remains open.
+  Next: exercise actual application and Graphile migrations against the split roles, protect migration metadata, and verify the upgrade path for existing volumes before committing.
+- 2026-11-20 · Ultra · Ran production application and Graphile migrations on disposable PostGIS with separate roles. Runtime read the 69 wilayas and enqueued a job after adding queue policies. The runtime role cannot modify Graphile migration records. Worker build and scoped lint passed.
+  Next: verify runtime job consumption, add an existing-volume upgrade procedure, then run full verify before committing the database role change.
+- 2026-11-20 · Ultra · Verified the split migration and runtime roles on disposable PostGIS. Existing-table grant repair, queue consumption, migration ledger protection, and DDL denial passed. Full `pnpm verify` passed. [Evidence](../SECURITY_REVIEW.md#database-ownership-and-runtime-roles).
+  Next: add a client bundle scan with synthetic server secrets, then continue the alert incident and load readiness work.

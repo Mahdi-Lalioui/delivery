@@ -536,3 +536,17 @@ as uncertain.
 Six connected regressions cover both invitation routes and use a fake Twilio
 transport. They verify concurrent retries across two API instances, retry
 after refusal, and suppression after an interrupted connection.
+
+## Database ownership and runtime roles
+
+The migration container uses its own database credential. The API and worker
+share a non-owner role with application data permissions and no schema creation
+rights. Graphile queue policies target that role, and the Graphile migration
+ledger is read only for it. The application migration ledger remains in the
+separate Drizzle schema.
+
+The disposable PostGIS drill ran the application and Graphile migrations,
+restored an existing table grant, blocked a runtime write to the Graphile
+ledger, and consumed an enqueued job under the runtime role.
+See [the role regression](../infra/deploy/test-database-roles.sh) and
+[the volume upgrade procedure](DEPLOY.md#upgrade-an-existing-database-volume).
