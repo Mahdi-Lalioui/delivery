@@ -642,3 +642,5 @@
   Next: verify the connected load runner has distinct client addresses before attempting the 10× run.
 - 2026-11-20 · High · Full verify passed at d27a1632. Disposable Compose configuration validated, and a network-disabled Linux listener saw 350 distinct bound source addresses. The live alert credentials and national map are absent from the inspected local environment.
   Next: confirm the local browser suite results and verify source-address forwarding through Caddy on the isolated load stack.
+- 2026-11-20 · High · An isolated Caddy proxy forwarded all 350 distinct local client addresses to a loopback receiver. Full local browser suites started and PR #17 opened. No API capacity result yet.
+  Next: attach the load runner to a disposable HTTPS Compose edge and run against the generated fixture database with production rate limits.

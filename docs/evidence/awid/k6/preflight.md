@@ -38,3 +38,8 @@ A network-disabled Linux container opened 350 TCP connections, each bound
 to a different local loopback address. Its local listener observed all 350
 distinct addresses. This proves the runner's source binding capability.
 Caddy forwarding and the connected rate and latency targets remain unverified.
+
+An isolated Caddy reverse proxy forwarded 350 requests from distinct bound
+loopback addresses to a local echo receiver. The receiver verified the actual
+`X-Forwarded-For` value on every request. This validates source forwarding
+without an application load run. API rate, latency and capacity remain open.
