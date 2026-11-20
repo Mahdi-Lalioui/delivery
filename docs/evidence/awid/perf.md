@@ -256,3 +256,14 @@ and one 77–80 ms long task each. A follow-up using long-animation-frame
 attribution reproduced an 81 ms task but returned no script attribution.
 The ordinary interaction remains below target. The profiling runs cannot
 be used to close the criterion.
+
+The optional `AWID_TRACE_TRACKING_TILT=1` diagnostic starts Chromium
+tracing before reload and reports only events within the marked click
+window. A connected run at 53 active fps showed a 78.5 ms browser task,
+a 60.7 ms compositor commit and a 56.2 ms GPU task overlapping that window.
+The trace does not establish which renderer operation caused the stall.
+
+Deferring Tracking's 3D building layer until the map settled after the
+tilt did not improve performance. All three delivery journeys passed,
+and all three still measured 53 active fps with 77–81 ms long tasks.
+The product trial was reverted.
