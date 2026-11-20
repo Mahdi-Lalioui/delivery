@@ -94,6 +94,7 @@ or latency thresholds.
 Run `pnpm load:seed` with `LOAD_DATABASE_URL` set to a migrated loopback
 PostGIS database whose name begins with `awid_load_`, and
 `LOAD_FIXTURES_FILE` set to a new absolute path outside the repository.
-The defaults generate 30,000 quotes and 1,000 active courier assignments.
+The defaults generate 30,001 quotes and 1,000 active courier assignments.
+Set `LOAD_MERCHANT_FIXTURES=100` for the distributed marketplace run, or leave it unset for the single-restaurant stress case. The spare quote covers the scheduler boundary.
 The output file is private and contains synthetic session cookies. Remove
 the file and disposable database when the run ends.

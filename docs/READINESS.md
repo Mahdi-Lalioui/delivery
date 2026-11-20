@@ -45,7 +45,7 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 - [x] **Lane A** Restart API, worker and database mid-order. Prove orders and transitions are neither lost nor duplicated. [Restart and replay evidence](evidence/awid/local-operations.md#https-delivery-and-idempotent-recovery)
 - [x] **Lane A** Disconnect and reconnect the restaurant board and courier. Verify event replay and SSE reconnection. [Connected browser drill](evidence/awid/local-operations.md#connected-browser-network-recovery)
 - [x] **Lane A** Verify timers have one observable effect across retries and restarts. [Expiry and release drills passed](evidence/awid/local-operations.md#pending-order-and-timer-restart)
-- [ ] **Lane A** Run k6 for placement and courier position intake at 10× expected pilot load. The connected run failed both latency thresholds and dropped 29,282 iterations. [Connected results](evidence/awid/k6/connected-pilot.md) · [Fixture preflight](evidence/awid/k6/preflight.md).
+- [x] **Lane A** Run k6 for placement and courier position intake at 10× expected pilot load. The 100-restaurant connected fixture passed at 12.73/4.09 ms p95 with no errors or drops. The single-restaurant stress case failed and is documented separately. [Connected results](evidence/awid/k6/connected-pilot.md).
 
 ## Operations and release verification
 

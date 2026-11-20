@@ -51,7 +51,7 @@ function validatePlacementEntries(placements) {
   if (new Set(placements.map((placement) => placement.quoteId)).size !== placements.length) {
     throw new Error("Every placement fixture must use a distinct quoteId");
   }
-  const requiredPlacements = Math.ceil(placementRate * durationSeconds(duration));
+  const requiredPlacements = Math.ceil(placementRate * durationSeconds(duration)) + 1;
   if (placements.length < requiredPlacements) {
     throw new Error(
       `Need at least ${requiredPlacements} unique placement quote fixtures for this run`,
@@ -147,6 +147,7 @@ export const options = {
     "http_req_duration{scenario:placement}": ["p(95)<400"],
     "http_req_duration{scenario:positions}": ["p(95)<400"],
     placement_success: ["rate>0.99"],
+    fresh_placements: [`count>=${Math.ceil(placementRate * durationSeconds(duration))}`],
     position_success: ["rate>0.99"],
   },
 };
@@ -166,6 +167,11 @@ function requestHeaders(sessionCookie) {
 export function placeOrder() {
   const iteration = exec.scenario.iterationInTest;
   const fixture = placements[iteration];
+  if (!fixture) {
+    placementSuccess.add(false);
+    exec.test.abort("Placement fixture pool exhausted");
+    return;
+  }
   const payload = {
     quoteId: fixture.quoteId,
     ...(fixture.payingWithDzd === undefined ? {} : { payingWithDzd: fixture.payingWithDzd }),

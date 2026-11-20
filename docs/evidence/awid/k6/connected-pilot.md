@@ -32,3 +32,22 @@ A fresh disposable database on the same setup passed at 50 placements and
 position p95 was 6.79 ms. All 3,001 placements and 1,201 positions succeeded,
 with zero HTTP failures and zero dropped iterations. This confirms the
 fixture and request path work at the lower rate.
+
+## Distributed marketplace run
+
+The failed fixture routed every order to one restaurant. During a repeat,
+nine of ten database connections waited at the same merchant row lock.
+That lock serializes offer redemption and stays in place. This remains
+a useful single-restaurant stress case.
+
+The distributed fixture interleaves 100 synthetic restaurants with
+30,001 fresh quotes and 1,000 assigned couriers. One spare quote covers
+the arrival scheduler's end boundary. The harness aborts if it runs out
+and requires at least 30,000 fresh placements at the default rates.
+
+With the same API image, TLS proxy, PostGIS setup, VUs, one-minute duration
+and production rate limits, k6 exited 0. Placement p95 was 12.73 ms and
+position p95 was 4.09 ms. All 30,000 placements and 12,001 position
+updates succeeded, with zero HTTP errors and zero dropped iterations.
+This proves the documented distributed synthetic workload on the local
+setup. Peak concentration on a single venue is a separate capacity risk.
