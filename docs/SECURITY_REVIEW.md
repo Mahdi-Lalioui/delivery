@@ -41,9 +41,9 @@ courier and administrator routes. All checks use synthetic data on local infrast
   597 commits and 12.05 MB of local repository history with no leaks found.
   This result covers the local checkout's reachable history, not unreachable
   Git objects or remote-only refs.
-- Fresh history scan on `90a7759`: `gitleaks git
-  --log-opts=--all --redact --no-banner --verbose` scanned 619 reachable commits
-  and 12.15 MB across local refs with no leaks. This is a local-ref scan, not a
+- Fresh history scan on `f5210549`: `gitleaks git
+  --log-opts=--all --redact --no-banner --verbose` scanned 621 reachable commits
+  and 12.16 MB across local refs with no leaks. This is a local-ref scan, not a
   scan of unreachable Git objects or commits never fetched from remotes.
 - All six structured logger tests passed.
 - Local scanner pass on 18 November: Semgrep `p/security-audit` scanned 918
@@ -80,6 +80,32 @@ missing-header observations while probing the HTTP redirect; no high/critical
 finding was reported. Required page/API security headers remain asserted by
 dedicated route and response-header tests, so redirect-only informational
 results are not treated as proof of header regressions.
+
+Current-source scans at `f5210549`:
+
+- Semgrep `p/security-audit` scanned 1,284 tracked files with 101 rules;
+  zero findings.
+- Trivy 0.76.2 filesystem scan (`vuln,secret,misconfig`, `--ignore-unfixed`)
+  found zero high/critical vulnerabilities, zero secrets and zero high/critical
+  misconfigurations. One medium finding treats the locally built `heic` stage
+  alias as an unpinned image; four low findings are Dockerfile healthchecks,
+  while the production Compose services define their healthchecks.
+- TruffleHog 3.99.9 scanned 47,096,252 bytes and found zero verified secrets.
+  Three unverified pattern matches are synthetic fixtures in
+  `apps/api/test/privacy-http.test.ts`,
+  `apps/worker/test/privacy-media.test.ts` and
+  `packages/contracts/test/push.test.ts`; raw values were not committed to the
+  scan report.
+
+Third-party security-skill execution was rejected after NVIDIA SkillSpector's
+static scan. Cloudflare `security-audit-skill` scored 86 with a critical
+`DO_NOT_INSTALL` recommendation and 78.3% analysis coverage; Claude-Red scored
+100 with a critical `DO_NOT_INSTALL` recommendation and 86.5% coverage, with
+reverse-shell payload signatures among the detected patterns. These results
+are conservative scanner signals, not proof of malicious behavior. Neither
+skill was installed or run against the repository. Strix was skipped because
+no LLM key is available, and no OpenAI Codex Security tool is exposed in this
+environment.
 
 ## OTP abuse and delivery limits
 

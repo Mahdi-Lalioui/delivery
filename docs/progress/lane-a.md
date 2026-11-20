@@ -600,3 +600,5 @@
   Next: close the remaining server-side operator-page authorization gaps and rerun the route ownership matrix.
 - 2026-11-20 · Ultra · Extended production browser authorization checks: guests, customer sessions and revoked admin cookies redirect across all seven admin pages in ar/fr/en; retained session was confirmed valid before logout. Reviewer approved; focused auth E2E 6/6 passed. [Test and evidence](../../e2e/auth-operator-pages.spec.ts).
   Next: close the remaining exhaustive customer, merchant and courier route ownership gaps, then continue k6 and alert verification.
+- 2026-11-20 · Ultra · Current-ref Semgrep scanned 1,284 files/101 rules with zero findings; Trivy had zero high/critical or secrets; TruffleHog found zero verified secrets and three synthetic test-fixture matches. Gitleaks scanned 621 refs/12.16 MB with zero leaks. [Scan record](../SECURITY_REVIEW.md).
+  Next: continue remaining customer, merchant and courier ownership coverage, then complete feasible k6 and alert verification.
