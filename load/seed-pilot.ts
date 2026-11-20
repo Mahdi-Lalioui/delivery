@@ -177,10 +177,56 @@ function readCount(value: string | undefined, defaultCount: number) {
   return count;
 }
 
+function interleave<T>(pools: T[][]): T[] {
+  const [first] = pools;
+  if (!first) return [];
+  return first.flatMap((_, index) => pools.flatMap((pool) => pool.slice(index, index + 1)));
+}
+
+async function seedPilot(
+  database: DatabaseConnection,
+  placementsCount: number,
+  couriersCount: number,
+) {
+  const customer = actor();
+  await addActors(database.sql, [customer]);
+  const merchantCount = readCount(process.env.LOAD_MERCHANT_FIXTURES ?? "1", 100);
+  const pools: Awaited<ReturnType<typeof seedPlacements>>[] = [];
+  const courierPools: Awaited<ReturnType<typeof seedCouriers>>[] = [];
+  for (let i = 0; i < merchantCount; i++) {
+    const placementCount = Math.floor((placementsCount + merchantCount - 1 - i) / merchantCount);
+    const courierCount = Math.floor((couriersCount + merchantCount - 1 - i) / merchantCount);
+    if (placementCount === 0 && courierCount === 0) break;
+    const { merchantId, itemId } = await seedCatalog(database.sql);
+    if (placementCount > 0) {
+      const result = await createOrderQuoteRepository(database).create({
+        customerId: customer.id,
+        input: {
+          merchantId,
+          fulfilment: "pickup",
+          timing: { kind: "asap" },
+          items: [{ itemId, quantity: 1, optionIds: [] }],
+        },
+        now: new Date(),
+      });
+      if (result.kind !== "quoted") throw new Error("Synthetic pickup quote did not validate");
+      pools.push(await seedPlacements(database.sql, result.quote.quoteId, placementCount));
+    }
+    if (courierCount > 0) {
+      courierPools.push(
+        await seedCouriers(database.sql, { merchantId, customerId: customer.id }, courierCount),
+      );
+    }
+  }
+  const placements = interleave(pools);
+  const couriers = interleave(courierPools);
+  return { placements, couriers };
+}
+
 async function main() {
   const url = new URL(process.env.LOAD_DATABASE_URL ?? "");
   const filePath = process.env.LOAD_FIXTURES_FILE ?? "";
-  const placementsCount = readCount(process.env.LOAD_PLACEMENT_FIXTURES, 30_000);
+  const placementsCount = readCount(process.env.LOAD_PLACEMENT_FIXTURES, 30_001);
   const couriersCount = readCount(process.env.LOAD_COURIER_FIXTURES, 1_000);
   if (
     !["postgres:", "postgresql:"].includes(url.protocol) ||
@@ -198,27 +244,8 @@ async function main() {
   const database = openDatabase(url.href);
   let saved = false;
   try {
-    const customer = actor();
-    await addActors(database.sql, [customer]);
-    const { merchantId, itemId } = await seedCatalog(database.sql);
-    const result = await createOrderQuoteRepository(database).create({
-      customerId: customer.id,
-      input: {
-        merchantId,
-        fulfilment: "pickup",
-        timing: { kind: "asap" },
-        items: [{ itemId, quantity: 1, optionIds: [] }],
-      },
-      now: new Date(),
-    });
-    if (result.kind !== "quoted") throw new Error("Synthetic pickup quote did not validate");
-    const couriers = await seedCouriers(
-      database.sql,
-      { merchantId, customerId: customer.id },
-      couriersCount,
-    );
-    const placements = await seedPlacements(database.sql, result.quote.quoteId, placementsCount);
-    await file.writeFile(JSON.stringify({ placements, couriers }));
+    const data = await seedPilot(database, placementsCount, couriersCount);
+    await file.writeFile(JSON.stringify(data));
     saved = true;
     process.stdout.write(
       "Synthetic placement and courier fixtures saved. Run promptly before quotes expire.\n",

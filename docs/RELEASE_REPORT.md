@@ -161,7 +161,6 @@ event replay and timer recovery. Production deployment is pending.
 3. Complete the input handling review alongside the existing CSRF, CSP, header and session evidence.
 4. Resolve or verify the deployment limits for rate limiting and provider abuse. Keep the scoped dependency exception under review.
 5. Close the security review after the remaining findings have regression evidence.
-6. Run the 10× load benchmark with connected synthetic fixtures and the production abuse limits active.
 7. Confirm that a test incident reaches the external collector and monitored Telegram and Resend destinations.
 8. Repeat the security and reliability checks from scratch after the preceding checks pass.
 
@@ -212,5 +211,7 @@ The release verdict remains **NOT READY**.
 - A live Telegram incident and a full deployment rehearsal need the
   configured bot and national map assets, respectively. No deployment ran.
 
-**NOT READY.** The final clean rerun and release are gated on the eight open
+**NOT READY.** The final clean rerun and release are gated on the seven open
 items in [READINESS.md](READINESS.md).
+
+The distributed 100-restaurant 10× rerun passed with 12.73/4.09 ms p95, zero HTTP errors and zero dropped iterations. The failed single-restaurant stress case remains in the capacity evidence.
