@@ -4,6 +4,7 @@ import http from "k6/http";
 import { check } from "k6";
 import exec from "k6/execution";
 import { Counter, Rate } from "k6/metrics";
+import { courierSample } from "./courier-sample.js";
 
 const placementRate = Number(__ENV.LOAD_PLACEMENT_RATE || 500);
 const positionRate = Number(__ENV.LOAD_POSITION_RATE || 200);
@@ -179,14 +180,12 @@ export function placeOrder() {
 export function sendPosition() {
   const iteration = exec.scenario.iterationInTest;
   const courier = fixtures.couriers[iteration % positionDrivers];
-  const sample = Math.floor(iteration / positionDrivers) + 1;
-  const position = {
-    latitude: courier.latitude + sample * 0.00005,
-    longitude: courier.longitude + sample * 0.00005,
-    accuracyM: courier.accuracyM,
-    capturedAt: new Date().toISOString(),
-    ...(courier.heading === undefined ? {} : { heading: courier.heading }),
-  };
+  const position = courierSample(courier, {
+    iteration,
+    drivers: positionDrivers,
+    rate: positionRate,
+    startTime: exec.scenario.startTime,
+  });
   const response = http.post(
     `${baseUrl}/v1/courier/positions`,
     JSON.stringify({ orderId: courier.orderId, positions: [position] }),

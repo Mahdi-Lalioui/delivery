@@ -45,7 +45,7 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 - [x] **Lane A** Restart API, worker and database mid-order. Prove orders and transitions are neither lost nor duplicated. [Restart and replay evidence](evidence/awid/local-operations.md#https-delivery-and-idempotent-recovery)
 - [x] **Lane A** Disconnect and reconnect the restaurant board and courier. Verify event replay and SSE reconnection. [Connected browser drill](evidence/awid/local-operations.md#connected-browser-network-recovery)
 - [x] **Lane A** Verify timers have one observable effect across retries and restarts. [Expiry and release drills passed](evidence/awid/local-operations.md#pending-order-and-timer-restart)
-- [ ] **Lane A** Run k6 for placement and courier position intake at 10× expected pilot load. Record load assumptions and results.
+- [ ] **Lane A** Run k6 for placement and courier position intake at 10× expected pilot load. The pinned 2.3.0 harness parses and the courier sample generator passes the real 12-point Postgres validator with arrival jitter; this is preflight only, not a capacity run. The full benchmark still needs 30,000 fresh quotes, 1,000 active courier/order assignments and 350 visible source IPs. [Preflight evidence](evidence/awid/k6/preflight.md) · [Load requirements](../load/README.md).
 
 ## Operations and release verification
 

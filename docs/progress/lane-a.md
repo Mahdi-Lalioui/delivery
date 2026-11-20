@@ -604,3 +604,5 @@
   Next: continue remaining customer, merchant and courier ownership coverage, then complete feasible k6 and alert verification.
 - 2026-11-20 · Ultra · Added real-session/Postgres draft-menu preview isolation in both tenant directions, including crossed resource IDs under valid owner URLs; denial leaves draft rows unchanged and leaks no markers. Focused integration, API typecheck, lint/format, and reviewer pass. [Evidence](../evidence/awid/tenant-isolation.md).
   Next: close duplicate invitation SMS delivery on retries, then finish remaining least-privilege, k6 and alert verification.
+- 2026-11-20 · Ultra · Fixed k6 courier sample generation: 12/12 scheduled points now pass the production position validator with arrival jitter (previously 4/12). Tooling 59/59 and offline k6 2.3.0 inspect passed; this is harness preflight, not capacity evidence. [Preflight](../evidence/awid/k6/preflight.md).
+  Next: finish invitation-delivery idempotency review and tests, then continue database least-privilege and operations alerts.
