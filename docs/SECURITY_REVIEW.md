@@ -185,6 +185,13 @@ coverage. Foreign owner and customer read/write requests receive concealed 404s
 and leave both restaurant photo fields and command receipts unchanged. See
 [merchant-profile-photos-session.integration.test.ts](../apps/api/test/merchant-profile-photos-session.integration.test.ts).
 
+The private media lifecycle also has connected owner/outsider coverage. An
+outsider cannot upload bytes or submit a crop, and those denials preserve the
+reservation, receipts, jobs and quarantine storage. For private variants, the
+owner can fetch bytes while an outsider gets 404 without a storage read, proven
+by an injected store counter. See
+[media-lifecycle-session.integration.test.ts](../apps/api/test/media-lifecycle-session.integration.test.ts).
+
 Open security review items:
 
 - Complete the exhaustive registered-route-to-resource ownership map. Connected

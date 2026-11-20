@@ -592,3 +592,5 @@
   Next: add real-session courier-invitation acceptance isolation for wrong-account and revoked-session attempts, then continue the route audit and load/alert evidence.
 - 2026-11-20 · Ultra · Added production API/Postgres proof that courier invite acceptance is bound to the invited phone/email and active session: wrong accounts get 404 without mutation, replay creates one courier, and revoked sessions get 401. Focused test, reviewer, and full `pnpm verify` passed (2,095 unit; 381 integration; 4 mobile). [Tenant evidence](../evidence/awid/tenant-isolation.md).
   Next: continue the remaining route/resource ownership map and run current-ref local security scans.
+- 2026-11-20 · Ultra · Proved private media upload, crop and variant routes enforce session ownership: foreign writes leave DB/files/jobs unchanged and foreign variant reads never reach storage. Full `pnpm verify` passed (2,095 unit; 382 integration; 4 mobile); reviewer P1 closed. [Tenant evidence](../evidence/awid/tenant-isolation.md).
+  Next: finish valid current-ref image scans (Trivy and ClamAV) and the local Nuclei scan, then continue route ownership gaps.

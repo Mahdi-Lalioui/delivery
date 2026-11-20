@@ -11,7 +11,10 @@ export function registerMerchantApiFixture(now: string) {
 
   async function openApi(
     clock: () => Date = () => new Date(now),
-    invitationAdapters?: Pick<StartOptions, "sendInvitation" | "sendCourierInvitation">,
+    invitationAdapters?: Pick<
+      StartOptions,
+      "sendInvitation" | "sendCourierInvitation" | "mediaStore"
+    >,
     mediaRoot?: string,
   ) {
     const api = await startApi({
@@ -29,6 +32,9 @@ export function registerMerchantApiFixture(now: string) {
       ...(invitationAdapters?.sendCourierInvitation === undefined
         ? {}
         : { sendCourierInvitation: invitationAdapters.sendCourierInvitation }),
+      ...(invitationAdapters?.mediaStore === undefined
+        ? {}
+        : { mediaStore: invitationAdapters.mediaStore }),
       async listen(app) {
         await app.ready();
         return "http://127.0.0.1:3002";
