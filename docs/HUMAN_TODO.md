@@ -119,3 +119,8 @@ When done, run `adb reverse --remove-all` and stop the server with Ctrl+C.
 ## 10× local load run
 
 To prove the k6 placement/position target without disabling production abuse limits, prepare an isolated synthetic load environment with k6 2.3.0, local production Compose dependencies, and at least 350 source IPs routed through Caddy. The default 700 combined requests/second workload needs 350 IPs at the API's shared 120 requests/minute per-IP limit. Keep all data synthetic and do not point the run at production. Then follow [the load guide](../load/README.md) to prepare 30,000 unique quotes plus 1,000 courier session/order fixtures, run `k6 run load/pilot.js` with the exact environment variables, and save the output in `docs/evidence/awid/k6/`.
+
+## Confirm live incident delivery
+
+- [ ] Add the AWID bot to the monitored Telegram chat and put `OPS_TELEGRAM_BOT_TOKEN` and `OPS_TELEGRAM_CHAT_ID` in the private `worker.env`. Restart the worker on the isolated staging stack and verify one Telegram message for the synthetic terminal watchdog incident. Repeat for the monitored Resend inbox using the settings above.
+- [ ] Connect the operations log collector to the API container's structured output and configure a notification for `event=api.request.failed`. Trigger a synthetic API 500 on staging and confirm the event and notification arrive with the route pattern and status. Keep the request body and exception text out of the event.

@@ -152,4 +152,15 @@ event replay and timer recovery. Production deployment is pending.
 | Security | Local scans, credential isolation and connected role tests are recorded. Exhaustive endpoint ownership, input handling and multi-replica rate limits remain open. [Security review](SECURITY_REVIEW.md) |
 | Reliability | Delivery, pickup, restart, replay and timer drills passed. The 10× capacity run remains open. [Local operations](evidence/awid/local-operations.md) · [Load preflight](evidence/awid/k6/preflight.md) |
 | Operations | Local worker alerts and the structured API incident passed. Live provider delivery and monitoring still need a test incident. [Alert evidence](evidence/awid/ops-alerts.md) |
-| Integration and release | [PR #16](https://github.com/Mahdi-Lalioui/delivery/pull/16) carries the latest locally verified fixes. Follow the [readiness checklist](READINESS.md) for each open criterion and the [operator steps](HUMAN_TODO.md) for external setup. |
+| Integration and release | [PR #16](https://github.com/Mahdi-Lalioui/delivery/pull/16) merged at `b723afb` after all seven checks passed. The subsequent load preflight and connected Telegram tests are on Lane A. Follow the [readiness checklist](READINESS.md) for each open criterion and the [operator steps](HUMAN_TODO.md) for external setup. |
+
+### Open release criteria
+
+1. Measure the connected Tracking tilt animation against the frame budget.
+2. Finish mapping every registered route to tenant and role evidence. The 267 authorization tests passed again on 20 November.
+3. Complete the input handling review alongside the existing CSRF, CSP, header and session evidence.
+4. Resolve or verify the deployment limits for rate limiting and provider abuse. Keep the scoped dependency exception under review.
+5. Close the security review after the remaining findings have regression evidence.
+6. Run the 10× load benchmark with connected synthetic fixtures and the production abuse limits active.
+7. Confirm that a test incident reaches the external collector and monitored Telegram and Resend destinations.
+8. Repeat the security and reliability checks from scratch after the preceding checks pass.

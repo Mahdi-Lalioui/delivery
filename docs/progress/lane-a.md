@@ -626,3 +626,5 @@
   Next: merge PR #16 once its exact commit is green, then push the shared fixture change and provision the connected load dataset.
 - 2026-11-20 · High · PR #16 merged at b723afb. Fresh authz passed 267/267, and the Postgres queue suite passed 8/8 with a terminal incident reaching the Telegram adapter's fake receiver exactly once. [Evidence](../evidence/awid/ops-alerts.md).
   Next: prove live alert delivery and collector ingestion, then provision the isolated 10× load dataset and finish the release rerun.
+- 2026-11-20 · Medium · Reconciled all eight open criteria with the release report and documented the live incident setup. Refreshed authorization evidence at 267/267.
+  Next: complete the input boundary review and prepare the connected 10× load fixtures.
