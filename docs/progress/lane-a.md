@@ -638,3 +638,5 @@
   Next: provision the connected synthetic quotes and active courier assignments for the local 10× capacity run.
 - 2026-11-20 · High · Optional Chromium CPU profiling passed one connected delivery run at 60 active fps with no long task. The profile did not reproduce the earlier stall. Local rehearsal database has zero quotes and zero couriers, so the 10× load run has no valid fixture set yet.
   Next: provision 30,000 unconsumed quotes and 1,000 active courier assignments on a disposable stack and verify the source-address distribution.
+- 2026-11-20 · High · Added disposable load fixture generation. PostGIS created the default 30,000 quotes and 1,000 assignments, and repository placement and position intake passed. Scoped lint, typecheck and Knip passed.
+  Next: verify the connected load runner has distinct client addresses before attempting the 10× run.

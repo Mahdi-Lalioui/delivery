@@ -27,3 +27,9 @@ fixtures and networking disabled. The capacity run remains open.
 The harness requires matching local HTTPS origins and disables redirects so
 fixture cookies stay on the intended disposable stack. The tooling suite
 passed 60 tests, and offline k6 inspection confirmed zero redirects.
+
+The disposable PostGIS seeder created 30,000 quotes and 1,000 active courier
+assignments in approximately two seconds. Its output file had mode 0600.
+One test session resolved by token hash and placed a quote through the real
+repository. A second session submitted a courier position and the repository
+accepted one point. No HTTP benchmark traffic was sent.

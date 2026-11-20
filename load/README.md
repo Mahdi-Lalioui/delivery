@@ -88,3 +88,12 @@ this requirement. Distribute the workload across enough real source IPs (or
 independent load generators) and preserve the exact distribution in the
 evidence report. The runner must fail on dropped iterations as well as request
 or latency thresholds.
+
+### Generate disposable fixtures
+
+Run `pnpm load:seed` with `LOAD_DATABASE_URL` set to a migrated loopback
+PostGIS database whose name begins with `awid_load_`, and
+`LOAD_FIXTURES_FILE` set to a new absolute path outside the repository.
+The defaults generate 30,000 quotes and 1,000 active courier assignments.
+The output file is private and contains synthetic session cookies. Remove
+the file and disposable database when the run ends.
