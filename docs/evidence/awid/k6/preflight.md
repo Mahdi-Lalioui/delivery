@@ -33,3 +33,8 @@ assignments in approximately two seconds. Its output file had mode 0600.
 One test session resolved by token hash and placed a quote through the real
 repository. A second session submitted a courier position and the repository
 accepted one point. No HTTP benchmark traffic was sent.
+
+A network-disabled Linux container opened 350 TCP connections, each bound
+to a different local loopback address. Its local listener observed all 350
+distinct addresses. This proves the runner's source binding capability.
+Caddy forwarding and the connected rate and latency targets remain unverified.

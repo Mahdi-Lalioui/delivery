@@ -164,3 +164,30 @@ event replay and timer recovery. Production deployment is pending.
 6. Run the 10× load benchmark with connected synthetic fixtures and the production abuse limits active.
 7. Confirm that a test incident reaches the external collector and monitored Telegram and Resend destinations.
 8. Repeat the security and reliability checks from scratch after the preceding checks pass.
+
+### Latest local verification
+
+- Full `pnpm verify` passed at `d27a1632` with the load seeder registered.
+- The seeder produced all 30,000 quotes and 1,000 assigned couriers. A local
+  TCP probe observed 350 distinct source addresses. The connected k6 benchmark
+  still needs to verify those addresses through Caddy. [Load evidence](evidence/awid/k6/preflight.md)
+- Production Compose configuration validated with disposable settings.
+  The national map file is absent, so the full deployment dry run remains open.
+- The Telegram bot and monitored chat are unconfigured on the inspected
+  rehearsal stack. Live delivery and external collector ingestion remain open.
+- The design handoff changes exist with 390 px Arabic and 1280 px French
+  captures. The additional screenshot variants requested for the final run
+  still need evidence. [Design evidence](evidence/awid/lane-a-design/README.md)
+
+### Deployment order after readiness passes
+
+1. Prepare the server and national map and routing assets.
+2. Create the deployment environment and private migration, runtime and
+   provider credentials. Follow the volume upgrade steps if the database exists.
+3. Configure the web, www, and API DNS records and verify the email sender.
+4. Run the production Compose deployment command with the reviewed commit.
+5. Confirm smoke checks, live delivery and pickup, and monitored incidents.
+   Keep the prior image and verified backup for rollback.
+
+Follow the exact commands and configuration paths in [DEPLOY.md](DEPLOY.md).
+The release verdict remains **NOT READY**.
