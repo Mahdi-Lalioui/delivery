@@ -522,3 +522,17 @@ outbound-only.
 - Run `npm view picomatch version` at the start of each milestone gate, and whenever `pnpm audit` output changes.
 - When a release fixes GHSA-fc5q-39xc-vjpf: update the lockfile, delete the `ignoreGhsas` entry and its comment, run `pnpm audit --prod --audit-level high`, and record the result here.
 - If a production runtime path to `picomatch` appears, the exception no longer holds. Remove it and treat the advisory as blocking.
+
+## Invitation delivery retries
+
+Staff and courier invitations claim delivery in Postgres before contacting the
+provider. Concurrent or completed retries cannot send another SMS. A confirmed
+provider refusal permits a retry. An interrupted connection leaves delivery
+uncertain and prevents automatic resend. Restaurant owners can revoke and replace a staff invitation after checking
+provider records. An open courier invitation must expire before a replacement
+can be issued. Existing invitations without delivery receipts are also treated
+as uncertain.
+
+Six connected regressions cover both invitation routes and use a fake Twilio
+transport. They verify concurrent retries across two API instances, retry
+after refusal, and suppression after an interrupted connection.

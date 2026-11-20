@@ -12,6 +12,7 @@ import {
 } from "@zaafran/contracts/merchant-staff";
 import type { createMerchantStaffRepository } from "@zaafran/db/merchant-staff";
 import type { PublicLocale } from "@zaafran/i18n/locales";
+import { DeliveryRejected, invitationOutcome } from "@zaafran/notifications";
 import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
@@ -131,16 +132,20 @@ function registerInvite(api: FastifyInstance, services: MerchantStaffServices | 
       }
       const { invitation } = result;
       if (result.kind === "applied" || result.isOpen) {
-        try {
-          const message = {
-            token,
-            deliveryKey: invitation.invitationId,
-            ...(request.body.locale === undefined ? {} : { locale: request.body.locale }),
-          };
-          await deliverStaffInvitation(services, invitation, message);
-        } catch {
-          return sendProblem(reply, 503, "invitation_delivery_unavailable");
-        }
+        const message = {
+          token,
+          deliveryKey: invitation.invitationId,
+          ...(request.body.locale === undefined ? {} : { locale: request.body.locale }),
+        };
+        const sent = await command.repository.deliver({
+          invitationId: invitation.invitationId,
+          merchantId,
+          tokenHash: hashToken(token),
+          now: command.now,
+          send: () =>
+            invitationOutcome(() => deliverStaffInvitation(services, invitation, message)),
+        });
+        if (!sent) return sendProblem(reply, 503, "invitation_delivery_unavailable");
       }
       return reply.code(201).send(invitation);
     },
@@ -156,7 +161,7 @@ async function deliverStaffInvitation(
     return services.sendInvitation({ ...message, phone: target.phoneE164 });
   if (target.email !== undefined && services.sendEmailInvitation)
     return services.sendEmailInvitation({ ...message, email: target.email });
-  throw new Error("Invitation delivery is unavailable.");
+  throw new DeliveryRejected("Invitation delivery is unavailable.");
 }
 
 function registerRevoke(api: FastifyInstance, services: MerchantStaffServices | undefined) {

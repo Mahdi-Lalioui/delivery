@@ -15,6 +15,7 @@ import {
 import { problemResponseSchema } from "@zaafran/contracts/health";
 import { orderParams } from "@zaafran/contracts/orders";
 import type { createCourierRepository } from "@zaafran/db/couriers";
+import { invitationOutcome } from "@zaafran/notifications";
 import type { onSendAsyncHookHandler, FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
@@ -53,22 +54,30 @@ const noStore: onSendAsyncHookHandler = (_request, reply, payload) => {
 
 async function deliverCourierInvitation(
   services: CourierServices,
-  input: InviteDestination & { inviteId: string; locale?: InvitationMessage["locale"] },
+  input: InviteDestination & {
+    merchantId: string;
+    inviteId: string;
+    locale?: InvitationMessage["locale"];
+  },
 ) {
-  if (!services.sendInvitation) return true;
+  const send = services.sendInvitation;
+  if (!send) return false;
   const { inviteId, locale } = input;
   const destination = input.email === undefined ? { phone: input.phone } : { email: input.email };
-  try {
-    await services.sendInvitation({
-      ...destination,
-      token: inviteId,
-      deliveryKey: inviteId,
-      ...(locale === undefined ? {} : { locale }),
-    });
-    return true;
-  } catch {
-    return false;
-  }
+  return services.repository.deliver({
+    invitationId: inviteId,
+    merchantId: input.merchantId,
+    now: services.now(),
+    send: () =>
+      invitationOutcome(() =>
+        send({
+          ...destination,
+          token: inviteId,
+          deliveryKey: inviteId,
+          ...(locale === undefined ? {} : { locale }),
+        }),
+      ),
+  });
 }
 
 export function registerCourierRoutes(api: FastifyInstance, services?: CourierServices) {
@@ -97,7 +106,13 @@ export function registerCourierRoutes(api: FastifyInstance, services?: CourierSe
         now: services.now(),
       });
       if (result.kind === "not_found") return sendProblem(reply, 404);
-      if (!(await deliverCourierInvitation(services, { ...request.body, ...result.invite })))
+      if (
+        !(await deliverCourierInvitation(services, {
+          ...request.params,
+          ...request.body,
+          ...result.invite,
+        }))
+      )
         return sendProblem(reply, 503, "invitation_delivery_unavailable");
       return reply.code(201).send(result.invite);
     },

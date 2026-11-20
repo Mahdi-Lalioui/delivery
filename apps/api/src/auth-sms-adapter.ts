@@ -1,4 +1,5 @@
 import type { PublicLocale } from "@zaafran/i18n/locales";
+import { checkDeliveryResponse } from "@zaafran/notifications";
 import { invitationCopy, otpCopy } from "./message-copy.js";
 
 type Gateway = { url: string; token: string; publicOrigin: string };
@@ -18,8 +19,7 @@ export function createAuthSmsAdapter({ url, token, publicOrigin }: Gateway, send
       },
       body: JSON.stringify({ to, text }),
     });
-    await response.body?.cancel();
-    if (!response.ok) throw new Error("SMS gateway rejected the request");
+    await checkDeliveryResponse(response, "SMS gateway rejected the request");
   }
 
   return createSmsMessages(deliver, publicOrigin);

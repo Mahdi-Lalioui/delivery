@@ -606,3 +606,5 @@
   Next: close duplicate invitation SMS delivery on retries, then finish remaining least-privilege, k6 and alert verification.
 - 2026-11-20 · Ultra · Fixed k6 courier sample generation: 12/12 scheduled points now pass the production position validator with arrival jitter (previously 4/12). Tooling 59/59 and offline k6 2.3.0 inspect passed; this is harness preflight, not capacity evidence. [Preflight](../evidence/awid/k6/preflight.md).
   Next: finish invitation-delivery idempotency review and tests, then continue database least-privilege and operations alerts.
+- 2026-11-20 · Ultra · Added Postgres delivery claims to prevent duplicate staff and courier invitation sends. Six connected tests and full `pnpm verify` passed. [Evidence and recovery limits](../SECURITY_REVIEW.md#invitation-delivery-retries).
+  Next: separate migration ownership from API and worker database privileges and verify grants on local Postgres.
