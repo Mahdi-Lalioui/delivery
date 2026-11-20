@@ -59,13 +59,27 @@ courier and administrator routes. All checks use synthetic data on local infrast
   vuln,secret`: zero high or critical findings and zero image secrets. The
   patched Node base is pinned to the `node:26.13.1-trixie-slim` manifest digest;
   both Debian images apply `apt-get upgrade` during build. The isolated scanner
-  image is pinned to ClamAV 1.5.4 and applies `apk upgrade`.
+  image is pinned to ClamAV 1.5.5 and applies `apk upgrade`; its runtime user
+  is `clamav` after the package-update build step.
 - The companion unfiltered Trivy reports contain no fixed high/critical
   versions for 11 unique CVEs in Debian 13.7 packages (46 package/CVE matches
   per Node image); ClamAV has no reported vulnerabilities. These remaining
   findings, package groups, runtime reachability limits and recheck date are
   recorded below. They are not suppressed from the audit; no further image
   changes are planned for them until a fixed Debian release appears.
+
+On 20 November, the rebuilt ClamAV 1.5.5 image passed Trivy 0.76.2 with
+`--ignore-unfixed --scanners vuln,secret`: zero high/critical findings and zero
+image secrets. ClamAV scanned the current-source archive with zero detections.
+Its Dockerfile test asserts the 1.5.5 digest pin, root-only package update step,
+and non-root `clamav` runtime user.
+
+The local Nuclei 3.11.1 run against the production Compose Caddy listener
+completed with OAST and template updates disabled. It emitted ten informational
+missing-header observations while probing the HTTP redirect; no high/critical
+finding was reported. Required page/API security headers remain asserted by
+dedicated route and response-header tests, so redirect-only informational
+results are not treated as proof of header regressions.
 
 ## OTP abuse and delivery limits
 
@@ -401,14 +415,19 @@ apps/worker/test/logger.test.ts`; worker typecheck and ESLint also passed.
 The photo preparation worker streams the checksum-verified original to a
 private ClamAV daemon using INSTREAM before decoding or writing a preview. A
 malware verdict rejects and removes the upload; a scanner failure keeps it
-private for automatic retry. The daemon has a separate `clamav/clamav:1.5.4`
+private for automatic retry. The daemon has a separate `clamav/clamav:1.5.5`
 image and internal-only network; the Node runtime no longer contains ClamAV or
 its scanner tools. Five worker tests cover clean, malware, protocol error,
 timeout/unavailable daemon and exclusion of worker environment secrets. All
 five passed; production Compose configuration validation passed.
 
 The former integrated ClamAV 1.4.3 image and its CVE findings are superseded by
-the current pinned 1.5.4 image. The built production worker reached the
+the current pinned 1.5.5 image. The 18 November security release fixes the
+ClamAV vulnerabilities that affected 1.5.4, including CVE-2026-76422,
+CVE-2026-76411, CVE-2026-76415, CVE-2026-76414, CVE-2026-76416,
+CVE-2026-76417, CVE-2026-76421, CVE-2026-76430, CVE-2026-76516 and
+CVE-2026-76515. [Official release notes](https://blog.clamav.net/2026/11/clamav-155-147-security-patch-release.html).
+The built production worker reached the
 production Compose daemon over its private scanner network: clean bytes were
 accepted and the inert EICAR marker was flagged, in addition to the five unit
 tests and worker typecheck. The older full-stack upload evidence below covers

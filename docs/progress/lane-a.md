@@ -594,3 +594,5 @@
   Next: continue the remaining route/resource ownership map and run current-ref local security scans.
 - 2026-11-20 · Ultra · Proved private media upload, crop and variant routes enforce session ownership: foreign writes leave DB/files/jobs unchanged and foreign variant reads never reach storage. Full `pnpm verify` passed (2,095 unit; 382 integration; 4 mobile); reviewer P1 closed. [Tenant evidence](../evidence/awid/tenant-isolation.md).
   Next: finish valid current-ref image scans (Trivy and ClamAV) and the local Nuclei scan, then continue route ownership gaps.
+- 2026-11-20 · High · Updated ClamAV to pinned 1.5.5, upgraded OS packages at build, and enforced a non-root runtime; test asserts image digest and update/version-check ordering. ClamAV scan had zero detections; Trivy had 0 high/critical and 0 secrets; local Nuclei reported 10 informational redirect-header observations. Full `pnpm verify` passed (2,095 unit; 382 integration; 4 mobile). [Security review](../SECURITY_REVIEW.md).
+  Next: close the remaining server-side operator-page authorization gaps and rerun the route ownership matrix.
