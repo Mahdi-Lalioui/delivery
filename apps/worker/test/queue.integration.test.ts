@@ -8,7 +8,11 @@ import { run, runOnce } from "graphile-worker";
 import { expect, test, vi } from "vitest";
 import { registerTestDatabase } from "../../../packages/db/test/database.ts";
 import { migrateWorker } from "../src/migrate-worker.ts";
-import { attachWorkerFailureAlerts, createFakeOpsAlertAdapter } from "../src/ops-alerts.ts";
+import {
+  attachWorkerFailureAlerts,
+  createFakeOpsAlertAdapter,
+  createTelegramOpsAlertAdapter,
+} from "../src/ops-alerts.ts";
 import { createWorkerOptions } from "../src/runtime.ts";
 
 const database = registerTestDatabase();
@@ -19,6 +23,8 @@ test("[NFR-07] exhausted synthetic watchdog jobs create one PII-safe alert", asy
   await migrateWorker(databaseUrl);
   const checkId = randomUUID();
   const fake = createFakeOpsAlertAdapter();
+  const telegram = vi.fn<typeof fetch>().mockResolvedValue(new Response(null));
+  const sendTelegram = createTelegramOpsAlertAdapter("123:synthetic", "-123", telegram);
   const worker = createWorkerOptions(databaseUrl, connection, {
     store: createLocalMediaStore({ root: tmpdir() }),
     checkOpsHealth: () => Promise.reject(new Error("synthetic-private-error")),
@@ -28,7 +34,9 @@ test("[NFR-07] exhausted synthetic watchdog jobs create one PII-safe alert", asy
   let failedJobId: string | undefined;
 
   try {
-    detach = attachWorkerFailureAlerts(runner.events, fake.send);
+    detach = attachWorkerFailureAlerts(runner.events, async (alert) => {
+      await Promise.all([fake.send(alert), sendTelegram(alert)]);
+    });
     const failed = new Promise<string>((resolve) => {
       runner.events.once("job:failed", ({ job }) => {
         resolve(job.id);
@@ -47,6 +55,16 @@ test("[NFR-07] exhausted synthetic watchdog jobs create one PII-safe alert", asy
         attempts: 1,
       }),
     ]);
+    expect(telegram).toHaveBeenCalledTimes(1);
+    const body = telegram.mock.calls[0]?.[1]?.body;
+    expect(body).toBe(
+      JSON.stringify({
+        chat_id: "-123",
+        text: `AWID background job exhausted 1 attempts at ${fake.outbox[0]?.occurredAt ?? ""}.`,
+      }),
+    );
+    expect(body).not.toContain(checkId);
+    expect(body).not.toContain("synthetic-private-error");
     expect(JSON.stringify(fake.outbox)).not.toContain(checkId);
     expect(JSON.stringify(fake.outbox)).not.toContain("synthetic-private-error");
     expect(

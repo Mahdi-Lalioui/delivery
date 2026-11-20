@@ -622,3 +622,29 @@
   Next: wire a monitored collector for API incidents and exercise the k6 fixture and source-address setup on an isolated stack.
 - 2026-11-20 · Medium · PR #16 passed Browser smoke, mutation and security checks. Verify failed because its runner lacked ripgrep. Switched the asset scanner to standard grep and proved it detects an injected marker in a hidden binary source map. Full local verify passed on the preceding PR head.
   Next: verify PR #16 CI on the portable scanner commit and merge, then continue the load and live incident checks.
+- 2026-11-20 · Medium · Switched k6 quote and courier fixture pools to shared arrays to avoid parsing and storing them per virtual user. Offline k6 2.3.0 inspection, ESLint and formatting passed.
+  Next: merge PR #16 once its exact commit is green, then push the shared fixture change and provision the connected load dataset.
+- 2026-11-20 · High · PR #16 merged at b723afb. Fresh authz passed 267/267, and the Postgres queue suite passed 8/8 with a terminal incident reaching the Telegram adapter's fake receiver exactly once. [Evidence](../evidence/awid/ops-alerts.md).
+  Next: prove live alert delivery and collector ingestion, then provision the isolated 10× load dataset and finish the release rerun.
+- 2026-11-20 · Medium · Reconciled all eight open criteria with the release report and documented the live incident setup. Refreshed authorization evidence at 267/267.
+  Next: complete the input boundary review and prepare the connected 10× load fixtures.
+- 2026-11-20 · Medium · Bound the load harness to its local HTTPS origin and disabled redirects. Tooling passed 60/60 and offline k6 inspection passed. Reviewed push, invitation and body input bounds with no defect found in that slice.
+  Next: measure connected Tracking tilt and continue synthetic load dataset provisioning.
+- 2026-11-20 · High · Three connected delivery journeys passed. Tracking tilt measured 54 fps with one 83 ms interval per run. A camera trial did not improve timing and was reverted. Added repeatable probe and raw evidence. Four focused API boundary suites passed 16/16.
+  Next: profile the 83 ms Tracking tilt interval on the connected fixture, then provision synthetic quotes and courier assignments for the 10× load run.
+- 2026-11-20 · High · Three connected delivery journeys passed with the tilt diagnostic. All three measured 54 fps, with one 75–78 ms main-thread task each and no tile completions during the measured windows.
+  Next: capture a Chromium CPU profile for the connected tilt to identify the long task and verify a targeted fix.
+- 2026-11-20 · High · Final security checkpoint: authz 267/267, production audit, Gitleaks history and high/critical Trivy gates passed. The cached backend and web image scans predate the current commit.
+  Next: provision the connected synthetic quotes and active courier assignments for the local 10× capacity run.
+- 2026-11-20 · High · Optional Chromium CPU profiling passed one connected delivery run at 60 active fps with no long task. The profile did not reproduce the earlier stall. Local rehearsal database has zero quotes and zero couriers, so the 10× load run has no valid fixture set yet.
+  Next: provision 30,000 unconsumed quotes and 1,000 active courier assignments on a disposable stack and verify the source-address distribution.
+- 2026-11-20 · High · Added disposable load fixture generation. PostGIS created the default 30,000 quotes and 1,000 assignments, and repository placement and position intake passed. Scoped lint, typecheck and Knip passed.
+  Next: verify the connected load runner has distinct client addresses before attempting the 10× run.
+- 2026-11-20 · High · Full verify passed at d27a1632. Disposable Compose configuration validated, and a network-disabled Linux listener saw 350 distinct bound source addresses. The live alert credentials and national map are absent from the inspected local environment.
+  Next: confirm the local browser suite results and verify source-address forwarding through Caddy on the isolated load stack.
+- 2026-11-20 · High · An isolated Caddy proxy forwarded all 350 distinct local client addresses to a loopback receiver. Full local browser suites started and PR #17 opened. No API capacity result yet.
+  Next: attach the load runner to a disposable HTTPS Compose edge and run against the generated fixture database with production rate limits.
+- 2026-11-20 · High · Completed the connected 10× run against the current API image and disposable HTTPS/PostGIS stack. Placement and position p95 were 6,422/6,334 ms, with 29,282 dropped iterations and zero errors among completed requests. Current image scans passed.
+  Next: compare the 1× baseline and finish the authenticated browser rerun, then record final verdict and CI integration status.
+- 2026-11-20 · High · 1× connected load passed at 15.97/6.79 ms p95 without errors or drops. Main/auth/preview browser suites recorded 127/82/3 passes. Inspected French mobile light/dark design captures. Verdict remains NOT READY.
+  Next: confirm PR #17 CI, then profile the 10× saturation on production-sized Linux before changing capacity controls.

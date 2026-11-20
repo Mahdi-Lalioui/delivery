@@ -9,3 +9,9 @@ Captured from the production design build with `pnpm evidence:screens` at 390 px
 - Matching captures are included for pickup tracking, orders, confirmation and payment at both requested variants.
 
 This is the implementation team's visual check, not a new independent design-critic score. The prior critic limits and real-device checks remain recorded in `docs/RELEASE_REPORT.md` and `docs/HUMAN_TODO.md`.
+
+On 20 November, the existing handoff screens were recaptured and inspected
+at 390 px French in light and dark themes. The capture includes pickup,
+payment, confirmation, pickup tracking, orders and the landing footer.
+These are current-state captures. The 19 November set above provides the
+previous review reference.

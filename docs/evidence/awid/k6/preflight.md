@@ -19,3 +19,27 @@ Checks run:
 
 This does **not** prove 10× API capacity. The full run still requires the
 fixtures and source-IP distribution listed in [the load guide](../../../../load/README.md).
+
+The harness now validates and shares each fixture pool once during k6
+initialization. Offline inspection with k6 2.3.0 passed using synthetic
+fixtures and networking disabled. The capacity run remains open.
+
+The harness requires matching local HTTPS origins and disables redirects so
+fixture cookies stay on the intended disposable stack. The tooling suite
+passed 60 tests, and offline k6 inspection confirmed zero redirects.
+
+The disposable PostGIS seeder created 30,000 quotes and 1,000 active courier
+assignments in approximately two seconds. Its output file had mode 0600.
+One test session resolved by token hash and placed a quote through the real
+repository. A second session submitted a courier position and the repository
+accepted one point. No HTTP benchmark traffic was sent.
+
+A network-disabled Linux container opened 350 TCP connections, each bound
+to a different local loopback address. Its local listener observed all 350
+distinct addresses. This proves the runner's source binding capability.
+Caddy forwarding and the connected rate and latency targets remain unverified.
+
+An isolated Caddy reverse proxy forwarded 350 requests from distinct bound
+loopback addresses to a local echo receiver. The receiver verified the actual
+`X-Forwarded-For` value on every request. This validates source forwarding
+without an application load run. API rate, latency and capacity remain open.

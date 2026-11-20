@@ -152,4 +152,65 @@ event replay and timer recovery. Production deployment is pending.
 | Security | Local scans, credential isolation and connected role tests are recorded. Exhaustive endpoint ownership, input handling and multi-replica rate limits remain open. [Security review](SECURITY_REVIEW.md) |
 | Reliability | Delivery, pickup, restart, replay and timer drills passed. The 10× capacity run remains open. [Local operations](evidence/awid/local-operations.md) · [Load preflight](evidence/awid/k6/preflight.md) |
 | Operations | Local worker alerts and the structured API incident passed. Live provider delivery and monitoring still need a test incident. [Alert evidence](evidence/awid/ops-alerts.md) |
-| Integration and release | [PR #16](https://github.com/Mahdi-Lalioui/delivery/pull/16) carries the latest locally verified fixes. Follow the [readiness checklist](READINESS.md) for each open criterion and the [operator steps](HUMAN_TODO.md) for external setup. |
+| Integration and release | [PR #16](https://github.com/Mahdi-Lalioui/delivery/pull/16) merged at `b723afb` after all seven checks passed. The subsequent load preflight and connected Telegram tests are on Lane A. Follow the [readiness checklist](READINESS.md) for each open criterion and the [operator steps](HUMAN_TODO.md) for external setup. |
+
+### Open release criteria
+
+1. Measure the connected Tracking tilt animation against the frame budget.
+2. Finish mapping every registered route to tenant and role evidence. The 267 authorization tests passed again on 20 November.
+3. Complete the input handling review alongside the existing CSRF, CSP, header and session evidence.
+4. Resolve or verify the deployment limits for rate limiting and provider abuse. Keep the scoped dependency exception under review.
+5. Close the security review after the remaining findings have regression evidence.
+6. Run the 10× load benchmark with connected synthetic fixtures and the production abuse limits active.
+7. Confirm that a test incident reaches the external collector and monitored Telegram and Resend destinations.
+8. Repeat the security and reliability checks from scratch after the preceding checks pass.
+
+### Latest local verification
+
+- Full `pnpm verify` passed at `d27a1632` with the load seeder registered.
+- The seeder produced all 30,000 quotes and 1,000 assigned couriers. A local
+  TCP probe observed 350 distinct source addresses. The connected k6 benchmark
+  still needs to verify those addresses through Caddy. [Load evidence](evidence/awid/k6/preflight.md)
+- Production Compose configuration validated with disposable settings.
+  The national map file is absent, so the full deployment dry run remains open.
+- The Telegram bot and monitored chat are unconfigured on the inspected
+  rehearsal stack. Live delivery and external collector ingestion remain open.
+- The design handoff changes exist with 390 px Arabic and 1280 px French
+  captures. The additional screenshot variants requested for the final run
+  still need evidence. [Design evidence](evidence/awid/lane-a-design/README.md)
+
+### Deployment order after readiness passes
+
+1. Prepare the server and national map and routing assets.
+2. Create the deployment environment and private migration, runtime and
+   provider credentials. Follow the volume upgrade steps if the database exists.
+3. Configure the web, www, and API DNS records and verify the email sender.
+4. Run the production Compose deployment command with the reviewed commit.
+5. Confirm smoke checks, live delivery and pickup, and monitored incidents.
+   Keep the prior image and verified backup for rollback.
+
+Follow the exact commands and configuration paths in [DEPLOY.md](DEPLOY.md).
+The release verdict remains **NOT READY**.
+
+### Final run results
+
+- GitHub [PR #17](https://github.com/Mahdi-Lalioui/delivery/pull/17) carries the final run changes.
+- Local browser results were 127 passed and 10 existing conditional skips
+  in the main suite, 82 passed in authenticated Chromium at two workers,
+  and 3 passed in preview. The initial seven-worker authenticated run had
+  seven timeouts.
+- Fresh backend, web and ClamAV images passed the Trivy fixable HIGH/CRITICAL
+  gate. Exhaustive tenant and input evidence and verified provider limits
+  remain open.
+- The connected 10× test failed at 6,422 ms placement p95 and 6,334 ms
+  position p95, with 29,282 dropped iterations. The 1× comparison passed at
+  15.97 and 6.79 ms p95 with no drops. [Capacity evidence](evidence/awid/k6/connected-pilot.md)
+- The requested design changes are present and the latest French mobile
+  light and dark captures were inspected. [Captures](evidence/awid/lane-a-design/README.md)
+- Tracking still has reproducible 54 fps runs. A single 60 fps CPU profile
+  did not reproduce the stall.
+- A live Telegram incident and a full deployment rehearsal need the
+  configured bot and national map assets, respectively. No deployment ran.
+
+**NOT READY.** The final clean rerun and release are gated on the eight open
+items in [READINESS.md](READINESS.md).

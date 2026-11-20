@@ -557,3 +557,32 @@ The CI Verify job builds the production web app with synthetic OTP, TOTP,
 email and SMS server credentials. It scans Next static output and public
 assets, including source maps present in those directories. The local build
 scan passed, and a fixture with the marker in a JavaScript chunk was rejected.
+
+## Focused input boundary review
+
+The push subscription contract validates HTTPS provider hosts and rejects
+credentials, custom ports and fragments. It bounds URLs and key formats
+before passing them to the repository. Invitation continuations validate the
+body and token kind and check the browser origin before writing a secure
+session continuation cookie. The API enforces a 256 KiB default body limit,
+and upload routes enforce their own byte limits. Order placement validates
+its body and idempotency header and passes the authenticated account ID to
+the repository. The focused push, placement, auth transport and health
+suites passed 16 tests. The exhaustive input review remains open.
+
+## Final run security checkpoint
+
+At `55e4c5a6`, `pnpm test:authz` passed 267 tests across 42 suites,
+`pnpm audit --prod --audit-level high` passed with the existing scoped
+exception, and Gitleaks reported zero leaks across 636 reachable commits.
+Trivy 0.76.2 with `--ignore-unfixed` and a HIGH/CRITICAL gate exited zero
+on the committed source archive (vulnerabilities, secrets and configuration)
+and cached backend, web and ClamAV images (vulnerabilities and secrets).
+The backend and web archives were from the earlier `595e33cb` checkpoint.
+Refresh the image results on a current production rebuild before release.
+Exhaustive tenant and input coverage and deployment rate-limit evidence
+remain open.
+
+The fresh backend, web and ClamAV production builds tagged `79132f66`
+passed Trivy 0.76.2 with `--ignore-unfixed`, vulnerability and secret
+scanners, and the HIGH/CRITICAL failure threshold.

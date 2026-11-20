@@ -11,6 +11,7 @@
     "format:check": "prettier --check .",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit && turbo run typecheck",
+    "load:seed": "pnpm --filter @zaafran/api exec tsx ../../load/seed-pilot.ts",
     "test:tooling": "node --test tooling/*.test.ts scripts/*.test.ts load/*.test.js",
     "dev": "docker compose up -d --wait && pnpm db:migrate && turbo run dev",
     "db:migrate": "pnpm --dir packages/db db:migrate && pnpm worker:migrate",
