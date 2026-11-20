@@ -178,7 +178,12 @@ export function createApi(options: ApiOptions): FastifyInstance {
   api.setNotFoundHandler((_request, reply) => sendProblem(reply, 404));
   api.setErrorHandler((error, request, reply) => {
     const status = readErrorStatus(error);
-    if (status >= 500) request.log.error("Unhandled request failure");
+    if (status >= 500) {
+      request.log.error(
+        { event: "api.request.failed", statusCode: status, route: request.routeOptions.url },
+        "Unhandled request failure",
+      );
+    }
     return sendProblem(reply, status);
   });
   void api.register(rateLimit, {

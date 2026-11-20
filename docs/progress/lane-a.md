@@ -618,3 +618,5 @@
   Next: add a local test incident for application error tracking and Telegram alert delivery.
 - 2026-11-20 · High · Added Telegram delivery for terminal worker incidents. Four alert unit tests, eight Postgres queue tests, worker typecheck and scoped lint passed. [Evidence](../evidence/awid/ops-alerts.md).
   Next: capture a synthetic API 500 in the application error tracker and verify live alert delivery when credentials are available.
+- 2026-11-20 · High · Added a structured API failure event. The synthetic 500 regression proves it omits exception text and concrete route values. API health suite 8/8, scoped lint and API typecheck passed. [Evidence](../evidence/awid/ops-alerts.md).
+  Next: wire a monitored collector for API incidents and exercise the k6 fixture and source-address setup on an isolated stack.
