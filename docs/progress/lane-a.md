@@ -596,3 +596,5 @@
   Next: finish valid current-ref image scans (Trivy and ClamAV) and the local Nuclei scan, then continue route ownership gaps.
 - 2026-11-20 · High · Updated ClamAV to pinned 1.5.5, upgraded OS packages at build, and enforced a non-root runtime; test asserts image digest and update/version-check ordering. ClamAV scan had zero detections; Trivy had 0 high/critical and 0 secrets; local Nuclei reported 10 informational redirect-header observations. Full `pnpm verify` passed (2,095 unit; 382 integration; 4 mobile). [Security review](../SECURITY_REVIEW.md).
   Next: close the remaining server-side operator-page authorization gaps and rerun the route ownership matrix.
+- 2026-11-20 · High · Re-scanned all locally reachable refs with Gitleaks 8.30.1 after `90a7759`: 619 commits, 12.15 MB, zero leaks. Remote-only refs and unreachable Git objects remain outside the scan. [Security review](../SECURITY_REVIEW.md).
+  Next: close the remaining server-side operator-page authorization gaps and rerun the route ownership matrix.
