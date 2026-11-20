@@ -23,7 +23,12 @@ export async function measureConnectedTrackingTilt(page: Page) {
     await action.scrollIntoViewIfNeeded();
     const frames = page.evaluate(
       () =>
-        new Promise<{ deltas: number[]; longTasks: number[]; tiles: number }>((resolve) => {
+        new Promise<{
+          deltas: number[];
+          longTasks: number[];
+          animationScripts: string[];
+          tiles: number;
+        }>((resolve) => {
           const button = document.querySelector(".tracking-map-attribution .awid-map-action");
           button?.addEventListener(
             "click",
@@ -35,6 +40,38 @@ export async function measureConnectedTrackingTilt(page: Page) {
                 for (const entry of entries.getEntries()) longTasks.push(entry.duration);
               });
               observer.observe({ type: "longtask" });
+              const animationScripts: string[] = [];
+              function scriptSummary(script: unknown): string | undefined {
+                if (
+                  typeof script !== "object" ||
+                  script === null ||
+                  !("sourceFunctionName" in script) ||
+                  typeof script.sourceFunctionName !== "string" ||
+                  !("sourceURL" in script) ||
+                  typeof script.sourceURL !== "string" ||
+                  !("duration" in script) ||
+                  typeof script.duration !== "number"
+                )
+                  return undefined;
+                return (
+                  script.sourceFunctionName +
+                  " " +
+                  String(script.duration) +
+                  "ms " +
+                  (script.sourceURL.split("/").at(-1) ?? "")
+                );
+              }
+              const animationObserver = new PerformanceObserver((entries) => {
+                for (const entry of entries.getEntries()) {
+                  if (!("scripts" in entry) || !Array.isArray(entry.scripts)) continue;
+                  const scripts: unknown[] = entry.scripts;
+                  for (const script of scripts) {
+                    const summary = scriptSummary(script);
+                    if (summary) animationScripts.push(summary);
+                  }
+                }
+              });
+              animationObserver.observe({ type: "long-animation-frame" });
               let last = start;
               const frame = (now: number) => {
                 const delta = now - last;
@@ -52,7 +89,8 @@ export async function measureConnectedTrackingTilt(page: Page) {
                     ).length;
                   setTimeout(() => {
                     observer.disconnect();
-                    resolve({ deltas: times, longTasks, tiles });
+                    animationObserver.disconnect();
+                    resolve({ deltas: times, longTasks, animationScripts, tiles });
                   }, 0);
                 }
               };
@@ -69,7 +107,7 @@ export async function measureConnectedTrackingTilt(page: Page) {
     }
     await action.click();
     await expect(action).toHaveAttribute("aria-pressed", "true");
-    const { deltas, longTasks, tiles } = await frames;
+    const { deltas, longTasks, animationScripts, tiles } = await frames;
     const hot = profileTilt ? await readHotFunctions(cdp) : undefined;
     const ordered = deltas.toSorted((a, b) => a - b);
     const intervals = deltas.slice(1);
@@ -87,6 +125,7 @@ export async function measureConnectedTrackingTilt(page: Page) {
         p95FrameMs: ordered[Math.ceil(ordered.length * 0.95) - 1],
         hot,
         longTasks,
+        animationScripts,
         tiles,
         longFrames: deltas.filter((delta) => delta > 1_000 / 60 + 4).length,
       }) + "\n",

@@ -161,22 +161,19 @@ event replay and timer recovery. Production deployment is pending.
 3. Complete the input handling review alongside the existing CSRF, CSP, header and session evidence.
 4. Resolve or verify the deployment limits for rate limiting and provider abuse. Keep the scoped dependency exception under review.
 5. Close the security review after the remaining findings have regression evidence.
-7. Confirm that a test incident reaches the external collector and monitored Telegram and Resend destinations.
-8. Repeat the security and reliability checks from scratch after the preceding checks pass.
+6. Confirm that a test incident reaches the external collector and monitored Telegram and Resend destinations.
+7. Repeat the security and reliability checks from scratch after the preceding checks pass.
 
 ### Latest local verification
 
 - Full `pnpm verify` passed at `d27a1632` with the load seeder registered.
-- The seeder produced all 30,000 quotes and 1,000 assigned couriers. A local
-  TCP probe observed 350 distinct source addresses. The connected k6 benchmark
-  still needs to verify those addresses through Caddy. [Load evidence](evidence/awid/k6/preflight.md)
+- The seeder produced all 30,000 quotes and 1,000 assigned couriers. The distributed rerun passed through local HTTPS Caddy with production limits active. [Load evidence](evidence/awid/k6/connected-pilot.md)
 - Production Compose configuration validated with disposable settings.
   The national map file is absent, so the full deployment dry run remains open.
 - The Telegram bot and monitored chat are unconfigured on the inspected
   rehearsal stack. Live delivery and external collector ingestion remain open.
 - The design handoff changes exist with 390 px Arabic and 1280 px French
-  captures. The additional screenshot variants requested for the final run
-  still need evidence. [Design evidence](evidence/awid/lane-a-design/README.md)
+  captures. French mobile light and dark captures were also inspected. [Design evidence](evidence/awid/lane-a-design/README.md)
 
 ### Deployment order after readiness passes
 
@@ -193,7 +190,7 @@ The release verdict remains **NOT READY**.
 
 ### Final run results
 
-- GitHub [PR #17](https://github.com/Mahdi-Lalioui/delivery/pull/17) carries the final run changes.
+- GitHub [PR #17](https://github.com/Mahdi-Lalioui/delivery/pull/17) merged as `0552ee9` after all seven checks passed. [PR #18](https://github.com/Mahdi-Lalioui/delivery/pull/18) carries the distributed capacity follow-up.
 - Local browser results were 127 passed and 10 existing conditional skips
   in the main suite, 82 passed in authenticated Chromium at two workers,
   and 3 passed in preview. The initial seven-worker authenticated run had
@@ -206,8 +203,7 @@ The release verdict remains **NOT READY**.
   15.97 and 6.79 ms p95 with no drops. [Capacity evidence](evidence/awid/k6/connected-pilot.md)
 - The requested design changes are present and the latest French mobile
   light and dark captures were inspected. [Captures](evidence/awid/lane-a-design/README.md)
-- Tracking still has reproducible 54 fps runs. A single 60 fps CPU profile
-  did not reproduce the stall.
+- Tracking still has reproducible 54 fps runs. CPU-profiled runs reached 60 active fps, while ordinary runs reproduced 53 active fps.
 - A live Telegram incident and a full deployment rehearsal need the
   configured bot and national map assets, respectively. No deployment ran.
 

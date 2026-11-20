@@ -650,3 +650,5 @@
   Next: confirm PR #17 CI, then profile the 10× saturation on production-sized Linux before changing capacity controls.
 - 2026-11-20 · High · Profiled single-restaurant contention at the merchant lock, preserved that stress case, and passed the distributed 100-restaurant 10× run at 12.73/4.09 ms p95 with zero errors or drops. Closed the k6 criterion.
   Next: verify current PR #17 CI and reproduce the Tracking tilt stall with CPU sampling before making a targeted change.
+- 2026-11-20 · High · PR #17 merged with seven green checks. PR #18 carries the load closure. Three ordinary Tracking runs held at 53 active fps and 77–80 ms long tasks. Frame attribution replicated the stall without identifying a script.
+  Next: profile Tracking renderer work without CPU-sampler startup and keep PR #18 integration gated on current green CI.

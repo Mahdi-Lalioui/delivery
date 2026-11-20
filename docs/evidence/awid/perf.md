@@ -249,3 +249,10 @@ to include a Chromium CPU sampling summary. One connected profile run
 passed the journey and recorded 60 active fps with no long task. That sample
 did not reproduce the earlier 75–78 ms stall, so it does not establish a fix
 or change the readiness verdict.
+
+Three additional profiled connected journeys passed at 60 active fps.
+Three equivalent runs without the CPU profiler reproduced 53 active fps
+and one 77–80 ms long task each. A follow-up using long-animation-frame
+attribution reproduced an 81 ms task but returned no script attribution.
+The ordinary interaction remains below target. The profiling runs cannot
+be used to close the criterion.
