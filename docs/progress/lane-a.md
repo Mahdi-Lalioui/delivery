@@ -644,3 +644,5 @@
   Next: confirm the local browser suite results and verify source-address forwarding through Caddy on the isolated load stack.
 - 2026-11-20 · High · An isolated Caddy proxy forwarded all 350 distinct local client addresses to a loopback receiver. Full local browser suites started and PR #17 opened. No API capacity result yet.
   Next: attach the load runner to a disposable HTTPS Compose edge and run against the generated fixture database with production rate limits.
+- 2026-11-20 · High · Completed the connected 10× run against the current API image and disposable HTTPS/PostGIS stack. Placement and position p95 were 6,422/6,334 ms, with 29,282 dropped iterations and zero errors among completed requests. Current image scans passed.
+  Next: compare the 1× baseline and finish the authenticated browser rerun, then record final verdict and CI integration status.

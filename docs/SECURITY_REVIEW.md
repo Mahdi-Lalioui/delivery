@@ -582,3 +582,7 @@ The backend and web archives were from the earlier `595e33cb` checkpoint.
 Refresh the image results on a current production rebuild before release.
 Exhaustive tenant and input coverage and deployment rate-limit evidence
 remain open.
+
+The fresh backend, web and ClamAV production builds tagged `79132f66`
+passed Trivy 0.76.2 with `--ignore-unfixed`, vulnerability and secret
+scanners, and the HIGH/CRITICAL failure threshold.
