@@ -673,11 +673,32 @@ async function verifyFailedDelivery(
       now: new Date(started.getTime() + 60_000),
     }),
   ).toMatchObject({ kind: "recorded", state: { callAttempts: 2 } });
+  for (let callAttempts = 3; callAttempts <= 20; callAttempts += 1) {
+    expect(
+      await courier.recordDeliveryAttempt({
+        ...firstCall,
+        idempotencyKey: randomUUID(),
+        now: new Date(started.getTime() + 60_000 + (callAttempts - 2) * 20_000),
+      }),
+    ).toMatchObject({ kind: "recorded", state: { callAttempts } });
+  }
+  expect(
+    await courier.recordDeliveryAttempt({
+      ...firstCall,
+      idempotencyKey: randomUUID(),
+      now: new Date(started.getTime() + 440_000),
+    }),
+  ).toEqual({ kind: "rate_limited" });
+  const [callCount] = await database.get().sql`
+    SELECT count(*)::int AS count FROM public.courier_delivery_attempts
+    WHERE order_id = ${orderId} AND action = 'call'
+  `;
+  expect(callCount?.count).toBe(20);
   expect(await courier.jobs(driver)).toMatchObject({
     jobs: [
       {
         order: { orderId },
-        deliveryAttempt: { waitStartedAt: started.toISOString(), callAttempts: 2 },
+        deliveryAttempt: { waitStartedAt: started.toISOString(), callAttempts: 20 },
       },
     ],
   });
@@ -758,6 +779,32 @@ async function verifyPhotoFallback({
   expect(Date.parse(String(cleanup?.run_at))).toBeGreaterThan(
     at.getTime() + 29 * 24 * 60 * 60 * 1_000,
   );
+
+  const quotaRequests = Array.from({ length: 5 }, () => ({
+    ...request,
+    input: { ...input, orderId: anotherOrder },
+    idempotencyKeyHash: randomBytes(32),
+    requestHash: randomBytes(32),
+  }));
+  const quotaReservations = await Promise.all(quotaRequests.map((proof) => media.reserve(proof)));
+  expect(quotaReservations.every((result) => result.kind === "created")).toBe(true);
+  const firstQuotaRequest = quotaRequests[0];
+  if (!firstQuotaRequest) throw new Error("Expected a proof reservation request.");
+  const replayedAtLimit = await media.reserve(firstQuotaRequest);
+  expect(replayedAtLimit).toMatchObject({ kind: "replayed" });
+  expect(
+    await media.reserve({
+      ...request,
+      input: { ...input, orderId: anotherOrder },
+      idempotencyKeyHash: randomBytes(32),
+      requestHash: randomBytes(32),
+    }),
+  ).toEqual({ kind: "proof_photo_limit" });
+  const [quotaCount] = await sql`
+    SELECT count(*)::int AS count FROM public.media_uploads
+    WHERE delivery_order_id = ${anotherOrder} AND kind = 'delivery_proof'
+  `;
+  expect(quotaCount?.count).toBe(5);
 
   const photoId = randomUUID();
   await seedReadyPhoto(sql, {

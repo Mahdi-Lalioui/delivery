@@ -1,6 +1,7 @@
 "use client";
 
-import { formatDzd } from "@zaafran/i18n/formats";
+import { StateArt } from "../customer/state-art";
+import { formatAlgiersTime, formatDzd } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
 import { ButtonLink, EmptyState, Icon, Skeleton } from "@zaafran/ui";
 import { useTranslations } from "next-intl";
@@ -120,18 +121,29 @@ export function OrderConfirmed({
   orderId,
   shortCode,
   restaurant,
+  fulfilment,
+  eta,
   redirectMs = 4500,
 }: {
   locale: Locale;
   orderId: string;
   shortCode: string;
   restaurant: string;
+  fulfilment: "delivery" | "pickup";
+  eta: { earliestAt: string; latestAt: string } | null;
   redirectMs?: number | null;
 }) {
   const translate = useTranslations("checkout");
   const href = `/${locale}/orders/${orderId}`;
   const lowData = useLowData();
   const title = translate("confirmedTitle");
+  const etaRange =
+    eta === null
+      ? undefined
+      : `${formatAlgiersTime(new Date(eta.earliestAt), locale)}–${formatAlgiersTime(
+          new Date(eta.latestAt),
+          locale,
+        )}`;
   const goToTracking = useCallback(() => {
     if (redirectMs !== null) window.location.assign(href);
   }, [href, redirectMs]);
@@ -158,6 +170,15 @@ export function OrderConfirmed({
           <Tagine3d label={title} onDone={goToTracking} />
         )}
       </div>
+      {etaRange !== undefined && (
+        <p className="checkout-confirmed-eta">
+          <Icon name="clock" size={18} />
+          <span>
+            {translate(fulfilment === "pickup" ? "confirmedEtaPickup" : "confirmedEtaDelivery")}
+          </span>
+          <bdi dir="ltr">{etaRange}</bdi>
+        </p>
+      )}
       <h1 id="checkout-confirmed-title">{title}</h1>
       <p>{translate("confirmedBody", { restaurant })}</p>
       <p className="checkout-confirmed-code">{translate("confirmedCode", { code: shortCode })}</p>
@@ -178,29 +199,34 @@ function Blocked({ state, locale }: { state: CheckoutState; locale: Locale }) {
     state.contact.kind === "sign-in";
   if (isSignIn)
     return (
+      <div className="checkout-blocked decor-zellige decor-lamplight">
+        <EmptyState
+          icon="user"
+          title={translate("signIn")}
+          body={translate("signInBody")}
+          action={
+            <ButtonLink variant="primary" href={`/${locale}/sign-in`}>
+              {translate("signInAction")}
+            </ButtonLink>
+          }
+        />
+      </div>
+    );
+  const name = state.expiredFrom;
+  // A designed, full-height panel: an empty basket is a moment, not a blank page.
+  return (
+    <div className="checkout-blocked decor-zellige decor-lamplight">
       <EmptyState
-        icon="user"
-        title={translate("signIn")}
-        body={translate("signInBody")}
+        art={<StateArt kind="bag" />}
+        title={translate(name === null ? "emptyCart" : "cartExpired")}
+        body={name === null ? translate("emptyCartBody") : translate("cartExpiredBody", { name })}
         action={
-          <ButtonLink variant="primary" href={`/${locale}/sign-in`}>
-            {translate("signInAction")}
+          <ButtonLink variant="primary" href={`/${locale}/discover`}>
+            {translate("browse")}
           </ButtonLink>
         }
       />
-    );
-  const name = state.expiredFrom;
-  return (
-    <EmptyState
-      icon="bag"
-      title={translate(name === null ? "emptyCart" : "cartExpired")}
-      body={name === null ? translate("emptyCartBody") : translate("cartExpiredBody", { name })}
-      action={
-        <ButtonLink variant="primary" href={`/${locale}/discover`}>
-          {translate("browse")}
-        </ButtonLink>
-      }
-    />
+    </div>
   );
 }
 
@@ -237,13 +263,17 @@ export function CheckoutView({ state, locale }: { state: CheckoutState; locale: 
         orderId={place.order.orderId}
         shortCode={place.order.shortCode}
         restaurant={state.cart?.merchant.name ?? ""}
+        fulfilment={place.order.fulfilment}
+        eta={place.order.eta}
       />
     );
   const isBlocked = isCheckoutBlocked(state);
   return (
     <section className="checkout" aria-labelledby="checkout-title">
       <header className="checkout-header">
-        <h1 id="checkout-title">{translate("title")}</h1>
+        <h1 id="checkout-title">
+          {translate(state.fulfilment === "pickup" ? "titlePickup" : "title")}
+        </h1>
         {state.cart && (
           <p className="checkout-merchant">
             <span aria-hidden="true">{Array.from(state.cart.merchant.name)[0]}</span>

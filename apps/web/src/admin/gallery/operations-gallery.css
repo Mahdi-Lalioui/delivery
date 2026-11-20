@@ -57,3 +57,64 @@
   word-break: keep-all;
   font-size: var(--font-size-caption);
 }
+
+/* Before / after (D-036): two captures side by side per screen and variant. */
+.before-after {
+  display: grid;
+  gap: var(--space-16);
+  margin-block: var(--space-32);
+}
+
+.before-after h2 {
+  font: var(--font-weight-h1) var(--font-size-h1) / var(--line-height-h1) var(--font-display);
+}
+
+.before-after-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+  gap: var(--space-16);
+  list-style: none;
+}
+
+.before-after-list > li {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-8);
+  padding: var(--space-12);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-e1);
+}
+
+.before-after-list > li[data-wide="true"] {
+  grid-column: 1 / -1;
+}
+
+.before-after-list h3 {
+  grid-column: 1 / -1;
+  font-size: var(--font-size-caption);
+}
+
+.before-after-list figure {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+}
+
+.before-after-list img {
+  inline-size: 100%;
+  block-size: auto;
+  border-radius: var(--radius-md);
+}
+
+.before-after-list figcaption {
+  color: var(--color-text-2);
+  font-size: var(--font-size-caption);
+}
+
+/* The gallery's screen links sit together at the start, not spread across the page. */
+.billing-page > nav.ui-page-header {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: var(--space-12);
+}

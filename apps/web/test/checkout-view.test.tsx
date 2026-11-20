@@ -46,6 +46,12 @@ test("[CUS-13] step 1 shows progress, the fulfilment switch and saved addresses"
   expect(html).toContain('class="checkout-aside"');
 });
 
+test("[CUS-13] pickup checkout names the order mode in the page heading", () => {
+  const html = render("fr", <CheckoutSample mode="ready" locale="fr" initialFulfilment="pickup" />);
+  expect(html).toContain("Commande à emporter");
+  expect(html).toContain("À récupérer chez Dar Yemma");
+});
+
 test("[CUS-13] an empty cart offers to find a restaurant, loading shows a skeleton", () => {
   expect(render("fr", <CheckoutSample mode="empty" locale="fr" />)).toContain(
     "Votre panier est vide",
@@ -59,6 +65,15 @@ test("[CUS-14] a failed quote offers a retry on the payment step", () => {
   expect(html).toContain("Réessayer");
 });
 
+test("[CUS-13] payment repeats the chosen address and scheduled time", () => {
+  const html = render("fr", <CheckoutSample mode="ready" locale="fr" initialView="3" />);
+  expect(html).toContain("Livraison à");
+  expect(html).toContain("Maison");
+  expect(html).toContain("12 rue Didouche Mourad, Alger Centre");
+  expect(html).toContain("Pour quand ?");
+  expect(html).toContain("Dès que possible");
+});
+
 test("[ORD-01] the confirmed moment shows the order code and links to tracking", () => {
   const html = render(
     "ar",
@@ -67,10 +82,15 @@ test("[ORD-01] the confirmed moment shows the order code and links to tracking",
       orderId="00000000-0000-4000-8000-000000000500"
       shortCode="K7P-4QX"
       restaurant="دار يما"
+      fulfilment="delivery"
+      eta={{ earliestAt: "2026-11-11T19:30:00.000Z", latestAt: "2026-11-11T19:40:00.000Z" }}
       redirectMs={null}
     />,
   );
   expect(html).toContain("K7P-4QX");
+  expect(html).toContain("20:30");
+  expect(html).toContain("20:40");
+  expect(html).toContain('<bdi dir="ltr">20:30–20:40</bdi>');
   expect(html).toContain('href="/ar/orders/00000000-0000-4000-8000-000000000500"');
   expect(html).toContain("تم تأكيد الطلب");
 });

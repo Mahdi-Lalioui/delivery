@@ -3,7 +3,7 @@
 import { formatDzd } from "@zaafran/i18n/formats";
 import type { Locale } from "@zaafran/i18n/locales";
 import { ErrorState, Icon, MoneyField, Skeleton, TextField } from "@zaafran/ui";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 import { getCartSummary, type Cart } from "@zaafran/domain/cart";
 import { localizeRestaurantText } from "../restaurant/restaurant-types";
 import { DiscountLine, PromoField } from "./checkout-promo";
@@ -126,7 +126,7 @@ function CashCard({ state, locale }: { state: CheckoutState; locale: Locale }) {
   return (
     <div className="checkout-cash">
       <p>
-        <Icon name="card" size={20} />
+        <Icon name="cash" size={20} />
         {translate(state.fulfilment === "pickup" ? "cashPickup" : "cash")}
       </p>
       {total !== undefined && <TenderChips state={state} totalDzd={total} locale={locale} />}
@@ -210,9 +210,49 @@ export function OrderSummaryAside({ state, locale }: { state: CheckoutState; loc
 
 export function PaymentStep({ state, locale }: { state: CheckoutState; locale: Locale }) {
   const translate = useTranslations("checkout");
+  const scheduling = useTranslations("retentionScheduling");
+  const formatter = useFormatter();
+  const selectedAddress =
+    state.addresses.kind === "ready"
+      ? state.addresses.value.find((address) => address.addressId === state.addressId)
+      : undefined;
+  const selectedTime =
+    state.slot.kind === "asap"
+      ? scheduling("asap")
+      : formatter.dateTime(new Date(state.slot.scheduledFor), {
+          weekday: "short",
+          day: "numeric",
+          month: "short",
+          hour: "2-digit",
+          minute: "2-digit",
+          timeZone: "Africa/Algiers",
+        });
   return (
     <div className="checkout-step checkout-payment-step">
       <h2>{translate("summary")}</h2>
+      <section className="checkout-recap" aria-label={translate("recapTitle")}>
+        <h3>{translate("recapTitle")}</h3>
+        <p>
+          <Icon name={state.fulfilment === "pickup" ? "store" : "pin"} size={18} />
+          <span>
+            <strong>
+              {translate(state.fulfilment === "pickup" ? "recapPickup" : "recapAddress")}
+            </strong>
+            <bdi>
+              {state.fulfilment === "pickup"
+                ? (state.cart?.merchant.name ?? "")
+                : [selectedAddress?.label, selectedAddress?.building].filter(Boolean).join(" · ")}
+            </bdi>
+          </span>
+        </p>
+        <p>
+          <Icon name="clock" size={18} />
+          <span>
+            <strong>{translate("recapTime")}</strong>
+            <bdi>{selectedTime}</bdi>
+          </span>
+        </p>
+      </section>
       <div className="checkout-receipt">
         <OrderLines state={state} locale={locale} />
         <PromoField state={state} />

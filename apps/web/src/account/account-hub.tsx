@@ -67,14 +67,16 @@ export async function AccountHub({ locale }: { locale: Locale }) {
             </li>
           ))}
         </ul>
-        <FeelSettings locale={locale} />
-        <a className="account-hub-pitch" href={`/${locale}/restaurants`}>
-          <Icon name="store" size={24} />
-          <span className="account-hub-text">
-            <strong>{translate("restaurants")}</strong>
-            <span>{translate("restaurantsBody")}</span>
-          </span>
-        </a>
+        <div className="account-hub-side decor-zellige">
+          <FeelSettings locale={locale} />
+          <a className="account-hub-pitch" href={`/${locale}/restaurants`}>
+            <Icon name="store" size={24} />
+            <span className="account-hub-text">
+              <strong>{translate("restaurants")}</strong>
+              <span>{translate("restaurantsBody")}</span>
+            </span>
+          </a>
+        </div>
       </section>
       <CustomerTabBar locale={locale} current="profile" />
     </SiteShell>

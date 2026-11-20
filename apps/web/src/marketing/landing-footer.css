@@ -1,5 +1,6 @@
 /* The site footer: landing, credits and the Discovery page all end on it. */
 .landing-footer {
+  --decor-zellige-colour: var(--color-zellige);
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-32) var(--space-16);
@@ -49,9 +50,11 @@
 }
 
 @media (min-width: 960px) {
+  /* Desktop: the footer card meets the bottom edge of the page; no plaster strip beneath it. */
   .landing-footer {
     grid-template-columns: 2fr repeat(3, 1fr);
     margin-inline: 0;
+    margin-block-end: calc(-1 * var(--space-64));
     border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   }
 

@@ -166,6 +166,31 @@ function LiveDetails({
   );
 }
 
+function PickupAside({
+  tracking,
+  locale,
+}: {
+  tracking: Extract<Tracking, { fulfilment: "pickup" }>;
+  locale: Locale;
+}) {
+  const translate = useTranslations("tracking");
+  return (
+    <aside className="tracking-pickup-aside" aria-label={translate("pickupSideTitle")}>
+      <div className="tracking-pickup-heading">
+        <span aria-hidden="true">
+          <Icon name="store" size={24} />
+        </span>
+        <div>
+          <h2>{translate("pickupSideTitle")}</h2>
+          <p>{translate("pickupSideBody")}</p>
+        </div>
+      </div>
+      <Eta tracking={tracking} locale={locale} />
+      <CodeCard tracking={tracking} />
+    </aside>
+  );
+}
+
 function Ready({
   state,
   tracking,
@@ -180,7 +205,10 @@ function Ready({
   const isLive = !isTerminal(order.status);
   const showMap = tracking.fulfilment === "delivery";
   return (
-    <div className="tracking" data-map={showMap}>
+    <div
+      className={showMap ? "tracking" : "tracking decor-zellige decor-lamplight"}
+      data-map={showMap}
+    >
       {tracking.fulfilment === "delivery" ? (
         <TrackingLiveMap
           tracking={tracking}
@@ -215,6 +243,7 @@ function Ready({
           </ButtonLink>
         )}
       </section>
+      {tracking.fulfilment === "pickup" && <PickupAside tracking={tracking} locale={locale} />}
     </div>
   );
 }

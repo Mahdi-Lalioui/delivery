@@ -159,3 +159,48 @@ That fixture has three restaurants. On the richer preview catalogue, with the sa
 CLS was 0 throughout, and the LCP element is an image every time. Restaurant has the least margin, because its cover can only start loading after the restaurant JSON arrives on the client. Server-rendering that first response is the next lever.
 
 These are lab measurements in Chromium on a Mac, not on a physical Android phone.
+
+### Connected local production canary (19 November 2026)
+
+Ran against the healthy local production Compose web/API behind Caddy at
+`https://awid.localhost:18544`, with the same Pixel 7 emulation, 4× CPU throttle,
+75 ms latency and 4/1.5 Mbit/s network profile. One cold Discovery sample measured
+1,872 ms LCP, CLS 0, 59 fps average scroll (17 ms p95 frame, 0.99% long frames),
+and 64 ms / 32 ms input-to-paint for the fulfilment switch / cuisine chip.
+The LCP was an image and the page showed its restaurant rails. This single sample
+is a canary, not the three-run acceptance measurement.
+
+The Restaurant URL returned the app's retryable error state because this stack's
+`/v1/feed` returned zero restaurants and the requested slug returned 404. Its
+1,096 ms LCP is therefore invalid as a content performance result. The other
+measured app routes were empty in this stack, so their frame and tap numbers do
+not count toward acceptance. This canary is superseded by the data-backed rerun
+below. The measurement harness ignores TLS errors only when its target host is
+loopback or `.localhost`.
+
+### Data-backed connected Compose rerun (19 November 2026)
+
+To exercise the production image with a populated catalogue, the local-only
+`awid-upload-readiness` database was seeded with the repository's fictional
+Algiers restaurants. Their `is_demo` flag and approved status were temporarily
+changed only in that loopback test database for the run, then restored; the
+public feed was empty again afterward. No provider credentials or real customer
+or restaurant data was used.
+
+LCP/CLS came from three cold Pixel 7 emulation runs in Chromium against the
+production web/API/Caddy stack, at 4× CPU slowdown, 75 ms latency, 4/1.5 Mbit/s.
+Discovery displayed 24 restaurant cards; Restaurant displayed the bilingual
+seed menu, popular dishes and hours with no console/request errors.
+
+| Route | LCP (ms), 3 cold runs | CLS | Scroll fps, 3 runs | Measured taps (input → paint, ms) |
+|---|---:|---:|---:|---|
+| Discovery | 1,896 / 1,840 / 1,840 | 0 / 0 / 0 | 60 / 60 / 60 | Fulfilment 72 / 48 / 48; cuisine 32 / 32 / 32 |
+| Restaurant | 1,288 / 1,276 / 1,292 | 0 / 0 / 0 | 60 / 60 / 60 | Dish add 48 / 40 / 40; hours 32 / 32 / 32 |
+
+The run used `PERF_RESTAURANT_SLUG=demo-lune-de-semoule pnpm perf:customer-feel
+https://awid.localhost:18544 3`; the runner validates the override and ignores
+TLS errors only for loopback/`.localhost`. Discovery's favourite action was
+unavailable to a guest session. Checkout and Tracking had no fixture order, so
+their 60 fps numbers do not count. Tracking 3D tilt frame pacing remains open.
+These are throttled desktop Chromium measurements, not physical Android-device
+results.

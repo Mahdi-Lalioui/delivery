@@ -8,6 +8,7 @@ import { getFeedMessages } from "../../discovery/feed-messages";
 import "../billing/admin-billing.css";
 import "../../retention/retention.css";
 import { OperationsGallery } from "./operations-gallery";
+import { BeforeAfter } from "./before-after";
 import { LaneBGallery } from "./lane-b-gallery";
 import { SystemShowcase } from "../../design/system-showcase";
 import "../../design/system-showcase.css";
@@ -74,6 +75,15 @@ export function GalleryPage({
                 {messages.checkout.title}
               </ButtonLink>
             </nav>
+            <BeforeAfter
+              locale={locale}
+              labels={{
+                title: messages.designGallery.beforeAfterTitle,
+                intro: messages.designGallery.beforeAfterIntro,
+                before: messages.designGallery.before,
+                after: messages.designGallery.after,
+              }}
+            />
             <SystemShowcase copy={messages.designGallery} />
             <OperationsGallery
               locale={locale}

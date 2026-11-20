@@ -13,6 +13,18 @@ and cleaned scratch data after a simulated Docker cleanup error.
 The smoke run used an existing local stack image. Restart drills and full order
 journeys against a freshly built production Compose image remain open.
 
+## Latest production smoke attempt
+
+On 19 November 2026, `infra/deploy/production-smoke.sh` ran against the
+loopback-only `awid-upload-readiness` Compose project through its local Caddy
+HTTPS port with the project's local CA. API health/readiness, all configured
+headers, the 69-wilaya catalog, private test-route 404, and the `www` 308
+redirect passed. The complete smoke exited 56 at the vector-tile assertion:
+the configured host map file `/private/tmp/awid-national-assets/algeria.pmtiles`
+is absent, Martin's mounted file is empty, and Algiers plus two low-zoom tile
+requests all return 404. This is an environment asset gap, not a passed tile
+check; the exact local map setup is in [HUMAN_TODO](../../HUMAN_TODO.md).
+
 The disposable `awid-deploy-test` project recovered through Caddy after restarting
 API, worker and PostgreSQL one at a time. The API and database restarts briefly
 returned 502 and 503 respectively before the entire HTTPS smoke command passed again.

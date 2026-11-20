@@ -29,7 +29,7 @@ import { createServiceAreaRepository } from "@zaafran/db/service-area";
 import { createPublicFeedRepository } from "@zaafran/db/public-feed";
 import { createPublicRestaurantRepository } from "@zaafran/db/public-restaurant";
 import { createRoadRouter } from "@zaafran/geo/road-routing";
-import { createLocalMediaStore } from "@zaafran/media";
+import { createLocalMediaStore, type MediaStore } from "@zaafran/media";
 import type { FastifyInstance, FastifyListenOptions } from "fastify";
 import { createApi } from "./app.js";
 import { createOrderRealtimeSignals } from "./order-realtime-signals.js";
@@ -47,6 +47,7 @@ import { checkReadiness } from "./readiness.js";
 
 export interface StartOptions {
   readonly now?: () => Date;
+  readonly mediaStore?: MediaStore;
   readonly sendEmail?: NonNullable<Parameters<typeof createAuthService>[0]["sendEmail"]>;
   readonly sendSms?: Parameters<typeof createAuthService>[0]["sendSms"];
   readonly sendInvitation?: MerchantStaffServices["sendInvitation"];
@@ -81,7 +82,8 @@ export async function startApi(options: StartOptions = {}): Promise<FastifyInsta
   const merchantHours = createMerchantHoursRepository(database);
   const platform = createPlatformRepository(database);
   const publicRestaurant = createPublicRestaurantRepository(database);
-  const mediaStore = createLocalMediaStore({ root: environment.MEDIA_STORAGE_ROOT });
+  const mediaStore =
+    options.mediaStore ?? createLocalMediaStore({ root: environment.MEDIA_STORAGE_ROOT });
   const orders = createOrderRepository(database, otpKey);
   const api = createApi({
     checkReadiness: () => checkReadiness(database),

@@ -128,6 +128,40 @@ function withoutFee(restaurant: FeedRestaurant): FeedRestaurant {
   return card;
 }
 
+/** The full list, ending on a closing tile once every restaurant is shown. */
+function FeedGrid({
+  locale,
+  state,
+  filters,
+}: {
+  locale: Locale;
+  state: FeedState;
+  filters: FeedFilters;
+}) {
+  const messages = getFeedMessages(locale);
+  const { restaurants, phase } = state;
+  return (
+    <ul className="restaurant-feed-grid" role="list" aria-label={messages.heading}>
+      {restaurants.map((restaurant) => (
+        <li key={restaurant.merchantId} data-feed-restaurant={restaurant.merchantId}>
+          <FeedCard
+            restaurant={filters.fulfilment === "pickup" ? withoutFee(restaurant) : restaurant}
+            locale={locale}
+          />
+        </li>
+      ))}
+      {phase === "ready" && state.nextCursor === null && (
+        <li className="restaurant-feed-closer decor-zellige decor-lamplight">
+          <p>{messages.closerTitle}</p>
+          <a className="ui-button ui-button-secondary" href={`/${locale}/restaurants`}>
+            {messages.closerAction}
+          </a>
+        </li>
+      )}
+    </ul>
+  );
+}
+
 export function FeedContent({ locale, state, onLoad, filters = {}, onFilters }: ContentProps) {
   const { restaurants, phase } = state;
   const messages = getFeedMessages(locale);
@@ -139,18 +173,7 @@ export function FeedContent({ locale, state, onLoad, filters = {}, onFilters }: 
       <p className="restaurant-feed-announcement" role="status">
         {isLoading && (hasRestaurants ? messages.loadingMore : messages.loading)}
       </p>
-      {hasRestaurants && (
-        <ul className="restaurant-feed-grid" role="list" aria-label={messages.heading}>
-          {restaurants.map((restaurant) => (
-            <li key={restaurant.merchantId} data-feed-restaurant={restaurant.merchantId}>
-              <FeedCard
-                restaurant={filters.fulfilment === "pickup" ? withoutFee(restaurant) : restaurant}
-                locale={locale}
-              />
-            </li>
-          ))}
-        </ul>
-      )}
+      {hasRestaurants && <FeedGrid locale={locale} state={state} filters={filters} />}
       {!hasRestaurants && isLoading && <FeedSkeleton />}
       {!hasRestaurants && phase === "ready" && (
         <EmptyResults locale={locale} filters={filters} onFilters={onFilters} />

@@ -148,6 +148,51 @@
   justify-self: stretch;
 }
 
+.checkout-recap {
+  display: grid;
+  gap: var(--space-12);
+  padding: var(--space-16);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-e1);
+}
+
+.checkout-recap h3 {
+  margin: 0;
+  color: var(--color-text-2);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-label);
+}
+
+.checkout-recap p {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-12);
+  margin: 0;
+}
+
+.checkout-recap svg {
+  flex: none;
+  margin-block-start: 2px;
+  color: var(--color-accent-strong);
+}
+
+.checkout-recap span {
+  display: grid;
+  gap: var(--space-4);
+  min-inline-size: 0;
+}
+
+.checkout-recap strong {
+  font-size: var(--font-size-caption);
+}
+
+.checkout-recap bdi {
+  color: var(--color-text-2);
+  font-size: var(--font-size-caption);
+}
+
 /* Address and option cards. */
 .checkout-addresses {
   display: grid;
@@ -297,9 +342,14 @@
 }
 
 .checkout-qty {
-  display: grid;
-  place-items: center;
+  /* Inline flex, not grid: the "×" pseudo-element must sit beside the number, not under it. */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-inline-size: var(--space-24);
+  direction: ltr;
+  padding-inline: var(--space-4);
+  white-space: nowrap;
   block-size: var(--space-24);
   border-radius: var(--radius-xs);
   background: var(--color-mint-pale);
@@ -453,7 +503,7 @@
 
 /* Order confirmed: a full-screen celebration. */
 .checkout-confirmed {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cpath d='M28 4 52 28 28 52 4 28Z' fill='none' stroke='%234DE3B4' stroke-opacity='.07' stroke-width='2'/%3E%3C/svg%3E");
+  --decor-zellige-colour: rgb(242 169 0 / 0.14);
   position: fixed;
   z-index: 30;
   inset: 0;
@@ -463,8 +513,8 @@
   gap: var(--space-16);
   padding: var(--page-padding);
   overflow-y: auto;
-  background-color: var(--color-primary);
-  color: var(--color-on-primary);
+  background-color: var(--color-night);
+  color: var(--color-on-night);
   text-align: center;
 }
 
@@ -472,12 +522,25 @@
   position: absolute;
   z-index: -1;
   inset: 0;
-  background: radial-gradient(circle at 50% 45%, var(--color-primary) 30%, transparent 75%);
+  /* The lamp over the table: warm light pooling where the tagine sits. */
+  background: radial-gradient(circle at 50% 40%, var(--color-glow) 0%, transparent 55%);
   content: "";
 }
 
 .checkout-confirmed {
   isolation: isolate;
+}
+
+/* The eight-point zellige lattice in lantern gold (its own layer: this screen is fixed). */
+.checkout-confirmed::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background-color: var(--decor-zellige-colour);
+  mask-image: var(--decor-zellige);
+  mask-size: 64px;
+  pointer-events: none;
+  content: "";
 }
 
 /* The total rolls up into place whenever it changes (keyed re-mount). */
@@ -518,6 +581,22 @@
   letter-spacing: var(--letter-spacing-micro);
 }
 
+.checkout-confirmed-eta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+  margin: 0;
+  padding: var(--space-8) var(--space-16);
+  border: 1px solid color-mix(in srgb, var(--color-glow) 56%, transparent);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-glow) 20%, transparent);
+  color: var(--color-on-night);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-label);
+  font-variant-numeric: var(--font-variant-numeric-numbers);
+}
+
 .checkout-confirmed .ui-button {
   margin-block-start: var(--space-16);
   background: var(--color-mint);
@@ -530,7 +609,8 @@
   inline-size: min(72vi, 42svh, 18rem);
   aspect-ratio: 1;
   border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--color-mint) 12%, transparent);
+  background: radial-gradient(circle, rgb(255 247 232 / 0.12), transparent 70%);
+  direction: ltr;
 }
 
 .checkout-confirmed-scene :is(.tagine-3d, .tagine-moment) {
@@ -643,9 +723,11 @@
   border-radius: var(--radius-sm);
 }
 
-/* Desktop: the order summary fills the end column beside steps 1 and 2. */
+/* Phones: the order summary sits under the step, so you see what you are paying for before
+   "Continuer". Desktop: it fills the end column beside steps 1 and 2. */
 .checkout-aside {
-  display: none;
+  display: grid;
+  gap: var(--space-12);
 }
 
 @media (min-width: 1024px) {
@@ -749,4 +831,34 @@
 
 .checkout-cash .ui-field-money .ui-input-box {
   max-inline-size: 10rem;
+}
+
+/* Empty basket or sign-in: a full-height plaster panel with the zellige lattice and lamp light. */
+.checkout-blocked {
+  display: grid;
+  place-items: center;
+  min-block-size: calc(100dvb - var(--space-120) - var(--space-120));
+  padding: var(--space-32) var(--space-16);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-sand);
+}
+
+/* Tablets and up: the checkout sits on a plaster "table" that fills the page above the action bar. */
+@media (min-width: 768px) {
+  .checkout:not(:has(.checkout-blocked)) {
+    min-block-size: calc(100dvb - var(--space-120) - var(--space-80));
+    padding: var(--space-32);
+    border-radius: var(--radius-xl);
+    background-color: var(--color-sand);
+    background-image: radial-gradient(60% 80% at 100% 0%, var(--color-glow), transparent 70%);
+  }
+}
+
+.checkout:has(.checkout-blocked) {
+  max-inline-size: 72rem;
+}
+
+/* Quantities read as quantities: "2×", not a line number. */
+.checkout-qty::after {
+  content: "×";
 }

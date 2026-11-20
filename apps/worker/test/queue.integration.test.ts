@@ -8,9 +8,61 @@ import { run, runOnce } from "graphile-worker";
 import { expect, test, vi } from "vitest";
 import { registerTestDatabase } from "../../../packages/db/test/database.ts";
 import { migrateWorker } from "../src/migrate-worker.ts";
+import { attachWorkerFailureAlerts, createFakeOpsAlertAdapter } from "../src/ops-alerts.ts";
 import { createWorkerOptions } from "../src/runtime.ts";
 
 const database = registerTestDatabase();
+
+test("[NFR-07] exhausted synthetic watchdog jobs create one PII-safe alert", async () => {
+  const connection = database.get();
+  const databaseUrl = database.url();
+  await migrateWorker(databaseUrl);
+  const checkId = randomUUID();
+  const fake = createFakeOpsAlertAdapter();
+  const worker = createWorkerOptions(databaseUrl, connection, {
+    store: createLocalMediaStore({ root: tmpdir() }),
+    checkOpsHealth: () => Promise.reject(new Error("synthetic-private-error")),
+  });
+  const runner = await run({ ...worker, noHandleSignals: true });
+  let detach: (() => void) | undefined;
+  let failedJobId: string | undefined;
+
+  try {
+    detach = attachWorkerFailureAlerts(runner.events, fake.send);
+    const failed = new Promise<string>((resolve) => {
+      runner.events.once("job:failed", ({ job }) => {
+        resolve(job.id);
+      });
+    });
+    await connection.sql`
+      select graphile_worker.add_job(
+        'ops.watchdog', json_build_object('checkId', ${checkId}::text), max_attempts => 1
+      )
+    `;
+    failedJobId = await failed;
+    expect(fake.outbox).toEqual([
+      expect.objectContaining({
+        key: `ops:job-failed:${failedJobId}`,
+        taskIdentifier: "ops.watchdog",
+        attempts: 1,
+      }),
+    ]);
+    expect(JSON.stringify(fake.outbox)).not.toContain(checkId);
+    expect(JSON.stringify(fake.outbox)).not.toContain("synthetic-private-error");
+    expect(
+      await connection.sql`SELECT FROM public.job_effects WHERE effect_key = ${checkId}`,
+    ).toEqual([]);
+  } finally {
+    if (failedJobId) {
+      await connection.sql`
+        delete from graphile_worker._private_jobs where id = ${failedJobId}
+      `;
+    }
+    detach?.();
+    await runner.stop();
+    await runner.promise;
+  }
+});
 
 test("[M0-7] the migrated queue processes duplicate watchdog jobs into one health check", async () => {
   const connection = database.get();

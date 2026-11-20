@@ -1,9 +1,9 @@
 {
   "light": {
-    "bg": "#FFFCF5",
+    "bg": "#FBF6EC",
     "surface": "#FFFFFF",
-    "surface-2": "#F1F8F3",
-    "surface-3": "#DCEFE4",
+    "surface-2": "#F3F6EF",
+    "surface-3": "#E2EEE3",
     "border-subtle": "#E1ECE5",
     "border-strong": "#5F7D70",
     "text": "#0B3D2E",
@@ -31,20 +31,27 @@
     "accent-strong": "#007A5A",
     "mint": "#4DE3B4",
     "mint-pale": "#D9FCE7",
-    "cream": "#FFF8E6",
+    "cream": "#F6EAD2",
     "on-accent": "#06231A",
     "on-photo": "#FFFFFF",
     "food-couscous": "#E9C46A",
     "food-saffron": "#F2A900",
     "food-steam": "#FFF7E8",
-    "photo-scrim": "rgb(4 26 19 / 0.72)"
+    "photo-scrim": "rgb(4 26 19 / 0.72)",
+    "night": "#062A1F",
+    "on-night": "#FBF3E4",
+    "sand": "#F1E2C4",
+    "terracotta": "#B4512A",
+    "glow": "rgb(255 176 72 / 0.30)",
+    "zellige": "rgb(0 122 90 / 0.13)",
+    "plaster": "rgb(255 250 240 / 0.72)"
   },
   "dark": {
-    "bg": "#05221A",
-    "surface": "#0A2D22",
-    "surface-2": "#0F372A",
-    "surface-3": "#164434",
-    "border-subtle": "#1B4C3C",
+    "bg": "#03180F",
+    "surface": "#072319",
+    "surface-2": "#0B2D21",
+    "surface-3": "#11392B",
+    "border-subtle": "#173F31",
     "border-strong": "#6F9C8A",
     "text": "#F1FBF6",
     "text-2": "#C5DDD3",
@@ -77,6 +84,13 @@
     "food-couscous": "#E9C46A",
     "food-saffron": "#F2A900",
     "food-steam": "#FFF7E8",
-    "photo-scrim": "rgb(4 26 19 / 0.72)"
+    "photo-scrim": "rgb(4 26 19 / 0.72)",
+    "night": "#0B3426",
+    "on-night": "#FBF3E4",
+    "sand": "#1C3A2D",
+    "terracotta": "#E8845A",
+    "glow": "rgb(255 176 72 / 0.20)",
+    "zellige": "rgb(77 227 180 / 0.09)",
+    "plaster": "rgb(7 35 25 / 0.72)"
   }
 }

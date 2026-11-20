@@ -32,8 +32,10 @@ async function addMember(merchantId: string, userId: string, role: string) {
 
 test("[MER-23:http] an owner invites by SMS and the invited phone joins with that role", async () => {
   const texts: { phone: string; token: string }[] = [];
-  const api = await openApi(undefined, ({ phone, token }) => {
-    texts.push({ phone, token });
+  const api = await openApi(undefined, {
+    sendInvitation: ({ phone, token }) => {
+      texts.push({ phone, token });
+    },
   });
   const owner = await seedActor("+213500000071", "standard");
   const invitee = await seedActor("+213550000072", "standard");
@@ -78,7 +80,7 @@ test("[MER-23:http] an owner invites by SMS and the invited phone joins with tha
 });
 
 test("[MER-23:http] managers, staff and another restaurant's owner cannot manage staff", async () => {
-  const api = await openApi(undefined, () => undefined);
+  const api = await openApi(undefined, { sendInvitation: () => undefined });
   const owner = await seedActor("+213500000081", "standard");
   const manager = await seedActor("+213500000082", "standard");
   const staff = await seedActor("+213500000083", "standard");

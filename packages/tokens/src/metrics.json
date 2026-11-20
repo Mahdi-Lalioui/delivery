@@ -60,7 +60,7 @@
     }
   },
   "common": {
-    "font-display": "var(--font-poppins, Poppins), var(--font-ibm-plex-sans-arabic, system-ui), system-ui, sans-serif",
+    "font-display": "var(--font-fraunces, Fraunces), Georgia, var(--font-ibm-plex-sans-arabic, system-ui), serif",
     "font-ui": "var(--font-poppins, Poppins), var(--font-ibm-plex-sans-arabic, system-ui), system-ui, sans-serif",
     "font-numbers": "var(--font-poppins, Poppins), system-ui, sans-serif",
     "font-variant-numeric-numbers": "tabular-nums",
@@ -99,7 +99,7 @@
   },
   "arabic": {
     "properties": {
-      "font-display": "var(--font-ibm-plex-sans-arabic, 'IBM Plex Sans Arabic'), var(--font-poppins, Poppins), system-ui, sans-serif",
+      "font-display": "var(--font-el-messiri, 'El Messiri'), var(--font-fraunces, Fraunces), var(--font-ibm-plex-sans-arabic, 'IBM Plex Sans Arabic'), serif",
       "font-ui": "var(--font-ibm-plex-sans-arabic, 'IBM Plex Sans Arabic'), var(--font-poppins, Poppins), system-ui, sans-serif",
       "letter-spacing-display-xl": "normal",
       "letter-spacing-micro": "normal",

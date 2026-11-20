@@ -54,6 +54,7 @@ const workerEnvironment = z
       .regex(/^[!-~]+$/u)
       .optional(),
     AUTH_RESEND_FROM: z.email().max(254).optional(),
+    OPS_ALERT_EMAIL: z.email().max(254).optional(),
     VAPID_PUBLIC_KEY: pushPublicKey.optional(),
     VAPID_PRIVATE_KEY: z
       .string()
@@ -81,6 +82,14 @@ const workerEnvironment = z
     {
       path: ["AUTH_RESEND_FROM"],
       message: "Set both Resend settings or omit both.",
+    },
+  )
+  .refine(
+    ({ OPS_ALERT_EMAIL, AUTH_RESEND_API_KEY: apiKey, AUTH_RESEND_FROM: from }) =>
+      !OPS_ALERT_EMAIL || Boolean(apiKey && from),
+    {
+      path: ["OPS_ALERT_EMAIL"],
+      message: "Configure Resend before enabling operations email alerts.",
     },
   )
   .refine(

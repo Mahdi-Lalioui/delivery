@@ -43,6 +43,12 @@ export async function appendOrderEvent(sql: TransactionSql, event: OrderEvent) {
 
 async function enqueueOrderNotification(sql: TransactionSql, event: OrderEvent) {
   const queue = ["order", "notification", event.orderId].join(":");
+  const [customer] = await sql<{ customerId: string }[]>`
+    SELECT customer_id AS "customerId" FROM public.orders WHERE id = ${event.orderId}
+  `;
+  if (customer?.customerId) {
+    await sql`SELECT set_config('awid.customer_id', ${customer.customerId.toLowerCase()}, true)`;
+  }
   await sql`
     WITH channel AS (
       SELECT CASE WHEN EXISTS (

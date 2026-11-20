@@ -219,3 +219,52 @@ test("[MER-09:http] [MER-23:http] staff receives only availability fields on the
   });
   expect((await staffClient.listItems(categoryId)).statusCode).toBe(404);
 });
+
+test("[AUTH-07][MER-09] another restaurant owner cannot edit, duplicate, hide or archive an item", async () => {
+  const api = await openApi();
+  const ownerA = await seedActor("+213500000058", "standard");
+  const ownerB = await seedActor("+213500000059", "standard");
+  const restaurantA = await seedMenuMerchants(ownerA.userId, "1606");
+  const restaurantB = await seedMenuMerchants(ownerB.userId, "1607");
+  const clientA = menuClient(api, ownerA, restaurantA.owned);
+  const clientB = menuClient(api, ownerB, restaurantB.owned);
+  const categoryA = await createCategory(clientA);
+  const created = await clientA.write({ path: "/items", payload: newItem(categoryA) });
+  expect(created.statusCode).toBe(201);
+  const original = menuItemWriteOutput.parse(created.json());
+  const categoryB = await createCategory(clientB);
+  const itemPath = "/items/" + original.item.itemId;
+  const revision = 1;
+
+  const denied = await Promise.all([
+    clientB.write({
+      method: "PUT",
+      path: itemPath,
+      payload: { ...newItem(categoryB), expectedRevision: revision, priceDzd: 1_500 },
+    }),
+    clientB.write({
+      method: "POST",
+      path: itemPath + "/duplicate",
+      payload: { expectedRevision: revision },
+    }),
+    clientB.write({
+      method: "PUT",
+      path: itemPath + "/availability",
+      payload: { availability: "end_of_day", expectedRevision: revision },
+    }),
+    clientB.write({
+      method: "POST",
+      path: itemPath + "/archive",
+      payload: { expectedRevision: revision },
+    }),
+  ]);
+  expect(denied.map((response) => response.statusCode)).toEqual([404, 404, 404, 404]);
+  expect(menuItemPageOutput.parse((await clientB.listItems(categoryB)).json())).toMatchObject({
+    revision: 1,
+    items: [],
+  });
+  expect(menuItemPageOutput.parse((await clientA.listItems(categoryA)).json())).toMatchObject({
+    revision: 2,
+    items: [original.item],
+  });
+});

@@ -26,7 +26,7 @@ Codex appends items here (what, why, exact steps). Mahdi ticks them. Items marke
 - [ ] **[before launch, if using the webhook instead of Twilio]** Connect the authentication SMS gateway. Register a transactional sender ID and configure an HTTPS endpoint that accepts bearer authentication, a JSON body with `to` and `text`, and `Idempotency-Key` deduplication. Put its endpoint and credential in `AUTH_SMS_WEBHOOK_URL` and `AUTH_SMS_WEBHOOK_TOKEN` in the API secret file. Confirm sign-in, deletion and staff-invitation delivery on approved Mobilis, Djezzy and Ooredoo test numbers. [Gateway contract](DEPLOY.md#sms-webhook)
 - [ ] **[phone/email phase]** Open the Twilio Console, enable sending to Algeria, and register a branded domestic alphanumeric sender for AWID. Request it early. Twilio lists a two-week provisioning estimate and flags delivery problems with generic or numeric senders on Mobilis. After approval, put the account SID, auth token and sender into the API and worker secret files, then verify delivery on approved Mobilis, Djezzy and Ooredoo test numbers. [Twilio Algeria SMS guidelines](https://www.twilio.com/en-us/guidelines/dz/sms)
 - [ ] **[phone/email phase]** Add an AWID-owned transactional subdomain to Resend. Publish the exact SPF and DKIM records shown in its Domains dashboard and wait for Verified status. Create a sending key scoped to the domain, put it and the sender address in the API and worker secret files, and confirm Arabic, French and English OTP emails on approved test inboxes. [Resend domain setup](https://resend.com/docs/dashboard/domains/introduction)
-- [ ] Telegram bot token (or an email address) for alerts.
+- [ ] **[before launch]** Configure monitored worker alerts: after Resend sender verification, set `AUTH_RESEND_API_KEY`, `AUTH_RESEND_FROM` and `OPS_ALERT_EMAIL` in `/etc/awid/worker.env`; restart the worker and confirm an approved synthetic exhausted-job incident reaches that inbox. Keep the recipient and credentials server-side. The synthetic local path is proven in [worker alert evidence](evidence/awid/ops-alerts.md); external delivery still needs this check.
 - [ ] Chargily Pay account, for restaurants paying their subscription online (optional at launch).
 - [ ] (Optional) LLM API key, for menu import from photos (feature flag `menu_photo_import`).
 
@@ -115,3 +115,7 @@ Steps:
 8. Record the numbers and phone model in `docs/evidence/awid/perf.md` under "Physical Android check". Tell lane B about any route that fails; DevTools → Performance → "Save profile" gives a file lane B can read.
 
 When done, run `adb reverse --remove-all` and stop the server with Ctrl+C.
+
+## 10× local load run
+
+To prove the k6 placement/position target without disabling production abuse limits, prepare an isolated synthetic load environment with k6 2.3.0, local production Compose dependencies, and at least 350 source IPs routed through Caddy. The default 700 combined requests/second workload needs 350 IPs at the API's shared 120 requests/minute per-IP limit. Keep all data synthetic and do not point the run at production. Then follow [the load guide](../load/README.md) to prepare 30,000 unique quotes plus 1,000 courier session/order fixtures, run `k6 run load/pilot.js` with the exact environment variables, and save the output in `docs/evidence/awid/k6/`.

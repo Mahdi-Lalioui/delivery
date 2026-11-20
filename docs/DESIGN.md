@@ -1,6 +1,41 @@
 # DESIGN — AWID
 
-AWID ("You're in need, try AWID") should feel fresh, confident, appetising and unmistakably Algerian. Cream and white surfaces, deep green for structure, mint for energy, and food photography as the hero of every screen. Brand source: `docs/brand/awid-reference.jpg` (a starting point, not a layout to copy). Supersedes "Casbah Saffron" (DECISIONS D-B05).
+AWID ("You're in need, try AWID") should feel like the most beautiful food app people have used: alive, warm, premium, unmistakably Algerian, and still effortless. Brand source: `docs/brand/awid-reference.jpg`. The **Dar Zellige** direction (§0, D-036) supersedes the colour, type, gradient and decor rules below wherever they conflict.
+
+## 0. Direction — Dar Zellige
+
+**Concept.** A lit Algiers courtyard at dusk: deep zellige greens, lantern-gold light on plaster, harissa and terracotta warmth, and the food at the centre of the table. Calm structure, rich surfaces, one warm light source per view.
+
+**Palette.**
+- **Plaster:** the light `bg` is `#FBF6EC`, a warm plaster; `cream` is `#F6EAD2`; `sand` is `#F1E2C4` for warm bands.
+- **Night garden:** `night` is `#062A1F` in light and `#0B3426` in dark, with `on-night` `#FBF3E4` (≥ 7:1). It is used for hero bands such as Discovery's greeting. The dark theme goes deeper (`bg #03180F`, `surface #072319`), so photos and gold light glow.
+- **Light:** `glow` is a soft saffron light used only in radial lamp-light gradients. `zellige` is the lattice colour. `terracotta` is for decor accents, never text.
+- Deep green stays the text and primary colour, and harissa stays reserved for live and offer accents. Contrast pairs, including `on-night` on `night` and `text` on `sand`, are tested in both themes.
+
+**Type.**
+- **Display (h1, display, restaurant and dish names, section titles):** Fraunces 600/700 for Latin, a warm, soft-serifed face with real character. El Messiri 600/700 for Arabic, a calligraphic naskh–kufic hybrid.
+- **UI and body:** Poppins and IBM Plex Sans Arabic, unchanged, so every control, price and line of body text stays as readable as before. Numbers stay tabular Poppins.
+- All fonts are SIL OFL WOFF2 files served by the app (`apps/web/src/fonts`).
+
+**Decor system** (`apps/web/src/app/dar-zellige.css`, CSS and inline SVG only, nothing fetched):
+- `decor-zellige`: an eight-point star lattice drawn through a mask in the theme's colour.
+- `decor-lamplight`: two soft saffron pools of light.
+- `decor-divider`: a thin rule with a star.
+- A 3 % paper grain over every page.
+- Decor never carries content, never takes events and never competes with food photos. Gradients are allowed only as light: lamp pools, photo scrims and the divider fade.
+
+**Motion language: "settle".** Things arrive like a dish set on a table: a short rise with a soft spring, then stillness.
+- Page and shared-element transitions use the View Transitions API.
+- Numbers roll, add-to-cart flies, and the order-confirmed tagine lifts its lid.
+- Under `prefers-reduced-motion`, every transition becomes an instant cut.
+
+**Full pages.** No dead space at any width:
+- short pages fill the viewport and end on a designed footer or decor;
+- wide screens use columns and side panels;
+- rails end on a peeking card and grids end cleanly;
+- every state is illustrated.
+
+`e2e/page-fullness.spec.ts` (with `pnpm audit:fullness`) checks this.
 
 ## 1. Principles
 
@@ -49,14 +84,14 @@ Deep green night, not grey: `bg #05221A`, `surface #0A2D22`, `surface-2 #0F372A`
 - Text and primary buttons use deep green. `#00A37A` is for large shapes, icons and accents: white small text on it fails contrast.
 - Mint is energy, never body text on light backgrounds.
 - Status is never colour alone.
-- The only gradients are photo scrims (`transparent → rgb(4 26 19 / .7)`) and the icon's wave; no decorative colour gradients.
+- Gradients are light, never decoration for its own sake: photo scrims, lamp-light pools (`glow`) and divider fades (Dar Zellige, §0).
 - Theme follows the system; users can override. Both themes are designed, not inverted.
 
 ## 4. Typography
 
 | Role | Latin | Arabic |
 |---|---|---|
-| Display / headlines | **Poppins** 700 | **IBM Plex Sans Arabic** 600 |
+| Display / headlines | **Fraunces** 600 / 700 | **El Messiri** 600 / 700 |
 | UI / body | Poppins 400 / 500 / 600 | IBM Plex Sans Arabic 400 / 500 / 600 |
 | Numbers | Poppins `tabular-nums` (prices, timers, ETAs, codes) | same, Latin digits |
 

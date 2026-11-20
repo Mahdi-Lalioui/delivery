@@ -290,3 +290,12 @@ Signed-in identifier-change OTP requests share a per-account budget of three req
 ## D-035 · Audit exception for GHSA-fc5q-39xc-vjpf (2026-11-18)
 
 Mahdi's decision: `pnpm-workspace.yaml` `auditConfig.ignoreGhsas` ignores only GHSA-fc5q-39xc-vjpf, the `picomatch` ReDoS with no patched release, which is reached solely by build and test tooling. Every other advisory still fails `pnpm audit`. Reasoning and re-check steps are in docs/SECURITY_REVIEW.md.
+
+## D-036 · Dar Zellige: the creative direction (2026-11-18)
+
+Mahdi gave lane B full creative freedom for a "wow" pass, and the Dar Zellige direction (DESIGN §0) replaces the earlier colour, type and decor rules where they conflict:
+- **Palette:** warm plaster light theme, a deeper night-garden dark theme, and new `night`, `on-night`, `sand`, `terracotta`, `glow`, `zellige` and `plaster` tokens.
+- **Type:** Fraunces (Latin) and El Messiri (Arabic) as display faces, self-hosted SIL OFL WOFF2 files of 12–23 KB each. Poppins and IBM Plex Sans Arabic stay for UI and body.
+- **Decor:** a CSS-only zellige, lamp-light, divider and grain system.
+
+The performance, accessibility and RTL guardrails still apply. The contrast test covers the new pairs.

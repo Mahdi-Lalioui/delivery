@@ -41,7 +41,10 @@ export function DiscoveryExperience({ locale }: { locale: Locale }) {
 
   return (
     <>
-      <section className="discover-top" aria-labelledby="discover-title">
+      <section
+        className="discover-top decor-zellige decor-lamplight"
+        aria-labelledby="discover-title"
+      >
         <DiscoveryLocationSelector locale={locale} saved={saved ?? null} onConfirm={confirm} />
         <div className="discover-greeting">
           <h1 id="discover-title">{messages.greeting}</h1>

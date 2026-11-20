@@ -83,3 +83,59 @@ Final contact sheets: [ar-390](evidence/awid/final/sheet-ar-390.jpg), [fr-390](e
   - Steps for Mahdi are in [HUMAN_TODO](HUMAN_TODO.md).
 - **Two fixes came after round 4** (the checkout step alignment and the gallery chevrons, marked in the table); they were measured but not re-scored. The Pickup footer and the confirmation cloche drawing remain open.
 - **A physical Android check** of frame rate, layout shift and tap latency: exact steps for Mahdi are in [HUMAN_TODO](HUMAN_TODO.md) ("Real-phone check of the customer screens").
+
+## Lane B: Dar Zellige creative pass (18 November 2026)
+
+Mahdi gave lane B full creative freedom. The concept is **Dar Zellige**: a lit Algiers courtyard at dusk (DESIGN §0, D-036).
+
+### What changed
+
+- **Palette.** A warm plaster light theme and a deeper night-garden dark theme. New `night`, `on-night`, `sand`, `terracotta`, `glow`, `zellige` and `plaster` tokens. Surfaces that turned bright mint in dark mode (the restaurant band, order confirmed, the pickup and delivery code card) now use `night` in both themes. Codes and stats are lantern gold. The contrast test passes in both themes, including the new pairs.
+- **Type.** Fraunces (Latin) and El Messiri (Arabic) are the display faces: SIL OFL WOFF2 files of 12–23 KB each, served from the app. Poppins and IBM Plex Sans Arabic remain the UI and body faces.
+- **Decor** (CSS and inline SVG only, nothing fetched): an eight-point zellige lattice mask in the theme's colour, saffron lamp-light pools, a starred divider and a 3 % paper grain. Used on:
+  - Discovery's night-garden header;
+  - the landing ornament and zellige border;
+  - the confirmed moment;
+  - sign-in, the cart, the empty basket, pickup tracking and rating panels;
+  - the footer.
+- **Motion "settle".** Scroll-driven, transform-only rises on cards, sections, dishes and orders, plus soft page cross-fades. All of it is off under reduced motion.
+- **Full pages.** `pnpm audit:fullness` checks 15 pages × 8 widths (360–1920) × Arabic and French × light and dark, 480 checks in all. Each fails if any empty rectangle covers more than 30 % of the viewport, at the top or the bottom of the page. The last full run had 0 failures, and `e2e/page-fullness.spec.ts` runs the core set in CI. To fill the space:
+  - the checkout is a plaster table;
+  - rating and account use two columns;
+  - the empty basket, sign-in and cart are illustrated full-height panels;
+  - grids end on a closing tile that spans the remaining columns;
+  - favourites share the row;
+  - the footer meets the page's bottom edge.
+- **Details.**
+  - Live orders come first.
+  - Quantities read "1×".
+  - Cash uses a banknote icon.
+  - Phones see the order summary before "Continuer".
+  - Menu categories load a screen ahead.
+- **Before/after gallery.** `/[locale]/dev/gallery` (design build only) shows each screen before and after.
+
+### Measurements (throttled Android profile in Chromium on a Mac)
+
+| Check | Result |
+|---|---|
+| axe, 44 px targets, visible focus (15 routes × 4 variants) | 0 / 0 / 0 |
+| Fullness (480 checks) | 0 failures |
+| Initial JS per route | unchanged, 135–164 KB (fonts are not JS) |
+| Connected LCP | Discovery 1.73–1.80 s, Restaurant 1.51–1.54 s, CLS 0 |
+| Scroll | 60 fps, CLS 0 on all four routes |
+| Taps | ≤ 72 ms alone. The cuisine chip or heart takes about 100 ms when tapped during the pickup map's first frame (known contention) |
+
+### Fresh design-critic scores (round 3, weakest variant, 1–10)
+
+Discover 9 · restaurant 8.5 · sign-in 8.5 · rating 8.5 · landing 8 · pickup 8 · confirmed 8 · tracking 8 · account 7.5 · checkout 7.5 · pickup tracking 7.5 · orders 7.5 · waiting 7 · operations 7 · payment 6.5. Round 1 had ranged from 4 to 8. Payment's 6.5 came from the quantity-badge wrap, fixed afterwards (`6f04522`) and not re-scored.
+
+**What still holds screens below 10:**
+- **Lane A data:** tracking and waiting map pins and bounds, and the partner screens.
+- **Placeholders:** letter logos until restaurants upload their own.
+- **Catalogue size:** 15 licensed demo photos repeat across restaurants.
+- **Motion:** can't be judged from stills.
+- **Former Lane B design handoff (completed 19 November):** pickup-mode heading; server ETA beside the tagine on confirmation; address and time recap on payment; a desktop pickup tracking location/code panel; a desktop order-history favourites rail; French footer localization. The author captured and inspected the 390 px Arabic and 1280 px French variants in [`docs/evidence/awid/lane-a-design/`](evidence/awid/lane-a-design/). These captures are not an independent critic score or real-device measurement.
+
+### Not done
+
+- **Third-party skills and SkillSpector:** not installed; they would download and run code from outside repositories. The repo's Playwright, axe and audit scripts did the work, along with the installed UI UX Pro Max guidance.

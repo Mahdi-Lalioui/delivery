@@ -24,6 +24,10 @@ courier and administrator routes. All checks use synthetic data on local infrast
   `pnpm test:int` passed 51 files and 348 tests against local PostgreSQL. The
   route inventory and broad tenant regressions are green; the route-by-route
   ownership map is still being checked, so the isolation readiness item remains open.
+- On 19 November, `pnpm exec vitest run --config vitest.integration.config.ts
+  apps/api/test/admin-audit-session.integration.test.ts` passed against local
+  PostgreSQL. A live admin reads its audit record; guest, customer and revoked
+  admin sessions are denied without the record's marker or actor identifier.
 - `pnpm test:int apps/api/test/auth.integration.test.ts apps/api/test/media-reservation.integration.test.ts`
   passed 13 tests against PostGIS. It covers real phone and email OTP attempts, shared IP
   quota, resend cooldown, HMAC storage, TOTP and upload reservations.
@@ -33,6 +37,14 @@ courier and administrator routes. All checks use synthetic data on local infrast
   2,081 unit, 4 native and 349 PostgreSQL integration tests passed; lint,
   typecheck, production build, OpenAPI, Knip, dependency-cruiser, audit and trace
   also exited zero. Browser E2E remains separate from this verification script.
+- On 19 November, `gitleaks detect --source . --redact --no-banner` scanned
+  597 commits and 12.05 MB of local repository history with no leaks found.
+  This result covers the local checkout's reachable history, not unreachable
+  Git objects or remote-only refs.
+- Fresh history scan on `f5210549`: `gitleaks git
+  --log-opts=--all --redact --no-banner --verbose` scanned 621 reachable commits
+  and 12.16 MB across local refs with no leaks. This is a local-ref scan, not a
+  scan of unreachable Git objects or commits never fetched from remotes.
 - All six structured logger tests passed.
 - Local scanner pass on 18 November: Semgrep `p/security-audit` scanned 918
   first-party files with zero findings; TruffleHog found no verified secrets;
@@ -47,13 +59,53 @@ courier and administrator routes. All checks use synthetic data on local infrast
   vuln,secret`: zero high or critical findings and zero image secrets. The
   patched Node base is pinned to the `node:26.13.1-trixie-slim` manifest digest;
   both Debian images apply `apt-get upgrade` during build. The isolated scanner
-  image is pinned to ClamAV 1.5.4 and applies `apk upgrade`.
+  image is pinned to ClamAV 1.5.5 and applies `apk upgrade`; its runtime user
+  is `clamav` after the package-update build step.
 - The companion unfiltered Trivy reports contain no fixed high/critical
   versions for 11 unique CVEs in Debian 13.7 packages (46 package/CVE matches
   per Node image); ClamAV has no reported vulnerabilities. These remaining
   findings, package groups, runtime reachability limits and recheck date are
   recorded below. They are not suppressed from the audit; no further image
   changes are planned for them until a fixed Debian release appears.
+
+On 20 November, the rebuilt ClamAV 1.5.5 image passed Trivy 0.76.2 with
+`--ignore-unfixed --scanners vuln,secret`: zero high/critical findings and zero
+image secrets. ClamAV scanned the current-source archive with zero detections.
+Its Dockerfile test asserts the 1.5.5 digest pin, root-only package update step,
+and non-root `clamav` runtime user.
+
+The local Nuclei 3.11.1 run against the production Compose Caddy listener
+completed with OAST and template updates disabled. It emitted ten informational
+missing-header observations while probing the HTTP redirect; no high/critical
+finding was reported. Required page/API security headers remain asserted by
+dedicated route and response-header tests, so redirect-only informational
+results are not treated as proof of header regressions.
+
+Current-source scans at `f5210549`:
+
+- Semgrep `p/security-audit` scanned 1,284 tracked files with 101 rules;
+  zero findings.
+- Trivy 0.76.2 filesystem scan (`vuln,secret,misconfig`, `--ignore-unfixed`)
+  found zero high/critical vulnerabilities, zero secrets and zero high/critical
+  misconfigurations. One medium finding treats the locally built `heic` stage
+  alias as an unpinned image; four low findings are Dockerfile healthchecks,
+  while the production Compose services define their healthchecks.
+- TruffleHog 3.99.9 scanned 47,096,252 bytes and found zero verified secrets.
+  Three unverified pattern matches are synthetic fixtures in
+  `apps/api/test/privacy-http.test.ts`,
+  `apps/worker/test/privacy-media.test.ts` and
+  `packages/contracts/test/push.test.ts`; raw values were not committed to the
+  scan report.
+
+Third-party security-skill execution was rejected after NVIDIA SkillSpector's
+static scan. Cloudflare `security-audit-skill` scored 86 with a critical
+`DO_NOT_INSTALL` recommendation and 78.3% analysis coverage; Claude-Red scored
+100 with a critical `DO_NOT_INSTALL` recommendation and 86.5% coverage, with
+reverse-shell payload signatures among the detected patterns. These results
+are conservative scanner signals, not proof of malicious behavior. Neither
+skill was installed or run against the repository. Strix was skipped because
+no LLM key is available, and no OpenAI Codex Security tool is exposed in this
+environment.
 
 ## OTP abuse and delivery limits
 
@@ -88,13 +140,126 @@ verify that another account or restaurant cannot access private uploads.
 - [Published variants](../packages/media/test/photo-crop.test.ts)
 - [Private media isolation](../apps/api/test/media-reservation.integration.test.ts)
 
+## Worker alerts (NFR-07)
+
+Worker jobs emit an operations alert only after Graphile Worker marks the job
+permanently failed (`attempts >= max_attempts`). The alert adapter receives a
+stable key, trusted internal task identifier, attempt count and timestamp; it
+never receives the job payload or thrown error. The optional Resend adapter
+uses the stable key as its idempotency key and escapes dynamic content in HTML.
+An exhausted synthetic watchdog incident on local Postgres reaches the fake
+outbox once; duplicate adapter sends deduplicate. [Unit and integration proof](evidence/awid/ops-alerts.md).
+
+No provider credentials or destination are configured in this checkout, so
+external delivery is unverified and the readiness item remains open. Failed
+provider delivery is logged with only task name and attempt count; without an
+external error-tracking sink this log alone is not an alert. See [HUMAN_TODO](HUMAN_TODO.md).
+
 ## Verification remaining
 
-Review the route and role inventory, then verify tenant and customer scoping through
-the API and PostGIS. Exercise OTP enumeration, attempt caps and delivery rate limits.
-Verify session binding and revocation, CSRF, CSP, headers, rate
-limits, secret handling and the dependency audit. Record commands and results here as
-they pass, then rerun the full security and reliability pass from scratch.
+The 19 November connected Postgres tests extend tenant evidence for courier
+completion, merchant order commands, customer addresses/quotes, ratings/reorder,
+admin orders/dashboard/billing/platform/moderation/applications, and privacy
+export/deletion. The route/resource map links each regression:
+[tenant-isolation.md](evidence/awid/tenant-isolation.md). OTP limits, upload
+validation, session fixation, API CSP, web/Caddy headers, CSRF and log redaction
+have existing passing evidence in this review. These checks are not a substitute
+for closing the remaining gaps below.
+
+The verified-identifier API now also has an owner-versus-outsider regression:
+a second session of the same account and a different account cannot use the
+email challenge, neither row changes, and the original session can still attach
+the verified email. The connected Postgres API test passes at
+`apps/api/test/auth.integration.test.ts`.
+
+Device-session routes now have a connected two-account check: lists are scoped
+to each customer, a foreign session-id revoke returns concealed 404 and leaves
+the target session active, the owner can revoke its own device, and account-wide
+logout leaves the other customer's session usable and unrevoked in Postgres.
+
+The customer-favourites endpoints now also have a production-wired, real-cookie
+two-customer regression. Each customer sees only their own restaurant list, and
+unfavouriting a public restaurant under one account leaves the other account's
+relationship intact. See
+[customer-favourites-session.integration.test.ts](../apps/api/test/customer-favourites-session.integration.test.ts).
+
+Merchant promotion list/create/update now also have a real-session, two-tenant
+regression: foreign owners and customers receive concealed 404s, and denied
+writes produce no promotion row or command receipt. See
+[merchant-promotions-session.integration.test.ts](../apps/api/test/merchant-promotions-session.integration.test.ts).
+
+Menu category list/create/rename/reorder also have a real-session cross-tenant
+regression; foreign requests return 404 without changing rows or receipts. See
+[menu-category-session.integration.test.ts](../apps/api/test/menu-category-session.integration.test.ts).
+
+Merchant billing and invoice read routes now have a production-wired Postgres
+session regression: each owner can read its own routes, while foreign owners and
+customers receive concealed 404s for another restaurant. See
+[billing-session.integration.test.ts](../apps/api/test/billing-session.integration.test.ts).
+
+Merchant analytics and review read routes have the same real-session isolation
+coverage: the owning restaurant succeeds, while a foreign owner and customer
+receive concealed 404s. See
+[merchant-insights-session.integration.test.ts](../apps/api/test/merchant-insights-session.integration.test.ts).
+
+Admin billing subscription, invoice and transfer-proof lists now have a
+production-wired real-session regression. Active admins see seeded records;
+customers, restaurant owners, guests and revoked admins cannot read them. See
+[admin-billing-session.integration.test.ts](../apps/api/test/admin-billing-session.integration.test.ts).
+
+Bulk menu-price preview and apply now cover mixed-tenant items and owner A
+requesting owner B's valid menu resources. Undo also denies a foreign batch
+under both the caller's own restaurant URL and the foreign URL. The regression
+compares prices, menu revisions, batches, price history and command receipts
+before/after denial: [menu-price-session.integration.test.ts](../apps/api/test/menu-price-session.integration.test.ts).
+
+Hours, Ramadan schedule, pause, hours preview and delivery settings reads now
+have production-wired owner-versus-outsider Postgres coverage; foreign owners
+and customers receive concealed 404s across all five routes. The matching
+settings writes deny foreign owner/customer sessions across all four write
+routes without creating data or command receipts. See
+[merchant-settings-session.integration.test.ts](../apps/api/test/merchant-settings-session.integration.test.ts).
+
+The restaurant profile-photo API now also has real-cookie owner/outsider
+coverage. Foreign owner and customer read/write requests receive concealed 404s
+and leave both restaurant photo fields and command receipts unchanged. See
+[merchant-profile-photos-session.integration.test.ts](../apps/api/test/merchant-profile-photos-session.integration.test.ts).
+
+The private media lifecycle also has connected owner/outsider coverage. An
+outsider cannot upload bytes or submit a crop, and those denials preserve the
+reservation, receipts, jobs and quarantine storage. For private variants, the
+owner can fetch bytes while an outsider gets 404 without a storage read, proven
+by an injected store counter. See
+[media-lifecycle-session.integration.test.ts](../apps/api/test/media-lifecycle-session.integration.test.ts).
+
+Open security review items:
+
+- Complete the exhaustive registered-route-to-resource ownership map. Connected
+  tests now cover high-risk routes, but not every customer, merchant, courier and
+  administrator endpoint. See the explicit omissions in
+  [tenant-isolation.md](evidence/awid/tenant-isolation.md).
+- Trace every input schema and query through SQL, process and HTML boundaries;
+  adversarial input coverage is not yet complete. No new injectable defect was
+  confirmed in the latest source review.
+- The current abuse-limit inventory is recorded in
+  [rate-limits.md](evidence/awid/rate-limits.md). The shared Fastify limiter is
+  process-local; do not horizontally scale until a shared store is configured
+  and tested. External provider spend limits remain unverified without live
+  credentials.
+- Finish API header coverage on success, 404 and 5xx paths and prove the full
+  required header set at every externally reachable entry point. The production
+  smoke now asserts the shared header set on API health and private 404 responses
+  as well as web documents; `bash -n infra/deploy/production-smoke.sh` passes.
+  The API's deny-all CSP is now tested on success, 404 and an unhandled 500 in
+  [health.test.ts](../apps/api/test/health.test.ts). The smoke has not yet run on
+  Compose because no deployment env file is present and no local Compose services
+  are running; external Caddy 5xx headers remain unverified.
+- Re-scan all locally reachable Git history after the local ref repair. The
+  previously recorded Gitleaks mirror covered advertised remote history only.
+- Run the remaining local and connected security tools against the current
+  commit, then rerun the full security and reliability pass from scratch after
+  all readiness criteria pass. Deployment and staging DAST are intentionally
+  paused per Mahdi's no-deployment direction.
 
 ## Browser and API response headers
 
@@ -119,6 +284,14 @@ harness. Guest access for every admin page in Arabic, French and English and
 standard-session access failed the new browser checks before the fix. All 11
 operator, authenticated admin and production route browser tests passed after it.
 
+On 20 November, the production route checks covered all seven admin screens in
+Arabic, French and English. Guests, a signed-in customer and a revoked admin
+received a 307 redirect to the localized admin sign-in with `Cache-Control:
+no-store` on all 21 routes. The admin session completed OTP and TOTP and
+opened the dashboard before logout. A separate client kept the original cookie
+across logout, so its redirects also verify server-side revocation. All eight
+tests in [the operator route suite](../e2e/auth-operator-pages.spec.ts) passed.
+
 ## Restaurant pages, invite continuations and dependency audit
 
 Restaurant operator pages check the current account's membership and role for
@@ -135,9 +308,9 @@ remains in progress.
 The focused browser run passed 30 checks across operator access, invitations
 and production routes.
 
-Gitleaks 8.30.1 scanned 536 commits from a fresh GitHub mirror across its
-advertised references and found no leaks. The local shared Git store has
-malformed duplicate refs, so this does not cover unpublished local history.
+Gitleaks 8.30.1 scanned all locally reachable references after their repair:
+`gitleaks git --log-opts="--all" --redact --no-banner --verbose` scanned 572
+commits (11.96 MB) at `16688e5` and found no leaks.
 
 ## Courier page access
 
@@ -177,6 +350,15 @@ read seven fixture addresses without a customer context before the migration.
 The regression now sees no rows without context, only the current customer's
 rows with context, and cannot delete another customer's address. Address,
 checkout quote and privacy integration suites passed 48 tests.
+
+## Customer push-subscription row isolation
+
+Migration 0065 forces RLS on push subscriptions. Save, remove, notification
+preference selection, delivery, and account erasure use transaction-local
+customer scope. A separate database role sees no active cross-account rows;
+the cleanup policy reveals and deletes only expired subscriptions or tokens
+whose session is revoked/expired. Push, order quote/notification, privacy and
+worker queue Postgres suites passed (48 + 7 tests).
 
 ## Order action isolation before locking
 
@@ -267,14 +449,19 @@ apps/worker/test/logger.test.ts`; worker typecheck and ESLint also passed.
 The photo preparation worker streams the checksum-verified original to a
 private ClamAV daemon using INSTREAM before decoding or writing a preview. A
 malware verdict rejects and removes the upload; a scanner failure keeps it
-private for automatic retry. The daemon has a separate `clamav/clamav:1.5.4`
+private for automatic retry. The daemon has a separate `clamav/clamav:1.5.5`
 image and internal-only network; the Node runtime no longer contains ClamAV or
 its scanner tools. Five worker tests cover clean, malware, protocol error,
 timeout/unavailable daemon and exclusion of worker environment secrets. All
 five passed; production Compose configuration validation passed.
 
 The former integrated ClamAV 1.4.3 image and its CVE findings are superseded by
-the current pinned 1.5.4 image. The built production worker reached the
+the current pinned 1.5.5 image. The 18 November security release fixes the
+ClamAV vulnerabilities that affected 1.5.4, including CVE-2026-76422,
+CVE-2026-76411, CVE-2026-76415, CVE-2026-76414, CVE-2026-76416,
+CVE-2026-76417, CVE-2026-76421, CVE-2026-76430, CVE-2026-76516 and
+CVE-2026-76515. [Official release notes](https://blog.clamav.net/2026/11/clamav-155-147-security-patch-release.html).
+The built production worker reached the
 production Compose daemon over its private scanner network: clean bytes were
 accepted and the inert EICAR marker was flagged, in addition to the five unit
 tests and worker typecheck. The older full-stack upload evidence below covers

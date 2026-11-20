@@ -54,6 +54,9 @@ async function openAuthApi(at = Date.parse("2026-11-07T12:00:00Z")) {
     sent,
     emails,
     attempts,
+    now() {
+      return new Date(time);
+    },
     failNextDelivery() {
       shouldFail = true;
     },
@@ -109,9 +112,12 @@ async function loginWeb(api: FastifyInstance, sent: Map<string, string>, phone: 
 }
 
 test("[AUTH-01] [AUTH-03] [AUTH-09] uses live Postgres for HMAC and opaque web sessions", async () => {
-  const { api, sent } = await openAuthApi();
+  const auth = await openAuthApi();
+  const { api, sent } = auth;
   try {
-    const { challenge, code, response, cookie } = await loginWeb(api, sent, "+213500000010");
+    const phone = "+213500000010";
+    const otherPhone = "+213500000044";
+    const { challenge, code, response, cookie } = await loginWeb(api, sent, phone);
     expect(response.statusCode).toBe(200);
     expect(verifyOtpOutput.parse(response.json())).toEqual({
       status: "authenticated",
@@ -132,10 +138,77 @@ test("[AUTH-01] [AUTH-03] [AUTH-09] uses live Postgres for HMAC and opaque web s
     expect(session?.tokenHash).toEqual(hashSessionToken(cookie.value));
 
     const cookieHeader = { cookie: "__Host-session=" + cookie.value };
+    auth.advance(61_000);
+    const secondOwnerLogin = await loginWeb(api, sent, phone);
+    const secondOwnerCookie = {
+      cookie: "__Host-session=" + secondOwnerLogin.cookie.value,
+    };
+    const otherLogin = await loginWeb(api, sent, otherPhone);
+    const otherCookieHeader = { cookie: "__Host-session=" + otherLogin.cookie.value };
+
     const listed = await api.inject({ url: "/v1/me/sessions", headers: cookieHeader });
-    const [current] = sessionListOutput.parse(listed.json()).sessions;
-    expect(current?.current).toBe(true);
-    if (!current) throw new Error("Expected an authenticated session");
+    const ownerSessions = sessionListOutput.parse(listed.json()).sessions;
+    expect(ownerSessions).toHaveLength(2);
+    expect(ownerSessions.filter(({ current: isCurrent }) => isCurrent)).toHaveLength(1);
+    const secondOwnerSessions = sessionListOutput.parse(
+      (await api.inject({ url: "/v1/me/sessions", headers: secondOwnerCookie })).json(),
+    ).sessions;
+    expect(secondOwnerSessions.map(({ id }) => id).sort()).toEqual(
+      ownerSessions.map(({ id }) => id).sort(),
+    );
+    const otherSessions = sessionListOutput.parse(
+      (await api.inject({ url: "/v1/me/sessions", headers: otherCookieHeader })).json(),
+    ).sessions;
+    expect(otherSessions).toHaveLength(1);
+    expect(ownerSessions.map(({ id }) => id)).not.toContain(otherSessions[0]?.id);
+
+    const secondOwnerSession = ownerSessions.find(({ current: isCurrent }) => !isCurrent);
+    if (!secondOwnerSession) throw new Error("Expected the other owner device session");
+    const foreignRevoke = await api.inject({
+      method: "DELETE",
+      url: "/v1/me/sessions/" + secondOwnerSession.id,
+      headers: { ...originHeaders, ...otherCookieHeader },
+    });
+    expect(foreignRevoke.statusCode).toBe(404);
+    expect(problemResponseSchema.parse(foreignRevoke.json())).toMatchObject({
+      status: 404,
+      code: "not_found",
+    });
+    expect(
+      sessionListOutput.parse(
+        (await api.inject({ url: "/v1/me/sessions", headers: cookieHeader })).json(),
+      ).sessions,
+    ).toHaveLength(2);
+
+    const ownRevoke = await api.inject({
+      method: "DELETE",
+      url: "/v1/me/sessions/" + secondOwnerSession.id,
+      headers: { ...originHeaders, ...cookieHeader },
+    });
+    expect(ownRevoke.statusCode).toBe(204);
+    expect(
+      (await api.inject({ url: "/v1/me/sessions", headers: secondOwnerCookie })).statusCode,
+    ).toBe(401);
+    const ownerOnlySession = sessionListOutput.parse(
+      (await api.inject({ url: "/v1/me/sessions", headers: cookieHeader })).json(),
+    ).sessions;
+    expect(ownerOnlySession).toHaveLength(1);
+    const [current] = ownerOnlySession;
+    if (!current?.current) throw new Error("Expected the current owner session");
+
+    auth.advance(61_000);
+    const thirdOwnerLogin = await loginWeb(api, sent, phone);
+    const thirdOwnerCookie = {
+      cookie: "__Host-session=" + thirdOwnerLogin.cookie.value,
+    };
+    const beforeLogoutAll = sessionListOutput.parse(
+      (await api.inject({ url: "/v1/me/sessions", headers: cookieHeader })).json(),
+    ).sessions;
+    expect(beforeLogoutAll).toHaveLength(2);
+    expect(
+      (await api.inject({ url: "/v1/me/sessions", headers: thirdOwnerCookie })).statusCode,
+    ).toBe(200);
+
     const logout = await api.inject({
       method: "POST",
       url: "/v1/auth/logout",
@@ -147,6 +220,24 @@ test("[AUTH-01] [AUTH-03] [AUTH-09] uses live Postgres for HMAC and opaque web s
     expect((await api.inject({ url: "/v1/me/sessions", headers: cookieHeader })).statusCode).toBe(
       401,
     );
+    expect(
+      (await api.inject({ url: "/v1/me/sessions", headers: thirdOwnerCookie })).statusCode,
+    ).toBe(401);
+    expect(
+      (await api.inject({ url: "/v1/me/sessions", headers: otherCookieHeader })).statusCode,
+    ).toBe(200);
+    const activeAt = auth.now().toISOString();
+    const activeSessions = await database.get().sql<{ phoneE164: string; count: number }[]>`
+      SELECT users.phone_e164 AS "phoneE164", count(sessions.id)::int AS count
+      FROM public.users LEFT JOIN public.sessions ON sessions.user_id = users.id
+        AND sessions.revoked_at IS NULL AND sessions.expires_at > ${activeAt}::timestamptz
+      WHERE users.phone_e164 = ANY(${[phone, otherPhone]})
+      GROUP BY users.phone_e164 ORDER BY users.phone_e164
+    `;
+    expect([...activeSessions]).toEqual([
+      { phoneE164: phone, count: 0 },
+      { phoneE164: otherPhone, count: 1 },
+    ]);
   } finally {
     await api.close();
   }
@@ -316,6 +407,68 @@ test("[AUTH-05] requires the enrolled TOTP for admin and enforces its absolute e
   }
 });
 
+test("[AUTH-05:abuse] locks an administrator TOTP challenge after five incorrect codes", async () => {
+  const clock = 2_000_000_000_000;
+  const { api, sent } = await openAuthApi(clock);
+  const phone = "+213600000012";
+  const userId = randomUUIDv7();
+  const sealed = sealTotpSecret({
+    key: totpKey,
+    userId,
+    secret: Buffer.from("12345678901234567890"),
+  });
+  try {
+    await database.get()
+      .sql`INSERT INTO users (id, phone_e164, created_at) VALUES (${userId}, ${phone}, ${new Date(clock).toISOString()}::timestamptz)`;
+    await database.get()
+      .sql`INSERT INTO admins (user_id, totp_secret_encrypted) VALUES (${userId}, ${sealed})`;
+    const { challengeId } = requestOtpOutput.parse(
+      (await requestOtp(api, phone, { purpose: "admin_sign_in" })).json(),
+    );
+    const firstFactorCode = sent.get(challengeId);
+    if (!firstFactorCode) throw new Error("Missing synthetic admin OTP.");
+    const firstFactor = await verifyOtp(api, {
+      challengeId,
+      code: firstFactorCode,
+      transport: "bearer",
+    });
+    const pending = verifyOtpOutput.parse(firstFactor.json());
+    if (pending.status !== "totp_required") throw new Error("Expected a pending admin factor.");
+
+    for (let attempt = 1; attempt <= 5; attempt += 1) {
+      const response = await api.inject({
+        method: "POST",
+        url: "/v1/auth/totp/verify",
+        headers: { "idempotency-key": randomUUIDv7() },
+        payload: { challengeId: pending.challengeId, code: "000000", transport: "bearer" },
+      });
+      expect(response.statusCode).toBe(attempt === 5 ? 429 : 401);
+      expect(problemResponseSchema.parse(response.json()).code).toBe(
+        attempt === 5 ? "totp_locked" : "totp_invalid",
+      );
+    }
+
+    const validCodeAfterLock = await api.inject({
+      method: "POST",
+      url: "/v1/auth/totp/verify",
+      headers: { "idempotency-key": randomUUIDv7() },
+      payload: { challengeId: pending.challengeId, code: "279037", transport: "bearer" },
+    });
+    expect(validCodeAfterLock.statusCode).toBe(429);
+    expect(problemResponseSchema.parse(validCodeAfterLock.json()).code).toBe("totp_locked");
+    expect(validCodeAfterLock.cookies).toHaveLength(0);
+    const [storedChallenge] = await database.get().sql<{ attempts: number }[]>`
+      SELECT attempts FROM public.admin_challenges WHERE id = ${pending.challengeId}
+    `;
+    expect(storedChallenge?.attempts).toBe(5);
+    expect(
+      await database.get().sql`SELECT FROM public.sessions WHERE user_id = ${userId}`,
+    ).toHaveLength(0);
+  } finally {
+    await api.close();
+  }
+});
+
 test("[AUTH-01:replay] one wrong verification consumes one attempt across identical retries", async () => {
   const { api, sent } = await openAuthApi();
   const phone = "+213700000011";
@@ -468,8 +621,10 @@ test("[AUTH-05] email-admin sign-in still requires enrolled TOTP", async () => {
 });
 
 test("[AUTH-01] links an email with a code and preserves the authenticated phone account", async () => {
-  const { api, emails, sent } = await openAuthApi();
+  const auth = await openAuthApi();
+  const { api, emails, sent } = auth;
   const phone = "+213500000042";
+  const otherPhone = "+213500000043";
   const email = "linked@example.test";
   try {
     expect((await api.inject({ url: "/v1/auth/methods" })).json()).toEqual({
@@ -498,6 +653,63 @@ test("[AUTH-01] links an email with a code and preserves the authenticated phone
     if (!message) throw new Error("Missing identifier change code.");
     expect(message.email).toBe(email);
     expect((await verifyOtp(api, { challengeId, code: message.code })).statusCode).toBe(401);
+
+    auth.advance(61_000);
+    const { cookie: secondOwnerCookie } = await loginWeb(api, sent, phone);
+    const secondOwnerHeaders = {
+      ...originHeaders,
+      cookie: "__Host-session=" + secondOwnerCookie.value,
+    };
+    const secondOwnerProfile = await api.inject({
+      url: "/v1/me/identifiers",
+      headers: secondOwnerHeaders,
+    });
+    expect(secondOwnerProfile.json()).toMatchObject({ phone, email: null });
+    const secondSessionAttempt = await api.inject({
+      method: "PUT",
+      url: "/v1/me/identifiers",
+      headers: {
+        ...secondOwnerHeaders,
+        "x-expected-session-id": secondOwnerProfile.json<{ sessionId: string }>().sessionId,
+        "idempotency-key": randomUUIDv7(),
+      },
+      payload: { challengeId, code: message.code },
+    });
+    expect(problemResponseSchema.parse(secondSessionAttempt.json())).toMatchObject({
+      status: 401,
+      code: "otp_invalid",
+    });
+
+    const { cookie: otherCookie } = await loginWeb(api, sent, otherPhone);
+    const otherHeaders = {
+      ...originHeaders,
+      cookie: "__Host-session=" + otherCookie.value,
+    };
+    const otherProfile = await api.inject({ url: "/v1/me/identifiers", headers: otherHeaders });
+    expect(otherProfile.json()).toMatchObject({ phone: otherPhone, email: null });
+    const foreignAttempt = await api.inject({
+      method: "PUT",
+      url: "/v1/me/identifiers",
+      headers: {
+        ...otherHeaders,
+        "x-expected-session-id": otherProfile.json<{ sessionId: string }>().sessionId,
+        "idempotency-key": randomUUIDv7(),
+      },
+      payload: { challengeId, code: message.code },
+    });
+    expect(problemResponseSchema.parse(foreignAttempt.json())).toMatchObject({
+      status: 401,
+      code: "otp_invalid",
+    });
+    const unchanged = await database.get().sql`
+      SELECT phone_e164, email FROM public.users
+      WHERE phone_e164 = ANY(${[phone, otherPhone]}) ORDER BY phone_e164
+    `;
+    expect([...unchanged]).toEqual([
+      { phone_e164: phone, email: null },
+      { phone_e164: otherPhone, email: null },
+    ]);
+
     const confirm = await api.inject({
       method: "PUT",
       url: "/v1/me/identifiers",
@@ -506,9 +718,14 @@ test("[AUTH-01] links an email with a code and preserves the authenticated phone
     });
     expect(confirm.statusCode).toBe(200);
     expect(confirm.json()).toEqual({ ...profile, email });
-    const rows = await database.get()
-      .sql`SELECT id FROM public.users WHERE phone_e164 = ${phone} OR email = ${email}`;
-    expect(rows).toHaveLength(1);
+    const rows = await database.get().sql`
+      SELECT phone_e164, email FROM public.users
+      WHERE phone_e164 = ANY(${[phone, otherPhone]}) ORDER BY phone_e164
+    `;
+    expect([...rows]).toEqual([
+      { phone_e164: phone, email },
+      { phone_e164: otherPhone, email: null },
+    ]);
   } finally {
     await api.close();
   }

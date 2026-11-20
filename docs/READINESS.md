@@ -4,7 +4,7 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 
 ## Customer experience
 
-- [ ] **Lane A** Consistent dish and cover pipeline with crop ratios, warm grade, contrast and sharpening, and published restaurant guidance. [Photo guide](RESTAURANT_PHOTOS.md)
+- [x] **Lane A** Consistent dish and cover pipeline with crop ratios, warm grade, contrast and sharpening, and published restaurant guidance. Crop/style regression (11 tests) and media typecheck passed; dishes and covers use the same grade while logos retain original colour. [Photo guide](RESTAURANT_PHOTOS.md) · [Verification evidence](evidence/awid/photo-pipeline.md)
 - [x] **Lane B** Review the photo catalogue and replace weak or off-style images. Two uncredited images and three weak or mislabelled ones were replaced with licensed, graded Wikimedia Commons photos, and a test checks that every catalogue photo is credited. [Review](evidence/awid/photos/README.md)
 - [x] **Lane B** Short haptics for add-to-cart, order placement and acceptance. Optional acceptance sound, mute preference and reduced-motion support. [Haptics and mute note](evidence/awid/feel/README.md) (393969e)
 - [x] **Lane B** Arabic, French and English copy pass. Errors give the customer a next step. [Copy changes](evidence/awid/copy.md) (17a477c)
@@ -36,7 +36,7 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 - [x] **Lane A** Verify OTP enumeration resistance, attempt caps and SMS/email delivery limits by identifier, IP and signed-in account. [Connected auth and Postgres regressions](SECURITY_REVIEW.md#otp-abuse-and-delivery-limits) (8b1675c plus account-limit change below)
 - [x] **Lane A** Verify upload type, size, decompression limits and metadata stripping. [Upload validation evidence](SECURITY_REVIEW.md#upload-validation)
 - [ ] **Lane A** Verify input handling, CSRF, CSP and security headers, session fixation protections and revocation.
-- [ ] **Lane A** Review route rate limits, secret handling and dependencies. Resolve high and critical findings.
+- [ ] **Lane A** Review route rate limits, secret handling and dependencies. The route-family inventory records the shared 120/IP/minute API limit and durable OTP, deletion-challenge and courier limits; the shared limiter is process-local, so multi-replica protection and remaining secret/dependency review are still open. [Rate-limit inventory](evidence/awid/rate-limits.md)
 - [ ] **Lane A** Record findings and their regression evidence in `docs/SECURITY_REVIEW.md`.
 
 ## Local production reliability
@@ -50,7 +50,7 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 ## Operations and release verification
 
 - [x] **Lane A** Verify health checks and structured logs without personal data. Web, API, worker, Caddy and Martin health are covered in the [local Compose evidence](evidence/awid/web-compose-local.md); [API, Caddy and PostgreSQL probes](SECURITY_REVIEW.md#api-and-postgresql-log-privacy) and the [worker logger regression](SECURITY_REVIEW.md#worker-log-privacy) pass.
-- [ ] **Lane A** Verify error tracking and alerts through test incidents.
+- [ ] **Lane A** Verify error tracking and alerts through test incidents. The synthetic exhausted-worker-job alert reaches the inspectable fake in the Postgres worker test; Resend delivery is configured but not externally confirmed, and application error tracking is still unconfigured. [Local alert evidence](evidence/awid/ops-alerts.md)
 - [x] **Lane A** Complete the SPEC §20 runbooks for deploy, rollback, restore, Ramadan peak, API down, DB full, SMS down, tiles down, OSRM down and restaurant complaint surges. [Runbooks](runbooks/service-incidents.md)
 - [x] **Lane A** Keep the encrypted restore drill green with fresh evidence. [Local restore results](evidence/awid/local-operations.md)
 - [x] **Lane A** Integrate Lane B regularly. Require full `pnpm verify` and every browser suite green in GitHub CI before merging. [Exact integration run](https://github.com/Mahdi-Lalioui/delivery/actions/runs/44093493915) (`f1febe7`)

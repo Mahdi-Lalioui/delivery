@@ -183,3 +183,17 @@ test("[CUS-04] curated rails lead with photographed restaurants", async () => {
     "bare",
   ]);
 });
+
+test("[CUS-04] the full list ends on a closing tile, never on a ragged row", () => {
+  const ready = (nextCursor: string | null) =>
+    renderToStaticMarkup(
+      <FeedContent
+        locale="fr"
+        state={{ phase: "ready", restaurants: [openRestaurant], nextCursor }}
+        onLoad={onLoad}
+      />,
+    );
+  expect(ready(null)).toContain('class="restaurant-feed-closer');
+  expect(ready(null)).toContain('href="/fr/restaurants"');
+  expect(ready("more")).not.toContain("restaurant-feed-closer");
+});

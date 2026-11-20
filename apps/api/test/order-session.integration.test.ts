@@ -205,4 +205,120 @@ test("[AUTH-06][MER-03] real standard session cookies reach the board only for m
   });
   expect(foreignCustomerStream.statusCode).toBe(404);
   expect(foreignCustomerStream.body).not.toContain(orderId);
+
+  const { sql } = database.get();
+  const courier = await standardSession("+213500000004");
+  const courierId = randomUUID();
+  await sql`INSERT INTO public.couriers (id, user_id, merchant_id, created_at)
+    VALUES (${courierId}, ${courier.userId}, ${merchantId}, ${now.toISOString()})`;
+  for (const scenario of [
+    {
+      name: "reject",
+      status: "pending_acceptance",
+      fulfilment: "pickup",
+      version: 1,
+      shortCode: "BBB-333",
+      payload: { reason: "closed" },
+      allowed: owner,
+      nextStatus: "rejected",
+    },
+    {
+      name: "ready",
+      status: "accepted",
+      fulfilment: "pickup",
+      version: 2,
+      shortCode: "CCC-444",
+      payload: {},
+      allowed: owner,
+      nextStatus: "ready",
+    },
+    {
+      name: "collect",
+      status: "ready",
+      fulfilment: "pickup",
+      version: 3,
+      shortCode: "DDD-555",
+      payload: {},
+      allowed: owner,
+      nextStatus: "collected",
+    },
+    {
+      name: "assign",
+      status: "accepted",
+      fulfilment: "delivery",
+      version: 2,
+      shortCode: "EEE-666",
+      payload: { courierId },
+      allowed: owner,
+      nextStatus: "accepted",
+    },
+    {
+      name: "cancel",
+      status: "pending_acceptance",
+      fulfilment: "pickup",
+      version: 1,
+      shortCode: "FFF-777",
+      payload: { reason: "Synthetic cancellation" },
+      allowed: customer,
+      nextStatus: "cancelled",
+    },
+  ]) {
+    const targetOrderId = randomUUID();
+    await sql`
+      INSERT INTO public.orders (
+        id, quote_id, customer_id, merchant_id, restaurant_name, short_code, order_day,
+        status, fulfilment, version, placed_at, last_event_at, acceptance_deadline_at,
+        subtotal_dzd, delivery_fee_dzd, total_dzd, paying_with_dzd, lines
+      )
+      SELECT ${targetOrderId}, ${randomUUID()}, customer_id, merchant_id, restaurant_name,
+        ${scenario.shortCode}, order_day, ${scenario.status}::public.order_status,
+        ${scenario.fulfilment}, ${scenario.version}, placed_at, last_event_at,
+        ${new Date(now.getTime() + 60_000).toISOString()},
+        subtotal_dzd, delivery_fee_dzd, total_dzd, paying_with_dzd, lines
+      FROM public.orders WHERE id = ${orderId}
+    `;
+    const before = await sql`
+      SELECT status, version, courier_id, last_event_at FROM public.orders WHERE id = ${targetOrderId}
+    `;
+    const request = {
+      method: "POST",
+      url: `/v1/orders/${targetOrderId}/${scenario.name}`,
+      payload: { expectedVersion: scenario.version, ...scenario.payload },
+    } as const;
+    const denied = await api.inject({
+      ...request,
+      headers: { ...outsider.headers, "idempotency-key": `foreign-${scenario.name}` },
+    });
+    expect(denied.statusCode, `foreign merchant ${scenario.name}`).toBe(404);
+    expect(denied.json()).toMatchObject({ code: "not_found" });
+    expect(denied.body).not.toContain(targetOrderId);
+    expect(
+      await sql`
+        SELECT status, version, courier_id, last_event_at FROM public.orders WHERE id = ${targetOrderId}
+      `,
+    ).toEqual(before);
+    expect(
+      await sql`SELECT FROM public.order_events WHERE order_id = ${targetOrderId}`,
+    ).toHaveLength(0);
+    expect(
+      await sql`SELECT FROM public.order_action_receipts WHERE order_id = ${targetOrderId}`,
+    ).toHaveLength(0);
+
+    const allowed = await api.inject({
+      ...request,
+      headers: { ...scenario.allowed.headers, "idempotency-key": `allowed-${scenario.name}` },
+    });
+    expect(allowed.statusCode, `authorized ${scenario.name}`).toBe(200);
+    expect(allowed.json()).toMatchObject({
+      orderId: targetOrderId,
+      status: scenario.nextStatus,
+      version: scenario.version + 1,
+    });
+    expect(await sql`SELECT courier_id FROM public.orders WHERE id = ${targetOrderId}`).toEqual([
+      { courier_id: scenario.name === "assign" ? courierId : null },
+    ]);
+    expect(
+      await sql`SELECT FROM public.order_events WHERE order_id = ${targetOrderId}`,
+    ).toHaveLength(1);
+  }
 });

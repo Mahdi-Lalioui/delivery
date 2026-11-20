@@ -3,13 +3,15 @@
 // Usage: pnpm perf:customer-feel <baseUrl> [runs]
 import process from "node:process";
 import { chromium, devices } from "@playwright/test";
+import { mayIgnoreLocalCertificateErrors, readPerfRestaurantSlug } from "./perf-url.ts";
 
 const [baseUrl = "http://127.0.0.1:3110", runsText = "3"] = process.argv.slice(2);
 const runs = Number(runsText);
 
+const restaurantSlug = readPerfRestaurantSlug(process.env.PERF_RESTAURANT_SLUG);
 const routes = {
   Discovery: "/fr/discover",
-  Restaurant: "/fr/restaurants/atelier-sidi-yahia",
+  Restaurant: `/fr/restaurants/${restaurantSlug}`,
   Checkout: "/fr/dev/screens/checkout-payment",
   Tracking: "/fr/dev/screens/tracking",
 };
@@ -98,7 +100,11 @@ async function tapAll(page, route) {
 }
 
 async function measure(browser, route) {
-  const context = await browser.newContext({ ...devices["Pixel 7"], serviceWorkers: "block" });
+  const context = await browser.newContext({
+    ...devices["Pixel 7"],
+    serviceWorkers: "block",
+    ignoreHTTPSErrors: mayIgnoreLocalCertificateErrors(baseUrl),
+  });
   const page = await context.newPage();
   await page.addInitScript(observe);
   await throttle(page);

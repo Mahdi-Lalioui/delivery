@@ -43,6 +43,8 @@ The command validates Compose, builds the API and worker, waits for the data ser
 
 Put the same Twilio and Resend settings in `worker.env` to deliver order notifications when push cannot deliver. If the worker uses the SMS webhook, set `ORDER_SMS_WEBHOOK_URL` and `ORDER_SMS_WEBHOOK_TOKEN` there. The worker prefers push, then a verified phone, then a verified email for email-only accounts.
 
+For exhausted worker jobs, set `OPS_ALERT_EMAIL` to a monitored recipient in `worker.env`; it requires the Resend API key and verified sender above. Keep it out of the API environment and never expose it in a client build. The alert includes the internal task name, retry count and time only; it omits job payloads and error text. The local synthetic incident is covered by [worker alert evidence](evidence/awid/ops-alerts.md). Verify delivery to the monitored inbox after configuring the provider.
+
 See [HUMAN_TODO](HUMAN_TODO.md) for provider setup.
 
 ### SMS webhook

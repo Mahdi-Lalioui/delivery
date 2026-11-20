@@ -292,3 +292,33 @@ test.each([
     await api.close();
   }
 });
+
+test("[NFR-07] serves a deny-all CSP on unhandled API failures", async () => {
+  const fail = () => Promise.reject(new Error("synthetic repository failure"));
+  const api = createApi({
+    checkReadiness: () => Promise.resolve(),
+    publicRestaurant: {
+      repository: {
+        read: fail,
+        list: fail,
+        detail: fail,
+      },
+      now: () => new Date("2026-11-19T12:00:00.000Z"),
+    },
+    logStream: new Writable({
+      write(_chunk, _encoding, done) {
+        done();
+      },
+    }),
+  });
+  try {
+    const response = await api.inject("/v1/merchants/synthetic-restaurant");
+    expect(response.statusCode).toBe(500);
+    expect(response.headers["content-security-policy"]).toBe(
+      "default-src 'none'; frame-ancestors 'none'",
+    );
+    expect(response.body).not.toContain("synthetic repository failure");
+  } finally {
+    await api.close();
+  }
+});

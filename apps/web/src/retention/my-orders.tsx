@@ -42,6 +42,14 @@ const canReorder: ReadonlySet<Status> = new Set([
   "expired",
 ]);
 
+/** Orders still on their way lead the list; finished ones keep their date order below. */
+export function liveFirst(orders: readonly OrderSummary[]): OrderSummary[] {
+  return [
+    ...orders.filter(({ status }) => !canReorder.has(status)),
+    ...orders.filter(({ status }) => canReorder.has(status)),
+  ];
+}
+
 function Money({ amountDzd, locale }: { amountDzd: number; locale: Locale }) {
   return <bdi className="billing-money">{formatDzd(amountDzd, locale)}</bdi>;
 }
@@ -333,7 +341,7 @@ function History({ state, locale }: { state: MyOrdersState; locale: Locale }) {
   return (
     <>
       <ul className="review-list">
-        {history.orders.map((order) => (
+        {liveFirst(history.orders).map((order) => (
           <OrderCard key={order.orderId} order={order} state={state} locale={locale} />
         ))}
       </ul>
@@ -364,9 +372,15 @@ export function MyOrdersView({ state, locale }: { state: MyOrdersState; locale: 
   return (
     <section className="billing-page" aria-labelledby="orders-title">
       <PageHeader title={translate("title")} intro={translate("intro")} titleId="orders-title" />
-      <Favourites state={state} />
-      <ReorderSummary state={state} locale={locale} />
-      <History state={state} locale={locale} />
+      <div className="orders-layout">
+        <div className="orders-history-column">
+          <ReorderSummary state={state} locale={locale} />
+          <History state={state} locale={locale} />
+        </div>
+        <aside className="orders-sidebar" aria-labelledby="orders-favourites">
+          <Favourites state={state} />
+        </aside>
+      </div>
     </section>
   );
 }

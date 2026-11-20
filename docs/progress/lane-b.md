@@ -143,3 +143,13 @@
   - `pnpm verify` passes every step except `pnpm audit` (GHSA-fc5q-39xc-vjpf; Mahdi chose to wait for a patch). All of this is committed locally only.
 
   Next: once picomatch publishes a patched release, run `pnpm install`, `pnpm verify`, merge origin/lane-a and push lane-b. Then Mahdi sources the licensed photos listed in HUMAN_TODO.
+- 2026-11-18 · Dar Zellige creative pass (D-036), in progress.
+  - Done: a warmer palette with night, sand, glow and zellige tokens; Fraunces and El Messiri display faces; the CSS decor system; Discovery's night-garden band; landing hero ornament and zellige border; "settle" scroll motion and page transitions.
+  - Pushed at 8dca7e2 with `pnpm verify` green; a11y 0/0/0.
+  - Added `pnpm audit:fullness`: the largest empty rectangle must stay ≤ 30 % at 8 widths × ar/fr × light/dark, plus `e2e/page-fullness.spec.ts` for CI. A before/after section is on `/dev/gallery`.
+
+  Next: fix every page the fullness audit flags, capture the "after" set, then run fresh-critic rounds and the RELEASE_REPORT section.
+- 2026-11-18 · Dar Zellige creative pass pushed in small commits through 6f04522, each with `pnpm verify` green. a11y 0/0/0; fullness 480 checks with 0 failures; connected LCP under 2 s; 60 fps. Fresh-critic round 3 scores 6.5–9; Payment's 6.5 was the badge wrap, now fixed. See docs/RELEASE_REPORT.md, "Dar Zellige creative pass".
+  Next: pickup-mode header copy; a shaded tagine with ETA on confirmed; an address and time recap on payment; side content for pickup tracking and orders at 1280; localise "made in Algeria". Then re-score.
+- 2026-11-19 · Medium · Lane A completed all five handed-off customer design items: pickup header, server ETA beside tagine, payment address/time recap, pickup tracking and order-history desktop side content, and French footer localization. 21 focused tests pass; design build passes; 390px Arabic and 1280px French captures inspected in `docs/evidence/awid/lane-a-design/`.
+  Next: Lane A continues the open security, reliability and operations items in `docs/READINESS.md`.
