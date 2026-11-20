@@ -628,3 +628,5 @@
   Next: prove live alert delivery and collector ingestion, then provision the isolated 10× load dataset and finish the release rerun.
 - 2026-11-20 · Medium · Reconciled all eight open criteria with the release report and documented the live incident setup. Refreshed authorization evidence at 267/267.
   Next: complete the input boundary review and prepare the connected 10× load fixtures.
+- 2026-11-20 · Medium · Bound the load harness to its local HTTPS origin and disabled redirects. Tooling passed 60/60 and offline k6 inspection passed. Reviewed push, invitation and body input bounds with no defect found in that slice.
+  Next: measure connected Tracking tilt and continue synthetic load dataset provisioning.

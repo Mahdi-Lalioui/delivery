@@ -6,6 +6,7 @@ import exec from "k6/execution";
 import { SharedArray } from "k6/data";
 import { Counter, Rate } from "k6/metrics";
 import { courierSample } from "./courier-sample.js";
+import { requireLocalTarget } from "./local-target.js";
 
 const placementRate = Number(__ENV.LOAD_PLACEMENT_RATE || 500);
 const positionRate = Number(__ENV.LOAD_POSITION_RATE || 200);
@@ -80,10 +81,6 @@ function validateCourierEntries(couriers) {
   }
 }
 
-function validateEndpointSettings() {
-  if (!baseUrl || !origin) throw new Error("Set LOAD_BASE_URL and LOAD_ORIGIN");
-}
-
 function requirePositiveInteger(value, name) {
   if (!Number.isInteger(value) || value <= 0) {
     throw new Error(`${name} must be a positive integer`);
@@ -100,7 +97,7 @@ function validateRateSettings() {
   }
 }
 
-validateEndpointSettings();
+requireLocalTarget(baseUrl, origin);
 validateRateSettings();
 
 // Validate each fixture pool once when k6 initializes its shared data.
@@ -123,6 +120,7 @@ const couriers = new SharedArray("courier fixtures", () => {
 });
 
 export const options = {
+  maxRedirects: 0,
   scenarios: {
     placement: {
       executor: "constant-arrival-rate",
@@ -160,6 +158,7 @@ function requestHeaders(sessionCookie) {
       Cookie: sessionCookie,
       Origin: origin,
     },
+    redirects: 0,
     tags: { endpoint: "order-placement" },
   };
 }

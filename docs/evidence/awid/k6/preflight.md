@@ -23,3 +23,7 @@ fixtures and source-IP distribution listed in [the load guide](../../../../load/
 The harness now validates and shares each fixture pool once during k6
 initialization. Offline inspection with k6 2.3.0 passed using synthetic
 fixtures and networking disabled. The capacity run remains open.
+
+The harness requires matching local HTTPS origins and disables redirects so
+fixture cookies stay on the intended disposable stack. The tooling suite
+passed 60 tests, and offline k6 inspection confirmed zero redirects.
