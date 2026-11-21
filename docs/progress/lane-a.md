@@ -708,3 +708,7 @@
   Next: run combined verification, then isolate the first-tilt compositor cost and complete the remaining route evidence.
 - 2026-11-21 · High · PR #24 merged green. Both seven-test tenant batches and the 12-test OTP suite passed. Both cold Tracking trials stayed below target. Staging incident cleanup now requires a persisted terminal state.
   Next: run combined verify, then cover live stream revocation and remaining attachment reads.
+- 2026-11-21 · High · PR #25 merged after seven green checks. Four connected Postgres tests passed for merchant stream revocation and co-editor media access, with targeted lint and API typecheck.
+  Next: verify the deferred Tracking scooter attachment and cover customer stream revocation.
+- 2026-11-21 · High · Customer SSE revocation passed on Postgres. Removing the entire scooter initialization restored cold 60 fps in three runs. Deferring it moved 90–94 ms stalls to attachment, so the product change was reverted.
+  Next: verify combined changes and isolate the scooter's first-draw GPU and shader costs before another product trial.

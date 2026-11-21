@@ -50,7 +50,7 @@ Postgres FORCE ROW LEVEL SECURITY currently provides a second wall for:
 
 Orders and most merchant-owned domain tables do **not** currently have RLS; they rely on explicit repository membership/account predicates and the integration coverage linked above. Orders are read and transitioned by customers, restaurant members, couriers and admins, so adding RLS requires a complete role-aware transaction context and regression coverage.
 
-Keep the route-by-route isolation readiness item open until every registered ownership-sensitive endpoint maps to a connected test. Remaining connected cases include metadata and variant reads for ready menu or profile attachments by a co-editor who did not upload them, and closing a live realtime stream after its session or merchant membership is revoked. The realtime HTTP suite covers revocation with a repository double.
+Keep the route-by-route isolation readiness item open until every registered ownership-sensitive endpoint maps to a connected test. The live revocation regressions cover both merchant and customer order streams.
 
 ### Menu items under an owned restaurant
 
@@ -65,6 +65,14 @@ The connected order-session test reads the accepted and cancelled events through
 The connected media test confirms a second active session on the same account can read reservation metadata and the private preview. Another account receives concealed 404s and causes zero storage reads. Crop requests from both the second session and the other account receive 404s and leave the state, receipts and jobs unchanged. The issuing session can crop successfully. [Media lifecycle integration test](../../../apps/api/test/media-lifecycle-session.integration.test.ts)
 
 The focused Postgres run passed five tests across these three files with `pnpm test:int --maxWorkers 1 apps/api/test/media-lifecycle-session.integration.test.ts apps/api/test/menu-item.integration.test.ts apps/api/test/order-session.integration.test.ts`.
+
+### Co-editor attachment access and live stream revocation
+
+- A manager who did not upload the media can read metadata and variant bytes for the restaurant's attached cover and item photos. A same-restaurant staff account and a foreign restaurant owner receive concealed 404s. The manager also receives 404 for an unattached ready photo, which the uploader can read. Denied calls cause zero storage reads. [Media resource integration test](../../../apps/api/test/media-resource-isolation.integration.test.ts)
+- Three merchant SSE connections receive an accepted order event from production-wired Fastify and Postgres. After one manager logs out and the other loses restaurant membership, both connections close without receiving the next order event. The active owner's connection receives that event. Reconnect is denied with 401 for the revoked session and 404 for the removed member. [Realtime revocation integration test](../../../apps/api/test/realtime-revocation.integration.test.ts)
+- Two live sessions on the same customer account receive a courier position for their order. Logging out one session closes its stream before the next position or order event can reach it. The other session receives both updates, and the logged-out session receives 401 on reconnect. [Realtime revocation integration test](../../../apps/api/test/realtime-revocation.integration.test.ts)
+
+The media and merchant-stream Postgres run passed four tests. Both stream tests passed together with `pnpm test:int --maxWorkers 1 apps/api/test/realtime-revocation.integration.test.ts`.
 
 ### Public menu resources and photo attachments
 

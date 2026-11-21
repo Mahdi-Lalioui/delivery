@@ -339,3 +339,43 @@ AWID_MEASURE_TRACKING_TILT=1 ZAAFRAN_TILE_ORIGIN=http://127.0.0.1:5506 \
   e2e/auth-order-journey.spec.ts --grep 'real cash order · delivery' \
   --workers=1 --repeat-each=3
 ```
+
+### Flat-camera first-click control
+
+A temporary control held the real Tracking map at zero pitch while the 3D
+button still changed its pressed state. All three unprofiled national-map
+delivery journeys passed using the same command and sample window. The
+click windows measured 52, 53 and 53 active fps with long tasks of 91, 82 and
+76 ms. The longest frame intervals were 100.0, 83.4 and 83.2 ms, with no tile
+completions in any sample. The first-click stall can occur with the camera
+flat. This control leaves late map initialization and browser compositing
+in play. The camera behavior was restored and the tilt criterion stays open.
+
+### Three.js scooter initialization control
+
+A temporary build skipped the entire custom scooter initialization path,
+including the Three.js import, renderer construction and custom layer
+attachment. It kept the real 55° camera animation and the existing rider
+marker. All three unprofiled national-map delivery journeys passed at 60
+active fps, with a longest frame of 16.8 ms in each run and no long tasks,
+long frames or tile completions. This isolates the stall to something in
+the custom scooter path. The control by itself does not verify a fix that
+keeps the 3D scooter.
+
+A follow-up deferred custom scooter initialization until MapLibre became
+idle after the first requested tilt. All three delivery journeys passed at
+60 active fps during the original 600 ms window, and the existing rider
+marker was visible before the click. The custom layer attached 1,524–1,525 ms
+after the click. Main-thread tasks of 92, 90 and 94 ms began within 1–14 ms
+of the attachment observation, after the import and renderer construction
+had completed. The longest post-tilt frame in each run was 100.0, 83.4 and
+83.3 ms. Deferral moved the stall to the first frames after custom layer
+attachment, so the product change was reverted. Tracking readiness stays
+open.
+
+Set `AWID_MEASURE_TRACKING_SCOOTER=1` alongside the unprofiled command above
+for a separate scooter attachment record. It reports whether the fallback
+rider was visible before the click, when the custom layer appeared, and
+long tasks through at least 1,200 ms after the click and 600 ms after the
+layer appears. If the layer is already attached at the click, its time is
+reported as zero. The original 600 ms measurement still reports separately.
