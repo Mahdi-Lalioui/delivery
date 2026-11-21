@@ -658,3 +658,5 @@
   Next: continue route ownership coverage with the remaining merchant billing commands, and keep the release verdict NOT READY until the live checks and Tracking target pass.
 - 2026-11-21 · High · Verified populated restaurant invoices and subscriptions are visible only to the owning restaurant. Connected Postgres test and lint passed.
   Next: refresh the protected route evidence map and run full verification on the new regressions.
+- 2026-11-21 · High · Updated the tenant evidence map with populated billing coverage. Full `pnpm verify` passed at 84ae9484.
+  Next: check the final integration PR and extend the remaining protected-route evidence.
