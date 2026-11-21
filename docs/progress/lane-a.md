@@ -694,3 +694,5 @@
   Next: extend the connected terminal worker incident to exercise the Resend adapter.
 - 2026-11-21 · High · Worker queue passed 8/8. A real terminal job produced one request each through the Telegram and Resend adapters to synthetic receivers without the job payload or exception.
   Next: run full verify and open the readiness evidence PR while live provider work remains blocked on credentials.
+- 2026-11-21 · High · Full verify passed at ae4e5a5. Added a connected promotion update ownership case and verified that a foreign promotion ID under the caller's restaurant URL is concealed without mutation.
+  Next: verify PR #23 on the pushed head and inventory the remaining owner-versus-outsider test gaps.

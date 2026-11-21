@@ -81,3 +81,10 @@ The [connected courier regression](../../../apps/api/test/courier-session.integr
 denies the customer and rejects an explicit foreign courier ID. Both courier
 rows stay offline. A valid request then marks only the authenticated courier
 online. The Postgres suite passed.
+
+### Promotion update
+
+The [connected promotions regression](../../../apps/api/test/merchant-promotions-session.integration.test.ts)
+uses a valid owner session and restaurant URL with a foreign promotion ID.
+The request returns 404 without disclosing the ID. The original promotion
+and command receipt count remain unchanged. The Postgres suite passed.
