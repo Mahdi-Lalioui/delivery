@@ -317,3 +317,25 @@ AWID_MEASURE_TRACKING_TILT=1 AWID_TRACE_TRACKING_TILT=1 AWID_WARM_TRACKING_TILT=
   pnpm exec playwright test --config=e2e/auth.config.ts \
   e2e/auth-order-journey.spec.ts --grep 'real cash order · delivery' --workers=1
 ```
+
+A Tracking-only trial let MapLibre use gradual label placement after the
+map's first idle frame. All three unprofiled cold delivery journeys passed,
+but tilt measured 53, 53 and 55 active fps with long tasks of 80, 78 and
+73 ms. No tiles completed during the sampled tilts. The previous label
+placement setting was restored.
+
+A separate Tracking-only CSS trial added `will-change: transform` to the
+map container so Chromium could prepare a compositor layer before the
+first tilt. All three unprofiled cold delivery journeys passed. Tilt
+measured 53, 55 and 55 active fps with long tasks of 76, 74 and 74 ms and
+no tile completions. The CSS change was reverted. Cold tilt remains below
+the 60 fps target.
+
+Both trials used the national-map build above and this unprofiled test run.
+
+```sh
+AWID_MEASURE_TRACKING_TILT=1 ZAAFRAN_TILE_ORIGIN=http://127.0.0.1:5506 \
+  pnpm exec playwright test --config=e2e/auth.config.ts \
+  e2e/auth-order-journey.spec.ts --grep 'real cash order · delivery' \
+  --workers=1 --repeat-each=3
+```
