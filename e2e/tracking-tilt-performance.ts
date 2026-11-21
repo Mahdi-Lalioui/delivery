@@ -22,11 +22,21 @@ export async function measureConnectedTrackingTilt(page: Page) {
     const action = page.locator(".tracking-map-attribution .awid-map-action");
     await expect(action).toHaveAttribute("aria-pressed", "false");
     await action.scrollIntoViewIfNeeded();
+    const scooter =
+      process.env.AWID_MEASURE_TRACKING_SCOOTER === "1"
+        ? measureScooterAttachment(page)
+        : undefined;
     const cold = await sampleTilt(page, action, {
       phase: "cold",
       cdp,
       profile: process.env.AWID_PROFILE_TRACKING_TILT === "1",
     });
+    const attachment = await scooter;
+    if (attachment) {
+      process.stdout.write(
+        JSON.stringify({ route: "connected-tracking-scooter", ...attachment }) + "\n",
+      );
+    }
     let warm: Awaited<ReturnType<typeof sampleTilt>> | undefined;
     if (process.env.AWID_WARM_TRACKING_TILT === "1") {
       await action.click();
@@ -54,6 +64,63 @@ export async function measureConnectedTrackingTilt(page: Page) {
     await cdp.send("Network.disable");
     await cdp.detach();
   }
+}
+
+function measureScooterAttachment(page: Page) {
+  return page.evaluate(() => {
+    const button = document.querySelector(".tracking-map-attribution .awid-map-action");
+    const canvas = document.querySelector<HTMLElement>(".tracking-map-real > .awid-map-canvas");
+    const rider = canvas?.querySelector(".tracking-map-rider");
+    if (!button || !canvas || !rider) throw new Error("Tracking rider is unavailable");
+    const fallbackVisible = getComputedStyle(rider).visibility === "visible";
+    return new Promise<{
+      attachmentMs: number | null;
+      elapsedMs: number;
+      fallbackVisible: boolean;
+      maxPostTiltFrameMs: number;
+      longTasks: { startMs: number; durationMs: number }[];
+    }>((resolve) => {
+      button.addEventListener(
+        "click",
+        () => {
+          const start = performance.now();
+          let last = start;
+          let attachmentMs: number | null = canvas.dataset.scooter === "true" ? 0 : null;
+          let maxPostTiltFrameMs = 0;
+          const longTasks: { startMs: number; durationMs: number }[] = [];
+          const observer = new PerformanceObserver((entries) => {
+            for (const entry of entries.getEntries()) {
+              longTasks.push({ startMs: entry.startTime - start, durationMs: entry.duration });
+            }
+          });
+          observer.observe({ type: "longtask" });
+          const frame = (now: number) => {
+            const elapsedMs = now - start;
+            if (canvas.dataset.scooter === "true") attachmentMs ??= Math.max(0, elapsedMs);
+            if (elapsedMs >= 600) maxPostTiltFrameMs = Math.max(maxPostTiltFrameMs, now - last);
+            last = now;
+            const endMs = attachmentMs === null ? 8_000 : Math.max(1_200, attachmentMs + 600);
+            if (elapsedMs < endMs) {
+              requestAnimationFrame(frame);
+              return;
+            }
+            setTimeout(() => {
+              observer.disconnect();
+              resolve({
+                attachmentMs,
+                elapsedMs,
+                fallbackVisible,
+                maxPostTiltFrameMs,
+                longTasks,
+              });
+            }, 0);
+          };
+          requestAnimationFrame(frame);
+        },
+        { once: true },
+      );
+    });
+  });
 }
 
 type TiltPhase = "cold" | "warm";
