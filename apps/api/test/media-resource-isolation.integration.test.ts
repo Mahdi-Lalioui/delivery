@@ -51,7 +51,7 @@ async function openObservedMediaApi() {
   };
 }
 
-async function seedPublicMenu(ownerId: string, merchantId: string) {
+async function seedMenu(ownerId: string, merchantId: string, status: "active" | "approved") {
   const { sql } = database.get();
   const categoryId = randomUUIDv7();
   const itemId = randomUUIDv7();
@@ -72,7 +72,7 @@ async function seedPublicMenu(ownerId: string, merchantId: string) {
     now,
   });
   await sql`
-    UPDATE public.merchants SET status = 'active', cover_photo_id = ${coverId}
+    UPDATE public.merchants SET status = ${status}, cover_photo_id = ${coverId}
     WHERE id = ${merchantId}
   `;
   await sql`
@@ -105,8 +105,8 @@ test("[CUS-04][CUS-07][CUS-08] public menus and variants resolve resources withi
     seedMenuMerchants(owner.userId, "1614"),
     seedMenuMerchants(otherOwner.userId, "1615"),
   ]);
-  const menu = await seedPublicMenu(owner.userId, restaurant.owned);
-  const otherMenu = await seedPublicMenu(otherOwner.userId, otherRestaurant.owned);
+  const menu = await seedMenu(owner.userId, restaurant.owned, "active");
+  const otherMenu = await seedMenu(otherOwner.userId, otherRestaurant.owned, "active");
   const unattachedPhotoId = randomUUIDv7();
   await seedReadyPhoto(database.get().sql, {
     mediaId: unattachedPhotoId,
@@ -258,4 +258,80 @@ test("[COU-05][AUTH-07] delivery proof stays bound to its order and the fulfilli
     expect(response.rawPayload).toEqual(variant.bytes);
   }
   expect(reads).toEqual([variant.key, variant.key]);
+});
+
+test("[MER-14][AUTH-07] a co-editor can read only attached ready photos in their restaurant", async () => {
+  const [uploader, manager, staff, foreignOwner] = await Promise.all([
+    seedActor("+213500000181", "standard"),
+    seedActor("+213500000182", "standard"),
+    seedActor("+213500000183", "standard"),
+    seedActor("+213500000184", "standard"),
+  ]);
+  const [restaurant] = await Promise.all([
+    seedMenuMerchants(uploader.userId, "1622"),
+    seedMenuMerchants(foreignOwner.userId, "1623"),
+  ]);
+  const { merchantId, coverId, photoId } = await seedMenu(
+    uploader.userId,
+    restaurant.owned,
+    "approved",
+  );
+  const { sql } = database.get();
+  await sql`INSERT INTO public.merchant_members (merchant_id, user_id, role)
+    VALUES (${merchantId}, ${manager.userId}, 'manager'), (${merchantId}, ${staff.userId}, 'staff')`;
+  const unattachedId = randomUUIDv7();
+  await seedReadyPhoto(sql, {
+    mediaId: unattachedId,
+    accountId: uploader.userId,
+    merchantId,
+    kind: "item",
+    now,
+  });
+  const { api, reads, storeVariant } = await openObservedMediaApi();
+  const attached = await Promise.all(
+    [coverId, photoId].map(async (mediaId) => ({
+      mediaId,
+      variant: await storeVariant(mediaId),
+    })),
+  );
+  const unattached = await storeVariant(unattachedId);
+  const expectHidden = async (actor: typeof manager, mediaId: string) => {
+    const path = `/v1/media/${mediaId}`;
+    for (const url of [path, path + "/variants/webp/640"]) {
+      const response = await api.inject({ url, headers: actor.headers });
+      expect(response.statusCode, url).toBe(404);
+      expect(response.body).not.toContain(mediaId);
+    }
+  };
+  for (const { mediaId } of attached) {
+    await expectHidden(foreignOwner, mediaId);
+    await expectHidden(staff, mediaId);
+  }
+  await expectHidden(manager, unattachedId);
+  expect(reads).toEqual([]);
+
+  for (const { mediaId, variant } of attached) {
+    const path = `/v1/media/${mediaId}`;
+    const metadata = await api.inject({ url: path, headers: manager.headers });
+    expect(metadata.statusCode).toBe(200);
+    expect(mediaOutput.parse(metadata.json())).toMatchObject({
+      mediaId,
+      sessionId: manager.sessionId,
+      status: "ready",
+    });
+    const response = await api.inject({
+      url: path + "/variants/webp/640",
+      headers: manager.headers,
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.headers["cache-control"]).toBe("private, no-store");
+    expect(response.rawPayload).toEqual(variant.bytes);
+  }
+  const uploaderResponse = await api.inject({
+    url: `/v1/media/${unattachedId}/variants/webp/640`,
+    headers: uploader.headers,
+  });
+  expect(uploaderResponse.statusCode).toBe(200);
+  expect(uploaderResponse.rawPayload).toEqual(unattached.bytes);
+  expect(reads).toEqual([...attached.map(({ variant }) => variant.key), unattached.key]);
 });
