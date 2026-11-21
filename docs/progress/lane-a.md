@@ -696,3 +696,5 @@
   Next: run full verify and open the readiness evidence PR while live provider work remains blocked on credentials.
 - 2026-11-21 · High · Full verify passed at ae4e5a5. Added a connected promotion update ownership case and verified that a foreign promotion ID under the caller's restaurant URL is concealed without mutation.
   Next: verify PR #23 on the pushed head and inventory the remaining owner-versus-outsider test gaps.
+- 2026-11-21 · High · PR #23 merged at 2787cb43 with seven green checks. API health passed 11/11, including rate-limit identity at the configured proxy boundary.
+  Next: review the remaining tenant resource checks and confirm current production dependency audit.

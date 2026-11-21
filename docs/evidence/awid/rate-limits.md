@@ -56,3 +56,9 @@ consecutive HTTPS health requests from one client through Caddy, then
 returned 429 for the next five in the same minute. This verifies the actual
 default threshold at the edge. Multi-replica counters and provider spend
 limits remain unverified.
+
+The focused API health suite passed 11/11. With the production proxy CIDR
+and a one-request test limit, forwarded addresses from an untrusted peer
+could not change its budget. Through the trusted proxy, changing an earlier
+forwarded hop left the actual client budget unchanged, while a distinct
+client received its own budget.
