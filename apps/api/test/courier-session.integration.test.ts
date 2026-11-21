@@ -1,7 +1,12 @@
 import { randomBytes, randomInt, randomUUID } from "node:crypto";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { courierJobsOutput } from "@zaafran/contracts/courier";
 import { createAuthRepository } from "@zaafran/db/auth";
 import { createCourierRepository } from "@zaafran/db/couriers";
+import { createMediaRepository } from "@zaafran/db/media";
+import { createLocalMediaStore } from "@zaafran/media";
 import { createOrderRepository } from "@zaafran/db/orders";
 import { runMigrations } from "graphile-worker";
 import { expect, onTestFinished, test } from "vitest";
@@ -38,6 +43,7 @@ async function standardSession() {
   );
   return {
     userId: user.id,
+    sessionId,
     headers: {
       cookie: "__Host-session=" + token,
       origin: publicOrigin,
@@ -161,7 +167,14 @@ test("[SECURITY] valid courier sessions see and change only assigned deliveries"
     sendSms: () => undefined,
   });
   const orders = createOrderRepository(database.get());
+  const mediaRoot = await mkdtemp(join(tmpdir(), "awid-courier-proof-"));
+  onTestFinished(() => rm(mediaRoot, { recursive: true, force: true }));
   const api = createApi({
+    media: {
+      repository: createMediaRepository(database.get()),
+      store: createLocalMediaStore({ root: mediaRoot }),
+      now: () => now,
+    },
     checkReadiness: () => Promise.resolve(),
     auth: { service: auth, publicOrigin },
     couriers: { repository: createCourierRepository(database.get()), now: () => now },
@@ -182,6 +195,25 @@ test("[SECURITY] valid courier sessions see and change only assigned deliveries"
     otherOrderId,
   ]);
   expect(courierJobsOutput.parse((await jobs(unassignedSession.headers)).json()).jobs).toEqual([]);
+
+  const reserveProof = (actor: typeof firstCourierSession, orderId: string) =>
+    api.inject({
+      method: "POST",
+      url: "/v1/media/uploads",
+      headers: {
+        ...actor.headers,
+        "x-expected-session-id": actor.sessionId,
+        "idempotency-key": randomUUID(),
+      },
+      payload: { kind: "delivery_proof", orderId, contentType: "image/jpeg", bytes: 1024 },
+    });
+  expect((await reserveProof(otherCourierSession, firstOrderId)).statusCode).toBe(404);
+  expect((await reserveProof(unassignedSession, firstOrderId)).statusCode).toBe(404);
+  expect((await reserveProof(customer, firstOrderId)).statusCode).toBe(404);
+  expect(
+    await sql`SELECT FROM public.media_uploads WHERE delivery_order_id = ${firstOrderId}`,
+  ).toHaveLength(0);
+  expect((await reserveProof(firstCourierSession, firstOrderId)).statusCode).toBe(201);
 
   const position = {
     latitude: 36.75,
