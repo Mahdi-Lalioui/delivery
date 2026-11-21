@@ -664,3 +664,5 @@
   Next: verify PR #19 CI, rerun the remaining input boundary evidence, and locate a checksum-matching national archive for the production rehearsal.
 - 2026-11-21 · High · Fresh authz 267/267 and connected boundary integration 18/18 passed. Closed the security findings documentation criterion with unresolved coverage still listed separately.
   Next: finish protected-route and input boundary coverage, then check PR #19 current CI and locate the pinned national dataset.
+- 2026-11-21 · High · PR #19 merged at 3f0fa98. Verified malformed and oversized OTP requests retain CSP and keep request contents out of logs. Health tests passed 10/10. Located the checksum-matching national archive and started the exact loopback deployment rehearsal.
+  Next: finish the local Compose deployment smoke and record endpoint and routing results.

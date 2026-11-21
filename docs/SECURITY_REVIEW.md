@@ -591,3 +591,8 @@ The connected admin application notice test checks a populated queue.
 Guests and revoked administrators receive 401, standard sessions receive
 403, and the denied responses omit the pending merchant ID. The focused
 merchant integration suite passed 2/2.
+
+The health suite exercises malformed JSON and requests above the 256 KiB
+API limit through a real OTP route. The 400 and 413 responses keep the
+deny-all CSP, and a synthetic request marker is absent from the response
+and captured API logs. The focused health suite passed 10/10.

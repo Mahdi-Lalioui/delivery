@@ -329,3 +329,41 @@ test("[NFR-07] serves a deny-all CSP on unhandled API failures", async () => {
     await api.close();
   }
 });
+
+test.each([
+  { status: 400, code: "invalid_request", payload: '{"marker":"private-input-fixture"' },
+  {
+    status: 413,
+    code: "payload_too_large",
+    payload: JSON.stringify({ marker: "private-input-fixture", padding: "x".repeat(256 * 1024) }),
+  },
+])("[NFR-07] rejects invalid JSON input with a safe $status response", async (input) => {
+  const logs: string[] = [];
+  const api = createApi({
+    checkReadiness: () => Promise.resolve(),
+    logStream: new Writable({
+      write(chunk: Buffer, _encoding, done) {
+        logs.push(chunk.toString());
+        done();
+      },
+    }),
+  });
+  try {
+    const response = await api.inject({
+      method: "POST",
+      url: "/v1/auth/otp/request",
+      headers: { "content-type": "application/json" },
+      payload: input.payload,
+    });
+
+    expect(response.statusCode).toBe(input.status);
+    expect(problemResponseSchema.parse(response.json()).code).toBe(input.code);
+    expect(response.headers["content-security-policy"]).toBe(
+      "default-src 'none'; frame-ancestors 'none'",
+    );
+    expect(response.body).not.toContain("private-input-fixture");
+    expect(logs.join("")).not.toContain("private-input-fixture");
+  } finally {
+    await api.close();
+  }
+});
