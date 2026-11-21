@@ -700,3 +700,5 @@
   Next: review the remaining tenant resource checks and confirm current production dependency audit.
 - 2026-11-21 · Low · Production advisory gate exited zero. Updated the checklist and report to distinguish verified proxy and synthetic alert behavior from live provider requirements.
   Next: finish endpoint ownership evidence and isolate the Tracking renderer stall.
+- 2026-11-21 · Medium · Five readiness owners assigned. Documented live alert verification and the single-replica limit. Lowering map pixel density left three connected journeys at 53 fps and was reverted.
+  Next: verify the connected tenant regressions and compare cold and warm Tracking tilt traces.

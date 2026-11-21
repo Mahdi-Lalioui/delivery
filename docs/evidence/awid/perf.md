@@ -287,3 +287,7 @@ Disabling the map route blur preserved the delivery journey in three
 connected national-map runs but did not resolve the stall. Each measured 53
 active fps, with 77–79 ms long tasks and no tile completions during the
 measured tilt. The glow was restored.
+
+Rendering the Tracking map at a temporary pixel ratio of 0.5 preserved all
+three connected delivery journeys but left each at 53 active fps. Long
+tasks were 79, 78 and 76 ms. The normal pixel ratio was restored.
