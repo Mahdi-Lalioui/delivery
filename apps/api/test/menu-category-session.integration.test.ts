@@ -115,4 +115,59 @@ test("[MER-08][AUTH-07] real sessions cannot read or mutate another restaurant's
       })
     ).statusCode,
   ).toBe(404);
+
+  const otherPath = `/v1/merchants/${restaurantB.owned}/menu/categories`;
+  const first = menuCategoryWriteOutput.parse(
+    (
+      await write({
+        actor: ownerB,
+        url: otherPath,
+        payload: { ...categoryInput, expectedRevision: 0 },
+        key: "other-owner-first-category",
+      })
+    ).json(),
+  );
+  const second = menuCategoryWriteOutput.parse(
+    (
+      await write({
+        actor: ownerB,
+        url: otherPath,
+        payload: { ...categoryInput, expectedRevision: first.revision },
+        key: "other-owner-second-category",
+      })
+    ).json(),
+  );
+  const reorder = (categoryIds: string[], key: string) =>
+    api.inject({
+      method: "PUT",
+      url: otherPath + "/order",
+      headers: {
+        ...ownerB.headers,
+        "idempotency-key": key,
+        "x-expected-session-id": ownerB.sessionId,
+      },
+      payload: { categoryIds, expectedRevision: second.revision },
+    });
+  const mixedOrder = await reorder(
+    [second.category.categoryId, category.categoryId],
+    "foreign-category-reorder",
+  );
+  expect(mixedOrder.statusCode).toBe(422);
+  expect(mixedOrder.json()).toMatchObject({ code: "invalid_order" });
+  expect(mixedOrder.body).not.toContain(category.categoryId);
+  const otherPage = await api.inject({ url: otherPath, headers: ownerB.headers });
+  expect(menuCategoryPageOutput.parse(otherPage.json())).toMatchObject({
+    revision: second.revision,
+    categories: [first.category, second.category],
+  });
+  expect(await database.get().sql`SELECT FROM public.menu_command_receipts`).toHaveLength(3);
+  const ownOrder = await reorder(
+    [second.category.categoryId, first.category.categoryId],
+    "owner-reorder",
+  );
+  expect(ownOrder.statusCode).toBe(200);
+  expect(ownOrder.json()).toMatchObject({
+    categoryIds: [second.category.categoryId, first.category.categoryId],
+    revision: second.revision + 1,
+  });
 });

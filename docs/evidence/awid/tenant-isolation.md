@@ -50,7 +50,7 @@ Postgres FORCE ROW LEVEL SECURITY currently provides a second wall for:
 
 Orders and most merchant-owned domain tables do **not** currently have RLS; they rely on explicit repository membership/account predicates and the integration coverage linked above. Orders are read and transitioned by customers, restaurant members, couriers and admins, so adding RLS requires a complete role-aware transaction context and regression coverage.
 
-Keep the route-by-route isolation readiness item open until every registered ownership-sensitive endpoint maps to a connected test. Remaining cases include public photo variants with mismatched restaurant, item and media IDs, and private delivery-proof variant reads by members of the fulfilling restaurant and a separate restaurant. The public photo HTTP tests use repository doubles, and the connected courier test covers proof reservation.
+Keep the route-by-route isolation readiness item open until every registered ownership-sensitive endpoint maps to a connected test. Remaining cases include item and profile writes that reference a ready photo from another restaurant, and order rejection with a `soldOutItemIds` entry outside the restaurant's order.
 
 ### Menu items under an owned restaurant
 
@@ -65,6 +65,20 @@ The connected order-session test reads the accepted and cancelled events through
 The connected media test confirms a second active session on the same account can read reservation metadata and the private preview. Another account receives concealed 404s and causes zero storage reads. Crop requests from both the second session and the other account receive 404s and leave the state, receipts and jobs unchanged. The issuing session can crop successfully. [Media lifecycle integration test](../../../apps/api/test/media-lifecycle-session.integration.test.ts)
 
 The focused Postgres run passed five tests across these three files with `pnpm test:int --maxWorkers 1 apps/api/test/media-lifecycle-session.integration.test.ts apps/api/test/menu-item.integration.test.ts apps/api/test/order-session.integration.test.ts`.
+
+### Public menu resources and photo attachments
+
+Two active restaurants have separate published menu categories, items, cover photos and item photos. The connected API tests check that category and item lookups stay within the restaurant slug. Variant requests with mismatched restaurant, item or media IDs, a photo of the wrong kind, or an unattached ready item photo return 404 before any storage read. Valid paths return the bytes for their own attachments. [Media resource integration test](../../../apps/api/test/media-resource-isolation.integration.test.ts)
+
+### Delivery proof order binding and access
+
+An assigned courier with two active orders cannot deliver the second order using a ready photo reserved for the first. The denial preserves the active order and creates no order event, receipt or proof attachment. The same photo is accepted on its own order. Following delivery, the restaurant owner and staff can read its metadata and variant. A foreign restaurant owner, the customer and the courier receive 404s without a storage read. [Media resource integration test](../../../apps/api/test/media-resource-isolation.integration.test.ts)
+
+### Menu import and mixed-restaurant category order
+
+A second restaurant owner receives 404 on a foreign import preview and cannot apply the issuing owner's preview token under either restaurant URL. No rows or receipts are added until the issuing owner applies it to the original restaurant. Category reorder also rejects a mixed list submitted through the caller's own restaurant URL, keeping both revisions and the receipt count stable until the valid reorder. [Menu import integration test](../../../apps/api/test/menu-import.integration.test.ts), [category integration test](../../../apps/api/test/menu-category-session.integration.test.ts)
+
+The focused Postgres run passed seven tests with `pnpm test:int --maxWorkers 1 apps/api/test/media-resource-isolation.integration.test.ts apps/api/test/menu-category-session.integration.test.ts apps/api/test/menu-import.integration.test.ts`.
 
 ### Delivery proof reservation
 
