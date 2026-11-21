@@ -37,7 +37,7 @@ Deployment is paused. Check an item only when its evidence is linked beside it. 
 - [x] **Lane A** Verify upload type, size, decompression limits and metadata stripping. [Upload validation evidence](SECURITY_REVIEW.md#upload-validation)
 - [ ] **Lane A** Verify input handling, CSRF, CSP and security headers, session fixation protections and revocation.
 - [ ] **Lane A** Review route rate limits, secret handling and dependencies. The route-family inventory records the shared 120/IP/minute API limit and durable OTP, deletion-challenge and courier limits; the shared limiter is process-local, so multi-replica protection and remaining secret/dependency review are still open. [Rate-limit inventory](evidence/awid/rate-limits.md)
-- [ ] **Lane A** Record findings and their regression evidence in `docs/SECURITY_REVIEW.md`.
+- [x] **Lane A** Record findings and their regression evidence in [SECURITY_REVIEW.md](SECURITY_REVIEW.md). The report links observed defects and fixes to regression evidence and lists the unverified security scope separately.
 
 ## Local production reliability
 

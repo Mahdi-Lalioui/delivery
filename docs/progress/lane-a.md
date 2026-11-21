@@ -662,3 +662,5 @@
   Next: check the final integration PR and extend the remaining protected-route evidence.
 - 2026-11-21 · High · Encrypted restore passed with checksum-verified age 1.3.2. Exact national map preparation failed at the pinned Protomaps archive HTTP 404. A scooter isolation trial produced mixed 34/60 active fps and was reverted.
   Next: verify PR #19 CI, rerun the remaining input boundary evidence, and locate a checksum-matching national archive for the production rehearsal.
+- 2026-11-21 · High · Fresh authz 267/267 and connected boundary integration 18/18 passed. Closed the security findings documentation criterion with unresolved coverage still listed separately.
+  Next: finish protected-route and input boundary coverage, then check PR #19 current CI and locate the pinned national dataset.
