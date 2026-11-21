@@ -224,3 +224,9 @@ The connected Chromium suite passed all 82 tests at two workers. PR #22
 merged at `22d5dfdd` after all seven GitHub checks passed. A subsequent
 Tracking paint-containment trial passed all three delivery journeys but
 still measured 53 active fps. [Tracking evidence](evidence/awid/perf.md#connected-tracking-tilt-20-november-2026)
+
+PR #23 merged at `2787cb43` after all seven GitHub checks passed. The
+Postgres worker test now verifies both alert adapters on a terminal job
+using synthetic receivers. The proxy identity regression passed and the
+production dependency advisory gate passed on the unchanged lockfile.
+[Alert evidence](evidence/awid/ops-alerts.md) · [Rate-limit evidence](evidence/awid/rate-limits.md)

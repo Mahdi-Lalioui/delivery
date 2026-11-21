@@ -698,3 +698,5 @@
   Next: verify PR #23 on the pushed head and inventory the remaining owner-versus-outsider test gaps.
 - 2026-11-21 · High · PR #23 merged at 2787cb43 with seven green checks. API health passed 11/11, including rate-limit identity at the configured proxy boundary.
   Next: review the remaining tenant resource checks and confirm current production dependency audit.
+- 2026-11-21 · Low · Production advisory gate exited zero. Updated the checklist and report to distinguish verified proxy and synthetic alert behavior from live provider requirements.
+  Next: finish endpoint ownership evidence and isolate the Tracking renderer stall.
