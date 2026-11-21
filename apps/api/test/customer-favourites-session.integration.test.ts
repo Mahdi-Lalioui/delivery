@@ -63,4 +63,11 @@ test("[CUS-23][AUTH-07] real customer sessions keep favourite lists and writes a
       { customer_id: customerB.userId, merchant_id: restaurantB.owned },
     ]),
   );
+  expect((await setFavourite(customerA.headers, restaurantA.owned, "DELETE")).statusCode).toBe(200);
+  expect(
+    await database.get().sql`
+      SELECT customer_id, merchant_id FROM public.customer_favourites
+      WHERE merchant_id = ANY(${[restaurantA.owned, restaurantB.owned]}::uuid[])
+    `,
+  ).toEqual([{ customer_id: customerB.userId, merchant_id: restaurantB.owned }]);
 });

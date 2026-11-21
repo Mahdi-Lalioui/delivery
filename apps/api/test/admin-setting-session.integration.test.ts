@@ -42,6 +42,13 @@ test("[AUTH-05][AUTH-06][ADM-01][ADM-08] only a live admin session can change an
     await sql`SELECT value, updated_by FROM public.platform_settings WHERE key = ${settingKey}`,
   ).toEqual([{ value: 600, updated_by: revokedAdmin.userId }]);
 
+  const settingsRead = await api.inject({ url: "/v1/admin/settings", headers: admin.headers });
+  expect(settingsRead.statusCode).toBe(200);
+  expect(adminPlatformSettingsOutput.parse(settingsRead.json())).toMatchObject({
+    sessionId: admin.sessionId,
+    settings: { [settingKey]: 600 },
+  });
+
   for (const actor of [
     { label: "guest", headers: {}, sessionId: admin.sessionId, expected: 401 },
     { label: "standard", headers: customer.headers, sessionId: customer.sessionId, expected: 403 },
@@ -52,6 +59,10 @@ test("[AUTH-05][AUTH-06][ADM-01][ADM-08] only a live admin session can change an
       expected: 401,
     },
   ]) {
+    const deniedRead = await api.inject({ url: "/v1/admin/settings", headers: actor.headers });
+    expect(deniedRead.statusCode, actor.label).toBe(actor.expected);
+    expect(deniedRead.json()).not.toHaveProperty("settings");
+
     const denied = await api.inject({
       method: "PUT",
       url,

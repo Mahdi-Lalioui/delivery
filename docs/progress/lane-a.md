@@ -712,3 +712,5 @@
   Next: verify the deferred Tracking scooter attachment and cover customer stream revocation.
 - 2026-11-21 · High · Customer SSE revocation passed on Postgres. Removing the entire scooter initialization restored cold 60 fps in three runs. Deferring it moved 90–94 ms stalls to attachment, so the product change was reverted.
   Next: verify combined changes and isolate the scooter's first-draw GPU and shader costs before another product trial.
+- 2026-11-21 · High · PR #26 merged green. The endpoint map covers 142 registrations. Five focused Postgres suites passed, closing six partial customer and admin route cases.
+  Next: finish the 14 partial pairs in the endpoint map, starting with connected merchant settings writes.
