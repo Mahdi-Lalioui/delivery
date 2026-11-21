@@ -318,21 +318,31 @@ test("[AUTH-04] rejects cross-origin cookie writes before revoking an active ses
   try {
     const { cookie } = await loginWeb(api, sent, "+213700000010");
     const cookieHeader = { cookie: "__Host-session=" + cookie.value };
-    const response = await api.inject({
-      method: "POST",
-      url: "/v1/auth/logout",
-      headers: {
-        ...cookieHeader,
-        origin: "https://other.test",
-        "sec-fetch-site": "cross-site",
-        "idempotency-key": randomUUIDv7(),
-      },
-      payload: { scope: "all", expectedSessionId: randomUUIDv7() },
-    });
-    expect(response.statusCode).toBe(403);
-    expect((await api.inject({ url: "/v1/me/sessions", headers: cookieHeader })).statusCode).toBe(
-      200,
-    );
+    const list = () => api.inject({ url: "/v1/me/sessions", headers: cookieHeader });
+    const current = sessionListOutput
+      .parse((await list()).json())
+      .sessions.find(({ current }) => current);
+    if (!current) throw new Error("Missing current session");
+    const logout = (metadata: Record<string, string>) =>
+      api.inject({
+        method: "POST",
+        url: "/v1/auth/logout",
+        headers: { ...cookieHeader, ...metadata, "idempotency-key": randomUUIDv7() },
+        payload: { scope: "all", expectedSessionId: current.id },
+      });
+
+    for (const metadata of [
+      { origin: "https://other.test", "sec-fetch-site": "cross-site" },
+      { origin: "https://other.zaafran.test", "sec-fetch-site": "same-site" },
+      { origin: publicOrigin, "sec-fetch-site": "cross-site" },
+      { "sec-fetch-site": "same-origin" },
+    ]) {
+      expect((await logout(metadata)).statusCode).toBe(403);
+      expect((await list()).statusCode).toBe(200);
+    }
+
+    expect((await logout(originHeaders)).statusCode).toBe(204);
+    expect((await list()).statusCode).toBe(401);
   } finally {
     await api.close();
   }

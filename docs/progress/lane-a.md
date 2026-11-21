@@ -672,3 +672,7 @@
   Next: verify PR #20 on the exact head, then continue the remaining tenant, input, rate-limit and Tracking checks.
 - 2026-11-21 · High · Production Caddy rate-limit probe returned 120 successful responses and five 429s. All three national-map delivery journeys passed and reproduced the tilt at 53 active fps.
   Next: finish PR #20 integration on green CI and review the remaining route and multi-replica coverage.
+- 2026-11-21 · High · PR #20 merged at 141a7af after green CI. Connected CSRF coverage now tests four denied origin/metadata cases with the current session ID, plus successful same-origin revocation. Auth integration 12/12 passed.
+  Next: run full verify and review remaining route ownership cases.
+- 2026-11-21 · High · Full verify passed at 7dafa43. API and Caddy log privacy passed on the rehearsal stack. Adjusted the PostgreSQL probe for the restricted runtime role, preserving duplicate-key coverage, and confirmed zero residual rows.
+  Next: refresh the route ownership inventory and integrate the CSRF and privacy checks after green CI.

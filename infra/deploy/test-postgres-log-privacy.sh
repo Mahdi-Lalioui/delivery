@@ -3,7 +3,7 @@ set -euo pipefail
 
 api="${1:?Usage: test-postgres-log-privacy.sh api-container database-container}"
 database="${2:?Set the local Postgres container name}"
-marker="AWID_POSTGRES_LOG_PROBE_$(date +%s)"
+marker="awid-postgres-log-probe-$(date +%s)@example.invalid"
 
 docker exec --workdir /app/packages/db --interactive --env "AWID_LOG_PROBE_MARKER=$marker" "$api" \
 	node --input-type=module >/dev/null <<'JS'
@@ -13,9 +13,10 @@ const sql = postgres(process.env.DATABASE_URL, { max: 1 });
 let observedDuplicate = false;
 try {
   await sql.begin(async (tx) => {
-    await tx`CREATE TEMP TABLE awid_log_probe (email text UNIQUE)`;
-    await tx`INSERT INTO awid_log_probe (email) VALUES (${process.env.AWID_LOG_PROBE_MARKER})`;
-    await tx`INSERT INTO awid_log_probe (email) VALUES (${process.env.AWID_LOG_PROBE_MARKER})`;
+    // The duplicate insert rolls back both statements. Use real application privileges.
+    const email = process.env.AWID_LOG_PROBE_MARKER;
+    await tx`INSERT INTO public.users (email, created_at) VALUES (${email}, now())`;
+    await tx`INSERT INTO public.users (email, created_at) VALUES (${email}, now())`;
   });
 } catch (error) {
   observedDuplicate = error?.code === "23505";

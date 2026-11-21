@@ -604,3 +604,15 @@ checks with all Linux capabilities dropped. The rehearsal also found a
 dynamic IP collision with the fixed Caddy address. Reserving a separate
 dynamic range preserved the API's exact proxy trust address. Three
 container security regressions and the corrected HTTPS smoke passed.
+
+The connected logout test uses the current session ID, rejects cross-site,
+sibling origin, contradictory browser metadata and missing Origin requests,
+and checks that the session is still valid after each denial. The same
+request with the correct origin revokes the session. Auth integration passed
+12/12 on real Postgres.
+
+The application and Caddy log probes passed on the corrected production
+rehearsal. The Postgres privacy probe previously tried to create a
+temporary table, which the restricted runtime role correctly denied.
+It now uses the real unique email constraint inside a rolled-back
+transaction. The duplicate-key check passed and left zero fixture rows.
