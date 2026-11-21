@@ -138,6 +138,50 @@ test("[MER-12:http] denies cross-tenant invalid previews and rejects changed tok
   expect(count?.value).toBe(0);
 });
 
+test("[MER-12][AUTH-07] an import preview can be applied only by its issuing restaurant owner", async () => {
+  const [owner, otherOwner] = await Promise.all([
+    seedActor("+213500000174", "standard"),
+    seedActor("+213500000175", "standard"),
+  ]);
+  const [{ owned: merchantId }, { owned: otherMerchantId }] = await Promise.all([
+    seedMenuMerchants(owner.userId, "1618"),
+    seedMenuMerchants(otherOwner.userId, "1619"),
+  ]);
+  const api = await openApi();
+  const menu = client(api, owner, merchantId);
+  const foreignMenu = client(api, otherOwner, merchantId);
+  const deniedPreview = await foreignMenu.preview([row]);
+  expect(deniedPreview.statusCode).toBe(404);
+  expect(deniedPreview.body).not.toContain(merchantId);
+  const preview = await menu.preview([row]);
+  expect(preview.statusCode).toBe(200);
+  const { previewToken } = menuImportPreviewOutput.parse(preview.json());
+  if (!previewToken) throw new Error("Expected an authorized preview token.");
+
+  const command = { rows: [row], expectedRevision: 0, previewToken };
+  for (const target of [foreignMenu, client(api, otherOwner, otherMerchantId)]) {
+    const denied = await target.apply(command);
+    expect(denied.statusCode).toBe(409);
+    expect(denied.json()).toMatchObject({ code: "invalid_preview_token" });
+    expect(denied.body).not.toContain(merchantId);
+  }
+  const { sql } = database.get();
+  for (const table of ["categories", "items", "menu_command_receipts"]) {
+    expect(
+      await sql`SELECT FROM public.${sql(table)}
+      WHERE merchant_id IN (${merchantId}, ${otherMerchantId})`,
+    ).toEqual([]);
+  }
+
+  const applied = await menu.apply(command);
+  expect(applied.statusCode).toBe(201);
+  expect(menuImportApplyOutput.parse(applied.json()).revision).toBe(1);
+  expect(
+    await sql`SELECT merchant_id FROM public.items
+    WHERE merchant_id IN (${merchantId}, ${otherMerchantId})`,
+  ).toEqual([{ merchant_id: merchantId }]);
+});
+
 test("[MER-12:http] holds prohibited imports and reports archived external keys without a token", async () => {
   const api = await openApi();
   const actor = await seedActor("+213500000173", "standard");

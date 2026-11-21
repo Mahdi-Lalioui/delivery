@@ -237,3 +237,16 @@ stall. The cold criterion remains open. The final rerun preflight also found
 that `pnpm verify:full` invokes an undefined `test:lighthouse` script, so its
 existing component results cannot be reported as a passing aggregate.
 [Tracking trace](evidence/awid/perf.md#cold-and-warm-tracking-tilt)
+
+PR #24 merged at `6e85a0b1` after seven green GitHub checks. Two focused
+Postgres batches passed seven tests each for nested tenant references. The
+12-test OTP integration suite confirmed that a spent IP budget stops calls
+to both delivery adapters. Provider spend controls and live alerts still
+need staging verification.
+
+Both new cold Tracking trials stayed at 53–55 active fps and were reverted.
+The Lighthouse gate draft identified a specification conflict. Lighthouse
+13.6.0 penalizes intentional `noindex` on private Checkout and Tracking in
+the SEO category, making the required 95 score unattainable for those
+pages. The private indexing controls are intact and the Lighthouse gate
+is still unwired.

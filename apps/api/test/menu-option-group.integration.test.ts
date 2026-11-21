@@ -281,4 +281,48 @@ test("[AUTH-07][MER-10] a restaurant owner cannot read, edit or attach another r
     ...created,
     sessionId: ownerA.sessionId,
   });
+
+  const ownGroupResponse = await clientB.write({
+    path: "/option-groups",
+    payload: { names: { fr: "Garniture" }, minimum: 0, maximum: 1, options, expectedRevision: 1 },
+  });
+  expect(ownGroupResponse.statusCode).toBe(201);
+  const own = menuOptionGroupWriteOutput.parse(ownGroupResponse.json());
+  const [foreignOption] = group.options;
+  const [ownOption] = own.optionGroup.options;
+  if (!foreignOption || !ownOption) throw new Error("Expected options in both restaurants.");
+  const ownPath = "/option-groups/" + own.optionGroup.optionGroupId;
+  const editOption = (optionId: string) =>
+    clientB.write({
+      method: "PUT",
+      path: ownPath,
+      payload: {
+        names: own.optionGroup.names,
+        minimum: 0,
+        maximum: 1,
+        options: [{ ...ownOption, optionId, names: { fr: "Sauce épicée" } }],
+        expectedRevision: own.revision,
+      },
+    });
+  const denied = await editOption(foreignOption.optionId);
+  expect(denied.statusCode).toBe(404);
+  expect(denied.body).not.toContain(foreignOption.optionId);
+  expect(menuOptionGroupDetailOutput.parse((await clientB.get(ownPath)).json())).toEqual({
+    ...own,
+    sessionId: ownerB.sessionId,
+  });
+  expect(menuOptionGroupDetailOutput.parse((await clientA.get(groupPath)).json())).toEqual({
+    ...created,
+    sessionId: ownerA.sessionId,
+  });
+  expect(
+    await database.get().sql`SELECT FROM public.menu_command_receipts
+      WHERE merchant_id IN (${restaurantA.owned}, ${restaurantB.owned})`,
+  ).toHaveLength(3);
+  const allowed = await editOption(ownOption.optionId);
+  expect(allowed.statusCode).toBe(200);
+  expect(menuOptionGroupWriteOutput.parse(allowed.json())).toMatchObject({
+    revision: own.revision + 1,
+    optionGroup: { options: [{ optionId: ownOption.optionId, names: { fr: "Sauce épicée" } }] },
+  });
 });

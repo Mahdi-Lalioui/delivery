@@ -552,7 +552,7 @@ test("[AUTH-01][AUTH-02] signs in by normalized email with one HMAC-protected OT
 
 test("[AUTH-01][AUTH-02] locks email OTP at five wrong codes and shares the IP quota with phone", async () => {
   const runtime = await openAuthApi();
-  const { api, emails } = runtime;
+  const { api, attempts, emails } = runtime;
   const ip = "198.51.100.72";
   async function start(target: { email: string } | { phone: string }) {
     return api.inject({
@@ -582,7 +582,16 @@ test("[AUTH-01][AUTH-02] locks email OTP at five wrong codes and shares the IP q
       const phone = "+2135" + String(400 + index).padStart(8, "0");
       expect((await start({ phone })).statusCode).toBe(202);
     }
-    expect((await start({ email: "another@example.test" })).statusCode).toBe(429);
+    const deniedRequests = await Promise.all([
+      start({ email: "another@example.test" }),
+      start({ phone: "+213500000420" }),
+    ]);
+    for (const deniedRequest of deniedRequests) {
+      expect(deniedRequest.statusCode).toBe(429);
+      expect(problemResponseSchema.parse(deniedRequest.json()).code).toBe("otp_rate_limited");
+    }
+    expect(emails.size).toBe(1);
+    expect(attempts).toHaveLength(19);
   } finally {
     await api.close();
   }

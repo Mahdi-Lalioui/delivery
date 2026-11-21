@@ -82,6 +82,11 @@ staging_compose() {
 }
 
 staging_compose up -d --no-deps --force-recreate --wait worker
+```
+
+Once Compose reports the worker healthy, run the following in the same shell.
+
+```sh
 job_key="ops-alert-smoke-$(date -u +%Y%m%dT%H%M%SZ)-$$"
 staging_compose exec -T -u postgres db psql -X -v ON_ERROR_STOP=1 \
   -v "job_key=$job_key" -d awid <<'SQL'
@@ -94,12 +99,22 @@ SQL
 
 Confirm one email and one Telegram message for the same UTC incident window.
 Check that both show one attempt and exclude the payload and validation error.
-After the job is terminal, remove only the keyed staging fixture.
+Remove the keyed staging fixture after it reaches the terminal state. If the
+cleanup returns zero rows, check the worker and the job state before retrying
+cleanup. The guard requires Graphile Worker to have recorded the failure and
+released the lock.
 
 ```sh
 staging_compose exec -T -u postgres db psql -X -v ON_ERROR_STOP=1 \
   -v "job_key=$job_key" -d awid <<'SQL'
-SELECT (graphile_worker.remove_job(:'job_key')).id;
+SELECT (graphile_worker.remove_job(key)).id AS removed_job_id
+FROM graphile_worker.jobs
+WHERE key = :'job_key'
+  AND task_identifier = 'ops.watchdog'
+  AND attempts = 1
+  AND max_attempts = 1
+  AND last_error IS NOT NULL
+  AND locked_at IS NULL;
 SQL
 ```
 

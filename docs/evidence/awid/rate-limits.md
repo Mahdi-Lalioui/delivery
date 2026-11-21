@@ -64,6 +64,17 @@ client received its own budget.
 
 ## Provider spend verification
 
+The API reserves OTP quota in Postgres before calling the configured Twilio,
+HTTPS SMS webhook or Resend adapter. Unauthenticated sign-in issuance has
+identifier and IP ceilings. Signed-in identifier changes also have an account
+ceiling. These limits apply to OTP requests and provide no provider-wide budget
+for aggregate sends, invitations or worker notifications.
+
+The local Postgres API regression used fake delivery adapters. After one email
+and 19 SMS sends from one client IP, two further requests in parallel, one per
+channel, both returned `otp_rate_limited` and left the delivery counts unchanged.
+`pnpm test:int apps/api/test/auth.integration.test.ts` passed 12/12.
+
 Before enabling live SMS or email delivery, configure spend or usage alerts and
 a hard cap where the provider supports one. Confirm which controls enforce a
 limit and which send a notification. Run a synthetic OTP incident in staging

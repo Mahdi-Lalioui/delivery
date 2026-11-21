@@ -706,3 +706,5 @@
   Next: finish the cold/warm Tracking trace evidence and rerun combined checks.
 - 2026-11-21 · High · Tracking's cold tilt hit 53 fps and the warm repeat hit 60 fps. The cold trace spent 62.6 ms in compositor commit. Final gate preflight found a missing Lighthouse script.
   Next: run combined verification, then isolate the first-tilt compositor cost and complete the remaining route evidence.
+- 2026-11-21 · High · PR #24 merged green. Both seven-test tenant batches and the 12-test OTP suite passed. Both cold Tracking trials stayed below target. Staging incident cleanup now requires a persisted terminal state.
+  Next: run combined verify, then cover live stream revocation and remaining attachment reads.
