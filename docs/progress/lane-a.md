@@ -668,3 +668,5 @@
   Next: finish the local Compose deployment smoke and record endpoint and routing results.
 - 2026-11-21 · High · Found the pinned national data, fixed nonroot ClamAV updater startup and the Caddy address allocation collision. The full loopback production HTTPS smoke passed after rebuilding the disposable edge network with retained data.
   Next: finish full verify on the deployment fixes and push, then run the national map browser suite.
+- 2026-11-21 · High · Full verify passed. National map browser 4/4, OSRM driving route, and Caddy 502 header/privacy recovery passed against the production rehearsal. PR #20 opened.
+  Next: verify PR #20 on the exact head, then continue the remaining tenant, input, rate-limit and Tracking checks.

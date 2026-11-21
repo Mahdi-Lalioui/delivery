@@ -167,8 +167,7 @@ event replay and timer recovery. Production deployment is pending.
 
 - Full `pnpm verify` passed at `d27a1632` with the load seeder registered.
 - The seeder produced all 30,000 quotes and 1,000 assigned couriers. The distributed rerun passed through local HTTPS Caddy with production limits active. [Load evidence](evidence/awid/k6/connected-pilot.md)
-- Production Compose configuration validated with disposable settings.
-  The national map file is absent, so the full deployment dry run remains open.
+- The disposable production Compose rehearsal passed HTTPS smoke with the checksum-matching national map and prepared OSRM graph.
 - The Telegram bot and monitored chat are unconfigured on the inspected
   rehearsal stack. Live delivery and external collector ingestion remain open.
 - The design handoff changes exist with 390 px Arabic and 1280 px French
@@ -203,8 +202,7 @@ The release verdict remains **NOT READY**.
 - The requested design changes are present and the latest French mobile
   light and dark captures were inspected. [Captures](evidence/awid/lane-a-design/README.md)
 - Tracking still has reproducible 54 fps runs. CPU-profiled runs reached 60 active fps, while ordinary runs reproduced 53 active fps.
-- A live Telegram incident and a full deployment rehearsal need the
-  configured bot and national map assets, respectively. No deployment ran.
+- Live Telegram delivery still needs a configured bot and monitored chat. No public deployment ran.
 
 **NOT READY.** The final clean rerun and release are gated on the six open
 items in [READINESS.md](READINESS.md).
@@ -212,3 +210,5 @@ items in [READINESS.md](READINESS.md).
 The distributed 100-restaurant 10× rerun passed with 12.73/4.09 ms p95, zero HTTP errors and zero dropped iterations. The failed single-restaurant stress case remains in the capacity evidence.
 
 On 21 November the encrypted restore drill passed. The pinned national asset source returned HTTP 404, leaving the exact production rehearsal open. Authorization passed 267/267 and the connected input, session, media and billing subset passed 18/18.
+
+The pinned national assets were recovered from a second local checkout. After correcting the scanner and edge network startup, the full local HTTPS smoke passed and OSRM served a driving route. The national map browser suite passed 4/4. A forced web outage returned 502 with security headers and omitted the request marker from Caddy logs. [Rehearsal evidence](evidence/awid/local-operations.md#21-november-restore-and-map-preparation)

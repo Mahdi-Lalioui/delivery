@@ -127,3 +127,9 @@ services became healthy. The trusted local HTTPS smoke passed API health,
 web, security headers, www redirect, the national catalog, a real tile,
 and private test route denial. The release remains subject to the other
 readiness criteria.
+
+Full workspace verification passed after the startup fixes. The national
+map browser suite passed all four Arabic/French viewport and theme cases.
+An API-network request to OSRM returned a real driving route. A deliberate
+web outage returned 502 through Caddy with the configured security headers,
+omitted the synthetic request marker from the logs, and restored web health.
