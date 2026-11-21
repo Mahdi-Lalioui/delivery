@@ -7,6 +7,7 @@ import { runMigrations } from "graphile-worker";
 import { mediaOutput } from "@zaafran/contracts/media";
 import { createLocalMediaStore, type MediaStore } from "@zaafran/media";
 import { beforeAll, expect, onTestFinished, test } from "vitest";
+import { createSessionToken } from "../src/auth-crypto.ts";
 import { registerMerchantApiFixture } from "./merchant-api-fixture.ts";
 
 const { database, openApi, seedActor } = registerMerchantApiFixture("2026-11-07T12:00:00.000Z");
@@ -31,7 +32,7 @@ async function jobsFor(mediaId: string) {
   `;
 }
 
-test("[MER-14:authz] private media lifecycle writes and variants stay session-scoped", async () => {
+test("[MER-14:authz] private media reads require ownership and writes require the issuing session", async () => {
   const mediaRoot = await mkdtemp(join(tmpdir(), "zaafran-media-session-"));
   await mkdir(mediaRoot, { recursive: true, mode: 0o700 });
   onTestFinished(() => rm(mediaRoot, { recursive: true, force: true }));
@@ -49,6 +50,20 @@ test("[MER-14:authz] private media lifecycle writes and variants stay session-sc
   const owner = await seedActor("+213500000191", "standard");
   const outsider = await seedActor("+213500000192", "standard");
   const { sql } = database.get();
+  const secondSessionId = randomUUIDv7();
+  const secondSession = createSessionToken();
+  await sql`
+    INSERT INTO public.sessions
+      (id, user_id, token_hash, transport, kind, request_ip, created_at, last_seen_at, expires_at)
+    SELECT ${secondSessionId}, user_id, ${secondSession.tokenHash}, transport, kind, request_ip,
+      created_at, last_seen_at, expires_at
+    FROM public.sessions WHERE id = ${owner.sessionId}
+  `;
+  const ownerOnSecondDevice = {
+    ...owner,
+    sessionId: secondSessionId,
+    headers: { ...owner.headers, cookie: "__Host-session=" + secondSession.token },
+  };
 
   const reserved = await api.inject({
     method: "POST",
@@ -98,15 +113,42 @@ test("[MER-14:authz] private media lifecycle writes and variants stay session-sc
     bytes: preview.length,
     checksumSha256: createHash("sha256").update(preview).digest("base64"),
   });
-  const cropInput = { focalX: 5_000, focalY: 5_000, zoomPercent: 100 };
-  const outsiderCrop = await api.inject({
-    method: "POST",
-    url: `/v1/media/${mediaId}/crop`,
-    headers: commandHeaders(outsider),
-    payload: cropInput,
+  const statusUrl = `/v1/media/${mediaId}`;
+  const previewUrl = statusUrl + "/preview";
+  const ownerStatus = await api.inject({ url: statusUrl, headers: ownerOnSecondDevice.headers });
+  expect(ownerStatus.statusCode).toBe(200);
+  expect(mediaOutput.parse(ownerStatus.json())).toMatchObject({
+    mediaId,
+    sessionId: secondSessionId,
+    status: "awaiting_crop",
   });
-  expect(outsiderCrop.statusCode).toBe(404);
-  expect(outsiderCrop.headers["cache-control"]).toBe("no-store");
+  for (const [url, cacheControl] of [
+    [statusUrl, "no-store"],
+    [previewUrl, "private, no-store"],
+  ] as const) {
+    const denied = await api.inject({ url, headers: outsider.headers });
+    expect(denied.statusCode, url).toBe(404);
+    expect(denied.json()).toMatchObject({ code: "not_found" });
+    expect(denied.headers["cache-control"]).toBe(cacheControl);
+    expect(denied.body).not.toContain(mediaId);
+  }
+  expect(objectReads).toBe(0);
+  const ownerPreview = await api.inject({ url: previewUrl, headers: ownerOnSecondDevice.headers });
+  expect(ownerPreview.statusCode).toBe(200);
+  expect(ownerPreview.rawPayload).toEqual(preview);
+  expect(objectReads).toBe(1);
+
+  const cropInput = { focalX: 5_000, focalY: 5_000, zoomPercent: 100 };
+  for (const actor of [outsider, ownerOnSecondDevice]) {
+    const denied = await api.inject({
+      method: "POST",
+      url: `/v1/media/${mediaId}/crop`,
+      headers: commandHeaders(actor),
+      payload: cropInput,
+    });
+    expect(denied.statusCode).toBe(404);
+    expect(denied.headers["cache-control"]).toBe("no-store");
+  }
   expect(
     await sql`SELECT status, crop_focal_x FROM public.media_uploads WHERE id = ${mediaId}`,
   ).toEqual([{ status: "awaiting_crop", crop_focal_x: null }]);
@@ -166,13 +208,14 @@ test("[MER-14:authz] private media lifecycle writes and variants stay session-sc
   });
 
   const variantUrl = `/v1/media/${variantMediaId}/variants/webp/160`;
+  const readsBeforeVariant = objectReads;
   const ownerVariant = await api.inject({ url: variantUrl, headers: owner.headers });
   expect(ownerVariant.statusCode).toBe(200);
   expect(ownerVariant.headers["cache-control"]).toBe("private, no-store");
   expect(ownerVariant.rawPayload).toEqual(variantBytes);
-  expect(objectReads).toBe(1);
+  expect(objectReads).toBe(readsBeforeVariant + 1);
   const outsiderVariant = await api.inject({ url: variantUrl, headers: outsider.headers });
   expect(outsiderVariant.statusCode).toBe(404);
   expect(outsiderVariant.headers["cache-control"]).toBe("private, no-store");
-  expect(objectReads).toBe(1);
+  expect(objectReads).toBe(readsBeforeVariant + 1);
 });

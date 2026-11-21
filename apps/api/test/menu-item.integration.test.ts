@@ -220,7 +220,7 @@ test("[MER-09:http] [MER-23:http] staff receives only availability fields on the
   expect((await staffClient.listItems(categoryId)).statusCode).toBe(404);
 });
 
-test("[AUTH-07][MER-09] another restaurant owner cannot edit, duplicate, hide or archive an item", async () => {
+test("[AUTH-07][MER-09] another restaurant owner cannot list, create or change items using foreign resource IDs", async () => {
   const api = await openApi();
   const ownerA = await seedActor("+213500000058", "standard");
   const ownerB = await seedActor("+213500000059", "standard");
@@ -235,8 +235,13 @@ test("[AUTH-07][MER-09] another restaurant owner cannot edit, duplicate, hide or
   const categoryB = await createCategory(clientB);
   const itemPath = "/items/" + original.item.itemId;
   const revision = 1;
+  const foreignList = await clientB.listItems(categoryA);
+  expect(foreignList.statusCode).toBe(404);
+  expect(foreignList.body).not.toContain(categoryA);
+  expect(foreignList.body).not.toContain(original.item.itemId);
 
   const denied = await Promise.all([
+    clientB.write({ path: "/items", payload: newItem(categoryA) }),
     clientB.write({
       method: "PUT",
       path: itemPath,
@@ -258,7 +263,11 @@ test("[AUTH-07][MER-09] another restaurant owner cannot edit, duplicate, hide or
       payload: { expectedRevision: revision },
     }),
   ]);
-  expect(denied.map((response) => response.statusCode)).toEqual([404, 404, 404, 404]);
+  for (const response of denied) {
+    expect(response.statusCode).toBe(404);
+    expect(response.body).not.toContain(original.item.itemId);
+    expect(response.body).not.toContain(categoryA);
+  }
   expect(menuItemPageOutput.parse((await clientB.listItems(categoryB)).json())).toMatchObject({
     revision: 1,
     items: [],
@@ -267,4 +276,8 @@ test("[AUTH-07][MER-09] another restaurant owner cannot edit, duplicate, hide or
     revision: 2,
     items: [original.item],
   });
+  expect(
+    await database.get().sql`SELECT FROM public.menu_command_receipts
+      WHERE merchant_id IN (${restaurantA.owned}, ${restaurantB.owned})`,
+  ).toHaveLength(3);
 });

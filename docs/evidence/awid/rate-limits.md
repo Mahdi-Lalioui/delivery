@@ -43,16 +43,31 @@ or external SMS/email spend limits.
 
 ## Deployment limitation
 
-The global limiter and realtime stream counter are process-local. Do not scale
-the API horizontally until a shared limiter and shared stream accounting (or a
-documented per-replica capacity model) are configured and tested. Durable
-Postgres quotas listed above are shared across replicas. The test suite proves
-configured behavior for the named cases; it is not a multi-replica abuse or
-external-provider cost simulation. Provider spend limits still need verification
-when SMS/email credentials are configured.
+The [pilot deployment runbook](../../DEPLOY.md#pilot-api-capacity) specifies one
+API replica, which is the default in
+[production Compose](../../../infra/compose.production.yml). The HTTP limiter
+and realtime stream counter are process-local. Before adding a second API
+replica, configure and test a shared HTTP limiter and shared stream accounting
+or a documented per-replica stream capacity model. The durable Postgres quotas
+listed above already use a shared store.
 
 On 21 November, the disposable production Compose stack accepted 120
 consecutive HTTPS health requests from one client through Caddy, then
 returned 429 for the next five in the same minute. This verifies the actual
-default threshold at the edge. Multi-replica counters and provider spend
-limits remain unverified.
+default threshold at the edge for the single-replica pilot configuration.
+
+The focused API health suite passed 11/11. With the production proxy CIDR
+and a one-request test limit, forwarded addresses from an untrusted peer
+could not change its budget. Through the trusted proxy, changing an earlier
+forwarded hop left the actual client budget unchanged, while a distinct
+client received its own budget.
+
+## Provider spend verification
+
+Before enabling live SMS or email delivery, configure spend or usage alerts and
+a hard cap where the provider supports one. Confirm which controls enforce a
+limit and which send a notification. Run a synthetic OTP incident in staging
+and verify that operations receives the configured alert. Record the thresholds,
+enforcement behavior and incident result here, without credentials. This
+verification is pending with the project owner. See
+[HUMAN_TODO](../../HUMAN_TODO.md#confirm-live-incident-delivery).

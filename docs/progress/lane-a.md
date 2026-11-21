@@ -696,3 +696,13 @@
   Next: run full verify and open the readiness evidence PR while live provider work remains blocked on credentials.
 - 2026-11-21 · High · Full verify passed at ae4e5a5. Added a connected promotion update ownership case and verified that a foreign promotion ID under the caller's restaurant URL is concealed without mutation.
   Next: verify PR #23 on the pushed head and inventory the remaining owner-versus-outsider test gaps.
+- 2026-11-21 · High · PR #23 merged at 2787cb43 with seven green checks. API health passed 11/11, including rate-limit identity at the configured proxy boundary.
+  Next: review the remaining tenant resource checks and confirm current production dependency audit.
+- 2026-11-21 · Low · Production advisory gate exited zero. Updated the checklist and report to distinguish verified proxy and synthetic alert behavior from live provider requirements.
+  Next: finish endpoint ownership evidence and isolate the Tracking renderer stall.
+- 2026-11-21 · Medium · Five readiness owners assigned. Documented live alert verification and the single-replica limit. Lowering map pixel density left three connected journeys at 53 fps and was reverted.
+  Next: verify the connected tenant regressions and compare cold and warm Tracking tilt traces.
+- 2026-11-21 · High · Five connected Postgres cases passed across the private media, menu item and merchant board suites. Targeted ESLint passed for all three files.
+  Next: finish the cold/warm Tracking trace evidence and rerun combined checks.
+- 2026-11-21 · High · Tracking's cold tilt hit 53 fps and the warm repeat hit 60 fps. The cold trace spent 62.6 ms in compositor commit. Final gate preflight found a missing Lighthouse script.
+  Next: run combined verification, then isolate the first-tilt compositor cost and complete the remaining route evidence.

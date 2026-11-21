@@ -287,3 +287,33 @@ Disabling the map route blur preserved the delivery journey in three
 connected national-map runs but did not resolve the stall. Each measured 53
 active fps, with 77–79 ms long tasks and no tile completions during the
 measured tilt. The glow was restored.
+
+Rendering the Tracking map at a temporary pixel ratio of 0.5 preserved all
+three connected delivery journeys but left each at 53 active fps. Long
+tasks were 79, 78 and 76 ms. The normal pixel ratio was restored.
+
+### Cold and warm Tracking tilt
+
+A follow-up traced a first tilt and a second tilt on the same connected
+national-map journey. The first tilt measured 53 active fps, with an 81 ms
+long task and an 83.3 ms longest frame interval. The warm repeat measured
+60 active fps and had no long tasks or long frames. No tiles completed
+during either sample.
+
+The cold renderer main-thread task started 184 ms after the click and lasted
+82.0 ms (68.3 ms of thread CPU time). It included a 16.8 ms animation-frame
+callback and a 62.6 ms compositor `Commit` (49.4 ms of thread CPU time). A
+58.5 ms GPU-process task overlapped the commit. The trace locates the largest
+part of the stall in the commit but leaves its trigger unresolved. The warm
+repeat is a diagnostic and the cold-tilt criterion remains open.
+
+Reproduce with the checksum-matching national archive served by Martin on
+loopback port 5506:
+
+```sh
+ZAAFRAN_TILE_ORIGIN=http://127.0.0.1:5506 pnpm exec turbo run build --filter=@zaafran/web
+AWID_MEASURE_TRACKING_TILT=1 AWID_TRACE_TRACKING_TILT=1 AWID_WARM_TRACKING_TILT=1 \
+  ZAAFRAN_TILE_ORIGIN=http://127.0.0.1:5506 \
+  pnpm exec playwright test --config=e2e/auth.config.ts \
+  e2e/auth-order-journey.spec.ts --grep 'real cash order · delivery' --workers=1
+```

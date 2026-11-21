@@ -1,4 +1,5 @@
 import { randomBytes, randomUUID } from "node:crypto";
+import { merchantBoardOutput } from "@zaafran/contracts/orders";
 import { createAuthRepository } from "@zaafran/db/auth";
 import { createOrderRepository } from "@zaafran/db/orders";
 import { runMigrations } from "graphile-worker";
@@ -44,6 +45,7 @@ async function standardSession(phoneE164: string) {
 async function seedOrder(customerId: string, merchantUserId: string, otherOwnerId: string) {
   const { sql } = database.get();
   const merchantId = randomUUID();
+  const otherMerchantId = randomUUID();
   const orderId = randomUUID();
   await sql`INSERT INTO wilayas (code, name_ar, name_fr) VALUES (16, 'الجزائر', 'Alger')`;
   await sql`
@@ -59,8 +61,8 @@ async function seedOrder(customerId: string, merchantUserId: string, otherOwnerI
   await sql`INSERT INTO merchant_members (merchant_id, user_id, role) VALUES (${merchantId}, ${merchantUserId}, 'owner')`;
   await sql`
     WITH other_restaurant AS (
-      INSERT INTO merchants (slug, restaurant_name, owner_name, phone_e164, commune_id, location, cuisines, status, created_at)
-      SELECT 'fixture-other-tenant', restaurant_name, owner_name, phone_e164, commune_id, location, cuisines, status, created_at
+      INSERT INTO merchants (id, slug, restaurant_name, owner_name, phone_e164, commune_id, location, cuisines, status, created_at)
+      SELECT ${otherMerchantId}, 'fixture-other-tenant', restaurant_name, owner_name, phone_e164, commune_id, location, cuisines, status, created_at
       FROM merchants WHERE id = ${merchantId} RETURNING id
     )
     INSERT INTO merchant_members (merchant_id, user_id, role)
@@ -76,7 +78,7 @@ async function seedOrder(customerId: string, merchantUserId: string, otherOwnerI
       'pending_acceptance', 'pickup', 1, ${now.toISOString()}, ${now.toISOString()},
       ${new Date(now.getTime() + 60_000).toISOString()}, 1000, 0, 1000, 1000, '[]')
   `;
-  return { merchantId, orderId };
+  return { merchantId, otherMerchantId, orderId };
 }
 
 test("[AUTH-06][MER-03] real standard session cookies reach the board only for merchant members", async () => {
@@ -86,7 +88,11 @@ test("[AUTH-06][MER-03] real standard session cookies reach the board only for m
     standardSession("+213500000002"),
     standardSession("+213500000003"),
   ]);
-  const { merchantId, orderId } = await seedOrder(customer.userId, owner.userId, outsider.userId);
+  const { merchantId, otherMerchantId, orderId } = await seedOrder(
+    customer.userId,
+    owner.userId,
+    outsider.userId,
+  );
   const repository = createOrderRepository(database.get());
   const auth = createAuthService({
     repository: createAuthRepository(database.get()),
@@ -180,6 +186,26 @@ test("[AUTH-06][MER-03] real standard session cookies reach the board only for m
     });
   expect((await cancel(customer.headers)).statusCode).toBe(409);
   expect((await cancel(owner.headers)).json()).toMatchObject({ status: "cancelled", version: 3 });
+  const replayUrl = board + "?after=0";
+  const boardReplay = await api.inject({ url: replayUrl, headers: owner.headers });
+  expect(boardReplay.statusCode).toBe(200);
+  expect(merchantBoardOutput.parse(boardReplay.json()).events).toMatchObject([
+    { orderId, status: "accepted", version: 2 },
+    { orderId, status: "cancelled", version: 3 },
+  ]);
+  const deniedReplay = await api.inject({ url: replayUrl, headers: outsider.headers });
+  expect(deniedReplay.statusCode).toBe(404);
+  expect(deniedReplay.body).not.toContain(orderId);
+  const ownEmptyReplay = await api.inject({
+    url: `/v1/merchants/${otherMerchantId}/order-board?after=0`,
+    headers: outsider.headers,
+  });
+  expect(ownEmptyReplay.statusCode).toBe(200);
+  expect(merchantBoardOutput.parse(ownEmptyReplay.json())).toMatchObject({
+    orders: [],
+    events: [],
+  });
+
   const stream = await api.inject({
     url: "/v1/realtime?topic=merchantOrders&merchantId=" + merchantId + "&after=0",
     headers: owner.headers,
@@ -208,9 +234,12 @@ test("[AUTH-06][MER-03] real standard session cookies reach the board only for m
 
   const { sql } = database.get();
   const courier = await standardSession("+213500000004");
+  const otherCourier = await standardSession("+213500000005");
   const courierId = randomUUID();
+  const otherCourierId = randomUUID();
   await sql`INSERT INTO public.couriers (id, user_id, merchant_id, created_at)
-    VALUES (${courierId}, ${courier.userId}, ${merchantId}, ${now.toISOString()})`;
+    VALUES (${courierId}, ${courier.userId}, ${merchantId}, ${now.toISOString()}),
+      (${otherCourierId}, ${otherCourier.userId}, ${otherMerchantId}, ${now.toISOString()})`;
   for (const scenario of [
     {
       name: "reject",
@@ -292,6 +321,16 @@ test("[AUTH-06][MER-03] real standard session cookies reach the board only for m
     expect(denied.statusCode, `foreign merchant ${scenario.name}`).toBe(404);
     expect(denied.json()).toMatchObject({ code: "not_found" });
     expect(denied.body).not.toContain(targetOrderId);
+    if (scenario.name === "assign") {
+      const deniedCourier = await api.inject({
+        ...request,
+        headers: { ...owner.headers, "idempotency-key": "foreign-courier-assignment" },
+        payload: { expectedVersion: scenario.version, courierId: otherCourierId },
+      });
+      expect(deniedCourier.statusCode).toBe(400);
+      expect(deniedCourier.json()).toMatchObject({ code: "invalid_order_command" });
+      expect(deniedCourier.body).not.toContain(otherCourierId);
+    }
     expect(
       await sql`
         SELECT status, version, courier_id, last_event_at FROM public.orders WHERE id = ${targetOrderId}

@@ -50,7 +50,21 @@ Postgres FORCE ROW LEVEL SECURITY currently provides a second wall for:
 
 Orders and most merchant-owned domain tables do **not** currently have RLS; they rely on explicit repository membership/account predicates and the integration coverage linked above. Orders are read and transitioned by customers, restaurant members, couriers and admins, so adding RLS requires a complete role-aware transaction context and regression coverage.
 
-This is a useful route/resource evidence index, not a complete route-by-route proof. Some endpoint tests are mock-backed HTTP tests, and there is no checked-in mapping from every registered route to a real owner-versus-outsider integration case. Keep the route-by-route isolation readiness item open until that map is complete and the remaining endpoints have direct ownership regressions.
+Keep the route-by-route isolation readiness item open until every registered ownership-sensitive endpoint maps to a connected test. Remaining cases include public photo variants with mismatched restaurant, item and media IDs, and private delivery-proof variant reads by members of the fulfilling restaurant and a separate restaurant. The public photo HTTP tests use repository doubles, and the connected courier test covers proof reservation.
+
+### Menu items under an owned restaurant
+
+The connected menu-item test sends a category from restaurant A to the list and create routes under restaurant B with B's owner session. Both return concealed 404s. Both menus retain their items and revisions, and their receipt count stays at the three successful setup writes. [Menu-item integration test](../../../apps/api/test/menu-item.integration.test.ts)
+
+### Order-board replay and courier assignment
+
+The connected order-session test reads the accepted and cancelled events through the order-board replay route as the owner. An owner from another restaurant receives a concealed 404 on the same route and an empty replay on their own board. Assigning a courier from that second restaurant to the first restaurant's order returns `invalid_order_command`, leaves the order, events and receipts unchanged, and allows a subsequent valid assignment. [Order-session integration test](../../../apps/api/test/order-session.integration.test.ts)
+
+### Private media metadata and preview
+
+The connected media test confirms a second active session on the same account can read reservation metadata and the private preview. Another account receives concealed 404s and causes zero storage reads. Crop requests from both the second session and the other account receive 404s and leave the state, receipts and jobs unchanged. The issuing session can crop successfully. [Media lifecycle integration test](../../../apps/api/test/media-lifecycle-session.integration.test.ts)
+
+The focused Postgres run passed five tests across these three files with `pnpm test:int --maxWorkers 1 apps/api/test/media-lifecycle-session.integration.test.ts apps/api/test/menu-item.integration.test.ts apps/api/test/order-session.integration.test.ts`.
 
 ### Delivery proof reservation
 

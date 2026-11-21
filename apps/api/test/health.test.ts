@@ -88,6 +88,26 @@ test("[M0-6] rate limits repeated requests with a problem response", async () =>
   }
 });
 
+test("[MON-08] only the configured proxy can set the client rate-limit identity", async () => {
+  const api = createApi({
+    checkReadiness: () => Promise.resolve(),
+    trustedProxy: "172.29.78.2/32",
+    rateLimit: { max: 1, timeWindow: 60_000 },
+  });
+  const request = (remoteAddress: string, forwarded: string) =>
+    api.inject({ url: "/healthz", remoteAddress, headers: { "x-forwarded-for": forwarded } });
+
+  try {
+    expect((await request("192.0.2.1", "198.51.100.1")).statusCode).toBe(200);
+    expect((await request("192.0.2.1", "198.51.100.2")).statusCode).toBe(429);
+    expect((await request("172.29.78.2", "198.51.100.1, 192.0.2.2")).statusCode).toBe(200);
+    expect((await request("172.29.78.2", "198.51.100.2, 192.0.2.2")).statusCode).toBe(429);
+    expect((await request("172.29.78.2", "192.0.2.3")).statusCode).toBe(200);
+  } finally {
+    await api.close();
+  }
+});
+
 test("[M0-6] structured logging redacts personal fields while preserving correlation IDs", async () => {
   const logs: string[] = [];
   const api = createApi({
