@@ -51,3 +51,9 @@ A connected Postgres watchdog failure also exercised the production Telegram
 adapter through an injected fetch receiver. The receiver saw exactly one
 request with the expected alert body and no private job payload or exception
 text. The queue suite passed 8/8. The receiver uses synthetic settings.
+
+The connected watchdog incident now also exercises the production Resend
+adapter through an injected fetch receiver. It recorded one request to the
+synthetic operations inbox with the same incident idempotency key and no
+job payload or exception text. The Postgres queue suite passed 8/8. Provider
+delivery and external collector ingestion still require live configuration.

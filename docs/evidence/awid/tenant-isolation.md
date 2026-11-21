@@ -67,3 +67,24 @@ also pairs a foreign invitation ID with the caller's own restaurant ID. The
 endpoint returned 404, the invitation remained in the issuing restaurant's
 pending list, and its legitimate owner could revoke it. Both staff integration
 tests passed.
+
+### Menu category rename
+
+The [connected category regression](../../../apps/api/test/menu-category-session.integration.test.ts)
+passes a foreign category ID under the caller's own restaurant URL. The
+endpoint returns 404 without exposing the ID, and the original category and
+command receipts remain unchanged. The focused Postgres suite passed.
+
+### Courier presence
+
+The [connected courier regression](../../../apps/api/test/courier-session.integration.test.ts)
+denies the customer and rejects an explicit foreign courier ID. Both courier
+rows stay offline. A valid request then marks only the authenticated courier
+online. The Postgres suite passed.
+
+### Promotion update
+
+The [connected promotions regression](../../../apps/api/test/merchant-promotions-session.integration.test.ts)
+uses a valid owner session and restaurant URL with a foreign promotion ID.
+The request returns 404 without disclosing the ID. The original promotion
+and command receipt count remain unchanged. The Postgres suite passed.

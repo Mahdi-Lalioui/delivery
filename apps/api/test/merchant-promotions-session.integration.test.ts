@@ -64,6 +64,14 @@ test("[MER-19][AUTH-07] real sessions cannot read or change another restaurant's
   expect(
     (await api.inject({ url: foreignRestaurantPath, headers: ownerA.headers })).statusCode,
   ).toBe(404);
+  const wrongResource = await api.inject({
+    method: "PUT",
+    url: `${foreignRestaurantPath}/${promotionId}`,
+    headers: commandHeaders(ownerB, "foreign-resource-update"),
+    payload: { ...promotion, activation: { kind: "code", code: "CHANGED" } },
+  });
+  expect(wrongResource.statusCode).toBe(404);
+  expect(wrongResource.body).not.toContain(promotionId);
   expect(
     await database.get().sql`SELECT id, merchant_id, code FROM public.promotions`,
   ).toMatchObject([{ id: promotionId, merchant_id: restaurantA.owned, code: "ALGERDAY" }]);

@@ -686,3 +686,13 @@
   Next: verify PR #22 on the latest head and continue the connected Tracking tilt investigation.
 - 2026-11-21 · High · Full verify passed at 523ed130, including 389 Postgres tests. Authz 267/267, Gitleaks history and the Trivy source gate passed. Live provider credentials were unavailable.
   Next: finish the 82-test connected browser run and integrate PR #22 after green CI on the pushed head.
+- 2026-11-21 · High · Connected browser suite passed 82/82 and PR #22 merged at 22d5dfdd with seven green checks. Paint containment reproduced 53 fps in all three national-map journeys and was reverted.
+  Next: isolate the tilted map renderer workload and continue per-route tenant coverage.
+- 2026-11-21 · High · Category tenant-binding regression passed on Postgres. All three connected Tracking journeys passed with route blur disabled, but tilt stayed at 53 fps. Restored the glow.
+  Next: isolate the browser renderer task and continue endpoint-level tenant coverage.
+- 2026-11-21 · High · Courier presence isolation passed against Postgres. Denied requests changed neither courier, and the valid request marked only the caller online.
+  Next: extend the connected terminal worker incident to exercise the Resend adapter.
+- 2026-11-21 · High · Worker queue passed 8/8. A real terminal job produced one request each through the Telegram and Resend adapters to synthetic receivers without the job payload or exception.
+  Next: run full verify and open the readiness evidence PR while live provider work remains blocked on credentials.
+- 2026-11-21 · High · Full verify passed at ae4e5a5. Added a connected promotion update ownership case and verified that a foreign promotion ID under the caller's restaurant URL is concealed without mutation.
+  Next: verify PR #23 on the pushed head and inventory the remaining owner-versus-outsider test gaps.

@@ -3,6 +3,7 @@ import { tmpdir } from "node:os";
 import { createAuthRepository } from "@zaafran/db/auth";
 import type { SendOrderPush } from "../src/order-push-adapter.ts";
 import { createLocalMediaStore } from "@zaafran/media";
+import { createResendSender } from "@zaafran/notifications";
 import { once } from "node:events";
 import { run, runOnce } from "graphile-worker";
 import { expect, test, vi } from "vitest";
@@ -11,6 +12,7 @@ import { migrateWorker } from "../src/migrate-worker.ts";
 import {
   attachWorkerFailureAlerts,
   createFakeOpsAlertAdapter,
+  createResendOpsAlertAdapter,
   createTelegramOpsAlertAdapter,
 } from "../src/ops-alerts.ts";
 import { createWorkerOptions } from "../src/runtime.ts";
@@ -25,6 +27,11 @@ test("[NFR-07] exhausted synthetic watchdog jobs create one PII-safe alert", asy
   const fake = createFakeOpsAlertAdapter();
   const telegram = vi.fn<typeof fetch>().mockResolvedValue(new Response(null));
   const sendTelegram = createTelegramOpsAlertAdapter("123:synthetic", "-123", telegram);
+  const resend = vi.fn<typeof fetch>().mockResolvedValue(new Response(null));
+  const sendEmail = createResendOpsAlertAdapter({
+    recipient: "ops@example.test",
+    send: createResendSender({ apiKey: "synthetic", from: "worker@example.test" }, resend),
+  });
   const worker = createWorkerOptions(databaseUrl, connection, {
     store: createLocalMediaStore({ root: tmpdir() }),
     checkOpsHealth: () => Promise.reject(new Error("synthetic-private-error")),
@@ -35,7 +42,7 @@ test("[NFR-07] exhausted synthetic watchdog jobs create one PII-safe alert", asy
 
   try {
     detach = attachWorkerFailureAlerts(runner.events, async (alert) => {
-      await Promise.all([fake.send(alert), sendTelegram(alert)]);
+      await Promise.all([fake.send(alert), sendTelegram(alert), sendEmail(alert)]);
     });
     const failed = new Promise<string>((resolve) => {
       runner.events.once("job:failed", ({ job }) => {
@@ -65,6 +72,16 @@ test("[NFR-07] exhausted synthetic watchdog jobs create one PII-safe alert", asy
     );
     expect(body).not.toContain(checkId);
     expect(body).not.toContain("synthetic-private-error");
+    expect(resend).toHaveBeenCalledTimes(1);
+    const [emailUrl, { method, headers, body: emailBody } = {}] = resend.mock.calls[0] ?? [];
+    expect(emailUrl).toBe("https://api.resend.com/emails");
+    expect(method).toBe("POST");
+    expect(new Headers(headers).get("idempotency-key")).toBe(`ops:job-failed:${failedJobId}`);
+    expect(emailBody).toContain("AWID background job alert");
+    expect(emailBody).toContain('"to":["ops@example.test"]');
+    expect(emailBody).toContain("ops.watchdog");
+    expect(emailBody).not.toContain(checkId);
+    expect(emailBody).not.toContain("synthetic-private-error");
     expect(JSON.stringify(fake.outbox)).not.toContain(checkId);
     expect(JSON.stringify(fake.outbox)).not.toContain("synthetic-private-error");
     expect(

@@ -219,3 +219,8 @@ Trivy 0.76.2 with a cached vulnerability database, `--ignore-unfixed`, and
 the HIGH/CRITICAL gate for vulnerabilities, secrets and misconfiguration.
 These results do not cover the remaining per-endpoint tenant cases, live
 provider alerts and spend limits, or Tracking tilt.
+
+The connected Chromium suite passed all 82 tests at two workers. PR #22
+merged at `22d5dfdd` after all seven GitHub checks passed. A subsequent
+Tracking paint-containment trial passed all three delivery journeys but
+still measured 53 active fps. [Tracking evidence](evidence/awid/perf.md#connected-tracking-tilt-20-november-2026)
