@@ -13,6 +13,7 @@ export async function measureConnectedTrackingTilt(page: Page) {
       uploadThroughput: 187_500,
       connectionType: "cellular4g",
     });
+    const trace = await startRenderTrace(cdp);
     const tile = page.waitForResponse(
       (response) => new URL(response.url()).pathname.startsWith("/tiles/algeria/") && response.ok(),
     );
@@ -33,6 +34,7 @@ export async function measureConnectedTrackingTilt(page: Page) {
           button?.addEventListener(
             "click",
             () => {
+              performance.mark("awid-tilt-start");
               const times: number[] = [];
               const start = performance.now();
               const longTasks: number[] = [];
@@ -79,6 +81,7 @@ export async function measureConnectedTrackingTilt(page: Page) {
                 last = now;
                 if (now - start < 600) requestAnimationFrame(frame);
                 else {
+                  performance.mark("awid-tilt-end");
                   const tiles = performance
                     .getEntriesByType("resource")
                     .filter(
@@ -109,6 +112,7 @@ export async function measureConnectedTrackingTilt(page: Page) {
     await expect(action).toHaveAttribute("aria-pressed", "true");
     const { deltas, longTasks, animationScripts, tiles } = await frames;
     const hot = profileTilt ? await readHotFunctions(cdp) : undefined;
+    const renderTrace = await trace?.();
     const ordered = deltas.toSorted((a, b) => a - b);
     const intervals = deltas.slice(1);
     const activeElapsed = intervals.reduce((sum, delta) => sum + delta, 0);
@@ -124,6 +128,7 @@ export async function measureConnectedTrackingTilt(page: Page) {
         maxFrameMs: ordered.at(-1),
         p95FrameMs: ordered[Math.ceil(ordered.length * 0.95) - 1],
         hot,
+        renderTrace,
         longTasks,
         animationScripts,
         tiles,
@@ -151,4 +156,48 @@ async function readHotFunctions(cdp: CDPSession) {
       column: callFrame.columnNumber,
       script: callFrame.url.split("/").at(-1),
     }));
+}
+
+async function startRenderTrace(cdp: CDPSession) {
+  if (process.env.AWID_TRACE_TRACKING_TILT !== "1") return undefined;
+  const slow: { name: string; durationMs: number; ts: number }[] = [];
+  let start = Infinity;
+  let end = -Infinity;
+  cdp.on("Tracing.dataCollected", ({ value }) => {
+    for (const entry of value) {
+      if (!isTraceEvent(entry)) continue;
+      if (entry.name === "awid-tilt-start") start = entry.ts;
+      if (entry.name === "awid-tilt-end") end = entry.ts;
+      if (entry.dur === undefined || entry.dur < 20_000) continue;
+      slow.push({ name: entry.name, durationMs: entry.dur / 1000, ts: entry.ts });
+    }
+  });
+  const finished = new Promise<void>((resolve) => {
+    cdp.once("Tracing.tracingComplete", () => {
+      resolve();
+    });
+  });
+  await cdp.send("Tracing.start", {
+    categories: "devtools.timeline,disabled-by-default-devtools.timeline,v8,blink.user_timing",
+  });
+  return async () => {
+    await cdp.send("Tracing.end");
+    await finished;
+    return slow
+      .filter(({ ts }) => ts >= start && ts <= end)
+      .toSorted((a, b) => b.durationMs - a.durationMs)
+      .slice(0, 25);
+  };
+}
+
+function isTraceEvent(entry: unknown): entry is { name: string; dur?: number; ts: number } {
+  return (
+    typeof entry === "object" &&
+    entry !== null &&
+    "name" in entry &&
+    typeof entry.name === "string" &&
+    "ts" in entry &&
+    typeof entry.ts === "number" &&
+    (!("dur" in entry) || typeof entry.dur === "number")
+  );
 }

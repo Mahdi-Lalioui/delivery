@@ -652,3 +652,15 @@
   Next: verify current PR #17 CI and reproduce the Tracking tilt stall with CPU sampling before making a targeted change.
 - 2026-11-20 · High · PR #17 merged with seven green checks. PR #18 carries the load closure. Three ordinary Tracking runs held at 53 active fps and 77–80 ms long tasks. Frame attribution replicated the stall without identifying a script.
   Next: profile Tracking renderer work without CPU-sampler startup and keep PR #18 integration gated on current green CI.
+- 2026-11-20 · High · PR #18 merged after seven green checks. The connected tilt trace captured an overlapping 78.5 ms task, 60.7 ms compositor commit and 56.2 ms GPU task. Deferring buildings did not improve three measured journeys and was reverted.
+  Next: identify the GPU work using a narrower trace and compare with a physical Android device when available.
+- 2026-11-20 · High · Verified populated application notice denial for guest, standard and revoked admin sessions with no merchant ID in responses. Merchant Postgres suite passed 2/2 with scoped lint.
+  Next: continue route ownership coverage with the remaining merchant billing commands, and keep the release verdict NOT READY until the live checks and Tracking target pass.
+- 2026-11-21 · High · Verified populated restaurant invoices and subscriptions are visible only to the owning restaurant. Connected Postgres test and lint passed.
+  Next: refresh the protected route evidence map and run full verification on the new regressions.
+- 2026-11-21 · High · Updated the tenant evidence map with populated billing coverage. Full `pnpm verify` passed at 84ae9484.
+  Next: check the final integration PR and extend the remaining protected-route evidence.
+- 2026-11-21 · High · Encrypted restore passed with checksum-verified age 1.3.2. Exact national map preparation failed at the pinned Protomaps archive HTTP 404. A scooter isolation trial produced mixed 34/60 active fps and was reverted.
+  Next: verify PR #19 CI, rerun the remaining input boundary evidence, and locate a checksum-matching national archive for the production rehearsal.
+- 2026-11-21 · High · Fresh authz 267/267 and connected boundary integration 18/18 passed. Closed the security findings documentation criterion with unresolved coverage still listed separately.
+  Next: finish protected-route and input boundary coverage, then check PR #19 current CI and locate the pinned national dataset.

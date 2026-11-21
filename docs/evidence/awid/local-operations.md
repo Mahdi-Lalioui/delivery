@@ -103,3 +103,13 @@ A synthetic courier sent a new location every 5.1 seconds, p95 7.87 ms.
 Each position was accepted. The first attempt used a stationary point,
 which the production filter correctly suppressed after its initial sample.
 The 10× pilot load check still requires fresh orders and multiple couriers.
+
+## 21 November restore and map preparation
+
+The encrypted restore drill, `bash infra/deploy/test-restore-drill.sh`,
+passed with the checksum-verified macOS arm64 release of age 1.3.2 and
+disposable PostGIS. The exact national map preparation was attempted with
+the checksum-verified go-pmtiles 1.31.2. The pinned Protomaps
+`20261107.pmtiles` archive returned HTTP 404 to the range reader. No
+checksum-matching national archive was produced, so the full production
+Compose rehearsal remains open.

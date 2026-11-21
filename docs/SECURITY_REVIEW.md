@@ -586,3 +586,8 @@ remain open.
 The fresh backend, web and ClamAV production builds tagged `79132f66`
 passed Trivy 0.76.2 with `--ignore-unfixed`, vulnerability and secret
 scanners, and the HIGH/CRITICAL failure threshold.
+
+The connected admin application notice test checks a populated queue.
+Guests and revoked administrators receive 401, standard sessions receive
+403, and the denied responses omit the pending merchant ID. The focused
+merchant integration suite passed 2/2.

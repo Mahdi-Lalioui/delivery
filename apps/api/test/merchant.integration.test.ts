@@ -118,7 +118,17 @@ test("[MER-01:http] [ADM-03:http] submits, scopes and reviews a merchant on the 
     pendingCount: 1,
     latestMerchantId: result.merchantId,
   });
-  expect((await api.inject({ url: noticePath, headers: applicant.headers })).statusCode).toBe(403);
+  const revokedAdmin = await seedActor("+213500000039", "admin");
+  await sql`UPDATE public.sessions SET revoked_at = ${now} WHERE id = ${revokedAdmin.sessionId}`;
+  for (const [headers, statusCode] of [
+    [{}, 401],
+    [applicant.headers, 403],
+    [revokedAdmin.headers, 401],
+  ] as const) {
+    const denied = await api.inject({ url: noticePath, headers });
+    expect(denied.statusCode).toBe(statusCode);
+    expect(denied.body).not.toContain(result.merchantId);
+  }
   const collision = await submit({ ...application, restaurantName: "Autre cuisine fictive" });
   expect(problemResponseSchema.parse(collision.json())).toMatchObject({
     status: 409,
