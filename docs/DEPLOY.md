@@ -128,3 +128,10 @@ to be served.
 Set `OPS_TELEGRAM_BOT_TOKEN` and `OPS_TELEGRAM_CHAT_ID` together in
 `worker.env` to enable Telegram worker alerts. Add the bot to the operations
 chat and verify delivery with an approved synthetic terminal job failure.
+
+When upgrading an existing Compose project to the separate edge address
+range, schedule a restart and run `docker compose down` using the same
+project, Compose file and environment. Keep named volumes. Then run the
+normal deployment command to recreate the edge network. If you customize
+`AWID_EDGE_SUBNET`, set `AWID_EDGE_IP_RANGE` to a contained dynamic range
+that excludes `AWID_PROXY_IP`.

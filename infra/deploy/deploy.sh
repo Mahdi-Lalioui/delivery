@@ -11,7 +11,7 @@ compose=(docker compose --project-name "${AWID_COMPOSE_PROJECT:-awid}" --env-fil
   -f "$directory/../compose.production.yml")
 
 "${compose[@]}" --profile build config --quiet
-"${compose[@]}" --profile build build heic migrate web
+"${compose[@]}" --profile build build heic migrate clamav-signatures web
 "${compose[@]}" up -d --wait db martin osrm
 "${compose[@]}" run --rm migrate
 "${compose[@]}" up -d --wait api worker web caddy

@@ -596,3 +596,11 @@ The health suite exercises malformed JSON and requests above the 256 KiB
 API limit through a real OTP route. The 400 and 413 responses keep the
 deny-all CSP, and a synthetic request marker is absent from the response
 and captured API logs. The focused health suite passed 10/10.
+
+The 21 November production rehearsal found that the signature service
+could not boot with the root-only entrypoint and the nonroot image user.
+The unprivileged entrypoint passed fresh signature download and health
+checks with all Linux capabilities dropped. The rehearsal also found a
+dynamic IP collision with the fixed Caddy address. Reserving a separate
+dynamic range preserved the API's exact proxy trust address. Three
+container security regressions and the corrected HTTPS smoke passed.

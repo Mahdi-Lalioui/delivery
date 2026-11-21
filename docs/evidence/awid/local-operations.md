@@ -113,3 +113,17 @@ the checksum-verified go-pmtiles 1.31.2. The pinned Protomaps
 `20261107.pmtiles` archive returned HTTP 404 to the range reader. No
 checksum-matching national archive was produced, so the full production
 Compose rehearsal remains open.
+
+The checksum-matching national archive and prepared OSRM graph were found
+in a second local checkout. A disposable production Compose rehearsal
+built the web, backend and ClamAV images and applied real migrations. It
+exposed two startup defects: the unprivileged signature updater was using
+a root-only entrypoint, and Docker could assign Caddy's reserved address to
+the API. The updater now starts without added capabilities. Dynamic edge
+allocations exclude the trusted Caddy address.
+
+After recycling the disposable edge network with volumes retained, all
+services became healthy. The trusted local HTTPS smoke passed API health,
+web, security headers, www redirect, the national catalog, a real tile,
+and private test route denial. The release remains subject to the other
+readiness criteria.

@@ -15,3 +15,19 @@ void test("ClamAV image performs package updates as root then runs as clamav", a
   assert.ok(rootSwitch >= 0 && rootSwitch < packageUpdate);
   assert.ok(packageUpdate < versionCheck && versionCheck < clamavSwitch);
 });
+
+void test("ClamAV signature refresh uses unprivileged initialization without extra caps", async () => {
+  const compose = await readFile("infra/compose.production.yml", "utf8");
+  const updater = compose.split("  clamav-signatures:\n")[1]?.split("\n  clamav:")[0] ?? "";
+  assert.match(updater, /^ {4}user: clamav$/mu);
+  assert.match(updater, /^ {4}entrypoint: \[\/init-unprivileged\]$/mu);
+  assert.match(updater, /^ {4}cap_drop: \[ALL\]$/mu);
+  assert.doesNotMatch(updater, /^ {4}cap_add:/mu);
+});
+
+void test("dynamic edge addresses stay separate from the trusted Caddy address", async () => {
+  const compose = await readFile("infra/compose.production.yml", "utf8");
+  assert.ok(compose.includes('ip_range: "${AWID_EDGE_IP_RANGE:-172.29.78.128/25}"'));
+  assert.ok(compose.includes('ipv4_address: "${AWID_PROXY_IP:-172.29.78.2}"'));
+  assert.ok(compose.includes('API_TRUSTED_PROXY: "${AWID_PROXY_IP:-172.29.78.2}/32"'));
+});
