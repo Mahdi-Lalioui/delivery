@@ -35,6 +35,14 @@ Run one command after installing the files. It builds the API, worker and Next.j
 
 The command validates Compose, builds the API and worker, waits for the data services, runs application and Graphile migrations, loads the public Algeria geography, starts Caddy, and checks TLS, API readiness, the 69 wilayas, a populated vector tile and the absence of a test route. The local-only restaurant seed stays outside this deployment command. Save the previous image tag and take an encrypted backup before deploying a database migration. Roll back by selecting the previous image only if it remains compatible with the migrated schema.
 
+### Pilot API capacity
+
+Run one API replica for the pilot. The shared HTTP rate limit and realtime
+connection cap are local to each process, so additional replicas would each
+grant a separate budget. Keep PostgreSQL-backed OTP and other resource quotas
+enabled. Verify provider-side SMS and email spend limits before enabling real
+delivery. See the [rate-limit inventory](evidence/awid/rate-limits.md).
+
 ## Upgrade an existing database volume
 
 Take a verified backup and stop the API and worker before switching database

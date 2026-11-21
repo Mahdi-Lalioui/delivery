@@ -124,3 +124,5 @@ To prove the k6 placement/position target without disabling production abuse lim
 
 - [ ] Add the AWID bot to the monitored Telegram chat and put `OPS_TELEGRAM_BOT_TOKEN` and `OPS_TELEGRAM_CHAT_ID` in the private `worker.env`. Restart the worker on the isolated staging stack and verify one Telegram message for the synthetic terminal watchdog incident. Repeat for the monitored Resend inbox using the settings above.
 - [ ] Connect the operations log collector to the API container's structured output and configure a notification for `event=api.request.failed`. Trigger a synthetic API 500 on staging and confirm the event and notification arrive with the route pattern and status. Keep the request body and exception text out of the event.
+
+- [ ] Before enabling production SMS or email, configure provider spending or usage alerts and a hard cap where supported. Confirm with the provider which controls enforce a cap versus only notify. Run a staging OTP incident to verify the configured notification reaches operations. Record the limits and result without credentials in the rate-limit inventory.

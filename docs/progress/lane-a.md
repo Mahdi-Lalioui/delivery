@@ -682,3 +682,5 @@
   Next: compare the remaining authenticated route families against the inventory and review the production rate-limit scope.
 - 2026-11-21 · High · Staff session integration passed 2/2. An owner could not revoke a foreign invitation through their own restaurant URL.
   Next: review production rate-limit scope and check PR #22 on its latest head.
+- 2026-11-21 · Medium · Documented the single-replica pilot capacity and added a provider spend verification handoff. Live provider settings and shared multi-replica limits remain unverified.
+  Next: verify PR #22 on the latest head and continue the connected Tracking tilt investigation.
