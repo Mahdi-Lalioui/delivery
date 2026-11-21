@@ -292,6 +292,8 @@ Rendering the Tracking map at a temporary pixel ratio of 0.5 preserved all
 three connected delivery journeys but left each at 53 active fps. Long
 tasks were 79, 78 and 76 ms. The normal pixel ratio was restored.
 
+### Cold and warm Tracking tilt
+
 A follow-up traced a first tilt and a second tilt on the same connected
 national-map journey. The first tilt measured 53 active fps, with an 81 ms
 long task and an 83.3 ms longest frame interval. The warm repeat measured
