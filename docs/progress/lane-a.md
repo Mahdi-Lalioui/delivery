@@ -704,3 +704,5 @@
   Next: verify the connected tenant regressions and compare cold and warm Tracking tilt traces.
 - 2026-11-21 · High · Five connected Postgres cases passed across the private media, menu item and merchant board suites. Targeted ESLint passed for all three files.
   Next: finish the cold/warm Tracking trace evidence and rerun combined checks.
+- 2026-11-21 · High · Tracking's cold tilt hit 53 fps and the warm repeat hit 60 fps. The cold trace spent 62.6 ms in compositor commit. Final gate preflight found a missing Lighthouse script.
+  Next: run combined verification, then isolate the first-tilt compositor cost and complete the remaining route evidence.

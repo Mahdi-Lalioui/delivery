@@ -272,13 +272,20 @@ async function startRenderTrace(cdp: CDPSession) {
 
 function isTraceEvent(entry: unknown): entry is TraceEvent {
   if (typeof entry !== "object" || entry === null) return false;
-  const { name, ts, pid, tid, dur, tdur } = entry as Partial<TraceEvent>;
+  const hasDuration = !("dur" in entry) || typeof entry.dur === "number";
+  const hasThreadDuration = !("tdur" in entry) || typeof entry.tdur === "number";
+  return hasDuration && hasThreadDuration && hasTraceCoordinates(entry);
+}
+
+function hasTraceCoordinates(entry: object) {
   return (
-    typeof name === "string" &&
-    typeof ts === "number" &&
-    typeof pid === "number" &&
-    typeof tid === "number" &&
-    (dur === undefined || typeof dur === "number") &&
-    (tdur === undefined || typeof tdur === "number")
+    "name" in entry &&
+    typeof entry.name === "string" &&
+    "ts" in entry &&
+    typeof entry.ts === "number" &&
+    "pid" in entry &&
+    typeof entry.pid === "number" &&
+    "tid" in entry &&
+    typeof entry.tid === "number"
   );
 }

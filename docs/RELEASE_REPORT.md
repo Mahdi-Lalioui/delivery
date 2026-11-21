@@ -230,3 +230,10 @@ Postgres worker test now verifies both alert adapters on a terminal job
 using synthetic receivers. The proxy identity regression passed and the
 production dependency advisory gate passed on the unchanged lockfile.
 [Alert evidence](evidence/awid/ops-alerts.md) · [Rate-limit evidence](evidence/awid/rate-limits.md)
+
+The Tracking diagnostic measured 53 active fps on first tilt and 60 fps on
+a warm repeat. Chromium recorded a 62.6 ms compositor commit in the cold
+stall. The cold criterion remains open. The final rerun preflight also found
+that `pnpm verify:full` invokes an undefined `test:lighthouse` script, so its
+existing component results cannot be reported as a passing aggregate.
+[Tracking trace](evidence/awid/perf.md#cold-and-warm-tracking-tilt)
