@@ -680,3 +680,5 @@
   Next: review remaining endpoint ownership coverage and deployment rate-limit assumptions.
 - 2026-11-21 · High · Connected delivery-proof reservation regression passed on Postgres. Foreign and unassigned couriers and the customer left zero reservations. The assigned courier received 201.
   Next: compare the remaining authenticated route families against the inventory and review the production rate-limit scope.
+- 2026-11-21 · High · Staff session integration passed 2/2. An owner could not revoke a foreign invitation through their own restaurant URL.
+  Next: review production rate-limit scope and check PR #22 on its latest head.

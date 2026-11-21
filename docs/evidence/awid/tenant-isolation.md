@@ -59,3 +59,11 @@ uses real sessions and Postgres. The reservation endpoint denied a foreign
 courier, an unassigned courier in the same restaurant and the order customer,
 leaving zero reservation rows. The assigned courier received HTTP 201.
 `pnpm test:int apps/api/test/courier-session.integration.test.ts` passed.
+
+### Restaurant staff invitation revocation
+
+The [connected staff regression](../../../apps/api/test/merchant-staff.integration.test.ts)
+also pairs a foreign invitation ID with the caller's own restaurant ID. The
+endpoint returned 404, the invitation remained in the issuing restaurant's
+pending list, and its legitimate owner could revoke it. Both staff integration
+tests passed.
