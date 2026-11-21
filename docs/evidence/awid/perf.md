@@ -267,3 +267,8 @@ Deferring Tracking's 3D building layer until the map settled after the
 tilt did not improve performance. All three delivery journeys passed,
 and all three still measured 53 active fps with 77–81 ms long tasks.
 The product trial was reverted.
+
+A temporary diagnostic suppressed custom scooter rendering during camera
+movement. Both connected journeys passed, but the two tilt samples diverged
+at 34 and 60 active fps. One still had an 82 ms long task. The trial did
+not establish a fix and the product code was restored.

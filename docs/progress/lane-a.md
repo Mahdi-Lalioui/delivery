@@ -660,3 +660,5 @@
   Next: refresh the protected route evidence map and run full verification on the new regressions.
 - 2026-11-21 · High · Updated the tenant evidence map with populated billing coverage. Full `pnpm verify` passed at 84ae9484.
   Next: check the final integration PR and extend the remaining protected-route evidence.
+- 2026-11-21 · High · Encrypted restore passed with checksum-verified age 1.3.2. Exact national map preparation failed at the pinned Protomaps archive HTTP 404. A scooter isolation trial produced mixed 34/60 active fps and was reverted.
+  Next: verify PR #19 CI, rerun the remaining input boundary evidence, and locate a checksum-matching national archive for the production rehearsal.
