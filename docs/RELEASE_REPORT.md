@@ -8,7 +8,7 @@ The branch is `lane-b`, merged with `origin/lane-a`. Every push below passed the
 
 ### Verdict
 
-The customer screens are ready for review, with no open accessibility, layout-shift or frame-rate gaps on the measured routes. The design critic's sixth round scored twelve of fifteen screens at 9. The other three are at 8.5, held back by named limits only. Each remaining point has a named reason: a product limit, or one of the six open defects listed below.
+The customer screens are ready for review, with passing accessibility and layout-shift checks on the measured routes and an outstanding frame-rate gap during connected Tracking tilt. The design critic's sixth round scored twelve of fifteen screens at 9. The other three are at 8.5, held back by named limits only. Each remaining point has a named reason: a product limit, or one of the five open defects listed below.
 
 The numbers are lab results on a Mac using lane A's throttled Android profile. They have not been confirmed on a physical Android phone.
 
@@ -158,10 +158,9 @@ event replay and timer recovery. Production deployment is pending.
 
 1. Measure the connected Tracking tilt animation against the frame budget.
 2. Finish mapping every registered route to tenant and role evidence. The 267 authorization tests passed again on 20 November.
-3. Complete the input handling review alongside the existing CSRF, CSP, header and session evidence.
-4. Resolve or verify the deployment limits for rate limiting and provider abuse. Keep the scoped dependency exception under review.
-5. Confirm that a test incident reaches the external collector and monitored Telegram and Resend destinations.
-6. Repeat the security and reliability checks from scratch after the preceding checks pass.
+3. Resolve or verify the deployment limits for rate limiting and provider abuse. Keep the scoped dependency exception under review.
+4. Confirm that a test incident reaches the external collector and monitored Telegram and Resend destinations.
+5. Repeat the security and reliability checks from scratch after the preceding checks pass.
 
 ### Latest local verification
 
@@ -204,7 +203,7 @@ The release verdict remains **NOT READY**.
 - Tracking still has reproducible 54 fps runs. CPU-profiled runs reached 60 active fps, while ordinary runs reproduced 53 active fps.
 - Live Telegram delivery still needs a configured bot and monitored chat. No public deployment ran.
 
-**NOT READY.** The final clean rerun and release are gated on the six open
+**NOT READY.** The final clean rerun and release are gated on the five open
 items in [READINESS.md](READINESS.md).
 
 The distributed 100-restaurant 10× rerun passed with 12.73/4.09 ms p95, zero HTTP errors and zero dropped iterations. The failed single-restaurant stress case remains in the capacity evidence.
@@ -212,3 +211,11 @@ The distributed 100-restaurant 10× rerun passed with 12.73/4.09 ms p95, zero HT
 On 21 November the encrypted restore drill passed. The pinned national asset source returned HTTP 404, leaving the exact production rehearsal open. Authorization passed 267/267 and the connected input, session, media and billing subset passed 18/18.
 
 The pinned national assets were recovered from a second local checkout. After correcting the scanner and edge network startup, the full local HTTPS smoke passed and OSRM served a driving route. The national map browser suite passed 4/4. A forced web outage returned 502 with security headers and omitted the request marker from Caddy logs. [Rehearsal evidence](evidence/awid/local-operations.md#21-november-restore-and-map-preparation)
+
+At `523ed130`, full `pnpm verify` passed with 2,098 regular tests and
+389 Postgres integration tests. Authorization passed 267/267. Gitleaks
+reported no leaks across 661 reachable commits. The committed source passed
+Trivy 0.76.2 with a cached vulnerability database, `--ignore-unfixed`, and
+the HIGH/CRITICAL gate for vulnerabilities, secrets and misconfiguration.
+These results do not cover the remaining per-endpoint tenant cases, live
+provider alerts and spend limits, or Tracking tilt.

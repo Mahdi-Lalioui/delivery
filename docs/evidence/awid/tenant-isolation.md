@@ -51,3 +51,19 @@ Postgres FORCE ROW LEVEL SECURITY currently provides a second wall for:
 Orders and most merchant-owned domain tables do **not** currently have RLS; they rely on explicit repository membership/account predicates and the integration coverage linked above. Orders are read and transitioned by customers, restaurant members, couriers and admins, so adding RLS requires a complete role-aware transaction context and regression coverage.
 
 This is a useful route/resource evidence index, not a complete route-by-route proof. Some endpoint tests are mock-backed HTTP tests, and there is no checked-in mapping from every registered route to a real owner-versus-outsider integration case. Keep the route-by-route isolation readiness item open until that map is complete and the remaining endpoints have direct ownership regressions.
+
+### Delivery proof reservation
+
+The [connected courier regression](../../../apps/api/test/courier-session.integration.test.ts)
+uses real sessions and Postgres. The reservation endpoint denied a foreign
+courier, an unassigned courier in the same restaurant and the order customer,
+leaving zero reservation rows. The assigned courier received HTTP 201.
+`pnpm test:int apps/api/test/courier-session.integration.test.ts` passed.
+
+### Restaurant staff invitation revocation
+
+The [connected staff regression](../../../apps/api/test/merchant-staff.integration.test.ts)
+also pairs a foreign invitation ID with the caller's own restaurant ID. The
+endpoint returned 404, the invitation remained in the issuing restaurant's
+pending list, and its legitimate owner could revoke it. Both staff integration
+tests passed.

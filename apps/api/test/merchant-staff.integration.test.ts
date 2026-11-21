@@ -119,6 +119,15 @@ test("[MER-23:http] managers, staff and another restaurant's owner cannot manage
     headers: owner.headers,
   });
   expect(crossRole.statusCode).toBe(404);
+  const mismatchedPath = `/v1/merchants/${staffed}/staff/invitations/${invitationId}/revoke`;
+  expect((await post(api, otherOwner, { url: mismatchedPath })).statusCode).toBe(404);
+  const stillPending = await api.inject({
+    url: `/v1/merchants/${owned}/staff`,
+    headers: owner.headers,
+  });
+  expect(staffListOutput.parse(stillPending.json()).invitations).toEqual([
+    expect.objectContaining({ invitationId, role: "staff" }),
+  ]);
   expect((await post(api, owner, { url: revokePath })).json()).toEqual({
     invitationId,
     status: "revoked",

@@ -676,3 +676,13 @@
   Next: run full verify and review remaining route ownership cases.
 - 2026-11-21 · High · Full verify passed at 7dafa43. API and Caddy log privacy passed on the rehearsal stack. Adjusted the PostgreSQL probe for the restricted runtime role, preserving duplicate-key coverage, and confirmed zero residual rows.
   Next: refresh the route ownership inventory and integrate the CSRF and privacy checks after green CI.
+- 2026-11-21 · High · PR #21 merged at 7d5527a after seven green checks. Focused input, transport, HTTP and policy tests passed 60/60. Linked connected auth and production header checks and closed the input/browser controls criterion.
+  Next: review remaining endpoint ownership coverage and deployment rate-limit assumptions.
+- 2026-11-21 · High · Connected delivery-proof reservation regression passed on Postgres. Foreign and unassigned couriers and the customer left zero reservations. The assigned courier received 201.
+  Next: compare the remaining authenticated route families against the inventory and review the production rate-limit scope.
+- 2026-11-21 · High · Staff session integration passed 2/2. An owner could not revoke a foreign invitation through their own restaurant URL.
+  Next: review production rate-limit scope and check PR #22 on its latest head.
+- 2026-11-21 · Medium · Documented the single-replica pilot capacity and added a provider spend verification handoff. Live provider settings and shared multi-replica limits remain unverified.
+  Next: verify PR #22 on the latest head and continue the connected Tracking tilt investigation.
+- 2026-11-21 · High · Full verify passed at 523ed130, including 389 Postgres tests. Authz 267/267, Gitleaks history and the Trivy source gate passed. Live provider credentials were unavailable.
+  Next: finish the 82-test connected browser run and integrate PR #22 after green CI on the pushed head.
