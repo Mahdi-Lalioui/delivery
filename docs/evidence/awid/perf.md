@@ -277,3 +277,8 @@ With the checksum-matching national archive on 21 November, all three
 connected delivery journeys passed. Tracking measured 53 active fps in
 each run, with 81–83 ms tasks. The stall therefore also occurs with the
 national tiles, and the performance criterion remains open.
+
+A paint-containment trial on the real map wrapper passed all three connected
+delivery journeys using the national tiles. Each sample still measured 53
+active fps, with main-thread tasks of 76, 78 and 79 ms. No new tiles loaded
+during the measured tilt. The CSS trial was reverted.

@@ -686,3 +686,5 @@
   Next: verify PR #22 on the latest head and continue the connected Tracking tilt investigation.
 - 2026-11-21 · High · Full verify passed at 523ed130, including 389 Postgres tests. Authz 267/267, Gitleaks history and the Trivy source gate passed. Live provider credentials were unavailable.
   Next: finish the 82-test connected browser run and integrate PR #22 after green CI on the pushed head.
+- 2026-11-21 · High · Connected browser suite passed 82/82 and PR #22 merged at 22d5dfdd with seven green checks. Paint containment reproduced 53 fps in all three national-map journeys and was reverted.
+  Next: isolate the tilted map renderer workload and continue per-route tenant coverage.
