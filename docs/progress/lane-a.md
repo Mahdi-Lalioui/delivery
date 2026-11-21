@@ -674,3 +674,5 @@
   Next: finish PR #20 integration on green CI and review the remaining route and multi-replica coverage.
 - 2026-11-21 · High · PR #20 merged at 141a7af after green CI. Connected CSRF coverage now tests four denied origin/metadata cases with the current session ID, plus successful same-origin revocation. Auth integration 12/12 passed.
   Next: run full verify and review remaining route ownership cases.
+- 2026-11-21 · High · Full verify passed at 7dafa43. API and Caddy log privacy passed on the rehearsal stack. Adjusted the PostgreSQL probe for the restricted runtime role, preserving duplicate-key coverage, and confirmed zero residual rows.
+  Next: refresh the route ownership inventory and integrate the CSRF and privacy checks after green CI.
