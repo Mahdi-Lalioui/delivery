@@ -78,6 +78,7 @@ function measureScooterAttachment(page: Page) {
       elapsedMs: number;
       fallbackVisible: boolean;
       maxPostTiltFrameMs: number;
+      parallelShaderCompile: boolean;
       longTasks: { startMs: number; durationMs: number }[];
     }>((resolve) => {
       button.addEventListener(
@@ -93,7 +94,7 @@ function measureScooterAttachment(page: Page) {
               longTasks.push({ startMs: entry.startTime - start, durationMs: entry.duration });
             }
           });
-          observer.observe({ type: "longtask" });
+          observer.observe({ type: "longtask", buffered: true });
           const frame = (now: number) => {
             const elapsedMs = now - start;
             if (canvas.dataset.scooter === "true") attachmentMs ??= Math.max(0, elapsedMs);
@@ -106,11 +107,14 @@ function measureScooterAttachment(page: Page) {
             }
             setTimeout(() => {
               observer.disconnect();
+              const gl = canvas.querySelector("canvas")?.getContext("webgl2");
               resolve({
                 attachmentMs,
                 elapsedMs,
                 fallbackVisible,
                 maxPostTiltFrameMs,
+                parallelShaderCompile:
+                  gl?.getSupportedExtensions()?.includes("KHR_parallel_shader_compile") ?? false,
                 longTasks,
               });
             }, 0);

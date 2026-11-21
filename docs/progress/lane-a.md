@@ -714,3 +714,5 @@
   Next: verify combined changes and isolate the scooter's first-draw GPU and shader costs before another product trial.
 - 2026-11-21 · High · PR #26 merged green. The endpoint map covers 142 registrations. Five focused Postgres suites passed, closing six partial customer and admin route cases.
   Next: finish the 14 partial pairs in the endpoint map, starting with connected merchant settings writes.
+- 2026-11-21 · High · Both merchant settings integration tests passed, closing four more endpoint cases. Parallel shader compilation was unavailable in Chromium. Lambert measured 55 fps in three passes and was reverted.
+  Next: close the ten partial pairs in the endpoint map, starting with promotion update and bulk price preview and undo.

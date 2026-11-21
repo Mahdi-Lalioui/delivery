@@ -129,4 +129,29 @@ test("[MER-15][MER-16][MER-17][AUTH-07] foreign settings writes leave schedules 
         (SELECT count(*)::int FROM public.menu_command_receipts WHERE merchant_id IN (${restaurantA.owned}, ${restaurantB.owned})) AS receipts
     `,
   ).toEqual([{ hours: 0, ramadan: 0, delivery: 0, receipts: 0 }]);
+
+  for (const [index, input] of inputs.entries()) {
+    const url = `/v1/merchants/${restaurantA.owned}${input.path}`;
+    const current = await api.inject({ url, headers: ownerA.headers });
+    expect(current.statusCode, input.path).toBe(200);
+    const { revision } = current.json<{ revision: number }>();
+    const saved = await api.inject({
+      method: input.method,
+      url,
+      headers: {
+        ...ownerA.headers,
+        "idempotency-key": `owned-settings-${String(index)}`,
+        "x-expected-session-id": ownerA.sessionId,
+      },
+      payload: { ...input.payload, expectedRevision: revision },
+    });
+    expect(saved.statusCode, input.path).toBe(200);
+    expect(saved.json()).toMatchObject({ revision: revision + 1 });
+  }
+  expect(
+    await database.get().sql`
+      SELECT merchant_id FROM public.menu_command_receipts
+      WHERE merchant_id IN (${restaurantA.owned}, ${restaurantB.owned})
+    `,
+  ).toEqual(Array.from({ length: inputs.length }, () => ({ merchant_id: restaurantA.owned })));
 });
