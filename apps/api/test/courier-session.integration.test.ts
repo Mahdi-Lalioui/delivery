@@ -196,6 +196,26 @@ test("[SECURITY] valid courier sessions see and change only assigned deliveries"
   ]);
   expect(courierJobsOutput.parse((await jobs(unassignedSession.headers)).json()).jobs).toEqual([]);
 
+  const setPresence = (actor: typeof firstCourierSession, payload: object) =>
+    api.inject({
+      method: "POST",
+      url: "/v1/courier/presence",
+      headers: actor.headers,
+      payload,
+    });
+  expect((await setPresence(customer, { online: true })).statusCode).toBe(403);
+  expect(
+    (await setPresence(firstCourierSession, { online: true, courierId: otherCourierId }))
+      .statusCode,
+  ).toBe(400);
+  expect(
+    await sql`SELECT FROM public.couriers WHERE id = ANY(${[firstCourierId, otherCourierId]}::uuid[]) AND online`,
+  ).toHaveLength(0);
+  expect((await setPresence(firstCourierSession, { online: true })).statusCode).toBe(204);
+  expect(
+    await sql`SELECT id FROM public.couriers WHERE id = ANY(${[firstCourierId, otherCourierId]}::uuid[]) AND online`,
+  ).toEqual([{ id: firstCourierId }]);
+
   const reserveProof = (actor: typeof firstCourierSession, orderId: string) =>
     api.inject({
       method: "POST",

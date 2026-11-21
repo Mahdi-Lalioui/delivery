@@ -74,3 +74,10 @@ The [connected category regression](../../../apps/api/test/menu-category-session
 passes a foreign category ID under the caller's own restaurant URL. The
 endpoint returns 404 without exposing the ID, and the original category and
 command receipts remain unchanged. The focused Postgres suite passed.
+
+### Courier presence
+
+The [connected courier regression](../../../apps/api/test/courier-session.integration.test.ts)
+denies the customer and rejects an explicit foreign courier ID. Both courier
+rows stay offline. A valid request then marks only the authenticated courier
+online. The Postgres suite passed.

@@ -690,3 +690,5 @@
   Next: isolate the tilted map renderer workload and continue per-route tenant coverage.
 - 2026-11-21 · High · Category tenant-binding regression passed on Postgres. All three connected Tracking journeys passed with route blur disabled, but tilt stayed at 53 fps. Restored the glow.
   Next: isolate the browser renderer task and continue endpoint-level tenant coverage.
+- 2026-11-21 · High · Courier presence isolation passed against Postgres. Denied requests changed neither courier, and the valid request marked only the caller online.
+  Next: extend the connected terminal worker incident to exercise the Resend adapter.
