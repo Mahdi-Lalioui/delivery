@@ -282,3 +282,8 @@ A paint-containment trial on the real map wrapper passed all three connected
 delivery journeys using the national tiles. Each sample still measured 53
 active fps, with main-thread tasks of 76, 78 and 79 ms. No new tiles loaded
 during the measured tilt. The CSS trial was reverted.
+
+Disabling the map route blur preserved the delivery journey in three
+connected national-map runs but did not resolve the stall. Each measured 53
+active fps, with 77–79 ms long tasks and no tile completions during the
+measured tilt. The glow was restored.

@@ -688,3 +688,5 @@
   Next: finish the 82-test connected browser run and integrate PR #22 after green CI on the pushed head.
 - 2026-11-21 · High · Connected browser suite passed 82/82 and PR #22 merged at 22d5dfdd with seven green checks. Paint containment reproduced 53 fps in all three national-map journeys and was reverted.
   Next: isolate the tilted map renderer workload and continue per-route tenant coverage.
+- 2026-11-21 · High · Category tenant-binding regression passed on Postgres. All three connected Tracking journeys passed with route blur disabled, but tilt stayed at 53 fps. Restored the glow.
+  Next: isolate the browser renderer task and continue endpoint-level tenant coverage.

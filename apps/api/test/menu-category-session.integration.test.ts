@@ -85,6 +85,19 @@ test("[MER-08][AUTH-07] real sessions cannot read or mutate another restaurant's
     expect(response.body).not.toContain(category.categoryId);
   }
 
+  const mismatchedRename = await api.inject({
+    method: "PUT",
+    url: `/v1/merchants/${restaurantB.owned}/menu/categories/${category.categoryId}`,
+    headers: {
+      ...ownerB.headers,
+      "idempotency-key": "mismatched-category-rename",
+      "x-expected-session-id": ownerB.sessionId,
+    },
+    payload: { ...categoryInput, expectedRevision: 0 },
+  });
+  expect(mismatchedRename.statusCode).toBe(404);
+  expect(mismatchedRename.body).not.toContain(category.categoryId);
+
   const ownPage = await api.inject({ url: path, headers: ownerA.headers });
   expect(menuCategoryPageOutput.parse(ownPage.json()).categories).toMatchObject([category]);
   expect(

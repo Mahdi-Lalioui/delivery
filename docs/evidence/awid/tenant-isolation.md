@@ -67,3 +67,10 @@ also pairs a foreign invitation ID with the caller's own restaurant ID. The
 endpoint returned 404, the invitation remained in the issuing restaurant's
 pending list, and its legitimate owner could revoke it. Both staff integration
 tests passed.
+
+### Menu category rename
+
+The [connected category regression](../../../apps/api/test/menu-category-session.integration.test.ts)
+passes a foreign category ID under the caller's own restaurant URL. The
+endpoint returns 404 without exposing the ID, and the original category and
+command receipts remain unchanged. The focused Postgres suite passed.
