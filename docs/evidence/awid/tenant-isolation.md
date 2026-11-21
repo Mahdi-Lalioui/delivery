@@ -50,7 +50,7 @@ Postgres FORCE ROW LEVEL SECURITY currently provides a second wall for:
 
 Orders and most merchant-owned domain tables do **not** currently have RLS; they rely on explicit repository membership/account predicates and the integration coverage linked above. Orders are read and transitioned by customers, restaurant members, couriers and admins, so adding RLS requires a complete role-aware transaction context and regression coverage.
 
-Keep the route-by-route isolation readiness item open until every registered ownership-sensitive endpoint maps to a connected test. Remaining cases include item and profile writes that reference a ready photo from another restaurant, and order rejection with a `soldOutItemIds` entry outside the restaurant's order.
+Keep the route-by-route isolation readiness item open until every registered ownership-sensitive endpoint maps to a connected test. Remaining connected cases include metadata and variant reads for ready menu or profile attachments by a co-editor who did not upload them, and closing a live realtime stream after its session or merchant membership is revoked. The realtime HTTP suite covers revocation with a repository double.
 
 ### Menu items under an owned restaurant
 
@@ -79,6 +79,14 @@ An assigned courier with two active orders cannot deliver the second order using
 A second restaurant owner receives 404 on a foreign import preview and cannot apply the issuing owner's preview token under either restaurant URL. No rows or receipts are added until the issuing owner applies it to the original restaurant. Category reorder also rejects a mixed list submitted through the caller's own restaurant URL, keeping both revisions and the receipt count stable until the valid reorder. [Menu import integration test](../../../apps/api/test/menu-import.integration.test.ts), [category integration test](../../../apps/api/test/menu-category-session.integration.test.ts)
 
 The focused Postgres run passed seven tests with `pnpm test:int --maxWorkers 1 apps/api/test/media-resource-isolation.integration.test.ts apps/api/test/menu-category-session.integration.test.ts apps/api/test/menu-import.integration.test.ts`.
+
+### Cross-restaurant IDs in authorized commands
+
+- One account owns two restaurants. Item create and edit commands and a profile-cover update under the first restaurant reject ready photos from the second. Both restaurants retain their original attachments and revisions, and no command receipt is created. The owner can replace the item photo with one from the addressed restaurant. [Merchant profile photos integration test](../../../apps/api/test/merchant-profile-photos-session.integration.test.ts)
+- The restaurant owner cannot reject an order using a sold-out list that includes a foreign item. The denial preserves both items and the order and creates no event or receipt. A valid rejection marks only the ordered item sold out. [Order session integration test](../../../apps/api/test/customer-order-session.integration.test.ts)
+- A restaurant owner editing their own option group cannot submit an existing option ID from another restaurant. The denial preserves both groups, menu revisions and receipts. Editing the group's own option succeeds. [Menu option-group integration test](../../../apps/api/test/menu-option-group.integration.test.ts)
+
+The focused Postgres run passed seven tests with `pnpm test:int --maxWorkers 1 apps/api/test/merchant-profile-photos-session.integration.test.ts apps/api/test/customer-order-session.integration.test.ts apps/api/test/menu-option-group.integration.test.ts`.
 
 ### Delivery proof reservation
 
