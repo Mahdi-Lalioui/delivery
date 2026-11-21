@@ -676,3 +676,5 @@
   Next: run full verify and review remaining route ownership cases.
 - 2026-11-21 · High · Full verify passed at 7dafa43. API and Caddy log privacy passed on the rehearsal stack. Adjusted the PostgreSQL probe for the restricted runtime role, preserving duplicate-key coverage, and confirmed zero residual rows.
   Next: refresh the route ownership inventory and integrate the CSRF and privacy checks after green CI.
+- 2026-11-21 · High · PR #21 merged at 7d5527a after seven green checks. Focused input, transport, HTTP and policy tests passed 60/60. Linked connected auth and production header checks and closed the input/browser controls criterion.
+  Next: review remaining endpoint ownership coverage and deployment rate-limit assumptions.

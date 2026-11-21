@@ -616,3 +616,19 @@ rehearsal. The Postgres privacy probe previously tried to create a
 temporary table, which the restricted runtime role correctly denied.
 It now uses the real unique email constraint inside a rolled-back
 transaction. The duplicate-key check passed and left zero fixture rows.
+
+## Input and browser security signoff
+
+On 21 November at `98b59cc5`, the health, auth transport, auth HTTP and
+route policy suites passed 60 tests. These cover malformed and oversized
+bodies, bounded credentials, origin and browser metadata checks, deny-all
+API CSP, and actor policies. The connected auth suite passed 12 tests,
+including token replacement at sign-in, valid-session preservation after
+cross-origin commands, and revocation on a legitimate logout.
+
+The production HTTPS smoke asserts web and API header policy through Caddy,
+and the upstream failure regression verifies the headers on a 502 response.
+Earlier connected upload checks cover media validation. No direct
+`sql.unsafe`, `sql.raw` or `dangerouslySetInnerHTML` calls were found
+in the reviewed API, database and web sources. The separate per-route
+ownership review remains open.
