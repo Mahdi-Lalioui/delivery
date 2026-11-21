@@ -664,3 +664,11 @@
   Next: verify PR #19 CI, rerun the remaining input boundary evidence, and locate a checksum-matching national archive for the production rehearsal.
 - 2026-11-21 · High · Fresh authz 267/267 and connected boundary integration 18/18 passed. Closed the security findings documentation criterion with unresolved coverage still listed separately.
   Next: finish protected-route and input boundary coverage, then check PR #19 current CI and locate the pinned national dataset.
+- 2026-11-21 · High · PR #19 merged at 3f0fa98. Verified malformed and oversized OTP requests retain CSP and keep request contents out of logs. Health tests passed 10/10. Located the checksum-matching national archive and started the exact loopback deployment rehearsal.
+  Next: finish the local Compose deployment smoke and record endpoint and routing results.
+- 2026-11-21 · High · Found the pinned national data, fixed nonroot ClamAV updater startup and the Caddy address allocation collision. The full loopback production HTTPS smoke passed after rebuilding the disposable edge network with retained data.
+  Next: finish full verify on the deployment fixes and push, then run the national map browser suite.
+- 2026-11-21 · High · Full verify passed. National map browser 4/4, OSRM driving route, and Caddy 502 header/privacy recovery passed against the production rehearsal. PR #20 opened.
+  Next: verify PR #20 on the exact head, then continue the remaining tenant, input, rate-limit and Tracking checks.
+- 2026-11-21 · High · Production Caddy rate-limit probe returned 120 successful responses and five 429s. All three national-map delivery journeys passed and reproduced the tilt at 53 active fps.
+  Next: finish PR #20 integration on green CI and review the remaining route and multi-replica coverage.

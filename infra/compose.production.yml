@@ -86,10 +86,10 @@ services:
       context: ..
       dockerfile: infra/deploy/Dockerfile.clamav
     platform: linux/amd64
-    init: true
+    user: clamav
+    entrypoint: [/init-unprivileged]
     read_only: true
     cap_drop: [ALL]
-    cap_add: [CHOWN, SETUID, SETGID]
     security_opt: [no-new-privileges:true]
     restart: unless-stopped
     environment:
@@ -302,3 +302,4 @@ networks:
     ipam:
       config:
         - subnet: "${AWID_EDGE_SUBNET:-172.29.78.0/24}"
+          ip_range: "${AWID_EDGE_IP_RANGE:-172.29.78.128/25}"
