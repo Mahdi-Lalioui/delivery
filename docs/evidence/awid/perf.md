@@ -272,3 +272,8 @@ A temporary diagnostic suppressed custom scooter rendering during camera
 movement. Both connected journeys passed, but the two tilt samples diverged
 at 34 and 60 active fps. One still had an 82 ms long task. The trial did
 not establish a fix and the product code was restored.
+
+With the checksum-matching national archive on 21 November, all three
+connected delivery journeys passed. Tracking measured 53 active fps in
+each run, with 81–83 ms tasks. The stall therefore also occurs with the
+national tiles, and the performance criterion remains open.

@@ -670,3 +670,5 @@
   Next: finish full verify on the deployment fixes and push, then run the national map browser suite.
 - 2026-11-21 · High · Full verify passed. National map browser 4/4, OSRM driving route, and Caddy 502 header/privacy recovery passed against the production rehearsal. PR #20 opened.
   Next: verify PR #20 on the exact head, then continue the remaining tenant, input, rate-limit and Tracking checks.
+- 2026-11-21 · High · Production Caddy rate-limit probe returned 120 successful responses and five 429s. All three national-map delivery journeys passed and reproduced the tilt at 53 active fps.
+  Next: finish PR #20 integration on green CI and review the remaining route and multi-replica coverage.

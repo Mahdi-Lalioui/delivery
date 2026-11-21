@@ -50,3 +50,9 @@ Postgres quotas listed above are shared across replicas. The test suite proves
 configured behavior for the named cases; it is not a multi-replica abuse or
 external-provider cost simulation. Provider spend limits still need verification
 when SMS/email credentials are configured.
+
+On 21 November, the disposable production Compose stack accepted 120
+consecutive HTTPS health requests from one client through Caddy, then
+returned 429 for the next five in the same minute. This verifies the actual
+default threshold at the edge. Multi-replica counters and provider spend
+limits remain unverified.
