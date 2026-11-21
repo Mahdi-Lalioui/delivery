@@ -692,3 +692,5 @@
   Next: isolate the browser renderer task and continue endpoint-level tenant coverage.
 - 2026-11-21 · High · Courier presence isolation passed against Postgres. Denied requests changed neither courier, and the valid request marked only the caller online.
   Next: extend the connected terminal worker incident to exercise the Resend adapter.
+- 2026-11-21 · High · Worker queue passed 8/8. A real terminal job produced one request each through the Telegram and Resend adapters to synthetic receivers without the job payload or exception.
+  Next: run full verify and open the readiness evidence PR while live provider work remains blocked on credentials.
