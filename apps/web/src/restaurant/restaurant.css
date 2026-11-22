@@ -482,6 +482,17 @@
 .restaurant-item-scroll > * {
   flex: none;
 }
+@media (max-width: 599px) {
+  .restaurant-item-scroll {
+    gap: var(--space-16);
+  }
+
+  .restaurant-item-scroll > .restaurant-dish-photo {
+    aspect-ratio: 2 / 1;
+    max-block-size: calc(var(--space-120) + var(--space-48));
+  }
+}
+
 .restaurant-quantity {
   display: flex;
   align-items: center;

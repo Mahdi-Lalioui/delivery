@@ -44,6 +44,7 @@ test("[CUS-13] step 1 shows progress, the fulfilment switch and saved addresses"
   // The step button carries the total, and desktop keeps the order summary beside the step.
   expect(html).toMatch(/>Continuer · 3\s100\sDA</u);
   expect(html).toContain('class="checkout-aside"');
+  expect(html).not.toContain('class="checkout-cash"');
 });
 
 test("[CUS-13] pickup checkout names the order mode in the page heading", () => {
@@ -72,6 +73,13 @@ test("[CUS-13] payment repeats the chosen address and scheduled time", () => {
   expect(html).toContain("12 rue Didouche Mourad, Alger Centre");
   expect(html).toContain("Pour quand ?");
   expect(html).toContain("Dès que possible");
+});
+
+test("[CUS-14] payment presents cash before the receipt in reading order", () => {
+  for (const locale of ["ar", "fr"] as const) {
+    const html = render(locale, <CheckoutSample mode="ready" locale={locale} initialView="3" />);
+    expect(html).toMatch(/class="checkout-cash"[\s\S]+class="checkout-receipt"/u);
+  }
 });
 
 test("[ORD-01] the confirmed moment shows the order code and links to tracking", () => {

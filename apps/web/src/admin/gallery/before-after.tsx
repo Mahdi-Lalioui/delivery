@@ -4,12 +4,22 @@ import type { Locale } from "@zaafran/i18n/locales";
 const screens = [
   "landing",
   "discover",
+  "search",
   "restaurant",
   "dish",
   "cart",
   "checkout",
   "payment",
   "account",
+  "confirmed",
+  "tracking",
+  "pickup-tracking",
+  "rating",
+  "orders",
+  "sign-in",
+  "merchant",
+  "courier",
+  "admin",
 ] as const;
 
 function variantsFor(locale: Locale) {

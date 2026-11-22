@@ -4,7 +4,7 @@ Base `pilot-1` at `e2b9a4a9`. The pilot preview and its design fixtures
 were captured at 390 px Arabic and French, 1280 px French, and 390 px
 French dark. The capture command produced 60 first-view images and 60
 full-page images for 15 entries, including the operations gallery.
-The [design gallery](/fr/dev/gallery) pairs landing and Discovery from
+The [design gallery](/fr/dev/gallery) pairs representative screens from
 the baseline and the revised build. Its route is restricted to builds
 with the design pages enabled.
 
@@ -109,8 +109,7 @@ the dish form mounted. Cart and dish before images were taken from the
 unchanged menu styles in the previous preview build.
 
 The critic scored Restaurant at 7.4–8.2 and the populated Cart at
-8.0–8.4. The first loaded Arabic Dish received 7.7; French loaded Dish
-scores are pending. Restaurant photos and menu search still push prices
+8.0–8.4. Loaded Dish scored 7.7–7.9 across all four variants. Restaurant photos and menu search still push prices
 close to the navigation on phones. The mobile sheet scrim and dark cart
 stepper need more separation, and the subtotal is repeated in the cart.
 
@@ -124,3 +123,95 @@ browser tests passed 82/82, national maps passed 4/4, and preview passed
 Next: critique the loaded dish and checkout/account captures, resolve
 the noted mobile issues, and review confirmed, tracking, orders, rating,
 sign-in and the individual operator screens.
+
+### Ordering review
+
+Independent scores for the pushed ordering checkpoint, before the
+subsequent mobile payment and dish corrections.
+
+| Screen | Arabic mobile | French mobile | French desktop | French dark mobile |
+| --- | ---: | ---: | ---: | ---: |
+| Dish | 7.7 | 7.9 | 7.9 | 7.7 |
+| Checkout | 7.4 | 7.7 | 8.1 | 7.5 |
+| Payment | 7.1 | 7.4 | 8.3 | 7.4 |
+| Account | 7.9 | 8.1 | 8.0 | 8.0 |
+
+The review identified cash controls below the mobile receipt, the first
+dish option partially obscured by the sticky button, and the account
+sound switch below the first viewport. The next pass moves cash before
+the receipt in reading order and reduces the mobile dish photo height
+and spacing. Re-capture those states before replacing the gallery files.
+
+The follow-up captures show the cash amount field above the sticky order
+button in Arabic at 390 px. The change amount still requires scrolling.
+Both optional dish rows show above the sticky button in French dark at
+390 px. The comparison gallery also includes the captured confirmation,
+delivery and pickup tracking, rating, orders and sign-in screens in
+the four variants. Those six baseline comparisons await their design
+passes and critic scores.
+
+The first verification attempt could not open local sockets for five
+worker tests. The run with loopback access advanced through every
+verification stage.
+
+### Status and operator capture
+
+The gallery now pairs the pilot and current merchant live board, courier
+active job and admin live-order list fixtures. It does not represent
+each screen in those workspaces.
+
+| Screen | Arabic mobile | French mobile | French desktop | French dark mobile |
+| --- | ---: | ---: | ---: | ---: |
+| Confirmation | 8.6 | 8.7 | 8.4 | 8.7 |
+| Delivery tracking fallback | 7.1 | 7.2 | 7.7 | 7.0 |
+| Pickup tracking | 8.4 | 8.5 | 8.0 | 8.1 |
+| Rating | 8.0 | 8.2 | 8.0 | 7.8 |
+| Orders | 7.9 | 7.8 | 8.1 | 7.8 |
+| Sign-in | 8.1 | 8.2 | 8.3 | 7.9 |
+
+The preview depicted fallback maps in all four delivery tracking
+captures. Prioritize a compact fallback that frees the first viewport
+for order status and ETA. Follow with clearer pickup directions, more
+compact active-order actions, consistent rating controls, stronger
+sign-in method selection and a quieter confirmation backdrop.
+
+The operator comparison used a fresh isolated build of `e2b9a4a9`.
+Earlier captures from a newer standalone build were discarded, and the
+admin captures were realigned to the live-order list. The critic scored
+these exact pilot-to-current comparisons as follows.
+
+| Screen | Arabic mobile | French mobile | French desktop | French dark mobile |
+| --- | ---: | ---: | ---: | ---: |
+| Merchant live board | 7.0 → 7.3 | 7.1 → 7.4 | 7.4 → 7.6 | 6.9 → 7.2 |
+| Courier active job | 7.6 → 7.8 | 7.5 → 7.7 | 7.8 → 8.0 | 7.4 → 7.7 |
+| Admin live-order list | 7.2 → 7.4 | 7.2 → 7.4 | 7.5 → 7.6 | 7.1 → 7.3 |
+
+Merchant needs stronger prioritization of ready orders when earlier
+stages are empty. The courier confirmation slider reads as disabled in
+light mode, and the pickup fixture has no street address. The admin
+sample has one order, so a crowded queue and its filters and
+interventions still need review.
+
+Chromium loaded 17 Arabic and 51 French comparison pairs, with every
+image decoded successfully. The loopback-enabled full verify rerun
+passed. The main browser matrix passed 127 tests with ten existing
+conditional skips. Connected Android LCP ranged from 1.580 to 1.816 s
+for Discovery and 1.532 to 1.584 s for Restaurant, both with CLS 0.
+
+Populated search results were captured from the exact pilot and current
+preview, in the same four variants. The final payment patch confines
+the cash reorder to step three and gives both recap sections a
+second-level heading. Ten focused checkout tests passed, including
+cash reading order in Arabic and French and the absence of cash controls
+on step one.
+
+The complete gallery browser check decoded all 18 Arabic and 54 French
+pairs. The same check confirmed the cash amount is visible above the
+sticky action at 390 px in Arabic and French, and verified heading and
+reading order on the payment step. The preceding browser matrix also
+passed 82 authenticated tests, four national map tests and three
+preview tests. The final heading and step-one regression corrections
+were made after the initial browser build.
+
+Next: repeat the exact-source gates, then refine delivery tracking's
+fallback and pickup directions without introducing layout shifts.

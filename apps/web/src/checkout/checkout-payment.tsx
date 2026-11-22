@@ -229,9 +229,8 @@ export function PaymentStep({ state, locale }: { state: CheckoutState; locale: L
         });
   return (
     <div className="checkout-step checkout-payment-step">
-      <h2>{translate("summary")}</h2>
       <section className="checkout-recap" aria-label={translate("recapTitle")}>
-        <h3>{translate("recapTitle")}</h3>
+        <h2>{translate("recapTitle")}</h2>
         <p>
           <Icon name={state.fulfilment === "pickup" ? "store" : "pin"} size={18} />
           <span>
@@ -253,12 +252,13 @@ export function PaymentStep({ state, locale }: { state: CheckoutState; locale: L
           </span>
         </p>
       </section>
+      <ContactPhone contact={state.contact} />
+      <CashCard state={state} locale={locale} />
+      <h2>{translate("summary")}</h2>
       <div className="checkout-receipt">
         <OrderLines state={state} locale={locale} />
         <PromoField state={state} />
       </div>
-      <ContactPhone contact={state.contact} />
-      <CashCard state={state} locale={locale} />
     </div>
   );
 }
