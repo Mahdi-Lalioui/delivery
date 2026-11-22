@@ -3,12 +3,39 @@
 ## Pilot deployment
 
 1. Wait for the pilot verdict and use the exact `pilot-1` tag.
-2. Prepare the server, DNS, map assets, encrypted backup and private configuration. Deploy the production Compose stack through Caddy. [Deployment runbook](DEPLOY.md)
-3. Set spend caps where supported and usage alerts in the SMS and email provider dashboards. Confirm which thresholds enforce limits. [Provider checks](evidence/awid/rate-limits.md#provider-spend-verification)
+2. Set spend caps where supported and usage alerts in the SMS and email provider dashboards. Confirm which thresholds enforce limits before enabling real delivery. [Provider checks](evidence/awid/rate-limits.md#provider-spend-verification)
+3. Prepare the server, DNS, map assets, encrypted backup and private configuration. Deploy the production Compose stack through Caddy. [Deployment runbook](DEPLOY.md)
 4. Sign in with the intended administrator email. Run the SSH bootstrap, enroll the one-time TOTP setup, and confirm the new sign-in. [First administrator](DEPLOY.md#first-administrator)
 5. Verify Telegram, Resend and the external error collector with the approved staging incidents. Then run HTTPS smoke and the delivery and pickup journeys. [Incident checks](evidence/awid/ops-alerts.md#staging-delivery-verification)
 
-**Current pilot verdict: NOT READY.** Final verification and CI are pending.
+**Current verdict: READY FOR PILOT.** The local candidate passed the pilot
+checks below. Publish and deploy `pilot-1` after the release PR passes CI.
+The live checks in the deployment instructions are required before opening
+the pilot to customers.
+
+## Pilot verification
+
+- `pnpm verify` passed on `c1eab801` with 2,102 regular and 399 Postgres
+  integration tests. An earlier run timed out while Docker and browsers
+  competed for resources. The serial retry passed with unchanged tests.
+- The production browser matrix passed 127 tests with 10 existing
+  conditional skips. The connected suite passed all 82 tests, the national
+  maps suite passed all four, and the preview suite passed all three. The
+  first browser run lacked the tile origin. The run with the national
+  tile service configured passed. These are the checked-in browser suites.
+  The separate Lighthouse aggregate remains unwired.
+- The production Compose dry run rebuilt the pilot images on loopback and
+  passed HTTPS smoke. ClamAV initially ran out of Docker memory during the
+  overlapping jobs. A serial retry passed, including the daemon ping and
+  clean-stream scan. The interactive bootstrap showed the QR and seed once,
+  refused a repeat, and persisted one audit entry without storing setup
+  material there.
+- Trivy passed the fixable HIGH/CRITICAL source and rebuilt backend, web
+  and ClamAV image gates with the local vulnerability database. Semgrep
+  reported zero findings across 1,304 files after hardening the workspace
+  policy. Gitleaks found no leaks across 697 reachable commits. Offline
+  TruffleHog reported four historical synthetic matches, reviewed in the
+  security report. [Security review](SECURITY_REVIEW.md)
 
 ## Accepted pilot limits
 

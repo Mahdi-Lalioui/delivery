@@ -738,3 +738,7 @@
   Next: verify the Tracking integration PR against GitHub CI and retain the three staging-dependent release checks as open.
 - 2026-11-22 · High · Local production HTTPS smoke and API/Caddy/Postgres log privacy passed. Fresh encrypted restore and all 82 connected browser tests passed.
   Next: merge PR #30 only on green CI, then publish the local drill evidence and leave the three staging-dependent checks open.
+- 2026-11-22 · High · SSH bootstrap passed two focused tests and an interactive Compose rehearsal. Full verify passed on the bootstrap commit with 2,102 regular and 399 Postgres tests. Semgrep findings were addressed; the final frozen install and rescan passed.
+  Next: confirm final deployment rebuild, preview suite and CI for PR #31, then publish the verdict and tag only with green evidence.
+- 2026-11-22 · High · Final local verify, four browser configurations, production HTTPS dry run and scoped scanners passed. Recorded four TruffleHog synthetic matches and the serial ClamAV retry. Pilot verdict recorded.
+  Next: merge PR #31 on green exact-head GitHub CI, push the pilot-1 tag on its merge commit and verify the remote tag.
