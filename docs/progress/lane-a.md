@@ -732,3 +732,5 @@
   Next: reproduce the isolated 33.3 ms cold interval on the direct renderer and verify the full browser and CI checks.
 - 2026-11-22 · High · PR #29 merged after seven green checks. Committed cold tilt measured 58/58/60 active fps. Traced run hit 60; added exact missed-frame timestamps without changing the metric.
   Next: capture a missed interval after the first frame and align it with the browser trace to identify its cause.
+- 2026-11-22 · High · Rehearsed a terminal watchdog on isolated production Compose with no live adapters configured. The keyed cleanup removed job 1925 and left zero rows. Recorded the final rerun command inventory.
+  Next: inspect the cold missed-frame timing and verify the Tracking fix before rerunning final gates.

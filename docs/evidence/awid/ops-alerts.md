@@ -140,3 +140,10 @@ neither the concrete slug nor the exception text. Restore the approved
 staging API image and verify readiness. Record the staging release SHA, UTC
 time, worker job ID, API request ID, and observed outcomes here with provider
 credentials and destination identifiers omitted.
+
+On 22 November, the isolated production Compose worker processed one keyed
+watchdog with an empty payload. All live alert adapter settings were absent.
+Postgres recorded a failed attempt with the lock released. The guarded
+cleanup removed job 1925 and the same key had zero residual rows. This
+verifies the local incident and cleanup procedure. External delivery and
+collector ingestion still require staging configuration.
