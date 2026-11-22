@@ -84,6 +84,20 @@ test("[CUS-24][AUTH-03][AUTH-07] deletion challenges bind erasure and replay to 
     await sql`SELECT user_id, delivered_at IS NOT NULL AS delivered, attempts
     FROM public.account_deletion_challenges WHERE id = ${challenge.challengeId}`,
   ).toEqual([{ user_id: target.userId, delivered: true, attempts: 0 }]);
+  const otherIssued = await api.inject({
+    method: "POST",
+    url: "/v1/me/deletion-challenge",
+    headers: { ...other.headers, "idempotency-key": "target-deletion-challenge" },
+  });
+  expect(otherIssued.statusCode).toBe(201);
+  const otherChallenge = customerPrivacyChallengeOutput.parse(otherIssued.json());
+  expect(otherChallenge.challengeId).not.toBe(challenge.challengeId);
+  expect(sent.get("account-delete:" + otherChallenge.challengeId)?.phone).toBe(otherPhone);
+  expect(sent.size).toBe(2);
+  expect(
+    await sql`SELECT user_id, delivered_at IS NOT NULL AS delivered, attempts
+    FROM public.account_deletion_challenges WHERE id = ${otherChallenge.challengeId}`,
+  ).toEqual([{ user_id: other.userId, delivered: true, attempts: 0 }]);
   const beforeUsers =
     await sql`SELECT id, phone_e164, email, deleted_at FROM public.users ORDER BY id`;
   const beforeAddresses =

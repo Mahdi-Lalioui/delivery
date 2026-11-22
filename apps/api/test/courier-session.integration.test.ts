@@ -169,6 +169,7 @@ test("[SECURITY] valid courier sessions see and change only assigned deliveries"
   const orders = createOrderRepository(database.get());
   const mediaRoot = await mkdtemp(join(tmpdir(), "awid-courier-proof-"));
   onTestFinished(() => rm(mediaRoot, { recursive: true, force: true }));
+  let commandNow = now;
   const api = createApi({
     media: {
       repository: createMediaRepository(database.get()),
@@ -177,8 +178,8 @@ test("[SECURITY] valid courier sessions see and change only assigned deliveries"
     },
     checkReadiness: () => Promise.resolve(),
     auth: { service: auth, publicOrigin },
-    couriers: { repository: createCourierRepository(database.get()), now: () => now },
-    orderActions: { repository: orders, now: () => now },
+    couriers: { repository: createCourierRepository(database.get()), now: () => commandNow },
+    orderActions: { repository: orders, now: () => commandNow },
   });
   onTestFinished(() => api.close());
 
@@ -345,4 +346,27 @@ test("[SECURITY] valid courier sessions see and change only assigned deliveries"
   expect(
     await sql`SELECT id FROM public.couriers WHERE id = ${unassignedCourierId} AND active`,
   ).toHaveLength(1);
+
+  for (const offset of [20_000, 40_000]) {
+    commandNow = new Date(now.getTime() + offset);
+    const call = await api.inject({
+      method: "POST",
+      url: `/v1/orders/${firstOrderId}/delivery-attempts`,
+      headers: { ...firstCourierSession.headers, "idempotency-key": randomUUID() },
+      payload: { action: "call" },
+    });
+    expect(call.statusCode).toBe(200);
+  }
+  commandNow = new Date(now.getTime() + 600_000);
+  const result = await api.inject({
+    method: "POST",
+    url: `/v1/orders/${firstOrderId}/fail`,
+    headers: { ...firstCourierSession.headers, "idempotency-key": randomUUID() },
+    payload: { expectedVersion: 5, reason: "Synthetic recipient unavailable" },
+  });
+  expect(result.statusCode).toBe(200);
+  expect(result.json()).toMatchObject({ status: "delivery_failed", version: 6 });
+  expect(await sql`SELECT status, version FROM public.orders WHERE id = ${firstOrderId}`).toEqual([
+    { status: "delivery_failed", version: 6 },
+  ]);
 });
