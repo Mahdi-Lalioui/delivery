@@ -1,19 +1,16 @@
 import { MercatorCoordinate, type CustomLayerInterface, type Map } from "maplibre-gl";
 import {
   BoxGeometry,
-  Camera,
+  Color,
   CylinderGeometry,
-  DirectionalLight,
-  Group,
-  HemisphereLight,
+  Float32BufferAttribute,
   Matrix4,
-  Mesh,
-  MeshStandardMaterial,
-  Scene,
   TorusGeometry,
   Vector3,
-  WebGLRenderer,
+  type BufferGeometry,
 } from "three";
+import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
+import { createScooterRenderer } from "./scooter-gl";
 
 export type ScooterPose = { longitude: number; latitude: number; heading: number };
 
@@ -22,8 +19,24 @@ function token(map: Map, name: string) {
   return getComputedStyle(map.getContainer()).getPropertyValue(name).trim();
 }
 
-function part(geometry: BoxGeometry | CylinderGeometry | TorusGeometry, color: string) {
-  return new Mesh(geometry, new MeshStandardMaterial({ color, roughness: 0.55 }));
+const lightDirection = new Vector3(-40, -60, 120).normalize();
+
+function shadePart(geometry: BufferGeometry, color: string) {
+  const normals = geometry.getAttribute("normal");
+  const normal = new Vector3();
+  const paint = new Color(color);
+  const shaded = new Color();
+  const colors = new Float32BufferAttribute(normals.count * 3, 3);
+  for (let index = 0; index < normals.count; index++) {
+    normal.fromBufferAttribute(normals, index);
+    const brightness = 0.55 + 0.45 * Math.max(0, normal.dot(lightDirection));
+    shaded.copy(paint).multiplyScalar(brightness).convertLinearToSRGB();
+    colors.setXYZ(index, shaded.r, shaded.g, shaded.b);
+  }
+  geometry.setAttribute("color", colors);
+  geometry.deleteAttribute("normal");
+  geometry.deleteAttribute("uv");
+  return geometry;
 }
 
 /** A procedural delivery scooter, 1 unit = 1 metre, nose along +Y, wheels on z = 0. */
@@ -32,27 +45,26 @@ function buildScooter(map: Map) {
   const dark = token(map, "--color-text");
   const light = token(map, "--color-surface");
   const cargo = token(map, "--color-harissa");
-  const scooter = new Group();
-  for (const y of [-0.62, 0.62]) {
-    const wheel = part(new TorusGeometry(0.26, 0.09, 10, 20), dark);
-    wheel.rotation.y = Math.PI / 2;
-    wheel.position.set(0, y, 0.3);
-    scooter.add(wheel);
-  }
-  const deck = part(new BoxGeometry(0.42, 1.1, 0.16), body);
-  deck.position.set(0, 0, 0.42);
-  const seat = part(new BoxGeometry(0.4, 0.55, 0.14), dark);
-  seat.position.set(0, -0.3, 0.86);
-  const box = part(new BoxGeometry(0.62, 0.55, 0.5), cargo);
-  box.position.set(0, -0.62, 1.22);
-  const stem = part(new CylinderGeometry(0.05, 0.05, 0.85), light);
-  stem.rotation.x = Math.PI / 2 - 0.25;
-  stem.position.set(0, 0.55, 0.85);
-  const bars = part(new CylinderGeometry(0.04, 0.04, 0.7), dark);
-  bars.rotation.z = Math.PI / 2;
-  bars.position.set(0, 0.66, 1.26);
-  scooter.add(deck, seat, box, stem, bars);
-  return scooter;
+  const wheels = [-0.62, 0.62].map((y) =>
+    shadePart(
+      new TorusGeometry(0.26, 0.09, 10, 20).rotateY(Math.PI / 2).translate(0, y, 0.3),
+      dark,
+    ),
+  );
+  return mergeGeometries([
+    ...wheels,
+    shadePart(new BoxGeometry(0.42, 1.1, 0.16).translate(0, 0, 0.42), body),
+    shadePart(new BoxGeometry(0.4, 0.55, 0.14).translate(0, -0.3, 0.86), dark),
+    shadePart(new BoxGeometry(0.62, 0.55, 0.5).translate(0, -0.62, 1.22), cargo),
+    shadePart(
+      new CylinderGeometry(0.05, 0.05, 0.85).rotateX(Math.PI / 2 - 0.25).translate(0, 0.55, 0.85),
+      light,
+    ),
+    shadePart(
+      new CylinderGeometry(0.04, 0.04, 0.7).rotateZ(Math.PI / 2).translate(0, 0.66, 1.26),
+      dark,
+    ),
+  ]);
 }
 
 /** The model is about 1.9 m long; it is drawn this many CSS pixels long at any zoom. */
@@ -78,32 +90,26 @@ export function blend(from: ScooterPose, to: ScooterPose, progress: number): Sco
   };
 }
 
-/** A MapLibre custom layer that renders the scooter with three.js and turns it with heading. */
+/** A MapLibre custom layer that draws the shaded 3D scooter in the shared view. */
 export function scooterLayer(initial: ScooterPose) {
   let from = initial;
   let pose = initial;
   let startedAt = 0;
-  let renderer: WebGLRenderer | undefined;
+  let renderer: ReturnType<typeof createScooterRenderer>;
   let map: Map | undefined;
-  const scene = new Scene();
-  const camera = new Camera();
-  const model = new Group();
-  scene.add(model);
   const layer: CustomLayerInterface & { setPose: (next: ScooterPose) => void } = {
     id: "awid-scooter",
     type: "custom",
     renderingMode: "3d",
     onAdd(target, gl) {
       map = target;
-      model.add(buildScooter(target));
-      const sun = new DirectionalLight(0xffffff, 1.6);
-      sun.position.set(-40, -60, 120);
-      scene.add(new HemisphereLight(0xffffff, 0x8a8a8a, 1.4), sun);
-      renderer = new WebGLRenderer({ canvas: target.getCanvas(), context: gl, antialias: true });
-      renderer.autoClear = false;
+      renderer = createScooterRenderer(gl, buildScooter(target));
     },
     onRemove() {
       renderer?.dispose();
+      if (map) delete map.getContainer().dataset.scooter;
+      renderer = undefined;
+      map = undefined;
     },
     render(_gl, { defaultProjectionData }) {
       if (!renderer || !map) return;
@@ -117,11 +123,12 @@ export function scooterLayer(initial: ScooterPose) {
         .makeTranslation(origin.x, origin.y, origin.z)
         .scale(new Vector3(meters, -meters, meters))
         .multiply(new Matrix4().makeRotationZ((-current.heading * Math.PI) / 180));
-      camera.projectionMatrix = new Matrix4()
+      const projection = new Matrix4()
         .fromArray(defaultProjectionData.mainMatrix)
         .multiply(transform);
-      renderer.resetState();
-      renderer.render(scene, camera);
+      const { dataset } = map.getContainer();
+      if (renderer.draw(projection.elements) && dataset.scooter !== "true")
+        dataset.scooter = "true";
     },
     setPose(next) {
       from = blend(from, pose, Math.min(1, (performance.now() - startedAt) / glideMs));

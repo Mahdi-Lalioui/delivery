@@ -410,3 +410,45 @@ interval, no post-click Long Tasks API entries, and no tile completions.
 After the original 600 ms sample, the longest frame was 16.8 ms in every
 run through 1.2 s after the click. The trial reduced the stall but fell
 short of the 60 fps target, so the product change was reverted.
+
+### Direct WebGL scooter
+
+The Tracking scooter keeps the seven original 3D parts, which are now drawn
+as one vertex-colored mesh with baked shading. Its custom MapLibre layer
+uses one WebGL draw and shares the map's depth and blend state. The existing
+rider stays visible until the custom layer draws.
+
+All three connected cold delivery journeys on the national archive passed.
+Active tilt held 60 fps in each run, with no post-click long tasks or tile
+completions. The full click window measured 61, 58 and 61 fps. The 58 fps
+sample had a 33.4 ms click-to-first-frame interval. Once moving, frames
+stayed at or below 16.8 ms, including through the 1.2 s post-click sample.
+
+A separate first-draw measurement observed the scooter 44.9 ms before the
+click, in a 33.4 ms frame. The nearest preceding long task had already
+ended 105 ms before the click. That journey also held 60 active fps, with
+no post-click long tasks and a 16.8 ms maximum frame after the click.
+
+Reproduce the cold tilt and attachment samples with the national-map build
+above and this unprofiled run:
+
+```sh
+AWID_MEASURE_TRACKING_TILT=1 AWID_MEASURE_TRACKING_SCOOTER=1 \
+  ZAAFRAN_TILE_ORIGIN=http://127.0.0.1:5506 \
+  pnpm exec playwright test --config=e2e/auth.config.ts \
+  e2e/auth-order-journey.spec.ts --grep 'real cash order · delivery' \
+  --workers=1 --repeat-each=3
+```
+
+The French mobile capture shows the shaded scooter and surrounding map at
+55°. Only the destination pin was hidden for the capture because the
+fixture puts the courier and destination at the same coordinates. This
+journey sampled the tilt before capture, with the attachment monitor off.
+It measured 58 active fps with one 33.3 ms frame and no long tasks. The
+strict 60 fps criterion remains open.
+
+Focused tests passed for heading interpolation, camera pitch and the
+reduced-motion fallback. Recorded GL calls also verified resource cleanup
+after program, link, uniform and partial buffer initialization failures.
+Successful draws uploaded the mesh once, submitted one draw per frame and
+unbound their program and vertex array afterward. [Mobile capture](perf/tracking-direct-webgl.png)

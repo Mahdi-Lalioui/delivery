@@ -65,7 +65,6 @@ function placeScooter(map: Map, pose: ScooterPose) {
       const layer = scooterLayer(entry.pose);
       map.addLayer(layer);
       entry.layer = layer;
-      map.getContainer().dataset.scooter = "true";
     })
     .catch(() => {
       scooters.delete(map);
