@@ -256,3 +256,11 @@ partial entries after the final connected auth and review suites passed
 13/13. The release remains **NOT READY**, with Tracking, rate limits and
 provider spend controls, live operations alerts, and the final rerun open.
 [Endpoint evidence](evidence/awid/tenant-endpoint-map.md)
+
+PR #28 merged after seven green checks. Direct WebGL rendering retained
+the 3D scooter and eliminated post-click long tasks in five connected
+national-map samples. Four reached 60 active fps and one reached 58 fps.
+The implementation is retained as a measured improvement. The strict
+Tracking criterion remains open. The production dependency audit passed
+and the history scan found no leaks across 689 commits.
+[Tracking evidence](evidence/awid/perf.md)

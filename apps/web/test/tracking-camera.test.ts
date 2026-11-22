@@ -3,7 +3,7 @@ import type * as React from "react";
 import { afterEach, expect, test, vi } from "vitest";
 import { useTrackingScene } from "../src/tracking/use-tracking-scene";
 
-const { easeTo } = vi.hoisted(() => ({ easeTo: vi.fn() }));
+const { addLayer, easeTo } = vi.hoisted(() => ({ addLayer: vi.fn(), easeTo: vi.fn() }));
 
 vi.mock("react", async (importOriginal) => ({
   ...(await importOriginal<typeof React>()),
@@ -16,9 +16,10 @@ vi.mock("react", async (importOriginal) => ({
 
 vi.mock("maplibre-gl", () => ({
   Map: class {
+    addLayer = addLayer;
     easeTo = easeTo;
     getSource = () => undefined;
-    getLayer = () => ({});
+    getLayer = () => undefined;
   },
 }));
 
@@ -26,8 +27,10 @@ vi.mock("../src/tracking/scooter-layer", () => ({
   scooterLayer: () => ({}),
 }));
 
-afterEach(() => {
+afterEach(async () => {
+  await vi.dynamicImportSettled();
   vi.unstubAllGlobals();
+  addLayer.mockClear();
   easeTo.mockClear();
 });
 
@@ -49,3 +52,15 @@ test.each([
     );
   },
 );
+
+test("[CUS-18] reduced motion keeps the fallback rider and tilts without animation", async () => {
+  vi.stubGlobal("window", { matchMedia: () => ({ matches: true }) });
+  const map = new Map({ container: "tracking" });
+  useTrackingScene(
+    { current: map },
+    { isReady: true, isStreetView: true, courier: { latitude: 36.77, longitude: 3.06 } },
+  );
+  await vi.dynamicImportSettled();
+  expect(addLayer).not.toHaveBeenCalled();
+  expect(easeTo).toHaveBeenCalledWith({ pitch: 55, duration: 0 });
+});
