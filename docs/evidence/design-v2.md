@@ -93,3 +93,34 @@ have not been verified for this design.
 Next: complete the restaurant and dish experience, the ordering and
 account flows, and the individual operator views, then repeat the
 screenshots and critique across those screens.
+
+## Restaurant and ordering checkpoint
+
+The restaurant information panel now has a ruled edge and quieter
+elevation. The empty desktop cart is compact, giving the menu visual
+priority. Dish and cart sheets separate the title and content with a
+visible rule. Checkout uses a neutral two-column surface at tablet
+widths and above, and the account list uses the same ruled edge.
+
+The preview flow opened a dish, chose an option, added it, and displayed
+the populated cart in all four review layouts. The initial French dish
+captures showed the loading state. Both versions were recaptured after
+the dish form mounted. Cart and dish before images were taken from the
+unchanged menu styles in the previous preview build.
+
+The critic scored Restaurant at 7.4–8.2 and the populated Cart at
+8.0–8.4. The first loaded Arabic Dish received 7.7; French loaded Dish
+scores are pending. Restaurant photos and menu search still push prices
+close to the navigation on phones. The mobile sheet scrim and dark cart
+stepper need more separation, and the subtotal is repeated in the cart.
+
+Full verify passed. The two-worker browser matrix had four WebKit map
+timeouts. All four passed in isolation and the complete one-worker
+matrix passed 127 tests with ten existing conditional skips. Connected
+browser tests passed 82/82, national maps passed 4/4, and preview passed
+3/3. The connected LCP samples were 1.704–1.768 s for Discovery and
+1.528–1.564 s for Restaurant, with CLS 0 for both.
+
+Next: critique the loaded dish and checkout/account captures, resolve
+the noted mobile issues, and review confirmed, tracking, orders, rating,
+sign-in and the individual operator screens.

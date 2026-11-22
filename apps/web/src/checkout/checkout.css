@@ -843,14 +843,15 @@
   background-color: var(--color-sand);
 }
 
-/* Tablets and up: the checkout sits on a plaster "table" that fills the page above the action bar. */
+/* Tablets and up: the delivery step and receipt sit on a quiet, ruled surface. */
 @media (min-width: 768px) {
   .checkout:not(:has(.checkout-blocked)) {
     min-block-size: calc(100dvb - var(--space-120) - var(--space-80));
     padding: var(--space-32);
     border-radius: var(--radius-xl);
-    background-color: var(--color-sand);
-    background-image: radial-gradient(60% 80% at 100% 0%, var(--color-glow), transparent 70%);
+    border: 1px solid var(--color-border-subtle);
+    border-block-start: 2px solid var(--color-food-saffron);
+    background-color: var(--color-surface-2);
   }
 }
 

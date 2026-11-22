@@ -82,9 +82,11 @@
   gap: var(--space-8);
   margin-block-start: calc(-1 * var(--space-40));
   padding: var(--space-20);
+  border: 1px solid var(--color-border-subtle);
+  border-block-start: 2px solid var(--color-food-saffron);
   border-radius: var(--radius-xl);
   background: var(--color-surface);
-  box-shadow: var(--shadow-e2);
+  box-shadow: var(--shadow-e1);
 }
 .restaurant-heading {
   display: flex;
@@ -96,6 +98,10 @@
   font: var(--font-weight-display) clamp(30px, 24px + 1.6vw, 44px) / 1.1 var(--font-display);
   letter-spacing: var(--letter-spacing-display-xl, -0.02em);
   overflow-wrap: anywhere;
+}
+.restaurant-heading:dir(rtl) h1 {
+  line-height: 1.2;
+  letter-spacing: normal;
 }
 .restaurant-cuisines {
   display: flex;
@@ -429,6 +435,7 @@
   justify-content: space-between;
   gap: var(--space-16);
   padding: var(--space-16) var(--space-20);
+  border-block-end: 1px solid var(--color-border-subtle);
   background: var(--color-surface);
 }
 .restaurant-dialog-header h2 {
@@ -946,19 +953,17 @@ body:has(.restaurant-cart-bar) .customer-tabs {
   .restaurant-cart-panel h2 {
     font: var(--font-weight-h2) var(--font-size-h2) / var(--line-height-h2) var(--font-display);
   }
-  /* An empty cart is a full-height, illustrated invitation, not a small card over dead space. */
-  .restaurant-cart-panel:has(.restaurant-cart-panel-empty) {
-    grid-template-rows: auto 1fr;
-    block-size: calc(100dvb - var(--space-120) - var(--space-48));
-  }
   .restaurant-cart-panel-empty {
+    --decor-zellige-colour: color-mix(in srgb, var(--color-border-strong) 12%, transparent);
     display: grid;
     align-content: center;
     justify-items: center;
-    gap: var(--space-8);
+    gap: var(--space-12);
+    min-block-size: 16rem;
     padding: var(--space-24) var(--space-16);
+    border: 1px dashed var(--color-border-subtle);
     border-radius: var(--radius-lg);
-    background: var(--color-mint-pale);
+    background: var(--color-surface-2);
     color: var(--color-text-2);
     text-align: center;
   }

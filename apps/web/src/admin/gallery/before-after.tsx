@@ -1,7 +1,16 @@
 import type { Locale } from "@zaafran/i18n/locales";
 
 // Pilot and current captures, displayed only in the design gallery.
-const screens = ["landing", "discover"] as const;
+const screens = [
+  "landing",
+  "discover",
+  "restaurant",
+  "dish",
+  "cart",
+  "checkout",
+  "payment",
+  "account",
+] as const;
 
 function variantsFor(locale: Locale) {
   return locale === "ar" ? ["ar-390"] : ["fr-390", "fr-390-dark", "fr-1280"];
@@ -22,7 +31,8 @@ export function BeforeAfter({
         {screens.flatMap((screen) =>
           variantsFor(locale).map((variant) => {
             const isWide = variant.endsWith("1280");
-            const size = isWide ? { width: 640, height: 450 } : { width: 390, height: 844 };
+            const wideHeight = screen === "dish" || screen === "cart" ? 422 : 450;
+            const size = isWide ? { width: 640, height: wideHeight } : { width: 390, height: 844 };
             const name = `${screen}-${variant}`;
             return (
               <li key={name} data-wide={isWide}>

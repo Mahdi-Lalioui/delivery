@@ -23,6 +23,8 @@
 .account-hub-list {
   display: grid;
   overflow: hidden;
+  border: 1px solid var(--color-border-subtle);
+  border-block-start: 2px solid var(--color-food-saffron);
   border-radius: var(--radius-xl);
   background: var(--color-surface);
   box-shadow: var(--shadow-e1);
