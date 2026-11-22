@@ -4,6 +4,7 @@
 
 - `pnpm test:authz` passed **267 tests across 42 suites**. The policy test checks that the registered route inventory has explicit policies and exercises actor-role outcomes. This is route-level authentication/role coverage; it does not prove tenant ownership inside every handler or repository.
 - `pnpm test:int` passed **348 tests across 51 files** against local Postgres. The integration tests below provide real-session or persisted cross-account/tenant evidence for the listed resources.
+- The [endpoint evidence map](tenant-endpoint-map.md) matches each registered method and path to the connected cases, role checks or public scope and lists the remaining connected comparisons.
 
 ## Customer-owned resources
 
@@ -50,7 +51,7 @@ Postgres FORCE ROW LEVEL SECURITY currently provides a second wall for:
 
 Orders and most merchant-owned domain tables do **not** currently have RLS; they rely on explicit repository membership/account predicates and the integration coverage linked above. Orders are read and transitioned by customers, restaurant members, couriers and admins, so adding RLS requires a complete role-aware transaction context and regression coverage.
 
-Keep the route-by-route isolation readiness item open until every registered ownership-sensitive endpoint maps to a connected test. The live revocation regressions cover both merchant and customer order streams.
+The [endpoint map's remaining evidence](tenant-endpoint-map.md#remaining-evidence) records the connected cases still needed for the route-by-route readiness item. The live revocation regressions cover both merchant and customer order streams.
 
 ### Menu items under an owned restaurant
 

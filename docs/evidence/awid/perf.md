@@ -379,3 +379,22 @@ rider was visible before the click, when the custom layer appeared, and
 long tasks through at least 1,200 ms after the click and 600 ms after the
 layer appears. If the layer is already attached at the click, its time is
 reported as zero. The original 600 ms measurement still reports separately.
+
+### Parallel shader compilation trial
+
+A trial used Three.js `compileAsync` before the first custom scooter draw
+when the browser exposed `KHR_parallel_shader_compile`. All three connected
+national-map delivery journeys passed, but the lab Chromium WebGL2 context
+did not expose the extension in any run. The existing draw path measured
+53, 52 and 53 active fps with tasks of 79, 82 and 83 ms. The first scooter
+draw was observed 239–256 ms after the click, after those tasks began. This
+browser could not exercise the parallel compilation path. The trial was
+reverted.
+
+### Lambert scooter material trial
+
+The simpler Lambert material retained the geometry and lighting and passed
+three connected national-map journeys. Each cold tilt measured 55 active
+fps, with long tasks of 63, 61 and 61 ms. The longest frame was 66.6–66.7 ms.
+The material lowered the stall duration but missed the frame-rate target,
+so the product change was reverted.

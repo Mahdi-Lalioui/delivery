@@ -41,6 +41,31 @@ test("[AUTH-07][NOT-04] push endpoints cannot be stolen or removed by another ac
     await sql`SELECT user_id, session_id FROM public.push_subscriptions WHERE endpoint = ${endpoint}`,
   ).toEqual([{ user_id: customerA.userId, session_id: customerA.sessionId }]);
 
+  const endpointB = endpoint + "-second";
+  expect(
+    (
+      await api.inject({
+        method: "POST",
+        url,
+        headers: customerB.headers,
+        payload: { endpoint: endpointB, keys },
+      })
+    ).statusCode,
+  ).toBe(204);
+  expect(
+    (
+      await api.inject({
+        method: "DELETE",
+        url,
+        headers: customerB.headers,
+        payload: { endpoint: endpointB },
+      })
+    ).statusCode,
+  ).toBe(204);
+  expect(
+    await sql`SELECT FROM public.push_subscriptions WHERE endpoint = ${endpointB}`,
+  ).toHaveLength(0);
+
   await sql`UPDATE public.sessions SET revoked_at = ${now} WHERE id = ${customerA.sessionId}`;
   const revokedRemoval = await api.inject({
     method: "DELETE",

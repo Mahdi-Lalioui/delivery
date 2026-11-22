@@ -76,4 +76,14 @@ test("[MER-19][AUTH-07] real sessions cannot read or change another restaurant's
     await database.get().sql`SELECT id, merchant_id, code FROM public.promotions`,
   ).toMatchObject([{ id: promotionId, merchant_id: restaurantA.owned, code: "ALGERDAY" }]);
   expect(await database.get().sql`SELECT FROM public.promotion_command_receipts`).toHaveLength(1);
+  const ownUpdate = await api.inject({
+    method: "PUT",
+    url: `${path}/${promotionId}`,
+    headers: commandHeaders(ownerA, "own-update"),
+    payload: { ...promotion, activation: { kind: "code", code: "UPDATED" } },
+  });
+  expect(ownUpdate.statusCode).toBe(200);
+  expect(await database.get().sql`SELECT id, merchant_id, code FROM public.promotions`).toEqual([
+    { id: promotionId, merchant_id: restaurantA.owned, code: "UPDATED" },
+  ]);
 });

@@ -175,4 +175,25 @@ test("[CUS-11][CUS-13][AUTH-07] real customer sessions cannot change or use anot
       FROM public.orders WHERE id = ${order.orderId}`,
     ).toEqual([{ customer_id: actor.userId, address_id: address.addressId }]);
   }
+
+  const changed = await api.inject({
+    method: "PUT",
+    url: `/v1/me/addresses/${firstAddress.addressId}`,
+    headers: first.headers,
+    payload: { label: "Updated address", pin: firstAddress.pin },
+  });
+  expect(changed.statusCode).toBe(200);
+  expect(addressOutput.parse(changed.json())).toMatchObject({
+    addressId: firstAddress.addressId,
+    label: "Updated address",
+  });
+  const removed = await api.inject({
+    method: "DELETE",
+    url: `/v1/me/addresses/${firstAddress.addressId}`,
+    headers: first.headers,
+  });
+  expect(removed.statusCode).toBe(204);
+  expect(
+    await sql`SELECT id FROM public.addresses WHERE user_id = ANY(${customerIds}::uuid[])`,
+  ).toEqual([{ id: secondAddress.addressId }]);
 });

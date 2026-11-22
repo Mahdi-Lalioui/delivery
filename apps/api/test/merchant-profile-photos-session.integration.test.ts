@@ -171,4 +171,24 @@ test("[MER-14][AUTH-07] a shared owner cannot move ready photos between restaura
   const updated = await editItem(replacement);
   expect(updated.statusCode).toBe(200);
   expect(updated.json()).toMatchObject({ revision: 1, item: { photoId: replacement } });
+
+  const newCover = randomUUIDv7();
+  await seedReadyPhoto(sql, {
+    mediaId: newCover,
+    accountId: owner.userId,
+    merchantId: menu.merchantId,
+    kind: "cover",
+    now: new Date(now),
+  });
+  const profile = await api.inject({
+    method: "PUT",
+    url: base + "/profile/photos",
+    headers: commandHeaders(),
+    payload: { coverPhotoId: newCover, logoPhotoId: null, expectedRevision: 1 },
+  });
+  expect(profile.statusCode).toBe(200);
+  expect(profile.json()).toMatchObject({ coverPhotoId: newCover, revision: 2 });
+  expect(
+    await sql`SELECT cover_photo_id FROM public.merchants WHERE id = ${otherMenu.merchantId}`,
+  ).toEqual([{ cover_photo_id: otherMenu.coverId }]);
 });

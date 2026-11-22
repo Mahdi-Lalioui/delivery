@@ -144,4 +144,35 @@ test("[MER-11:security] bulk price routes reject mixed tenants and foreign undo"
   expect(foreignUndo.statusCode).toBe(404);
   expect(foreignUndo.body).not.toContain(batchId);
   expect(await readState()).toEqual(before);
+  const ownedPreview = await api.inject({
+    method: "POST",
+    url: baseB + "/preview",
+    headers: ownerB.headers,
+    payload: {
+      itemIds: [itemB],
+      adjustment: mixedInput.adjustment,
+      roundingUnit: mixedInput.roundingUnit,
+    },
+  });
+  expect(ownedPreview.statusCode).toBe(200);
+  expect(ownedPreview.body).toContain(itemB);
+  expect(ownedPreview.body).not.toContain(itemA);
+  expect(await readState()).toEqual(before);
+
+  const ownedUndo = await api.inject({
+    method: "POST",
+    url: `${baseB}/batches/${batchId}/undo`,
+    headers: {
+      ...ownerB.headers,
+      "idempotency-key": randomUUID(),
+      "x-expected-session-id": ownerB.sessionId,
+    },
+    payload: { expectedRevision: 1 },
+  });
+  expect(ownedUndo.statusCode).toBe(200);
+  const after = await readState();
+  expect(after.prices.find(({ id }) => id === itemB)).toMatchObject({ price_dzd: 500 });
+  expect(after.prices.find(({ id }) => id === itemA)).toEqual(
+    before.prices.find(({ id }) => id === itemA),
+  );
 });

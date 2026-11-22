@@ -40,6 +40,13 @@ test("[AUTH-05][AUTH-06][ADM-07][BIL-01] billing settings writes require a live 
   expect(beforeSettings).toHaveLength(1);
   expect(beforeReceipts).toHaveLength(1);
 
+  const settingsRead = await api.inject({ url: url, headers: admin.headers });
+  expect(settingsRead.statusCode).toBe(200);
+  expect(adminBillingSettingsOutput.parse(settingsRead.json())).toMatchObject({
+    sessionId: admin.sessionId,
+    settings: initialSettings,
+  });
+
   for (const actor of [
     { label: "guest", headers: {}, sessionId: admin.sessionId, expected: 401 },
     { label: "standard", headers: customer.headers, sessionId: customer.sessionId, expected: 403 },
@@ -50,6 +57,10 @@ test("[AUTH-05][AUTH-06][ADM-07][BIL-01] billing settings writes require a live 
       expected: 401,
     },
   ]) {
+    const deniedRead = await api.inject({ url: url, headers: actor.headers });
+    expect(deniedRead.statusCode, actor.label).toBe(actor.expected);
+    expect(deniedRead.json()).not.toHaveProperty("settings");
+
     const denied = await api.inject({
       method: "PUT",
       url,
