@@ -264,3 +264,11 @@ The implementation is retained as a measured improvement. The strict
 Tracking criterion remains open. The production dependency audit passed
 and the history scan found no leaks across 689 commits.
 [Tracking evidence](evidence/awid/perf.md)
+
+The local Tracking criterion is closed. Isolating the controls' repaint
+gave 60 fps in all three unprofiled cold national-map journeys, with no
+missed intervals. A separate 1.21-second guard also reached 60 fps and
+found no delayed stall. The release remains **NOT READY** pending live
+provider spend controls, live alerts and collector delivery, and the
+dependent final rerun.
+[Tracking evidence](evidence/awid/perf.md#tracking-controls-compositing) · [Final preflight](evidence/awid/final-rerun.md)

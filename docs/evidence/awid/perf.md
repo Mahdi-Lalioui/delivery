@@ -463,3 +463,28 @@ reproduce the interval. The diagnostic now logs each missed interval
 relative to the click, with the original frame-rate calculations unchanged.
 The first diagnostic run passed at 60 active fps with a 33.4 ms interval
 between the click and the first frame.
+
+### Tracking controls compositing
+
+A three-run national-map baseline on the direct WebGL renderer passed all
+connected delivery journeys and measured 58, 60 and 58 active fps. Both
+misses were single 33.3 ms intervals beginning 25.4 and 26.3 ms after the
+click. No long tasks or tile completions occurred during either interval.
+A separate diagnostic observed the scooter's first draw 47.2 ms before
+the click and the button's pressed state 2.3 ms after it. The diagnostic
+run had no missed frames, so it did not attribute the baseline misses.
+
+Applying `will-change: transform` to the Tracking controls only retained
+their colors, focus styling and camera behavior. The three ordinary
+unprofiled connected runs all passed at 60
+fps in the full click window and at 60 active fps. First frames arrived in
+16.6, 16.6 and 11.6 ms. The longest frame intervals were 16.8, 16.7 and
+16.8 ms, with no missed intervals, long tasks or tile completions. The run
+used the national-map production build and the same three-repeat command
+above with only `AWID_MEASURE_TRACKING_TILT=1` set for instrumentation.
+
+The separate attachment guard also passed at 60 fps, with the scooter
+drawn by the click and no post-click long tasks or missed intervals.
+Through 1.21 seconds after the click, the longest post-tilt frame was
+16.8 ms. These results meet the connected cold-tilt lab target on the
+existing throttled Chromium profile.

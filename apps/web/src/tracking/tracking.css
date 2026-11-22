@@ -609,6 +609,7 @@
   z-index: 1;
   inset-inline-end: var(--space-16);
   inset-block-end: var(--space-16);
+  will-change: transform;
 }
 
 .tracking-map-notice {
