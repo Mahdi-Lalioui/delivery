@@ -730,3 +730,5 @@
   Next: isolate the remaining first-draw cost with the single-mesh control and preserve the 60 fps cold acceptance check.
 - 2026-11-22 · High · Direct WebGL scooter preserved the 3D map and passed 19 focused tests. Four cold samples measured 60 fps, one 58 fps, and none had a post-click long task. Kept the improvement with the criterion open.
   Next: reproduce the isolated 33.3 ms cold interval on the direct renderer and verify the full browser and CI checks.
+- 2026-11-22 · High · PR #29 merged after seven green checks. Committed cold tilt measured 58/58/60 active fps. Traced run hit 60; added exact missed-frame timestamps without changing the metric.
+  Next: capture a missed interval after the first frame and align it with the browser trace to identify its cause.

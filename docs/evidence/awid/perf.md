@@ -452,3 +452,14 @@ reduced-motion fallback. Recorded GL calls also verified resource cleanup
 after program, link, uniform and partial buffer initialization failures.
 Successful draws uploaded the mesh once, submitted one draw per frame and
 unbound their program and vertex array afterward. [Mobile capture](perf/tracking-direct-webgl.png)
+
+### Committed renderer rerun
+
+Three unprofiled connected journeys on the committed renderer passed and
+measured 58, 58 and 60 active fps. The two 58 fps runs each missed one
+frame, with a 33.4 ms interval and no post-click long tasks or tile
+completions. A separate traced journey passed at 60 fps and did not
+reproduce the interval. The diagnostic now logs each missed interval
+relative to the click, with the original frame-rate calculations unchanged.
+The first diagnostic run passed at 60 active fps with a 33.4 ms interval
+between the click and the first frame.
