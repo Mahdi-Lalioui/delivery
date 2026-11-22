@@ -142,7 +142,7 @@ function CancelOrder({ state, tracking }: { state: TrackingState; tracking: Trac
   );
 }
 
-/** Time, code and timeline; for pickup the code comes before the timeline. */
+/** Present the handoff code above the timeline so it stays easy to find. */
 function LiveDetails({
   tracking,
   locale,
@@ -158,9 +158,8 @@ function LiveDetails({
   return (
     <>
       <Eta tracking={tracking} locale={locale} />
-      {isLive && isPickup && <CodeCard tracking={tracking} />}
+      {isLive && <CodeCard tracking={tracking} />}
       <Timeline tracking={tracking} locale={locale} />
-      {isLive && !isPickup && <CodeCard tracking={tracking} />}
       {isWaitingForCourier && <p className="tracking-note">{translate("waitingCourier")}</p>}
     </>
   );

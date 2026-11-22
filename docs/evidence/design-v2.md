@@ -215,3 +215,59 @@ were made after the initial browser build.
 
 Next: repeat the exact-source gates, then refine delivery tracking's
 fallback and pickup directions without introducing layout shifts.
+
+The exact mobile ordering checkpoint was pushed as `486ca1f1`.
+Full verify and the four browser suites passed on that checkpoint:
+127 main tests with ten conditional skips, 82 connected tests, four
+map tests and three preview tests. The standalone customer accessibility
+audit sampled 60 views with zero axe violations, small targets, missing
+focus indicators or audit errors.
+
+The separate 120-view fullness audit at 390 and 1280 px found four
+desktop empty Orders failures across Arabic, French, light and dark.
+Each empty view had a 0.375 largest empty region against the 0.30 limit.
+The next pass adds a localized Discovery action and a taller desktop
+empty-order card. In an isolated CSS prototype, the gap fell to 0.173
+in Arabic and 0.188 in French. The built change still needs its audit.
+
+The mobile tracking prototype recovered from rejected tile requests
+to the local real map at 390 × 844. ETA ended at y=543 in Arabic and
+y=527 in French, with 0 px of heading movement. The next pass reserves
+the same map slot in every map state and promotes the handoff code
+above the timeline. In the operator prototype, phone empty-stage
+heights were 75–81 px, the courier control remained 56 px tall, and
+a programmatically enabled fixture showed a visible focus outline.
+These prototype checks precede the final browser run.
+
+### Status, sign-in and operator pass
+
+The built change passed all four previously failing empty Orders
+views at 1280 px. Largest top and bottom regions were 0.173 in Arabic
+and 0.188 in French, in both themes. The screen now has a localized
+Discovery action. Focused checkout, tracking and orders tests passed
+16/16.
+
+The exact dark mobile build was tested through tile failure and recovery
+against the local basemap. The ETA and delivery code ended at y=543 and
+y=696 in Arabic and y=527 and y=667 in French, above the fixed
+navigation. The status heading moved 0 px after recovery. The selected
+sign-in method has a mint outline in both languages. Merchant empty
+stages measured 75–81 px on phones. The courier confirmation target
+measured 56 px across all four capture variants.
+
+| Screen | Arabic mobile | French mobile | French desktop | French dark mobile |
+| --- | ---: | ---: | ---: | ---: |
+| Tracking | 8.6 | 8.7 | 8.6 | 8.6 |
+| Sign-in | 8.4 | 8.5 | 8.0 | 8.1 |
+| Confirmation | 9.0 | 8.8 | 8.6 | 8.9 |
+| Empty Orders | 8.5 | 8.4 | 8.0 | 8.2 |
+| Merchant live board | 8.0 | 8.0 | 7.4 | 7.8 |
+| Courier active job | 8.0 | 8.1 | 7.7 | 7.9 |
+
+A fresh critic scored the captured build. The tracking retry notice
+overlaps part of the schematic route. The desktop sign-in and
+confirmation could use stronger image-to-form and action hierarchy.
+The empty Orders card fills the desktop layout but leaves generous
+space inside. Operator fixtures still expose empty desktop stages and
+show disabled handoff without giving the reason directly on the
+button. The courier fixture has no street address.

@@ -592,6 +592,20 @@
   position: relative;
 }
 
+@media (width < 960px) {
+  /* Reserve the same slot through loading, fallback and live map updates. */
+  .tracking[data-map="true"] > .tracking-map-loading,
+  .tracking[data-map="true"] > .tracking-basemap > .tracking-map-real {
+    block-size: clamp(15rem, 37svb, 24rem);
+    min-block-size: 0;
+  }
+
+  .tracking-map-real > .tracking-map {
+    block-size: 100%;
+    min-block-size: 0;
+  }
+}
+
 .tracking-map-real > .awid-map-canvas {
   position: absolute;
   inset: 0;

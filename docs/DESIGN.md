@@ -46,8 +46,10 @@ scooter. Preserve the 44 px control floor and the connected performance budgets.
 A location control sits above search. Sheets dim the underlying view and put
 the next decision near the thumb. Cart and checkout give the amount and next
 step first, with the address and timing nearby. Tracking keeps status and the
-delivery estimate visible alongside the map. Operators get compact groupings
-for urgent orders, with status and action clear at a glance. Use borders and
+delivery estimate visible alongside the map. Reserve the same map height through loading, fallback and live states.
+On phones, the map gives the first viewport room for the ETA and handoff
+code. Operators get compact groupings for urgent orders, with status
+and action clear at a glance. Use borders and
 surface changes to group related controls, and let empty views explain what
 the user can do next.
 
@@ -61,7 +63,7 @@ they still describe maintained components.
 
 ## 1. Principles
 
-1. **Food is the hero.** Every customer screen leads with a real, credited photo (`docs/PHOTO_CREDITS.md`). The UI stays cream, white and deep green around it.
+1. **Food sets the scene.** Use real, credited photography on landing, Discovery, restaurant and dish screens (`docs/PHOTO_CREDITS.md`). On task-focused screens, let the current decision, amount or status lead.
 2. **One focal point per view.** One primary action, quiet or separated destructive actions, status as badges.
 3. **Fast is a feature.** Motion explains a change or confirms an action and never blocks input. Low-end Android over 4G is the default device.
 4. **Local, not generic.** Arabic is a first-class layout, checked rather than mirrored. Prices look like Algerian prices (`1 450 DA`).
@@ -106,7 +108,7 @@ Deep green night, not grey: `bg #05221A`, `surface #0A2D22`, `surface-2 #0F372A`
 - Text and primary buttons use deep green. `#00A37A` is for large shapes, icons and accents: white small text on it fails contrast.
 - Mint is energy, never body text on light backgrounds.
 - Status is never colour alone.
-- Gradients are light, never decoration for its own sake: photo scrims, lamp-light pools (`glow`) and divider fades (Dar Zellige, §0).
+- Gradients are light, never decoration for its own sake: photo scrims, lamp-light pools (`glow`) and divider fades (The Algerian Table, §0).
 - Theme follows the system; users can override. Both themes are designed, not inverted.
 
 ## 4. Typography

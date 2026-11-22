@@ -1382,6 +1382,7 @@
     "receiptError": "The receipt didn’t load. Try again in a moment.",
     "noOrders": "No orders yet",
     "noOrdersBody": "Your orders appear here with their receipts.",
+    "findRestaurants": "Explore restaurants",
     "loadMore": "Show older orders",
     "loading": "Loading…",
     "loadError": "Your orders didn’t load. Check your connection, then try again.",

@@ -540,6 +540,7 @@
   mask-image: var(--decor-zellige);
   mask-size: 64px;
   pointer-events: none;
+  opacity: 0.64;
   content: "";
 }
 
@@ -595,6 +596,11 @@
   font-size: var(--font-size-caption);
   font-weight: var(--font-weight-label);
   font-variant-numeric: var(--font-variant-numeric-numbers);
+}
+
+.checkout-confirmed-eta bdi {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-h3);
 }
 
 .checkout-confirmed .ui-button {

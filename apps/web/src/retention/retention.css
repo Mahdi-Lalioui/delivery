@@ -468,6 +468,12 @@
     gap: var(--space-32);
   }
 
+  .orders-history-column > .ui-card:has(> .ui-state > .ui-button) {
+    display: grid;
+    align-content: center;
+    min-block-size: clamp(20rem, 58svb, 34rem);
+  }
+
   .orders-sidebar {
     position: sticky;
     inset-block-start: var(--space-24);

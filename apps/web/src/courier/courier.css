@@ -258,18 +258,27 @@
   color: var(--color-on-primary);
   background: var(--color-primary);
   font: inherit;
-  font-weight: var(--font-weight-label);
+  font-weight: var(--font-weight-h3);
   cursor: grab;
   touch-action: pan-y;
   user-select: none;
 }
 
-.courier-slide:active {
+@media (hover: hover) {
+  .courier-slide:hover:enabled {
+    background: var(--color-primary-hover);
+  }
+}
+
+.courier-slide:active:enabled {
+  background: var(--color-primary-pressed);
   cursor: grabbing;
 }
 
 .courier-slide:disabled {
-  opacity: 0.6;
+  color: var(--color-text-3);
+  background: var(--color-surface-2);
+  box-shadow: inset 0 0 0 1px var(--color-border-subtle);
   cursor: default;
 }
 
@@ -284,6 +293,11 @@
   border-radius: var(--radius-pill);
   color: var(--color-text);
   background: var(--color-surface);
+}
+
+.courier-slide:disabled .courier-slide-thumb {
+  color: var(--color-text-3);
+  background: var(--color-surface-3);
 }
 
 [dir="rtl"] .courier-slide-thumb .ui-icon {

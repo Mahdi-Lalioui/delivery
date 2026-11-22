@@ -400,6 +400,19 @@
     font-size: var(--font-size-h1);
     line-height: var(--line-height-h1);
   }
+
+  .board-column:has(> .board-empty) {
+    gap: var(--space-4);
+    padding-block: var(--space-8);
+  }
+
+  .board-column:has(> .board-empty) .board-column-heading {
+    padding-block: 0 var(--space-4);
+  }
+
+  .board-empty {
+    padding-block: 0;
+  }
 }
 
 @media (min-width: 56rem) {

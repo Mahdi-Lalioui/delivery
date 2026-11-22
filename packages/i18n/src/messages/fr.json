@@ -1382,6 +1382,7 @@
     "receiptError": "Le reçu ne s’affiche pas. Réessayez dans un instant.",
     "noOrders": "Aucune commande pour l’instant",
     "noOrdersBody": "Vos commandes apparaissent ici avec leurs reçus.",
+    "findRestaurants": "Découvrir les restaurants",
     "loadMore": "Afficher les commandes plus anciennes",
     "loading": "Chargement…",
     "loadError": "Vos commandes ne s’affichent pas. Vérifiez votre réseau, puis réessayez.",
