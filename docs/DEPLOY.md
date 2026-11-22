@@ -35,6 +35,33 @@ Run one command after installing the files. It builds the API, worker and Next.j
 
 The command validates Compose, builds the API and worker, waits for the data services, runs application and Graphile migrations, loads the public Algeria geography, starts Caddy, and checks TLS, API readiness, the 69 wilayas, a populated vector tile and the absence of a test route. The local-only restaurant seed stays outside this deployment command. Save the previous image tag and take an encrypted backup before deploying a database migration. Roll back by selecting the previous image only if it remains compatible with the migrated schema.
 
+### First administrator
+
+First sign in through the deployed web app using the administrator's email.
+This creates the verified account. Then SSH to the server from a private,
+interactive terminal with session recording disabled. Run:
+
+```sh
+cd /srv/awid
+docker compose --project-name "${AWID_COMPOSE_PROJECT:-awid}" \
+  --env-file /etc/awid/compose.env -f infra/compose.production.yml \
+  run --rm --no-deps admin-bootstrap
+```
+
+Enter the verified email and your SSH login at the prompts. The command
+prints the TOTP QR and manual secret once. Scan the QR, clear the terminal
+scrollback, and sign in again with email OTP followed by the new TOTP code.
+The previous sessions are revoked. The one-off container has no published
+ports or Docker log capture. Keep the setup out of recordings, screenshots,
+chat and shell transcripts.
+
+After the first administrator, append `--force` after `admin-bootstrap`
+to add a different administrator. The CLI always refuses to reprovision an
+existing administrator and never displays a stored secret. Review the
+database-owner-only `public.admin_bootstrap_audit` table for the target account
+ID, declared SSH operator, timestamp and force flag. Correlate the operator
+with the server SSH log.
+
 ### Pilot API capacity
 
 Run one API replica for the pilot. The shared HTTP rate limit and realtime

@@ -19,7 +19,7 @@
       "entry": ["src/deploy.ts"]
     },
     "apps/api": {
-      "entry": ["src/server.ts", "test/**/*.test.ts"]
+      "entry": ["src/server.ts", "src/admin-bootstrap-cli.ts", "test/**/*.test.ts"]
     },
     "apps/worker": {
       "entry": ["src/migrate.ts", "test/**/*.test.ts"]

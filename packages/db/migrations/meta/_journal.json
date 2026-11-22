@@ -470,6 +470,13 @@
       "when": 1795172800000,
       "tag": "0066_invitation_delivery",
       "breakpoints": true
+    },
+    {
+      "idx": 67,
+      "version": "7",
+      "when": 1795356000000,
+      "tag": "0067_admin_bootstrap",
+      "breakpoints": true
     }
   ]
 }
