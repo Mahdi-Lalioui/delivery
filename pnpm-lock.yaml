@@ -163,6 +163,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
+  graphile-config>@types/node: 26.6.6
   glob@>=9 <14.0.6: 14.0.6
   minimatch@>=7 <11.0.8: 11.0.8
   typed-rest-client>qs@6.15.1: 6.16.1
@@ -258,6 +259,9 @@ importers:
       pino:
         specifier: 10.4.0
         version: 10.4.0
+      qrcode-generator:
+        specifier: 2.0.4
+        version: 2.0.4
       zod:
         specifier: 4.6.7
         version: 4.6.7
@@ -3664,9 +3668,6 @@ packages:
 
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
-
-  '@types/node@22.20.5':
-    resolution: {integrity: sha512-U2+DNr+wSjpsTS/wZGYHq7GcwfuSmKiKvoPvK22zwTlRhU91yOniN4qRR5KhIjvif7ysw/dz/hKmfDH0Ris4aA==}
 
   '@types/node@26.6.6':
     resolution: {integrity: sha512-MzQj+8Kx3XI40OmUAE6Qoh58ZMNstNNMwn2nfd3qWsfe7nDNSqJNzes4njhz6AHwrSHOffSLwXU6yb474Q4aog==}
@@ -7262,9 +7263,6 @@ packages:
 
   underscore@1.13.8:
     resolution: {integrity: sha512-DXtD3ZtEQzc7M8m4cXotyHR+FAS18C64asBYY5vqZexfYryNNnDc02W4hKg3rdQuqOYas1jkseX0+nZXjTXnvQ==}
-
-  undici-types@6.21.0:
-    resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
   undici-types@8.9.0:
     resolution: {integrity: sha512-KTDyRTYX8sWmKXAikPHHSyc63CRPETMctyjKFupcC6OBLXT3xsN0e9aF7m+mIXutFWpUXuedtowG7iLOzp0kQg==}
@@ -11185,10 +11183,6 @@ snapshots:
 
   '@types/ms@2.1.0': {}
 
-  '@types/node@22.20.5':
-    dependencies:
-      undici-types: 6.21.0
-
   '@types/node@26.6.6':
     dependencies:
       undici-types: 8.9.0
@@ -12756,7 +12750,7 @@ snapshots:
   graphile-config@0.0.1-beta.18(supports-color@7.2.0):
     dependencies:
       '@types/interpret': 1.1.4
-      '@types/node': 22.20.5
+      '@types/node': 26.6.6
       '@types/semver': 7.8.0
       chalk: 4.1.2
       debug: 4.4.3(supports-color@7.2.0)
@@ -15371,8 +15365,6 @@ snapshots:
   unbash@6.0.3: {}
 
   underscore@1.13.8: {}
-
-  undici-types@6.21.0: {}
 
   undici-types@8.9.0: {}
 

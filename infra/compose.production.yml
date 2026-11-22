@@ -26,6 +26,17 @@ services:
     command: [sh, -ec, "node packages/db/dist/deploy.js && node apps/worker/dist/migrate.js"]
     networks: [data]
 
+  admin-bootstrap:
+    <<: *runtime
+    profiles: [ops]
+    entrypoint: [node, apps/api/dist/admin-bootstrap-cli.js]
+    env_file:
+      - "${AWID_API_ENV_FILE:?Set AWID_API_ENV_FILE}"
+      - "${AWID_MIGRATION_ENV_FILE:?Set AWID_MIGRATION_ENV_FILE}"
+    logging:
+      driver: none
+    networks: [data]
+
   db:
     image: postgis/postgis:18-3.7@sha256:440bdd14e3edccfce04d080d8a1a0cbae5763fa16a1c4172bff83530828461de
     platform: linux/amd64

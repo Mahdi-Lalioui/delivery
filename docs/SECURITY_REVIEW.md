@@ -632,3 +632,24 @@ Earlier connected upload checks cover media validation. No direct
 `sql.unsafe`, `sql.raw` or `dangerouslySetInnerHTML` calls were found
 in the reviewed API, database and web sources. The separate per-route
 ownership review remains open.
+
+## Pilot bootstrap and supply-chain review
+
+The isolated production PostgreSQL grant probe verified that the runtime
+role cannot insert administrators or write bootstrap audit entries and
+can still update the TOTP replay counter. The interactive Compose
+rehearsal used a synthetic account. The first run displayed the setup QR
+and secret, and a second run refused without redisplaying them.
+
+Semgrep's CI rules identified missing explicit package supply-chain
+settings. The workspace now enforces a seven-day package age, blocks
+exotic transitive sources, and rejects publishing trust downgrades. The
+frozen lockfile passes after Graphile's type-only dependency was aligned
+with the pinned Node types. Semgrep's combined CI and security audit
+rules passed with zero findings across 1,304 files.
+
+Offline TruffleHog 3.99.9 returned four unverified matches. Manual review
+confirmed the three historical synthetic matches listed above and a
+rejected database URL fixture in
+`apps/worker/test/seed-demo-media-command.test.ts`. The command reported
+matches via its nonzero status. No provider verification was attempted.

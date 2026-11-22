@@ -33,12 +33,14 @@ SELECT format('GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE %I.%I TO awid_runti
 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
 WHERE c.relowner = 'awid'::regrole AND c.relkind IN ('r', 'p')
   AND n.nspname IN ('public', 'graphile_worker')
-  AND (n.nspname, c.relname) <> ('graphile_worker', 'migrations') \gexec
+  AND (n.nspname, c.relname) NOT IN (('graphile_worker', 'migrations'), ('public', 'admins'), ('public', 'admin_bootstrap_audit')) \gexec
 SELECT format('GRANT USAGE, SELECT ON SEQUENCE %I.%I TO awid_runtime', n.nspname, c.relname)
 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
 WHERE c.relowner = 'awid'::regrole AND c.relkind = 'S'
   AND n.nspname IN ('public', 'graphile_worker') \gexec
 SELECT 'GRANT SELECT ON graphile_worker.migrations TO awid_runtime'
 WHERE to_regclass('graphile_worker.migrations') IS NOT NULL \gexec
+SELECT 'GRANT SELECT, UPDATE (last_totp_step) ON public.admins TO awid_runtime'
+WHERE to_regclass('public.admins') IS NOT NULL \gexec
 COMMIT;
 SQL
