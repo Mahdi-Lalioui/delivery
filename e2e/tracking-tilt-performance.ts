@@ -228,6 +228,12 @@ async function sampleTilt(
   const intervals = deltas.slice(1);
   const activeElapsed = intervals.reduce((sum, delta) => sum + delta, 0);
   const elapsed = deltas.reduce((sum, delta) => sum + delta, 0);
+  let frameEndMs = 0;
+  const missedIntervals = deltas.flatMap((durationMs) => {
+    const startMs = frameEndMs;
+    frameEndMs += durationMs;
+    return durationMs > 1_000 / 60 + 4 ? [{ startMs, durationMs }] : [];
+  });
   return {
     frames: deltas.length,
     elapsed,
@@ -240,7 +246,8 @@ async function sampleTilt(
     longTasks,
     animationScripts,
     tiles,
-    longFrames: deltas.filter((delta) => delta > 1_000 / 60 + 4).length,
+    longFrames: missedIntervals.length,
+    missedIntervals,
   };
 }
 
