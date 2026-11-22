@@ -133,3 +133,25 @@ map browser suite passed all four Arabic/French viewport and theme cases.
 An API-network request to OSRM returned a real driving route. A deliberate
 web outage returned 502 through Caddy with the configured security headers,
 omitted the synthetic request marker from the logs, and restored web health.
+
+## 22 November local release checks
+
+The existing disposable production Compose stack passed the HTTPS smoke
+through its trusted local Caddy CA. The command verified API health, the
+web route, CSP, security headers, the www redirect, the national catalog
+and a vector tile, and confirmed the private route stayed unavailable.
+
+Both log privacy probes passed on the same stack. API and Caddy logs
+omitted the synthetic validation marker. PostgreSQL error logs omitted the
+synthetic query and parameter data.
+
+The disposable restore drill passed with real PostGIS and age. The host
+lacked age, so this run used the SHA-256-verified Darwin ARM64 binaries
+from the [age v1.3.2 upstream release](https://github.com/FiloSottile/age/releases/tag/v1.3.2)
+on a temporary PATH. The probes used the existing production stack. They
+do not constitute a new production image build or the dependent final
+release rerun.
+
+On Tracking commit `914dddfe`, the connected Chromium suite passed 82/82
+with two workers and `--fail-on-flaky-tests`, including delivery, pickup,
+and Arabic and French route smoke on the production web build.

@@ -736,3 +736,5 @@
   Next: inspect the cold missed-frame timing and verify the Tracking fix before rerunning final gates.
 - 2026-11-22 · High · Isolated Tracking controls on their own compositing layer. All three cold runs and a separate post-tilt guard passed at 60 fps. Closed the local performance criterion.
   Next: verify the Tracking integration PR against GitHub CI and retain the three staging-dependent release checks as open.
+- 2026-11-22 · High · Local production HTTPS smoke and API/Caddy/Postgres log privacy passed. Fresh encrypted restore and all 82 connected browser tests passed.
+  Next: merge PR #30 only on green CI, then publish the local drill evidence and leave the three staging-dependent checks open.
