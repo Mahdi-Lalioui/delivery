@@ -716,3 +716,5 @@
   Next: finish the 14 partial pairs in the endpoint map, starting with connected merchant settings writes.
 - 2026-11-21 · High · Both merchant settings integration tests passed, closing four more endpoint cases. Parallel shader compilation was unavailable in Chromium. Lambert measured 55 fps in three passes and was reverted.
   Next: close the ten partial pairs in the endpoint map, starting with promotion update and bulk price preview and undo.
+- 2026-11-22 · High · Promotions and bulk pricing integration passed 2/2. Added successful same-tenant update, preview and undo alongside the existing foreign denials.
+  Next: close the seven partial endpoint cases listed in tenant-endpoint-map.md.

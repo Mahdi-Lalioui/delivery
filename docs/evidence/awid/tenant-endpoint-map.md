@@ -4,7 +4,7 @@ The 142 method and path pairs below match the [registered authorization matrix](
 
 **Connected** means the API and Postgres exercise both the authorized outcome and an outside actor, foreign resource, or comparison account. Implicit-account writes can show separation through distinct persisted results. **Partial** means the evidence covers part of that comparison or comes from a repository or HTTP test using doubles. **Role** means an administrator is deliberately global and the test checks access by session and role. **Public** and **Authentication** identify routes outside account or tenant ownership. The [remaining evidence](#remaining-evidence) lists the partial cases directly.
 
-The inventory records 95 connected ownership or resource-binding pairs, 10 partial pairs, 21 administrator role checks, 13 public routes, and 3 authentication routes.
+The inventory records 98 connected ownership or resource-binding pairs, 7 partial pairs, 21 administrator role checks, 13 public routes, and 3 authentication routes.
 
 ## Account and customer
 
@@ -42,7 +42,7 @@ The inventory records 95 connected ownership or resource-binding pairs, 10 parti
 | `PUT /v1/merchants/:merchantId/profile/photos` | Partial | A foreign owner and customer cannot change the profile, and an owner of two restaurants cannot attach the other restaurant's usable cover. Both profiles and receipts stay unchanged. Successful owner write has [repository coverage](../../../packages/db/test/merchant-profile-photos.integration.test.ts). [Merchant profile photo integration](../../../apps/api/test/merchant-profile-photos-session.integration.test.ts) |
 | `GET /v1/merchants/:merchantId/billing` <br> `GET /v1/merchants/:merchantId/invoices` | Connected | The owner receives its subscription or invoice. A foreign owner and customer receive 404 without private markers. [Billing integration](../../../apps/api/test/billing-session.integration.test.ts) |
 | `GET /v1/merchants/:merchantId/promotions` <br> `POST /v1/merchants/:merchantId/promotions` | Connected | The owner creates and lists its promotion. A foreign owner and customer receive 404 for both routes. [Promotions integration](../../../apps/api/test/merchant-promotions-session.integration.test.ts) |
-| `PUT /v1/merchants/:merchantId/promotions/:promotionId` | Partial | A foreign owner and customer cannot update a promotion. A foreign promotion ID under the caller's own restaurant is also denied; state and receipts stay unchanged. Successful updates have [repository coverage](../../../packages/db/test/promotions/repository.integration.test.ts). [Promotions integration](../../../apps/api/test/merchant-promotions-session.integration.test.ts) |
+| `PUT /v1/merchants/:merchantId/promotions/:promotionId` | Connected | Foreign owners, customers and mismatched restaurant URLs cannot update a promotion. Its owner updates it successfully. [Promotions integration](../../../apps/api/test/merchant-promotions-session.integration.test.ts) |
 | `GET /v1/merchants/:merchantId/analytics` <br> `GET /v1/merchants/:merchantId/reviews` | Connected | The owner reads its store insights. A foreign owner and a customer receive concealed 404. [Insights integration](../../../apps/api/test/merchant-insights-session.integration.test.ts) |
 | `PUT /v1/merchants/:merchantId/reviews/:ratingId/reply` <br> `POST /v1/merchants/:merchantId/reviews/:ratingId/report` | Connected | The target restaurant's owner can reply and report. Foreign owners and a customer receive 404 against the target and their own restaurant path. Denials preserve replies, reports and receipts. [Review commands integration](../../../apps/api/test/review-command-session.integration.test.ts) |
 
@@ -58,7 +58,7 @@ The inventory records 95 connected ownership or resource-binding pairs, 10 parti
 | `GET /v1/merchants/:merchantId/menu/option-groups` <br> `POST /v1/merchants/:merchantId/menu/option-groups` | Connected | Editors list and create in their own restaurant. A same-account staff-only membership cannot list or create in the target restaurant; a separate owner sees only its own collection. [Option-group integration](../../../apps/api/test/menu-option-group.integration.test.ts) |
 | `GET /v1/merchants/:merchantId/menu/option-groups/:optionGroupId` <br> `PUT /v1/merchants/:merchantId/menu/option-groups/:optionGroupId` | Connected | An owner can read and edit an owned group. A foreign group ID returns 404 and an edit to an owned group cannot use an existing option ID from another restaurant. [Option-group integration](../../../apps/api/test/menu-option-group.integration.test.ts) |
 | `POST /v1/merchants/:merchantId/menu/prices/apply` | Connected | An owner applies a batch for its items. Another owner cannot apply a mixed list or act against that restaurant's URL. [Bulk price integration](../../../apps/api/test/menu-price-session.integration.test.ts) |
-| `POST /v1/merchants/:merchantId/menu/prices/preview` <br> `POST /v1/merchants/:merchantId/menu/prices/batches/:batchId/undo` | Partial | Both routes reject foreign items or batches and use of another restaurant's path. Successful owner preview and undo have [repository coverage](../../../packages/db/test/menu-price.integration.test.ts). [Bulk price integration](../../../apps/api/test/menu-price-session.integration.test.ts) |
+| `POST /v1/merchants/:merchantId/menu/prices/preview` <br> `POST /v1/merchants/:merchantId/menu/prices/batches/:batchId/undo` | Connected | Both routes reject foreign items or batches. The owner previews and undoes their own changes without modifying the other restaurant. [Bulk price integration](../../../apps/api/test/menu-price-session.integration.test.ts) |
 
 ## Orders, couriers and media
 
@@ -119,7 +119,7 @@ These matrix and OpenAPI routes provide public responses, authentication, or bro
 
 ## Remaining evidence
 
-- Add authorized API controls where connected tests currently exercise denial or no-op only. Profile-photo replacement, promotion update, bulk price preview and undo, and courier delivery failure.
+- Add authorized API controls where connected tests currently exercise denial or no-op only. Profile-photo replacement and courier delivery failure.
 - For identifier-link and privacy-deletion challenge creation, check two accounts issuing challenges in the same connected case and verify their stored bindings and independent delivery. The linked confirm/delete tests already exercise foreign redemption.
 - For merchant applications, use the same idempotency key with two valid applicant sessions and check each account's application and memberships.
 - Exercise public restaurant details and public reviews through the real API/Postgres composition with a published restaurant and a hidden or mismatched resource.
