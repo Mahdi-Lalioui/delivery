@@ -718,3 +718,5 @@
   Next: close the ten partial pairs in the endpoint map, starting with promotion update and bulk price preview and undo.
 - 2026-11-22 · High · Promotions and bulk pricing integration passed 2/2. Added successful same-tenant update, preview and undo alongside the existing foreign denials.
   Next: close the seven partial endpoint cases listed in tenant-endpoint-map.md.
+- 2026-11-22 · High · Profile photos passed 2/2 against Postgres, confirming same-restaurant replacement and preserving the adjacent tenant's cover.
+  Next: cover the six partial endpoint cases, starting with courier delivery failure.
