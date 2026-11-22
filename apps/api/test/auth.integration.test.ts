@@ -706,6 +706,28 @@ test("[AUTH-01] links an email with a code and preserves the authenticated phone
     };
     const otherProfile = await api.inject({ url: "/v1/me/identifiers", headers: otherHeaders });
     expect(otherProfile.json()).toMatchObject({ phone: otherPhone, email: null });
+    const { sessionId: otherSessionId } = otherProfile.json<{ sessionId: string }>();
+    const otherEmail = "other-linked@example.test";
+    const otherChallenge = await api.inject({
+      method: "POST",
+      url: "/v1/me/identifiers/challenge",
+      headers: { ...commandHeaders, ...otherHeaders, "x-expected-session-id": otherSessionId },
+      remoteAddress: "192.0.2.43",
+      payload: { email: otherEmail, locale: "ar" },
+    });
+    expect(otherChallenge.statusCode).toBe(202);
+    const { challengeId: otherChallengeId } = requestOtpOutput.parse(otherChallenge.json());
+    expect(otherChallengeId).not.toBe(challengeId);
+    expect(emails.get(otherChallengeId)?.email).toBe(otherEmail);
+    expect(
+      await database.get().sql`
+        SELECT otp.binding_session_id, users.phone_e164
+        FROM public.otp_challenges AS otp
+        JOIN public.users ON users.id = otp.binding_user_id
+        WHERE otp.id = ${otherChallengeId}
+      `,
+    ).toEqual([{ binding_session_id: otherSessionId, phone_e164: otherPhone }]);
+
     const foreignAttempt = await api.inject({
       method: "PUT",
       url: "/v1/me/identifiers",

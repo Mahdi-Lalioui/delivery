@@ -250,3 +250,9 @@ The Lighthouse gate draft identified a specification conflict. Lighthouse
 the SEO category, making the required 95 score unattainable for those
 pages. The private indexing controls are intact and the Lighthouse gate
 is still unwired.
+
+The route ownership criterion is closed. The 142-pair evidence map has no
+partial entries after the final connected auth and review suites passed
+13/13. The release remains **NOT READY**, with Tracking, rate limits and
+provider spend controls, live operations alerts, and the final rerun open.
+[Endpoint evidence](evidence/awid/tenant-endpoint-map.md)

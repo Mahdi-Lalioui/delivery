@@ -161,6 +161,17 @@ test("[CUS-04][CUS-07][CUS-08] public menus and variants resolve resources withi
   );
   expect(detail.statusCode).toBe(200);
   expect(publicRestaurantItemOutput.parse(detail.json()).item.itemId).toBe(menu.itemId);
+
+  const published = await api.inject(`/v1/merchants/${menu.slug}`);
+  expect(published.statusCode).toBe(200);
+  expect(published.body).toContain(menu.merchantId);
+  expect(published.body).not.toContain(otherMenu.merchantId);
+  await database.get().sql`
+    UPDATE public.merchants SET status = 'suspended' WHERE id = ${otherMenu.merchantId}
+  `;
+  const hidden = await api.inject(`/v1/merchants/${otherMenu.slug}`);
+  expect(hidden.statusCode).toBe(404);
+  expect(hidden.body).not.toContain(otherMenu.merchantId);
 });
 
 test("[COU-05][AUTH-07] delivery proof stays bound to its order and the fulfilling restaurant", async () => {
