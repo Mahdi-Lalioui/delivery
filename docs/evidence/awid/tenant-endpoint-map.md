@@ -2,9 +2,9 @@
 
 The 142 method and path pairs below match the [registered authorization matrix](../../../apps/api/test/policy.test.ts) and [OpenAPI inventory](../../openapi.json). A static comparison expanded the matrix's path constants and normalized OpenAPI parameters to `:name`. The policy suite compares that matrix to the registered Fastify routes. The ownership assertions below come from the linked test bodies. This is a document audit of recorded test evidence.
 
-**Connected** means the API and Postgres exercise both the authorized outcome and an outside actor, foreign resource, or comparison account. Implicit-account writes can show separation through distinct persisted results. **Partial** means the evidence covers part of that comparison or comes from a repository or HTTP test using doubles. **Role** means an administrator is deliberately global and the test checks access by session and role. **Public** and **Authentication** identify routes outside account or tenant ownership. The [remaining evidence](#remaining-evidence) lists the partial cases directly.
+**Connected** means the API and Postgres exercise both the authorized outcome and an outside actor, foreign resource, or comparison account. Implicit-account writes can show separation through distinct persisted results. **Partial** means the evidence covers part of that comparison or comes from a repository or HTTP test using doubles. **Role** means an administrator is deliberately global and the test checks access by session and role. **Public** and **Authentication** identify routes outside account or tenant ownership.
 
-The inventory records 103 connected ownership or resource-binding pairs, 2 partial pairs, 21 administrator role checks, 13 public routes, and 3 authentication routes.
+The inventory records 104 connected ownership or resource-binding pairs, 21 administrator role checks, 14 public routes, and 3 authentication routes.
 
 ## Account and customer
 
@@ -12,7 +12,7 @@ The inventory records 103 connected ownership or resource-binding pairs, 2 parti
 | --- | --- | --- |
 | `GET /v1/me/sessions` <br> `DELETE /v1/me/sessions/:sessionId` <br> `POST /v1/auth/logout` | Connected | Each customer lists only its sessions. The second customer cannot revoke the first customer's device. The first customer can revoke its own device and log out all of its sessions while the other account stays signed in. [Auth integration](../../../apps/api/test/auth.integration.test.ts) |
 | `GET /v1/me/identifiers` | Connected | Both customers read their own account profile. The other account's profile stays unchanged when the first links an email. [Auth integration](../../../apps/api/test/auth.integration.test.ts) |
-| `POST /v1/me/identifiers/challenge` | Partial | The issuing session receives a challenge for its own identifier link. Foreign-session redemption is covered by the confirm route. [Auth integration](../../../apps/api/test/auth.integration.test.ts) |
+| `POST /v1/me/identifiers/challenge` | Connected | Two active sessions issue separately bound email-link challenges, with distinct synthetic deliveries and the second binding verified in Postgres. [Auth integration](../../../apps/api/test/auth.integration.test.ts) |
 | `PUT /v1/me/identifiers` | Connected | The issuing session links its email. A different device of the same account and another customer cannot confirm its challenge. [Auth integration](../../../apps/api/test/auth.integration.test.ts) |
 | `GET /v1/me/addresses` <br> `POST /v1/me/addresses` | Connected | Two customers create and see only their respective addresses. SQL checks both owner-scoped rows. [Address integration](../../../apps/api/test/customer-address-session.integration.test.ts) |
 | `PUT /v1/me/addresses/:addressId` <br> `DELETE /v1/me/addresses/:addressId` | Connected | Both customers receive 404 for the other customer's address. A valid owner updates and deletes their own address while the other row stays intact. [Address integration](../../../apps/api/test/customer-address-session.integration.test.ts) |
@@ -103,7 +103,7 @@ The inventory records 103 connected ownership or resource-binding pairs, 2 parti
 | `GET /v1/merchants/:slug/categories/:categoryId/items` <br> `GET /v1/merchants/:slug/items/:itemId` | Connected | Public routes serve the owning restaurant's category and item. Passing another active restaurant's IDs under the first slug returns 404. [Public media and menu integration](../../../apps/api/test/media-resource-isolation.integration.test.ts) |
 | `GET /v1/merchants/:merchantId/profile/photos/:mediaId/variants/:format/:width` <br> `GET /v1/merchants/:merchantId/items/:itemId/photos/:mediaId/variants/:format/:width` | Connected | Requests for matching published attachments return their bytes. Foreign or mismatched IDs, wrong-kind photos and unattached ready item photos receive 404 before object storage. [Public media and menu integration](../../../apps/api/test/media-resource-isolation.integration.test.ts) |
 | `GET /v1/merchants/:slug` | Connected | An active restaurant is visible by slug. A suspended restaurant returns 404 without disclosing its ID. [Public restaurant integration](../../../apps/api/test/media-resource-isolation.integration.test.ts) |
-| `GET /v1/restaurants/:slug/reviews` | Partial | [Review repository tests](../../../packages/db/test/admin-orders.integration.test.ts) cover public review filtering and restaurant scope. [HTTP route tests](../../../apps/api/test/reviews-http.test.ts) use doubles. |
+| `GET /v1/restaurants/:slug/reviews` | Public | The live API returns a published restaurant’s review, leaves a different restaurant’s list empty, and conceals the suspended restaurant. [Connected review test](../../../apps/api/test/review-command-session.integration.test.ts) |
 
 ## Public and authentication inventory
 
@@ -116,8 +116,3 @@ These matrix and OpenAPI routes provide public responses, authentication, or bro
 | `GET /v1/search` <br> `GET /v1/feed` | Public | Public discovery collections. Published-resource filtering has [search](../../../packages/db/test/discovery-search.integration.test.ts) and [feed](../../../packages/db/test/public-feed.integration.test.ts) repository coverage. |
 | `GET /v1/invitation-continuations/:kind` <br> `POST /v1/invitation-continuations/:kind` | Public | Origin-checked setup and readback of purpose-specific client cookies. Ownership is checked when the staff or courier invite is redeemed. [HTTP continuation tests](../../../apps/api/test/auth-http.test.ts) |
 | `POST /v1/auth/otp/request` <br> `POST /v1/auth/otp/verify` <br> `POST /v1/auth/totp/verify` | Authentication | Pre-session account authentication with live Postgres challenges, expiry, retry and session issuance. [Auth integration](../../../apps/api/test/auth.integration.test.ts) |
-
-## Remaining evidence
-
-- For identifier-link challenge creation, check two accounts issuing challenges and verify their stored bindings and independent delivery. The confirm test covers foreign redemption.
-- Exercise public reviews through the real API/Postgres composition with a published restaurant and a hidden or mismatched resource.

@@ -95,4 +95,25 @@ test("[MER-20][AUTH-07] real sessions cannot reply or report on another restaura
       { account_id: ownerB.userId, rating_id: ratingId, operation: "report" },
     ],
   });
+
+  await sql`UPDATE public.merchants SET status = 'active' WHERE id IN (${restaurantA.owned}, ${restaurantB.owned})`;
+  const [published] = await sql<
+    { slug: string }[]
+  >`SELECT slug FROM public.merchants WHERE id = ${restaurantB.owned}`;
+  const [otherRestaurant] = await sql<
+    { slug: string }[]
+  >`SELECT slug FROM public.merchants WHERE id = ${restaurantA.owned}`;
+  if (!published || !otherRestaurant) throw new Error("Expected both synthetic restaurants");
+  const reviews = (slug: string) => api.inject(`/v1/restaurants/${slug}/reviews`);
+  const visible = await reviews(published.slug);
+  expect(visible.statusCode).toBe(200);
+  expect(visible.body).toContain("Avis synthétique");
+  const unrelated = await reviews(otherRestaurant.slug);
+  expect(unrelated.statusCode).toBe(200);
+  expect(unrelated.json()).toMatchObject({ reviews: [] });
+
+  await sql`UPDATE public.merchants SET status = 'suspended' WHERE id = ${restaurantB.owned}`;
+  const hidden = await reviews(published.slug);
+  expect(hidden.statusCode).toBe(404);
+  expect(hidden.body).not.toContain("Avis synthétique");
 });
