@@ -299,3 +299,11 @@ Mahdi gave lane B full creative freedom for a "wow" pass, and the Dar Zellige di
 - **Decor:** a CSS-only zellige, lamp-light, divider and grain system.
 
 The performance, accessibility and RTL guardrails still apply. The contrast test covers the new pairs.
+
+## D-037 · The Algerian Table on design-v2 (2026-11-22)
+
+An editorial food photograph, direct opening copy and a working-table Discovery
+lead the new design branch. Warm ivory, olive and brass frame the existing AWID
+identity. This supersedes D-036's courtyard concept on `design-v2`. Keep the
+existing font licences, photo credits, interaction contracts and performance
+requirements. Mahdi reviews the branch through a PR.

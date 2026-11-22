@@ -434,3 +434,11 @@ html:has(.discovery-search-dialog[open]) {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
+@media (max-width: 479px) {
+  .discovery-search-trigger > span:last-child {
+    line-height: var(--line-height-caption);
+    white-space: normal;
+    text-wrap: pretty;
+  }
+}

@@ -12,15 +12,6 @@ import { LandingFooter } from "./landing-footer";
 import "./landing.css";
 import "./marketing.css";
 
-// Food leads: credited catalogue photos (same grade as the dishes), widest first for the LCP.
-const slides = [
-  ["chorba", "chorba-table"],
-  ["grill", "grill-plate"],
-  ["msemen", "msemen-griddle"],
-  ["baklawa", "baklawa-tray"],
-  ["brochettes", "brochettes"],
-] as const;
-const slideWidths = [640, 960] as const;
 const cuisines = [
   ["algerian", "couscous"],
   ["grill", "grill-plate"],
@@ -59,39 +50,29 @@ export async function landingMetadata(locale: Locale): Promise<Metadata> {
 
 async function Hero({ locale }: { locale: Locale }) {
   const translate = await getTranslations({ locale, namespace: "marketingLanding" });
-  const name = locale === "ar" ? brand.arabicName : brand.name;
   const preview =
     isPublicLocale(locale) && isPreviewDemo(process.env) ? previewMessages[locale] : undefined;
   return (
     <section className="landing-hero" aria-labelledby="landing-title">
-      <div className="landing-slides" role="img" aria-label={translate("heroImage")}>
-        {slides.map(([key, photo], index) => (
-          <figure key={key} className="landing-slide">
-            <img
-              src={`/preview-catalog/${photo}.webp`}
-              srcSet={[
-                ...slideWidths.map(
-                  (width) => `/preview-catalog/${photo}-${String(width)}.webp ${String(width)}w`,
-                ),
-                `/preview-catalog/${photo}.webp 1600w`,
-              ].join(", ")}
-              sizes="100vw"
-              alt=""
-              width="1600"
-              height="1067"
-              {...(index === 0 ? { fetchPriority: "high" } : { loading: "lazy" })}
-            />
-            <figcaption>{translate("heroCredit", { place: translate(`slide_${key}`) })}</figcaption>
-          </figure>
-        ))}
-      </div>
+      <figure className="landing-hero-photo">
+        <img
+          src="/preview-catalog/chorba.webp"
+          srcSet="/preview-catalog/chorba-320.webp 320w, /preview-catalog/chorba-640.webp 640w, /preview-catalog/chorba-960.webp 960w"
+          sizes="(min-width: 960px) 55vw, 100vw"
+          alt={translate("heroImage")}
+          width="960"
+          height="720"
+          fetchPriority="high"
+        />
+        <figcaption>{translate("heroCredit", { place: translate("heroDish") })}</figcaption>
+      </figure>
       <div className="landing-hero-copy">
-        <span className="landing-hero-ornament decor-divider" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="18" height="18">
+        <div className="landing-hero-rule decor-divider" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="20" height="20">
             <path d="M12 1 14.6 7.4 21 5 18.6 11.4 23 12 18.6 12.6 21 19 14.6 16.6 12 23 9.4 16.6 3 19 5.4 12.6 1 12 5.4 11.4 3 5 9.4 7.4Z" />
           </svg>
-        </span>
-        <h1 id="landing-title">{translate("title", { brand: name })}</h1>
+        </div>
+        <h1 id="landing-title">{translate("title")}</h1>
         <p className="landing-intro">{translate("intro")}</p>
         <div className="landing-actions">
           <a
@@ -102,7 +83,7 @@ async function Hero({ locale }: { locale: Locale }) {
             <span>{translate("start")}</span>
           </a>
           {preview && (
-            <a className="ui-button ui-button-secondary ui-button-lg" href={`/${locale}/preview`}>
+            <a className="landing-preview-link" href={`/${locale}/preview`}>
               <span>{preview.badge}</span>
             </a>
           )}

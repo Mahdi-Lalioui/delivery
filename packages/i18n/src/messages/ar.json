@@ -1237,10 +1237,11 @@
     "cta": "سجّل مطعمك"
   },
   "marketingLanding": {
-    "title": "محتاج؟ جرّب {brand}",
+    "title": "مذاق الجزائر حتى لباب دارك",
     "intro": "اطلب من أحسن مطابخ مدينتك وادفع نقدًا عند الباب.",
     "start": "ابحث عن أكل قربي",
     "heroCredit": "الصورة: {place}",
+    "heroDish": "شوربة فريك",
     "slide_chorba": "شوربة وبوراك",
     "slide_grill": "مشاوي مشكّلة",
     "slide_msemen": "مسمن على الصاج",
@@ -1704,8 +1705,8 @@
     "modeLoading": "تحميل",
     "modeError": "خطأ",
     "adminBillingScreen": "الفوترة (الإدارة)",
-    "beforeAfterTitle": "قبل / بعد دار الزليج",
-    "beforeAfterIntro": "كل شاشة، قبل التصميم الجديد وبعده.",
+    "beforeAfterTitle": "المائدة الجزائرية · قبل وبعد",
+    "beforeAfterIntro": "قارن الصفحة الرئيسية وصفحة الاكتشاف في النسختين على نفس حجم الشاشة.",
     "before": "قبل",
     "after": "بعد"
   },

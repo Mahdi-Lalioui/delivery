@@ -1,24 +1,7 @@
 import type { Locale } from "@zaafran/i18n/locales";
 
-// Dar Zellige before/after (D-036): the same screen and variant, captured before the creative
-// pass and after it. Design build only (served from /[locale]/dev/gallery).
-const screens = [
-  "landing",
-  "discover",
-  "pickup",
-  "restaurant",
-  "sign-in",
-  "account",
-  "checkout",
-  "payment",
-  "confirmed",
-  "tracking",
-  "waiting",
-  "pickup-tracking",
-  "rating",
-  "orders",
-  "operations",
-] as const;
+// Pilot and current captures, displayed only in the design gallery.
+const screens = ["landing", "discover"] as const;
 
 function variantsFor(locale: Locale) {
   return locale === "ar" ? ["ar-390"] : ["fr-390", "fr-390-dark", "fr-1280"];
@@ -47,11 +30,21 @@ export function BeforeAfter({
                   <code dir="ltr">{name}</code>
                 </h3>
                 <figure>
-                  <img src={`/dev-gallery/before/${name}.webp`} alt="" loading="lazy" {...size} />
+                  <img
+                    src={`/dev-gallery/design-v2/before/${name}.webp`}
+                    alt=""
+                    loading="lazy"
+                    {...size}
+                  />
                   <figcaption>{labels.before}</figcaption>
                 </figure>
                 <figure>
-                  <img src={`/dev-gallery/after/${name}.webp`} alt="" loading="lazy" {...size} />
+                  <img
+                    src={`/dev-gallery/design-v2/after/${name}.webp`}
+                    alt=""
+                    loading="lazy"
+                    {...size}
+                  />
                   <figcaption>{labels.after}</figcaption>
                 </figure>
               </li>

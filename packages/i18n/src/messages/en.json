@@ -1237,10 +1237,11 @@
     "cta": "Apply for your restaurant"
   },
   "marketingLanding": {
-    "title": "You're in need, try {brand}",
+    "title": "Algerian favourites, at your door.",
     "intro": "Order from the best kitchens in your city and pay cash at the door.",
     "start": "Find food near me",
     "heroCredit": "Photo: {place}",
+    "heroDish": "Chorba frik",
     "slide_chorba": "Chorba and bourek",
     "slide_grill": "Mixed grill",
     "slide_msemen": "Msemen on the griddle",
@@ -1704,8 +1705,8 @@
     "modeLoading": "Loading",
     "modeError": "Error",
     "adminBillingScreen": "Billing (admin)",
-    "beforeAfterTitle": "Dar Zellige before / after",
-    "beforeAfterIntro": "Every screen, captured before and after the creative pass.",
+    "beforeAfterTitle": "The Algerian Table · before and after",
+    "beforeAfterIntro": "Compare the pilot and the new landing and Discovery at the same viewport.",
     "before": "Before",
     "after": "After"
   },

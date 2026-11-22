@@ -437,17 +437,17 @@
 }
 
 /* Page top: location pill, greeting, search. */
-/* Dar Zellige: Discovery opens on a night-garden band, lantern light and a zellige lattice. */
+/* Location and search share one compact surface before the food rails. */
 .discover-top {
-  --decor-zellige-colour: rgb(242 169 0 / 0.16);
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-16);
-  padding: var(--space-24) var(--space-20);
+  gap: var(--space-12);
+  padding: var(--space-16) var(--space-20);
   border-radius: var(--radius-xl);
-  background-color: var(--color-night);
-  color: var(--color-on-night);
-  box-shadow: var(--shadow-e2);
+  border: 1px solid var(--color-border-subtle);
+  border-block-start: 2px solid var(--color-food-saffron);
+  background: var(--color-surface);
+  color: var(--color-text);
 }
 
 .discover-greeting {
@@ -461,10 +461,13 @@
   letter-spacing: var(--letter-spacing-display-xl, -0.02em);
 }
 
+.discover-greeting:dir(rtl) h1 {
+  letter-spacing: normal;
+}
+
 .discover-greeting p {
   display: none;
-  color: var(--color-on-night);
-  opacity: 0.86;
+  color: var(--color-text-2);
 }
 
 @media (min-width: 640px) {
@@ -1295,7 +1298,7 @@
   grid-template-columns: 1fr 1fr;
   margin: 0;
   padding: var(--space-4);
-  border: 0;
+  border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-pill);
   background: var(--color-surface-2);
   isolation: isolate;
@@ -1308,7 +1311,7 @@
   inset-inline-start: var(--space-4);
   inline-size: calc(50% - var(--space-4));
   border-radius: var(--radius-pill);
-  background: var(--color-surface);
+  background: var(--color-mint-pale);
   box-shadow: var(--shadow-e1);
   transition: translate var(--motion-emphasis) var(--ease-spring-gentle);
   z-index: -1;
@@ -1335,7 +1338,7 @@
 }
 
 .fulfilment-option:has(input:checked) {
-  color: var(--color-text-1);
+  color: var(--color-text);
 }
 
 .fulfilment-option:has(input:focus-visible) {
@@ -1494,7 +1497,6 @@
 
 /* The list ends on a closing tile that fills its row exactly: never a ragged last row. */
 .restaurant-feed-closer {
-  --decor-zellige-colour: rgb(242 169 0 / 0.16);
   display: grid;
   gap: var(--space-12);
   place-content: center;

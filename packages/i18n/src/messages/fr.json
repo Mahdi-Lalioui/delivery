@@ -1237,10 +1237,11 @@
     "cta": "Inscrire mon restaurant"
   },
   "marketingLanding": {
-    "title": "Un besoin ? Essayez {brand}",
+    "title": "Les saveurs d’Algérie, à votre porte.",
     "intro": "Commandez dans les meilleures cuisines de votre ville, payez en espèces à la porte.",
     "start": "Trouver à manger",
     "heroCredit": "Photo : {place}",
+    "heroDish": "Chorba frik",
     "slide_chorba": "Chorba et bourek",
     "slide_grill": "Grillades mixtes",
     "slide_msemen": "Msemen sur la plaque",
@@ -1704,8 +1705,8 @@
     "modeLoading": "Attente",
     "modeError": "Erreur",
     "adminBillingScreen": "Facturation (admin)",
-    "beforeAfterTitle": "Avant / après Dar Zellige",
-    "beforeAfterIntro": "Chaque écran, capturé avant et après la passe créative.",
+    "beforeAfterTitle": "La table algérienne · avant et après",
+    "beforeAfterIntro": "Comparez l’accueil et la découverte du pilote et de la nouvelle version, à la même taille d’écran.",
     "before": "Avant",
     "after": "Après"
   },

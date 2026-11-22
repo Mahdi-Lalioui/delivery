@@ -7,16 +7,17 @@
 .board-heading {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: end;
   justify-content: space-between;
   gap: var(--space-16);
-  padding-block-end: var(--space-4);
+  padding-block-end: var(--space-16);
+  border-block-end: 1px solid var(--color-border-subtle);
 }
 
 .board-heading h1 {
   margin: var(--space-4) 0 0;
   font: var(--font-weight-display) var(--font-size-display) / var(--line-height-display)
-    var(--font-ui);
+    var(--font-display);
 }
 
 .board-waiting {
@@ -52,12 +53,13 @@
   --board-stage-color: var(--color-harissa-text);
   display: grid;
   align-content: start;
-  gap: var(--space-12);
+  gap: var(--space-8);
   min-inline-size: 0;
-  min-block-size: var(--space-120);
   padding: var(--space-12);
-  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
   background: var(--color-surface-2);
+  scroll-margin-block-start: var(--space-16);
 }
 
 .board-column[data-status="accepted"] {
@@ -73,12 +75,13 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-8);
-  padding: var(--space-8) var(--space-4);
+  padding: var(--space-4) var(--space-4) var(--space-8);
+  border-block-end: 1px solid var(--color-border-subtle);
 }
 
 .board-column-heading h2 {
   margin: 0;
-  font: var(--font-weight-h3) var(--font-size-h3) / var(--line-height-h3) var(--font-ui);
+  font: var(--font-weight-h3) var(--font-size-label) / var(--line-height-label) var(--font-ui);
 }
 
 .board-column-heading h2::before {
@@ -105,10 +108,10 @@
 
 .board-empty {
   margin: 0;
-  padding: var(--space-12);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
+  padding: var(--space-4);
   color: var(--color-text-3);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
 }
 
 .board-ticket,
@@ -116,11 +119,15 @@
   display: grid;
   gap: var(--space-16);
   padding: var(--space-16);
-  border: var(--elevation-border-width) solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
   background: var(--color-surface);
-  box-shadow: var(--shadow-e2);
+  box-shadow: var(--shadow-e1);
   overflow-wrap: anywhere;
+}
+
+.board-ticket[data-status="pending_acceptance"] {
+  border-block-start: 3px solid var(--color-harissa);
 }
 
 .board-ticket-heading {
@@ -131,7 +138,7 @@
 }
 
 .board-ticket-heading h3 {
-  margin: 0 0 var(--space-8);
+  margin: 0 0 var(--space-4);
   font: var(--font-weight-h2) var(--font-size-h2) / var(--line-height-h2) var(--font-numbers);
   font-variant-numeric: tabular-nums;
 }
@@ -211,6 +218,14 @@
   align-items: baseline;
 }
 
+.board-quantity {
+  flex: none;
+}
+
+.board-lines p {
+  margin: var(--space-4) 0 0;
+}
+
 .board-lines p,
 .board-cash dt,
 .board-form legend,
@@ -220,7 +235,8 @@
 }
 
 .board-cash div {
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
 }
 
 .board-cash dd,
@@ -230,8 +246,11 @@
 }
 
 .board-cash dd {
+  font-family: var(--font-numbers);
   font-weight: var(--font-weight-h3);
   font-variant-numeric: tabular-nums;
+  text-align: end;
+  white-space: nowrap;
 }
 
 .board-primary,
@@ -320,7 +339,7 @@
 }
 
 .board-disclosure summary {
-  justify-content: start;
+  justify-content: space-between;
   padding-inline: 0;
   background: transparent;
   color: var(--color-text-2);
@@ -328,6 +347,7 @@
 
 .board-disclosure summary::after {
   content: "";
+  flex: none;
   inline-size: var(--space-8);
   block-size: var(--space-8);
   border: solid currentColor;
@@ -341,6 +361,14 @@
 
 .board-disclosure[open] > .board-form {
   margin-block: var(--space-8);
+}
+
+.board-actions > .ui-badge {
+  justify-self: start;
+}
+
+.board-actions > .board-disclosure {
+  border-block-start: 1px solid var(--color-border-subtle);
 }
 
 .board-warning,
@@ -527,14 +555,6 @@
 .board-stage-links bdi {
   font-family: var(--font-numbers);
   font-variant-numeric: tabular-nums;
-}
-
-.board-column {
-  scroll-margin-block-start: var(--space-16);
-}
-
-.board-column[data-status="pending_acceptance"] .board-ticket {
-  border-block-start: 3px solid var(--color-harissa);
 }
 
 .board-cash {
