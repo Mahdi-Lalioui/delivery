@@ -16,7 +16,7 @@ auditConfig:
     - GHSA-fc5q-39xc-vjpf
 
 blockExoticSubdeps: true
-minimumReleaseAge: 1440
+minimumReleaseAge: 10080
 trustPolicy: no-downgrade
 
 minimumReleaseAgeExclude:
