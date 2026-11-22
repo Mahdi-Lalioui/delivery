@@ -726,3 +726,5 @@
   Next: verify linked-identifier challenge issuance and public review visibility.
 - 2026-11-22 · High · Final auth and review integration suites passed 13/13. Closed the 142-route tenant evidence criterion.
   Next: run full verification on the completed route map and isolate the remaining Tracking first-draw cost.
+- 2026-11-22 · High · PR #28 merged after seven green checks. The batched 3D scooter lowered the cold stall to one 50 ms frame in each connected run, but all three measured 57 fps. Reverted the trial.
+  Next: isolate the remaining first-draw cost with the single-mesh control and preserve the 60 fps cold acceptance check.

@@ -398,3 +398,15 @@ three connected national-map journeys. Each cold tilt measured 55 active
 fps, with long tasks of 63, 61 and 61 ms. The longest frame was 66.6–66.7 ms.
 The material lowered the stall duration but missed the frame-rate target,
 so the product change was reverted.
+
+### Single-mesh scooter trial
+
+A Tracking-only build merged the original seven scooter parts into one 3D
+mesh and baked the shading into vertex colors. All three connected national-
+map delivery journeys passed with the rider fallback visible before the
+click and the custom scooter attached 174–175 ms after it. Cold tilt
+measured 57 active fps in all three runs. Each had one 50.0–50.1 ms frame
+interval, no post-click Long Tasks API entries, and no tile completions.
+After the original 600 ms sample, the longest frame was 16.8 ms in every
+run through 1.2 s after the click. The trial reduced the stall but fell
+short of the 60 fps target, so the product change was reverted.
