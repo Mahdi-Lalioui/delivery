@@ -279,6 +279,28 @@ test("[MER-01:http] [ADM-03:http] submits, scopes and reviews a merchant on the 
   const completed = await api.inject({ url: queuePath, headers: admin.headers });
   expect(adminReviewQueueOutput.parse(completed.json()).applications).toEqual([]);
   expect(await readNotice()).toEqual(emptyNotice);
+
+  const secondApplication = await api.inject({
+    method: "POST",
+    url: applicationsPath,
+    headers: {
+      ...other.headers,
+      "idempotency-key": signupKey,
+      "x-expected-session-id": other.sessionId,
+    },
+    payload: { ...application, restaurantName: "Seconde cuisine fictive", rcNumber: "22B1234568" },
+  });
+  expect(secondApplication.statusCode).toBe(201);
+  const secondMerchant = merchantApplicationOutput.parse(secondApplication.json()).merchantId;
+  expect(secondMerchant).not.toBe(result.merchantId);
+  const secondMemberships = await api.inject({ url: membershipsPath, headers: other.headers });
+  expect(merchantMembershipsOutput.parse(secondMemberships.json()).memberships).toMatchObject([
+    { merchantId: secondMerchant },
+  ]);
+  const firstMemberships = await api.inject({ url: membershipsPath, headers: applicant.headers });
+  expect(merchantMembershipsOutput.parse(firstMemberships.json()).memberships).toMatchObject([
+    { merchantId: result.merchantId },
+  ]);
 });
 
 test("[MER-09:http] [MER-23:http] manages ordered categories through the live merchant API", async () => {

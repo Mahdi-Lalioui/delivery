@@ -4,7 +4,7 @@ The 142 method and path pairs below match the [registered authorization matrix](
 
 **Connected** means the API and Postgres exercise both the authorized outcome and an outside actor, foreign resource, or comparison account. Implicit-account writes can show separation through distinct persisted results. **Partial** means the evidence covers part of that comparison or comes from a repository or HTTP test using doubles. **Role** means an administrator is deliberately global and the test checks access by session and role. **Public** and **Authentication** identify routes outside account or tenant ownership. The [remaining evidence](#remaining-evidence) lists the partial cases directly.
 
-The inventory records 99 connected ownership or resource-binding pairs, 6 partial pairs, 21 administrator role checks, 13 public routes, and 3 authentication routes.
+The inventory records 101 connected ownership or resource-binding pairs, 4 partial pairs, 21 administrator role checks, 13 public routes, and 3 authentication routes.
 
 ## Account and customer
 
@@ -32,7 +32,7 @@ The inventory records 99 connected ownership or resource-binding pairs, 6 partia
 
 | Method and path | Evidence | Authorized and outside cases |
 | --- | --- | --- |
-| `POST /v1/merchant-applications` | Partial | The applicant creates and replays its own application. A different account using the first session's expected ID receives 409, and its memberships remain empty. Independent same-key requests from both accounts remain to be checked. [Merchant integration](../../../apps/api/test/merchant.integration.test.ts) |
+| `POST /v1/merchant-applications` | Connected | Two applicants reuse the same idempotency key and get separate applications and memberships. A stale expected session is denied. [Merchant integration](../../../apps/api/test/merchant.integration.test.ts) |
 | `GET /v1/me/merchants` <br> `GET /v1/merchants/:merchantId/onboarding` | Connected | The approved applicant sees their membership and checklist. A second account sees no membership and receives 404 for the applicant's checklist. [Merchant integration](../../../apps/api/test/merchant.integration.test.ts) |
 | `GET /v1/merchants/:merchantId/staff` <br> `POST /v1/merchants/:merchantId/staff/invitations` <br> `POST /v1/merchants/:merchantId/staff/invitations/:invitationId/revoke` | Connected | Owner operations succeed. Managers, staff and an outside owner receive 404. A foreign invitation submitted under a valid different restaurant is also denied and stays pending. [Staff integration](../../../apps/api/test/merchant-staff.integration.test.ts) |
 | `POST /v1/staff-invitations/accept` | Connected | The invited phone receives the destination role. A different authenticated user with the same invite token receives 404. [Staff integration](../../../apps/api/test/merchant-staff.integration.test.ts) |
@@ -102,7 +102,7 @@ The inventory records 99 connected ownership or resource-binding pairs, 6 partia
 | --- | --- | --- |
 | `GET /v1/merchants/:slug/categories/:categoryId/items` <br> `GET /v1/merchants/:slug/items/:itemId` | Connected | Public routes serve the owning restaurant's category and item. Passing another active restaurant's IDs under the first slug returns 404. [Public media and menu integration](../../../apps/api/test/media-resource-isolation.integration.test.ts) |
 | `GET /v1/merchants/:merchantId/profile/photos/:mediaId/variants/:format/:width` <br> `GET /v1/merchants/:merchantId/items/:itemId/photos/:mediaId/variants/:format/:width` | Connected | Requests for matching published attachments return their bytes. Foreign or mismatched IDs, wrong-kind photos and unattached ready item photos receive 404 before object storage. [Public media and menu integration](../../../apps/api/test/media-resource-isolation.integration.test.ts) |
-| `GET /v1/merchants/:slug` | Partial | [Restaurant repository tests](../../../packages/db/test/public-restaurant.integration.test.ts) cover published and hidden merchants. The connected API media/menu suite tests scoped child routes. |
+| `GET /v1/merchants/:slug` | Connected | An active restaurant is visible by slug. A suspended restaurant returns 404 without disclosing its ID. [Public restaurant integration](../../../apps/api/test/media-resource-isolation.integration.test.ts) |
 | `GET /v1/restaurants/:slug/reviews` | Partial | [Review repository tests](../../../packages/db/test/admin-orders.integration.test.ts) cover public review filtering and restaurant scope. [HTTP route tests](../../../apps/api/test/reviews-http.test.ts) use doubles. |
 
 ## Public and authentication inventory
@@ -121,5 +121,4 @@ These matrix and OpenAPI routes provide public responses, authentication, or bro
 
 - Add authorized API controls where connected tests currently exercise denial or no-op only. Courier delivery failure.
 - For identifier-link and privacy-deletion challenge creation, check two accounts issuing challenges in the same connected case and verify their stored bindings and independent delivery. The linked confirm/delete tests already exercise foreign redemption.
-- For merchant applications, use the same idempotency key with two valid applicant sessions and check each account's application and memberships.
-- Exercise public restaurant details and public reviews through the real API/Postgres composition with a published restaurant and a hidden or mismatched resource.
+- Exercise public reviews through the real API/Postgres composition with a published restaurant and a hidden or mismatched resource.

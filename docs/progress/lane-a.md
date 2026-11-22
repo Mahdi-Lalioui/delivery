@@ -720,3 +720,5 @@
   Next: close the seven partial endpoint cases listed in tenant-endpoint-map.md.
 - 2026-11-22 · High · Profile photos passed 2/2 against Postgres, confirming same-restaurant replacement and preserving the adjacent tenant's cover.
   Next: cover the six partial endpoint cases, starting with courier delivery failure.
+- 2026-11-22 · High · PR #27 merged after seven green checks. Connected suites passed 5/5 for public restaurant visibility and per-applicant idempotency.
+  Next: close the four partial pairs, starting with account-deletion challenge issuance.
