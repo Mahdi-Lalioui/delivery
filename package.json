@@ -47,6 +47,7 @@
     "audit:fullness": "node scripts/audit-page-fullness.mjs",
     "audit:keyboard-journey": "node scripts/keyboard-journey.mjs",
     "evidence:screens": "node scripts/capture-customer-screens.mjs",
+    "evidence:interactions": "node scripts/capture-interactions.mjs",
     "evidence:live-states": "node scripts/capture-live-states.mjs",
     "perf:customer-feel": "node scripts/measure-customer-feel.mjs"
   },
