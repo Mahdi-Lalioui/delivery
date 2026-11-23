@@ -9,7 +9,7 @@ AWID ("You're in need, try AWID") should feel like the most beautiful food app p
 **Rules.**
 - **Food first, lantern second.** Photos lead. Decor is light and pattern only: it never carries content, never takes events and never competes with a photo.
 - **One night band per screen.** Each screen has a single `night` surface (Discovery's sky, the restaurant band, the confirmed moment, the rating head, the sign-in panel). It is the screen's showpiece; everything else is plaster.
-- **Time of day.** The night band changes with the diner's clock: *fajr* (dawn, 5–9h), *nhar* (day, 9–17h), *maghrib* (dusk, 17–20h) and *lil* (night, 20–5h). The greeting changes with it ("Sbah el khir", "Bonsoir"…). The server renders the night version; the client switches after mount, with no layout change.
+- **Time of day.** The night band changes with the diner's clock: *fajr* (dawn, 5–9h), *nhar* (day, 9–17h), *maghrib* (dusk, 17–20h) and *lil* (night, 20–5h). The greeting changes with it ("Sbah el khir", "Bonsoir"…). The server renders the day moment; the client switches after mount, with no layout change.
 - **Gold is the light.** `food-saffron` marks the one thing to look at: the star rule, live codes, the dish of the day. Harissa stays for live and offer accents, mint for the primary action.
 - **Celebrate the first order.** The confirmed moment drops zellige stars once, and the order is shown as a receipt card with a torn edge.
 

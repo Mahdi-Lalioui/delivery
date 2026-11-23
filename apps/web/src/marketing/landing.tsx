@@ -68,14 +68,13 @@ async function Hero({ locale }: { locale: Locale }) {
         {slides.map(([key, photo], index) => (
           <figure key={key} className="landing-slide">
             <img
-              src={`/preview-catalog/${photo}.webp`}
-              srcSet={[
-                ...slideWidths.map(
-                  (width) => `/preview-catalog/${photo}-${String(width)}.webp ${String(width)}w`,
-                ),
-                `/preview-catalog/${photo}.webp 1600w`,
-              ].join(", ")}
-              sizes="100vw"
+              src={`/preview-catalog/${photo}${index === 0 ? "" : "-640"}.webp`}
+              // Cover-cropped under a scrim: 960 px for the first photo (the LCP), 640 px for the
+              // later slides so they don't compete with it for bandwidth on a phone.
+              srcSet={(index === 0 ? slideWidths : slideWidths.slice(0, 1))
+                .map((width) => `/preview-catalog/${photo}-${String(width)}.webp ${String(width)}w`)
+                .join(", ")}
+              sizes="(min-width: 960px) 54vw, 100vw"
               alt=""
               width="1600"
               height="1067"
