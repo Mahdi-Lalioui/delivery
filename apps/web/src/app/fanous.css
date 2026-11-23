@@ -9,6 +9,7 @@
     radial-gradient(1px 1px at 84% 72%, var(--color-on-night) 50%, transparent 51%),
     radial-gradient(1px 1px at 52% 40%, var(--color-on-night) 50%, transparent 51%);
   --fanous-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 1 14.6 7.4 21 5 18.6 11.4 23 12 18.6 12.6 21 19 14.6 16.6 12 23 9.4 16.6 3 19 5.4 12.6 1 12 5.4 11.4 3 5 9.4 7.4Z'/%3E%3C/svg%3E");
+  --fanous-star-line: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23000' stroke-width='.14' d='M12 1 14.6 7.4 21 5 18.6 11.4 23 12 18.6 12.6 21 19 14.6 16.6 12 23 9.4 16.6 3 19 5.4 12.6 1 12 5.4 11.4 3 5 9.4 7.4Z'/%3E%3Ccircle cx='12' cy='12' r='3.2' fill='none' stroke='%23000' stroke-width='.14'/%3E%3C/svg%3E");
   --fanous-dusk: color-mix(in oklab, var(--color-night) 74%, var(--color-terracotta));
 }
 
@@ -22,17 +23,7 @@
 }
 
 .discover-sky {
-  position: absolute;
-  z-index: 0;
-  inset-block-end: -3.25rem;
-  inset-inline-end: -1.5rem;
-  inline-size: 7.5rem;
-  block-size: 7.5rem;
-  border-radius: 50%;
-  box-shadow: 0 0 5rem 1.5rem var(--color-glow);
-  color: var(--color-food-saffron);
-  opacity: 0.55;
-  pointer-events: none;
+  display: none;
 }
 
 .discover-sky svg {
@@ -45,55 +36,40 @@
   fill: currentColor;
 }
 
-/* Dawn: a terracotta glow rising behind the city. */
+/* Dawn: a slate-blue sky with terracotta light rising from below. */
 .discover-top[data-moment="fajr"] {
   background-image:
     radial-gradient(
-      70% 120% at 90% 0%,
-      color-mix(in oklab, var(--color-terracotta) 55%, transparent),
-      transparent 70%
-    ),
-    linear-gradient(170deg, var(--fanous-dusk), var(--color-night) 72%);
-}
-
-.discover-top[data-moment="fajr"] .discover-sky {
-  inset-block-start: auto;
-  inset-block-end: -3.5rem;
-  color: var(--color-food-couscous);
-}
-
-/* Dusk: the sun sets low at the start edge and the band turns to embers. */
-.discover-top[data-moment="maghrib"] {
-  background-image:
-    radial-gradient(
-      60% 110% at 0% 100%,
-      color-mix(in oklab, var(--color-terracotta) 65%, transparent),
+      130% 95% at 50% 118%,
+      color-mix(in oklab, var(--color-terracotta) 85%, transparent),
       transparent 72%
     ),
-    linear-gradient(to top, var(--fanous-dusk), var(--color-night) 80%);
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--color-night) 55%, var(--color-info)),
+      var(--color-night) 70%
+    );
 }
 
-.discover-top[data-moment="maghrib"] .discover-sky {
-  inset-block-start: auto;
-  inset-block-end: -3.75rem;
-  inset-inline-end: auto;
-  inset-inline-start: 6%;
-  color: var(--color-terracotta);
+/* Dusk: the band turns to embers at the horizon, with lantern light low at the start edge. */
+.discover-top[data-moment="maghrib"] {
+  background-image:
+    radial-gradient(70% 60% at 0% 100%, var(--color-glow), transparent 70%),
+    linear-gradient(
+      to top,
+      color-mix(in oklab, var(--color-night) 55%, var(--color-terracotta)),
+      var(--color-night) 85%
+    );
 }
 
-/* Night: a crescent, a star field and one lantern pool. */
+/* Night: deep blue, a star field and one lantern pool. */
 .discover-top[data-moment="lil"] {
+  background-color: color-mix(in oklab, var(--color-night) 58%, var(--color-info));
   background-image:
     radial-gradient(45% 70% at 100% 0%, var(--color-glow), transparent 65%), var(--fanous-stars);
   background-size:
     auto,
     11rem 7rem;
-}
-
-.discover-top[data-moment="lil"] .discover-sky {
-  opacity: 0.85;
-  box-shadow: none;
-  color: var(--color-food-couscous);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -137,11 +113,30 @@
   line-height: var(--line-height-caption);
 }
 
+/* From 960 px the moment's light source sits in the band, between the greeting and the search. */
 @media (min-width: 960px) {
   .discover-sky {
-    inset-block-start: -1.5rem;
-    inset-inline-end: auto;
-    inset-inline-start: min(44%, 30rem);
+    position: absolute;
+    z-index: 0;
+    inset-block-start: var(--space-20);
+    inset-inline-end: calc(30rem + var(--space-48));
+    display: block;
+    inline-size: 4rem;
+    block-size: 4rem;
+    color: var(--color-food-saffron);
+    filter: drop-shadow(0 0 1.25rem var(--color-glow));
+    pointer-events: none;
+  }
+
+  .discover-top[data-moment="fajr"] .discover-sky,
+  .discover-top[data-moment="maghrib"] .discover-sky {
+    inset-block-start: auto;
+    inset-block-end: var(--space-16);
+    color: var(--color-food-couscous);
+  }
+
+  .discover-top[data-moment="lil"] .discover-sky {
+    color: var(--color-food-couscous);
   }
 }
 
@@ -377,4 +372,79 @@
 .landing-pitch {
   position: relative;
   isolation: isolate;
+}
+
+/* A night panel: the screen's one showpiece band. Local tokens keep every child legible on night. */
+.fanous-night {
+  --color-text: var(--color-on-night);
+  --color-text-2: color-mix(in srgb, var(--color-on-night) 86%, var(--color-night));
+  --color-text-3: color-mix(in srgb, var(--color-on-night) 76%, var(--color-night));
+  --color-surface: color-mix(in srgb, var(--color-on-night) 7%, var(--color-night));
+  --color-surface-2: color-mix(in srgb, var(--color-on-night) 11%, var(--color-night));
+  --color-surface-3: color-mix(in srgb, var(--color-on-night) 18%, var(--color-night));
+  --color-border-subtle: color-mix(in srgb, var(--color-on-night) 20%, var(--color-night));
+  --color-border-strong: color-mix(in srgb, var(--color-on-night) 60%, var(--color-night));
+  --color-primary: var(--color-mint);
+  --color-primary-hover: var(--color-mint);
+  --color-on-primary: var(--color-on-accent);
+  --color-accent: var(--color-mint);
+  --color-accent-strong: var(--color-mint);
+  --color-link: var(--color-mint);
+  --color-focus: var(--color-mint);
+  --color-success: var(--color-mint);
+  --color-mint-pale: color-mix(in srgb, var(--color-mint) 16%, var(--color-night));
+  --color-harissa-text: color-mix(in srgb, var(--color-terracotta) 45%, var(--color-on-night));
+  --color-warning: var(--color-food-couscous);
+  --decor-zellige-colour: color-mix(in srgb, var(--color-food-saffron) 14%, transparent);
+  background-color: var(--color-night);
+  color: var(--color-on-night);
+}
+
+.account-hub-header.fanous-night {
+  padding: var(--space-20);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-e2);
+}
+
+/* Gold is the light: finished checkout steps and chosen stars. */
+.checkout-progress::after {
+  background: var(--color-food-saffron);
+}
+
+.checkout-progress li[data-done="true"] .checkout-progress-dot {
+  border-color: var(--color-food-saffron);
+  background: var(--color-food-saffron);
+  color: var(--color-on-accent);
+}
+
+.star-field-row:has(input:checked) .star-field-star,
+.star-field-row:hover .star-field-star {
+  color: var(--color-terracotta);
+}
+
+/* A choice still to make reads as a dashed outline, not a dead grey slab. */
+.restaurant-item-submit .ui-button:is(:disabled, [aria-disabled="true"]) {
+  border: 2px dashed var(--color-border-strong);
+  background: transparent;
+  color: var(--color-text-2);
+  opacity: 1;
+}
+
+/* Collections keep the title clear of the "right now" tag: one line of body text. */
+.discovery-collection-text > span:last-child {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* The tagine sits in a real pool of lantern light. */
+.checkout-confirmed-scene {
+  background: radial-gradient(circle, var(--color-glow), transparent 68%);
+}
+
+/* Landing: lantern light pools under the headline on the phone hero. */
+@media (max-width: 959px) {
+  .landing-hero-copy {
+    background-image: radial-gradient(90% 55% at 0% 100%, var(--color-glow), transparent 72%);
+  }
 }

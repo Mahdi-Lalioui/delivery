@@ -518,8 +518,8 @@
     inset-inline-end: -4rem;
     inline-size: 22rem;
     block-size: 22rem;
-    background-color: color-mix(in srgb, var(--color-food-saffron) 22%, transparent);
-    mask-image: var(--decor-zellige);
+    background-color: color-mix(in srgb, var(--color-food-saffron) 55%, transparent);
+    mask-image: var(--fanous-star-line);
     mask-size: 100%;
     pointer-events: none;
     content: "";

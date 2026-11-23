@@ -41,10 +41,14 @@ async function captureDish(page, locale, file) {
 async function captureCart(page, locale, file) {
   await page.goto(`${baseUrl}/${locale}${restaurant}`);
   await settle(page);
-  await page.locator(".restaurant-dish-add").first().click();
+  await page.locator(".restaurant-dish").first().click();
   await settle(page);
-  const sheet = page.locator(".restaurant-cart-bar button").first();
-  if (await sheet.isVisible()) await sheet.click();
+  // The first dish needs a size: take the first option, then add it.
+  await page.locator(".restaurant-choice").first().click();
+  await page.locator(".restaurant-item-submit button").first().click();
+  await settle(page);
+  const bar = page.locator(".restaurant-cart-bar button").first();
+  if (await bar.isVisible()) await bar.click();
   await settle(page);
   await page.screenshot({ path: `${file("cart")}.png` });
 }

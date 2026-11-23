@@ -63,7 +63,7 @@ export function RestaurantHeader({ data, locale }: { data: Restaurant; locale: L
       <a className="restaurant-back" href={`/${locale}/discover`} aria-label={messages.back}>
         <Icon name="chevron" size={24} />
       </a>
-      <div className="restaurant-panel">
+      <div className="restaurant-panel fanous-night decor-zellige decor-lamplight">
         <div className="restaurant-heading">
           <h1>
             <bdi>{restaurant.name}</bdi>

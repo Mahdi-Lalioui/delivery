@@ -374,7 +374,7 @@ export function SignInForm({
 
   return (
     <section
-      className="auth-panel"
+      className="auth-panel fanous-night decor-zellige decor-lamplight"
       ref={panelRef}
       tabIndex={isDone ? -1 : undefined}
       aria-labelledby={titleId}
