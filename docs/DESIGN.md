@@ -1,45 +1,69 @@
 # DESIGN — AWID
 
-AWID ("You're in need, try AWID") should feel like the most beautiful food app people have used: alive, warm, premium, unmistakably Algerian, and still effortless. Brand source: `docs/brand/awid-reference.jpg`. The **Dar Zellige** direction (§0, D-036) supersedes the colour, type, gradient and decor rules below wherever they conflict.
+AWID brings the food, rhythms and hospitality of Algeria into a useful everyday
+service. The AWID wordmark and the familiar emerald action colour identify the app.
 
-## 0. Direction — Dar Zellige
+## 0. Direction — The Algerian Table
 
-**Concept.** A lit Algiers courtyard at dusk: deep zellige greens, lantern-gold light on plaster, harissa and terracotta warmth, and the food at the centre of the table. Calm structure, rich surfaces, one warm light source per view.
+Build the opening like the cover of an Algerian food journal. A generous photograph
+sets the scene. A clear headline, one sentence and one action tell the customer
+where they are and what they can do. Discovery becomes the working table: put the
+delivery location and search within reach, then lead with things worth ordering.
 
-**Palette.**
-- **Plaster:** the light `bg` is `#FBF6EC`, a warm plaster; `cream` is `#F6EAD2`; `sand` is `#F1E2C4` for warm bands.
-- **Night garden:** `night` is `#062A1F` in light and `#0B3426` in dark, with `on-night` `#FBF3E4` (≥ 7:1). It is used for hero bands such as Discovery's greeting. The dark theme goes deeper (`bg #03180F`, `surface #072319`), so photos and gold light glow.
-- **Light:** `glow` is a soft saffron light used only in radial lamp-light gradients. `zellige` is the lattice colour. `terracotta` is for decor accents, never text.
-- Deep green stays the text and primary colour, and harissa stays reserved for live and offer accents. Contrast pairs, including `on-night` on `night` and `text` on `sand`, are tested in both themes.
+### Colour and typography
 
-**Type.**
-- **Display (h1, display, restaurant and dish names, section titles):** Fraunces 600/700 for Latin, a warm, soft-serifed face with real character. El Messiri 600/700 for Arabic, a calligraphic naskh–kufic hybrid.
-- **UI and body:** Poppins and IBM Plex Sans Arabic, unchanged, so every control, price and line of body text stays as readable as before. Numbers stay tabular Poppins.
-- All fonts are SIL OFL WOFF2 files served by the app (`apps/web/src/fonts`).
+Use warm ivory for the reading surface and deep olive green for the landing
+feature. A thin saffron line recalls brass trays and distinguishes the image
+edge. Harissa carries offers and live order states. On dark pages, warm the
+reading surfaces enough to preserve visible boundaries. The tested semantic
+tokens below remain the basis for control, status and focus contrast.
 
-**Decor system** (`apps/web/src/app/dar-zellige.css`, CSS and inline SVG only, nothing fetched):
-- `decor-zellige`: an eight-point star lattice drawn through a mask in the theme's colour.
-- `decor-lamplight`: two soft saffron pools of light.
-- `decor-divider`: a thin rule with a star.
-- A 3 % paper grain over every page.
-- Decor never carries content, never takes events and never competes with food photos. Gradients are allowed only as light: lamp pools, photo scrims and the divider fade.
+Keep the self-hosted Fraunces and El Messiri display faces. Use Fraunces italic
+sparingly in Latin editorial copy, with upright El Messiri and its natural
+spacing in Arabic. Poppins and IBM Plex Sans Arabic carry controls, paragraphs
+and operational numbers. Keep the Latin display wide enough to read in two or
+three deliberate lines, and give Arabic taller leading for its marks.
 
-**Motion language: "settle".** Things arrive like a dish set on a table: a short rise with a soft spring, then stillness.
-- Page and shared-element transitions use the View Transitions API.
-- Numbers roll, add-to-cart flies, and the order-confirmed tagine lifts its lid.
-- Under `prefers-reduced-motion`, every transition becomes an instant cut.
+### Photography and composition
 
-**Full pages.** No dead space at any width:
-- short pages fill the viewport and end on a designed footer or decor;
-- wide screens use columns and side panels;
-- rails end on a peeking card and grids end cleanly;
-- every state is illustrated.
+One responsive, credited food photo owns the first viewport. Its subject stays
+clear of type. On phones the photo and headline form a single vertical feature;
+from tablet widths the feature becomes two panels with their order following
+the document direction. Reuse the credited catalogue photos for cuisine rails,
+crop with stable aspect ratios, and lazy-load cards below the first view.
+Show a partial next card where a rail can scroll.
 
-`e2e/page-fullness.spec.ts` (with `pnpm audit:fullness`) checks this.
+### Motion
+
+A single gentle photo settle establishes arrival. Buttons and selection states
+respond immediately with quiet scale or colour changes. Shared photo transitions
+are progressive enhancement and must release navigation on reduced motion.
+Reserve 3D for moments that benefit from depth, such as the existing Tracking
+scooter. Preserve the 44 px control floor and the connected performance budgets.
+
+### Working surfaces
+
+A location control sits above search. Sheets dim the underlying view and put
+the next decision near the thumb. Cart and checkout give the amount and next
+step first, with the address and timing nearby. Tracking keeps status and the
+delivery estimate visible alongside the map. Reserve the same map height through loading, fallback and live states.
+On phones, the map gives the first viewport room for the ETA and handoff
+code. Operators get compact groupings for urgent orders, with status
+and action clear at a glance. Use borders and
+surface changes to group related controls, and let empty views explain what
+the user can do next.
+
+### Verification
+
+Compare before and after at 390 px Arabic and French, 1280 px French, and
+French dark. Check keyboard focus and RTL at each pass. Record responsive
+captures, accessibility, bundle size, connected LCP, CLS and motion evidence.
+Keep the preceding release criteria and technical specifications below where
+they still describe maintained components.
 
 ## 1. Principles
 
-1. **Food is the hero.** Every customer screen leads with a real, credited photo (`docs/PHOTO_CREDITS.md`). The UI stays cream, white and deep green around it.
+1. **Food sets the scene.** Use real, credited photography on landing, Discovery, restaurant and dish screens (`docs/PHOTO_CREDITS.md`). On task-focused screens, let the current decision, amount or status lead.
 2. **One focal point per view.** One primary action, quiet or separated destructive actions, status as badges.
 3. **Fast is a feature.** Motion explains a change or confirms an action and never blocks input. Low-end Android over 4G is the default device.
 4. **Local, not generic.** Arabic is a first-class layout, checked rather than mirrored. Prices look like Algerian prices (`1 450 DA`).
@@ -84,7 +108,7 @@ Deep green night, not grey: `bg #05221A`, `surface #0A2D22`, `surface-2 #0F372A`
 - Text and primary buttons use deep green. `#00A37A` is for large shapes, icons and accents: white small text on it fails contrast.
 - Mint is energy, never body text on light backgrounds.
 - Status is never colour alone.
-- Gradients are light, never decoration for its own sake: photo scrims, lamp-light pools (`glow`) and divider fades (Dar Zellige, §0).
+- Gradients are light, never decoration for its own sake: photo scrims, lamp-light pools (`glow`) and divider fades (The Algerian Table, §0).
 - Theme follows the system; users can override. Both themes are designed, not inverted.
 
 ## 4. Typography

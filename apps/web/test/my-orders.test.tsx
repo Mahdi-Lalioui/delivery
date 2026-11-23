@@ -88,15 +88,16 @@ test("[CUS-21] flags unavailable dishes and changed prices when ordering again",
 
 test("[CUS-21] has empty, loading and error states", () => {
   const { retentionOrders } = getMessages("ar");
-  expect(
-    render(
-      {
-        history: { kind: "ready", orders: [], nextCursor: null },
-        favourites: { kind: "ready", restaurants: [] },
-      },
-      "ar",
-    ),
-  ).toContain(retentionOrders.noOrdersBody);
+  const empty = render(
+    {
+      history: { kind: "ready", orders: [], nextCursor: null },
+      favourites: { kind: "ready", restaurants: [] },
+    },
+    "ar",
+  );
+  expect(empty).toContain(retentionOrders.noOrdersBody);
+  expect(empty).toContain('href="/ar/discover"');
+  expect(empty).toContain(retentionOrders.findRestaurants);
   expect(render({}, "ar")).toContain('class="ui-skeleton"');
   expect(render({ history: { kind: "error" } }, "ar")).toContain(retentionOrders.retry);
 });

@@ -40,3 +40,8 @@ Every photo below was viewed before use, downscaled to at most 1600 px on the lo
 | `preview-catalog/chawarma.webp` | 1600×1200 | [Handmade Chicken Shawarma Wrap - Lavash.jpg](https://commons.wikimedia.org/wiki/File:Handmade_Chicken_Shawarma_Wrap_-_Lavash.jpg) | Andy Li | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) |
 
 Replaced 18 November 2026 (lane B): bourek, chorba and karantika. The earlier "chorba" was a Moroccan harira and the earlier "karantika" an Italian farinata. Added: pizza and chawarma, whose earlier files had no source on record and were removed. All five were viewed, cropped to 4:3 and given the AWID grade (`gradeFoodPhoto`).
+
+On `design-v2`, the landing hero uses the credited Algerian chorba frik
+photograph (`preview-catalog/chorba.webp` and its responsive variants).
+The hero caption names the dish. The author, source and licence are listed
+above and on the public credits page.

@@ -69,3 +69,26 @@ test("team preview searches, configures and saves a synthetic dish without an AP
   await expect(cart.getByRole("heading", { name: "Chawarma maison", exact: true })).toBeVisible();
   expect((await request.post("/v1/me/deletion-challenge")).status()).toBe(405);
 });
+
+test("French promotions fit a narrow screen in both themes", async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 844 });
+  for (const colorScheme of ["light", "dark"] as const) {
+    await page.emulateMedia({ colorScheme });
+    await page.goto("/fr/dev/gallery?screen=promotions");
+    await expect(page.locator(".promotion-card").first()).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+      360,
+    );
+  }
+});
+
+test("Arabic invoice tables scroll within the card on phones", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/ar/dev/gallery?screen=admin-billing");
+  const scroll = page.locator(".billing-table-scroll");
+  await expect(scroll).toBeVisible();
+  expect(await scroll.evaluate((element) => element.scrollWidth)).toBeGreaterThan(
+    await scroll.evaluate((element) => element.clientWidth),
+  );
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+});

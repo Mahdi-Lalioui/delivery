@@ -334,6 +334,11 @@ function History({ state, locale }: { state: MyOrdersState; locale: Locale }) {
           art={<StateArt kind="bag" />}
           title={translate("noOrders")}
           body={translate("noOrdersBody")}
+          action={
+            <ButtonLink variant="primary" href={`/${locale}/discover`}>
+              {translate("findRestaurants")}
+            </ButtonLink>
+          }
         />
       </Card>
     );

@@ -73,7 +73,31 @@
 }
 
 .discovery-search-dialog::backdrop {
-  background: var(--color-bg);
+  background: var(--color-scrim);
+}
+
+@media (min-width: 960px) {
+  .discovery-search-dialog {
+    inline-size: min(calc(100% - var(--space-64)), 54rem);
+    block-size: min(calc(100svb - var(--space-64)), 42rem);
+    margin: auto;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-e3);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .discovery-search-dialog[open] {
+    animation: discovery-search-in var(--motion-base) var(--ease-decelerate) both;
+  }
+}
+
+@keyframes discovery-search-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-8));
+  }
 }
 
 html:has(.discovery-search-dialog[open]) {
@@ -432,5 +456,13 @@ html:has(.discovery-search-dialog[open]) {
 @media (min-width: 640px) {
   .discovery-search-browse {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 479px) {
+  .discovery-search-trigger > span:last-child {
+    line-height: var(--line-height-caption);
+    white-space: normal;
+    text-wrap: pretty;
   }
 }

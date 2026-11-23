@@ -139,7 +139,7 @@
   gap: var(--space-16);
 }
 
-.checkout-step h2,
+.checkout-step > h2,
 .checkout-aside h2 {
   font: var(--font-weight-h2) var(--font-size-h2) / var(--line-height-h2) var(--font-display);
 }
@@ -158,7 +158,7 @@
   box-shadow: var(--shadow-e1);
 }
 
-.checkout-recap h3 {
+.checkout-recap h2 {
   margin: 0;
   color: var(--color-text-2);
   font-size: var(--font-size-caption);
@@ -540,6 +540,7 @@
   mask-image: var(--decor-zellige);
   mask-size: 64px;
   pointer-events: none;
+  opacity: 0.64;
   content: "";
 }
 
@@ -597,10 +598,21 @@
   font-variant-numeric: var(--font-variant-numeric-numbers);
 }
 
+.checkout-confirmed-eta bdi {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-h3);
+}
+
 .checkout-confirmed .ui-button {
   margin-block-start: var(--space-16);
   background: var(--color-mint);
   color: var(--color-on-accent);
+}
+
+@media (min-width: 960px) {
+  .checkout-confirmed .ui-button {
+    min-inline-size: min(100%, 18rem);
+  }
 }
 
 .checkout-confirmed-scene {
@@ -843,14 +855,15 @@
   background-color: var(--color-sand);
 }
 
-/* Tablets and up: the checkout sits on a plaster "table" that fills the page above the action bar. */
+/* Tablets and up: the delivery step and receipt sit on a quiet, ruled surface. */
 @media (min-width: 768px) {
   .checkout:not(:has(.checkout-blocked)) {
     min-block-size: calc(100dvb - var(--space-120) - var(--space-80));
     padding: var(--space-32);
     border-radius: var(--radius-xl);
-    background-color: var(--color-sand);
-    background-image: radial-gradient(60% 80% at 100% 0%, var(--color-glow), transparent 70%);
+    border: 1px solid var(--color-border-subtle);
+    border-block-start: 2px solid var(--color-food-saffron);
+    background-color: var(--color-surface-2);
   }
 }
 

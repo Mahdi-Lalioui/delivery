@@ -23,8 +23,8 @@ async function render(element: ReactNode): Promise<string> {
 
 test("[M8-1] the landing leads with Algeria photography, the tagline and the way in", async () => {
   const html = await render(Landing({ locale: "fr" }));
-  expect(html).toContain("Un besoin ? Essayez AWID");
-  expect(html.match(/class="landing-slide"/g)).toHaveLength(5);
+  expect(html).toContain("Les saveurs d’Algérie, à votre porte.");
+  expect(html.match(/class="landing-hero-photo"/g)).toHaveLength(1);
   expect(html).toContain('fetchPriority="high"');
   expect(html).toContain('href="/fr/discover"');
   expect(html).toContain('href="/fr/discover?cuisine=algerian"');
@@ -36,7 +36,7 @@ test("[M8-1] the landing leads with Algeria photography, the tagline and the way
 
 test("[M8-1] the Arabic landing localizes the tagline and the footer", async () => {
   const html = await render(Landing({ locale: "ar" }));
-  expect(html).toContain("محتاج؟ جرّب أويد");
+  expect(html).toContain("مذاق الجزائر حتى لباب دارك");
   expect(html).toContain("حقوق الصور");
 });
 
@@ -58,17 +58,17 @@ test("[M8-1] every shipped photo is credited with author, licence and source", a
 test("[M8-1] the hero is credited food photography from the catalogue, with responsive sizes", async () => {
   const html = await render(Landing({ locale: "fr" }));
   const hero = html.slice(
-    html.indexOf('class="landing-slides"'),
+    html.indexOf('class="landing-hero-photo"'),
     html.indexOf("landing-hero-copy"),
   );
   const sources = [...hero.matchAll(/src="([^"]+)"/gu)].map(([, src]) => src);
-  expect(sources).toHaveLength(5);
+  expect(sources).toHaveLength(1);
   const credited = new Set<string>(photoCredits.map(({ file }) => file));
   for (const src of sources) {
     expect(src).toMatch(/^\/preview-catalog\//u);
     expect(credited.has(src ?? "")).toBe(true);
   }
-  expect(hero).toContain("/preview-catalog/chorba-table-960.webp 960w");
+  expect(hero).toContain("/preview-catalog/chorba-960.webp 960w");
   expect(hero).not.toContain("/photos/algeria/");
 });
 

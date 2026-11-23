@@ -1,173 +1,91 @@
 .landing {
   display: grid;
-  gap: clamp(var(--space-48), 8vi, var(--space-80));
+  gap: clamp(var(--space-32), 4.5vi, var(--space-48));
   padding-block-end: var(--space-64);
 }
 
-/* Hero: full-bleed photography of Algeria, slow zoom and crossfade (30 s loop). */
+/* The first photograph and the headline share a single editorial frame. */
 .landing-hero {
-  position: relative;
+  --landing-olive: #14271c;
   display: grid;
-  align-items: end;
-  min-block-size: min(88svb, 52rem);
-  margin-inline: calc(-1 * var(--page-padding));
-  margin-block-start: calc(-1 * var(--space-32));
+  grid-template-columns: minmax(0, 1fr);
   overflow: hidden;
-  background: var(--color-primary);
+  border-radius: var(--radius-xl);
+  background: var(--landing-olive);
   color: var(--color-on-photo);
+}
+
+.landing-hero-photo {
+  position: relative;
   isolation: isolate;
-}
-
-.landing-slides {
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-}
-
-.landing-slide {
-  position: absolute;
-  inset: 0;
+  overflow: hidden;
+  aspect-ratio: 7 / 5;
   margin: 0;
-  opacity: 0;
-  animation: landing-fade 30s linear infinite;
+  border-block-end: 2px solid var(--color-food-saffron);
+  background: var(--color-night);
 }
 
-/* The first photo is visible from the first paint (LCP), then joins the loop. */
-.landing-slide:first-child {
-  opacity: 1;
-  animation-name: landing-fade-first;
-}
-
-.landing-slide:nth-child(2) {
-  animation-delay: 6s;
-}
-
-.landing-slide:nth-child(3) {
-  animation-delay: 12s;
-}
-
-.landing-slide:nth-child(4) {
-  animation-delay: 18s;
-}
-
-.landing-slide:nth-child(5) {
-  animation-delay: 24s;
-}
-
-.landing-slide img {
+.landing-hero-photo img {
+  display: block;
   inline-size: 100%;
   block-size: 100%;
   object-fit: cover;
-  animation: landing-zoom 30s linear infinite;
-  animation-delay: inherit;
+  object-position: 50% 55%;
 }
 
-.landing-slide::after {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(transparent 40%, var(--color-photo-scrim)),
-    linear-gradient(var(--color-photo-scrim), transparent 20%);
-  content: "";
-}
-
-.landing-slide figcaption {
-  position: absolute;
-  z-index: 1;
-  inset-block-start: var(--space-16);
-  inset-inline-end: var(--page-padding);
-  font-size: var(--font-size-micro);
-  opacity: 0.8;
-}
-
-@keyframes landing-fade {
-  0% {
-    opacity: 0;
-  }
-
-  4%,
-  20% {
-    opacity: 1;
-  }
-
-  24%,
-  100% {
-    opacity: 0;
+@media (prefers-reduced-motion: no-preference) {
+  .landing-hero-photo img {
+    animation: landing-settle 1300ms var(--ease-standard) both;
   }
 }
 
-@keyframes landing-fade-first {
-  0%,
-  20% {
-    opacity: 1;
-  }
-
-  24%,
-  96% {
-    opacity: 0;
-  }
-
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes landing-zoom {
+@keyframes landing-settle {
   from {
+    transform: scale(1.035);
+  }
+  to {
     transform: scale(1);
   }
+}
 
-  24% {
-    transform: scale(1.1);
-  }
-
-  to {
-    transform: scale(1.1);
-  }
+.landing-hero-photo figcaption {
+  position: absolute;
+  inset-inline-end: var(--space-12);
+  inset-block-end: var(--space-12);
+  max-inline-size: calc(100% - 2 * var(--space-12));
+  border-radius: var(--radius-pill);
+  padding: var(--space-4) var(--space-8);
+  background: var(--landing-olive);
+  color: var(--color-on-photo);
+  font-size: var(--font-size-micro);
 }
 
 .landing-hero-copy {
   display: grid;
+  align-content: center;
+  justify-items: start;
   gap: var(--space-16);
-  max-inline-size: 44rem;
-  padding: var(--space-120) var(--page-padding) var(--space-48);
+  padding: clamp(var(--space-24), 4vi, var(--space-64));
 }
 
-/* Dar Zellige: a gold star rule above the headline, and a zellige border along the hero's foot. */
-.landing-hero-ornament {
-  inline-size: min(12rem, 60%);
+.landing-hero-rule {
+  inline-size: 5rem;
   color: var(--color-food-saffron);
 }
 
-.landing-hero-ornament::before,
-.landing-hero-ornament::after {
-  background: linear-gradient(90deg, transparent, currentColor, transparent);
-}
-
-.landing-hero-ornament svg {
+.landing-hero-rule svg {
   fill: currentColor;
 }
 
-.landing-hero::after {
-  --decor-zellige-colour: rgb(242 169 0 / 0.55);
-  position: absolute;
-  z-index: 1;
-  inset-inline: 0;
-  inset-block-end: 0;
-  block-size: 18px;
-  background-color: var(--decor-zellige-colour);
-  mask-image: var(--decor-zellige);
-  mask-size: 18px;
-  mask-repeat: repeat-x;
-  pointer-events: none;
-  content: "";
-}
-
 .landing-hero-copy h1 {
-  font: var(--font-weight-display-xl) var(--font-size-display-xl) / var(--line-height-display-xl)
-    var(--font-display);
+  font: var(--font-weight-display-xl) clamp(2.25rem, 4.8vi, 5rem) / 1.06 var(--font-display);
   letter-spacing: var(--letter-spacing-display-xl);
   text-wrap: balance;
+}
+
+.landing-hero-copy:dir(rtl) h1 {
+  line-height: 1.23;
+  letter-spacing: normal;
 }
 
 .landing-intro {
@@ -175,6 +93,7 @@
   font-size: var(--font-size-body-lg);
   line-height: var(--line-height-body-lg);
   opacity: 0.92;
+  text-wrap: pretty;
 }
 
 .landing-actions {
@@ -474,12 +393,20 @@
 
 @media (min-width: 960px) {
   .landing-hero {
-    margin-inline: 0;
-    border-radius: var(--radius-xl);
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+    min-block-size: 34rem;
+    min-block-size: clamp(32rem, 62svb, 38rem);
   }
 
-  .landing-hero-copy {
-    padding-inline: var(--space-64);
+  .landing-hero-photo {
+    aspect-ratio: auto;
+    border-block-end: 0;
+    border-inline-end: 2px solid var(--color-food-saffron);
+  }
+
+  .landing-hero-photo img {
+    position: absolute;
+    inset: 0;
   }
 
   /* However many cards there are, they share the row: no empty end on wide screens. */
@@ -521,36 +448,18 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .landing-slide,
-  .landing-slide img {
-    animation: none;
-  }
-
-  .landing-slide:not(:first-child) {
-    display: none;
-  }
-
   .landing-photo-card,
   .landing-photo-card img {
     transition: none;
   }
 }
 
-/* Round 1: a quieter secondary action on the photo, balanced headline, legible credit. */
-.landing-actions .ui-button-secondary {
-  border-color: color-mix(in srgb, var(--color-on-photo) 60%, transparent);
-  background: color-mix(in srgb, var(--color-on-photo) 12%, transparent);
+/* The team link remains reachable without competing with the ordering action. */
+.landing-preview-link {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--touch-target-min);
   color: var(--color-on-photo);
-  backdrop-filter: blur(8px);
-}
-
-.landing-slide figcaption {
-  padding: 2px var(--space-8);
-  border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--color-primary) 55%, transparent);
-  opacity: 1;
-}
-
-.landing-hero-copy h1 {
-  text-wrap: balance;
+  font-size: var(--font-size-caption);
+  text-decoration-color: var(--color-food-saffron);
 }

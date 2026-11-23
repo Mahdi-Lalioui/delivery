@@ -69,10 +69,23 @@
   font: var(--font-weight-h1) var(--font-size-h1) / var(--line-height-h1) var(--font-display);
 }
 
+.before-after > details {
+  min-inline-size: 0;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-2);
+}
+
+.before-after > details > summary {
+  min-block-size: var(--touch-target-min);
+  padding: var(--space-12) var(--space-16);
+  cursor: pointer;
+}
+
 .before-after-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
   gap: var(--space-16);
+  padding: 0 var(--space-8) var(--space-8);
   list-style: none;
 }
 

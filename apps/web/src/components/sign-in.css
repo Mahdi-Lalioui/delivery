@@ -57,7 +57,9 @@
 
   .auth-panel {
     align-self: center;
+    justify-self: center;
     margin: 0;
+    border-block-start: 2px solid var(--color-food-saffron);
   }
 }
 
@@ -70,6 +72,11 @@
 
 .auth-form .ui-segmented-track {
   inline-size: 100%;
+}
+
+.auth-form .ui-segmented-track[data-count="2"]::before {
+  background: var(--color-mint-pale);
+  box-shadow: inset 0 0 0 1px var(--color-accent-strong);
 }
 
 .auth-heading h1 {
