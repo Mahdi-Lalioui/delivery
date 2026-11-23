@@ -131,6 +131,7 @@
   [aria-labelledby="promotion-discount"] .ui-segmented-track[data-count="3"] {
     display: grid;
     grid-auto-flow: row;
+    border-radius: var(--radius-lg);
   }
 
   [aria-labelledby="promotion-discount"] .ui-segmented-track[data-count="3"]::before {
@@ -145,6 +146,7 @@
 
   [aria-labelledby="promotion-discount"]
     .ui-segmented-track[data-count="3"]
+    .ui-segment
     input:checked
     + .ui-segment-face {
     background: var(--color-surface);
