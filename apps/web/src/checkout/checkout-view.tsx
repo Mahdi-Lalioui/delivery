@@ -18,6 +18,7 @@ import {
   type CheckoutState,
   type CheckoutStep,
 } from "./use-checkout";
+import { useIsFirstOrder } from "./first-order";
 import "./checkout.css";
 
 const stepKeys = ["stepFulfilment", "stepTiming", "stepPayment"] as const;
@@ -115,6 +116,8 @@ function Actions({ state, locale }: { state: CheckoutState; locale: Locale }) {
   );
 }
 
+const confettiStars = Array.from({ length: 14 }, (_, index) => `star-${String(index)}`);
+
 /** Full-screen celebration, then the automatic move to tracking (SPRINT screen 6). */
 export function OrderConfirmed({
   locale,
@@ -136,6 +139,7 @@ export function OrderConfirmed({
   const translate = useTranslations("checkout");
   const href = `/${locale}/orders/${orderId}`;
   const lowData = useLowData();
+  const isFirstOrder = useIsFirstOrder();
   const title = translate("confirmedTitle");
   const etaRange =
     eta === null
@@ -163,6 +167,11 @@ export function OrderConfirmed({
       aria-labelledby="checkout-confirmed-title"
       role="status"
     >
+      <span className="checkout-confetti" aria-hidden="true">
+        {confettiStars.map((star) => (
+          <i key={star} />
+        ))}
+      </span>
       <div className="checkout-confirmed-scene">
         {lowData ? (
           <TagineMoment label={title} onDone={goToTracking} />
@@ -170,18 +179,23 @@ export function OrderConfirmed({
           <Tagine3d label={title} onDone={goToTracking} />
         )}
       </div>
-      {etaRange !== undefined && (
-        <p className="checkout-confirmed-eta">
-          <Icon name="clock" size={18} />
-          <span>
-            {translate(fulfilment === "pickup" ? "confirmedEtaPickup" : "confirmedEtaDelivery")}
-          </span>
-          <bdi dir="ltr">{etaRange}</bdi>
-        </p>
-      )}
       <h1 id="checkout-confirmed-title">{title}</h1>
-      <p>{translate("confirmedBody", { restaurant })}</p>
-      <p className="checkout-confirmed-code">{translate("confirmedCode", { code: shortCode })}</p>
+      <div className="checkout-ticket">
+        {isFirstOrder && (
+          <p className="checkout-ticket-ribbon">{translate("confirmedFirstOrder")}</p>
+        )}
+        <p>{translate("confirmedBody", { restaurant })}</p>
+        {etaRange !== undefined && (
+          <p className="checkout-confirmed-eta">
+            <Icon name="clock" size={18} />
+            <span>
+              {translate(fulfilment === "pickup" ? "confirmedEtaPickup" : "confirmedEtaDelivery")}
+            </span>
+            <bdi dir="ltr">{etaRange}</bdi>
+          </p>
+        )}
+        <p className="checkout-confirmed-code">{translate("confirmedCode", { code: shortCode })}</p>
+      </div>
       <ButtonLink variant="primary" href={href}>
         {translate("tracking")}
       </ButtonLink>

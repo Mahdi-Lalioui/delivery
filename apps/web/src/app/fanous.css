@@ -1,0 +1,502 @@
+/* Fanous (DESIGN §0, D-037): the lantern light and the time-of-day sky. Decor only: no content,
+   no events, no layout. Gradients of theme tokens; nothing is fetched. */
+
+:root {
+  --fanous-stars:
+    radial-gradient(1.5px 1.5px at 12% 22%, var(--color-on-night) 50%, transparent 51%),
+    radial-gradient(1px 1px at 38% 64%, var(--color-on-night) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 66% 18%, var(--color-food-couscous) 50%, transparent 51%),
+    radial-gradient(1px 1px at 84% 72%, var(--color-on-night) 50%, transparent 51%),
+    radial-gradient(1px 1px at 52% 40%, var(--color-on-night) 50%, transparent 51%);
+  --fanous-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 1 14.6 7.4 21 5 18.6 11.4 23 12 18.6 12.6 21 19 14.6 16.6 12 23 9.4 16.6 3 19 5.4 12.6 1 12 5.4 11.4 3 5 9.4 7.4Z'/%3E%3C/svg%3E");
+  --fanous-star-line: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23000' stroke-width='.14' d='M12 1 14.6 7.4 21 5 18.6 11.4 23 12 18.6 12.6 21 19 14.6 16.6 12 23 9.4 16.6 3 19 5.4 12.6 1 12 5.4 11.4 3 5 9.4 7.4Z'/%3E%3Ccircle cx='12' cy='12' r='3.2' fill='none' stroke='%23000' stroke-width='.14'/%3E%3C/svg%3E");
+  --fanous-dusk: color-mix(in oklab, var(--color-night) 74%, var(--color-terracotta));
+}
+
+/* The night band carries its own sky. */
+.discover-top {
+  overflow: clip;
+}
+
+.discover-top > :not(.discover-sky) {
+  position: relative;
+}
+
+.discover-sky {
+  display: none;
+}
+
+.discover-sky svg {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.discover-sky-body {
+  fill: currentColor;
+}
+
+/* Dawn: a slate-blue sky with rose and amber light breaking at the top corner. */
+.discover-top[data-moment="fajr"] {
+  background-color: color-mix(in oklab, var(--color-night) 60%, var(--color-info));
+  background-image:
+    radial-gradient(
+      60% 80% at 100% 0%,
+      color-mix(in oklab, var(--color-food-saffron) 45%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      95% 110% at 100% 0%,
+      color-mix(in oklab, var(--color-terracotta) 70%, transparent),
+      transparent 75%
+    );
+}
+
+/* Dusk: the whole band turns to embers, with the setting sun low at the start edge. */
+.discover-top[data-moment="maghrib"] {
+  background-color: color-mix(in oklab, var(--color-night) 62%, var(--color-terracotta));
+  background-image:
+    radial-gradient(
+      80% 90% at 0% 100%,
+      color-mix(in oklab, var(--color-food-saffron) 45%, transparent),
+      transparent 72%
+    ),
+    linear-gradient(to bottom, var(--color-night), transparent 65%);
+}
+
+/* Night: deep blue, a star field and one lantern pool. */
+.discover-top[data-moment="lil"] {
+  background-color: var(--color-night);
+  background-image:
+    radial-gradient(45% 70% at 100% 0%, var(--color-glow), transparent 65%),
+    radial-gradient(
+      80% 90% at 20% 0%,
+      color-mix(in oklab, var(--color-info) 30%, transparent),
+      transparent 70%
+    ),
+    var(--fanous-stars);
+  background-size:
+    auto,
+    auto,
+    11rem 7rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .discover-sky {
+    animation: fanous-rise 1400ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  .discover-top[data-moment="lil"] .discover-sky {
+    animation:
+      fanous-rise 1400ms cubic-bezier(0.2, 0.8, 0.2, 1) both,
+      fanous-breathe 6s ease-in-out 1400ms infinite alternate;
+  }
+}
+
+@keyframes fanous-rise {
+  from {
+    transform: translateY(1.5rem);
+  }
+}
+
+@keyframes fanous-breathe {
+  to {
+    opacity: 0.6;
+  }
+}
+
+/* "Right now": the collection that suits the moment wears a gold tag. */
+.discovery-collection-now {
+  position: absolute;
+  inset-block-start: var(--space-12);
+  inset-inline-end: var(--space-12);
+  display: inline-flex;
+  gap: var(--space-4);
+  align-items: center;
+  padding: var(--space-4) var(--space-12);
+  border-radius: var(--radius-pill);
+  background: var(--color-food-saffron);
+  color: var(--color-on-accent);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-h3);
+  line-height: var(--line-height-caption);
+}
+
+/* From 960 px the moment's light source sits in the band, between the greeting and the search. */
+@media (min-width: 960px) {
+  .discover-sky {
+    position: absolute;
+    z-index: 0;
+    inset-block-start: var(--space-20);
+    inset-inline-end: calc(30rem + var(--space-48));
+    display: block;
+    inline-size: 4rem;
+    block-size: 4rem;
+    color: var(--color-food-saffron);
+    filter: drop-shadow(0 0 1.25rem var(--color-glow));
+    pointer-events: none;
+  }
+
+  .discover-top[data-moment="fajr"] .discover-sky,
+  .discover-top[data-moment="maghrib"] .discover-sky {
+    inset-block-start: auto;
+    inset-block-end: var(--space-16);
+    color: var(--color-food-couscous);
+  }
+
+  .discover-top[data-moment="lil"] .discover-sky {
+    color: var(--color-food-couscous);
+  }
+}
+
+/* Order confirmed: the order as a receipt with a torn edge, and zellige stars falling once. */
+.checkout-ticket {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: var(--space-12);
+  inline-size: min(100%, 24rem);
+  padding: var(--space-24) var(--space-20) var(--space-32);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: var(--color-food-steam);
+  color: var(--color-night);
+  box-shadow: var(--shadow-e2);
+  mask: conic-gradient(
+      from -45deg at bottom,
+      transparent,
+      currentColor 1deg 89deg,
+      transparent 90deg
+    )
+    50% / 16px 100%;
+}
+
+.checkout-confirmed .checkout-ticket p {
+  opacity: 1;
+}
+
+.checkout-ticket .checkout-confirmed-eta {
+  border-color: color-mix(in srgb, var(--color-terracotta) 40%, transparent);
+  background: color-mix(in srgb, var(--color-food-saffron) 16%, transparent);
+  color: var(--color-night);
+}
+
+.checkout-ticket .checkout-confirmed-code {
+  inline-size: 100%;
+  margin-block-start: var(--space-4);
+  padding: var(--space-12) 0 0;
+  border-block-start: 2px dashed color-mix(in srgb, var(--color-night) 30%, transparent);
+  border-radius: 0;
+  background: none;
+  font-size: var(--font-size-h2);
+  line-height: var(--line-height-h2);
+}
+
+.checkout-ticket-ribbon {
+  margin-block-end: var(--space-4);
+  padding: var(--space-4) var(--space-16);
+  border-radius: var(--radius-pill);
+  background: var(--color-food-saffron);
+  color: var(--color-on-accent);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-h3);
+  line-height: var(--line-height-caption);
+}
+
+.checkout-confetti {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.checkout-confetti i {
+  position: absolute;
+  inset-block-start: -2rem;
+  inline-size: 0.9rem;
+  block-size: 0.9rem;
+  background: var(--color-food-saffron);
+  mask: var(--fanous-star) center / contain no-repeat;
+  opacity: 0;
+}
+
+.checkout-confetti i:nth-child(3n) {
+  background: var(--color-food-couscous);
+}
+
+.checkout-confetti i:nth-child(4n) {
+  inline-size: 1.4rem;
+  block-size: 1.4rem;
+  background: var(--color-terracotta);
+}
+
+.checkout-confetti i:nth-child(5n) {
+  background: var(--color-mint);
+}
+
+.checkout-confetti i:nth-child(1) {
+  inset-inline-start: 6%;
+  animation-delay: 97ms;
+}
+
+.checkout-confetti i:nth-child(2) {
+  inset-inline-start: 14%;
+  animation-delay: 194ms;
+}
+
+.checkout-confetti i:nth-child(3) {
+  inset-inline-start: 22%;
+  animation-delay: 291ms;
+}
+
+.checkout-confetti i:nth-child(4) {
+  inset-inline-start: 30%;
+  animation-delay: 388ms;
+}
+
+.checkout-confetti i:nth-child(5) {
+  inset-inline-start: 38%;
+  animation-delay: 485ms;
+}
+
+.checkout-confetti i:nth-child(6) {
+  inset-inline-start: 46%;
+  animation-delay: 582ms;
+}
+
+.checkout-confetti i:nth-child(7) {
+  inset-inline-start: 54%;
+  animation-delay: 679ms;
+}
+
+.checkout-confetti i:nth-child(8) {
+  inset-inline-start: 62%;
+  animation-delay: 776ms;
+}
+
+.checkout-confetti i:nth-child(9) {
+  inset-inline-start: 70%;
+  animation-delay: 873ms;
+}
+
+.checkout-confetti i:nth-child(10) {
+  inset-inline-start: 78%;
+  animation-delay: 70ms;
+}
+
+.checkout-confetti i:nth-child(11) {
+  inset-inline-start: 86%;
+  animation-delay: 167ms;
+}
+
+.checkout-confetti i:nth-child(12) {
+  inset-inline-start: 94%;
+  animation-delay: 264ms;
+}
+
+.checkout-confetti i:nth-child(13) {
+  inset-inline-start: 18%;
+  animation-delay: 361ms;
+}
+
+.checkout-confetti i:nth-child(14) {
+  inset-inline-start: 74%;
+  animation-delay: 458ms;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .checkout-confetti i {
+    animation-name: fanous-fall;
+    animation-duration: 2800ms;
+    animation-timing-function: cubic-bezier(0.3, 0.6, 0.4, 1);
+    animation-fill-mode: forwards;
+  }
+
+  .checkout-ticket {
+    animation: fanous-receipt 700ms cubic-bezier(0.2, 0.8, 0.2, 1) 300ms both;
+  }
+}
+
+@keyframes fanous-fall {
+  0% {
+    opacity: 1;
+    transform: translateY(0) rotate(0);
+  }
+
+  80% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(105svh) rotate(420deg);
+  }
+}
+
+@keyframes fanous-receipt {
+  from {
+    transform: translateY(1.5rem) scale(0.96);
+  }
+}
+
+/* The dark theme is the showpiece: every night band carries a faint star field that breathes. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) :is(.discover-top, .rating-hero, .landing-pitch)::after {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    border-radius: inherit;
+    background-image: var(--fanous-stars);
+    background-size: 11rem 7rem;
+    opacity: 0.55;
+    pointer-events: none;
+    content: "";
+  }
+}
+
+:root[data-theme="dark"] :is(.discover-top, .rating-hero, .landing-pitch)::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: inherit;
+  background-image: var(--fanous-stars);
+  background-size: 11rem 7rem;
+  opacity: 0.55;
+  pointer-events: none;
+  content: "";
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :is(.discover-top, .rating-hero, .landing-pitch)::after {
+    animation: fanous-twinkle 5s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes fanous-twinkle {
+  to {
+    opacity: 0.25;
+  }
+}
+
+.landing-pitch {
+  position: relative;
+  isolation: isolate;
+}
+
+/* A night panel: the screen's one showpiece band. Local tokens keep every child legible on night. */
+.fanous-night {
+  --color-bg: var(--color-night);
+  --color-text: var(--color-on-night);
+  --color-text-2: color-mix(in srgb, var(--color-on-night) 86%, var(--color-night));
+  --color-text-3: color-mix(in srgb, var(--color-on-night) 76%, var(--color-night));
+  --color-surface: color-mix(in srgb, var(--color-on-night) 7%, var(--color-night));
+  --color-surface-2: color-mix(in srgb, var(--color-on-night) 11%, var(--color-night));
+  --color-surface-3: color-mix(in srgb, var(--color-on-night) 18%, var(--color-night));
+  --color-border-subtle: color-mix(in srgb, var(--color-on-night) 20%, var(--color-night));
+  --color-border-strong: color-mix(in srgb, var(--color-on-night) 60%, var(--color-night));
+  --color-primary: var(--color-mint);
+  --color-primary-hover: var(--color-mint);
+  --color-on-primary: var(--color-on-accent);
+  --color-accent: var(--color-mint);
+  --color-accent-strong: var(--color-mint);
+  --color-link: var(--color-mint);
+  --color-focus: var(--color-mint);
+  --color-success: var(--color-mint);
+  --color-mint-pale: color-mix(in srgb, var(--color-mint) 16%, var(--color-night));
+  --color-harissa-text: color-mix(in srgb, var(--color-terracotta) 45%, var(--color-on-night));
+  --color-warning: var(--color-food-couscous);
+  --decor-zellige-colour: color-mix(in srgb, var(--color-food-saffron) 14%, transparent);
+  background-color: var(--color-night);
+  color: var(--color-on-night);
+}
+
+.account-hub-header.fanous-night {
+  padding: var(--space-20);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-e2);
+}
+
+/* Gold is the light: finished checkout steps. */
+.checkout-progress::after {
+  background: var(--color-food-saffron);
+}
+
+.checkout-progress li[data-done="true"] .checkout-progress-dot {
+  border-color: var(--color-food-saffron);
+  background: var(--color-food-saffron);
+  color: var(--color-on-accent);
+}
+
+/* A choice still to make: a calm filled button whose label names the missing choice. */
+.restaurant-item-submit .ui-button:is(:disabled, [aria-disabled="true"]) {
+  background: var(--color-surface-3);
+  color: var(--color-text-2);
+  opacity: 1;
+}
+
+/* Collections keep the title clear of the "right now" tag: one line of body text. */
+.discovery-collection-text > span:last-child {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* The tagine sits in a real pool of lantern light. */
+.checkout-confirmed-scene {
+  background: radial-gradient(circle, var(--color-glow), transparent 68%);
+}
+
+/* Landing: lantern light pools under the headline on the phone hero. */
+@media (max-width: 959px) {
+  .landing-hero-copy {
+    background-image: radial-gradient(90% 55% at 0% 100%, var(--color-glow), transparent 72%);
+  }
+}
+
+/* Live figures are lantern gold on night: the confirmed order code. */
+.checkout-ticket .checkout-confirmed-code {
+  inline-size: auto;
+  margin-block-start: var(--space-8);
+  padding: var(--space-8) var(--space-20);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-night);
+  color: var(--color-food-saffron);
+}
+
+/* Search opens on its night band; the field is a lit slot in it. */
+.discovery-search-header.fanous-night .discovery-search-field {
+  background: var(--color-surface-2);
+}
+
+/* No orders yet: the empty history is the screen's night band, and fills the column on wide screens. */
+.orders-empty {
+  display: grid;
+  border-radius: var(--radius-xl);
+}
+
+.orders-empty > * {
+  background: transparent;
+  box-shadow: none;
+}
+
+@media (min-width: 1024px) {
+  .orders-empty {
+    min-block-size: calc(100dvb - 15rem);
+  }
+
+  .orders-empty > * {
+    display: grid;
+    align-content: center;
+  }
+}
+
+@media (min-width: 960px) {
+  .checkout-ticket {
+    inline-size: min(100%, 30rem);
+  }
+}
+
+.landing-hero-ornament {
+  margin-block-end: var(--space-8);
+}

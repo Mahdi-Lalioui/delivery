@@ -792,6 +792,10 @@
   .restaurant-dish-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+  /* A lone last dish takes the whole row, so a category never ends on half a row. */
+  .restaurant-dish-grid > .restaurant-dish:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
   .restaurant-cover {
     margin-inline: 0;
     aspect-ratio: 21 / 8;

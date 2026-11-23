@@ -90,6 +90,17 @@
   grid-column: 1 / -1;
 }
 
+.before-after-moment {
+  display: flex;
+  gap: var(--space-8);
+}
+
+/* Time of day: the four moments of one variant side by side. */
+.before-after-list > li:has(> figure:nth-of-type(4)) {
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .before-after-list h3 {
   grid-column: 1 / -1;
   font-size: var(--font-size-caption);

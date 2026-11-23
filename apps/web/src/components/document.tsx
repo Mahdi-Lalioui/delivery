@@ -3,6 +3,7 @@ import { connection } from "next/server";
 import type { ReactNode } from "react";
 import "../app/globals.css";
 import "../app/dar-zellige.css";
+import "../app/fanous.css";
 
 interface DocumentProps {
   children: ReactNode;

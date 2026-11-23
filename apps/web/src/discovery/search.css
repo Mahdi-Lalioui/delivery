@@ -146,6 +146,7 @@ html:has(.discovery-search-dialog[open]) {
 .discovery-search-field input {
   flex: 1;
   min-inline-size: 0;
+  text-overflow: ellipsis;
   min-block-size: var(--touch-target-min);
   outline-offset: 0;
 }

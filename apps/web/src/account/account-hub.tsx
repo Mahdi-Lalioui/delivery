@@ -33,7 +33,7 @@ export async function AccountHub({ locale }: { locale: Locale }) {
   return (
     <SiteShell locale={locale} subpath="/account">
       <section className="account-hub" aria-labelledby="account-title">
-        <header className="account-hub-header">
+        <header className="account-hub-header fanous-night decor-zellige decor-lamplight">
           <span className="account-hub-avatar" aria-hidden="true">
             <Icon name="user" size={32} />
           </span>

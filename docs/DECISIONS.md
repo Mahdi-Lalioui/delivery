@@ -299,3 +299,13 @@ Mahdi gave lane B full creative freedom for a "wow" pass, and the Dar Zellige di
 - **Decor:** a CSS-only zellige, lamp-light, divider and grain system.
 
 The performance, accessibility and RTL guardrails still apply. The contrast test covers the new pairs.
+
+## D-037 · Fanous: the design-v3 direction (2026-11-23)
+
+Mahdi asked for a free creative run on `design-v3`. The Fanous direction (DESIGN §0) supersedes D-036's layout and motion rules where they conflict and keeps its tokens and fonts:
+- the night band follows the diner's clock (four moments, a client-only switch after a server-rendered night);
+- the landing becomes an editorial split from 960 px, taken from design-v2; phones keep the immersive photo;
+- a dish of the day, a first-order celebration and a receipt card use existing data only;
+- design-v2's partner-screen refinements (board, courier, admin) are taken.
+
+No new dependency. The CSP, performance, accessibility and RTL guardrails still apply.

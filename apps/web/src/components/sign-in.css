@@ -3,7 +3,8 @@
 .auth-layout {
   display: grid;
   align-content: start;
-  min-block-size: calc(100dvb - var(--space-120) - var(--space-32));
+  /* Fanous: the sand page runs to the bottom of the phone screen, under the header. */
+  min-block-size: calc(100dvb - var(--space-64));
   margin-block-start: calc(-1 * var(--space-32));
   margin-inline: calc(-1 * var(--page-padding));
   padding-block-end: var(--space-32);

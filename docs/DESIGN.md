@@ -2,40 +2,33 @@
 
 AWID ("You're in need, try AWID") should feel like the most beautiful food app people have used: alive, warm, premium, unmistakably Algerian, and still effortless. Brand source: `docs/brand/awid-reference.jpg`. The **Dar Zellige** direction (§0, D-036) supersedes the colour, type, gradient and decor rules below wherever they conflict.
 
-## 0. Direction — Dar Zellige
+## 0. Direction — Fanous (design v3, supersedes Dar Zellige)
 
-**Concept.** A lit Algiers courtyard at dusk: deep zellige greens, lantern-gold light on plaster, harissa and terracotta warmth, and the food at the centre of the table. Calm structure, rich surfaces, one warm light source per view.
+**Concept.** *Fanous* is the brass lantern on an Algerian table. AWID is lit by it at every hour: the sky behind the greeting follows the real time of day, gold light falls on the food, and zellige and arabesque frame it. The app should feel like sitting down at a good table in Algiers, not like using a form.
 
-**Palette.**
-- **Plaster:** the light `bg` is `#FBF6EC`, a warm plaster; `cream` is `#F6EAD2`; `sand` is `#F1E2C4` for warm bands.
-- **Night garden:** `night` is `#062A1F` in light and `#0B3426` in dark, with `on-night` `#FBF3E4` (≥ 7:1). It is used for hero bands such as Discovery's greeting. The dark theme goes deeper (`bg #03180F`, `surface #072319`), so photos and gold light glow.
-- **Light:** `glow` is a soft saffron light used only in radial lamp-light gradients. `zellige` is the lattice colour. `terracotta` is for decor accents, never text.
-- Deep green stays the text and primary colour, and harissa stays reserved for live and offer accents. Contrast pairs, including `on-night` on `night` and `text` on `sand`, are tested in both themes.
+**Rules.**
+- **Food first, lantern second.** Photos lead. Decor is light and pattern only: it never carries content, never takes events and never competes with a photo.
+- **One night band per screen.** Each screen has a single `night` surface (Discovery's sky, the restaurant band, the confirmed moment, the rating head, the sign-in panel). It is the screen's showpiece; everything else is plaster.
+- **Time of day.** The night band changes with the diner's clock: *fajr* (dawn, 5–9h), *nhar* (day, 9–17h), *maghrib* (dusk, 17–20h) and *lil* (night, 20–5h). The greeting changes with it ("Sbah el khir", "Bonsoir"…). The server renders the day moment; the client switches after mount, with no layout change.
+- **Gold is the light.** `food-saffron` marks the one thing to look at: the star rule, live codes, the dish of the day. Harissa stays for live and offer accents, mint for the primary action.
+- **Celebrate the first order.** The confirmed moment drops zellige stars once, and the order is shown as a receipt card with a torn edge.
 
-**Type.**
-- **Display (h1, display, restaurant and dish names, section titles):** Fraunces 600/700 for Latin, a warm, soft-serifed face with real character. El Messiri 600/700 for Arabic, a calligraphic naskh–kufic hybrid.
-- **UI and body:** Poppins and IBM Plex Sans Arabic, unchanged, so every control, price and line of body text stays as readable as before. Numbers stay tabular Poppins.
-- All fonts are SIL OFL WOFF2 files served by the app (`apps/web/src/fonts`).
+**Palette.** Dar Zellige's tokens stay (`night`, `on-night`, `sand`, `terracotta`, `glow`, `zellige`, `plaster`). The time-of-day skies are gradients of `night` with a light source (`glow`, `terracotta`), so `on-night` text keeps ≥ 7:1 at every moment. The dark theme is the showpiece: a deep night-garden with a faint star field behind the night band.
 
-**Decor system** (`apps/web/src/app/dar-zellige.css`, CSS and inline SVG only, nothing fetched):
-- `decor-zellige`: an eight-point star lattice drawn through a mask in the theme's colour.
-- `decor-lamplight`: two soft saffron pools of light.
-- `decor-divider`: a thin rule with a star.
-- A 3 % paper grain over every page.
-- Decor never carries content, never takes events and never competes with food photos. Gradients are allowed only as light: lamp pools, photo scrims and the divider fade.
+**Type.** Fraunces (Latin) and El Messiri (Arabic) for display; Poppins and IBM Plex Sans Arabic for UI. Self-hosted SIL OFL WOFF2 files.
 
-**Motion language: "settle".** Things arrive like a dish set on a table: a short rise with a soft spring, then stillness.
-- Page and shared-element transitions use the View Transitions API.
-- Numbers roll, add-to-cart flies, and the order-confirmed tagine lifts its lid.
-- Under `prefers-reduced-motion`, every transition becomes an instant cut.
+**Layout.**
+- **Landing:** on phones, one immersive full-screen photo with the headline on it. From 960 px it becomes an editorial split: the photo beside a dark lantern-lit panel (taken from design-v2).
+- **Discovery:** the sky header, then the dish of the day, then rails that end on a half card.
+- **Wide screens** use columns and side panels; no page leaves dead space (`pnpm audit:fullness`).
 
-**Full pages.** No dead space at any width:
-- short pages fill the viewport and end on a designed footer or decor;
-- wide screens use columns and side panels;
-- rails end on a peeking card and grids end cleanly;
-- every state is illustrated.
+**Motion: "settle" and "glow".**
+- Content settles in like a dish set on a table: a short rise with a soft spring, then stillness.
+- Light breathes: the lantern glow and the stars move slowly, and only on night bands.
+- Page transitions use the View Transitions API. Add-to-cart flies the photo to the cart; the cart badge springs.
+- Everything is off under `prefers-reduced-motion`, and decor loads no JavaScript.
 
-`e2e/page-fullness.spec.ts` (with `pnpm audit:fullness`) checks this.
+**Decor** (`apps/web/src/app/dar-zellige.css` and `fanous.css`, CSS and inline SVG only, nothing fetched): the zellige lattice, lamp light, the star divider, the paper grain, the star field and the arabesque arch.
 
 ## 1. Principles
 

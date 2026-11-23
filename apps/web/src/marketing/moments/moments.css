@@ -115,75 +115,126 @@
 }
 
 .tagine-moment {
-  inline-size: min(60vw, 16rem);
+  inline-size: min(68vw, 18rem);
   block-size: auto;
+  overflow: visible;
 }
 
-/* The same glazed plate in both themes (it sits on the night-garden confirmed screen). */
+/* The same glazed tagine in both themes: clay lid, ochre dish, cream paint (it sits on night). */
 .tagine-plate {
   fill: var(--color-food-steam);
-  opacity: 0.92;
+  opacity: 0.9;
 }
 
-.tagine-base,
-.tagine-lid-body {
-  fill: var(--color-harissa);
+.tagine-base {
+  fill: var(--color-food-couscous);
 }
 
-/* The dish's rim reads as the opening the lid sits in. */
 .tagine-rim {
-  fill: var(--color-harissa-text);
+  fill: var(--color-food-saffron);
+  stroke: var(--color-food-steam);
+  stroke-width: 2;
+}
+
+.tagine-base-band,
+.tagine-band-zigzag {
+  fill: none;
+  stroke: var(--color-terracotta);
+  stroke-linejoin: round;
+  stroke-width: 2.5;
+}
+
+.tagine-band-zigzag {
+  stroke: var(--color-food-steam);
+}
+
+.tagine-lid-body {
+  fill: url("#tagine-lid-glaze");
+}
+
+.tagine-glaze-light {
+  stop-color: color-mix(in srgb, var(--color-terracotta) 70%, var(--color-food-saffron));
+}
+
+.tagine-glaze-mid {
+  stop-color: var(--color-terracotta);
+}
+
+.tagine-glaze-dark {
+  stop-color: color-mix(in srgb, var(--color-terracotta) 70%, var(--color-night));
+}
+
+.tagine-lid-sheen {
+  fill: var(--color-food-steam);
+  opacity: 0.28;
 }
 
 .tagine-band {
   fill: none;
   stroke: var(--color-food-steam);
   stroke-linecap: round;
-  stroke-width: 3;
-  opacity: 0.85;
+  stroke-width: 4;
+}
+
+.tagine-dots {
+  fill: var(--color-food-saffron);
 }
 
 .tagine-lid-knob {
   fill: var(--color-food-saffron);
+  stroke: color-mix(in srgb, var(--color-terracotta) 60%, var(--color-night));
+  stroke-width: 1.5;
 }
 
 .tagine-lid {
-  transform-origin: 100px 140px;
+  transform-origin: 120px 146px;
   animation: tagine-lift var(--motion-emphasis) var(--ease-spring-bouncy) 200ms both;
 }
 
 @keyframes tagine-lift {
   to {
-    transform: translate(18px, -46px) rotate(14deg);
+    transform: translate(16px, -34px) rotate(10deg);
   }
 }
 
+/* Steam curls: visible at rest (and in reduced motion), rising and fading in motion. */
 .tagine-steam {
-  fill: var(--color-primary);
-  opacity: 0;
-  animation: tagine-steam var(--motion-scene) var(--ease-decelerate) both;
+  fill: none;
+  stroke: var(--color-food-steam);
+  stroke-linecap: round;
+  stroke-width: 4;
+  opacity: 0.55;
+  animation: tagine-steam 2.4s var(--ease-decelerate) infinite;
 }
 
-.tagine-steam[data-index="1"],
-.tagine-steam[data-index="5"] {
-  animation-delay: 120ms;
+.tagine-steam[data-index="1"] {
+  animation-delay: 400ms;
 }
-.tagine-steam[data-index="2"],
-.tagine-steam[data-index="6"] {
-  animation-delay: 240ms;
+
+.tagine-steam[data-index="2"] {
+  animation-delay: 800ms;
 }
-.tagine-steam[data-index="3"],
-.tagine-steam[data-index="7"] {
-  animation-delay: 360ms;
+
+/* The inner curls are finer and fainter, so the steam has depth. */
+.tagine-steam:nth-child(n + 4) {
+  stroke-width: 2.5;
+  opacity: 0.35;
+  animation-delay: 1200ms;
 }
 
 @keyframes tagine-steam {
-  20% {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  35% {
     opacity: 0.7;
   }
+
   to {
     opacity: 0;
-    transform: translateY(-90px) scale(1.8);
+    transform: translateY(-18px);
   }
 }
 
@@ -260,7 +311,7 @@
 
   .tagine-steam {
     animation: none;
-    opacity: 0;
+    opacity: 0.55;
   }
 
   .odometer-strip,

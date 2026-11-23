@@ -242,7 +242,8 @@
 .star-field-row .star-field-star:hover {
   --star-fill: 1;
 
-  color: var(--color-accent);
+  /* Fanous: gold is the light. A terracotta outline keeps the chosen star at ≥ 3:1. */
+  color: var(--color-terracotta);
 }
 
 /* The chosen star springs; the ones before it follow with a short stagger. */
@@ -264,7 +265,7 @@
 
 .star-field-star .ui-icon,
 .star-row-star .ui-icon {
-  fill: currentcolor;
+  fill: var(--color-food-saffron);
   fill-opacity: var(--star-fill, 0);
 }
 

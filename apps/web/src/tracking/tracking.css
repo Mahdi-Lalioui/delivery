@@ -264,13 +264,14 @@
   content: "·";
 }
 
-/* The arrival time is the hero of the sheet. */
+/* The arrival time is the hero of the sheet: lantern-gold figures on night (Fanous, D-037). */
 .tracking-eta {
   display: grid;
   gap: 2px;
   padding: var(--space-12) var(--space-16);
   border-radius: var(--radius-lg);
-  background: var(--color-mint-pale);
+  background: var(--color-night);
+  color: var(--color-on-night);
   font-variant-numeric: var(--font-variant-numeric-numbers);
 }
 
@@ -278,7 +279,7 @@
   display: flex;
   gap: var(--space-8);
   align-items: center;
-  color: var(--color-text-2);
+  color: color-mix(in srgb, var(--color-on-night) 86%, var(--color-night));
   font-size: var(--font-size-caption);
 }
 
@@ -286,6 +287,7 @@
   font: var(--font-weight-display) var(--font-size-display) / var(--line-height-display)
     var(--font-numbers);
   letter-spacing: var(--letter-spacing-display-xl);
+  color: var(--color-food-saffron);
   white-space: nowrap;
 }
 
@@ -301,7 +303,7 @@
 }
 
 .tracking-eta svg {
-  color: var(--color-accent-strong);
+  color: var(--color-food-saffron);
 }
 
 /* Status timeline. */
