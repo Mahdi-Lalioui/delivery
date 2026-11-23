@@ -36,30 +36,32 @@
   fill: currentColor;
 }
 
-/* Dawn: a slate-blue sky with terracotta light rising from below. */
+/* Dawn: a slate-blue sky with rose and amber light breaking at the top corner. */
 .discover-top[data-moment="fajr"] {
+  background-color: color-mix(in oklab, var(--color-night) 60%, var(--color-info));
   background-image:
     radial-gradient(
-      130% 95% at 50% 118%,
-      color-mix(in oklab, var(--color-terracotta) 85%, transparent),
-      transparent 72%
+      60% 80% at 100% 0%,
+      color-mix(in oklab, var(--color-food-saffron) 45%, transparent),
+      transparent 70%
     ),
-    linear-gradient(
-      to bottom,
-      color-mix(in oklab, var(--color-night) 55%, var(--color-info)),
-      var(--color-night) 70%
+    radial-gradient(
+      95% 110% at 100% 0%,
+      color-mix(in oklab, var(--color-terracotta) 70%, transparent),
+      transparent 75%
     );
 }
 
-/* Dusk: the band turns to embers at the horizon, with lantern light low at the start edge. */
+/* Dusk: the whole band turns to embers, with the setting sun low at the start edge. */
 .discover-top[data-moment="maghrib"] {
+  background-color: color-mix(in oklab, var(--color-night) 62%, var(--color-terracotta));
   background-image:
-    radial-gradient(70% 60% at 0% 100%, var(--color-glow), transparent 70%),
-    linear-gradient(
-      to top,
-      color-mix(in oklab, var(--color-night) 55%, var(--color-terracotta)),
-      var(--color-night) 85%
-    );
+    radial-gradient(
+      80% 90% at 0% 100%,
+      color-mix(in oklab, var(--color-food-saffron) 45%, transparent),
+      transparent 72%
+    ),
+    linear-gradient(to bottom, var(--color-night), transparent 65%);
 }
 
 /* Night: deep blue, a star field and one lantern pool. */
@@ -487,4 +489,14 @@
     display: grid;
     align-content: center;
   }
+}
+
+@media (min-width: 960px) {
+  .checkout-ticket {
+    inline-size: min(100%, 30rem);
+  }
+}
+
+.landing-hero-ornament {
+  margin-block-end: var(--space-8);
 }
