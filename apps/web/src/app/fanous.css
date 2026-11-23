@@ -1,0 +1,336 @@
+/* Fanous (DESIGN §0, D-037): the lantern light and the time-of-day sky. Decor only: no content,
+   no events, no layout. Gradients of theme tokens; nothing is fetched. */
+
+:root {
+  --fanous-stars:
+    radial-gradient(1.5px 1.5px at 12% 22%, var(--color-on-night) 50%, transparent 51%),
+    radial-gradient(1px 1px at 38% 64%, var(--color-on-night) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 66% 18%, var(--color-food-couscous) 50%, transparent 51%),
+    radial-gradient(1px 1px at 84% 72%, var(--color-on-night) 50%, transparent 51%),
+    radial-gradient(1px 1px at 52% 40%, var(--color-on-night) 50%, transparent 51%);
+  --fanous-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 1 14.6 7.4 21 5 18.6 11.4 23 12 18.6 12.6 21 19 14.6 16.6 12 23 9.4 16.6 3 19 5.4 12.6 1 12 5.4 11.4 3 5 9.4 7.4Z'/%3E%3C/svg%3E");
+  --fanous-dusk: color-mix(in oklab, var(--color-night) 74%, var(--color-terracotta));
+}
+
+/* The night band carries its own sky. */
+.discover-top {
+  overflow: clip;
+}
+
+.discover-top > :not(.discover-sky) {
+  position: relative;
+}
+
+.discover-sky {
+  position: absolute;
+  z-index: 0;
+  inset-block-end: -3.25rem;
+  inset-inline-end: -1.5rem;
+  inline-size: 7.5rem;
+  block-size: 7.5rem;
+  border-radius: 50%;
+  box-shadow: 0 0 5rem 1.5rem var(--color-glow);
+  color: var(--color-food-saffron);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.discover-sky svg {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.discover-sky-body {
+  fill: currentColor;
+}
+
+/* Dawn: a terracotta glow rising behind the city. */
+.discover-top[data-moment="fajr"] {
+  background-image:
+    radial-gradient(
+      70% 120% at 90% 0%,
+      color-mix(in oklab, var(--color-terracotta) 55%, transparent),
+      transparent 70%
+    ),
+    linear-gradient(170deg, var(--fanous-dusk), var(--color-night) 72%);
+}
+
+.discover-top[data-moment="fajr"] .discover-sky {
+  inset-block-start: auto;
+  inset-block-end: -3.5rem;
+  color: var(--color-food-couscous);
+}
+
+/* Dusk: the sun sets low at the start edge and the band turns to embers. */
+.discover-top[data-moment="maghrib"] {
+  background-image:
+    radial-gradient(
+      60% 110% at 0% 100%,
+      color-mix(in oklab, var(--color-terracotta) 65%, transparent),
+      transparent 72%
+    ),
+    linear-gradient(to top, var(--fanous-dusk), var(--color-night) 80%);
+}
+
+.discover-top[data-moment="maghrib"] .discover-sky {
+  inset-block-start: auto;
+  inset-block-end: -3.75rem;
+  inset-inline-end: auto;
+  inset-inline-start: 6%;
+  color: var(--color-terracotta);
+}
+
+/* Night: a crescent, a star field and one lantern pool. */
+.discover-top[data-moment="lil"] {
+  background-image:
+    radial-gradient(45% 70% at 100% 0%, var(--color-glow), transparent 65%), var(--fanous-stars);
+  background-size:
+    auto,
+    11rem 7rem;
+}
+
+.discover-top[data-moment="lil"] .discover-sky {
+  opacity: 0.85;
+  box-shadow: none;
+  color: var(--color-food-couscous);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .discover-sky {
+    animation: fanous-rise 1400ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  .discover-top[data-moment="lil"] .discover-sky {
+    animation:
+      fanous-rise 1400ms cubic-bezier(0.2, 0.8, 0.2, 1) both,
+      fanous-breathe 6s ease-in-out 1400ms infinite alternate;
+  }
+}
+
+@keyframes fanous-rise {
+  from {
+    transform: translateY(1.5rem);
+  }
+}
+
+@keyframes fanous-breathe {
+  to {
+    opacity: 0.6;
+  }
+}
+
+/* "Right now": the collection that suits the moment wears a gold tag. */
+.discovery-collection-now {
+  position: absolute;
+  inset-block-start: var(--space-12);
+  inset-inline-end: var(--space-12);
+  display: inline-flex;
+  gap: var(--space-4);
+  align-items: center;
+  padding: var(--space-4) var(--space-12);
+  border-radius: var(--radius-pill);
+  background: var(--color-food-saffron);
+  color: var(--color-on-accent);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-h3);
+  line-height: var(--line-height-caption);
+}
+
+@media (min-width: 960px) {
+  .discover-sky {
+    inset-block-start: -1.5rem;
+    inset-inline-end: auto;
+    inset-inline-start: min(44%, 30rem);
+  }
+}
+
+/* Order confirmed: the order as a receipt with a torn edge, and zellige stars falling once. */
+.checkout-ticket {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: var(--space-12);
+  inline-size: min(100%, 24rem);
+  padding: var(--space-24) var(--space-20) var(--space-32);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: var(--color-food-steam);
+  color: var(--color-night);
+  box-shadow: var(--shadow-e2);
+  mask: conic-gradient(
+      from -45deg at bottom,
+      transparent,
+      currentColor 1deg 89deg,
+      transparent 90deg
+    )
+    50% / 16px 100%;
+}
+
+.checkout-confirmed .checkout-ticket p {
+  opacity: 1;
+}
+
+.checkout-ticket .checkout-confirmed-eta {
+  border-color: color-mix(in srgb, var(--color-terracotta) 40%, transparent);
+  background: color-mix(in srgb, var(--color-food-saffron) 16%, transparent);
+  color: var(--color-night);
+}
+
+.checkout-ticket .checkout-confirmed-code {
+  inline-size: 100%;
+  margin-block-start: var(--space-4);
+  padding: var(--space-12) 0 0;
+  border-block-start: 2px dashed color-mix(in srgb, var(--color-night) 30%, transparent);
+  border-radius: 0;
+  background: none;
+  font-size: var(--font-size-h2);
+  line-height: var(--line-height-h2);
+}
+
+.checkout-ticket-ribbon {
+  margin-block-end: var(--space-4);
+  padding: var(--space-4) var(--space-16);
+  border-radius: var(--radius-pill);
+  background: var(--color-food-saffron);
+  color: var(--color-on-accent);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-h3);
+  line-height: var(--line-height-caption);
+}
+
+.checkout-confetti {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.checkout-confetti i {
+  position: absolute;
+  inset-block-start: -2rem;
+  inline-size: 0.9rem;
+  block-size: 0.9rem;
+  background: var(--color-food-saffron);
+  mask: var(--fanous-star) center / contain no-repeat;
+  opacity: 0;
+}
+
+.checkout-confetti i:nth-child(3n) {
+  background: var(--color-food-couscous);
+}
+
+.checkout-confetti i:nth-child(4n) {
+  inline-size: 1.4rem;
+  block-size: 1.4rem;
+  background: var(--color-terracotta);
+}
+
+.checkout-confetti i:nth-child(5n) {
+  background: var(--color-mint);
+}
+
+.checkout-confetti i:nth-child(1) {
+  inset-inline-start: 6%;
+  animation-delay: 97ms;
+}
+
+.checkout-confetti i:nth-child(2) {
+  inset-inline-start: 14%;
+  animation-delay: 194ms;
+}
+
+.checkout-confetti i:nth-child(3) {
+  inset-inline-start: 22%;
+  animation-delay: 291ms;
+}
+
+.checkout-confetti i:nth-child(4) {
+  inset-inline-start: 30%;
+  animation-delay: 388ms;
+}
+
+.checkout-confetti i:nth-child(5) {
+  inset-inline-start: 38%;
+  animation-delay: 485ms;
+}
+
+.checkout-confetti i:nth-child(6) {
+  inset-inline-start: 46%;
+  animation-delay: 582ms;
+}
+
+.checkout-confetti i:nth-child(7) {
+  inset-inline-start: 54%;
+  animation-delay: 679ms;
+}
+
+.checkout-confetti i:nth-child(8) {
+  inset-inline-start: 62%;
+  animation-delay: 776ms;
+}
+
+.checkout-confetti i:nth-child(9) {
+  inset-inline-start: 70%;
+  animation-delay: 873ms;
+}
+
+.checkout-confetti i:nth-child(10) {
+  inset-inline-start: 78%;
+  animation-delay: 70ms;
+}
+
+.checkout-confetti i:nth-child(11) {
+  inset-inline-start: 86%;
+  animation-delay: 167ms;
+}
+
+.checkout-confetti i:nth-child(12) {
+  inset-inline-start: 94%;
+  animation-delay: 264ms;
+}
+
+.checkout-confetti i:nth-child(13) {
+  inset-inline-start: 18%;
+  animation-delay: 361ms;
+}
+
+.checkout-confetti i:nth-child(14) {
+  inset-inline-start: 74%;
+  animation-delay: 458ms;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .checkout-confetti i {
+    animation-name: fanous-fall;
+    animation-duration: 2800ms;
+    animation-timing-function: cubic-bezier(0.3, 0.6, 0.4, 1);
+    animation-fill-mode: forwards;
+  }
+
+  .checkout-ticket {
+    animation: fanous-receipt 700ms cubic-bezier(0.2, 0.8, 0.2, 1) 300ms both;
+  }
+}
+
+@keyframes fanous-fall {
+  0% {
+    opacity: 1;
+    transform: translateY(0) rotate(0);
+  }
+
+  80% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(105svh) rotate(420deg);
+  }
+}
+
+@keyframes fanous-receipt {
+  from {
+    transform: translateY(1.5rem) scale(0.96);
+  }
+}

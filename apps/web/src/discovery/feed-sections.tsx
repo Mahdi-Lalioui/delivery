@@ -7,6 +7,8 @@ import { readFavourites } from "./favourites";
 import { readDiscoveryFeed, type FeedFilters, type FeedRestaurant } from "./feed-http";
 import { FeedCard, FeedPlate } from "./feed-card";
 import { getFeedMessages } from "./feed-messages";
+import { featuredCuisineFor, featureFirst } from "./time-of-day";
+import { useMoment } from "./use-moment";
 
 type ChipCuisine = keyof ReturnType<typeof getFeedMessages>["chipNames"];
 
@@ -94,14 +96,18 @@ export function Collections({
 }) {
   const messages = getFeedMessages(locale);
   const headingId = useId();
+  const moment = useMoment();
+  const featured = featuredCuisineFor(moment);
+  // Slots keep their boxes when the client's moment arrives: only their content changes (no CLS).
+  const collections = featureFirst(messages.collections, moment);
   return (
     <section className="discovery-collections" aria-labelledby={headingId}>
       <h2 id={headingId} className="ui-visually-hidden">
         {messages.collectionsTitle}
       </h2>
       <ul className="discovery-rail-list" role="list">
-        {messages.collections.map((collection) => (
-          <li key={collection.cuisine}>
+        {collections.map((collection, slot) => (
+          <li key={`slot-${String(slot)}`}>
             <button
               type="button"
               className="discovery-collection"
@@ -116,6 +122,9 @@ export function Collections({
                 height="400"
                 loading="lazy"
               />
+              {collection.cuisine === featured && (
+                <span className="discovery-collection-now">{messages.nowBadge}</span>
+              )}
               <span className="discovery-collection-text">
                 <span className="discovery-collection-title">{collection.title}</span>
                 <span>{collection.body}</span>

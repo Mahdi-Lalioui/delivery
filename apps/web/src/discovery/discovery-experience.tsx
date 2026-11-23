@@ -7,11 +7,15 @@ import { DiscoveryFeed } from "./feed";
 import { getFeedMessages } from "./feed-messages";
 import { readSavedLocation, saveLocation, type SavedDiscoveryLocation } from "./location";
 import { DiscoverySearch } from "./search";
+import { SkyGlyph } from "./sky-glyph";
+import { useMoment } from "./use-moment";
 
 export function DiscoveryExperience({ locale }: { locale: Locale }) {
   const [saved, setSaved] = useState<SavedDiscoveryLocation | null>();
   const communeId = saved?.location.communeId ?? null;
   const messages = getFeedMessages(locale);
+  const moment = useMoment();
+  const greeting = moment === "nhar" ? messages.greeting : messages.momentGreetings[moment];
 
   useEffect(() => {
     let isCurrent = true;
@@ -43,11 +47,13 @@ export function DiscoveryExperience({ locale }: { locale: Locale }) {
     <>
       <section
         className="discover-top decor-zellige decor-lamplight"
+        data-moment={moment}
         aria-labelledby="discover-title"
       >
+        <SkyGlyph moment={moment} />
         <DiscoveryLocationSelector locale={locale} saved={saved ?? null} onConfirm={confirm} />
         <div className="discover-greeting">
-          <h1 id="discover-title">{messages.greeting}</h1>
+          <h1 id="discover-title">{greeting}</h1>
           <p>{messages.greetingIntro}</p>
         </div>
         <DiscoverySearch locale={locale} />

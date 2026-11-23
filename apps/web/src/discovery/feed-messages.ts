@@ -19,6 +19,12 @@ const en = {
   otherCuisine: "Other cuisine",
   greeting: "Hungry?",
   greetingIntro: "The best kitchens near you, delivered hot.",
+  momentGreetings: {
+    fajr: "Good morning!",
+    maghrib: "Coffee time?",
+    lil: "Good evening! Dinner?",
+  },
+  nowBadge: "Right now",
   cuisinesTitle: "What do you feel like?",
   chipNames: {
     algerian: "Algerian",
@@ -150,6 +156,12 @@ const messages = {
     otherCuisine: "Autre cuisine",
     greeting: "Une petite faim ?",
     greetingIntro: "Les meilleures cuisines près de chez vous, livrées bien chaudes.",
+    momentGreetings: {
+      fajr: "Sbah el khir !",
+      maghrib: "L’heure du café ?",
+      lil: "Bonsoir, on dîne ?",
+    },
+    nowBadge: "En ce moment",
     cuisinesTitle: "Vous avez envie de quoi ?",
     chipNames: {
       algerian: "Algérien",
@@ -277,6 +289,12 @@ const messages = {
     otherCuisine: "مأكولات أخرى",
     greeting: "جوعان؟",
     greetingIntro: "أحسن المطابخ قربك، توصلك سخونة.",
+    momentGreetings: {
+      fajr: "صباح الخير!",
+      maghrib: "وقت القهوة؟",
+      lil: "مساء الخير، نتعشاو؟",
+    },
+    nowBadge: "في هاد الوقت",
     cuisinesTitle: "واش تشتهي؟",
     chipNames: {
       algerian: "جزائري",
