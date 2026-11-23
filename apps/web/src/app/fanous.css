@@ -334,3 +334,47 @@
     transform: translateY(1.5rem) scale(0.96);
   }
 }
+
+/* The dark theme is the showpiece: every night band carries a faint star field that breathes. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) :is(.discover-top, .rating-hero, .landing-pitch)::after {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    border-radius: inherit;
+    background-image: var(--fanous-stars);
+    background-size: 11rem 7rem;
+    opacity: 0.55;
+    pointer-events: none;
+    content: "";
+  }
+}
+
+:root[data-theme="dark"] :is(.discover-top, .rating-hero, .landing-pitch)::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: inherit;
+  background-image: var(--fanous-stars);
+  background-size: 11rem 7rem;
+  opacity: 0.55;
+  pointer-events: none;
+  content: "";
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :is(.discover-top, .rating-hero, .landing-pitch)::after {
+    animation: fanous-twinkle 5s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes fanous-twinkle {
+  to {
+    opacity: 0.25;
+  }
+}
+
+.landing-pitch {
+  position: relative;
+  isolation: isolate;
+}
