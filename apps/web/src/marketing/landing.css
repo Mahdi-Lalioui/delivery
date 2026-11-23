@@ -472,14 +472,70 @@
   content: "·";
 }
 
+/* Fanous (D-037): from 960 px the hero is an editorial split, the photo beside a lantern-lit
+   night panel (from design-v2). Phones keep the immersive full-screen photo. */
 @media (min-width: 960px) {
   .landing-hero {
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+    align-items: stretch;
+    min-block-size: clamp(32rem, 64svb, 40rem);
     margin-inline: 0;
+    margin-block-start: 0;
     border-radius: var(--radius-xl);
+    background: var(--color-night);
+    color: var(--color-on-night);
+    box-shadow: var(--shadow-e2);
+  }
+
+  .landing-slides {
+    position: relative;
+    z-index: auto;
+    inset: auto;
+    overflow: hidden;
+    border-inline-end: 2px solid var(--color-food-saffron);
+  }
+
+  .landing-slide::after {
+    background: linear-gradient(var(--color-photo-scrim), transparent 22%);
   }
 
   .landing-hero-copy {
-    padding-inline: var(--space-64);
+    position: relative;
+    isolation: isolate;
+    align-content: center;
+    max-inline-size: none;
+    padding: var(--space-64);
+    background-image:
+      radial-gradient(60% 50% at 100% 0%, var(--color-glow), transparent 70%),
+      radial-gradient(50% 40% at 0% 100%, var(--color-glow), transparent 70%);
+  }
+
+  /* A large faint zellige star behind the headline, the panel's one ornament. */
+  .landing-hero-copy::before {
+    position: absolute;
+    z-index: -1;
+    inset-block-start: -4rem;
+    inset-inline-end: -4rem;
+    inline-size: 22rem;
+    block-size: 22rem;
+    background-color: color-mix(in srgb, var(--color-food-saffron) 22%, transparent);
+    mask-image: var(--decor-zellige);
+    mask-size: 100%;
+    pointer-events: none;
+    content: "";
+  }
+
+  .landing-hero-copy h1 {
+    font-size: clamp(2.75rem, 4.4vi, 4.75rem);
+    line-height: 1.04;
+  }
+
+  .landing-hero-copy:dir(rtl) h1 {
+    line-height: 1.25;
+  }
+
+  .landing-hero::after {
+    inset-inline-start: 52%;
   }
 
   /* However many cards there are, they share the row: no empty end on wide screens. */
