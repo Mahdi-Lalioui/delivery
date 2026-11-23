@@ -100,7 +100,7 @@ export function SearchDialog({
       aria-describedby={introId}
       onClose={onDismiss}
     >
-      <div className="discovery-search-header">
+      <div className="discovery-search-header fanous-night decor-zellige decor-lamplight">
         <div className="discovery-search-shell">
           <div className="discovery-search-heading">
             <div className="ui-visually-hidden">

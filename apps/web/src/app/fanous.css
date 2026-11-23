@@ -64,10 +64,17 @@
 
 /* Night: deep blue, a star field and one lantern pool. */
 .discover-top[data-moment="lil"] {
-  background-color: color-mix(in oklab, var(--color-night) 58%, var(--color-info));
+  background-color: var(--color-night);
   background-image:
-    radial-gradient(45% 70% at 100% 0%, var(--color-glow), transparent 65%), var(--fanous-stars);
+    radial-gradient(45% 70% at 100% 0%, var(--color-glow), transparent 65%),
+    radial-gradient(
+      80% 90% at 20% 0%,
+      color-mix(in oklab, var(--color-info) 30%, transparent),
+      transparent 70%
+    ),
+    var(--fanous-stars);
   background-size:
+    auto,
     auto,
     11rem 7rem;
 }
@@ -376,6 +383,7 @@
 
 /* A night panel: the screen's one showpiece band. Local tokens keep every child legible on night. */
 .fanous-night {
+  --color-bg: var(--color-night);
   --color-text: var(--color-on-night);
   --color-text-2: color-mix(in srgb, var(--color-on-night) 86%, var(--color-night));
   --color-text-3: color-mix(in srgb, var(--color-on-night) 76%, var(--color-night));
@@ -406,7 +414,7 @@
   box-shadow: var(--shadow-e2);
 }
 
-/* Gold is the light: finished checkout steps and chosen stars. */
+/* Gold is the light: finished checkout steps. */
 .checkout-progress::after {
   background: var(--color-food-saffron);
 }
@@ -417,15 +425,9 @@
   color: var(--color-on-accent);
 }
 
-.star-field-row:has(input:checked) .star-field-star,
-.star-field-row:hover .star-field-star {
-  color: var(--color-terracotta);
-}
-
-/* A choice still to make reads as a dashed outline, not a dead grey slab. */
+/* A choice still to make: a calm filled button whose label names the missing choice. */
 .restaurant-item-submit .ui-button:is(:disabled, [aria-disabled="true"]) {
-  border: 2px dashed var(--color-border-strong);
-  background: transparent;
+  background: var(--color-surface-3);
   color: var(--color-text-2);
   opacity: 1;
 }
@@ -446,5 +448,43 @@
 @media (max-width: 959px) {
   .landing-hero-copy {
     background-image: radial-gradient(90% 55% at 0% 100%, var(--color-glow), transparent 72%);
+  }
+}
+
+/* Live figures are lantern gold on night: the confirmed order code. */
+.checkout-ticket .checkout-confirmed-code {
+  inline-size: auto;
+  margin-block-start: var(--space-8);
+  padding: var(--space-8) var(--space-20);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-night);
+  color: var(--color-food-saffron);
+}
+
+/* Search opens on its night band; the field is a lit slot in it. */
+.discovery-search-header.fanous-night .discovery-search-field {
+  background: var(--color-surface-2);
+}
+
+/* No orders yet: the empty history is the screen's night band, and fills the column on wide screens. */
+.orders-empty {
+  display: grid;
+  border-radius: var(--radius-xl);
+}
+
+.orders-empty > * {
+  background: transparent;
+  box-shadow: none;
+}
+
+@media (min-width: 1024px) {
+  .orders-empty {
+    min-block-size: calc(100dvb - 15rem);
+  }
+
+  .orders-empty > * {
+    display: grid;
+    align-content: center;
   }
 }

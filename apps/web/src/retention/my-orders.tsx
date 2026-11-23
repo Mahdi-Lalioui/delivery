@@ -329,13 +329,15 @@ function History({ state, locale }: { state: MyOrdersState; locale: Locale }) {
   }
   if (history.orders.length === 0) {
     return (
-      <Card>
-        <EmptyState
-          art={<StateArt kind="bag" />}
-          title={translate("noOrders")}
-          body={translate("noOrdersBody")}
-        />
-      </Card>
+      <div className="orders-empty fanous-night decor-zellige decor-lamplight">
+        <Card>
+          <EmptyState
+            art={<StateArt kind="bag" />}
+            title={translate("noOrders")}
+            body={translate("noOrdersBody")}
+          />
+        </Card>
+      </div>
     );
   }
   return (

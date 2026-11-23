@@ -1,12 +1,15 @@
 import type { Locale } from "@zaafran/i18n/locales";
 
-// Dar Zellige before/after (D-036): the same screen and variant, captured before the creative
-// pass and after it. Design build only (served from /[locale]/dev/gallery).
+// Fanous before/after (D-037): the same screen and variant, captured on main before design v3
+// and on design-v3 after it. Design build only (served from /[locale]/dev/gallery).
 const screens = [
   "landing",
   "discover",
+  "search",
   "pickup",
   "restaurant",
+  "dish",
+  "cart",
   "sign-in",
   "account",
   "checkout",
