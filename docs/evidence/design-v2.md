@@ -294,3 +294,12 @@ selected flows. The operator galleries do not exhaust every
 authenticated route or intervention. The 180 KB initial-JavaScript
 assertion covers five routes. Route-wide connected JavaScript and
 60 fps scrolling across all screens remain unverified.
+
+The final customer browser matrix passed 127 tests with ten existing
+conditional skips. Chromium decoded all 200 gallery images. A request
+to the gallery route on the normal production build returned 404.
+Connected Android LCP was 1.708–1.784 s on Discovery and
+1.540–1.580 s on Restaurant, with zero CLS in all six samples.
+The connected network samples transferred 253,232 and 259,172
+compressed JavaScript bytes, respectively. The separate five-route
+initial-HTML budget passed at 180 KB.
