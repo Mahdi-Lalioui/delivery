@@ -271,3 +271,26 @@ The empty Orders card fills the desktop layout but leaves generous
 space inside. Operator fixtures still expose empty desktop stages and
 show disabled handoff without giving the reason directly on the
 button. The courier fixture has no street address.
+
+### Review gallery and narrow-screen fixes
+
+The gallery contains 100 before-and-after pairs for 25 screens and
+fixtures across four review variants. Disclosure sections make the
+comparisons keyboard-accessible. Search opens in a centered, dimmed
+desktop dialog and restores keyboard focus when dismissed. Seven
+additional billing, promotions, reviews, platform and analytics
+fixtures have four-variant comparisons against the pilot.
+
+The critic identified broken mobile promotion labels and cramped
+invoice columns. Promotion discounts now stack on narrow screens.
+The invoice table maintains readable columns and scrolls inside its
+card. The final preview suite passed all five tests, including both
+narrow-screen regressions. The final sign-in capture waits for the
+phone field so the gallery shows the loaded form.
+
+The review is scoped to the captured screens and fixture states.
+Three review rounds were completed for the opening experience and
+selected flows. The operator galleries do not exhaust every
+authenticated route or intervention. The 180 KB initial-JavaScript
+assertion covers five routes. Route-wide connected JavaScript and
+60 fps scrolling across all screens remain unverified.

@@ -57,7 +57,9 @@
 
   .auth-panel {
     align-self: center;
+    justify-self: center;
     margin: 0;
+    border-block-start: 2px solid var(--color-food-saffron);
   }
 }
 

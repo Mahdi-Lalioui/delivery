@@ -75,7 +75,7 @@
     "retryMethods": "حاول مجددًا",
     "phoneDescription": "بدون كلمة سر: نرسل لك رمزًا عبر رسالة.",
     "phoneLabel": "رقم الهاتف المحمول",
-    "phoneHint": "مثلًا، ⁦05XX XX XX XX⁩.",
+    "phoneHint": "استعمل رقم هاتف محمول جزائري.",
     "invalidPhone": "أدخل رقم هاتف محمول جزائريًا صالحًا.",
     "sendCode": "إرسال الرمز",
     "sendingCode": "جارٍ إرسال الرمز…",

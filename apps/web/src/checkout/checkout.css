@@ -609,6 +609,12 @@
   color: var(--color-on-accent);
 }
 
+@media (min-width: 960px) {
+  .checkout-confirmed .ui-button {
+    min-inline-size: min(100%, 18rem);
+  }
+}
+
 .checkout-confirmed-scene {
   display: grid;
   place-items: center;

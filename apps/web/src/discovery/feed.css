@@ -791,6 +791,8 @@
   /* Three cards fill the row; a fourth means the rail scrolls, so a third of it peeks. */
   .discovery-rail-list:has(> li:nth-child(4)) {
     grid-auto-columns: calc((100% - 3 * var(--space-12)) / 3.4);
+    scrollbar-color: var(--color-border-strong) transparent;
+    scrollbar-width: thin;
   }
 
   /* Three collections fill the row exactly; they never scroll on desktop. */

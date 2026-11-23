@@ -123,6 +123,47 @@
   border-block-end: 0;
 }
 
+@media (max-width: 40rem) {
+  .billing-page[aria-labelledby="promotions-title"] .ui-card {
+    min-inline-size: 0;
+  }
+
+  [aria-labelledby="promotion-discount"] .ui-segmented-track[data-count="3"] {
+    display: grid;
+    grid-auto-flow: row;
+  }
+
+  [aria-labelledby="promotion-discount"] .ui-segmented-track[data-count="3"]::before {
+    display: none;
+  }
+
+  [aria-labelledby="promotion-discount"] .ui-segmented-track[data-count="3"] .ui-segment-face {
+    min-block-size: var(--touch-target-min);
+    justify-content: flex-start;
+    overflow-wrap: normal;
+  }
+
+  [aria-labelledby="promotion-discount"]
+    .ui-segmented-track[data-count="3"]
+    input:checked
+    + .ui-segment-face {
+    background: var(--color-surface);
+    box-shadow: var(--shadow-e1);
+  }
+
+  .promotion-card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-8) var(--space-12);
+  }
+
+  .promotion-card > .ui-button {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
+
 .promotion-card[data-active] .billing-row-icon {
   background: var(--color-primary);
   color: var(--color-on-primary);

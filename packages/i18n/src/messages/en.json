@@ -75,7 +75,7 @@
     "retryMethods": "Try again",
     "phoneDescription": "No password: we text you a 6-digit code.",
     "phoneLabel": "Mobile number",
-    "phoneHint": "For example, 05XX XX XX XX.",
+    "phoneHint": "Use an Algerian mobile number.",
     "invalidPhone": "Enter a valid Algerian mobile number.",
     "sendCode": "Send code",
     "sendingCode": "Sending code…",

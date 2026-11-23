@@ -75,7 +75,7 @@
     "retryMethods": "Réessayer",
     "phoneDescription": "Pas de mot de passe : on vous envoie un code par SMS.",
     "phoneLabel": "Numéro de mobile",
-    "phoneHint": "Par exemple, 05XX XX XX XX.",
+    "phoneHint": "Utilisez un numéro mobile algérien.",
     "invalidPhone": "Saisissez un numéro de mobile algérien valide.",
     "sendCode": "Envoyer le code",
     "sendingCode": "Envoi du code…",
