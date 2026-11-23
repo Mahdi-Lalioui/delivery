@@ -1784,6 +1784,7 @@
     "confirmedEtaDelivery": "الوصول المتوقع",
     "confirmedEtaPickup": "الاستلام المتوقع",
     "confirmedCode": "الطلب {code}",
+    "confirmedFirstOrder": "أول طلبية: مرحبا بيك على الطابلة!",
     "tracking": "تتبّع طلبي",
     "unit": "دج",
     "tooMuch": "أدخل {max} على الأكثر.",

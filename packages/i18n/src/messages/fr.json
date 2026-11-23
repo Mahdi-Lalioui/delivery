@@ -1784,6 +1784,7 @@
     "confirmedEtaDelivery": "Arrivée estimée",
     "confirmedEtaPickup": "Retrait estimé",
     "confirmedCode": "Commande {code}",
+    "confirmedFirstOrder": "Première commande : bienvenue à table !",
     "tracking": "Suivre ma commande",
     "unit": "DA",
     "tooMuch": "Saisissez au plus {max}.",
