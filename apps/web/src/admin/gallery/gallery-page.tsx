@@ -82,6 +82,8 @@ export function GalleryPage({
                 intro: messages.designGallery.beforeAfterIntro,
                 before: messages.designGallery.before,
                 after: messages.designGallery.after,
+                momentsTitle: messages.designGallery.momentsTitle,
+                momentsIntro: messages.designGallery.momentsIntro,
               }}
             />
             <SystemShowcase copy={messages.designGallery} />

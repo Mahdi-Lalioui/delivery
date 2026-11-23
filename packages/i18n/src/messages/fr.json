@@ -1706,6 +1706,8 @@
     "adminBillingScreen": "Facturation (admin)",
     "beforeAfterTitle": "Avant / après Fanous",
     "beforeAfterIntro": "Chaque écran, capturé avant et après la passe créative.",
+    "momentsTitle": "Discovery au fil de la journée",
+    "momentsIntro": "Le ciel suit l’heure du client : aube, midi, crépuscule et nuit (390 px, clair et sombre).",
     "before": "Avant",
     "after": "Après"
   },

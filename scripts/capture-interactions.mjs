@@ -1,4 +1,5 @@
-// Captures the screens that open on a tap: search, the dish sheet and the cart.
+// Captures the screens that open on a tap (search, the dish sheet and the cart), and Discovery at
+// four times of day (DESIGN §0: the sky follows the diner's clock) in 390 px French, light and dark.
 // Usage: node scripts/capture-interactions.mjs <baseUrl> <outDir>
 import { mkdirSync } from "node:fs";
 import process from "node:process";
@@ -53,6 +54,32 @@ async function captureCart(page, locale, file) {
   await page.screenshot({ path: `${file("cart")}.png` });
 }
 
+const moments = [
+  ["fajr", 7],
+  ["nhar", 12],
+  ["maghrib", 18],
+  ["lil", 22],
+];
+
+async function captureMoments(browser, variant) {
+  if (variant.locale !== "fr" || variant.width !== 390) return;
+  for (const [moment, hour] of moments) {
+    const context = await browser.newContext({
+      viewport: { width: variant.width, height: 844 },
+      deviceScaleFactor: 1,
+      colorScheme: variant.scheme,
+      reducedMotion: "reduce",
+      serviceWorkers: "block",
+    });
+    const page = await context.newPage();
+    await page.clock.setFixedTime(new Date(2026, 10, 23, hour, 0));
+    await page.goto(`${baseUrl}/fr/discover`);
+    await settle(page);
+    await page.screenshot({ path: `${outDir}/discover-${moment}-${variant.name}.png` });
+    await context.close();
+  }
+}
+
 const browser = await chromium.launch();
 for (const variant of variants) {
   const context = await browser.newContext({
@@ -72,6 +99,7 @@ for (const variant of variants) {
     });
   }
   await context.close();
+  await captureMoments(browser, variant);
 }
 await browser.close();
 process.stdout.write("done\n");
