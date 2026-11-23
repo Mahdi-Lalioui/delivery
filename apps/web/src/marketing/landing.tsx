@@ -68,7 +68,7 @@ async function Hero({ locale }: { locale: Locale }) {
         {slides.map(([key, photo], index) => (
           <figure key={key} className="landing-slide">
             <img
-              src={`/preview-catalog/${photo}${index === 0 ? "" : "-640"}.webp`}
+              src={`/preview-catalog/${photo}.webp`}
               // Cover-cropped under a scrim: 960 px for the first photo (the LCP), 640 px for the
               // later slides so they don't compete with it for bandwidth on a phone.
               srcSet={(index === 0 ? slideWidths : slideWidths.slice(0, 1))
